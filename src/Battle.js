@@ -16,6 +16,7 @@ const Battle = () => {
     <div className="battle-container">
       <div className="top-section">
         <div className="pokemon-info npc">
+          <div className="pokemon-name npc">{npc.origin.name}</div>
           <div className="hp-bar npc"></div>
         </div>
         <img
@@ -24,6 +25,7 @@ const Battle = () => {
           alt="Pokemon 0890"
         />
         <div className="pokemon-info plr">
+          <div className="pokemon-name plr">{player.origin.name}</div>
           <div className="hp-bar plr"></div>
         </div>
         <img
