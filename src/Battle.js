@@ -15,7 +15,6 @@ const Battle = () => {
         <div className="pokemon-info npc">
           <div className="pokemon-name npc">{npc.origin.name}</div>
           <div className="hp-bar npc">
-            {" "}
             <HpBar hp={npc.hp} maxHp={npc.origin.hp} />
           </div>
           <div className="hp">
