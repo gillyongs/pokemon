@@ -1,46 +1,56 @@
 import { damage } from "./damage";
 import { speedCheck } from "./speedCheck";
+import skillEffect from "../component/SkilleEffect";
+
+class Attack {
+  constructor(battle, atk, def, skillNumber) {
+    this.battle = battle;
+    this.atk = atk;
+    this.def = def;
+    this.skillNumber = skillNumber;
+  }
+}
 
 export const battleStart = (battle, setBattle, skillNumber) => {
-  let speedVs = speedCheck(battle);
-  console.log(speedVs);
-
-  let first;
-  let late;
-  let firstStr;
-  let lateStr;
+  let bt = structuredClone(battle);
+  let speedVs = speedCheck(bt);
+  const pton = new Attack(bt, "player", "npc", skillNumber);
+  const ntop = new Attack(bt, "npc", "player", skillNumber);
+  let firstAttack;
+  let lastAttack;
 
   if (speedVs === "player") {
-    first = battle.player;
-    late = battle.npc;
-    firstStr = "player";
-    lateStr = "npc";
+    firstAttack = pton;
+    lastAttack = ntop;
   } else if (speedVs === "npc") {
-    first = battle.npc;
-    late = battle.player;
-    firstStr = "npc";
-    lateStr = "player";
+    firstAttack = ntop;
+    lastAttack = pton;
+  }
+  bt = attack(firstAttack);
+  if (bt[firstAttack.def].hp === 0) {
+    setBattle(bt); // 상태 업데이트
+    return;
   }
 
-  let firstDamage = damage(battle, skillNumber, firstStr);
-  console.log(firstDamage);
-  let lateHp = late.hp - firstDamage; // 받은 데미지를 반영한 후의 HP
-  console.log(lateHp);
-  // HP가 0보다 작으면 0으로 설정
-  if (lateHp < 0) {
-    lateHp = 0;
+  bt = attack(lastAttack);
+
+  setBattle(bt); // 상태 업데이트
+};
+
+const attack = (Attack) => {
+  const { battle, skillNumber, atk, def } = Attack;
+  let skillDamage = damage(battle, skillNumber, atk);
+  battle[def].hp -= skillDamage; // 받은 데미지를 반영한 후의 HP
+  if (battle[def].hp < 0) {
+    battle[def].hp = 0;
   }
-
-  // late.hp가 0이 되면 setBattle 호출하여 상태 업데이트
-
-  const updatedBattle = {
-    ...battle, // 기존 battle 객체를 복사
-    [lateStr]: {
-      // late에 해당하는 객체 (player 또는 npc)만 업데이트
-      ...late, // 기존 late 객체를 복사
-      hp: lateHp, // hp를 0으로 설정
-    },
-  };
-
-  setBattle(updatedBattle); // 상태 업데이트
+  const ppKey = `pp${skillNumber}`;
+  const skKey = `sk${skillNumber}`;
+  battle[atk][ppKey] -= 1;
+  const skillFunction = skillEffect(battle[atk].origin[skKey].skillEffect);
+  if (typeof skillFunction === "function") {
+    skillFunction(Attack);
+  } else {
+  }
+  return battle;
 };

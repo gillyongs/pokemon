@@ -17,6 +17,18 @@ class PokemonRepository {
   constructor() {
     this.items = [
       new Pokemon("0815", "에이스번", 80, 116, 75, 65, 75, 119, "불꽃", null),
+      new Pokemon(
+        "0890",
+        "무한다이노",
+        140,
+        85,
+        95,
+        145,
+        95,
+        130,
+        "독",
+        "드래곤"
+      ),
     ];
   }
   // ID로 객체 찾기

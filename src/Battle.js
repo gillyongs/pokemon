@@ -6,7 +6,7 @@ import { createBattle } from "./component/Battle";
 import { battleStart } from "./util/battleStart";
 
 const Battle = () => {
-  const [battle, setBattle] = useState(createBattle("0001", "0001"));
+  const [battle, setBattle] = useState(createBattle("0001", "0002"));
   const player = battle.player;
   const npc = battle.npc;
   return (

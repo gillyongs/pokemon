@@ -137,7 +137,7 @@ export const checkTypes = (stype, type1, type2) => {
 export const checkTypesConsole = (stype, type1, type2) => {
   const typeDamage = checkTypes(stype, type1, type2);
   if (typeDamage == 1) {
-    return "○ 효과있음";
+    return "○ 효과가 있음";
   }
   if (typeDamage > 1) {
     return "◎ 효과가 굉장함";

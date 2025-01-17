@@ -73,8 +73,8 @@ body {
 
 .hp {
   position: absolute;
-  right: 10px;
-  top: 52px;
+  right: 3vh;
+  top: 8.2vh;
   z-index: 5;
 }
 
