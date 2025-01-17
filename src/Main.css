@@ -1,0 +1,134 @@
+.battle-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.top-section {
+  width: 100vw;
+  height: 48vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; /* 자식 요소의 위치를 절대적으로 지정하기 위해 부모에 position을 설정 */
+  background-image: url("../public/img/background/1.gif"); /* 배경 이미지 경로 */
+  background-size: 100% 100%; /* 원래 이미지 크기의 120%로 확대 */
+  background-position: center; /* 왼쪽에서 10% 잘라내고 중앙 정렬 */
+  background-repeat: no-repeat; /* 이미지 반복 금지 */
+}
+
+.pokemon-info {
+  position: absolute; /* 부모의 상대적인 위치에 따라 위치 설정 */
+  width: 20vh; /* 네모의 가로 크기 */
+  height: 15vh; /* 네모의 세로 크기 */
+  background-color: rgba(0, 0, 0, 0.5); /* 반 불투명한 검정색 */
+  border-radius: 15px; /* 모서리 둥글게 */
+}
+
+.pokemon-info.npc {
+  top: 3vh; /* 우측 상단에 위치 */
+  left: 3vw; /* 우측 10px, 상단 10px */
+}
+.pokemon-info.plr {
+  bottom: 3vh; /* 우측 상단에 위치 */
+  right: 3vw; /* 우측 10px, 상단 10px */
+}
+
+.hp-bar {
+  width: 18vh; /* 직사각형의 가로 길이 */
+  height: 3.5vh; /* 직사각형의 세로 길이 */
+  background-color: #81ff47; /* 직사각형 색상 (연두색) */
+  border-radius: 0; /* 모서리 각지게 설정 */
+  transform: translate(4%, 7.5vh);
+  border: 2px solid #665f5f; /* 검은색 테두리 추가 */
+}
+
+.pokemon-img {
+  position: absolute; /* 부모의 상대적인 위치에 따라 위치 설정 */
+  width: 100px;
+  height: 100px;
+  z-index: 2;
+}
+
+.pokemon-img.plr {
+  transform: scaleX(-1);
+  top: 24vh;
+  left: 11vw;
+}
+
+.pokemon-img.npc {
+  top: 12vh;
+  right: 11vw;
+}
+
+.bottom-section {
+  width: 100vw;
+  height: 52vh;
+  background-color: #6e7e7c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 20px;
+  position: relative; /* 자식 요소의 위치를 절대적으로 지정하기 위해 부모에 position을 설정 */
+  background-image: url("../public/img/background/111.gif"); /* 배경 이미지 경로 */
+  background-size: 100% 100%; /* 원래 이미지 크기의 120%로 확대 */
+  background-position: center; /* 왼쪽에서 10% 잘라내고 중앙 정렬 */
+  background-repeat: no-repeat; /* 이미지 반복 금지 */
+}
+
+.skill {
+  position: absolute;
+  width: 47vw;
+  height: 13vh;
+  border-radius: 5px; /* 모서리 둥글게 */
+  background-color: rgba(0, 0, 0, 0.7);
+}
+.skill.one {
+  top: 13vh;
+  left: 1vw;
+}
+
+.skill.two {
+  top: 13vh;
+  right: 1vw;
+}
+.skill.three {
+  top: 30vh;
+  left: 1vw;
+}
+.skill.four {
+  top: 30vh;
+  right: 1vw;
+}
+
+.type {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  top: 5px;
+  left: 5px;
+  border-radius: 5px; /* 모서리 둥글게 */
+}
+
+.skill_name {
+  position: absolute;
+  top: 8px;
+  left: 45px;
+}
+
+.skill_effect {
+  position: absolute;
+  top: 45px;
+  left: 7px;
+  font-size: 15px;
+}
+
+.skill_pp {
+  position: absolute;
+  bottom: 4px;
+  right: 3px;
+  font-size: 15px;
+  background-color: #665f5f;
+  border-radius: 5px;
+}
