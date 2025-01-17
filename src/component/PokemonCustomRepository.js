@@ -1,4 +1,4 @@
-import BattlePokemon from "./BattlePokemon";
+import BattlePokemon from "./PokemonCustom";
 
 class BattlePokemonRepository {
   constructor() {

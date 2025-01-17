@@ -1,41 +1,53 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./Main.css";
-import pob from "./component/POBRepository";
+import HpBar from "./component/HpBar"; // 위에서 작성한 HpBar 컴포넌트
 import { checkTypes, checkTypesConsole } from "./util/checkTypes";
+import { createBattle } from "./component/Battle";
+import { battleStart } from "./util/battleStart";
 
 const Battle = () => {
-  const pokemon1 = pob.generate("0001");
-  const pokemon2 = pob.generate("0001");
-  const player = pokemon1;
-  const npc = pokemon2;
-  console.log(player);
-  console.log(npc);
-  console.log(checkTypesConsole);
-
+  const [battle, setBattle] = useState(createBattle("0001", "0001"));
+  const player = battle.player;
+  const npc = battle.npc;
   return (
     <div className="battle-container">
       <div className="top-section">
         <div className="pokemon-info npc">
           <div className="pokemon-name npc">{npc.origin.name}</div>
-          <div className="hp-bar npc"></div>
+          <div className="hp-bar npc">
+            {" "}
+            <HpBar hp={npc.hp} maxHp={npc.origin.hp} />
+          </div>
+          <div className="hp">
+            {npc.hp}/{npc.origin.hp}
+          </div>
         </div>
         <img
           className="pokemon-img npc"
           src={`/img/pokemon/${npc.origin.pokemon_id}.webp`}
-          alt="Pokemon 0890"
+          alt="npc Pokemon"
         />
         <div className="pokemon-info plr">
           <div className="pokemon-name plr">{player.origin.name}</div>
-          <div className="hp-bar plr"></div>
+
+          <div className="hp-bar plr">
+            <HpBar hp={player.hp} maxHp={player.origin.hp} />
+          </div>
+          <div className="hp">
+            {player.hp}/{player.origin.hp}
+          </div>
         </div>
         <img
           className="pokemon-img plr"
           src={`/img/pokemon/${player.origin.pokemon_id}.webp`}
-          alt="Pokemon 0890"
+          alt="player pokemon"
         />
       </div>
       <div className="bottom-section">
-        <div className="skill one">
+        <div
+          className="skill one"
+          onClick={() => battleStart(battle, setBattle, 1)}
+        >
           <img
             className="type one"
             src={`/img/type/${player.origin.sk1.type}.svg`}
@@ -49,7 +61,10 @@ const Battle = () => {
             {player.pp1}/{player.origin.sk1.pp}
           </div>
         </div>
-        <div className="skill two">
+        <div
+          className="skill two"
+          onClick={() => battleStart(battle, setBattle, 2)}
+        >
           <img
             className="type two"
             src={`/img/type/${player.origin.sk2.type}.svg`}
@@ -64,7 +79,10 @@ const Battle = () => {
             {player.pp2}/{player.origin.sk2.pp}
           </div>
         </div>
-        <div className="skill three">
+        <div
+          className="skill three"
+          onClick={() => battleStart(battle, setBattle, 3)}
+        >
           <img
             className="type three"
             src={`/img/type/${player.origin.sk3.type}.svg`}
@@ -79,7 +97,10 @@ const Battle = () => {
             {player.pp3}/{player.origin.sk3.pp}
           </div>
         </div>
-        <div className="skill four">
+        <div
+          className="skill four"
+          onClick={() => battleStart(battle, setBattle, 4)}
+        >
           <img
             className="type four"
             src={`/img/type/${player.origin.sk4.type}.svg`}

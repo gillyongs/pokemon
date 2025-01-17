@@ -1,16 +1,26 @@
-class Pokemon {
-  constructor(id, name, hp, atk, def, catk, cdef, speed, type1, type2) {
+import BattlePokemonRepository from "./PokemonCustomRepository";
+class PokemonOnBattle {
+  constructor(id) {
     this.id = id;
-    this.name = name;
-    this.hp = hp;
-    this.atk = atk;
-    this.def = def;
-    this.catk = catk;
-    this.cdef = cdef;
-    this.speed = speed;
-    this.type1 = type1;
-    this.type2 = type2;
+    const pokemon = BattlePokemonRepository.getItemById(id);
+    this.origin = pokemon;
+    this.hp = pokemon.hp;
+    this.atk = pokemon.atk;
+    this.def = pokemon.def;
+    this.catk = pokemon.catk;
+    this.cdef = pokemon.cdef;
+    this.speed = pokemon.speed;
+    this.type1 = pokemon.type1;
+    this.type2 = pokemon.type2;
+    this.item = pokemon.item;
+    this.abil = pokemon.abil;
+    this.pp1 = pokemon.sk1.pp;
+    this.pp2 = pokemon.sk2.pp;
+    this.pp3 = pokemon.sk3.pp;
+    this.pp4 = pokemon.sk4.pp;
   }
 }
 
-export default Pokemon;
+export function generate(id) {
+  return new PokemonOnBattle(id);
+}

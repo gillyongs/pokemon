@@ -1,5 +1,5 @@
-import pokemonRepository from "./PokemonRepository";
-import skillRepository from "./SkillRepository";
+import PokemonOriginal from "./PokemonOriginal";
+import skillList from "./Skill";
 class BattlePokemon {
   constructor(
     id,
@@ -21,14 +21,14 @@ class BattlePokemon {
     abil
   ) {
     this.id = id;
-    this.sk1 = skillRepository.getItemByName(sk1);
-    this.sk2 = skillRepository.getItemByName(sk2);
-    this.sk3 = skillRepository.getItemByName(sk3);
-    this.sk4 = skillRepository.getItemByName(sk4);
+    this.sk1 = skillList.search(sk1);
+    this.sk2 = skillList.search(sk2);
+    this.sk3 = skillList.search(sk3);
+    this.sk4 = skillList.search(sk4);
     this.item = item;
     this.abil = abil;
 
-    const pokemon = pokemonRepository.getItemById(pokemon_id);
+    const pokemon = PokemonOriginal.getItemById(pokemon_id);
     this.pokemon_id = pokemon.id; //0815
     this.name = pokemon.name;
     this.type1 = pokemon.type1;
@@ -64,7 +64,9 @@ class BattlePokemon {
     this.speed = Math.floor(this.speed / 2) + 5;
 
     let updowntrigger = 0;
-
+    if (up == "hp" || down == "hp") {
+      console.log("성격체력오류");
+    }
     if (this[up]) {
       this[up] = Math.floor(this[up] * 1.1);
       updowntrigger += 1;
