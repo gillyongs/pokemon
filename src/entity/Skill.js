@@ -33,7 +33,9 @@ class SkillList {
       ]),
       new Skill("무릎차기", "격투", 130, 90, 10, true, "atk", "def", true),
       new Skill("기습", "악", 70, 100, 5, true, "atk", "def", true),
-      new Skill("아이언헤드", "강철", 80, 100, 15, true, "atk", "def", true),
+      new Skill("아이언헤드", "강철", 80, 100, 15, true, "atk", "def", true, [
+        "풀죽음",
+      ]),
       new Skill("섀도볼", "고스트", 80, 100, 15, false, "catk", "cdef", true),
       new Skill(
         "다이맥스포",

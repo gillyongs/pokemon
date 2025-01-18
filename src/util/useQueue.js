@@ -19,5 +19,9 @@ export function useQueue() {
     return removedItem;
   };
 
-  return { queue, enqueue, dequeue };
+  const resetQueue = () => {
+    setQueue([]);
+  };
+
+  return { queue, enqueue, dequeue, resetQueue };
 }

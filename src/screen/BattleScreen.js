@@ -13,20 +13,16 @@ const Battle = () => {
   const [battle, setBattle] = useState(createBattle("0001", "0002"));
   const [text, setText] = useState("");
 
-  const { queue, enqueue, dequeue } = useQueue();
-  const isFirstRender = useRef(true); // 🔹 최초 실행 여부를 저장
-  useEffect(() => {
-    if (isFirstRender.current) {
-      enqueue({ battle, text }); // ✅ 최초 1회만 실행
-      isFirstRender.current = false; // 🔹 이후에는 실행되지 않도록 변경
-    }
-  }, []);
+  const { queue, enqueue, dequeue, resetQueue } = useQueue();
 
   useEffect(() => {
     if (queue[0]) {
       setBattle(queue[0].battle);
       setText(queue[0].text);
       console.log(queue);
+    }
+    if (queue.length === 0) {
+      setText(battle.player.origin.names + " 무엇을 할까?");
     }
   }, [queue]);
 
@@ -37,11 +33,14 @@ const Battle = () => {
   };
 
   const handleSkillClick = (skillIndex) => {
-    battleStart(battle, skillIndex, enqueue, dequeue);
+    if (queue.length > 0) {
+      return;
+    }
+    battleStart(battle, skillIndex, enqueue, dequeue, resetQueue);
   };
 
   return (
-    <div className="battle-container">
+    <div className="battle-container" onClick={handleDequeue}>
       <div className="top-section">
         <PokemonInfo battle={battle} type="npc" />
         <PokemonImage battle={battle} type="npc" />

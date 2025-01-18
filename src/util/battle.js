@@ -1,7 +1,15 @@
 import { speedCheck } from "./speedCheck";
 import { skillUse } from "./skillUse";
+import { turnEnd } from "./turnEnd";
 
-export const battleStart = (battle, skillNumber, enqueue, dequeue) => {
+export const battleStart = (
+  battle,
+  skillNumber,
+  enqueue,
+  dequeue,
+  resetQueue
+) => {
+  resetQueue();
   let bt = structuredClone(battle);
   let fastUser = speedCheck(bt);
 
@@ -27,6 +35,6 @@ export const battleStart = (battle, skillNumber, enqueue, dequeue) => {
   }
 
   skillUse(bt, skillNumber, enqueue);
-
-  dequeue();
+  console.log(bt);
+  turnEnd(bt, enqueue);
 };

@@ -31,6 +31,7 @@ class BattlePokemon {
     const pokemon = PokemonOriginal.getItemById(pokemon_id);
     this.pokemon_id = pokemon.id; //0815
     this.name = pokemon.name;
+    this.names = pokemon.names;
     this.type1 = pokemon.type1;
     this.type2 = pokemon.type2;
 

@@ -25,6 +25,9 @@ class PokemonOnBattle {
       mabi: null,
       sleep: null,
     };
+    this.temp = {
+      fullDeath: null,
+    };
   }
 }
 

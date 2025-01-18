@@ -1,7 +1,8 @@
 class Pokemon {
-  constructor(id, name, hp, atk, def, catk, cdef, speed, type1, type2) {
+  constructor(id, name, names, hp, atk, def, catk, cdef, speed, type1, type2) {
     this.id = id;
     this.name = name;
+    this.names = names;
     this.hp = hp;
     this.atk = atk;
     this.def = def;
@@ -16,10 +17,23 @@ class Pokemon {
 class PokemonRepository {
   constructor() {
     this.items = [
-      new Pokemon("0815", "에이스번", 80, 116, 75, 65, 75, 119, "불꽃", null),
+      new Pokemon(
+        "0815",
+        "에이스번",
+        "에이스번은",
+        80,
+        116,
+        75,
+        65,
+        75,
+        1190,
+        "불꽃",
+        null
+      ),
       new Pokemon(
         "0890",
         "무한다이노",
+        "무한다이노는",
         140,
         85,
         95,

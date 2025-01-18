@@ -14,10 +14,10 @@ function skillEffectSearch(name) {
       ) {
         return;
       }
-      if (Math.random() > 100) {
+      if (Math.random() > 0.1) {
         return;
       }
-      let fireText = Battle[Battle.def].origin.name + "는 화상에 걸렸다!";
+      let fireText = Battle[Battle.def].origin.names + " 화상을 입었다!";
       if (Battle.def == "npc") {
         fireText = "상대 " + fireText;
       }
@@ -42,7 +42,13 @@ function skillEffectSearch(name) {
         text: freezeCureText,
       });
     },
-    3: () => console.log("Function for ID 3"),
+    풀죽음: (Battle, enqueue) => {
+      let def = Battle[Battle.def];
+      if (Math.random() > 3) {
+        return;
+      }
+      def.temp.fullDeath = true;
+    },
   };
 
   return functions[name] || null;
