@@ -1,11 +1,12 @@
 import React, { useState, useEffect,useRef } from "react";
-import { useSpring, animated } from "react-spring";
 import "./Main.css";
 import HpBar from "./component/HpBar"; // 위에서 작성한 HpBar 컴포넌트
 import { checkTypes, checkTypesConsole } from "./util/checkTypes";
 import { createBattle } from "./component/Battle";
 import { battleStart } from "./util/battleStart";
 import { useQueue } from "./util/useQueue";
+import FadeInComponent from "./component/FadeInComponent";
+
 
 const Battle = () => {
   const [battle, setBattle] = useState(createBattle("0001", "0002"));
@@ -35,7 +36,7 @@ const Battle = () => {
       dequeue();
     }
   };
-  
+
   return (
     <div className="battle-container">
       <div className="top-section">
@@ -73,7 +74,7 @@ const Battle = () => {
       <div className="bottom-section">
 
   <div className="text-box" onClick={handleClick}>
-    <div className="text">{text}</div>
+  <FadeInComponent  className = "text" text={text} />
   </div>
 
 
