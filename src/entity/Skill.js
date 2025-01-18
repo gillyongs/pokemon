@@ -17,28 +17,20 @@ class Skill {
     this.accur = accur;
     this.pp = pp;
     this.touch = touch;
-    this.atype = atype;
-    this.dtype = dtype;
+    this.atkCatk = atype;
+    this.defCdef = dtype;
     this.stype = stype;
-    this.skillEffect = skillEffectList;
+    this.skillEffectList = skillEffectList;
   }
 }
 
 class SkillList {
   constructor() {
     this.items = [
-      new Skill(
-        "화염볼",
-        "불꽃",
-        120,
-        100,
-        5,
-        false,
-        "atk",
-        "def",
-        true,
-        "화상"
-      ),
+      new Skill("화염볼", "불꽃", 120, 100, 5, false, "atk", "def", true, [
+        "화상10",
+        "얼음치료",
+      ]),
       new Skill("무릎차기", "격투", 130, 90, 10, true, "atk", "def", true),
       new Skill("기습", "악", 70, 100, 5, true, "atk", "def", true),
       new Skill("아이언헤드", "강철", 80, 100, 15, true, "atk", "def", true),

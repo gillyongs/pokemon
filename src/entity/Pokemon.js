@@ -18,6 +18,13 @@ class PokemonOnBattle {
     this.pp2 = pokemon.sk2.pp;
     this.pp3 = pokemon.sk3.pp;
     this.pp4 = pokemon.sk4.pp;
+    this.status = {
+      burn: null,
+      freeze: null,
+      poison: null,
+      mabi: null,
+      sleep: null,
+    };
   }
 }
 

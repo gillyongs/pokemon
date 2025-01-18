@@ -26,6 +26,7 @@ const Battle = () => {
     if (queue[0]) {
       setBattle(queue[0].battle);
       setText(queue[0].text);
+      console.log(queue);
     }
   }, [queue]);
 

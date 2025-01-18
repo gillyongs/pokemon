@@ -50,6 +50,30 @@ body {
   left: 10px;
   font-size: 17px;
 }
+.pokemon-status {
+  position: absolute; /* 부모의 상대적인 위치에 따라 위치 설정 */
+  color: white;
+  top: 14px;
+  right: 10px;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 5px;
+}
+.pokemon-status.burn {
+  background-color: red;
+}
+.pokemon-status.sleep {
+  background-color: gray;
+}
+.pokemon-status.freeze {
+  background-color: skyblue;
+}
+.pokemon-status.mabi {
+  background-color: rgb(158, 156, 42);
+}
+.pokemon-status.poision {
+  background-color: purple;
+}
 
 .current-hp {
   position: absolute;
@@ -168,12 +192,12 @@ body {
   border-radius: 5px;
 }
 
-.text-box{
+.text-box {
   position: absolute;
   height: 10vh;
   width: 100vw;
-  top:0px;
-  left:0px;
+  top: 0px;
+  left: 0px;
   background-image: url("/public/img/background/text.png"); /* 배경 이미지 경로 */
   background-size: 100% 100%; /* 원래 이미지 크기의 120%로 확대 */
   background-position: center; /* 왼쪽에서 10% 잘라내고 중앙 정렬 */
@@ -181,8 +205,7 @@ body {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-.text{
-  
+.text {
   position: absolute;
   top: 3.2vh;
   left: 6vw;

@@ -4,25 +4,29 @@ import { skillUse } from "./skillUse";
 export const battleStart = (battle, skillNumber, enqueue, dequeue) => {
   let bt = structuredClone(battle);
   let fastUser = speedCheck(bt);
-  const pton = { atks: "player", defs: "npc" };
-  const ntop = { atks: "npc", defs: "player" };
-  let firstAttack;
-  let lastAttack;
 
   if (fastUser === "player") {
-    firstAttack = pton;
-    lastAttack = ntop;
+    bt.atk = "player";
+    bt.def = "npc";
   } else if (fastUser === "npc") {
-    firstAttack = ntop;
-    lastAttack = pton;
+    bt.atk = "npc";
+    bt.def = "player";
   }
-  skillUse(bt, firstAttack, skillNumber, enqueue);
+  skillUse(bt, skillNumber, enqueue);
 
-  if (bt[firstAttack.defs].hp === 0) {
+  if (bt[bt.def].hp === 0) {
     return;
   }
 
-  skillUse(bt, lastAttack, skillNumber, enqueue);
+  if (fastUser === "player") {
+    bt.atk = "npc";
+    bt.def = "player";
+  } else if (fastUser === "npc") {
+    bt.atk = "player";
+    bt.def = "npc";
+  }
+
+  skillUse(bt, skillNumber, enqueue);
 
   dequeue();
 };
