@@ -1,5 +1,5 @@
-import { checkTypes } from "./checkTypes";
-export const damage = (battle, skillNumber, attacker) => {
+import { typeCheck } from "./typeCheck";
+export const damageCalculate = (battle, skillNumber, attacker) => {
   let atk, def;
   if ((attacker = "player")) {
     atk = battle.player;
@@ -16,6 +16,6 @@ export const damage = (battle, skillNumber, attacker) => {
   if (sk.type == atk.type1 || sk.type == atk.type2) {
     damage *= 1.5;
   }
-  damage *= checkTypes(sk.type, def.type1, def.type2);
+  damage *= typeCheck(sk.type, def.type1, def.type2);
   return Math.floor(damage);
 };

@@ -1,4 +1,4 @@
-export const checkTypes = (stype, type1, type2) => {
+export const typeCheck = (stype, type1, type2) => {
   const typeChart = {
     노말: { 바위: 0.5, 고스트: 0, 강철: 0.5, 기타: 1 },
     불꽃: {
@@ -134,8 +134,8 @@ export const checkTypes = (stype, type1, type2) => {
   return typeDamage;
 };
 
-export const checkTypesConsole = (stype, type1, type2) => {
-  const typeDamage = checkTypes(stype, type1, type2);
+export const typeCheckConsole = (stype, type1, type2) => {
+  const typeDamage = typeCheck(stype, type1, type2);
   if (typeDamage == 1) {
     return "○ 효과가 있음";
   }

@@ -8,7 +8,7 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import Battle from "./Battle"; //대회
+import Battle from "./screen/BattleScreen"; //대회
 
 function App() {
   return (
