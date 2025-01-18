@@ -1,14 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
+import { useSpring, animated } from "react-spring";
 import "./Main.css";
 import HpBar from "./component/HpBar"; // 위에서 작성한 HpBar 컴포넌트
 import { checkTypes, checkTypesConsole } from "./util/checkTypes";
 import { createBattle } from "./component/Battle";
 import { battleStart } from "./util/battleStart";
+import { useQueue } from "./util/useQueue";
 
 const Battle = () => {
   const [battle, setBattle] = useState(createBattle("0001", "0002"));
+  const [text, setText] = useState("");
   const player = battle.player;
   const npc = battle.npc;
+  const { queue, enqueue, dequeue } = useQueue();
+  const isFirstRender = useRef(true); // 🔹 최초 실행 여부를 저장
+  useEffect(() => {
+    if (isFirstRender.current) {
+      enqueue({battle,text}); // ✅ 최초 1회만 실행
+      isFirstRender.current = false; // 🔹 이후에는 실행되지 않도록 변경
+    }
+  }, []);
+
+  useEffect(() => {
+    if(queue[0]){
+    console.log(queue[0].battle);
+    setBattle(queue[0].battle);
+    setText(queue[0].text);
+    }
+  }, [queue]);
+
+
+  const handleClick = () => {
+    if (queue.length > 0) {
+      dequeue();
+    }
+  };
+  
   return (
     <div className="battle-container">
       <div className="top-section">
@@ -42,10 +69,17 @@ const Battle = () => {
           alt="player pokemon"
         />
       </div>
+      
       <div className="bottom-section">
+
+  <div className="text-box" onClick={handleClick}>
+    <div className="text">{text}</div>
+  </div>
+
+
         <div
           className="skill one"
-          onClick={() => battleStart(battle, setBattle, 1)}
+          onClick={()=> battleStart(battle, 1, enqueue, dequeue)}
         >
           <img
             className="type one"
@@ -62,7 +96,7 @@ const Battle = () => {
         </div>
         <div
           className="skill two"
-          onClick={() => battleStart(battle, setBattle, 2)}
+          onClick={() => battleStart(battle, setBattle, 2,text, setText)}
         >
           <img
             className="type two"
@@ -80,7 +114,7 @@ const Battle = () => {
         </div>
         <div
           className="skill three"
-          onClick={() => battleStart(battle, setBattle, 3)}
+          onClick={() => battleStart(battle, setBattle, 3,text, setText)}
         >
           <img
             className="type three"
@@ -98,7 +132,7 @@ const Battle = () => {
         </div>
         <div
           className="skill four"
-          onClick={() => battleStart(battle, setBattle, 4)}
+          onClick={() => battleStart(battle, setBattle, 4,text, setText)}
         >
           <img
             className="type four"

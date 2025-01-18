@@ -1,21 +1,13 @@
 import { damage } from "./damage";
 import { speedCheck } from "./speedCheck";
 import skillEffect from "../component/SkilleEffect";
+import { Attacks } from "./Attacks";
 
-class Attack {
-  constructor(battle, atk, def, skillNumber) {
-    this.battle = battle;
-    this.atk = atk;
-    this.def = def;
-    this.skillNumber = skillNumber;
-  }
-}
-
-export const battleStart = (battle, setBattle, skillNumber) => {
+export const battleStart = (battle, skillNumber, enqueue, dequeue) => {
   let bt = structuredClone(battle);
   let speedVs = speedCheck(bt);
-  const pton = new Attack(bt, "player", "npc", skillNumber);
-  const ntop = new Attack(bt, "npc", "player", skillNumber);
+  const pton = {atks:"player", defs:"npc"}
+  const ntop = {atks:"npc", defs:"player"}
   let firstAttack;
   let lastAttack;
 
@@ -26,31 +18,14 @@ export const battleStart = (battle, setBattle, skillNumber) => {
     firstAttack = ntop;
     lastAttack = pton;
   }
-  bt = attack(firstAttack);
-  if (bt[firstAttack.def].hp === 0) {
-    setBattle(bt); // 상태 업데이트
+  Attacks(bt, firstAttack, skillNumber, enqueue);
+
+  if (bt[firstAttack.defs].hp === 0) {
     return;
   }
 
-  bt = attack(lastAttack);
+  Attacks(bt, lastAttack, skillNumber, enqueue);
 
-  setBattle(bt); // 상태 업데이트
+  dequeue();
 };
 
-const attack = (Attack) => {
-  const { battle, skillNumber, atk, def } = Attack;
-  let skillDamage = damage(battle, skillNumber, atk);
-  battle[def].hp -= skillDamage; // 받은 데미지를 반영한 후의 HP
-  if (battle[def].hp < 0) {
-    battle[def].hp = 0;
-  }
-  const ppKey = `pp${skillNumber}`;
-  const skKey = `sk${skillNumber}`;
-  battle[atk][ppKey] -= 1;
-  const skillFunction = skillEffect(battle[atk].origin[skKey].skillEffect);
-  if (typeof skillFunction === "function") {
-    skillFunction(Attack);
-  } else {
-  }
-  return battle;
-};

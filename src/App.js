@@ -1,5 +1,6 @@
 // App.js
 import React from "react";
+import { RecoilRoot } from 'recoil';
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,6 +12,7 @@ import Battle from "./Battle"; //대회
 
 function App() {
   return (
+    <RecoilRoot>
     <div className="App">
       <Router>
         <Routes>
@@ -18,6 +20,7 @@ function App() {
         </Routes>
       </Router>
     </div>
+    </RecoilRoot>
   );
 }
 

@@ -1,7 +1,7 @@
 function skillEffect(name) {
   const functions = {
     화상: (Attack) => {
-      console.log(Attack);
+      console.log("화상");
     },
     2: () => console.log("Function for ID 2"),
     3: () => console.log("Function for ID 3"),

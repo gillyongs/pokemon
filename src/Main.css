@@ -167,3 +167,23 @@ body {
   background-color: #665f5f;
   border-radius: 5px;
 }
+
+.text-box{
+  position: absolute;
+  height: 10vh;
+  width: 100vw;
+  top:0px;
+  left:0px;
+  background-image: url("../public/img/background/text.png"); /* 배경 이미지 경로 */
+  background-size: 100% 100%; /* 원래 이미지 크기의 120%로 확대 */
+  background-position: center; /* 왼쪽에서 10% 잘라내고 중앙 정렬 */
+  background-repeat: no-repeat; /* 이미지 반복 금지 */
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.text{
+  
+  position: absolute;
+  top: 3.2vh;
+  left: 6vw;
+}
