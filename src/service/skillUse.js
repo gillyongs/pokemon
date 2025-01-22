@@ -1,13 +1,14 @@
 import { damageCalculate } from "../util/damageCalculate";
 import { typeCheck } from "../util/typeCheck";
-import skillEffectSearch from "../entity/SkilleEffect";
+import skillEffectSearch from "../entity/SkillEffect";
+import skillRequirementSearch from "../entity/SkillRequirement";
 import { random } from "../util/randomCheck";
 import { damage } from "./damage";
 export const skillUse = (bt, skillNumber, enqueue) => {
   const ppKey = `pp${skillNumber}`;
   const skKey = `sk${skillNumber}`;
-  const atk = bt[bt.atk];
-  const def = bt[bt.def];
+  const atk = bt[bt.turn.atk];
+  const def = bt[bt.turn.def];
   const sk = atk.origin[skKey];
 
   if (atk.temp.fullDeath != null) {
@@ -19,10 +20,21 @@ export const skillUse = (bt, skillNumber, enqueue) => {
   const skillUseText = atk.name + "의 " + sk.name + "!";
   enqueue({ battle: bt, text: skillUseText });
 
+  if (sk.skillRequirement) {
+    const skillFunction = skillRequirementSearch(sk.skillRequirement);
+    if (typeof skillFunction === "function") {
+      const skillCheck = skillFunction(bt, enqueue);
+      if (!skillCheck) {
+        enqueue({ battle: bt, text: "하지만 실패했다!" });
+        return;
+      }
+    }
+  }
+
   const accurCheck = random(atk.origin[skKey].accur);
   if (accurCheck) {
     let skillDamage = damageCalculate(bt, skillNumber, atk);
-    damage(bt, skillDamage, bt.def, enqueue);
+    damage(bt, skillDamage, bt.turn.def, enqueue);
     atk[ppKey] -= 1;
   }
 

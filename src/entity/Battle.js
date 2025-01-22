@@ -4,6 +4,15 @@ class Battle {
   constructor(player, npc) {
     this.player = player;
     this.npc = npc;
+    this.turn = {
+      fastUser: null,
+      atkSN: null,
+      defSN: null,
+      atk: null,
+      def: null,
+      playerSN: null,
+      npcSN: null,
+    };
   }
 }
 

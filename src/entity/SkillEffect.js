@@ -9,7 +9,7 @@ const statusCheck = (status) => {
 function skillEffectSearch(name) {
   const functions = {
     화상: (battle, enqueue, skillEffect) => {
-      let def = battle[battle.def];
+      let def = battle[battle.turn.def];
       if (def.type1 === "불꽃" || def.type2 === "불꽃") {
         return;
       }
@@ -21,7 +21,7 @@ function skillEffectSearch(name) {
         // 10% 확률로 화상
         return;
       }
-      let fireText = battle[battle.def].names + " 화상을 입었다!";
+      let fireText = battle[battle.turn.def].names + " 화상을 입었다!";
       def.status.burn = true;
       enqueue({
         battle: battle,
@@ -29,7 +29,7 @@ function skillEffectSearch(name) {
       });
     },
     얼음치료: (battle, enqueue, skillEffect) => {
-      let def = battle[battle.def];
+      let def = battle[battle.turn.def];
       if (def.status.freeze == null) {
         return;
       }
@@ -41,20 +41,20 @@ function skillEffectSearch(name) {
       });
     },
     풀죽음: (battle, enqueue, skillEffect) => {
-      let def = battle[battle.def];
+      let def = battle[battle.turn.def];
       if (random(100 - skillEffect.probability)) {
         return;
       }
       def.temp.fullDeath = true;
     },
     빗나감패널티: (battle, enqueue, skillEffect) => {
-      let atk = battle[battle.atk];
+      let atk = battle[battle.turn.atk];
       if (atk.temp.miss) {
         enqueue({
           battle: battle,
           text: atk.names + " 의욕이 넘쳐 땅에 부딪쳤다!",
         });
-        damage(battle, atk.origin.hp / 2, battle.atk, enqueue);
+        damage(battle, atk.origin.hp / 2, battle.turn.atk, enqueue);
       }
     },
     능력치증감: (battle, enqueue, skillEffect) => {
@@ -70,7 +70,7 @@ function skillEffectSearch(name) {
       );
     },
     독: (battle, enqueue, skillEffect) => {
-      let def = battle[battle.def];
+      let def = battle[battle.turn.def];
       if (
         def.type1 === "독" ||
         def.type2 === "독" ||
@@ -87,7 +87,7 @@ function skillEffectSearch(name) {
         // 정해진 확률에 따라 부여
         return;
       }
-      let poisionText = battle[battle.def].name + "의 몸에 독이 퍼졌다!";
+      let poisionText = battle[battle.turn.def].name + "의 몸에 독이 퍼졌다!";
       def.status.poision = true;
       enqueue({
         battle: battle,

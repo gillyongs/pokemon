@@ -13,3 +13,15 @@ export const speedCheck = (battle) => {
     }
   }
 };
+
+export const skillSpeedCheck = (battle) => {
+  const playerPri = battle.player.origin["sk" + battle.turn.playerSN].prior;
+  const npcPri = battle.npc.origin["sk" + battle.turn.npcSN].prior;
+  if (playerPri > npcPri) {
+    return "player";
+  } else if (npcPri > playerPri) {
+    return "npc";
+  } else {
+    return speedCheck(battle);
+  }
+};

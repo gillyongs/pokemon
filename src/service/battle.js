@@ -1,19 +1,6 @@
-import { speedCheck } from "../util/speedCheck";
+import { speedCheck, skillSpeedCheck } from "../util/speedCheck";
 import { skillUse } from "./skillUse";
 import { turnEnd } from "./turnEnd";
-
-class Turn {
-  constructor(battle, atk, def, skillNumber, npcSkillNumber, fastUser) {
-    this.battle = battle;
-    this.atk = atk;
-    this.def = def;
-    this.skillNumber = skillNumber;
-    this.npcSkillNumber = npcSkillNumber;
-    this.skill = battle.player["sk" + skillNumber];
-    this.npcSkill = battle.npc["sk" + skillNumber];
-    this.fastUser = fastUser;
-  }
-}
 
 export const battleStart = (
   battle,
@@ -24,28 +11,44 @@ export const battleStart = (
 ) => {
   resetQueue();
   let bt = structuredClone(battle);
-  let fastUser = speedCheck(bt);
+  Object.keys(bt.turn).forEach((key) => {
+    bt.turn[key] = null;
+  });
+
   const npcSkillNumber = skillNumber;
+  bt.turn.playerSN = skillNumber;
+  bt.turn.npcSN = npcSkillNumber;
+
+  let fastUser = skillSpeedCheck(bt);
+  bt.turn.fastUser = fastUser;
 
   if (fastUser === "player") {
-    bt.atk = "player";
-    bt.def = "npc";
+    bt.turn.atk = "player";
+    bt.turn.def = "npc";
+    bt.turn.atkSN = skillNumber;
+    bt.turn.defSN = npcSkillNumber;
   } else if (fastUser === "npc") {
-    bt.atk = "npc";
-    bt.def = "player";
+    bt.turn.atk = "npc";
+    bt.turn.def = "player";
+    bt.turn.atkSN = npcSkillNumber;
+    bt.turn.defSN = skillNumber;
   }
   skillUse(bt, skillNumber, enqueue);
 
-  if (bt[bt.def].faint === true) {
+  if (bt[bt.turn.def].faint === true) {
     return;
   }
 
   if (fastUser === "player") {
-    bt.atk = "npc";
-    bt.def = "player";
+    bt.turn.atk = "npc";
+    bt.turn.def = "player";
+    bt.turn.atkSN = skillNumber;
+    bt.turn.defSN = npcSkillNumber;
   } else if (fastUser === "npc") {
-    bt.atk = "player";
-    bt.def = "npc";
+    bt.turn.atk = "player";
+    bt.turn.def = "npc";
+    bt.turn.atkSN = npcSkillNumber;
+    bt.turn.defSN = skillNumber;
   }
 
   skillUse(bt, skillNumber, enqueue);
