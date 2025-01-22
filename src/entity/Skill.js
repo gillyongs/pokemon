@@ -44,7 +44,7 @@ class SkillList {
       new Skill("섀도볼", "고스트", 80, 100, 15, 0, false, "catk", "cdef", [
         {
           name: "능력치증감",
-          probability: 200,
+          probability: 20,
           abil: "cdef",
           target: "def",
           value: -1,
@@ -104,6 +104,59 @@ class SkillList {
         "buf", //atk catk natk buf
         "cdef", //def cdef
         [{ name: "날개쉬기" }, { name: "회복" }]
+      ),
+      new Skill(
+        "블러드문", //스킬명
+        "노말", //스킬타입
+        140, //위력
+        100, //명중률
+        5, //pp
+        0, //우선도
+        false, //접촉
+        "catk", //atk catk natk buf
+        "cdef" //def cdef
+      ),
+      new Skill(
+        "하이퍼보이스", //스킬명
+        "노말", //스킬타입
+        90, //위력
+        100, //명중률
+        10, //pp
+        0, //우선도
+        false, //접촉
+        "catk", //atk catk natk buf
+        "cdef" //def cdef
+      ),
+      new Skill(
+        "대지의힘", //스킬명
+        "땅", //스킬타입
+        90, //위력
+        100, //명중률
+        10, //pp
+        0, //우선도
+        false, //접촉
+        "catk", //atk catk natk buf
+        "cdef", //def cdef
+        [
+          {
+            name: "능력치증감",
+            probability: 10,
+            abil: "cdef",
+            target: "def",
+            value: -1,
+          },
+        ]
+      ),
+      new Skill(
+        "진공파", //스킬명
+        "격투", //스킬타입
+        40, //위력
+        100, //명중률
+        30, //pp
+        1, //우선도
+        false, //접촉
+        "catk", //atk catk natk buf
+        "cdef" //def cdef
       ),
     ];
   }
