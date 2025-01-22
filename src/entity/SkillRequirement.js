@@ -13,8 +13,7 @@ function skillRequirementSearch(name) {
         return false;
       }
       if (
-        battle[battle.turn.def].origin["sk" + battle.turn.defSN].atkNatk !==
-        "atk"
+        battle[battle.turn.def].origin["sk" + battle.turn.defSN].stype !== "atk"
       ) {
         return false;
       }

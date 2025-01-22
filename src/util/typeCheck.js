@@ -119,9 +119,10 @@ export const typeCheck = (stype, type1, type2) => {
       기타: 1,
     },
   };
-
+  if (typeChart[stype][type1] === 0 || typeChart[stype][type2] === 0) {
+    return 0;
+  }
   let typeDamage = 1;
-
   if (typeChart[stype]) {
     if (typeChart[stype][type1]) {
       typeDamage *= typeChart[stype][type1];
@@ -136,13 +137,13 @@ export const typeCheck = (stype, type1, type2) => {
 
 export const typeCheckConsole = (stype, type1, type2) => {
   const typeDamage = typeCheck(stype, type1, type2);
-  if (typeDamage == 1) {
+  if (typeDamage === 1) {
     return "○ 효과가 있음";
   }
   if (typeDamage > 1) {
     return "◎ 효과가 굉장함";
   }
-  if (typeDamage == 0) {
+  if (typeDamage === 0) {
     return "✕ 효과가 없음";
   }
   if (typeDamage < 1) {

@@ -45,6 +45,18 @@ export const turnEnd = (battle, enqueue) => {
 
   let tempPlayer = battle.player.temp;
   let tempNpc = battle.npc.temp;
+
+  if (tempPlayer.roost) {
+    tempPlayer.roost = null;
+    battle.player.type1 = battle.player.origin.type1;
+    battle.player.type2 = battle.player.origin.type2;
+  }
+  if (tempNpc.roost) {
+    tempNpc.roost = null;
+    battle.npc.type1 = battle.npc.origin.type1;
+    battle.npc.type2 = battle.npc.origin.type2;
+  }
+
   Object.keys(tempPlayer).forEach((key) => {
     tempPlayer[key] = null;
   });

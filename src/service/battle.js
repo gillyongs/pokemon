@@ -33,8 +33,7 @@ export const battleStart = (
     bt.turn.atkSN = npcSkillNumber;
     bt.turn.defSN = skillNumber;
   }
-  skillUse(bt, skillNumber, enqueue);
-
+  skillUse(bt, enqueue);
   if (bt[bt.turn.def].faint === true) {
     return;
   }
@@ -51,6 +50,6 @@ export const battleStart = (
     bt.turn.defSN = skillNumber;
   }
 
-  skillUse(bt, skillNumber, enqueue);
+  skillUse(bt, enqueue);
   turnEnd(bt, enqueue);
 };

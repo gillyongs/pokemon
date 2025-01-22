@@ -32,6 +32,7 @@ class PokemonOnBattle {
       // 매 턴 초기화
       fullDeath: null,
       miss: null,
+      roost: null,
     };
     this.tempStatus = {
       //교체시 초기화
@@ -42,6 +43,8 @@ class PokemonOnBattle {
         cdef: 0,
         speed: 0,
       },
+      confuse: null,
+      confuseTurnRemain: null,
     };
     this.faint = null;
   }
