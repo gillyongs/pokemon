@@ -54,7 +54,7 @@ class BattlePokemon {
         this[stat] += 31;
       });
     } else {
-      console.log(this.id + " 개체치부여안됨");
+      console.error(this.id + " 개체치부여안됨");
     }
 
     this.hp = Math.floor(this.hp / 2) + 60;
@@ -65,8 +65,8 @@ class BattlePokemon {
     this.speed = Math.floor(this.speed / 2) + 5;
 
     let updowntrigger = 0;
-    if (up == "hp" || down == "hp") {
-      console.log("성격체력오류");
+    if (up === "hp" || down === "hp") {
+      console.error("성격체력오류");
     }
     if (this[up]) {
       this[up] = Math.floor(this[up] * 1.1);
@@ -79,7 +79,7 @@ class BattlePokemon {
     }
 
     if (updowntrigger !== 2) {
-      console.log(this.id + " 성격처리오류");
+      console.error(this.id + " 성격처리오류");
     }
   }
 }

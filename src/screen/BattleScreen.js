@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./Main.css";
 import { createBattle } from "../entity/Battle";
 import { useQueue } from "../util/useQueue";
-import { battleStart } from "../util/battle";
+import { battleStart } from "../service/battle";
 
 import SkillButton from "../component/SkillButton";
 import PokemonInfo from "../component/PokemonInfo";
@@ -10,7 +10,7 @@ import PokemonImage from "../component/PokemonImage";
 import FadeInComponent from "../component/FadeInComponent";
 
 const Battle = () => {
-  const [battle, setBattle] = useState(createBattle("0001", "0002"));
+  const [battle, setBattle] = useState(createBattle("0002", "0001"));
   const [text, setText] = useState("");
 
   const { queue, enqueue, dequeue, resetQueue } = useQueue();
@@ -49,7 +49,7 @@ const Battle = () => {
       </div>
 
       <div className="bottom-section">
-        <div className="text-box" onClick={handleDequeue}>
+        <div className="text-box">
           <FadeInComponent className="text" text={text} />
         </div>
 

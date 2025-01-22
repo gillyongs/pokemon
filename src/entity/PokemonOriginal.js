@@ -26,7 +26,7 @@ class PokemonRepository {
         75,
         65,
         75,
-        1190,
+        119,
         "불꽃",
         null
       ),

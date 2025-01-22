@@ -4,6 +4,8 @@ class PokemonOnBattle {
     this.id = id;
     const pokemon = BattlePokemonRepository.getItemById(id);
     this.origin = pokemon;
+    this.name = pokemon.name;
+    this.names = pokemon.names;
     this.hp = pokemon.hp;
     this.atk = pokemon.atk;
     this.def = pokemon.def;
@@ -21,13 +23,27 @@ class PokemonOnBattle {
     this.status = {
       burn: null,
       freeze: null,
-      poison: null,
+      poison: null, //독
+      mpoison: null, //맹독
       mabi: null,
       sleep: null,
     };
     this.temp = {
+      // 매 턴 초기화
       fullDeath: null,
+      miss: null,
     };
+    this.tempStatus = {
+      //교체시 초기화
+      rank: {
+        atk: 0,
+        def: 0,
+        catk: 0,
+        cdef: 0,
+        speed: 0,
+      },
+    };
+    this.faint = null;
   }
 }
 

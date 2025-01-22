@@ -17,7 +17,10 @@ const PokemonInfo = ({ battle, type }) => {
         <div className={`pokemon-status freeze`}>얼음</div>
       )}
       {pokemon.status.poision != null && (
-        <div className={`pokemon-status poision`}>맹독</div>
+        <div className={`pokemon-status poision`}>독</div>
+      )}
+      {pokemon.status.mpoision != null && (
+        <div className={`pokemon-status mpoision`}>맹독</div>
       )}
       {pokemon.status.mabi != null && (
         <div className={`pokemon-status mabi`}>마비</div>
