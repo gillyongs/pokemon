@@ -34,6 +34,7 @@ class Skill {
     this.touch = touch;
     this.stype = stype; //atk = 물리공격, catk = 특수공격, natk = 상대방 대상 변화기, buf = 자신 대상 변화기
     this.skillEffectList = skillEffectList;
+    this.skillEffectList.unshift({ name: "공통" });
     this.skillRequirement = skillRequirement;
   }
   _validateParams(
@@ -61,11 +62,7 @@ class Skill {
       console.error("touch must be a boolean", touch);
     if (!["atk", "catk", "natk", "buf"].includes(stype))
       console.error("stype must be one of 'atk', 'catk', 'natk', 'buf'", stype);
-    if (
-      !Array.isArray(skillEffectList) &&
-      skillEffectList !== undefined &&
-      skillEffectList !== null
-    )
+    if (!Array.isArray(skillEffectList))
       console.error("skillEffectList must be an array", skillEffectList);
     if (
       typeof skillRequirement !== "string" &&
@@ -82,10 +79,10 @@ class SkillList {
         { name: "화상", probability: 10 },
         { name: "얼음치료" },
       ]),
-      new Skill("무릎차기", "격투", 130, 9, 10, 0, true, "atk", [
+      new Skill("무릎차기", "격투", 130, 90, 10, 0, true, "atk", [
         { name: "빗나감패널티" },
       ]),
-      new Skill("기습", "악", 70, 100, 5, 1, true, "atk", null, "기습"),
+      new Skill("기습", "악", 70, 100, 5, 1, true, "atk", [], "기습"),
       new Skill("아이언헤드", "강철", 80, 100, 15, 0, true, "atk", [
         { name: "풀죽음", probability: 30 },
       ]),
@@ -98,7 +95,7 @@ class SkillList {
           value: -1,
         },
       ]),
-      new Skill("다이맥스포", "드래곤", 100, 100, 5, 0, false, "catk"),
+      new Skill("다이맥스포", "드래곤", 100, 100, 5, 0, false, "catk", []),
       new Skill("오물웨이브", "독", 95, 100, 10, 0, false, "catk", [
         { name: "독", probability: 10 },
       ]),
@@ -157,7 +154,8 @@ class SkillList {
         5, //pp
         0, //우선도
         false, //접촉
-        "catk" //atk catk natk buf
+        "catk", //atk catk natk buf
+        []
       ),
       new Skill(
         "하이퍼보이스", //스킬명
@@ -167,7 +165,8 @@ class SkillList {
         10, //pp
         0, //우선도
         false, //접촉
-        "catk" //atk catk natk buf
+        "catk", //atk catk natk buf
+        []
       ),
       new Skill(
         "대지의힘", //스킬명
@@ -196,7 +195,27 @@ class SkillList {
         30, //pp
         1, //우선도
         false, //접촉
-        "catk" //atk catk natk buf
+        "catk", //atk catk natk buf
+        []
+      ),
+      new Skill(
+        "칼춤", //스킬명
+        "노말", //스킬타입
+        0, //위력
+        0, //명중률
+        20, //pp
+        0, //우선도
+        false, //접촉
+        "buf", //atk catk natk buf
+        [
+          {
+            name: "능력치증감",
+            probability: 100,
+            abil: "atk",
+            target: "atk",
+            value: 2,
+          },
+        ]
       ),
     ];
   }

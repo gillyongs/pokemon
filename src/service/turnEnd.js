@@ -1,4 +1,4 @@
-import { damage } from "./damage";
+import { damage } from "../function/damage";
 
 export const turnEnd = (battle, enqueue) => {
   if (battle.player.faint !== true) {

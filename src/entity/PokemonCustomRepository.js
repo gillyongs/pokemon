@@ -18,7 +18,7 @@ class BattlePokemonRepository {
         "화염볼",
         "무릎차기",
         "기습",
-        "아이언헤드",
+        "칼춤",
         "생명의구슬",
         "리베로"
       ),

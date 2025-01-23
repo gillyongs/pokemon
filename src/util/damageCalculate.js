@@ -1,3 +1,4 @@
+import { statCalculate } from "../function/statCalculate";
 import { typeCheck } from "./typeCheck";
 export const damageCalculate = (battle) => {
   const skillNumber = battle.turn.atkSN;
@@ -12,15 +13,20 @@ export const damageCalculate = (battle) => {
     dtype = "cdef";
   }
 
+  statCalculate(battle);
+
   let damage = (22 * sk.power * atk[sk.stype]) / 50 / def[dtype];
   if (atk.status.burn != null && sk.stype === "atk") {
     damage /= 2;
   }
   damage += 2;
-  if (sk.type == atk.type1 || sk.type === atk.type2) {
+  if (sk.type === atk.type1 || sk.type === atk.type2) {
     damage *= 1.5;
   }
   damage *= typeCheck(sk.type, def.type1, def.type2);
+  if (atk.item === "생명의구슬") {
+    damage *= 1.3;
+  }
   return Math.floor(damage);
 };
 

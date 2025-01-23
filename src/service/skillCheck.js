@@ -1,7 +1,7 @@
 import skillRequirementSearch from "../entity/SkillRequirement";
 import { random } from "../util/randomCheck";
 import { confuseDamageCalculate } from "../util/damageCalculate";
-import { damage } from "./damage";
+import { damage } from "../function/damage";
 
 export const skillUseCheck = (bt, enqueue) => {
   const atk = bt[bt.turn.atk];

@@ -1,34 +1,63 @@
-import { damage } from "../service/damage";
+import { damage } from "../function/damage";
 import { random } from "../util/randomCheck";
-import { rank } from "../service/rank";
-import { recover } from "../service/recover";
-
-const statusCheck = (status) => {
-  return Object.values(status).some((value) => value !== null);
-};
+import { rank } from "../function/rank";
+import { recover } from "../function/recover";
+import { burn, mabi, poision } from "../function/statusError";
 
 function skillEffectSearch(name) {
   const functions = {
-    화상: (battle, enqueue, skillEffect) => {
+    공통: (battle, enqueue, skillEffect) => {
+      let atk = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
-      if (def.type1 === "불꽃" || def.type2 === "불꽃") {
-        return;
+      let sk = atk.origin["sk" + battle.turn.atkSN];
+      if (atk.item === "생명의구슬") {
+        if (sk.stype === "atk" || sk.stype === "catk") {
+          enqueue({
+            battle: battle,
+            text: atk.name + "의 생명이 조금 깎였다!",
+          });
+          damage(battle, atk.origin.hp / 10, battle.turn.atk, enqueue);
+        }
       }
-      if (statusCheck(def.status)) {
-        //이미 걸린 상태이상이 있는지 체크
-        return;
+      if (def.abil === "정전기" && sk.touch) {
+        if (random(100)) {
+          mabi(battle, battle.turn.atk, enqueue);
+        }
       }
-      if (random(100 - skillEffect.probability)) {
-        // 10% 확률로 화상
-        return;
-      }
-      let fireText = battle[battle.turn.def].names + " 화상을 입었다!";
-      def.status.burn = true;
-      enqueue({
-        battle: battle,
-        text: fireText,
-      });
     },
+
+    능력치증감: (battle, enqueue, skillEffect) => {
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      rank(
+        battle,
+        enqueue,
+        battle.turn[skillEffect.target],
+        skillEffect.abil,
+        skillEffect.value
+      );
+    },
+
+    화상: (battle, enqueue, skillEffect) => {
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      burn(battle, battle.turn.def, enqueue);
+    },
+    독: (battle, enqueue, skillEffect) => {
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      poision(battle, battle.turn.def, enqueue);
+    },
+    마비: (battle, enqueue, skillEffect) => {
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      mabi(battle, battle.turn.def, enqueue);
+    },
+
     얼음치료: (battle, enqueue, skillEffect) => {
       let def = battle[battle.turn.def];
       if (def.status.freeze == null) {
@@ -58,68 +87,11 @@ function skillEffectSearch(name) {
         damage(battle, atk.origin.hp / 2, battle.turn.atk, enqueue);
       }
     },
-    능력치증감: (battle, enqueue, skillEffect) => {
-      if (random(100 - skillEffect.probability)) {
-        return;
-      }
-      rank(
-        battle,
-        enqueue,
-        battle.turn[skillEffect.target],
-        skillEffect.abil,
-        skillEffect.value
-      );
-    },
-    독: (battle, enqueue, skillEffect) => {
-      let def = battle[battle.turn.def];
-      if (
-        def.type1 === "독" ||
-        def.type2 === "독" ||
-        def.type1 === "강철" ||
-        def.type2 === "강철"
-      ) {
-        return;
-      }
-      if (statusCheck(def.status)) {
-        //이미 걸린 상태이상이 있는지 체크
-        return;
-      }
-      if (random(100 - skillEffect.probability)) {
-        // 정해진 확률에 따라 부여
-        return;
-      }
-      let poisionText = battle[battle.turn.def].name + "의 몸에 독이 퍼졌다!";
-      def.status.poision = true;
-      enqueue({
-        battle: battle,
-        text: poisionText,
-      });
-    },
-    마비: (battle, enqueue, skillEffect) => {
-      let def = battle[battle.turn.def];
-      if (def.type1 === "전기" || def.type2 === "전기") {
-        return;
-      }
-      if (statusCheck(def.status)) {
-        //이미 걸린 상태이상이 있는지 체크
-        return;
-      }
-      if (random(100 - skillEffect.probability)) {
-        // 정해진 확률에 따라 부여
-        return;
-      }
-      let mabiText =
-        battle[battle.turn.def].names + " 마비되어 기술이 나오기 어려워졌다!";
-      def.status.mabi = true;
-      enqueue({
-        battle: battle,
-        text: mabiText,
-      });
-    },
+
     혼란: (battle, enqueue, skillEffect) => {
       let def = battle[battle.turn.def];
       if (def.tempStatus.confuse !== null) {
-        //이미 걸린 상태이상이 있는지 체크
+        //이미 혼란에 걸려있는지 체크
         return;
       }
       if (random(skillEffect.probability)) {

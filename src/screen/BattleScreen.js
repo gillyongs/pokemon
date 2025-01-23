@@ -10,7 +10,7 @@ import PokemonImage from "../component/PokemonImage";
 import FadeInComponent from "../component/FadeInComponent";
 
 const Battle = () => {
-  const [battle, setBattle] = useState(createBattle("0001", "0002"));
+  const [battle, setBattle] = useState(createBattle("0001", "0003"));
   const [text, setText] = useState("");
 
   const { queue, enqueue, dequeue, resetQueue } = useQueue();

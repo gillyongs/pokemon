@@ -11,11 +11,12 @@ export const damage = (
   } else if (getDamagePokemon === "player") {
     pokemon = battle.player;
   }
+  const skDamage = Math.floor(skillDamage);
 
   if (pokemon.hp <= 0) {
     return;
   }
-  pokemon.hp -= skillDamage;
+  pokemon.hp -= skDamage;
   if (pokemon.hp <= 0) {
     pokemon.hp = 0;
   }

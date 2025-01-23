@@ -1,4 +1,6 @@
 import { speedCheck, skillSpeedCheck } from "../util/speedCheck";
+import { statCalculate } from "../function/statCalculate";
+import { skillEffectsAfter } from "./skiiEffect";
 import { skillUse } from "./skillUse";
 import { turnEnd } from "./turnEnd";
 
@@ -11,6 +13,7 @@ export const battleStart = (
 ) => {
   resetQueue();
   let bt = structuredClone(battle);
+  statCalculate(bt);
   Object.keys(bt.turn).forEach((key) => {
     bt.turn[key] = null;
   });
@@ -31,7 +34,7 @@ export const battleStart = (
   );
 
   skillUse(bt, enqueue);
-
+  skillEffectsAfter(bt, enqueue);
   if (bt[bt.turn.def].faint === true) {
     return;
   }
@@ -39,6 +42,7 @@ export const battleStart = (
   setAtkDef(bt, bt.turn.def, bt.turn.atk, bt.turn.defSN, bt.turn.atkSN);
 
   skillUse(bt, enqueue);
+  skillEffectsAfter(bt, enqueue);
   turnEnd(bt, enqueue);
 };
 

@@ -1,3 +1,5 @@
+import { statCalculate } from "./statCalculate";
+
 export const rank = (battle, enqueue, rankPokemon, rankType, rankValue) => {
   let pokemon;
   if (rankPokemon === "npc") {
@@ -26,8 +28,8 @@ export const rank = (battle, enqueue, rankPokemon, rankType, rankValue) => {
   if (rank[rankType] < -6) {
     rank[rankType] = -6;
   }
-  const multiplier = getMultiplier(rank[rankType]);
-  pokemon[rankType] = Math.floor(pokemon.origin[rankType] * multiplier);
+
+  statCalculate(battle);
 
   if (rankValue > 2 || rankValue < -2) {
     rankText = rankText + " 매우";
@@ -42,18 +44,6 @@ export const rank = (battle, enqueue, rankPokemon, rankType, rankValue) => {
     rankText = rankText + " 떨어졌다!";
   }
   enqueue({ battle, text: rankText });
-};
-
-const getMultiplier = (rank) => {
-  if (rank >= 1 && rank <= 6) {
-    return 1 + rank * 0.5; // 예: 1일 경우 1.5, 2일 경우 2
-  } else if (rank <= -1 && rank >= -6) {
-    return 1 / (Math.abs(rank) * 2 + 1); // 예: -1일 경우 2/3, -2일 경우 1/2
-  } else if (rank === 0) {
-    return 1;
-  }
-  console.error("능력치 증감 범위 벗어남");
-  return 1; // rank가 0 또는 범위를 벗어난 경우
 };
 
 const getStatName = (stat) => {
