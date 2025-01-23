@@ -13,10 +13,10 @@ import Battle from "./screen/BattleScreen"; //대회
 function App() {
   return (
     <RecoilRoot>
-      <div className="App">
+      <div className="App" baseUrl="pokemon">
         <Router>
           <Routes>
-            <Route path="/pokemon" element={<Battle />} />
+            <Route path="/" element={<Battle />} />
           </Routes>
         </Router>
       </div>
