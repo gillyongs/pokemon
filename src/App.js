@@ -1,6 +1,6 @@
 // App.js
 import React from "react";
-import { RecoilRoot } from 'recoil';
+import { RecoilRoot } from "recoil";
 import {
   BrowserRouter as Router,
   Routes,
@@ -13,13 +13,13 @@ import Battle from "./screen/BattleScreen"; //대회
 function App() {
   return (
     <RecoilRoot>
-    <div className="App">
-      <Router>
-        <Routes>
-          <Route path="/" element={<Battle />} />
-        </Routes>
-      </Router>
-    </div>
+      <div className="App">
+        <Router>
+          <Routes>
+            <Route path="/pokemon" element={<Battle />} />
+          </Routes>
+        </Router>
+      </div>
     </RecoilRoot>
   );
 }
