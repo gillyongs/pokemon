@@ -4,20 +4,18 @@ import { createBattle } from "../entity/Battle";
 import { useQueue } from "../util/useQueue";
 import { battleStart } from "../service/battle";
 
+import SkillButton from "../component/SkillButton";
 import PokemonInfo from "../component/PokemonInfo";
 import PokemonImage from "../component/PokemonImage";
-import BottomSectionSkill from "../component/Bottom-Skill";
-import BottomSectionSwitch from "../component/Bottom-Switch";
+import FadeInComponent from "../component/FadeInComponent";
 
-const Battle = () => {
+const Switch = () => {
   const [battle, setBattle] = useState(
     createBattle(["0001", "0002", "0003"], ["0004", "0003", "0002"])
   );
   const [text, setText] = useState("");
 
   const { queue, enqueue, dequeue, resetQueue } = useQueue();
-
-  const [bottom, setBottom] = useState("skill");
 
   useEffect(() => {
     if (queue[0]) {
@@ -51,24 +49,39 @@ const Battle = () => {
         <PokemonInfo battle={battle} type="plr" />
         <PokemonImage battle={battle} type="plr" />
       </div>
-      {bottom === "skill" && (
-        <BottomSectionSkill
+
+      <div className="bottom-section">
+        <div className="text-box">
+          <FadeInComponent className="text" text={text} />
+        </div>
+
+        <SkillButton
           battle={battle}
-          text={text}
-          handleSkillClick={handleSkillClick}
-          setBottom={setBottom}
-        ></BottomSectionSkill>
-      )}
-      {bottom === "switch" && (
-        <BottomSectionSwitch
+          skillNumber={1}
+          onClick={() => handleSkillClick(1)}
+        />
+
+        <SkillButton
           battle={battle}
-          text={text}
-          handleSkillClick={handleSkillClick}
-          setBottom={setBottom}
-        ></BottomSectionSwitch>
-      )}
+          skillNumber={2}
+          onClick={() => handleSkillClick(2)}
+        />
+
+        <SkillButton
+          battle={battle}
+          skillNumber={3}
+          onClick={() => handleSkillClick(3)}
+        />
+
+        <SkillButton
+          battle={battle}
+          skillNumber={4}
+          onClick={() => handleSkillClick(4)}
+        />
+        <div className="change">교체</div>
+      </div>
     </div>
   );
 };
 
-export default Battle;
+export default Switch;

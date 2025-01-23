@@ -16,7 +16,7 @@ export const rank = (battle, enqueue, rankPokemon, rankType, rankValue) => {
     enqueue({ battle, text: rankText2 });
     return;
   } else if (rank[rankType] === 6 && rankValue > 0) {
-    rankText2 = rankText2 + " 더 이상 증가할 수 없다!";
+    rankText2 = rankText2 + " 더 이상 올라갈 수 없다!";
     enqueue({ battle, text: rankText2 });
     return;
   }

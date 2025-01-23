@@ -25,11 +25,8 @@ const PokemonInfo = ({ battle, type }) => {
       {pokemon.status.mabi != null && (
         <div className={`pokemon-status mabi`}>마비</div>
       )}
-      <div className={`hp-bar ${type}`}>
+      <div className={`pokemon-info-hp-bar ${type}`}>
         <HpBar hp={pokemon.hp} maxHp={pokemon.origin.hp} />
-      </div>
-      <div className="hp">
-        {pokemon.hp}/{pokemon.origin.hp}
       </div>
     </div>
   );

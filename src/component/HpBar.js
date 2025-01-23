@@ -8,12 +8,20 @@ const HpBar = ({ hp, maxHp }) => {
   }
 
   return (
-    <div
-      className="current-hp"
-      style={{
-        width: `${hpWidth}%`, // HP에 비례한 너비
-      }}
-    ></div>
+    <div className="hp-bar">
+      <div
+        className="current-hp"
+        style={{
+          width: `${hpWidth}%`, // HP에 비례한 너비
+        }}
+      ></div>
+      <div className="hp-bar-text">
+        <div className="hp-bar-text-margin">
+          {" "}
+          {hp}/{maxHp}
+        </div>
+      </div>
+    </div>
   );
 };
 
