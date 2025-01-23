@@ -1,20 +1,12 @@
-import { damage } from "../service/damage";
-import { random } from "../util/randomCheck";
-import { rank } from "../service/rank";
-
-const statusCheck = (status) => {
-  return Object.values(status).some((value) => value !== null);
-};
-
 function skillRequirementSearch(name) {
   const functions = {
     기습: (battle, enqueue) => {
       if (battle.turn.atk !== battle.turn.fastUser) {
         return false;
       }
-      if (
-        battle[battle.turn.def].origin["sk" + battle.turn.defSN].stype !== "atk"
-      ) {
+      const stype =
+        battle[battle.turn.def].origin["sk" + battle.turn.defSN].stype;
+      if (stype !== "atk" && stype !== "catk") {
         return false;
       }
       return true;

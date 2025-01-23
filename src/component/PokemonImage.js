@@ -6,7 +6,7 @@ const PokemonImage = ({ battle, type }) => {
   return (
     <img
       className={`pokemon-img ${type}`}
-      src={`/img/pokemon/${pokemon.origin.pokemon_id}.webp`}
+      src={`/pokemon/img/pokemon/${pokemon.origin.pokemon_id}.webp`}
       alt={`${type} Pokemon`}
     />
   );

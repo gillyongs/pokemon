@@ -7,7 +7,11 @@ const SkillButton = ({ battle, skillNumber, onClick }) => {
   const sn = getNumberText(skillNumber);
   return (
     <div className={`skill ${sn}`} onClick={onClick}>
-      <img className="type" src={`/img/type/${sk.type}.svg`} alt={sk.name} />
+      <img
+        className="type"
+        src={`/pokemon/img/type/${sk.type}.svg`}
+        alt={sk.name}
+      />
       <div className="skill_name">{sk.name}</div>
       <div className="skill_effect">
         {typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2)}

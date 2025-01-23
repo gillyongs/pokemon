@@ -150,3 +150,24 @@ export const typeCheckConsole = (stype, type1, type2) => {
     return "△ 효과가 별로";
   }
 };
+
+export const typeCheckText = (stype, type1, type2) => {
+  let typeDamage;
+  if (!type1 && !type2) {
+    typeDamage = stype;
+  } else {
+    typeDamage = typeCheck(stype, type1, type2);
+  }
+  if (typeDamage === 1) {
+    return null;
+  }
+  if (typeDamage > 1) {
+    return "효과가 굉장했다!";
+  }
+  if (typeDamage === 0) {
+    return "효과가 없는 것 같다...";
+  }
+  if (typeDamage < 1) {
+    return "효과가 별로인 것 같다...";
+  }
+};

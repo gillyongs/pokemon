@@ -22,34 +22,29 @@ export const battleStart = (
   let fastUser = skillSpeedCheck(bt);
   bt.turn.fastUser = fastUser;
 
-  if (fastUser === "player") {
-    bt.turn.atk = "player";
-    bt.turn.def = "npc";
-    bt.turn.atkSN = skillNumber;
-    bt.turn.defSN = npcSkillNumber;
-  } else if (fastUser === "npc") {
-    bt.turn.atk = "npc";
-    bt.turn.def = "player";
-    bt.turn.atkSN = npcSkillNumber;
-    bt.turn.defSN = skillNumber;
-  }
+  setAtkDef(
+    bt,
+    fastUser,
+    fastUser === "player" ? "npc" : "player",
+    fastUser === "player" ? skillNumber : npcSkillNumber,
+    fastUser === "player" ? npcSkillNumber : skillNumber
+  );
+
   skillUse(bt, enqueue);
+
   if (bt[bt.turn.def].faint === true) {
     return;
   }
 
-  if (fastUser === "player") {
-    bt.turn.atk = "npc";
-    bt.turn.def = "player";
-    bt.turn.atkSN = skillNumber;
-    bt.turn.defSN = npcSkillNumber;
-  } else if (fastUser === "npc") {
-    bt.turn.atk = "player";
-    bt.turn.def = "npc";
-    bt.turn.atkSN = npcSkillNumber;
-    bt.turn.defSN = skillNumber;
-  }
+  setAtkDef(bt, bt.turn.def, bt.turn.atk, bt.turn.defSN, bt.turn.atkSN);
 
   skillUse(bt, enqueue);
   turnEnd(bt, enqueue);
+};
+
+const setAtkDef = (bt, attacker, defender, atkSN, defSN) => {
+  bt.turn.atk = attacker;
+  bt.turn.def = defender;
+  bt.turn.atkSN = atkSN;
+  bt.turn.defSN = defSN;
 };

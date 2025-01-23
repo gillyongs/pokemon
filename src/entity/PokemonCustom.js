@@ -20,6 +20,26 @@ class BattlePokemon {
     item,
     abil
   ) {
+    this._validateParams(
+      id,
+      pokemon_id,
+      gacha,
+      hps,
+      atks,
+      defs,
+      catks,
+      cdefs,
+      speeds,
+      up,
+      down,
+      sk1,
+      sk2,
+      sk3,
+      sk4,
+      item,
+      abil
+    );
+
     this.id = id;
     this.sk1 = skillList.search(sk1);
     this.sk2 = skillList.search(sk2);
@@ -82,6 +102,68 @@ class BattlePokemon {
     if (updowntrigger !== 2) {
       console.error(this.id + " 성격처리오류");
     }
+  }
+  _validateParams(
+    id,
+    pokemon_id,
+    gacha,
+    hps,
+    atks,
+    defs,
+    catks,
+    cdefs,
+    speeds,
+    up,
+    down,
+    sk1,
+    sk2,
+    sk3,
+    sk4,
+    item,
+    abil
+  ) {
+    if (typeof id !== "string") console.error("id must be a string", id);
+    if (typeof pokemon_id !== "string")
+      console.error("pokemon_id must be a string", pokemon_id);
+    if (!["6V", "5V1A", "5V1S", "4V"].includes(gacha))
+      console.error("gacha must be one of '6V', '5V1A', '5V1S', '4V'", gacha);
+    if (typeof hps !== "number") console.error("hps must be a number", hps);
+    if (typeof atks !== "number") console.error("atks must be a number", atks);
+    if (typeof defs !== "number") console.error("defs must be a number", defs);
+    if (typeof catks !== "number")
+      console.error("catks must be a number", catks);
+    if (typeof cdefs !== "number")
+      console.error("cdefs must be a number", cdefs);
+    if (typeof speeds !== "number")
+      console.error("speeds must be a number", speeds);
+    if (hps + atks + catks + defs + cdefs + speeds !== 508) {
+      console.error(id + "노력치 오류");
+    }
+    if (!["atk", "def", "catk", "cdef", "speed"].includes(up))
+      console.error(
+        "up must be one of 'atk', 'def', 'catk', 'cdef', 'speed'",
+        up
+      );
+    if (!["atk", "def", "catk", "cdef", "speed"].includes(down))
+      console.error(
+        "up must be one of 'atk', 'def', 'catk', 'cdef', 'speed'",
+        down
+      );
+    if (typeof sk1 !== "string") console.error("sk1 must be a string", sk1);
+    if (typeof sk2 !== "string") console.error("sk2 must be a string", sk2);
+    if (typeof sk3 !== "string") console.error("sk3 must be a string", sk3);
+    if (typeof sk4 !== "string") console.error("sk4 must be a string", sk4);
+    if (typeof skillList.search(sk1) !== "object")
+      console.error("sk1 skill not exist", skillList.search(sk1));
+    if (typeof skillList.search(sk2) !== "object")
+      console.error("sk2 skill not exist", skillList.search(sk2));
+    if (typeof skillList.search(sk3) !== "object")
+      console.error("sk3 skill not exist", skillList.search(sk3));
+    if (typeof skillList.search(sk4) !== "object")
+      console.error("sk4 skill not exist", skillList.search(sk4));
+
+    if (typeof item !== "string") console.error("item must be a string", item);
+    if (typeof abil !== "string") console.error("abil must be a string", abil);
   }
 }
 

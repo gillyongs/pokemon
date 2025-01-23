@@ -1,5 +1,32 @@
 class Pokemon {
-  constructor(id, name, names, hp, atk, def, catk, cdef, speed, type1, type2) {
+  constructor(
+    id,
+    name,
+    names,
+    total,
+    hp,
+    atk,
+    def,
+    catk,
+    cdef,
+    speed,
+    type1,
+    type2
+  ) {
+    this._validateParams(
+      id,
+      name,
+      names,
+      total,
+      hp,
+      atk,
+      def,
+      catk,
+      cdef,
+      speed,
+      type1,
+      type2
+    );
     this.id = id;
     this.name = name;
     this.names = names;
@@ -12,6 +39,41 @@ class Pokemon {
     this.type1 = type1;
     this.type2 = type2;
   }
+  _validateParams(
+    id,
+    name,
+    names,
+    total,
+    hp,
+    atk,
+    def,
+    catk,
+    cdef,
+    speed,
+    type1,
+    type2
+  ) {
+    if (typeof id !== "string") console.error("id must be a string", id);
+    if (typeof name !== "string") console.error("name must be a string", name);
+    if (typeof names !== "string")
+      console.error("names must be a string", names);
+    if (typeof total !== "number")
+      console.error("total must be a number", total);
+    if (typeof hp !== "number") console.error("hp must be a number", hp);
+    if (typeof atk !== "number") console.error("atk must be a number", atk);
+    if (typeof def !== "number") console.error("def must be a number", def);
+    if (typeof catk !== "number") console.error("catk must be a number", catk);
+    if (typeof cdef !== "number") console.error("cdef must be a number", cdef);
+    if (typeof speed !== "number")
+      console.error("speed must be a number", speed);
+    if (hp + atk + def + catk + cdef + speed !== total) {
+      console.error(id + "종족치오류");
+    }
+    if (typeof type1 !== "string")
+      console.error("type1 must be a string", type1);
+    if (type2 !== null && typeof type2 !== "string")
+      console.error("type2 must be a string or null", type2);
+  }
 }
 
 class PokemonRepository {
@@ -21,6 +83,7 @@ class PokemonRepository {
         "0815",
         "에이스번",
         "에이스번은",
+        530,
         80,
         116,
         75,
@@ -34,6 +97,7 @@ class PokemonRepository {
         "0890",
         "무한다이노",
         "무한다이노는",
+        690,
         140,
         85,
         95,
@@ -47,6 +111,7 @@ class PokemonRepository {
         "0145",
         "썬더",
         "썬더는",
+        580,
         90,
         90,
         85,
@@ -60,6 +125,7 @@ class PokemonRepository {
         "0901",
         "다투곰",
         "다투곰은",
+        555,
         113,
         70,
         120,

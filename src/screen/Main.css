@@ -20,7 +20,7 @@ body {
   justify-content: center;
   align-items: center;
   position: relative; /* 자식 요소의 위치를 절대적으로 지정하기 위해 부모에 position을 설정 */
-  background-image: url("/img/background/1.gif"); /* 배경 이미지 경로 */
+  background-image: url("/public/img/background/1.gif"); /* 배경 이미지 경로 */
   background-size: 100% 100%; /* 원래 이미지 크기의 120%로 확대 */
   background-position: center; /* 왼쪽에서 10% 잘라내고 중앙 정렬 */
   background-repeat: no-repeat; /* 이미지 반복 금지 */
@@ -130,7 +130,7 @@ body {
   color: white;
   font-size: 20px;
   position: relative; /* 자식 요소의 위치를 절대적으로 지정하기 위해 부모에 position을 설정 */
-  background-image: url("/img/background/111.gif"); /* 배경 이미지 경로 */
+  background-image: url("/public/img/background/111.gif"); /* 배경 이미지 경로 */
   background-size: 100% 100%; /* 원래 이미지 크기의 120%로 확대 */
   background-position: center; /* 왼쪽에서 10% 잘라내고 중앙 정렬 */
   background-repeat: no-repeat; /* 이미지 반복 금지 */
@@ -198,7 +198,7 @@ body {
   width: 100vw;
   top: 0px;
   left: 0px;
-  background-image: url("/img/background/text.png"); /* 배경 이미지 경로 */
+  background-image: url("/public/img/background/text.png"); /* 배경 이미지 경로 */
   background-size: 100% 100%; /* 원래 이미지 크기의 120%로 확대 */
   background-position: center; /* 왼쪽에서 10% 잘라내고 중앙 정렬 */
   background-repeat: no-repeat; /* 이미지 반복 금지 */
