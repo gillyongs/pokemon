@@ -8,6 +8,7 @@ import PokemonInfo from "../component/PokemonInfo";
 import PokemonImage from "../component/PokemonImage";
 import BottomSectionSkill from "../component/Bottom-Skill";
 import BottomSectionSwitch from "../component/Bottom-Switch";
+import BottomSectionInfo from "../component/Bottom-Info";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
@@ -18,6 +19,7 @@ const Battle = () => {
   const { queue, enqueue, dequeue, resetQueue } = useQueue();
 
   const [bottom, setBottom] = useState("skill");
+  const [bench, setBench] = useState(null);
 
   useEffect(() => {
     if (queue[0]) {
@@ -36,20 +38,29 @@ const Battle = () => {
     }
   };
 
-  const handleSkillClick = (skillIndex) => {
+  const queueCheck = () => {
+    console.log(queue.length);
     if (queue.length > 0) {
-      return;
+      return false;
     }
-    battleStart(battle, skillIndex, enqueue, dequeue, resetQueue);
+    return true;
+  };
+
+  const handleSkillClick = (skillIndex) => {
+    if (queueCheck()) {
+      battleStart(battle, skillIndex, enqueue, dequeue, resetQueue);
+    }
   };
 
   return (
     <div className="battle-container" onClick={handleDequeue}>
       <div className="top-section">
+        <div className="pokemon-image">
+          <PokemonImage battle={battle} type="npc" />
+          <PokemonImage battle={battle} type="plr" />
+        </div>
         <PokemonInfo battle={battle} type="npc" />
-        <PokemonImage battle={battle} type="npc" />
         <PokemonInfo battle={battle} type="plr" />
-        <PokemonImage battle={battle} type="plr" />
       </div>
       {bottom === "skill" && (
         <BottomSectionSkill
@@ -57,15 +68,24 @@ const Battle = () => {
           text={text}
           handleSkillClick={handleSkillClick}
           setBottom={setBottom}
+          queueCheck={queueCheck}
         ></BottomSectionSkill>
       )}
       {bottom === "switch" && (
         <BottomSectionSwitch
           battle={battle}
           text={text}
-          handleSkillClick={handleSkillClick}
           setBottom={setBottom}
+          setBench={setBench}
         ></BottomSectionSwitch>
+      )}
+      {bottom === "info" && (
+        <BottomSectionInfo
+          battle={battle}
+          text={text}
+          setBottom={setBottom}
+          bench={bench}
+        ></BottomSectionInfo>
       )}
     </div>
   );

@@ -2,7 +2,13 @@ import React from "react";
 import FadeInComponent from "./FadeInComponent"; // 경로에 맞게 수정
 import SkillButton from "./SkillButton"; // 경로에 맞게 수정
 
-const BottomSectionSkill = ({ battle, text, handleSkillClick, setBottom }) => {
+const BottomSectionSkill = ({
+  battle,
+  text,
+  handleSkillClick,
+  setBottom,
+  queueCheck,
+}) => {
   return (
     <div className="bottom-section">
       <div className="text-box">
@@ -33,7 +39,14 @@ const BottomSectionSkill = ({ battle, text, handleSkillClick, setBottom }) => {
         onClick={() => handleSkillClick(4)}
       />
 
-      <div className="change" onClick={() => setBottom("switch")}>
+      <div
+        className="change"
+        onClick={() => {
+          if (queueCheck()) {
+            setBottom("switch");
+          }
+        }}
+      >
         교체
       </div>
     </div>

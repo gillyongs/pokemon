@@ -5,7 +5,6 @@ class Battle {
     this.player = player;
     this.npc = npc;
     this.playerBench1 = playerBench1;
-    this.playerBench1.hp -= 600;
     this.npcBench1 = npcBench1;
     this.playerBench2 = playerBench2;
     this.npcBench2 = npcBench2;
