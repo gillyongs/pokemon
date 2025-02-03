@@ -20,7 +20,9 @@ export function useQueue() {
   };
 
   const resetQueue = () => {
-    setQueue([]);
+    if (queue.length > 1) {
+      setQueue([]);
+    }
   };
 
   return { queue, enqueue, dequeue, resetQueue };

@@ -1,6 +1,6 @@
 import { typeCheckConsole } from "../util/typeCheck";
 
-const LongSkillButton = ({ battle, skillNumber, onClick, pokemon }) => {
+const LongSkillButton = ({ battle, skillNumber, setText, pokemon }) => {
   const skill = "sk" + skillNumber;
   const pp = "pp" + skillNumber;
   let sk;
@@ -11,7 +11,13 @@ const LongSkillButton = ({ battle, skillNumber, onClick, pokemon }) => {
   }
   const sn = getNumberText(skillNumber);
   return (
-    <div className={`long-skill-button ${sn}`} onClick={onClick}>
+    <div
+      className={`long-skill-button ${sn}`}
+      onClick={() => {
+        setText(sk.text);
+        console.log(sk);
+      }}
+    >
       <img
         className="long-skill-button-type"
         src={`/pokemon/img/type/${sk.type}.svg`}

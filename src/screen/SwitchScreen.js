@@ -23,9 +23,6 @@ const Switch = () => {
       setText(queue[0].text);
       console.log(queue);
     }
-    if (queue.length === 0) {
-      setText(battle.player.origin.names + " 무엇을 할까?");
-    }
   }, [queue]);
 
   const handleDequeue = () => {

@@ -3,7 +3,7 @@ import FadeInComponent from "./FadeInComponent"; // 경로에 맞게 수정
 import HpBar from "./HpBar";
 import LongSkillButton from "./LongSkillButton";
 
-const BottomSectionInfo = ({ battle, text, setBottom, bench }) => {
+const BottomSectionInfo = ({ battle, text, setBottom, bench, setText }) => {
   let pokemon;
   if (bench === 1) {
     pokemon = battle.playerBench1;
@@ -14,7 +14,9 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench }) => {
   return (
     <div className="bottom-section">
       <div className="text-box">
-        <FadeInComponent className="text" text={text} />
+        <div className="text-layer">
+          <FadeInComponent className="text" text={text} />
+        </div>
       </div>
       <div className="change" onClick={() => setBottom("switch")}>
         뒤로가기
@@ -51,12 +53,32 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench }) => {
       <div className={`pokemon-benchinfo-hp-bar`}>
         <HpBar hp={pokemon.hp} maxHp={pokemon.origin.hp} />
       </div>
-      <LongSkillButton battle={battle} skillNumber={1} pokemon={pokemon} />
-      <LongSkillButton battle={battle} skillNumber={2} pokemon={pokemon} />
+      <LongSkillButton
+        battle={battle}
+        skillNumber={1}
+        pokemon={pokemon}
+        setText={setText}
+      />
+      <LongSkillButton
+        battle={battle}
+        skillNumber={2}
+        pokemon={pokemon}
+        setText={setText}
+      />
 
-      <LongSkillButton battle={battle} skillNumber={3} pokemon={pokemon} />
+      <LongSkillButton
+        battle={battle}
+        skillNumber={3}
+        pokemon={pokemon}
+        setText={setText}
+      />
 
-      <LongSkillButton battle={battle} skillNumber={4} pokemon={pokemon} />
+      <LongSkillButton
+        battle={battle}
+        skillNumber={4}
+        pokemon={pokemon}
+        setText={setText}
+      />
     </div>
   );
 };

@@ -9,7 +9,8 @@ class Skill {
     touch,
     stype,
     skillEffectList,
-    skillRequirement
+    skillRequirement,
+    text
   ) {
     this._validateParams(
       name,
@@ -21,7 +22,8 @@ class Skill {
       touch,
       stype,
       skillEffectList,
-      skillRequirement
+      skillRequirement,
+      text
     );
 
     this.name = name;
@@ -36,6 +38,26 @@ class Skill {
     this.skillEffectList = skillEffectList;
     this.skillEffectList.unshift({ name: "공통" });
     this.skillRequirement = skillRequirement;
+    let stypes;
+    if (stype === "atk") {
+      stypes = "물리";
+    } else if (stype === "catk") {
+      stypes = "특수";
+    } else if (stype === "natk" || stype === "buf") {
+      stypes = "변화";
+    }
+    if (stype === "atk" || stype === "catk") {
+      this.text = "위력 " + power + " / 명중 " + accur + " / " + stypes;
+    } else if (stype === "natk") {
+      this.text = "명중 " + accur;
+    }
+    if (text !== "") {
+      this.text += " / " + text;
+    }
+
+    if (stype === "buf") {
+      this.text = text;
+    }
   }
   _validateParams(
     name,
@@ -47,7 +69,8 @@ class Skill {
     touch,
     stype,
     skillEffectList,
-    skillRequirement
+    skillRequirement,
+    text
   ) {
     if (typeof name !== "string") console.error("name must be a string", name);
     if (typeof type !== "string") console.error("type must be a string", type);
@@ -69,39 +92,125 @@ class Skill {
       (skillRequirement !== undefined) & (skillRequirement !== null)
     )
       console.error("skillRequirement must be a string", skillRequirement);
+    if (typeof text !== "string") console.error("text must be a string", text);
   }
 }
 
 class SkillList {
   constructor() {
     this.items = [
-      new Skill("화염볼", "불꽃", 120, 100, 5, 0, false, "atk", [
-        { name: "화상", probability: 10 },
-        { name: "얼음치료" },
-      ]),
-      new Skill("무릎차기", "격투", 130, 90, 10, 0, true, "atk", [
-        { name: "빗나감패널티" },
-      ]),
-      new Skill("기습", "악", 70, 100, 5, 1, true, "atk", [], "기습"),
-      new Skill("아이언헤드", "강철", 80, 100, 15, 0, true, "atk", [
-        { name: "풀죽음", probability: 30 },
-      ]),
-      new Skill("섀도볼", "고스트", 80, 100, 15, 0, false, "catk", [
-        {
-          name: "능력치증감",
-          probability: 20,
-          abil: "cdef",
-          target: "def",
-          value: -1,
-        },
-      ]),
-      new Skill("다이맥스포", "드래곤", 100, 100, 5, 0, false, "catk", []),
-      new Skill("오물웨이브", "독", 95, 100, 10, 0, false, "catk", [
-        { name: "독", probability: 10 },
-      ]),
-      new Skill("화염방사", "불꽃", 90, 100, 15, 0, false, "catk", [
-        { name: "화상", probability: 10 },
-      ]),
+      new Skill(
+        "화염볼",
+        "불꽃",
+        120,
+        100,
+        5,
+        0,
+        false,
+        "atk",
+        [{ name: "화상", probability: 10 }, { name: "얼음치료" }],
+        null,
+        "10%의 확률로 상대를 화상 상태로 만든다."
+      ),
+      new Skill(
+        "무릎차기",
+        "격투",
+        130,
+        90,
+        10,
+        0,
+        true,
+        "atk",
+        [{ name: "빗나감패널티" }],
+        null,
+        "빗나가면 자신이 전체 HP의 ½의 데미지를 입는다."
+      ),
+      new Skill(
+        "기습",
+        "악",
+        70,
+        100,
+        5,
+        1,
+        true,
+        "atk",
+        [],
+        "기습",
+        "상대가 쓴 기술이 공격기술이 아니면 실패한다. (우선도 +1)"
+      ),
+      new Skill(
+        "아이언헤드",
+        "강철",
+        80,
+        100,
+        15,
+        0,
+        true,
+        "atk",
+        [{ name: "풀죽음", probability: 30 }],
+        null,
+        "30%의 확률로 상대를 풀죽게 만든다."
+      ),
+      new Skill(
+        "섀도볼",
+        "고스트",
+        80,
+        100,
+        15,
+        0,
+        false,
+        "catk",
+        [
+          {
+            name: "능력치증감",
+            probability: 20,
+            abil: "cdef",
+            target: "def",
+            value: -1,
+          },
+        ],
+        null,
+        "20% 확률로 상대의 특수방어를 1랭크 떨어뜨린다."
+      ),
+      new Skill(
+        "다이맥스포",
+        "드래곤",
+        100,
+        100,
+        5,
+        0,
+        false,
+        "catk",
+        [],
+        null,
+        ""
+      ),
+      new Skill(
+        "오물웨이브",
+        "독",
+        95,
+        100,
+        10,
+        0,
+        false,
+        "catk",
+        [{ name: "독", probability: 10 }],
+        null,
+        "10% 확률로 상대를 독 상태로 만든다."
+      ),
+      new Skill(
+        "화염방사",
+        "불꽃",
+        90,
+        100,
+        15,
+        0,
+        false,
+        "catk",
+        [{ name: "화상", probability: 10 }],
+        null,
+        "10% 확률로 상대를 화상 상태로 만든다."
+      ),
       new Skill(
         "10만볼트", //스킬명
         "전기", //스킬타입
@@ -111,7 +220,9 @@ class SkillList {
         0, //우선도
         false, //접촉
         "catk", //atk catk natk buf
-        [{ name: "마비", probability: 10 }]
+        [{ name: "마비", probability: 10 }],
+        null,
+        "10%의 확률로 상대를 마비 상태로 만든다."
       ),
       new Skill(
         "열풍", //스킬명
@@ -122,7 +233,9 @@ class SkillList {
         0, //우선도
         false, //접촉
         "catk", //atk catk natk buf
-        [{ name: "화상", probability: 10 }]
+        [{ name: "화상", probability: 10 }],
+        null,
+        "10% 확률로 상대를 화상 상태로 만든다."
       ),
       new Skill(
         "폭풍", //스킬명
@@ -133,7 +246,9 @@ class SkillList {
         0, //우선도
         false, //접촉
         "catk", //atk catk natk buf
-        [{ name: "혼란", probability: 30 }]
+        [{ name: "혼란", probability: 30 }],
+        null,
+        "30% 확률로 상대를 혼란 상태로 만든다."
       ),
       new Skill(
         "날개쉬기", //스킬명
@@ -144,7 +259,9 @@ class SkillList {
         0, //우선도
         false, //접촉
         "buf", //atk catk natk buf
-        [{ name: "날개쉬기" }, { name: "회복" }]
+        [{ name: "날개쉬기" }, { name: "회복" }],
+        null,
+        "최대 HP의 절반만큼 회복한다. 사용한 턴에 비행 타입이 없어진다."
       ),
       new Skill(
         "블러드문", //스킬명
@@ -155,7 +272,9 @@ class SkillList {
         0, //우선도
         false, //접촉
         "catk", //atk catk natk buf
-        []
+        [],
+        null,
+        "이 기술은 2회 연속으로 사용할 수 없다."
       ),
       new Skill(
         "하이퍼보이스", //스킬명
@@ -166,7 +285,9 @@ class SkillList {
         0, //우선도
         false, //접촉
         "catk", //atk catk natk buf
-        []
+        [],
+        null,
+        ""
       ),
       new Skill(
         "대지의힘", //스킬명
@@ -185,7 +306,9 @@ class SkillList {
             target: "def",
             value: -1,
           },
-        ]
+        ],
+        null,
+        "10%의 확률로 상대의 특수방어를 1랭크 떨어뜨린다."
       ),
       new Skill(
         "진공파", //스킬명
@@ -196,7 +319,9 @@ class SkillList {
         1, //우선도
         false, //접촉
         "catk", //atk catk natk buf
-        []
+        [],
+        null,
+        "우선도 +1"
       ),
       new Skill(
         "칼춤", //스킬명
@@ -215,7 +340,9 @@ class SkillList {
             target: "atk",
             value: 2,
           },
-        ]
+        ],
+        null,
+        "자신의 공격을 2랭크 올린다."
       ),
     ];
   }

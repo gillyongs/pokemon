@@ -185,6 +185,14 @@ body {
   background-position: center; /* 왼쪽에서 10% 잘라내고 중앙 정렬 */
   background-repeat: no-repeat; /* 이미지 반복 금지 */
   background-color: rgba(0, 0, 0, 0.5);
+  font-size: 4.8vw;
+}
+
+.text-layer {
+  position: absolute;
+  height: 5vh;
+  width: 94vw;
+  top: -7px;
 }
 
 .text {
@@ -387,10 +395,10 @@ body {
 
 .pokemon-benchinfo-item-icon {
   position: absolute;
-  width: 23%;
+  width: 40px;
   height: 80%;
   top: 4px;
-  left: 5px;
+  left: 4px;
   border-radius: 5px; /* 모서리 둥글게 */
 }
 

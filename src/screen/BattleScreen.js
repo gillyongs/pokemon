@@ -12,7 +12,7 @@ import BottomSectionInfo from "../component/Bottom-Info";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
-    createBattle(["0001", "0002", "0003"], ["0004", "0003", "0002"])
+    createBattle(["0001", "0004", "0003"], ["0004", "0003", "0002"])
   );
   const [text, setText] = useState("");
 
@@ -39,8 +39,7 @@ const Battle = () => {
   };
 
   const queueCheck = () => {
-    console.log(queue.length);
-    if (queue.length > 0) {
+    if (queue.length > 1) {
       return false;
     }
     return true;
@@ -83,6 +82,7 @@ const Battle = () => {
         <BottomSectionInfo
           battle={battle}
           text={text}
+          setText={setText}
           setBottom={setBottom}
           bench={bench}
         ></BottomSectionInfo>
