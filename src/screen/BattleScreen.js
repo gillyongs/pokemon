@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import "./Main.css";
 import { createBattle } from "../entity/Battle";
 import { useQueue } from "../util/useQueue";
 import { battleStart } from "../service/battle";
 
-import PokemonInfo from "../component/PokemonInfo";
-import PokemonImage from "../component/PokemonImage";
-import BottomSectionSkill from "../component/Bottom-Skill";
-import BottomSectionSwitch from "../component/Bottom-Switch";
-import BottomSectionInfo from "../component/Bottom-Info";
+import PokemonInfo from "../component/Top/PokemonInfo";
+import PokemonImage from "../component/Top/PokemonImage";
+import BottomSectionSkill from "../component/Bottom/Bottom-Skill";
+import BottomSectionSwitch from "../component/Bottom/Bottom-Switch/Bottom-Switch";
+import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
@@ -53,69 +53,101 @@ const Battle = () => {
   };
 
   return (
-    <BS onClick={handleDequeue}>
-      <Top>
-        <PIW>
-          <PokemonImage battle={battle} type="npc" />
-          <PokemonImage battle={battle} type="plr" />
-        </PIW>
-        <PokemonInfo battle={battle} type="npc" />
-        <PokemonInfo battle={battle} type="plr" />
-      </Top>
-      {bottom === "skill" && (
-        <BottomSectionSkill
-          battle={battle}
-          text={text}
-          handleSkillClick={handleSkillClick}
-          setBottom={setBottom}
-          queueCheck={queueCheck}
-        ></BottomSectionSkill>
-      )}
-      {bottom === "switch" && (
-        <BottomSectionSwitch
-          battle={battle}
-          text={text}
-          setBottom={setBottom}
-          setBench={setBench}
-        ></BottomSectionSwitch>
-      )}
-      {bottom === "info" && (
-        <BottomSectionInfo
-          battle={battle}
-          text={text}
-          setText={setText}
-          setBottom={setBottom}
-          bench={bench}
-        ></BottomSectionInfo>
-      )}
-    </BS>
+    <>
+      <GlobalStyle />
+      <BATTLE onClick={handleDequeue}>
+        <TOP>
+          <IMAGE>
+            <PokemonImage battle={battle} type="npc" />
+            <PokemonImage battle={battle} type="plr" />
+          </IMAGE>
+          <PokemonInfo battle={battle} type="npc" />
+          <PokemonInfo battle={battle} type="plr" />
+        </TOP>
+        <BOTTOM>
+          {bottom === "skill" && (
+            <BottomSectionSkill
+              battle={battle}
+              text={text}
+              handleSkillClick={handleSkillClick}
+              setBottom={setBottom}
+              queueCheck={queueCheck}
+            />
+          )}
+          {bottom === "switch" && (
+            <BottomSectionSwitch
+              battle={battle}
+              text={text}
+              setBottom={setBottom}
+              setBench={setBench}
+            />
+          )}
+          {bottom === "info" && (
+            <BottomSectionInfo
+              battle={battle}
+              text={text}
+              setText={setText}
+              setBottom={setBottom}
+              bench={bench}
+            />
+          )}
+        </BOTTOM>
+      </BATTLE>
+    </>
   );
 };
 
-const BS = styled.div`
+const GlobalStyle = createGlobalStyle`
+  @font-face {
+    font-family: "CustomFont"; /* 폰트 이름 정의 */
+    src: url("/pokemon/font/esamanru Medium.ttf") format("truetype"); /* .ttf 파일 경로 지정 */
+  }
+
+  body {
+    font-family: "CustomFont", sans-serif; /* 기본 폰트로 'CustomFont' 사용 */
+  }
+`;
+
+const BATTLE = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
 `;
 
-const Top = styled.div`
+const TOP = styled.div`
   width: 100%;
   height: 43%;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  background-image: url("/pokemon/img/background/1.gif");
+  background-image: url("/pokemon/img/background/top.gif");
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
 `;
 
-const PIW = styled.div`
-  position: absolute; /* 부모의 상대적인 위치에 따라 위치 설정 */
+const IMAGE = styled.div`
+  position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* X, Y축으로 -50% 이동 */
+  transform: translate(-50%, -50%);
+`;
+
+const BOTTOM = styled.div`
+  width: 100vw;
+  height: 57vh;
+  background-color: #6e7e7c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 20px;
+  position: relative;
+  background-image: url("/pokemon/img/background/bottom.gif");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
 `;
 
 export default Battle;

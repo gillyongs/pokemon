@@ -1,5 +1,5 @@
 import PokemonOriginal from "./PokemonOriginal";
-import skillList from "./Skill";
+import skillList from "../Skill/Skill";
 class BattlePokemon {
   constructor(
     id,

@@ -1,4 +1,4 @@
-import skillEffectSearch from "../entity/SkillEffect";
+import skillEffectSearch from "../entity/Skill/SkillEffect";
 
 export const applySkillEffects = (bt, enqueue) => {
   const skillEffectList =

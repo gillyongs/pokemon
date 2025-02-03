@@ -1,4 +1,4 @@
-import skillRequirementSearch from "../entity/SkillRequirement";
+import skillRequirementSearch from "../entity/Skill/SkillRequirement";
 import { random } from "../util/randomCheck";
 import { confuseDamageCalculate } from "../util/damageCalculate";
 import { damage } from "../function/damage";

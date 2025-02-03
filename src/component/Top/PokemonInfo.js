@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import HpBar from "./HpBar";
+import HpBar from "../HpBar";
 
 const PokemonInfo = ({ battle, type }) => {
   const pokemon = type === "npc" ? battle.npc : battle.player;

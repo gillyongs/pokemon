@@ -1,4 +1,4 @@
-import { generate } from "./Pokemon";
+import { generate } from "./Pokemon/Pokemon";
 
 class Battle {
   constructor(player, npc, playerBench1, playerBench2, npcBench1, npcBench2) {
@@ -17,6 +17,7 @@ class Battle {
       playerSN: null,
       npcSN: null,
     };
+    this.playerBench1.status.burn = true;
   }
 }
 

@@ -1,8 +1,8 @@
-import { damage } from "../function/damage";
-import { random } from "../util/randomCheck";
-import { rank } from "../function/rank";
-import { recover } from "../function/recover";
-import { burn, mabi, poision } from "../function/statusError";
+import { damage } from "../../function/damage";
+import { random } from "../../util/randomCheck";
+import { rank } from "../../function/rank";
+import { recover } from "../../function/recover";
+import { burn, mabi, poision } from "../../function/statusError";
 
 function skillEffectSearch(name) {
   const functions = {

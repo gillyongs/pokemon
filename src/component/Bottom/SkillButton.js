@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { typeCheckConsole } from "../util/typeCheck";
+import { typeCheckConsole } from "../../util/typeCheck";
 
 const SkillButton = ({ battle, skillNumber, onClick, pokemon }) => {
   const skill = "sk" + skillNumber;
