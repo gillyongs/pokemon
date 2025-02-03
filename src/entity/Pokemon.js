@@ -32,7 +32,7 @@ class PokemonOnBattle {
       // 매 턴 초기화
       fullDeath: null,
       miss: null,
-      roost: null,
+      roost: null, //날개쉬기
     };
     this.tempStatus = {
       //교체시 초기화

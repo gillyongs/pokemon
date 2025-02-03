@@ -1,6 +1,7 @@
 import React from "react";
 import FadeInComponent from "./FadeInComponent"; // 경로에 맞게 수정
 import SkillButton from "./SkillButton"; // 경로에 맞게 수정
+import TextBox from "./TextBox";
 
 const BottomSectionSkill = ({
   battle,
@@ -11,9 +12,7 @@ const BottomSectionSkill = ({
 }) => {
   return (
     <div className="bottom-section">
-      <div className="text-box">
-        <FadeInComponent className="text" text={text} />
-      </div>
+      <TextBox text={text} />
 
       <SkillButton
         battle={battle}

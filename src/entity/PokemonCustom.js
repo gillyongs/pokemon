@@ -46,7 +46,9 @@ class BattlePokemon {
     this.sk3 = skillList.search(sk3);
     this.sk4 = skillList.search(sk4);
     this.item = item;
+    this.itemText = itemText[item];
     this.abil = abil;
+    this.abilText = abilText[abil];
 
     const pokemon = PokemonOriginal.getItemById(pokemon_id);
     this.pokemon_id = pokemon.id; //0815
@@ -164,7 +166,23 @@ class BattlePokemon {
 
     if (typeof item !== "string") console.error("item must be a string", item);
     if (typeof abil !== "string") console.error("abil must be a string", abil);
+    if (abilText[abil] === null || abilText[abil] === undefined)
+      console.error("abilText not find", abil);
+    if (itemText[item] === null || itemText[item] === undefined)
+      console.error("itemText not find", item);
   }
 }
+
+const abilText = {
+  리베로: "자신이 사용한 기술과 같은 타입으로 변화한다.",
+  심안: "노말타입과 격투타입 기술을 고스트타입에게 맞힐 수 있다. 상대의 회피율 변화를 무시하고 명중률도 떨어지지 않는다.",
+  정전기: "자신에게 접촉한 상대를 30% 확률로 마비시킨다.",
+  프레셔: "상대가 쓰는 기술의 PP를 많이 줄인다.",
+};
+
+const itemText = {
+  돌격조끼: "특수방어가 1.5배 올라가지만 변화 기술을 쓸 수 없게 된다.",
+  생명의구슬: "공격할 때마다 HP가 10%씩 깎이지만 기술의 위력이 1.3배 올라간다.",
+};
 
 export default BattlePokemon;

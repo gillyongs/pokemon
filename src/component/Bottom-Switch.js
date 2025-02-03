@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import FadeInComponent from "./FadeInComponent"; // 경로에 맞게 수정
 import HpBar from "./HpBar";
+import TextBox from "./TextBox";
 
 const BottomSectionSwitch = ({ battle, text, setBottom, setBench }) => {
   const [selected, setSelected] = useState(null);
@@ -9,9 +10,7 @@ const BottomSectionSwitch = ({ battle, text, setBottom, setBench }) => {
   };
   return (
     <div className="bottom-section">
-      <div className="text-box">
-        <FadeInComponent className="text" text={text} />
-      </div>
+      <TextBox text={text} />
 
       <div
         className={`bench one ${selected === "one" ? "selected" : ""}`}

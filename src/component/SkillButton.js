@@ -1,30 +1,29 @@
+import React from "react";
+import styled from "styled-components";
 import { typeCheckConsole } from "../util/typeCheck";
 
 const SkillButton = ({ battle, skillNumber, onClick, pokemon }) => {
   const skill = "sk" + skillNumber;
   const pp = "pp" + skillNumber;
   let sk;
-  if (pokemon === undefined || pokemon === null) {
+  if (!pokemon) {
     sk = battle.player.origin[skill];
   } else {
     sk = pokemon.origin[skill];
   }
   const sn = getNumberText(skillNumber);
+
   return (
-    <div className={`skill ${sn}`} onClick={onClick}>
-      <img
-        className="type"
-        src={`/pokemon/img/type/${sk.type}.svg`}
-        alt={sk.name}
-      />
-      <div className="skill_name">{sk.name}</div>
-      <div className="skill_effect">
+    <SKILL className={sn} onClick={onClick}>
+      <ICON src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
+      <NAME>{sk.name}</NAME>
+      <EFFECT>
         {typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2)}
-      </div>
-      <div className="skill_pp">
+      </EFFECT>
+      <PP>
         {battle.player[pp]}/{sk.pp}
-      </div>
-    </div>
+      </PP>
+    </SKILL>
   );
 };
 
@@ -44,3 +43,59 @@ const getNumberText = (value) => {
 };
 
 export default SkillButton;
+
+const SKILL = styled.div`
+  position: absolute;
+  width: 47vw;
+  height: 13vh;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.7);
+
+  &.one {
+    top: 20vh;
+    left: 1vw;
+  }
+  &.two {
+    top: 20vh;
+    right: 1vw;
+  }
+  &.three {
+    top: 35vh;
+    left: 1vw;
+  }
+  &.four {
+    top: 35vh;
+    right: 1vw;
+  }
+`;
+
+const ICON = styled.img`
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  top: 5px;
+  left: 5px;
+  border-radius: 5px;
+`;
+
+const NAME = styled.div`
+  position: absolute;
+  top: 8px;
+  left: 45px;
+`;
+
+const EFFECT = styled.div`
+  position: absolute;
+  top: 45px;
+  left: 7px;
+  font-size: 15px;
+`;
+
+const PP = styled.div`
+  position: absolute;
+  bottom: 4px;
+  right: 3px;
+  font-size: 15px;
+  background-color: #665f5f;
+  border-radius: 5px;
+`;

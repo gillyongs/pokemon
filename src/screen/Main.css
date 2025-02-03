@@ -7,101 +7,6 @@ body {
   font-family: "CustomFont", sans-serif; /* 기본 폰트로 'CustomFont' 사용 */
 }
 
-.battle-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-.top-section {
-  width: 100;
-  height: 43%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative; /* 자식 요소의 위치를 절대적으로 지정하기 위해 부모에 position을 설정 */
-  background-image: url("/public/img/background/1.gif"); /* 배경 이미지 경로 */
-  background-size: 100% 100%; /* 원래 이미지 크기의 120%로 확대 */
-  background-position: center; /* 왼쪽에서 10% 잘라내고 중앙 정렬 */
-  background-repeat: no-repeat; /* 이미지 반복 금지 */
-}
-
-.pokemon-info {
-  position: absolute; /* 부모의 상대적인 위치에 따라 위치 설정 */
-  width: 20vh; /* 네모의 가로 크기 */
-  height: 13.5vh; /* 네모의 세로 크기 */
-  background-color: rgba(0, 0, 0, 0.5); /* 반 불투명한 검정색 */
-  border-radius: 15px; /* 모서리 둥글게 */
-}
-
-.pokemon-info.npc {
-  top: 3vh; /* 우측 상단에 위치 */
-  left: 3vw; /* 우측 10px, 상단 10px */
-}
-.pokemon-info.plr {
-  bottom: 3vh; /* 우측 상단에 위치 */
-  right: 3vw; /* 우측 10px, 상단 10px */
-}
-
-.pokemon-name {
-  position: absolute; /* 부모의 상대적인 위치에 따라 위치 설정 */
-  color: white;
-  top: 14px;
-  left: 10px;
-  font-size: 17px;
-}
-.pokemon-status {
-  position: absolute; /* 부모의 상대적인 위치에 따라 위치 설정 */
-  color: white;
-  top: 14px;
-  right: 10px;
-  font-size: 12px;
-  padding: 2px 4px;
-  border-radius: 5px;
-}
-.pokemon-status.burn {
-  background-color: red;
-}
-.pokemon-status.sleep {
-  background-color: gray;
-}
-.pokemon-status.freeze {
-  background-color: skyblue;
-}
-.pokemon-status.mabi {
-  background-color: rgb(158, 156, 42);
-}
-.pokemon-status.poision {
-  background-color: purple;
-}
-
-.pokemon-image {
-  position: absolute; /* 부모의 상대적인 위치에 따라 위치 설정 */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* X, Y축으로 -50% 이동 */
-}
-
-.pokemon-img {
-  width: 30vw;
-  height: 30vw;
-  max-width: 120px; /* 최대 너비 제한 */
-  max-height: 120px; /* 최대 높이 제한 */
-  position: absolute;
-}
-
-.pokemon-img.plr {
-  transform: scaleX(-1);
-  right: 8.5vw;
-  top: -3vh;
-}
-
-.pokemon-img.npc {
-  position: absolute;
-  left: 8.5vw;
-  bottom: -3vh;
-}
-
 .bottom-section {
   width: 100vw;
   height: 57vh;
@@ -116,62 +21,6 @@ body {
   background-size: 100% 100%; /* 원래 이미지 크기의 120%로 확대 */
   background-position: center; /* 왼쪽에서 10% 잘라내고 중앙 정렬 */
   background-repeat: no-repeat; /* 이미지 반복 금지 */
-}
-
-.skill {
-  position: absolute;
-  width: 47vw;
-  height: 13vh;
-  border-radius: 5px; /* 모서리 둥글게 */
-  background-color: rgba(0, 0, 0, 0.7);
-}
-.skill.one {
-  top: 20vh;
-  left: 1vw;
-}
-
-.skill.two {
-  top: 20vh;
-  right: 1vw;
-}
-.skill.three {
-  top: 35vh;
-  left: 1vw;
-}
-.skill.four {
-  top: 35vh;
-  right: 1vw;
-}
-
-.type {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  top: 5px;
-  left: 5px;
-  border-radius: 5px; /* 모서리 둥글게 */
-}
-
-.skill_name {
-  position: absolute;
-  top: 8px;
-  left: 45px;
-}
-
-.skill_effect {
-  position: absolute;
-  top: 45px;
-  left: 7px;
-  font-size: 15px;
-}
-
-.skill_pp {
-  position: absolute;
-  bottom: 4px;
-  right: 3px;
-  font-size: 15px;
-  background-color: #665f5f;
-  border-radius: 5px;
 }
 
 .text-box {
@@ -331,6 +180,41 @@ body {
   position: absolute;
   left: 27vw;
   top: 9vh;
+}
+
+.pokemon-benchinfo-type {
+  position: absolute;
+  width: 48vw;
+  height: 7vh;
+
+  border-radius: 5px; /* 모서리 둥글게 */
+  background-color: rgba(0, 0, 0, 0.7);
+
+  top: 24vh;
+  left: 1vw;
+
+  font-size: 15px;
+}
+
+.pokemon-benchinfo-type-text {
+  position: absolute;
+  top: 6px;
+  left: 55px;
+  font-size: 12px;
+}
+.pokemon-benchinfo-type-text-name {
+  position: absolute;
+  top: 22px;
+  left: 55px;
+}
+
+.pokemon-benchinfo-type-icon {
+  position: absolute;
+  width: 40px;
+  height: 80%;
+  top: 4px;
+  left: 4px;
+  border-radius: 5px; /* 모서리 둥글게 */
 }
 
 .pokemon-benchinfo-abil {

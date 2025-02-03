@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import styled from "styled-components";
 import "./Main.css";
 import { createBattle } from "../entity/Battle";
 import { useQueue } from "../util/useQueue";
@@ -12,7 +13,7 @@ import BottomSectionInfo from "../component/Bottom-Info";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
-    createBattle(["0001", "0004", "0003"], ["0004", "0003", "0002"])
+    createBattle(["0001", "0002", "0003"], ["0004", "0003", "0002"])
   );
   const [text, setText] = useState("");
 
@@ -52,15 +53,15 @@ const Battle = () => {
   };
 
   return (
-    <div className="battle-container" onClick={handleDequeue}>
-      <div className="top-section">
-        <div className="pokemon-image">
+    <BS onClick={handleDequeue}>
+      <Top>
+        <PIW>
           <PokemonImage battle={battle} type="npc" />
           <PokemonImage battle={battle} type="plr" />
-        </div>
+        </PIW>
         <PokemonInfo battle={battle} type="npc" />
         <PokemonInfo battle={battle} type="plr" />
-      </div>
+      </Top>
       {bottom === "skill" && (
         <BottomSectionSkill
           battle={battle}
@@ -87,8 +88,34 @@ const Battle = () => {
           bench={bench}
         ></BottomSectionInfo>
       )}
-    </div>
+    </BS>
   );
 };
+
+const BS = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+`;
+
+const Top = styled.div`
+  width: 100%;
+  height: 43%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background-image: url("/pokemon/img/background/1.gif");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+`;
+
+const PIW = styled.div`
+  position: absolute; /* 부모의 상대적인 위치에 따라 위치 설정 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* X, Y축으로 -50% 이동 */
+`;
 
 export default Battle;
