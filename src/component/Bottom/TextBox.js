@@ -26,6 +26,9 @@ const StyledTextBox = styled.div`
   background-repeat: no-repeat;
   background-color: rgba(0, 0, 0, 0.5);
   font-size: 4.8vw;
+  @media (min-width: 500px) {
+    font-size: 25px; /* 최대 38px */
+  }
 `;
 
 const StyledTextLayer = styled.div`

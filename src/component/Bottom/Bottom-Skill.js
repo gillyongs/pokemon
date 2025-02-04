@@ -4,44 +4,22 @@ import SkillButton from "./SkillButton"; // 경로에 맞게 수정
 import TextBox from "./TextBox";
 import ChangeButton from "./ChangeButton";
 
-const BottomSectionSkill = ({
-  battle,
-  text,
-  handleSkillClick,
-  setBottom,
-  queueCheck,
-}) => {
+const BottomSectionSkill = ({ battle, text, setBottom, queueObject }) => {
   return (
     <div className="bottom-section">
       <TextBox text={text} />
 
-      <SkillButton
-        battle={battle}
-        skillNumber={1}
-        onClick={() => handleSkillClick(1)}
-      />
+      <SkillButton battle={battle} skillNumber={1} queueObject={queueObject} />
 
-      <SkillButton
-        battle={battle}
-        skillNumber={2}
-        onClick={() => handleSkillClick(2)}
-      />
+      <SkillButton battle={battle} skillNumber={2} queueObject={queueObject} />
 
-      <SkillButton
-        battle={battle}
-        skillNumber={3}
-        onClick={() => handleSkillClick(3)}
-      />
+      <SkillButton battle={battle} skillNumber={3} queueObject={queueObject} />
 
-      <SkillButton
-        battle={battle}
-        skillNumber={4}
-        onClick={() => handleSkillClick(4)}
-      />
+      <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} />
 
       <ChangeButton
         onClick={() => {
-          if (queueCheck()) {
+          if (queueObject.queueCheck()) {
             setBottom("switch");
           }
         }}

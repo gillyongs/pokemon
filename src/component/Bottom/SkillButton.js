@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { typeCheckConsole } from "../../util/typeCheck";
+import { battleStart } from "../../service/battle";
 
-const SkillButton = ({ battle, skillNumber, onClick, pokemon }) => {
+const SkillButton = ({ battle, skillNumber, queueObject, pokemon }) => {
   const skill = "sk" + skillNumber;
   const pp = "pp" + skillNumber;
   let sk;
@@ -13,8 +14,25 @@ const SkillButton = ({ battle, skillNumber, onClick, pokemon }) => {
   }
   const sn = getNumberText(skillNumber);
 
+  const handleSkillClick = (skillIndex) => {
+    if (queueObject.queueCheck()) {
+      battleStart(
+        battle,
+        skillIndex,
+        queueObject.enqueue,
+        queueObject.dequeue,
+        queueObject.resetQueue
+      );
+    }
+  };
+
   return (
-    <SKILL className={sn} onClick={onClick}>
+    <SKILL
+      className={sn}
+      onClick={() => {
+        handleSkillClick(skillNumber);
+      }}
+    >
       <ICON src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
       <NAME>{sk.name}</NAME>
       <EFFECT>

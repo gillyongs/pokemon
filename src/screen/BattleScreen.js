@@ -17,7 +17,8 @@ const Battle = () => {
   );
   const [text, setText] = useState("");
 
-  const { queue, enqueue, dequeue, resetQueue } = useQueue();
+  const { queue, enqueue, dequeue, resetQueue, queueCheck, queueObject } =
+    useQueue();
 
   const [bottom, setBottom] = useState("skill");
   const [bench, setBench] = useState(null);
@@ -39,19 +40,6 @@ const Battle = () => {
     }
   };
 
-  const queueCheck = () => {
-    if (queue.length > 1) {
-      return false;
-    }
-    return true;
-  };
-
-  const handleSkillClick = (skillIndex) => {
-    if (queueCheck()) {
-      battleStart(battle, skillIndex, enqueue, dequeue, resetQueue);
-    }
-  };
-
   return (
     <>
       <GlobalStyle />
@@ -69,9 +57,8 @@ const Battle = () => {
             <BottomSectionSkill
               battle={battle}
               text={text}
-              handleSkillClick={handleSkillClick}
               setBottom={setBottom}
-              queueCheck={queueCheck}
+              queueObject={queueObject}
             />
           )}
           {bottom === "switch" && (

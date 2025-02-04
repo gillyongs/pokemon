@@ -25,5 +25,20 @@ export function useQueue() {
     }
   };
 
-  return { queue, enqueue, dequeue, resetQueue };
+  const queueCheck = () => {
+    if (queue.length > 1) {
+      return false;
+    }
+    return true;
+  };
+
+  const queueObject = {
+    queue: queue,
+    enqueue: enqueue,
+    dequeue: dequeue,
+    resetQueue: resetQueue,
+    queueCheck: queueCheck,
+  };
+
+  return { queue, enqueue, dequeue, resetQueue, queueCheck, queueObject };
 }
