@@ -52,12 +52,14 @@ export const battleStart = (battle, actNumber, queueObject) => {
 
     if (fastUser === "player") {
       attackPlayer(bt, actNumber, npcActNumber, enqueue);
+      statCalculate(bt);
       if (bt[bt.turn.def].faint === true) {
         return;
       }
       attackNpc(bt, actNumber, npcActNumber, enqueue);
     } else {
       attackNpc(bt, actNumber, npcActNumber, enqueue);
+      statCalculate(bt);
       if (bt[bt.turn.def].faint === true) {
         return;
       }
@@ -69,7 +71,6 @@ export const battleStart = (battle, actNumber, queueObject) => {
 };
 
 const npcAi = (a) => {
-  return "npcBench1";
   if (a === "playerBench1") {
     return "npcBench1";
   }

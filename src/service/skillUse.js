@@ -26,6 +26,14 @@ export const skillUse = (bt, enqueue) => {
 
   if (skillType === "atk" || skillType === "catk") {
     let skillDamage = damageCalculate(bt, skillNumber, atk);
+    if (def.abil === "탈") {
+      if (skillDamage > def.origin.hp / 8) {
+        skillDamage = def.origin.hp / 8;
+      }
+      def.abil = "탈 (사용됨)";
+      def.origin.abil = "탈 (사용됨)";
+      enqueue({ battle: bt, text: "탈이 대타가 되었다!" });
+    }
     damage(bt, skillDamage, bt.turn.def, enqueue);
     atk[ppKey] -= 1;
     if (def.origin.abil === "프레셔" && atk[ppKey] > 0) {

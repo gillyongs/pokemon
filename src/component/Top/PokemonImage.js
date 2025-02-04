@@ -21,6 +21,7 @@ const StyledPokemonImage = styled.img`
   max-width: 120px;
   max-height: 120px;
   position: absolute;
+  transform: rotate(-20deg);
 
   &.plr {
     transform: scaleX(-1);

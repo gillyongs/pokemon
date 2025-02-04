@@ -52,6 +52,19 @@ export const skillFailCheck = (bt, enqueue) => {
   const sk = atk.origin[skKey];
   const skillType = bt[bt.turn.atk].origin["sk" + bt.turn.atkSN].stype;
 
+  if (atk.abil === "리베로") {
+    if (sk.type === atk.type1 && atk.type2 === null) {
+      //사용자 타입이랑 스킬 타입 같으면 리베로 발동 안함
+    } else {
+      atk.type1 = sk.type;
+      atk.type2 = null;
+      enqueue({
+        battle: bt,
+        text: "[리베로] " + atk.names + " " + sk.type + " 타입이 됐다!",
+      });
+    }
+  }
+
   if (sk.skillRequirement) {
     const skillFunction = skillRequirementSearch(sk.skillRequirement);
     if (typeof skillFunction === "function") {

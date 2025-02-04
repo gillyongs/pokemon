@@ -20,8 +20,8 @@ function skillEffectSearch(name) {
         }
       }
       if (def.abil === "정전기" && sk.touch) {
-        if (random(100)) {
-          mabi(battle, battle.turn.atk, enqueue);
+        if (random(30)) {
+          mabi(battle, battle.turn.atk, enqueue, true);
         }
       }
     },

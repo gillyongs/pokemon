@@ -2,7 +2,7 @@ const statusCheck = (status) => {
   return Object.values(status).some((value) => value !== null);
 };
 
-export const mabi = (battle, get, enqueue) => {
+export const mabi = (battle, get, enqueue, abil) => {
   let pokemon;
   if (get === "player") {
     pokemon = battle.player;
@@ -17,6 +17,9 @@ export const mabi = (battle, get, enqueue) => {
     return;
   }
   let mabiText = pokemon.names + " 마비되어 기술이 나오기 어려워졌다!";
+  if (abil) {
+    mabiText = "[특성 정전기] " + mabiText;
+  }
   pokemon.status.mabi = true;
   enqueue({
     battle: battle,

@@ -344,6 +344,53 @@ class SkillList {
         null,
         "자신의 공격을 2랭크 올린다."
       ),
+      new Skill(
+        "섀도크루", //스킬명
+        "고스트", //스킬타입
+        70, //위력
+        100, //명중률
+        15, //pp
+        0, //우선도
+        true, //접촉
+        "atk", //atk catk natk buf
+        [],
+        null,
+        "급소에 맞을 확률이 높다."
+      ),
+      new Skill(
+        "야습", //스킬명
+        "고스트", //스킬타입
+        40, //위력
+        100, //명중률
+        30, //pp
+        1, //우선도
+        true, //접촉
+        "atk", //atk catk natk buf
+        [],
+        null,
+        "우선도 +1"
+      ),
+      new Skill(
+        "치근거리기", //스킬명
+        "페어리", //스킬타입
+        90, //위력
+        90, //명중률
+        10, //pp
+        0, //우선도
+        true, //접촉
+        "catk", //atk catk natk buf
+        [
+          {
+            name: "능력치증감",
+            probability: 10,
+            abil: "atk",
+            target: "def",
+            value: -1,
+          },
+        ],
+        null,
+        "10% 확률로 상대의 공격을 떨어뜨린다."
+      ),
     ];
   }
   // ID로 객체 찾기
