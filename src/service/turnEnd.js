@@ -1,5 +1,5 @@
 import { damage } from "../function/damage";
-
+import { switchNpc } from "./switchPokemon";
 export const turnEnd = (battle, enqueue) => {
   if (battle.player.faint !== true) {
     if (battle.player.status.poision === true) {
@@ -64,8 +64,21 @@ export const turnEnd = (battle, enqueue) => {
     tempNpc[key] = null;
   });
 
-  enqueue({
-    battle: battle,
-    text: battle.player.origin.names + " 무엇을 할까?",
-  });
+  battle.turn.turnEnd = true;
+  if (battle.npc.faint && !battle.player.faint) {
+    switchNpc(battle, "npcBench1", enqueue);
+  }
+
+  if (battle.player.faint) {
+    battle.turn.textFreeze = true;
+    enqueue({
+      battle: battle,
+      text: " 누구로 교체 할까?",
+    });
+  } else {
+    enqueue({
+      battle: battle,
+      text: battle.player.origin.names + " 무엇을 할까?",
+    });
+  }
 };

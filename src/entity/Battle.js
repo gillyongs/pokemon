@@ -16,6 +16,8 @@ class Battle {
       def: null,
       playerSN: null,
       npcSN: null,
+      turnEnd: null,
+      textFreeze: null,
     };
   }
 }

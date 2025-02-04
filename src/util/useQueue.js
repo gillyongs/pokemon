@@ -16,6 +16,8 @@ export function useQueue() {
       removedItem = prevQueue[0];
       return prevQueue.slice(1);
     });
+    // console.log("dequeue");
+    // console.log(removedItem);
     return removedItem;
   };
 

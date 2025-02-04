@@ -12,18 +12,26 @@ import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
-    createBattle(["0005", "0002", "0003"], ["0005", "0003", "0002"])
+    createBattle(["0001", "0002", "0003"], ["0002", "0003", "0002"])
   );
   const [text, setText] = useState("");
   const { queueObject } = useQueue();
   const [bottom, setBottom] = useState("skill");
   const [bench, setBench] = useState(null);
+  const [mustSwitch, setMustSwitch] = useState(null);
 
   useEffect(() => {
     if (queueObject.queue[0]) {
       setBattle(queueObject.queue[0].battle);
       setText(queueObject.queue[0].text);
       console.log(queueObject.queue);
+      const player = queueObject.queue[0].battle.player;
+      const turnEnd = queueObject.queue[0].battle.turn.turnEnd;
+
+      if (player.faint && turnEnd) {
+        setMustSwitch(true);
+        setBottom("switch");
+      }
     }
     if (queueObject.queue.length === 0) {
       setText(battle.player.origin.names + " 무엇을 할까?");
@@ -32,6 +40,9 @@ const Battle = () => {
 
   const handleDequeue = () => {
     if (queueObject.queue.length > 0) {
+      if (battle.turn.textFreeze) {
+        return;
+      }
       queueObject.dequeue();
     }
   };
@@ -64,6 +75,7 @@ const Battle = () => {
               setBottom={setBottom}
               setBench={setBench}
               queueObject={queueObject}
+              mustSwitch={mustSwitch}
             />
           )}
           {bottom === "info" && (

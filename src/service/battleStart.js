@@ -1,10 +1,6 @@
 import { speedCheck, skillSpeedCheck } from "../util/speedCheck";
 import { statCalculate } from "../function/statCalculate";
-import { skillEffectsAfter } from "./skiiEffect";
-import { skillUse } from "./skillUse";
 import { turnEnd } from "./turnEnd";
-import { switchPokemon } from "../util/switch";
-import { josa } from "josa";
 import { switchNpc, switchPlayer } from "./switchPokemon";
 import { attackNpc, attackPlayer } from "./attack";
 
@@ -53,17 +49,15 @@ export const battleStart = (battle, actNumber, queueObject) => {
     if (fastUser === "player") {
       attackPlayer(bt, actNumber, npcActNumber, enqueue);
       statCalculate(bt);
-      if (bt[bt.turn.def].faint === true) {
-        return;
+      if (bt[bt.turn.def].faint !== true) {
+        attackNpc(bt, actNumber, npcActNumber, enqueue);
       }
-      attackNpc(bt, actNumber, npcActNumber, enqueue);
     } else {
       attackNpc(bt, actNumber, npcActNumber, enqueue);
       statCalculate(bt);
-      if (bt[bt.turn.def].faint === true) {
-        return;
+      if (bt[bt.turn.def].faint !== true) {
+        attackPlayer(bt, actNumber, npcActNumber, enqueue);
       }
-      attackPlayer(bt, actNumber, npcActNumber, enqueue);
     }
   }
 

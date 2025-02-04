@@ -1,21 +1,20 @@
 import styled from "styled-components";
 import HpBar from "../../HpBar";
-import { battleStart } from "../../../service/battleStart";
 
 const BenchPokemon = ({
-  pokemon,
+  battle,
+  index,
   selected,
-  onClick,
+  handleSelected,
   setBench,
   setBottom,
-  index,
-  queueObject,
-  battle,
+  handleSwitch,
 }) => {
+  const pokemon = battle[index];
   return (
     <BenchWrapper
       className={`${index} ${selected === index ? "selected" : ""}`}
-      onClick={() => onClick(index)}
+      onClick={() => handleSelected(index)}
     >
       <PokemonName className={`${index}`}>{pokemon.origin.name}</PokemonName>
       <PokemonImage
@@ -37,20 +36,17 @@ const BenchPokemon = ({
 
       {selected === index && (
         <div>
-          {index !== "player" && (
+          {index !== "player" && !pokemon.faint && (
             <PokemonButton
               className="switch"
-              onClick={() => {
-                setBottom("skill");
-                battleStart(battle, index, queueObject);
-              }}
+              onClick={() => handleSwitch(index)}
             >
               교체
             </PokemonButton>
           )}
 
           <PokemonButton
-            className={`info ${index}`}
+            className={`info ${index} ${pokemon.faint}`}
             onClick={(e) => {
               e.stopPropagation();
               setBench(index);
@@ -136,6 +132,10 @@ const PokemonButton = styled.div`
   }
 
   &.info.player {
+    right: 50%;
+    transform: translateX(50%);
+  }
+  &.info.true {
     right: 50%;
     transform: translateX(50%);
   }

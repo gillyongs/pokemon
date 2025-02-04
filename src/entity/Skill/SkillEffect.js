@@ -16,7 +16,7 @@ function skillEffectSearch(name) {
             battle: battle,
             text: atk.name + "의 생명이 조금 깎였다!",
           });
-          damage(battle, atk.origin.hp / 10, battle.turn.atk, enqueue);
+          damage(battle, atk.origin.hp, battle.turn.atk, enqueue);
         }
       }
       if (def.abil === "정전기" && sk.touch) {

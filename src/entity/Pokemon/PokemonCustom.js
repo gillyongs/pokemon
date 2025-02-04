@@ -51,7 +51,7 @@ class BattlePokemon {
     this.abilText = abilText[abil];
 
     const pokemon = PokemonOriginal.getItemById(pokemon_id);
-    this.pokemon_id = pokemon.id; //0815
+    this.pokemon_id = pokemon.id; //ex) 0815
     this.name = pokemon.name;
     this.names = pokemon.names;
     this.namess = pokemon.namess;
@@ -59,7 +59,6 @@ class BattlePokemon {
     this.type2 = pokemon.type2;
 
     this.hp = pokemon.hp * 2 + Math.floor(hps / 4);
-    this.hp *= 10;
     this.atk = pokemon.atk * 2 + Math.floor(atks / 4);
     this.def = pokemon.def * 2 + Math.floor(defs / 4);
     this.catk = pokemon.catk * 2 + Math.floor(catks / 4);
