@@ -104,6 +104,8 @@ class BattlePokemon {
     if (updowntrigger !== 2) {
       console.error(this.id + " 성격처리오류");
     }
+
+    this.hp /= 10;
   }
   _validateParams(
     id,

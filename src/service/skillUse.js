@@ -34,11 +34,6 @@ export const skillUse = (bt, enqueue) => {
       def.origin.abil = "탈 (사용됨)";
       enqueue({ battle: bt, text: "탈이 대타가 되었다!" });
     }
-    damage(bt, skillDamage, bt.turn.def, enqueue);
-    atk[ppKey] -= 1;
-    if (def.origin.abil === "프레셔" && atk[ppKey] > 0) {
-      atk[ppKey] -= 1;
-    }
 
     let typeDamage = typeCheck(sk.type, def.type1, def.type2);
     if (typeDamage === 0) {
@@ -46,8 +41,11 @@ export const skillUse = (bt, enqueue) => {
     }
 
     let typeText = typeCheckText(typeDamage);
-    if (typeText) {
-      enqueue({ battle: bt, text: typeText });
+
+    damage(bt, skillDamage, bt.turn.def, enqueue, typeText);
+    atk[ppKey] -= 1;
+    if (def.origin.abil === "프레셔" && atk[ppKey] > 0) {
+      atk[ppKey] -= 1;
     }
   } else if (skillType === "natk") {
     let typeDamage = typeCheck(sk.type, def.type1, def.type2);

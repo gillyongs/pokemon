@@ -10,16 +10,13 @@ function skillEffectSearch(name) {
       let atk = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
       let sk = atk.origin["sk" + battle.turn.atkSN];
-      if (atk.item === "생명의구슬") {
+      if (atk.item === "생명의구슬" && !atk.faint) {
         if (sk.stype === "atk" || sk.stype === "catk") {
-          enqueue({
-            battle: battle,
-            text: atk.name + "의 생명이 조금 깎였다!",
-          });
-          damage(battle, atk.origin.hp, battle.turn.atk, enqueue);
+          const text = atk.name + "의 생명이 조금 깎였다!";
+          damage(battle, atk.origin.hp / 10, battle.turn.atk, enqueue, text);
         }
       }
-      if (def.abil === "정전기" && sk.touch) {
+      if (def.abil === "정전기" && sk.touch && !atk.faint) {
         if (random(30)) {
           mabi(battle, battle.turn.atk, enqueue, true);
         }
@@ -30,13 +27,11 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      rank(
-        battle,
-        enqueue,
-        battle.turn[skillEffect.target],
-        skillEffect.abil,
-        skillEffect.value
-      );
+      const target = battle.turn[skillEffect.target];
+      if (battle[target].faint) {
+        return;
+      }
+      rank(battle, enqueue, target, skillEffect.abil, skillEffect.value);
     },
 
     화상: (battle, enqueue, skillEffect) => {
@@ -63,6 +58,9 @@ function skillEffectSearch(name) {
       if (def.status.freeze == null) {
         return;
       }
+      if (def.faint) {
+        return;
+      }
       let freezeCureText = def.name + "의 얼음이 녹았다!";
       def.status.freeze = null;
       enqueue({
@@ -80,11 +78,8 @@ function skillEffectSearch(name) {
     빗나감패널티: (battle, enqueue, skillEffect) => {
       let atk = battle[battle.turn.atk];
       if (atk.temp.miss) {
-        enqueue({
-          battle: battle,
-          text: atk.names + " 의욕이 넘쳐 땅에 부딪쳤다!",
-        });
-        damage(battle, atk.origin.hp / 2, battle.turn.atk, enqueue);
+        const text = atk.names + " 의욕이 넘쳐 땅에 부딪쳤다!";
+        damage(battle, atk.origin.hp / 2, battle.turn.atk, enqueue, text);
       }
     },
 
@@ -92,6 +87,9 @@ function skillEffectSearch(name) {
       let def = battle[battle.turn.def];
       if (def.tempStatus.confuse !== null) {
         //이미 혼란에 걸려있는지 체크
+        return;
+      }
+      if (def.faint) {
         return;
       }
       if (random(skillEffect.probability)) {

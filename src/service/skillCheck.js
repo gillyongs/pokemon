@@ -35,8 +35,7 @@ export const skillUseCheck = (bt, enqueue) => {
     atk.tempStatus.confuseTurnRemain -= 1;
     if (random(33)) {
       let confuseText = atk.names + " 영문도 모른 채 자신을 공격했다!";
-      enqueue({ battle: bt, text: confuseText });
-      damage(bt, confuseDamageCalculate(bt), bt.turn.atk, enqueue);
+      damage(bt, confuseDamageCalculate(bt), bt.turn.atk, enqueue, confuseText);
       return false;
     }
   }

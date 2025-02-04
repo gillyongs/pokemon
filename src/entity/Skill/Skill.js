@@ -163,7 +163,7 @@ class SkillList {
         [
           {
             name: "능력치증감",
-            probability: 20,
+            probability: 200, //debug
             abil: "cdef",
             target: "def",
             value: -1,
