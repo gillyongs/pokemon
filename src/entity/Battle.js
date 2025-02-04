@@ -17,7 +17,9 @@ class Battle {
       playerSN: null,
       npcSN: null,
     };
+
     this.playerBench1.status.burn = true;
+    this.player.status.mabi = true;
   }
 }
 

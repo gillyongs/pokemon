@@ -3,11 +3,10 @@ import styled, { createGlobalStyle } from "styled-components";
 import "./Main.css";
 import { createBattle } from "../entity/Battle";
 import { useQueue } from "../util/useQueue";
-import { battleStart } from "../service/battle";
 
 import PokemonInfo from "../component/Top/PokemonInfo";
 import PokemonImage from "../component/Top/PokemonImage";
-import BottomSectionSkill from "../component/Bottom/Bottom-Skill";
+import BottomSectionSkill from "../component/Bottom/Bottom-Skill/Bottom-Skill";
 import BottomSectionSwitch from "../component/Bottom/Bottom-Switch/Bottom-Switch";
 import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
 
@@ -16,27 +15,24 @@ const Battle = () => {
     createBattle(["0001", "0002", "0003"], ["0004", "0003", "0002"])
   );
   const [text, setText] = useState("");
-
-  const { queue, enqueue, dequeue, resetQueue, queueCheck, queueObject } =
-    useQueue();
-
-  const [bottom, setBottom] = useState("skill");
+  const { queueObject } = useQueue();
+  const [bottom, setBottom] = useState("switch");
   const [bench, setBench] = useState(null);
 
   useEffect(() => {
-    if (queue[0]) {
-      setBattle(queue[0].battle);
-      setText(queue[0].text);
-      console.log(queue);
+    if (queueObject.queue[0]) {
+      setBattle(queueObject.queue[0].battle);
+      setText(queueObject.queue[0].text);
+      console.log(queueObject.queue);
     }
-    if (queue.length === 0) {
+    if (queueObject.queue.length === 0) {
       setText(battle.player.origin.names + " 무엇을 할까?");
     }
-  }, [queue]);
+  }, [queueObject.queue]);
 
   const handleDequeue = () => {
-    if (queue.length > 0) {
-      dequeue();
+    if (queueObject.queue.length > 0) {
+      queueObject.dequeue();
     }
   };
 
@@ -67,6 +63,7 @@ const Battle = () => {
               text={text}
               setBottom={setBottom}
               setBench={setBench}
+              queueObject={queueObject}
             />
           )}
           {bottom === "info" && (

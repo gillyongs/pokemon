@@ -1,8 +1,8 @@
 import React from "react";
-import FadeInComponent from "./FadeInComponent"; // 경로에 맞게 수정
+import FadeInComponent from "../FadeInComponent"; // 경로에 맞게 수정
 import SkillButton from "./SkillButton"; // 경로에 맞게 수정
-import TextBox from "./TextBox";
-import ChangeButton from "./ChangeButton";
+import TextBox from "../TextBox";
+import ChangeButton from "../ChangeButton";
 
 const BottomSectionSkill = ({ battle, text, setBottom, queueObject }) => {
   return (

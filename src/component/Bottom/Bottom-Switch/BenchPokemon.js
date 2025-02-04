@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import HpBar from "../../HpBar";
+import { battleStart } from "../../../service/battleStart";
 
 const BenchPokemon = ({
   pokemon,
@@ -8,6 +9,8 @@ const BenchPokemon = ({
   setBench,
   setBottom,
   index,
+  queueObject,
+  battle,
 }) => {
   return (
     <BenchWrapper
@@ -23,10 +26,27 @@ const BenchPokemon = ({
       <SwitchHpBar>
         <HpBar hp={pokemon.hp} maxHp={pokemon.origin.hp} />
       </SwitchHpBar>
+
+      {Object.entries(pokemon.status).map(([key, value]) =>
+        value != null ? (
+          <STATUS key={key} status={statusMap[key]}>
+            {statusKor[key]}
+          </STATUS>
+        ) : null
+      )}
+
       {selected === index && (
         <div>
-          {index !== "zero" && (
-            <PokemonButton className="switch">교체</PokemonButton>
+          {index !== "player" && (
+            <PokemonButton
+              className="switch"
+              onClick={() => {
+                setBottom("skill");
+                battleStart(battle, index, queueObject);
+              }}
+            >
+              교체
+            </PokemonButton>
           )}
 
           <PokemonButton
@@ -58,15 +78,15 @@ const BenchWrapper = styled.div`
   background-color: rgba(0, 0, 0, 0.7);
   overflow: hidden; /* 넘치는 부분 숨김 */
 
-  &.one {
+  &.playerBench1 {
     top: 31vh;
   }
 
-  &.two {
+  &.playerBench2 {
     top: 43vh;
   }
 
-  &.zero {
+  &.player {
     top: 19vh;
   }
 
@@ -78,8 +98,8 @@ const BenchWrapper = styled.div`
 const PokemonName = styled.div`
   position: absolute;
   height: 15vh;
-  width: 15vh;
-  left: 20vh;
+  width: 300px;
+  left: 21vh;
   top: 1.5vh;
 `;
 
@@ -115,8 +135,37 @@ const PokemonButton = styled.div`
     right: 6vh;
   }
 
-  &.info.zero {
+  &.info.player {
     right: 50%;
     transform: translateX(50%);
   }
 `;
+
+const STATUS = styled.div`
+  position: absolute;
+  color: white;
+  top: 14px;
+  left: 36vh;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 5px;
+  background-color: ${({ status }) => status};
+`;
+
+const statusMap = {
+  burn: "red",
+  sleep: "gray",
+  freeze: "skyblue",
+  mabi: "rgb(158, 156, 42)",
+  poision: "purple",
+  mpoision: "darkpurple",
+};
+
+const statusKor = {
+  burn: "화상",
+  sleep: "잠듦",
+  freeze: "얼음",
+  mabi: "마비",
+  poision: "독",
+  mpoision: "맹독",
+};

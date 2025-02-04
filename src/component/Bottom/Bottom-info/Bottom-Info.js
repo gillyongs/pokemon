@@ -6,14 +6,8 @@ import TextBox from "../TextBox";
 import ChangeButton from "../ChangeButton";
 
 const BottomSectionInfo = ({ battle, text, setBottom, bench, setText }) => {
-  let pokemon;
-  if (bench === "zero") {
-    pokemon = battle.player;
-  } else if (bench === "one") {
-    pokemon = battle.playerBench1;
-  } else if (bench === "two") {
-    pokemon = battle.playerBench2;
-  }
+  const pokemon = battle[bench];
+
   return (
     <>
       <TextBox text={text} />

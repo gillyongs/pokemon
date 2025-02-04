@@ -11,7 +11,7 @@ const PokemonInfo = ({ battle, type }) => {
       {Object.entries(pokemon.status).map(([key, value]) =>
         value != null ? (
           <STATUS key={key} status={statusMap[key]}>
-            {key}
+            {statusKor[key]}
           </STATUS>
         ) : null
       )}
@@ -42,9 +42,9 @@ const NAME = styled.div`
 const STATUS = styled.div`
   position: absolute;
   color: white;
-  top: 14px;
+  top: 17.5px;
   right: 10px;
-  font-size: 12px;
+  font-size: 9px;
   padding: 2px 4px;
   border-radius: 5px;
   background-color: ${({ status }) => status};
@@ -57,6 +57,15 @@ const statusMap = {
   mabi: "rgb(158, 156, 42)",
   poision: "purple",
   mpoision: "darkpurple",
+};
+
+const statusKor = {
+  burn: "화상",
+  sleep: "잠듦",
+  freeze: "얼음",
+  mabi: "마비",
+  poision: "독",
+  mpoision: "맹독",
 };
 
 export default PokemonInfo;

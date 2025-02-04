@@ -40,5 +40,5 @@ export function useQueue() {
     queueCheck: queueCheck,
   };
 
-  return { queue, enqueue, dequeue, resetQueue, queueCheck, queueObject };
+  return { queueObject };
 }

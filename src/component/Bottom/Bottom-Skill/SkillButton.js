@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { typeCheckConsole } from "../../util/typeCheck";
-import { battleStart } from "../../service/battle";
+import { typeCheckConsole } from "../../../util/typeCheck";
+import { battleStart } from "../../../service/battleStart";
 
 const SkillButton = ({ battle, skillNumber, queueObject, pokemon }) => {
   const skill = "sk" + skillNumber;
@@ -16,13 +16,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon }) => {
 
   const handleSkillClick = (skillIndex) => {
     if (queueObject.queueCheck()) {
-      battleStart(
-        battle,
-        skillIndex,
-        queueObject.enqueue,
-        queueObject.dequeue,
-        queueObject.resetQueue
-      );
+      battleStart(battle, skillIndex, queueObject);
     }
   };
 

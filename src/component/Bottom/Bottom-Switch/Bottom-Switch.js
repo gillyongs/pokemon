@@ -3,7 +3,13 @@ import TextBox from "../TextBox";
 import ChangeButton from "../ChangeButton";
 import BenchPokemon from "./BenchPokemon";
 
-const BottomSectionSwitch = ({ battle, text, setBottom, setBench }) => {
+const BottomSectionSwitch = ({
+  battle,
+  text,
+  setBottom,
+  setBench,
+  queueObject,
+}) => {
   const [selected, setSelected] = useState(null);
   const handleClick = (bench) => {
     setSelected((prev) => (prev === bench ? null : bench));
@@ -18,7 +24,9 @@ const BottomSectionSwitch = ({ battle, text, setBottom, setBench }) => {
         onClick={handleClick}
         setBench={setBench}
         setBottom={setBottom}
-        index={"zero"}
+        index={"player"}
+        queueObject={queueObject}
+        battle={battle}
       />
 
       <BenchPokemon
@@ -27,7 +35,9 @@ const BottomSectionSwitch = ({ battle, text, setBottom, setBench }) => {
         onClick={handleClick}
         setBench={setBench}
         setBottom={setBottom}
-        index={"one"}
+        index={"playerBench1"}
+        queueObject={queueObject}
+        battle={battle}
       />
 
       <BenchPokemon
@@ -36,7 +46,9 @@ const BottomSectionSwitch = ({ battle, text, setBottom, setBench }) => {
         onClick={handleClick}
         setBench={setBench}
         setBottom={setBottom}
-        index={"two"}
+        index={"playerBench2"}
+        queueObject={queueObject}
+        battle={battle}
       />
 
       <ChangeButton onClick={() => setBottom("skill")} innerText={"뒤로가기"} />

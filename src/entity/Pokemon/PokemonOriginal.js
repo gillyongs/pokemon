@@ -1,22 +1,9 @@
+import { josa } from "josa";
 class Pokemon {
-  constructor(
-    id,
-    name,
-    names,
-    total,
-    hp,
-    atk,
-    def,
-    catk,
-    cdef,
-    speed,
-    type1,
-    type2
-  ) {
+  constructor(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2) {
     this._validateParams(
       id,
       name,
-      names,
       total,
       hp,
       atk,
@@ -29,7 +16,8 @@ class Pokemon {
     );
     this.id = id;
     this.name = name;
-    this.names = names;
+    this.names = josa(`${name}#{은}`);
+    this.namess = josa(`${name}#{을}`);
     this.hp = hp;
     this.atk = atk;
     this.def = def;
@@ -42,7 +30,6 @@ class Pokemon {
   _validateParams(
     id,
     name,
-    names,
     total,
     hp,
     atk,
@@ -55,8 +42,6 @@ class Pokemon {
   ) {
     if (typeof id !== "string") console.error("id must be a string", id);
     if (typeof name !== "string") console.error("name must be a string", name);
-    if (typeof names !== "string")
-      console.error("names must be a string", names);
     if (typeof total !== "number")
       console.error("total must be a number", total);
     if (typeof hp !== "number") console.error("hp must be a number", hp);
@@ -82,7 +67,6 @@ class PokemonRepository {
       new Pokemon(
         "0815",
         "에이스번",
-        "에이스번은",
         530,
         80,
         116,
@@ -96,7 +80,6 @@ class PokemonRepository {
       new Pokemon(
         "0890",
         "무한다이노",
-        "무한다이노는",
         690,
         140,
         85,
@@ -110,7 +93,6 @@ class PokemonRepository {
       new Pokemon(
         "0145",
         "썬더",
-        "썬더는",
         580,
         90,
         90,
@@ -124,7 +106,6 @@ class PokemonRepository {
       new Pokemon(
         "0901",
         "다투곰",
-        "다투곰은",
         555,
         113,
         70,
