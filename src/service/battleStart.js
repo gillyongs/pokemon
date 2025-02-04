@@ -5,6 +5,8 @@ import { skillUse } from "./skillUse";
 import { turnEnd } from "./turnEnd";
 import { switchPokemon } from "../util/switch";
 import { josa } from "josa";
+import { switchNpc, switchPlayer } from "./switchPokemon";
+import { attackNpc, attackPlayer } from "./attack";
 
 export const battleStart = (battle, actNumber, queueObject) => {
   queueObject.resetQueue();
@@ -23,62 +25,51 @@ export const battleStart = (battle, actNumber, queueObject) => {
   if (typeof actNumber === "string" && typeof npcActNumber === "string") {
     let fastUser = speedCheck(bt);
     if (fastUser === "player") {
-      enqueue({ battle: bt, text: battle.player.origin.name + " 돌아와!" });
-      switchPokemon(bt, "player", actNumber);
-      enqueue({
-        battle: bt,
-        text: "가랏! " + battle[actNumber].origin.name + "!",
-      });
-      enqueue({
-        battle: bt,
-        text: "상대는 " + battle.npc.origin.namess + " 넣어 버렸다!",
-      });
-      switchPokemon(bt, "npc", npcActNumber);
-      enqueue({
-        battle: bt,
-        text: "상대는 " + battle[npcActNumber].origin.namess + " 내보냈다!",
-      });
+      switchPlayer(bt, actNumber, enqueue);
+      switchNpc(bt, npcActNumber, enqueue);
     } else if (fastUser === "npc") {
-      switchPokemon(bt, "npc", npcActNumber);
-      switchPokemon(bt, "player", actNumber);
+      switchNpc(bt, npcActNumber, enqueue);
+      switchPlayer(bt, actNumber, enqueue);
     }
-  }
-
-  if (typeof actNumber === "number" && typeof npcActNumber === "number") {
+  } else if (
+    typeof actNumber === "string" &&
+    typeof npcActNumber === "number"
+  ) {
+    switchPlayer(bt, actNumber, enqueue);
+    attackNpc(bt, actNumber, npcActNumber, enqueue);
+  } else if (
+    typeof npcActNumber === "string" &&
+    typeof actNumber === "number"
+  ) {
+    switchNpc(bt, npcActNumber, enqueue);
+    attackPlayer(bt, actNumber, npcActNumber, enqueue);
+  } else if (
+    typeof actNumber === "number" &&
+    typeof npcActNumber === "number"
+  ) {
     let fastUser = skillSpeedCheck(bt);
-    bt.turn.fastUser = fastUser;
+    bt.turn.fastUser = fastUser; //기습 사용조건 체크
 
-    setAtkDef(
-      bt,
-      fastUser,
-      fastUser === "player" ? "npc" : "player",
-      fastUser === "player" ? actNumber : npcActNumber,
-      fastUser === "player" ? npcActNumber : actNumber
-    );
-
-    skillUse(bt, enqueue);
-    skillEffectsAfter(bt, enqueue);
-    if (bt[bt.turn.def].faint === true) {
-      return;
+    if (fastUser === "player") {
+      attackPlayer(bt, actNumber, npcActNumber, enqueue);
+      if (bt[bt.turn.def].faint === true) {
+        return;
+      }
+      attackNpc(bt, actNumber, npcActNumber, enqueue);
+    } else {
+      attackNpc(bt, actNumber, npcActNumber, enqueue);
+      if (bt[bt.turn.def].faint === true) {
+        return;
+      }
+      attackPlayer(bt, actNumber, npcActNumber, enqueue);
     }
-
-    setAtkDef(bt, bt.turn.def, bt.turn.atk, bt.turn.defSN, bt.turn.atkSN);
-
-    skillUse(bt, enqueue);
-    skillEffectsAfter(bt, enqueue);
   }
 
   turnEnd(bt, enqueue);
 };
 
-const setAtkDef = (bt, attacker, defender, atkSN, defSN) => {
-  bt.turn.atk = attacker;
-  bt.turn.def = defender;
-  bt.turn.atkSN = atkSN;
-  bt.turn.defSN = defSN;
-};
-
 const npcAi = (a) => {
+  return "npcBench1";
   if (a === "playerBench1") {
     return "npcBench1";
   }
