@@ -14,7 +14,7 @@ export const battleStart = (battle, actNumber, queueObject) => {
     bt.turn[key] = null;
   });
 
-  const npcActNumber = npcAi2(actNumber);
+  const npcActNumber = npcAi2(battle);
   bt.turn.playerSN = actNumber;
   bt.turn.npcSN = npcActNumber;
 
@@ -64,7 +64,7 @@ export const battleStart = (battle, actNumber, queueObject) => {
   turnEnd(bt, enqueue);
 };
 
-const npcAi = (a) => {
+const npcAi = (battle, a) => {
   if (a === "playerBench1") {
     return "npcBench1";
   }
@@ -73,8 +73,12 @@ const npcAi = (a) => {
   }
   return a;
 };
+const npcAi2 = (battle) => {
+  let choices = [1, 2, 3, 4];
+  if (!battle.npcBench1.faint) choices.push("npcBench1");
+  if (!battle.npcBench2.faint) choices.push("npcBench2");
 
-const npcAi2 = (a) => {
-  const choices = [1, 2, 3, 4, "npcBench1", "npcBench2"];
   return choices[Math.floor(Math.random() * choices.length)];
 };
+
+export default npcAi2;

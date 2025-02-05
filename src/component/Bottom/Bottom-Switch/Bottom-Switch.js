@@ -25,7 +25,13 @@ const BottomSectionSwitch = ({
       switchPlayer(bt, index, queueObject.enqueue);
       queueObject.dequeue(); // "누구로 교체할까?"를 dequque를 막아놨기에 직접 해줘야함
       if (bt.npc.faint) {
-        switchNpc(bt, "npcBench1", queueObject.enqueue);
+        if (bt.npcBench1.faint !== true) {
+          // 1번이 기절 안했으면 1번 교체
+          switchNpc(bt, "npcBench1", queueObject.enqueue);
+        } else if (bt.npcBench2.faint !== true && bt.npcBench1.faint === true) {
+          //1번 기절했고 2번 기절 안했으면 2번 교체
+          switchNpc(bt, "npcBench2", queueObject.enqueue);
+        }
       }
     };
   } else {

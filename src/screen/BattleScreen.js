@@ -12,7 +12,7 @@ import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
-    createBattle(["0001", "0002", "0003"], ["0003", "0003", "0002"])
+    createBattle(["0001", "0002", "0003"], ["0001", "0003", "0002"])
   );
   const [text, setText] = useState("");
   const { queueObject } = useQueue();
@@ -21,19 +21,32 @@ const Battle = () => {
   const [mustSwitch, setMustSwitch] = useState(null);
 
   useEffect(() => {
-    if (queueObject.queue[0]) {
-      setBattle(queueObject.queue[0].battle);
-      setText(queueObject.queue[0].text);
-      console.log(queueObject.queue);
-      const player = queueObject.queue[0].battle.player;
-      const turnEnd = queueObject.queue[0].battle.turn.turnEnd;
+    const queue = queueObject.queue;
+    if (queue[0]) {
+      setBattle(queue[0].battle);
+      setText(queue[0].text);
+      console.log(queue);
+      const player = queue[0].battle.player;
+      const turnEnd = queue[0].battle.turn.turnEnd;
 
       if (player.faint && turnEnd) {
         setMustSwitch(true);
         setBottom("switch");
       }
+      const npcFaint = battle.npc.faint;
+      const npcFaint1 = battle.npcBench1.faint;
+      const npcFaint2 = battle.npcBench2.faint;
+      const playerFaint = battle.player.faint;
+      const playerFaint1 = battle.playerBench1.faint;
+      const playerFaint2 = battle.playerBench2.faint;
+      if (npcFaint && npcFaint1 && npcFaint2 && queue.length === 1) {
+        alert("승리!");
+      }
+      if (playerFaint && playerFaint1 && playerFaint2 && queue.length === 1) {
+        alert("패배!");
+      }
     }
-    if (queueObject.queue.length === 0) {
+    if (queue.length === 0) {
       setText(battle.player.origin.names + " 무엇을 할까?");
     }
   }, [queueObject.queue]);

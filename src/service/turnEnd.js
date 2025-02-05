@@ -66,7 +66,16 @@ export const turnEnd = (battle, enqueue) => {
 
   battle.turn.turnEnd = true;
   if (battle.npc.faint && !battle.player.faint) {
-    switchNpc(battle, "npcBench1", enqueue);
+    if (battle.npcBench1.faint !== true) {
+      // 1번이 기절 안했으면 1번 교체
+      switchNpc(battle, "npcBench1", enqueue);
+    } else if (
+      battle.npcBench2.faint !== true &&
+      battle.npcBench1.faint === true
+    ) {
+      //1번 기절했고 2번 기절 안했으면 2번 교체
+      switchNpc(battle, "npcBench2", enqueue);
+    }
   }
 
   if (battle.player.faint) {

@@ -29,7 +29,6 @@ export const damageCalculate = (battle) => {
   }
 
   const randomNum = getRandomNumber();
-  console.log(randomNum);
   damage = (damage * randomNum) / 100;
   return Math.floor(damage);
 };
