@@ -16,12 +16,24 @@ export const damage = (
   if (pokemon.hp <= 0) {
     return;
   }
+
+  let gdTrigger = false;
+  if (pokemon.item === "기합의띠" && pokemon.hp === pokemon.origin.hp) {
+    gdTrigger = true;
+  }
   pokemon.hp -= skDamage;
   if (pokemon.hp <= 0) {
     pokemon.hp = 0;
+    if (gdTrigger) {
+      pokemon.item = null;
+      pokemon.hp = 1;
+    }
   }
   if (text) {
     enqueue({ battle: battle, text: text });
+  }
+  if (gdTrigger && pokemon.item === null) {
+    enqueue({ battle: battle, text: pokemon.names + " 기합의 띠로 버텼다!" });
   }
   if (pokemon.hp === 0) {
     pokemon.faint = true;

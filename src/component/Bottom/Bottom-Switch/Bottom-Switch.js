@@ -7,10 +7,10 @@ import { switchPlayer, switchNpc } from "../../../service/switchPokemon";
 const BottomSectionSwitch = ({
   battle,
   text,
+  bottom,
   setBottom,
   setBench,
   queueObject,
-  mustSwitch,
 }) => {
   const [selected, setSelected] = useState(null);
   const handleSelected = (bench) => {
@@ -18,7 +18,7 @@ const BottomSectionSwitch = ({
   };
 
   let handleSwitch;
-  if (mustSwitch) {
+  if (bottom === "mustSwitch") {
     handleSwitch = (index) => {
       setBottom("skill");
       let bt = structuredClone(battle);
@@ -75,7 +75,7 @@ const BottomSectionSwitch = ({
         handleSwitch={handleSwitch}
       />
 
-      {!mustSwitch && (
+      {bottom === "switch" && (
         <ChangeButton
           onClick={() => setBottom("skill")}
           innerText={"뒤로가기"}

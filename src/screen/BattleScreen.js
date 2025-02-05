@@ -3,6 +3,7 @@ import styled, { createGlobalStyle } from "styled-components";
 import "./Main.css";
 import { createBattle } from "../entity/Battle";
 import { useQueue } from "../util/useQueue";
+import { abil } from "../service/abil";
 
 import PokemonInfo from "../component/Top/PokemonInfo";
 import PokemonImage from "../component/Top/PokemonImage";
@@ -12,13 +13,12 @@ import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
-    createBattle(["0001", "0002", "0003"], ["0005", "0003", "0002"])
+    createBattle(["0006", "0005", "0003"], ["0004", "0003", "0002"])
   );
   const [text, setText] = useState("");
   const { queueObject } = useQueue();
   const [bottom, setBottom] = useState("skill");
   const [bench, setBench] = useState(null);
-  const [mustSwitch, setMustSwitch] = useState(null);
 
   useEffect(() => {
     const queue = queueObject.queue;
@@ -30,8 +30,7 @@ const Battle = () => {
       const turnEnd = queue[0].battle.turn.turnEnd;
 
       if (player.faint && turnEnd) {
-        setMustSwitch(true);
-        setBottom("switch");
+        setBottom("mustSwitch");
       }
       const npcFaint = battle.npc.faint;
       const npcFaint1 = battle.npcBench1.faint;
@@ -60,6 +59,11 @@ const Battle = () => {
     }
   };
 
+  useEffect(() => {
+    let bt = structuredClone(battle);
+    abil(bt, "player", queueObject.enqueue);
+  }, []);
+
   return (
     <>
       <GlobalStyle />
@@ -81,14 +85,14 @@ const Battle = () => {
               queueObject={queueObject}
             />
           )}
-          {bottom === "switch" && (
+          {(bottom === "switch" || bottom === "mustSwitch") && (
             <BottomSectionSwitch
               battle={battle}
               text={text}
+              bottom={bottom}
               setBottom={setBottom}
               setBench={setBench}
               queueObject={queueObject}
-              mustSwitch={mustSwitch}
             />
           )}
           {bottom === "info" && (

@@ -15,14 +15,28 @@ export const statCalculate = (battle) => {
   if (npc.item === "돌격조끼") {
     npc["cdef"] *= 1.5;
   }
+  if (player.abil === "재앙의검" && npc.abil !== "재앙의검") {
+    npc["def"] *= 0.75;
+  }
+  if (npc.abil === "재앙의검" && player.abil !== "재앙의검") {
+    player["def"] *= 0.75;
+  }
   return battle;
 };
 
-const getMultiplier = (rank) => {
+export const getMultiplier = (rank) => {
+  const mRank = {
+    "-1": 2 / 3,
+    "-2": 1 / 2,
+    "-3": 2 / 5,
+    "-4": 1 / 3,
+    "-5": 2 / 7,
+    "-6": 1 / 4,
+  };
   if (rank >= 1 && rank <= 6) {
     return 1 + rank * 0.5; // 예: 1일 경우 1.5, 2일 경우 2
   } else if (rank <= -1 && rank >= -6) {
-    return 1 / (Math.abs(rank) * 2 + 1); // 예: -1일 경우 2/3, -2일 경우 1/2
+    return mRank[String(rank)];
   } else if (rank === 0) {
     return 1;
   }

@@ -1,11 +1,14 @@
 import { statCalculate } from "../function/statCalculate";
 import { typeCheckAbil } from "./typeCheck";
+import { getMultiplier } from "../function/statCalculate";
 export const damageCalculate = (battle) => {
+  statCalculate(battle);
   const skillNumber = battle.turn.atkSN;
   const atk = battle[battle.turn.atk];
   const def = battle[battle.turn.def];
   const skillKey = `sk${skillNumber}`;
   const sk = atk.origin[skillKey];
+
   let dtype = "";
   if (sk.stype === "atk") {
     dtype = "def";
@@ -13,9 +16,15 @@ export const damageCalculate = (battle) => {
     dtype = "cdef";
   }
 
-  statCalculate(battle);
+  let atkStat = atk[sk.stype];
+  let defStat = def[dtype];
+  for (const effect of sk.skillEffectList) {
+    if (effect.name === "천진") {
+      defStat *= getMultiplier(-def.tempStatus.rank[dtype]);
+    }
+  }
 
-  let damage = (22 * sk.power * atk[sk.stype]) / 50 / def[dtype];
+  let damage = (22 * sk.power * atkStat) / 50 / defStat;
   if (atk.status.burn != null && sk.stype === "atk") {
     damage /= 2;
   }

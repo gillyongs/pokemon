@@ -101,9 +101,10 @@ const PokemonName = styled.div`
 
 const PokemonImage = styled.img`
   position: absolute;
-  height: 15vh;
-  width: 15vh;
+  height: 12vh;
+  width: 12vh;
   left: 2vh;
+  bottom: 0.3vh;
 `;
 
 const SwitchHpBar = styled.div`
