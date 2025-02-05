@@ -12,7 +12,7 @@ import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
-    createBattle(["0001", "0002", "0003"], ["0001", "0003", "0002"])
+    createBattle(["0001", "0002", "0003"], ["0005", "0003", "0002"])
   );
   const [text, setText] = useState("");
   const { queueObject } = useQueue();

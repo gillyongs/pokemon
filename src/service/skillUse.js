@@ -1,5 +1,5 @@
 import { damageCalculate } from "../util/damageCalculate";
-import { typeCheck, typeCheckText } from "../util/typeCheck";
+import { typeCheck, typeCheckText, typeCheckAbil } from "../util/typeCheck";
 import { damage } from "../function/damage";
 import { applySkillEffects } from "./skiiEffect";
 import { skillUseCheck, skillFailCheck } from "./skillCheck";
@@ -26,6 +26,21 @@ export const skillUse = (bt, enqueue) => {
 
   if (skillType === "atk" || skillType === "catk") {
     let skillDamage = damageCalculate(bt, skillNumber, atk);
+    let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);
+    let typeText = typeCheckText(typeDamage);
+
+    atk[ppKey] -= 1;
+    if (def.origin.abil === "프레셔" && atk[ppKey] > 0) {
+      atk[ppKey] -= 1;
+    }
+
+    if (typeDamage === 0) {
+      atk.temp.miss = true;
+      const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
+      enqueue({ battle: bt, text: typeText });
+      return;
+    }
+
     if (def.abil === "탈") {
       if (skillDamage > def.origin.hp / 8) {
         skillDamage = def.origin.hp / 8;
@@ -35,20 +50,9 @@ export const skillUse = (bt, enqueue) => {
       enqueue({ battle: bt, text: "탈이 대타가 되었다!" });
     }
 
-    let typeDamage = typeCheck(sk.type, def.type1, def.type2);
-    if (typeDamage === 0) {
-      atk.temp.miss = true;
-    }
-
-    let typeText = typeCheckText(typeDamage);
-
     damage(bt, skillDamage, bt.turn.def, enqueue, typeText);
-    atk[ppKey] -= 1;
-    if (def.origin.abil === "프레셔" && atk[ppKey] > 0) {
-      atk[ppKey] -= 1;
-    }
   } else if (skillType === "natk") {
-    let typeDamage = typeCheck(sk.type, def.type1, def.type2);
+    let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);
     if (typeDamage === 0) {
       const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
       enqueue({ battle: bt, text: typeText });

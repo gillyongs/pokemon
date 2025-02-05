@@ -1,5 +1,5 @@
 import { statCalculate } from "../function/statCalculate";
-import { typeCheck } from "./typeCheck";
+import { typeCheckAbil } from "./typeCheck";
 export const damageCalculate = (battle) => {
   const skillNumber = battle.turn.atkSN;
   const atk = battle[battle.turn.atk];
@@ -23,7 +23,7 @@ export const damageCalculate = (battle) => {
   if (sk.type === atk.type1 || sk.type === atk.type2) {
     damage *= 1.5;
   }
-  damage *= typeCheck(sk.type, def.type1, def.type2);
+  damage *= typeCheckAbil(battle, sk.type, def.type1, def.type2);
   if (atk.item === "생명의구슬") {
     damage *= 1.3;
   }
