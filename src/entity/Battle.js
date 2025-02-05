@@ -9,16 +9,17 @@ class Battle {
     this.playerBench2 = playerBench2;
     this.npcBench2 = npcBench2;
     this.turn = {
-      fastUser: null,
+      fastUser: null, //기습 조건 체크
       atkSN: null,
       defSN: null,
-      atk: null,
+      atk: null, //battle[battle.turn.atk] = player or npc
       def: null,
-      playerSN: null,
+      playerSN: null, // 우선도 체크에 사용
       npcSN: null,
       turnEnd: null,
       textFreeze: null,
     };
+    //turnEnd 같은 변수때문에 턴이 시작될때 = battleStart.js에서 초기화된다
   }
 }
 

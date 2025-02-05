@@ -3,7 +3,7 @@ import TextBox from "../TextBox";
 import ChangeButton from "../ChangeButton";
 import BenchPokemon from "./BenchPokemon";
 import { battleStart } from "../../../service/battleStart";
-import { switchPlayer, switchNpc } from "../../../service/switchPokemon";
+import { switchPlayer, switchNpc } from "../../../service/switch";
 const BottomSectionSwitch = ({
   battle,
   text,
@@ -33,6 +33,11 @@ const BottomSectionSwitch = ({
           switchNpc(bt, "npcBench2", queueObject.enqueue);
         }
       }
+
+      // npc만 쓰러졌을 경우 turnEnd.js에서 교체하지만
+      // player와 npc 양측 포켓몬이 동시에 쓰러졌을경우
+      // 사용자가 교체할 포켓몬을 정한 이후 교체해야 하기에
+      // bottomSwitch에서 교체한다.
     };
   } else {
     handleSwitch = (index) => {

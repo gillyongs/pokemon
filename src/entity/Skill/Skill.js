@@ -74,10 +74,14 @@ class Skill {
   ) {
     if (typeof name !== "string") console.error("name must be a string", name);
     if (typeof type !== "string") console.error("type must be a string", type);
-    if (typeof power !== "number")
-      console.error("power must be a number", power);
-    if (typeof accur !== "number")
-      console.error("accur must be a number", accur);
+    if (stype !== "buf" && typeof power !== "number")
+      console.error("atack skill power must be a number", power);
+    if (stype !== "buf" && typeof accur !== "number")
+      console.error("atack skill accur must be a number", accur);
+    if (stype === "buf" && typeof power !== "string")
+      console.error("buf skill power must be a NaN", power);
+    if (stype === "buf" && typeof accur !== "string")
+      console.error("buf skill accur must be a NaN", accur);
     if (typeof pp !== "number") console.error("pp must be a number", pp);
     if (typeof prior !== "number")
       console.error("prior must be a number", prior);
@@ -253,8 +257,8 @@ class SkillList {
       new Skill(
         "날개쉬기", //스킬명
         "비행", //스킬타입
-        0, //위력
-        0, //명중률
+        "-", //위력
+        "-", //명중률
         5, //pp
         0, //우선도
         false, //접촉
@@ -326,8 +330,8 @@ class SkillList {
       new Skill(
         "칼춤", //스킬명
         "노말", //스킬타입
-        0, //위력
-        0, //명중률
+        "-", //위력
+        "-", //명중률
         20, //pp
         0, //우선도
         false, //접촉

@@ -4,6 +4,8 @@ import { confuseDamageCalculate } from "../util/damageCalculate";
 import { damage } from "../function/damage";
 
 export const skillUseCheck = (bt, enqueue) => {
+  //스킬명이 뜨기 전에 처리하는 트리거
+  //풀죽음, 마비, 혼란
   const atk = bt[bt.turn.atk];
   if (atk.temp.fullDeath != null) {
     let fullDeathText = atk.names + " 풀이 죽어 기술을 쓸 수 없다!";
@@ -44,6 +46,9 @@ export const skillUseCheck = (bt, enqueue) => {
 };
 
 export const skillFailCheck = (bt, enqueue) => {
+  // 스킬명이 뜬 다음에 처리하는 트리거
+  // 사용조건체크(ex 기습), 상대방 기절 여부, 명중
+  // 리베로는 실패해도 발동되기에 타이밍상 여기
   const skillNumber = bt.turn.atkSN;
   const skKey = `sk${skillNumber}`;
   const atk = bt[bt.turn.atk];

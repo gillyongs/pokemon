@@ -1,6 +1,7 @@
 import skillEffectSearch from "../entity/Skill/SkillEffect";
 
 export const applySkillEffects = (bt, enqueue) => {
+  // skillUser 끝부분에서 호출되는 함수
   const skillEffectList =
     bt[bt.turn.atk].origin["sk" + bt.turn.atkSN].skillEffectList;
   if (Array.isArray(skillEffectList)) {
@@ -16,6 +17,10 @@ export const applySkillEffects = (bt, enqueue) => {
 };
 
 export const skillEffectsAfter = (bt, enqueue) => {
+  // 대부분의 부가효과는 스킬 명중시에만 발동하기에
+  // skillUse 끝부분에서 처리함
+  // 스킬이 빗나갔을때에도 발동되는 부가효과만 여기서 처리.
+  // 아직은 무릎차기 밖에 없음
   const skillEffectList =
     bt[bt.turn.atk].origin["sk" + bt.turn.atkSN].skillEffectList;
   if (Array.isArray(skillEffectList)) {

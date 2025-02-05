@@ -10,10 +10,11 @@ import PokemonImage from "../component/Top/PokemonImage";
 import BottomSectionSkill from "../component/Bottom/Bottom-Skill/Bottom-Skill";
 import BottomSectionSwitch from "../component/Bottom/Bottom-Switch/Bottom-Switch";
 import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
+import { speedCheck } from "../util/speedCheck";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
-    createBattle(["0005", "0005", "0003"], ["0004", "0003", "0002"])
+    createBattle(["0002", "0006", "0003"], ["0004", "0006", "0006"])
   );
   const [text, setText] = useState("");
   const { queueObject } = useQueue();
@@ -60,8 +61,11 @@ const Battle = () => {
   };
 
   useEffect(() => {
+    const fastUser = speedCheck(battle);
+    const slowUser = fastUser === "player" ? "npc" : "player";
     let bt = structuredClone(battle);
-    abil(bt, "player", queueObject.enqueue);
+    abil(bt, fastUser, queueObject.enqueue);
+    abil(bt, slowUser, queueObject.enqueue);
   }, []);
 
   return (

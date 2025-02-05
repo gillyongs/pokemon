@@ -16,6 +16,8 @@ export const typeCheck = (stype, type1, type2) => {
 };
 
 export const typeCheckAbil = (battle, stype, type1, type2) => {
+  // 특성 등을 반영한 실제 상성적용
+  // 저수, 피뢰침 같은 특성은 텍스트엔 무효로 안나오게 해야하므로 함수 따로 사용
   if (typeChart[stype][type1] === 0 || typeChart[stype][type2] === 0) {
     if (
       battle[battle.turn.atk].abil === "심안" &&
@@ -61,6 +63,7 @@ export const typeCheckText = (stype, type1, type2) => {
   let typeDamage;
   if (!type1 && !type2) {
     typeDamage = stype;
+    //인자를 하나만 받으면 typeDamage로 보고 계산 생략
   } else {
     typeDamage = typeCheck(stype, type1, type2);
   }

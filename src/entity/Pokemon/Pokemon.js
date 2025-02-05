@@ -21,6 +21,7 @@ class PokemonOnBattle {
     this.pp3 = pokemon.sk3.pp;
     this.pp4 = pokemon.sk4.pp;
     this.status = {
+      // 기절시 damage.js에서만 초기화된다
       burn: null,
       freeze: null,
       poison: null, //독
@@ -31,13 +32,14 @@ class PokemonOnBattle {
     this.temp = {
       // 매 턴 초기화
       // turnEnd.js에서 초기화된다
-      fullDeath: null,
-      miss: null,
+      fullDeath: null, //풀죽음
+      miss: null, // 무릎차기
       roost: null, //날개쉬기
-      critical: null,
+      critical: null, //이번 턴 급소 여부
     };
     this.tempStatus = {
       //교체시 초기화
+      //switchPokemon.js에서 초기화된다
       rank: {
         atk: 0,
         def: 0,
@@ -47,7 +49,7 @@ class PokemonOnBattle {
         critical: 0,
       },
       confuse: null,
-      confuseTurnRemain: null,
+      confuseTurnRemain: null, // 별개로 skillUseCheck에서 혼란 턴 끝나면 초기화된다
     };
     this.faint = null;
   }

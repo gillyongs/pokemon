@@ -1,4 +1,6 @@
 export const speedCheck = (battle) => {
+  // 특성, 교체를 누가 먼저할지 정함
+  // battleScreen이랑 battleStart에서 각각 발동
   const playerSpeed = battle.player.speed;
   const npcSpeed = battle.npc.speed;
   if (playerSpeed > npcSpeed) {
@@ -15,6 +17,8 @@ export const speedCheck = (battle) => {
 };
 
 export const skillSpeedCheck = (battle) => {
+  // 스킬의 우선도를 고려하여 누가 먼저 공격할지 정함
+  // battleStart.js에서 사용
   const playerPri = battle.player.origin["sk" + battle.turn.playerSN].prior;
   const npcPri = battle.npc.origin["sk" + battle.turn.npcSN].prior;
   if (playerPri > npcPri) {

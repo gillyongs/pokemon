@@ -2,12 +2,13 @@ import { statCalculate } from "../function/statCalculate";
 import { typeCheckAbil } from "./typeCheck";
 import { getMultiplier } from "../function/statCalculate";
 export const damageCalculate = (battle) => {
+  //데미지 계산
   statCalculate(battle);
   const skillNumber = battle.turn.atkSN;
   const atk = battle[battle.turn.atk];
   const def = battle[battle.turn.def];
   const skillKey = `sk${skillNumber}`;
-  const sk = atk.origin[skillKey];
+  const sk = atk.origin[skillKey]; // 시전 스킬
 
   let dtype = "";
   if (sk.stype === "atk") {
@@ -21,6 +22,8 @@ export const damageCalculate = (battle) => {
   for (const effect of sk.skillEffectList) {
     if (effect.name === "천진") {
       defStat *= getMultiplier(-def.tempStatus.rank[dtype]);
+      // 사용자 랭크업을 무시하는 기술
+      // 랭크 반영된 수치에 역계산을 한다
     }
   }
 
@@ -46,16 +49,26 @@ export const damageCalculate = (battle) => {
 };
 
 export const confuseDamageCalculate = (battle) => {
+  //혼란 데미지 계산
+  //자속보정, 타입 상성, 생구 적용 안됨
+  //급소 적용 됨
+  //화상 뎀감 적용되는지 모르겠음
   const pokemon = battle[battle.turn.atk];
   let damage = (22 * 40 * pokemon.atk) / 50 / pokemon.def;
   if (pokemon.status.burn != null) {
     damage /= 2;
   }
   damage += 2;
+  if (pokemon.temp.critical) {
+    damage *= 1.5;
+  }
+  const randomNum = getRandomNumber();
+  damage = (damage * randomNum) / 100;
   return Math.floor(damage);
 };
 
 const getRandomNumber = () => {
+  // 데미지 보정 난수
   const numbers = [
     { num: 85, prob: 7.69 },
     { num: 86, prob: 5.13 },

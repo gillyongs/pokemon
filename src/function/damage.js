@@ -40,6 +40,10 @@ export const damage = (
   }
   if (pokemon.hp === 0) {
     pokemon.faint = true;
+    Object.keys(pokemon.status).forEach((key) => {
+      pokemon.status[key] = null;
+    });
+    //기절시 모든 상태이상 초기화
     enqueue({ battle: battle, text: pokemon.names + " 쓰러졌다!" });
   }
 };
