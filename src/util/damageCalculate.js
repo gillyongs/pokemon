@@ -27,6 +27,10 @@ export const damageCalculate = (battle) => {
   if (atk.item === "생명의구슬") {
     damage *= 1.3;
   }
+
+  const randomNum = getRandomNumber();
+  console.log(randomNum);
+  damage = (damage * randomNum) / 100;
   return Math.floor(damage);
 };
 
@@ -38,4 +42,39 @@ export const confuseDamageCalculate = (battle) => {
   }
   damage += 2;
   return Math.floor(damage);
+};
+
+const getRandomNumber = () => {
+  const numbers = [
+    { num: 85, prob: 7.69 },
+    { num: 86, prob: 5.13 },
+    { num: 87, prob: 7.69 },
+    { num: 88, prob: 5.13 },
+    { num: 89, prob: 7.69 },
+    { num: 90, prob: 7.69 },
+    { num: 91, prob: 5.13 },
+    { num: 92, prob: 7.69 },
+    { num: 93, prob: 5.13 },
+    { num: 94, prob: 7.69 },
+    { num: 95, prob: 5.13 },
+    { num: 96, prob: 7.69 },
+    { num: 97, prob: 5.13 },
+    { num: 98, prob: 7.69 },
+    { num: 99, prob: 5.13 },
+    { num: 100, prob: 2.56 },
+  ];
+
+  // 확률 누적 배열 생성
+  let cumulative = 0;
+  const weightedNumbers = numbers.map(({ num, prob }) => {
+    cumulative += prob;
+    return { num, cumulative };
+  });
+
+  // 0~100 사이의 랜덤 값
+  const randomValue = Math.random() * 100;
+
+  // 랜덤 값이 속하는 숫자 찾기
+  return weightedNumbers.find(({ cumulative }) => randomValue <= cumulative)
+    .num;
 };

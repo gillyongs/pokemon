@@ -52,11 +52,11 @@ const InfoButton = ({ pokemon, type, setText }) => {
       setText(pokemon.origin.itemText);
     };
   } else if (type === "type") {
-    imgSrc = `/pokemon/img/type/${pokemon.origin.type1}.svg`;
+    imgSrc = `/pokemon/img/type/${pokemon.type1}.svg`;
     innerText = "타입";
-    let pokemonTypeText = pokemon.origin.type1;
+    let pokemonTypeText = pokemon.type1;
     if (pokemon.origin.type2) {
-      pokemonTypeText += ", " + pokemon.origin.type2;
+      pokemonTypeText += ", " + pokemon.type2;
     }
     innerContent = pokemonTypeText;
     handleClick = () => {};
@@ -69,9 +69,9 @@ const InfoButton = ({ pokemon, type, setText }) => {
     };
   } else if (type === "status") {
     if (pokemon.origin.type2) {
-      imgSrc = `/pokemon/img/type/${pokemon.origin.type2}.svg`;
+      imgSrc = `/pokemon/img/type/${pokemon.type2}.svg`;
     } else {
-      imgSrc = `/pokemon/img/type/${pokemon.origin.type1}.svg`;
+      imgSrc = `/pokemon/img/type/${pokemon.type1}.svg`;
     }
     innerText = "상태";
     let statusText = "정상";

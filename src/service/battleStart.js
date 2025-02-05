@@ -14,7 +14,7 @@ export const battleStart = (battle, actNumber, queueObject) => {
     bt.turn[key] = null;
   });
 
-  const npcActNumber = npcAi(actNumber);
+  const npcActNumber = npcAi2(actNumber);
   bt.turn.playerSN = actNumber;
   bt.turn.npcSN = npcActNumber;
 
@@ -72,4 +72,9 @@ const npcAi = (a) => {
     return "npcBench2";
   }
   return a;
+};
+
+const npcAi2 = (a) => {
+  const choices = [1, 2, 3, 4, "npcBench1", "npcBench2"];
+  return choices[Math.floor(Math.random() * choices.length)];
 };
