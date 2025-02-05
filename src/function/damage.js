@@ -32,6 +32,9 @@ export const damage = (
   if (text) {
     enqueue({ battle: battle, text: text });
   }
+  if (battle[battle.turn.atk].temp.critical) {
+    enqueue({ battle: battle, text: "급소에 맞았다!" });
+  }
   if (gdTrigger && pokemon.item === null) {
     enqueue({ battle: battle, text: pokemon.names + " 기합의 띠로 버텼다!" });
   }

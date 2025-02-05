@@ -30,9 +30,11 @@ class PokemonOnBattle {
     };
     this.temp = {
       // 매 턴 초기화
+      // turnEnd.js에서 초기화된다
       fullDeath: null,
       miss: null,
       roost: null, //날개쉬기
+      critical: null,
     };
     this.tempStatus = {
       //교체시 초기화
@@ -42,6 +44,7 @@ class PokemonOnBattle {
         catk: 0,
         cdef: 0,
         speed: 0,
+        critical: 0,
       },
       confuse: null,
       confuseTurnRemain: null,

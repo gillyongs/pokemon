@@ -25,6 +25,19 @@ export const skillUse = (bt, enqueue) => {
   }
 
   if (skillType === "atk" || skillType === "catk") {
+    let cri = atk.tempStatus.rank.critical;
+
+    for (const effect of sk.skillEffectList) {
+      console.log(effect);
+      if (effect.name === "급소") {
+        cri += 1;
+      }
+    }
+
+    if (criticalRate(cri)) {
+      atk.temp.critical = true;
+    }
+
     let skillDamage = damageCalculate(bt, skillNumber, atk);
     let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);
     let typeText = typeCheckText(typeDamage);
@@ -61,4 +74,27 @@ export const skillUse = (bt, enqueue) => {
   }
 
   applySkillEffects(bt, enqueue, sk.skillEffectList);
+};
+
+const criticalRate = (input) => {
+  let probability = 0;
+  if (input !== 0 && input !== 1 && input !== 2 && input !== 3) {
+    console.error("급소율 에러 확인 필요");
+  }
+
+  switch (input) {
+    case 0:
+      probability = 1 / 24;
+      break;
+    case 1:
+      probability = 1 / 8;
+      break;
+    case 2:
+      probability = 1 / 2;
+      break;
+    default:
+      return true;
+  }
+
+  return Math.random() < probability;
 };

@@ -3,6 +3,7 @@ import { statCalculate } from "../function/statCalculate";
 import { turnEnd } from "./turnEnd";
 import { switchNpc, switchPlayer } from "./switchPokemon";
 import { attackNpc, attackPlayer } from "./attack";
+import { random } from "../util/randomCheck";
 
 export const battleStart = (battle, actNumber, queueObject) => {
   queueObject.resetQueue();

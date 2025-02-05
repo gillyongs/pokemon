@@ -18,6 +18,7 @@ export const switchPokemon = (battle, keyA, keyB) => {
   ts.rank.def = 0;
   ts.rank.cdef = 0;
   ts.rank.speed = 0;
+  ts.rank.critical = 0;
   pokemon.type1 = pokemon.origin.type1;
   pokemon.type2 = pokemon.origin.type2;
   statCalculate(battle);

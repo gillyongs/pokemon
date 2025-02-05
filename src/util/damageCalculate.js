@@ -36,6 +36,9 @@ export const damageCalculate = (battle) => {
   if (atk.item === "생명의구슬") {
     damage *= 1.3;
   }
+  if (atk.temp.critical) {
+    damage *= 1.5;
+  }
 
   const randomNum = getRandomNumber();
   damage = (damage * randomNum) / 100;

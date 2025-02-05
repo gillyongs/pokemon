@@ -353,7 +353,7 @@ class SkillList {
         0, //우선도
         true, //접촉
         "atk", //atk catk natk buf
-        [],
+        [{ name: "급소" }],
         null,
         "급소에 맞을 확률이 높다."
       ),
