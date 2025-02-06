@@ -80,7 +80,7 @@ export const skillFailCheck = (bt, enqueue) => {
     }
   }
 
-  if (def.faint === true) {
+  if (def.faint === true && skillType !== "buf" ) {
     //상대가 이미 기절한 경우
     enqueue({ battle: bt, text: "하지만 실패했다!" });
     return false;

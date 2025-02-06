@@ -3,6 +3,8 @@ import { random } from "../../util/randomCheck";
 import { rank } from "../../function/rank";
 import { recover } from "../../function/recover";
 import { burn, mabi, poision } from "../../function/statusError";
+import { josa } from "josa";
+import { noNullItem } from "../Item";
 
 function skillEffectSearch(name) {
   const functions = {
@@ -132,6 +134,23 @@ function skillEffectSearch(name) {
           pokemon.type2 = "노말";
         }
       }
+    },
+    탁떨: (battle, enqueue, skillEffect) => {
+      const def = battle[battle.turn.def];
+      const itemName = def.item;
+
+      if (itemName !== null && !noNullItem.includes(itemName)) {
+        def.item = null;
+        enqueue({
+          battle,
+          text:
+            def.name + "의 " + josa(`${itemName}#{를} `) + "탁쳐서 떨구었다!",
+        });
+      }
+    },
+    유턴: (battle, enqueue, skillEffect) => {
+      battle.uturn = true;
+      console.log("유턴");
     },
   };
 

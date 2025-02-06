@@ -1,44 +1,10 @@
 import PokemonOriginal from "./PokemonOriginal";
 import skillList from "../Skill/Skill";
+import { itemText } from "../Item";
 class BattlePokemon {
-  constructor(
-    id,
-    pokemon_id,
-    gacha,
-    hps,
-    atks,
-    defs,
-    catks,
-    cdefs,
-    speeds,
-    up,
-    down,
-    sk1,
-    sk2,
-    sk3,
-    sk4,
-    item,
-    abil
-  ) {
-    this._validateParams(
-      id,
-      pokemon_id,
-      gacha,
-      hps,
-      atks,
-      defs,
-      catks,
-      cdefs,
-      speeds,
-      up,
-      down,
-      sk1,
-      sk2,
-      sk3,
-      sk4,
-      item,
-      abil
-    );
+  // prettier-ignore
+  constructor(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil){
+    this._validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil);
 
     this.id = id;
     this.sk1 = skillList.search(sk1);
@@ -105,25 +71,8 @@ class BattlePokemon {
       console.error(this.id + " 성격처리오류");
     }
   }
-  _validateParams(
-    id,
-    pokemon_id,
-    gacha,
-    hps,
-    atks,
-    defs,
-    catks,
-    cdefs,
-    speeds,
-    up,
-    down,
-    sk1,
-    sk2,
-    sk3,
-    sk4,
-    item,
-    abil
-  ) {
+  // prettier-ignore
+  _validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil){
     if (typeof id !== "string") console.error("id must be a string", id);
     if (typeof pokemon_id !== "string")
       console.error("pokemon_id must be a string", pokemon_id);
@@ -181,13 +130,8 @@ const abilText = {
   탈: "탈로 1번 공격을 막을 수 있다.",
   재앙의검:
     "이 특성을 가진 포켓몬을 제외한 모든 포켓몬의 방어를 약하게 만든다.",
-};
-
-const itemText = {
-  돌격조끼: "특수방어가 1.5배 올라가지만 변화 기술을 쓸 수 없게 된다.",
-  생명의구슬: "공격할 때마다 HP가 10%씩 깎이지만 기술의 위력이 1.3배 올라간다.",
-  기합의띠:
-    "체력이 가득찬 상태일 때 기절할 정도의 데미지를 입어도 체력 1을 남기고 버틴다.",
+  불요의검: "등장했을 때 공격이 1랭크 올라간다.",
+  그래스메이커: "전투에 나오면 지형을 그래스필드로 만든다.",
 };
 
 export default BattlePokemon;

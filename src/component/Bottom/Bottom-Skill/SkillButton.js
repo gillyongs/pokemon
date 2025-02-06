@@ -92,8 +92,12 @@ const ICON = styled.img`
 
 const NAME = styled.div`
   position: absolute;
-  top: 8px;
-  left: 45px;
+  top: 10px;
+  left: 42px;
+  font-size: 5vw;
+  @media (min-width: 400px) {
+    font-size: 20px;
+  }
 `;
 
 const EFFECT = styled.div`

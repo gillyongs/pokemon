@@ -14,7 +14,7 @@ import { speedCheck } from "../util/speedCheck";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
-    createBattle(["0002", "0006", "0003"], ["0004", "0006", "0006"])
+    createBattle(["0007", "0006", "0003"], ["0006", "0006", "0006"])
   );
   const [text, setText] = useState("");
   const { queueObject } = useQueue();
@@ -33,6 +33,11 @@ const Battle = () => {
       if (player.faint && turnEnd) {
         setBottom("mustSwitch");
       }
+
+      if (queue[0].battle.uturn) {
+        setBottom("mustSwitch");
+      }
+
       const npcFaint = battle.npc.faint;
       const npcFaint1 = battle.npcBench1.faint;
       const npcFaint2 = battle.npcBench2.faint;

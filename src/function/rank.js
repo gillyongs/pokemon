@@ -1,6 +1,13 @@
 import { statCalculate } from "./statCalculate";
 
-export const rank = (battle, enqueue, rankPokemon, rankType, rankValue) => {
+export const rank = (
+  battle,
+  enqueue,
+  rankPokemon,
+  rankType,
+  rankValue,
+  text
+) => {
   let pokemon;
   if (rankPokemon === "npc") {
     pokemon = battle.npc;
@@ -42,6 +49,9 @@ export const rank = (battle, enqueue, rankPokemon, rankType, rankValue) => {
   }
   if (rankValue < 0) {
     rankText = rankText + " 떨어졌다!";
+  }
+  if (text) {
+    rankText = text + " " + rankText;
   }
   enqueue({ battle, text: rankText });
 };

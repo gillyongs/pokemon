@@ -4,6 +4,8 @@ import ChangeButton from "../ChangeButton";
 import BenchPokemon from "./BenchPokemon";
 import { battleStart } from "../../../service/battleStart";
 import { switchPlayer, switchNpc } from "../../../service/switch";
+import { abil } from "../../../service/abil";
+import { speedCheck } from "../../../util/speedCheck";
 const BottomSectionSwitch = ({
   battle,
   text,
@@ -19,12 +21,20 @@ const BottomSectionSwitch = ({
 
   let handleSwitch;
   if (bottom === "mustSwitch") {
+    // npc만 쓰러졌을 경우 turnEnd.js에서 교체하지만
+    // player와 npc 양측 포켓몬이 동시에 쓰러졌을경우
+    // 사용자가 교체할 포켓몬을 정한 이후 교체해야 하기에
+    // bottomSwitch에서 교체한다.
     handleSwitch = (index) => {
       setBottom("skill");
       let bt = structuredClone(battle);
+      bt.uturn = null;
       switchPlayer(bt, index, queueObject.enqueue);
       queueObject.dequeue(); // "누구로 교체할까?"를 dequque를 막아놨기에 직접 해줘야함
+
+      let faintTrigger = false;
       if (bt.npc.faint) {
+        faintTrigger = true;
         if (bt.npcBench1.faint !== true) {
           // 1번이 기절 안했으면 1번 교체
           switchNpc(bt, "npcBench1", queueObject.enqueue);
@@ -33,11 +43,14 @@ const BottomSectionSwitch = ({
           switchNpc(bt, "npcBench2", queueObject.enqueue);
         }
       }
-
-      // npc만 쓰러졌을 경우 turnEnd.js에서 교체하지만
-      // player와 npc 양측 포켓몬이 동시에 쓰러졌을경우
-      // 사용자가 교체할 포켓몬을 정한 이후 교체해야 하기에
-      // bottomSwitch에서 교체한다.
+      const fastUser = speedCheck(battle);
+      const slowUser = fastUser === "player" ? "npc" : "player";
+      if (fastUser === "npc" && faintTrigger) {
+        abil(bt, fastUser, queueObject.enqueue);
+      }
+      if (slowUser === "npc" && faintTrigger) {
+        abil(bt, slowUser, queueObject.enqueue);
+      }
     };
   } else {
     handleSwitch = (index) => {

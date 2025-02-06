@@ -1,3 +1,5 @@
+import { rank } from "../function/rank";
+
 export const abil = (bt, atks, enqueue) => {
   //특성 발동
   //배틀이 시작될때, 교체해서 나올때 발동
@@ -24,5 +26,17 @@ export const abil = (bt, atks, enqueue) => {
       text: "[특성 재앙의검] 주위의 방어가 약해졌다!",
     });
   }
-  // 방어 깎는건 어차피 statCalculate에서 작동하므로 text만 띄어주며노딤
+  // 방어 깎는건 어차피 statCalculate에서 작동하므로 text만 띄어주며됨
+
+  if (atkAbil === "불요의검") {
+    const text = "[특성 불요의검]";
+    rank(bt, enqueue, atks, "atk", 1, text);
+  }
+
+  if (atkAbil === "그래스메이커") {
+    enqueue({
+      battle: bt,
+      text: "[특성 그래스메이커] 발밑에 풀이 무성해졌다!",
+    });
+  }
 };

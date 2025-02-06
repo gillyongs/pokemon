@@ -1,6 +1,8 @@
 import { statCalculate } from "../function/statCalculate";
 import { typeCheckAbil } from "./typeCheck";
 import { getMultiplier } from "../function/statCalculate";
+import { noNullItem } from "../entity/Item";
+
 export const damageCalculate = (battle) => {
   //데미지 계산
   statCalculate(battle);
@@ -27,7 +29,11 @@ export const damageCalculate = (battle) => {
     }
   }
 
-  let damage = (22 * sk.power * atkStat) / 50 / defStat;
+  let power = powerCalculate(battle, sk);
+  // 위력이 바뀌는 기술은 여기서 처리
+  // 그래스슬라이더, 해수스파우팅
+
+  let damage = (22 * power * atkStat) / 50 / defStat;
   if (atk.status.burn != null && sk.stype === "atk") {
     damage /= 2;
   }
@@ -101,4 +107,13 @@ const getRandomNumber = () => {
   // 랜덤 값이 속하는 숫자 찾기
   return weightedNumbers.find(({ cumulative }) => randomValue <= cumulative)
     .num;
+};
+
+const powerCalculate = (battle, skill) => {
+  let power = skill.power;
+  const itemName = battle[battle.turn.def].item;
+  if (skill.name === "탁쳐서떨구기") {
+    if (itemName !== null && !noNullItem.includes(itemName)) power *= 1.5;
+  }
+  return power;
 };
