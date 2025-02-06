@@ -23,6 +23,8 @@ class Battle {
     this.field = {
       field: null,
       fieldTurnRemain: null,
+      weather: null,
+      weatherTurnRemain: null,
     };
 
     // this.player.status.poison = true;

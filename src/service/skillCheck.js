@@ -13,6 +13,18 @@ export const skillUseCheck = (bt, enqueue) => {
     return false;
   }
 
+  if (atk.status.freeze !== null) {
+    if (random(80)) {
+      let freezeText = atk.names + " 얼어버려서 움직일 수 없다!";
+      enqueue({ battle: bt, text: freezeText });
+      return false;
+    } else {
+      atk.status.freeze = null;
+      let freezeText = atk.name + "의 얼음이 녹았다!";
+      enqueue({ battle: bt, text: freezeText });
+    }
+  }
+
   if (atk.status.mabi != null) {
     if (random(25)) {
       let mabiText = atk.names + " 몸이 저려서 움직일 수 없다!";
@@ -80,13 +92,16 @@ export const skillFailCheck = (bt, enqueue) => {
     }
   }
 
-  if (def.faint === true && skillType !== "buf" ) {
+  if (def.faint === true && skillType !== "buf") {
     //상대가 이미 기절한 경우
     enqueue({ battle: bt, text: "하지만 실패했다!" });
     return false;
   }
 
-  const accurCheck = random(atk.origin[skKey].accur);
+  let accurCheck = random(atk.origin[skKey].accur);
+  if (sk.name === "번개" && bt.field.weather === "비") {
+    accurCheck = true;
+  }
   if (!accurCheck && skillType !== "buf") {
     atk.temp.miss = true;
     enqueue({ battle: bt, text: "하지만 빗나갔다!" });

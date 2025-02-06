@@ -147,14 +147,28 @@ class SkillList {
       new Skill("드럼어택", "풀", 80, 100, 10, 0, false, "atk", null, "상대의 스피드를 1랭크 떨어뜨린다.",
         [{ name: "능력치증감", probability: 100, abil: "speed", target: "def", value: -1 }], ),
 
-      new Skill("그래스슬라이더", "풀", 90, 100, 10, 777, false, "atk",  null, "",
+      new Skill("그래스슬라이더", "풀", 55, 100, 20, 777, true, "atk",  null, "그래스필드일 때 우선도 +1",
         []),
 
-      new Skill("탁쳐서떨구기", "악", 65, 100, 20, 0, true, "atk",  null, "",
+      new Skill("탁쳐서떨구기", "악", 65, 100, 20, 0, true, "atk",  null, "상대가 지닌 물건이 있으면 없애고 추가 데미지를 준다.",
         [{name: "탁떨"}]),
 
-      new Skill("유턴", "벌레", 90, 100, 10, 0, false, "atk",  null, "",
+      new Skill("유턴", "벌레", 70, 100, 20, 0, true, "atk",  null, "공격 후 다른 포켓몬과 교체한다.",
         [{name: "유턴"}]),
+
+      new Skill("해수스파우팅", "물", 150, 100, 5, 0, false, "catk", null, "자신의 HP가 적을수록 기술의 위력이 떨어진다.",
+        [],),
+
+      new Skill("근원의파동", "물", 110, 85, 10, 0, false, "catk", null, "",
+        [],),
+
+      new Skill("번개", "전기", 110, 70, 10, 0, false, "catk", null, "30%의 확률로 상대를 마비 상태로 만든다. 비가 내리면 반드시 명중한다.",
+        [{ name: "마비", probability: 30 }], ),
+
+      new Skill("냉동빔", "얼음", 90, 100, 10, 0, false, "catk", null, "10% 확률로 상대를 얼음 상태로 만든다.",
+        [{ name: "얼음", probability: 10 }], ),
+      
+
     ];
   }
   // ID로 객체 찾기

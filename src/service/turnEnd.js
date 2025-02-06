@@ -14,9 +14,22 @@ export const turnEnd = (battle, enqueue) => {
   const fast = battle[fastUser];
   const slow = battle[slowUser];
   const field = battle.field.field;
-  if (field === "grassField") {
+
+  if (battle.field.weather !== null) {
+    battle.field.weatherTurnRemain -= 1;
+    if (battle.field.weatherTurnRemain === 0) {
+      const weather = battle.field.weather;
+      battle.field.weather = null;
+      let text;
+      if (weather === "비") {
+        text = "비가 그쳤다!";
+      }
+      enqueue({ battle, text: text });
+    }
+  }
+  if (field === "그래스필드") {
     const text = "의 체력이 회복되었다!";
-    if (fast.hp < fast.origin.hp) {
+    if (fast.hp < fast.origin.hp && !fast.faint) {
       recover(
         battle,
         Math.floor(fast.origin.hp / 16),
@@ -25,7 +38,7 @@ export const turnEnd = (battle, enqueue) => {
         fast.name + text
       );
     }
-    if (slow.hp < slow.origin.hp) {
+    if (slow.hp < slow.origin.hp && !slow.faint) {
       recover(
         battle,
         Math.floor(slow.origin.hp / 16),

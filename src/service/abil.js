@@ -32,8 +32,17 @@ export const abil = (bt, atks, enqueue) => {
     rank(bt, enqueue, atks, "atk", 1, text);
   }
 
-  if (atkAbil === "그래스메이커" && bt.field.field !== "grassField") {
-    bt.field.field = "grassField";
+  if (atkAbil === "잔비" && bt.field.weather !== "비") {
+    bt.field.weather = "비";
+    bt.field.weatherTurnRemain = 5;
+    enqueue({
+      battle: bt,
+      text: "[특성 잔비] " + atk.name + " 주변에 비가 내리기 시작했다!",
+    });
+  }
+
+  if (atkAbil === "그래스메이커" && bt.field.field !== "그래스필드") {
+    bt.field.field = "그래스필드";
     bt.field.fieldTurnRemain = 5;
     enqueue({
       battle: bt,

@@ -37,6 +37,22 @@ export const damageCalculate = (battle) => {
   if (atk.status.burn != null && sk.stype === "atk") {
     damage /= 2;
   }
+  const weather = battle.field.weather;
+  if (weather === "비") {
+    if (sk.type === "물") {
+      damage *= 1.5;
+    }
+    if (sk.type === "불") {
+      damage *= 0.5;
+    }
+  }
+  if (battle.field.field === "그래스필드") {
+    if (sk.type === "풀") {
+      if (atk.type1 !== "비행" && atk.type2 !== "비행" && atk.abil !== "부유") {
+        damage *= 1.3;
+      }
+    }
+  }
   damage += 2;
   if (sk.type === atk.type1 || sk.type === atk.type2) {
     damage *= 1.5;
@@ -116,12 +132,8 @@ const powerCalculate = (battle, skill) => {
   if (skill.name === "탁쳐서떨구기") {
     if (itemName !== null && !noNullItem.includes(itemName)) power *= 1.5;
   }
-  if (battle.field.field === "grassField") {
-    if (skill.type === "풀") {
-      if (atk.type1 !== "비행" && atk.type2 !== "비행" && atk.abil !== "부유") {
-        power *= 1.3;
-      }
-    }
+  if (skill.name === "해수스파우팅") {
+    power = (power * atk.hp) / atk.origin.hp;
   }
-  return power;
+  return Math.floor(power);
 };

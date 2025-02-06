@@ -4,7 +4,7 @@ import FadeInComponent from "./FadeInComponent";
 
 const TextBox = ({ text }) => {
   return (
-    <StyledTextBox>
+    <StyledTextBox textLength={getEffectiveTextLength(text)}>
       <StyledTextLayer>
         <FadeInComponent className="text" text={text} />
       </StyledTextLayer>
@@ -25,9 +25,11 @@ const StyledTextBox = styled.div`
   background-position: center;
   background-repeat: no-repeat;
   background-color: rgba(0, 0, 0, 0.5);
-  font-size: 4.8vw;
+  font-size: ${(props) => (props.textLength >= 35 ? "4vw" : "4.8vw")};
+
   @media (min-width: 500px) {
-    font-size: 25px; /* 최대 38px */
+    font-size: ${(props) =>
+      props.textLength >= 35 ? "22px" : "25px"}; /* 최대 크기 조정 */
   }
 `;
 
@@ -37,3 +39,7 @@ const StyledTextLayer = styled.div`
   width: 94vw;
   top: -7px;
 `;
+
+const getEffectiveTextLength = (text) => {
+  return text.replace(/[ .!,/]/g, "").length;
+};

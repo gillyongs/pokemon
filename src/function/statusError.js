@@ -89,5 +89,30 @@ export const poison = (battle, get, enqueue) => {
     text: poisonText,
   });
 };
+
+export const freeze = (battle, get, enqueue, abilText) => {
+  let pokemon;
+  if (get === "player") {
+    pokemon = battle.player;
+  } else if (get === "npc") {
+    pokemon = battle.npc;
+  }
+  if (pokemon.type1 === "얼음" || pokemon.type2 === "얼음") {
+    return;
+  }
+  if (statusCheck(pokemon.status)) {
+    //이미 걸린 상태이상이 있는지 체크
+    return;
+  }
+  if (faintCheck(pokemon)) {
+    return;
+  }
+  let freezeText = pokemon.names + " 얼어붙었다!";
+  pokemon.status.freeze = true;
+  enqueue({
+    battle: battle,
+    text: freezeText,
+  });
+};
 export const sleep = (battle, enqueue) => {};
 export const confuse = (battle, enqueue) => {};

@@ -41,7 +41,7 @@ const priCalculate = (battle, pokemon) => {
   const sn = pokemon + "SN";
   const sk = battle[pokemon].origin["sk" + battle.turn[sn]];
   if (sk.name === "그래스슬라이더") {
-    if (battle.field.field === "grassField") {
+    if (battle.field.field === "그래스필드") {
       return 1;
     } else return 0;
   }

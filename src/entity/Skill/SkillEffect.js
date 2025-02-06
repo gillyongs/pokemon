@@ -2,7 +2,7 @@ import { damage } from "../../function/damage";
 import { random } from "../../util/randomCheck";
 import { rank } from "../../function/rank";
 import { recover } from "../../function/recover";
-import { burn, mabi, poison } from "../../function/statusError";
+import { burn, mabi, poison, freeze } from "../../function/statusError";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc } from "../../service/switch";
@@ -54,6 +54,12 @@ function skillEffectSearch(name) {
         return;
       }
       mabi(battle, battle.turn.def, enqueue);
+    },
+    얼음: (battle, enqueue, skillEffect) => {
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      freeze(battle, battle.turn.def, enqueue);
     },
 
     얼음치료: (battle, enqueue, skillEffect) => {
