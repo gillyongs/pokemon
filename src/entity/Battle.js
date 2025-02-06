@@ -29,6 +29,13 @@ class Battle {
         fieldTurnRemain: null,
       },
     };
+
+    // this.player.status.poison = true;
+    // this.playerBench1.status.poison = true;
+    // this.playerBench2.status.poison = true;
+    // this.npc.status.poison = true;
+    // this.npcBench1.status.poison = true;
+    // this.npcBench2.status.poison = true;
   }
 }
 

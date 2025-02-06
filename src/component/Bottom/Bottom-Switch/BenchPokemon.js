@@ -145,9 +145,9 @@ const PokemonButton = styled.div`
 const STATUS = styled.div`
   position: absolute;
   color: white;
-  top: 14px;
+  top: 10.5px;
   left: 36vh;
-  font-size: 10px;
+  font-size: 15px;
   padding: 2px 4px;
   border-radius: 5px;
   background-color: ${({ status }) => status};
@@ -158,8 +158,8 @@ const statusMap = {
   sleep: "gray",
   freeze: "skyblue",
   mabi: "rgb(158, 156, 42)",
-  poision: "purple",
-  mpoision: "darkpurple",
+  poison: "purple",
+  mpoison: "darkpurple",
 };
 
 const statusKor = {
@@ -167,6 +167,6 @@ const statusKor = {
   sleep: "잠듦",
   freeze: "얼음",
   mabi: "마비",
-  poision: "독",
-  mpoision: "맹독",
+  poison: "독",
+  mpoison: "맹독",
 };

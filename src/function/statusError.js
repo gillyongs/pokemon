@@ -60,7 +60,7 @@ export const burn = (battle, get, enqueue) => {
     text: fireText,
   });
 };
-export const poision = (battle, get, enqueue) => {
+export const poison = (battle, get, enqueue) => {
   let pokemon;
   if (get === "player") {
     pokemon = battle.player;
@@ -82,11 +82,11 @@ export const poision = (battle, get, enqueue) => {
   if (faintCheck(pokemon)) {
     return;
   }
-  let poisionText = pokemon.name + "의 몸에 독이 퍼졌다!";
-  pokemon.status.poision = true;
+  let poisonText = pokemon.name + "의 몸에 독이 퍼졌다!";
+  pokemon.status.poison = true;
   enqueue({
     battle: battle,
-    text: poisionText,
+    text: poisonText,
   });
 };
 export const sleep = (battle, enqueue) => {};

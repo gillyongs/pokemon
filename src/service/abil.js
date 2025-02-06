@@ -4,8 +4,7 @@ export const abil = (bt, atks, enqueue) => {
   //특성 발동
   //배틀이 시작될때, 교체해서 나올때 발동
   //전자는 battleScrren.js에 useEffect
-  //후자는 battleStart.js에
-  //(맞교체시 교체가 전부 된 다음 특성이 발동하므로 switch.js에 있어선 안됨)
+  //후자는 switch.js에
 
   let defs;
 
@@ -23,7 +22,7 @@ export const abil = (bt, atks, enqueue) => {
   if (atkAbil === "재앙의검") {
     enqueue({
       battle: bt,
-      text: "[특성 재앙의검] 주위의 방어가 약해졌다!",
+      text: "[특성 재앙의검] " + atk.name + " 주위의 방어가 약해졌다!",
     });
   }
   // 방어 깎는건 어차피 statCalculate에서 작동하므로 text만 띄어주며됨
@@ -33,10 +32,11 @@ export const abil = (bt, atks, enqueue) => {
     rank(bt, enqueue, atks, "atk", 1, text);
   }
 
-  if (atkAbil === "그래스메이커") {
+  if (atkAbil === "그래스메이커" && !bt.field.field.grassField) {
+    bt.field.field.grassField = true;
     enqueue({
       battle: bt,
-      text: "[특성 그래스메이커] 발밑에 풀이 무성해졌다!",
+      text: "[특성 그래스메이커] " + atk.name + " 발밑에 풀이 무성해졌다!",
     });
   }
 };

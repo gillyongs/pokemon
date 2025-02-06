@@ -1,6 +1,7 @@
 import { damage } from "../function/damage";
 import { switchNpc } from "./switch";
 import { abil } from "./abil";
+import { speedCheck } from "../util/speedCheck";
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
   // 화상딜, 독딜, 날개쉬기 타입복구, NPC 기절시 교체
@@ -8,46 +9,45 @@ export const turnEnd = (battle, enqueue) => {
   // player.temp의 프로퍼티들은 여기서 초기화된다.
   // battle.turn은 turnEnd 때문에 턴 시작할때 (battleStart.js)에서 초기화된다
 
-  if (battle.player.faint !== true) {
-    if (battle.player.status.poision === true) {
-      damage(
-        battle,
-        Math.floor(battle.player.origin.hp / 8),
-        "player",
-        enqueue,
-        battle.player.names + " 독에 의한 데미지를 입었다!"
-      );
-    }
-    if (battle.player.status.burn === true) {
-      damage(
-        battle,
-        Math.floor(battle.player.origin.hp / 16),
-        "player",
-        enqueue,
-        battle.player.names + " 화상 데미지를 입었다!"
-      );
-    }
+  const fastUser = speedCheck(battle);
+  const slowUser = fastUser === "player" ? "npc" : "player";
+  const fast = battle[fastUser];
+  const slow = battle[slowUser];
+  if (fast.status.poison && !fast.faint) {
+    damage(
+      battle,
+      Math.floor(fast.origin.hp / 8),
+      fastUser,
+      enqueue,
+      fast.names + " 독에 의한 데미지를 입었다!"
+    );
   }
-  if (battle.npc.faint !== true) {
-    if (battle.npc.status.poision === true) {
-      damage(
-        battle,
-        Math.floor(battle.npc.origin.hp / 8),
-        "npc",
-        enqueue,
-        battle.npc.names + " 독에 의한 데미지를 입었다!"
-      );
-    }
-
-    if (battle.npc.status.burn === true) {
-      damage(
-        battle,
-        Math.floor(battle.npc.origin.hp / 16),
-        "npc",
-        enqueue,
-        battle.npc.names + " 화상 데미지를 입었다!"
-      );
-    }
+  if (slow.status.poison && !slow.faint) {
+    damage(
+      battle,
+      Math.floor(slow.origin.hp / 8),
+      slowUser,
+      enqueue,
+      slow.names + " 독에 의한 데미지를 입었다!"
+    );
+  }
+  if (fast.status.burn && !fast.faint) {
+    damage(
+      battle,
+      Math.floor(fast.origin.hp / 16),
+      fastUser,
+      enqueue,
+      fast.names + " 화상 데미지를 입었다!"
+    );
+  }
+  if (slow.status.burn && !slow.faint) {
+    damage(
+      battle,
+      Math.floor(slow.origin.hp / 16),
+      slowUser,
+      enqueue,
+      slow.names + " 화상 데미지를 입었다!"
+    );
   }
 
   let tempPlayer = battle.player.temp;
@@ -83,16 +83,18 @@ export const turnEnd = (battle, enqueue) => {
       //1번 기절했고 2번 기절 안했으면 2번 교체
       switchNpc(battle, "npcBench2", enqueue);
     }
-    abil(battle, "npc", enqueue);
   }
 
   if (battle.player.faint) {
     battle.turn.textFreeze = true;
     enqueue({
       battle: battle,
-      text: " 누구로 교체 할까?",
+      text: "누구로 교체 할까?",
     });
   } else {
+    if (battle.uturn) {
+      return;
+    }
     enqueue({
       battle: battle,
       text: battle.player.origin.names + " 무엇을 할까?",

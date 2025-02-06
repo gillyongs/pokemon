@@ -2,9 +2,10 @@ import { damage } from "../../function/damage";
 import { random } from "../../util/randomCheck";
 import { rank } from "../../function/rank";
 import { recover } from "../../function/recover";
-import { burn, mabi, poision } from "../../function/statusError";
+import { burn, mabi, poison } from "../../function/statusError";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
+import { switchNpc } from "../../service/switch";
 
 function skillEffectSearch(name) {
   const functions = {
@@ -46,7 +47,7 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      poision(battle, battle.turn.def, enqueue);
+      poison(battle, battle.turn.def, enqueue);
     },
     마비: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
@@ -149,8 +150,25 @@ function skillEffectSearch(name) {
       }
     },
     유턴: (battle, enqueue, skillEffect) => {
-      battle.uturn = true;
-      console.log("유턴");
+      if (battle.turn.atk === "player") {
+        battle.uturn = true;
+        battle.turn.textFreeze = true;
+        enqueue({
+          battle,
+          text: "누구로 교체할까?",
+        });
+      } else if (battle.turn.atk === "npc") {
+        if (battle.npcBench1.faint !== true) {
+          // 1번이 기절 안했으면 1번 교체
+          switchNpc(battle, "npcBench1", enqueue);
+        } else if (
+          battle.npcBench2.faint !== true &&
+          battle.npcBench1.faint === true
+        ) {
+          //1번 기절했고 2번 기절 안했으면 2번 교체
+          switchNpc(battle, "npcBench2", enqueue);
+        }
+      }
     },
   };
 

@@ -27,8 +27,6 @@ export const skillSpeedCheck = (battle) => {
   if (npcPri === 777) {
     console.error("NPC 우선도 확인 필요");
   }
-  console.log(playerPri);
-  console.log(npcPri);
 
   if (playerPri > npcPri) {
     return "player";

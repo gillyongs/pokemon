@@ -22,6 +22,13 @@ export const battleStart = (battle, actNumber, queueObject) => {
   const npcActNumber = npcAi2(battle);
   bt.turn.playerSN = actNumber;
   bt.turn.npcSN = npcActNumber;
+  let uTurnTrigger = false;
+  if (
+    typeof actNumber === "number" &&
+    bt.player.origin["sk" + actNumber].name === "유턴"
+  ) {
+    uTurnTrigger = true;
+  }
 
   if (typeof actNumber === "string" && typeof npcActNumber === "string") {
     //맞교체
@@ -29,29 +36,29 @@ export const battleStart = (battle, actNumber, queueObject) => {
     if (fastUser === "player") {
       switchPlayer(bt, actNumber, enqueue);
       switchNpc(bt, npcActNumber, enqueue);
-      abil(bt, "player", enqueue);
-      abil(bt, "npc", enqueue);
     } else if (fastUser === "npc") {
       switchNpc(bt, npcActNumber, enqueue);
       switchPlayer(bt, actNumber, enqueue);
-      abil(bt, "npc", enqueue);
-      abil(bt, "player", enqueue);
     }
   } else if (
+    // 플레이어만 교체
     typeof actNumber === "string" &&
     typeof npcActNumber === "number"
   ) {
     switchPlayer(bt, actNumber, enqueue);
-    abil(bt, "player", enqueue);
     attackNpc(bt, actNumber, npcActNumber, enqueue);
   } else if (
+    // npc만 교체
     typeof npcActNumber === "string" &&
     typeof actNumber === "number"
   ) {
     switchNpc(bt, npcActNumber, enqueue);
-    abil(bt, "npc", enqueue);
     attackPlayer(bt, actNumber, npcActNumber, enqueue);
+    if (uTurnTrigger) {
+      return;
+    }
   } else if (
+    //맞공격
     typeof actNumber === "number" &&
     typeof npcActNumber === "number"
   ) {
@@ -61,6 +68,9 @@ export const battleStart = (battle, actNumber, queueObject) => {
     if (fastUser === "player") {
       attackPlayer(bt, actNumber, npcActNumber, enqueue);
       statCalculate(bt);
+      if (uTurnTrigger) {
+        return;
+      }
       if (bt[bt.turn.def].faint !== true) {
         attackNpc(bt, actNumber, npcActNumber, enqueue);
       }
@@ -69,6 +79,9 @@ export const battleStart = (battle, actNumber, queueObject) => {
       statCalculate(bt);
       if (bt[bt.turn.def].faint !== true) {
         attackPlayer(bt, actNumber, npcActNumber, enqueue);
+        if (uTurnTrigger) {
+          return;
+        }
       }
     }
   }
@@ -86,6 +99,7 @@ const npcAi = (battle, a) => {
   return a;
 };
 const npcAi2 = (battle) => {
+  return 4;
   let choices = [1, 2, 3, 4];
   if (!battle.npcBench1.faint) choices.push("npcBench1");
   if (!battle.npcBench2.faint) choices.push("npcBench2");

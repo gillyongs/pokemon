@@ -6,6 +6,8 @@ import { battleStart } from "../../../service/battleStart";
 import { switchPlayer, switchNpc } from "../../../service/switch";
 import { abil } from "../../../service/abil";
 import { speedCheck } from "../../../util/speedCheck";
+import { turnEnd } from "../../../service/turnEnd";
+import { attackNpc } from "../../../service/attack";
 const BottomSectionSwitch = ({
   battle,
   text,
@@ -28,13 +30,10 @@ const BottomSectionSwitch = ({
     handleSwitch = (index) => {
       setBottom("skill");
       let bt = structuredClone(battle);
-      bt.uturn = null;
       switchPlayer(bt, index, queueObject.enqueue);
       queueObject.dequeue(); // "누구로 교체할까?"를 dequque를 막아놨기에 직접 해줘야함
 
-      let faintTrigger = false;
       if (bt.npc.faint) {
-        faintTrigger = true;
         if (bt.npcBench1.faint !== true) {
           // 1번이 기절 안했으면 1번 교체
           switchNpc(bt, "npcBench1", queueObject.enqueue);
@@ -43,16 +42,27 @@ const BottomSectionSwitch = ({
           switchNpc(bt, "npcBench2", queueObject.enqueue);
         }
       }
-      const fastUser = speedCheck(battle);
-      const slowUser = fastUser === "player" ? "npc" : "player";
-      if (fastUser === "npc" && faintTrigger) {
-        abil(bt, fastUser, queueObject.enqueue);
-      }
-      if (slowUser === "npc" && faintTrigger) {
-        abil(bt, slowUser, queueObject.enqueue);
+    };
+  } else if (bottom === "uturn") {
+    handleSwitch = (index) => {
+      setBottom("skill");
+      let bt = structuredClone(battle);
+      bt.uturn = null;
+      switchPlayer(bt, index, queueObject.enqueue);
+      queueObject.dequeue(); // "누구로 교체할까?"를 dequque를 막아놨기에 직접 해줘야함
+
+      if (
+        bt.turn.fastUser === "npc" ||
+        bt.npc.faint ||
+        bt.turn.fastUser === null
+      ) {
+        turnEnd(bt, queueObject.enqueue);
+      } else if (bt.turn.fastUser === "player") {
+        attackNpc(bt, bt.turn.playerSN, bt.turn.npcSN, queueObject.enqueue);
+        turnEnd(bt, queueObject.enqueue);
       }
     };
-  } else {
+  } else if (bottom === "switch") {
     handleSwitch = (index) => {
       setBottom("skill");
       battleStart(battle, index, queueObject);
