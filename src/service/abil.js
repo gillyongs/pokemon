@@ -32,8 +32,9 @@ export const abil = (bt, atks, enqueue) => {
     rank(bt, enqueue, atks, "atk", 1, text);
   }
 
-  if (atkAbil === "그래스메이커" && !bt.field.field.grassField) {
-    bt.field.field.grassField = true;
+  if (atkAbil === "그래스메이커" && bt.field.field !== "grassField") {
+    bt.field.field = "grassField";
+    bt.field.fieldTurnRemain = 5;
     enqueue({
       battle: bt,
       text: "[특성 그래스메이커] " + atk.name + " 발밑에 풀이 무성해졌다!",

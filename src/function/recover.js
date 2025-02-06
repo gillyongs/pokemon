@@ -16,7 +16,7 @@ export const recover = (
     enqueue({ battle, text: "더 이상 회복할 수 없다!" });
     return;
   }
-  pokemon.hp += recoverValue;
+  pokemon.hp += Math.floor(recoverValue);
   if (pokemon.hp >= pokemon.origin.hp) {
     pokemon.hp = pokemon.origin.hp;
   }

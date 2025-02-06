@@ -21,13 +21,8 @@ class Battle {
     };
     //turnEnd 같은 변수때문에 턴이 시작될때 = battleStart.js에서 초기화된다
     this.field = {
-      field: {
-        grassField: null,
-        mistField: null,
-        psychoField: null,
-        electricField: null,
-        fieldTurnRemain: null,
-      },
+      field: null,
+      fieldTurnRemain: null,
     };
 
     // this.player.status.poison = true;

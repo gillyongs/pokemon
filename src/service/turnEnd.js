@@ -1,6 +1,6 @@
 import { damage } from "../function/damage";
 import { switchNpc } from "./switch";
-import { abil } from "./abil";
+import { recover } from "../function/recover";
 import { speedCheck } from "../util/speedCheck";
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
@@ -13,6 +13,36 @@ export const turnEnd = (battle, enqueue) => {
   const slowUser = fastUser === "player" ? "npc" : "player";
   const fast = battle[fastUser];
   const slow = battle[slowUser];
+  const field = battle.field.field;
+  if (field === "grassField") {
+    const text = "의 체력이 회복되었다!";
+    if (fast.hp < fast.origin.hp) {
+      recover(
+        battle,
+        Math.floor(fast.origin.hp / 16),
+        fastUser,
+        enqueue,
+        fast.name + text
+      );
+    }
+    if (slow.hp < slow.origin.hp) {
+      recover(
+        battle,
+        Math.floor(slow.origin.hp / 16),
+        slowUser,
+        enqueue,
+        slow.name + text
+      );
+    }
+    const bf = battle.field;
+    bf.fieldTurnRemain -= 1;
+    if (bf.fieldTurnRemain === 0) {
+      bf.fieldTurnRemain = null;
+      bf.field = null;
+      enqueue({ battle, text: "발밑의 풀이 사라졌다!" });
+    }
+  }
+
   if (fast.status.poison && !fast.faint) {
     damage(
       battle,

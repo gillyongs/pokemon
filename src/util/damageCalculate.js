@@ -110,10 +110,18 @@ const getRandomNumber = () => {
 };
 
 const powerCalculate = (battle, skill) => {
+  const atk = battle[battle.turn.atk];
   let power = skill.power;
   const itemName = battle[battle.turn.def].item;
   if (skill.name === "탁쳐서떨구기") {
     if (itemName !== null && !noNullItem.includes(itemName)) power *= 1.5;
+  }
+  if (battle.field.field === "grassField") {
+    if (skill.type === "풀") {
+      if (atk.type1 !== "비행" && atk.type2 !== "비행" && atk.abil !== "부유") {
+        power *= 1.3;
+      }
+    }
   }
   return power;
 };
