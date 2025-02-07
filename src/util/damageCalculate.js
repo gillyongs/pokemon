@@ -46,9 +46,13 @@ export const damageCalculate = (battle) => {
       damage *= 0.5;
     }
   }
-  if (battle.field.field === "그래스필드") {
-    if (sk.type === "풀") {
-      if (atk.type1 !== "비행" && atk.type2 !== "비행" && atk.abil !== "부유") {
+  const field = battle.field.field;
+  if (field !== null) {
+    if (atk.type1 !== "비행" && atk.type2 !== "비행" && atk.abil !== "부유") {
+      if (field === "그래스필드" && sk.type === "풀") {
+        damage *= 1.3;
+      }
+      if (field === "일렉트릭필드" && sk.type === "전기") {
         damage *= 1.3;
       }
     }
@@ -57,7 +61,14 @@ export const damageCalculate = (battle) => {
   if (sk.type === atk.type1 || sk.type === atk.type2) {
     damage *= 1.5;
   }
-  damage *= typeCheckAbil(battle, sk.type, def.type1, def.type2);
+  const typeDamege = typeCheckAbil(battle, sk.type, def.type1, def.type2);
+  damage *= typeDamege;
+  if (sk.name === "라이트닝드라이브") {
+    if (typeDamege > 1) {
+      damage = (damage * 4) / 3;
+    }
+  }
+
   if (atk.item === "생명의구슬") {
     damage *= 1.3;
   }

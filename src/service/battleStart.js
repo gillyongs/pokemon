@@ -23,9 +23,10 @@ export const battleStart = (battle, actNumber, queueObject) => {
   bt.turn.playerSN = actNumber;
   bt.turn.npcSN = npcActNumber;
   let uTurnTrigger = false;
+  const skName = bt.player.origin["sk" + actNumber].name;
   if (
     typeof actNumber === "number" &&
-    bt.player.origin["sk" + actNumber].name === "유턴"
+    (skName === "유턴" || skName === "볼트체인지")
   ) {
     uTurnTrigger = true;
   }

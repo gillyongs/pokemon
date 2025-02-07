@@ -27,32 +27,40 @@ export const turnEnd = (battle, enqueue) => {
       enqueue({ battle, text: text });
     }
   }
-  if (field === "그래스필드") {
-    const text = "의 체력이 회복되었다!";
-    if (fast.hp < fast.origin.hp && !fast.faint) {
-      recover(
-        battle,
-        Math.floor(fast.origin.hp / 16),
-        fastUser,
-        enqueue,
-        fast.name + text
-      );
+  if (field !== null) {
+    let fieldEndText;
+    if (field === "그래스필드") {
+      fieldEndText = "발밑의 풀이 사라졌다!";
+      const text = "의 체력이 회복되었다!";
+      if (fast.hp < fast.origin.hp && !fast.faint) {
+        recover(
+          battle,
+          Math.floor(fast.origin.hp / 16),
+          fastUser,
+          enqueue,
+          fast.name + text
+        );
+      }
+      if (slow.hp < slow.origin.hp && !slow.faint) {
+        recover(
+          battle,
+          Math.floor(slow.origin.hp / 16),
+          slowUser,
+          enqueue,
+          slow.name + text
+        );
+      }
     }
-    if (slow.hp < slow.origin.hp && !slow.faint) {
-      recover(
-        battle,
-        Math.floor(slow.origin.hp / 16),
-        slowUser,
-        enqueue,
-        slow.name + text
-      );
+
+    if (field === "일렉트릭필드") {
+      fieldEndText = "발밑의 전기가 사라졌다!";
     }
     const bf = battle.field;
     bf.fieldTurnRemain -= 1;
     if (bf.fieldTurnRemain === 0) {
       bf.fieldTurnRemain = null;
       bf.field = null;
-      enqueue({ battle, text: "발밑의 풀이 사라졌다!" });
+      enqueue({ battle, text: fieldEndText });
     }
   }
 

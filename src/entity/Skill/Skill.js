@@ -168,6 +168,19 @@ class SkillList {
       new Skill("냉동빔", "얼음", 90, 100, 10, 0, false, "catk", null, "10% 확률로 상대를 얼음 상태로 만든다.",
         [{ name: "얼음", probability: 10 }], ),
       
+      new Skill("볼트체인지", "전기", 70, 100, 20, 0, false, "catk",  null, "공격 후 다른 포켓몬과 교체한다.",
+        [{name: "유턴"}]),
+
+      new Skill("매지컬샤인", "페어리", 80, 100, 10, 0, false, "catk", null, "",
+        [],),
+
+      new Skill("용성군", "드래곤", 130, 90, 5, 0, false, "catk", null, "사용 후 사용자의 특수공격이 2랭크 떨어진다.",
+        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: -2 }]),
+      
+      new Skill("라이트닝드라이브", "전기", 100, 100, 5, 0, false, "catk", null, "약점인 상대에게는 위력이 더욱 올라간다.",
+        [],),
+        
+      
 
     ];
   }

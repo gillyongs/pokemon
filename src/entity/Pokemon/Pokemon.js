@@ -50,6 +50,7 @@ class PokemonOnBattle {
       },
       confuse: null,
       confuseTurnRemain: null, // 별개로 skillUseCheck에서 혼란 턴 끝나면 초기화된다
+      onlySkil: null,
     };
     this.faint = null;
   }

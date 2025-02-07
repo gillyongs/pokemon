@@ -9,18 +9,42 @@ export const statCalculate = (battle) => {
       player.origin[attr] * getMultiplier(player.tempStatus.rank[attr]);
     npc[attr] = npc.origin[attr] * getMultiplier(npc.tempStatus.rank[attr]);
   });
-  if (player.item === "돌격조끼") {
-    player["cdef"] *= 1.5;
-  }
-  if (npc.item === "돌격조끼") {
-    npc["cdef"] *= 1.5;
-  }
-  if (player.abil === "재앙의검" && npc.abil !== "재앙의검") {
-    npc["def"] *= 0.75;
-  }
-  if (npc.abil === "재앙의검" && player.abil !== "재앙의검") {
-    player["def"] *= 0.75;
-  }
+
+  [player, npc].forEach((entity) => {
+    if (entity.item === "돌격조끼") {
+      entity.cdef *= 1.5;
+    }
+    [battle.player, battle.npc].forEach((entity, index, arr) => {
+      const opponent = arr[1 - index]; // player와 npc를 서로 바꿔줌
+
+      if (entity.item === "돌격조끼") {
+        entity.cdef *= 1.5;
+      }
+
+      if (entity.item === "구애스카프") {
+        entity.speed *= 1.5;
+      }
+
+      if (entity.item === "구애안경") {
+        entity.catk *= 1.5;
+      }
+
+      if (entity.item === "구애머리띠") {
+        entity.atk *= 1.5;
+      }
+
+      if (entity.abil === "재앙의검" && opponent.abil !== "재앙의검") {
+        opponent.def *= 0.75;
+      }
+
+      if (
+        entity.abil === "하드론엔진" &&
+        battle.field.field === "일렉트릭필드"
+      ) {
+        entity.catk *= 1.3;
+      }
+    });
+  });
   return battle;
 };
 

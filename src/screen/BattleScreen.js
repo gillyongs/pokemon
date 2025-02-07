@@ -14,7 +14,7 @@ import { speedCheck } from "../util/speedCheck";
 
 const Battle = () => {
   const [battle, setBattle] = useState(
-    createBattle(["0009", "0007", "0003"], ["0007", "0006", "0006"])
+    createBattle(["0010", "0007", "0003"], ["0009", "0006", "0006"])
   );
   const [text, setText] = useState("");
   const { queueObject } = useQueue();

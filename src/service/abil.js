@@ -49,4 +49,16 @@ export const abil = (bt, atks, enqueue) => {
       text: "[특성 그래스메이커] " + atk.name + " 발밑에 풀이 무성해졌다!",
     });
   }
+
+  if (atkAbil === "하드론엔진" && bt.field.field !== "일렉트릭필드") {
+    bt.field.field = "일렉트릭필드";
+    bt.field.fieldTurnRemain = 5;
+    enqueue({
+      battle: bt,
+      text:
+        "[특성 하드론엔진] " +
+        atk.names +
+        " 일렉트릭필드를 전개하여 미래 기관을 가동했다!",
+    });
+  }
 };
