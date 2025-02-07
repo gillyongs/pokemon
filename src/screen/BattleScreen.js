@@ -90,6 +90,7 @@ const Battle = () => {
             <BottomSectionSkill
               battle={battle}
               text={text}
+              setText={setText}
               setBottom={setBottom}
               queueObject={queueObject}
             />

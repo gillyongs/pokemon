@@ -24,6 +24,13 @@ export const skillUse = (bt, enqueue) => {
   if (def.origin.abil === "프레셔" && atk[ppKey] > 0) {
     atk[ppKey] -= 1;
   }
+  if (
+    atk.item === "구애스카프" ||
+    atk.item === "구애머리띠" ||
+    atk.item === "구애안경"
+  ) {
+    atk.tempStatus.onlySkill = sk.name;
+  }
   enqueue({ battle: bt, text: skillUseText });
 
   if (skillFailCheck(bt, enqueue) === false) {

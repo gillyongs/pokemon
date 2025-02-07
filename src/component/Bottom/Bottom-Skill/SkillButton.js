@@ -3,7 +3,13 @@ import styled from "styled-components";
 import { typeCheckConsole } from "../../../util/typeCheck";
 import { battleStart } from "../../../service/battleStart";
 
-const SkillButton = ({ battle, skillNumber, queueObject, pokemon }) => {
+const SkillButton = ({
+  battle,
+  skillNumber,
+  queueObject,
+  pokemon,
+  setText,
+}) => {
   const skill = "sk" + skillNumber;
   const pp = "pp" + skillNumber;
   let sk;
@@ -15,6 +21,13 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon }) => {
   const sn = getNumberText(skillNumber);
 
   const handleSkillClick = (skillIndex) => {
+    const onlySkill = battle.player.tempStatus.onlySkill;
+    if (onlySkill) {
+      if (onlySkill !== sk.name) {
+        setText("해당 스킬은 사용할 수 없다!");
+        return;
+      }
+    }
     if (queueObject.queueCheck()) {
       battleStart(battle, skillIndex, queueObject);
     }
@@ -28,7 +41,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon }) => {
       }}
     >
       <ICON src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
-      <NAME>{sk.name}</NAME>
+      <NAME skName={sk.name}>{sk.name}</NAME>
       <EFFECT>
         {typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2)}
       </EFFECT>
@@ -92,12 +105,9 @@ const ICON = styled.img`
 
 const NAME = styled.div`
   position: absolute;
-  top: 10px;
+  top: ${({ skName }) => (skName.length > 5 ? "12px" : "9px")};
   left: 42px;
-  font-size: 5vw;
-  @media (min-width: 400px) {
-    font-size: 20px;
-  }
+  font-size: ${({ skName }) => (skName.length > 5 ? "4.3vw" : "20px")};
 `;
 
 const EFFECT = styled.div`
