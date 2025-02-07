@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { typeCheckConsole } from "../../../util/typeCheck";
 import { battleStart } from "../../../service/battleStart";
+import { npcChoice } from "../../../function/npc";
 
 const SkillButton = ({
   battle,
@@ -29,7 +30,12 @@ const SkillButton = ({
       }
     }
     if (queueObject.queueCheck()) {
-      battleStart(battle, skillIndex, queueObject);
+      battleStart(
+        battle,
+        skillIndex,
+        npcChoice(battle, skillIndex),
+        queueObject
+      );
     }
   };
 
@@ -41,7 +47,7 @@ const SkillButton = ({
       }}
     >
       <ICON src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
-      <NAME skName={sk.name}>{sk.name}</NAME>
+      <NAME skname={sk.name}>{sk.name}</NAME>
       <EFFECT>
         {typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2)}
       </EFFECT>
@@ -105,9 +111,13 @@ const ICON = styled.img`
 
 const NAME = styled.div`
   position: absolute;
-  top: ${({ skName }) => (skName.length > 5 ? "12px" : "9px")};
+  top: 10px;
   left: 42px;
-  font-size: ${({ skName }) => (skName.length > 5 ? "4.3vw" : "20px")};
+  font-size: "20px";
+  @media (max-width: 400px) {
+    font-size: ${({ skname }) => (skname.length > 5 ? "4.3vw" : "20px")};
+    top: ${({ skname }) => (skname.length > 5 ? "12px" : "10px")};
+  }
 `;
 
 const EFFECT = styled.div`

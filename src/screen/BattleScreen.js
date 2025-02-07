@@ -11,15 +11,40 @@ import BottomSectionSkill from "../component/Bottom/Bottom-Skill/Bottom-Skill";
 import BottomSectionSwitch from "../component/Bottom/Bottom-Switch/Bottom-Switch";
 import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
 import { speedCheck } from "../util/speedCheck";
+import { useLocation } from "react-router-dom";
 
 const Battle = () => {
+  const location = useLocation();
   const [battle, setBattle] = useState(
-    createBattle(["0010", "0007", "0003"], ["0009", "0006", "0006"])
+    createBattle(["0005", "0007", "0003"], ["0003", "0006", "0006"])
   );
   const [text, setText] = useState("");
   const { queueObject } = useQueue();
   const [bottom, setBottom] = useState("skill");
   const [bench, setBench] = useState(null);
+
+  useEffect(() => {
+    let { battleObject } = location.state || {}; // battleObject 가져오기
+
+    if (battleObject) {
+      setBattle(battleObject); // 상태 업데이트
+    } else {
+      battleObject = createBattle(
+        ["0001", "0007", "0003"],
+        ["0001", "0006", "0006"]
+      );
+    }
+
+    const fastUser = speedCheck(battleObject);
+    const slowUser = fastUser === "player" ? "npc" : "player";
+    let bt = structuredClone(battleObject);
+    abil(bt, fastUser, queueObject.enqueue);
+    abil(bt, slowUser, queueObject.enqueue);
+
+    if (queueObject.queue.length === 0) {
+      setText(battleObject.player.origin.names + " 무엇을 할까?");
+    }
+  }, [location.state]); // location.state가 변경될 때 실행
 
   useEffect(() => {
     const queue = queueObject.queue;
@@ -64,14 +89,6 @@ const Battle = () => {
       queueObject.dequeue();
     }
   };
-
-  useEffect(() => {
-    const fastUser = speedCheck(battle);
-    const slowUser = fastUser === "player" ? "npc" : "player";
-    let bt = structuredClone(battle);
-    abil(bt, fastUser, queueObject.enqueue);
-    abil(bt, slowUser, queueObject.enqueue);
-  }, []);
 
   return (
     <>

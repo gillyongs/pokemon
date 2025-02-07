@@ -4,10 +4,9 @@ import ChangeButton from "../ChangeButton";
 import BenchPokemon from "./BenchPokemon";
 import { battleStart } from "../../../service/battleStart";
 import { switchPlayer, switchNpc } from "../../../service/switch";
-import { abil } from "../../../service/abil";
-import { speedCheck } from "../../../util/speedCheck";
 import { turnEnd } from "../../../service/turnEnd";
 import { attackNpc } from "../../../service/attack";
+import { npcChoice } from "../../../function/npc";
 const BottomSectionSwitch = ({
   battle,
   text,
@@ -70,7 +69,7 @@ const BottomSectionSwitch = ({
     // 행동으로 교체를 고른 경우
     handleSwitch = (index) => {
       setBottom("skill");
-      battleStart(battle, index, queueObject);
+      battleStart(battle, index, npcChoice(battle, index), queueObject);
     };
   }
 

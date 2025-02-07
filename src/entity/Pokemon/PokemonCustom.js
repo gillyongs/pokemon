@@ -7,6 +7,7 @@ class BattlePokemon {
     this._validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil);
 
     this.id = id;
+    pokemonList.push(id)
     this.sk1 = skillList.search(sk1);
     this.sk2 = skillList.search(sk2);
     this.sk3 = skillList.search(sk3);
@@ -136,5 +137,7 @@ const abilText = {
   하드론엔진:
     "등장했을 때 일렉트릭필드를 전개한다. 일렉트릭필드일 때 미래 기관에 의해 특수공격이 1.3배가 된다.",
 };
+
+export const pokemonList = [];
 
 export default BattlePokemon;

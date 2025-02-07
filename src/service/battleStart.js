@@ -3,9 +3,8 @@ import { statCalculate } from "../function/statCalculate";
 import { turnEnd } from "./turnEnd";
 import { switchNpc, switchPlayer } from "./switch";
 import { attackNpc, attackPlayer } from "./attack";
-import { abil } from "./abil";
 
-export const battleStart = (battle, actNumber, queueObject) => {
+export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   //턴을 시작하는 함수
   //선택지와 스피드에 맞게 '교체'와 '공격' 함수를 호출한다
 
@@ -19,7 +18,6 @@ export const battleStart = (battle, actNumber, queueObject) => {
   });
   // turnEnd 같은 프로퍼티도 있어서 턴이 시작할때 초기화해야함
 
-  const npcActNumber = npcAi2(battle);
   bt.turn.playerSN = actNumber;
   bt.turn.npcSN = npcActNumber;
   let uTurnTrigger = false;

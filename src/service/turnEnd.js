@@ -38,7 +38,7 @@ export const turnEnd = (battle, enqueue) => {
           Math.floor(fast.origin.hp / 16),
           fastUser,
           enqueue,
-          fast.name + text
+          "[그래스필드] " + fast.name + text
         );
       }
       if (slow.hp < slow.origin.hp && !slow.faint) {
@@ -47,7 +47,7 @@ export const turnEnd = (battle, enqueue) => {
           Math.floor(slow.origin.hp / 16),
           slowUser,
           enqueue,
-          slow.name + text
+          "[그래스필드] " + slow.name + text
         );
       }
     }

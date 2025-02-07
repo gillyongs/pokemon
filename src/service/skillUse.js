@@ -55,7 +55,7 @@ export const skillUse = (bt, enqueue) => {
     // 크리티컬은 데미지 계산 전에만 처리하면 되긴 한데
     // 공격기에만 터지므로 일단 여기 넣음
 
-    let skillDamage = damageCalculate(bt, skillNumber, atk);
+    let skillDamage = damageCalculate(bt);
     let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);
     let typeText = typeCheckText(typeDamage);
 

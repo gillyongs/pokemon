@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import Battle from "./screen/BattleScreen"; //대회
+import Random from "./screen/RandomScreen"; //대회
 
 function App() {
   return (
@@ -16,7 +17,8 @@ function App() {
       <div className="App">
         <Router basename="pokemon">
           <Routes>
-            <Route path="/" element={<Battle />} />
+            <Route path="/battle" element={<Battle />} />
+            <Route path="/" element={<Random />} />
           </Routes>
         </Router>
       </div>
