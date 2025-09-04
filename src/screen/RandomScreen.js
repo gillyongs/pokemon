@@ -3,14 +3,12 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { pokemonList } from "../entity/Pokemon/PokemonCustom";
 import { createBattle } from "../entity/Battle";
-
 // List of available Pokémon IDs
 
 const RandomBattle = () => {
   const navigate = useNavigate();
   const [selectedTeam1, setSelectedTeam1] = useState([]);
   const [selectedTeam2, setSelectedTeam2] = useState([]);
-
   // Function to select unique Pokémon from the list
   const selectPokemon = (teamSize = 3) => {
     let team = [];

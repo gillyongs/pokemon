@@ -1,6 +1,9 @@
 import PokemonOriginal from "./PokemonOriginal";
 import skillList from "../Skill/Skill";
 import { itemText } from "../Item";
+//배틀용 포켓몬 객체
+//원본(PokemonOriginal)에서 노력치, 스킬, 지닌 도구를 설정한다
+//ReadOnly, 불변값으로 Pokemon 객체가 origin으로 지니고있는다
 class BattlePokemon {
   // prettier-ignore
   constructor(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil){
@@ -79,6 +82,7 @@ class BattlePokemon {
       console.error("pokemon_id must be a string", pokemon_id);
     if (!["6V", "5V1A", "5V1S", "4V"].includes(gacha))
       console.error("gacha must be one of '6V', '5V1A', '5V1S', '4V'", gacha);
+    //                                    물리 특수    트릭룸 물리  특수
     if (typeof hps !== "number") console.error("hps must be a number", hps);
     if (typeof atks !== "number") console.error("atks must be a number", atks);
     if (typeof defs !== "number") console.error("defs must be a number", defs);
@@ -129,13 +133,12 @@ const abilText = {
   정전기: "자신에게 접촉한 상대를 30% 확률로 마비시킨다.",
   프레셔: "상대가 쓰는 기술의 PP를 많이 줄인다.",
   탈: "탈로 1번 공격을 막을 수 있다.",
-  재앙의검:
-    "이 특성을 가진 포켓몬을 제외한 모든 포켓몬의 방어를 약하게 만든다.",
+  재앙의검: "이 특성을 가진 포켓몬을 제외한 모든 포켓몬의 방어를 약하게 만든다.",
   불요의검: "등장했을 때 공격이 1랭크 올라간다.",
+  불굴의방패: "등장했을 때 방어가 1랭크 올라간다.",
   그래스메이커: "전투에 나오면 지형을 그래스필드로 만든다.",
   잔비: "전투에 나오면 날씨를 5턴 간 비로 바꾼다.",
-  하드론엔진:
-    "등장했을 때 일렉트릭필드를 전개한다. 일렉트릭필드일 때 미래 기관에 의해 특수공격이 1.3배가 된다.",
+  하드론엔진: "등장했을 때 일렉트릭필드를 전개한다. 일렉트릭필드일 때 미래 기관에 의해 특수공격이 1.3배가 된다.",
 };
 
 export const pokemonList = [];

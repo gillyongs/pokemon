@@ -22,7 +22,7 @@ export function useQueue() {
   };
 
   const resetQueue = () => {
-    if (queue.length > 1) {
+    if (queue.length > 0) {
       setQueue([]);
     }
   };

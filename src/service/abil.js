@@ -32,6 +32,11 @@ export const abil = (bt, atks, enqueue) => {
     rank(bt, enqueue, atks, "atk", 1, text);
   }
 
+  if (atkAbil === "불굴의방패") {
+    const text = "[특성 불굴의방패]";
+    rank(bt, enqueue, atks, "def", 1, text);
+  }
+
   if (atkAbil === "잔비" && bt.field.weather !== "비") {
     bt.field.weather = "비";
     bt.field.weatherTurnRemain = 5;
@@ -55,10 +60,7 @@ export const abil = (bt, atks, enqueue) => {
     bt.field.fieldTurnRemain = 5;
     enqueue({
       battle: bt,
-      text:
-        "[특성 하드론엔진] " +
-        atk.names +
-        " 일렉트릭필드를 전개하여 미래 기관을 가동했다!",
+      text: "[특성 하드론엔진] " + atk.names + " 일렉트릭필드를 전개하여 미래 기관을 가동했다!",
     });
   }
 };

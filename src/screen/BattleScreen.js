@@ -15,24 +15,26 @@ import { useLocation } from "react-router-dom";
 
 const Battle = () => {
   const location = useLocation();
-  const [battle, setBattle] = useState(
-    createBattle(["0005", "0007", "0003"], ["0003", "0006", "0006"])
-  );
+  const [battle, setBattle] = useState(createBattle(["0008", "0001", "0001"], ["0001", "0001", "0001"]));
+  //개발용 배틀 객체.
   const [text, setText] = useState("");
+  //화면에 보여질 텍스트 전역변수
   const { queueObject } = useQueue();
+  //게임 진행용 큐 전역변수
   const [bottom, setBottom] = useState("skill");
+  // 밑 화면 상태. 스킬, 교체, 정보
   const [bench, setBench] = useState(null);
 
   useEffect(() => {
-    let { battleObject } = location.state || {}; // battleObject 가져오기
+    let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
+    queueObject.resetQueue();
 
     if (battleObject) {
       setBattle(battleObject); // 상태 업데이트
+
+      queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     } else {
-      battleObject = createBattle(
-        ["0001", "0007", "0003"],
-        ["0001", "0006", "0006"]
-      );
+      battleObject = createBattle(["0001", "0001", "0001"], ["0001", "0001", "0001"]);
     }
 
     const fastUser = speedCheck(battleObject);
@@ -103,36 +105,9 @@ const Battle = () => {
           <PokemonInfo battle={battle} type="plr" />
         </TOP>
         <BOTTOM>
-          {bottom === "skill" && (
-            <BottomSectionSkill
-              battle={battle}
-              text={text}
-              setText={setText}
-              setBottom={setBottom}
-              queueObject={queueObject}
-            />
-          )}
-          {(bottom === "switch" ||
-            bottom === "mustSwitch" ||
-            bottom === "uturn") && (
-            <BottomSectionSwitch
-              battle={battle}
-              text={text}
-              bottom={bottom}
-              setBottom={setBottom}
-              setBench={setBench}
-              queueObject={queueObject}
-            />
-          )}
-          {bottom === "info" && (
-            <BottomSectionInfo
-              battle={battle}
-              text={text}
-              setText={setText}
-              setBottom={setBottom}
-              bench={bench}
-            />
-          )}
+          {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} />}
+          {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} />}
+          {bottom === "info" && <BottomSectionInfo battle={battle} text={text} setText={setText} setBottom={setBottom} bench={bench} />}
         </BOTTOM>
       </BATTLE>
     </>

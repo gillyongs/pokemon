@@ -1,5 +1,7 @@
 import { josa } from "josa";
 class Pokemon {
+  // 포켓몬 원본 객체
+  // ReadOnly, 불변값
   constructor(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2) {
     // prettier-ignore
     this._validateParams(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2);
@@ -42,6 +44,7 @@ class Pokemon {
 class PokemonRepository {
   constructor() {
     this.items = [
+      //           번호      이름   총종족값 HP 공격 방어 특공 특방 스피드 (나무위키순)
       new Pokemon("0815", "에이스번", 530, 80, 116, 75, 65, 75, 119, "불꽃", null),
       new Pokemon("0890", "무한다이노", 690, 140, 85, 95, 145, 95, 130, "독", "드래곤"),
       new Pokemon("0145", "썬더", 580, 90, 90, 85, 125, 90, 100, "전기", "비행"),
@@ -49,6 +52,7 @@ class PokemonRepository {
       new Pokemon("0778", "따라큐", 476, 55, 90, 80, 50, 105, 96, "고스트", "페어리"),
       new Pokemon("1002", "파오젠", 570, 80, 120, 80, 90, 65, 135, "악", "얼음" ),
       new Pokemon("0888", "자시안", 720, 92, 170, 115, 80, 115, 148, "페어리", "강철" ),
+      new Pokemon("0889", "자마젠타", 720, 92, 130, 145, 80, 145, 128, "격투", "강철" ),
       new Pokemon("0812", "고릴타", 530, 100, 125, 90, 60, 70, 85, "풀", null),
       new Pokemon("0382", "가이오가", 670, 100, 100, 90, 150, 140, 90, "물", null),
       new Pokemon("1008", "미라이돈", 670, 100, 85, 100, 135, 115, 135, "전기", "드래곤"),

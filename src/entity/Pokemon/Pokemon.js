@@ -1,12 +1,15 @@
 import BattlePokemonRepository from "./PokemonCustomRepository";
+//실제 배틀에 사용되는 포켓몬 객체
+// 능력치, pp, 상태이상여부, 랭크업, 기절 여부 등 가변 값을 지닌다.
+// 불변 값은 origin에서 관리한다
 class PokemonOnBattle {
   constructor(id) {
     this.id = id;
     const pokemon = BattlePokemonRepository.getItemById(id);
     this.origin = pokemon;
-    this.name = pokemon.name;
+    this.name = pokemon.name; // 메타몽때문에 이름도 가변값이 필요
     this.names = pokemon.names;
-    this.hp = pokemon.hp;
+    this.hp = pokemon.hp; // 현재 체력
     this.atk = pokemon.atk;
     this.def = pokemon.def;
     this.catk = pokemon.catk;
@@ -41,6 +44,7 @@ class PokemonOnBattle {
       //교체시 초기화
       //switchPokemon.js에서 초기화된다
       rank: {
+        // 랭크업
         atk: 0,
         def: 0,
         catk: 0,
@@ -50,9 +54,9 @@ class PokemonOnBattle {
       },
       confuse: null,
       confuseTurnRemain: null, // 별개로 skillUseCheck에서 혼란 턴 끝나면 초기화된다
-      onlySkill: null,
+      onlySkill: null, // 스카프 등 스킬 고정
     };
-    this.faint = null;
+    this.faint = null; //기절 여부
   }
 }
 

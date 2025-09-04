@@ -126,7 +126,7 @@ class SkillList {
       new Skill("야습", "고스트", 40, 100, 30, 1, true, "atk", null, "우선도 +1",
         [], ),
 
-      new Skill("치근거리기", "페어리", 90, 90, 10, 0, true, "catk", null, "10% 확률로 상대의 공격을 떨어뜨린다.",
+      new Skill("치근거리기", "페어리", 90, 90, 10, 0, true, "catk", null, "10% 확률로 상대의 공격을 1랭크 떨어뜨린다.",
         [{ name: "능력치증감", probability: 10, abil: "atk", target: "def", value: -1 }], ),
         
       new Skill("고드름떨구기", "얼음", 85, 90, 10, 0, false, "atk", null, "30%의 확률로 상대를 풀죽게 만든다.",
@@ -179,8 +179,16 @@ class SkillList {
       
       new Skill("라이트닝드라이브", "전기", 100, 100, 5, 0, false, "catk", null, "약점인 상대에게는 위력이 더욱 올라간다.",
         [],),
-        
-      
+                  //스킬명    타입  위력 명중률 pp 우선도 접촉여부 물리특수 전제조건(기습)  설명 
+      new Skill("바디프레스", "격투", 80, 100, 15, 0, true, "atk", null, "몸을 부딪쳐서 공격한다. 방어가 높을수록 주는 데미지가 올라간다.",
+        [],),
+      new Skill("철벽", "강철", "-", "-", 20, 0, false, "buf", null, "자신의 방어를 2랭크 올린다.",
+        [{ name: "능력치증감", probability: 100, abil: "def", target: "atk", value: 2 }],),
+
+      new Skill("거수탄", "강철", 100, 100, 5, 0, true, "atk", null, "온몸을 강하고 튼튼한 방패로 바꾼 다음 기세 좋게 부딪혀서 공격한다.",
+        [],),
+      new Skill("깨물어부수기", "악", 80, 100, 15, 0, true, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.",
+        [{ name: "능력치증감", probability: 20, abil: "def", target: "def", value: -1 }], ),
 
     ];
   }
