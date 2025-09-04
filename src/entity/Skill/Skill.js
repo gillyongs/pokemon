@@ -37,6 +37,7 @@ class Skill {
     }
   }
   _validateParams(name, type, power, accur, pp, prior, touch, stype, skillEffectList, skillRequirement, text){
+    if(name === '임시스킬'){return}
     if (typeof name !== "string") console.error("name must be a string", name);
     if (typeof type !== "string") console.error("type must be a string", type);
     if (stype !== "buf" && typeof power !== "number")
@@ -84,7 +85,7 @@ class SkillList {
       new Skill("섀도볼", "고스트", 80, 100, 15, 0, false, "catk", null, "20% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.",
         [{ name: "능력치증감", probability: 20, abil: "cdef", target: "def", value: -1 }], ),
 
-      new Skill("다이맥스포", "드래곤", 100, 100, 5, 0, false, "catk", null, "",
+      new Skill("다이맥스포", "드래곤", 100, 100, 5, 0, false, "catk", null, "상대가 다이맥스 중이면 데미지가 2배가 된다.",
         [],),
 
       new Skill("오물웨이브", "독", 95, 100, 10, 0, false, "catk", null, "10% 확률로 상대를 독 상태로 만든다.",
@@ -108,7 +109,7 @@ class SkillList {
       new Skill("블러드문", "노말", 140, 100, 5, 0, false, "catk", null, "이 기술은 2회 연속으로 사용할 수 없다.",
         [], ),
 
-      new Skill("하이퍼보이스", "노말", 90, 100, 10, 0, false, "catk",  null, "",
+      new Skill("하이퍼보이스", "노말", 90, 100, 10, 0, false, "catk",  null, "시끄럽게 울리는 큰 진동을 상대에게 전달하여 공격한다.",
         []),
 
       new Skill("대지의힘", "땅", 90, 100, 10, 0, false, "catk", null, "10%의 확률로 상대의 특수방어를 1랭크 떨어뜨린다.",
@@ -182,19 +183,32 @@ class SkillList {
                   //스킬명    타입  위력 명중률 pp 우선도 접촉여부 물리특수 전제조건(기습)  설명 
       new Skill("바디프레스", "격투", 80, 100, 15, 0, true, "atk", null, "몸을 부딪쳐서 공격한다. 방어가 높을수록 주는 데미지가 올라간다.",
         [],),
+
       new Skill("철벽", "강철", "-", "-", 20, 0, false, "buf", null, "자신의 방어를 2랭크 올린다.",
         [{ name: "능력치증감", probability: 100, abil: "def", target: "atk", value: 2 }],),
 
       new Skill("거수탄", "강철", 100, 100, 5, 0, true, "atk", null, "온몸을 강하고 튼튼한 방패로 바꾼 다음 기세 좋게 부딪혀서 공격한다.",
         [],),
+
       new Skill("깨물어부수기", "악", 80, 100, 15, 0, true, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.",
         [{ name: "능력치증감", probability: 20, abil: "def", target: "def", value: -1 }], ),
 
+      new Skill("성스러운불꽃", "불꽃", 100, 95, 5, 0, false, "atk", null, "50%의 확률로 상대를 화상 상태로 만든다.", 
+        [{ name: "화상", probability: 50 }, { name: "얼음치료" }]),
+
+      new Skill("지진", "땅", 100, 100, 10, 0, false, "atk", null, "자신의 주위에 있는 포켓몬을 공격한다.",
+        [],),
+
+      new Skill("HP회복", "노말", "-", "-", 5, 0, false, "buf", null, "최대 HP의 절반만큼 회복한다.",
+        [{ name: "회복" }], ),
+
+      new Skill("임시스킬", "노말", 80+'위력', 100+'명중률', 15+'pp', 0+'우선도', true+'접촉여부', "atk"+"물리특수", null, "임시스킬",
+        [], ),
     ];
   }
   // ID로 객체 찾기
   search(name) {
-    return this.items.find((item) => item.name === name) || null;
+    return this.items.find((item) => item.name === name) || this.items.find((item) => item.name === "임시스킬");
   }
 }
 

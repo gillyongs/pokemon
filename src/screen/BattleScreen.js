@@ -24,19 +24,16 @@ const Battle = () => {
   const [bottom, setBottom] = useState("skill");
   // 밑 화면 상태. 스킬, 교체, 정보
   const [bench, setBench] = useState(null);
-
   useEffect(() => {
     let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
     queueObject.resetQueue();
-
-    if (battleObject) {
+    const testMode = true;
+    if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
-
-      queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     } else {
-      battleObject = createBattle(["0001", "0001", "0001"], ["0001", "0001", "0001"]);
+      battleObject = createBattle(["0012", "0001", "0001"], ["0001", "0001", "0001"]);
     }
-
+    queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);
     const slowUser = fastUser === "player" ? "npc" : "player";
     let bt = structuredClone(battleObject);
