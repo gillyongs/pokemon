@@ -1,7 +1,7 @@
 // swapBattleEntities.js
 
 import { statCalculate } from "../function/statCalculate";
-
+import { recoverNoText } from "../function/recover";
 export const switchPokemon = (battle, keyA, keyB) => {
   // 교체 함수.
   // 실제 객체의 값을 바꾸고
@@ -13,6 +13,12 @@ export const switchPokemon = (battle, keyA, keyB) => {
   }
 
   const pokemon = battle[keyA];
+  if (pokemon.abil === "재생력") {
+    // 재생력 특성을 지닌 포켓몬은 교체시 체력이 회복
+    const hp = pokemon.origin.hp;
+    recoverNoText(battle, Math.floor(hp / 3), pokemon);
+  }
+
   const ts = pokemon.tempStatus;
 
   Object.keys(ts).forEach((key) => {
@@ -26,7 +32,7 @@ export const switchPokemon = (battle, keyA, keyB) => {
   });
   pokemon.type1 = pokemon.origin.type1;
   pokemon.type2 = pokemon.origin.type2;
-  // 리베로
+  // 리베로 타입 초기화
   statCalculate(battle);
 
   [battle[keyA], battle[keyB]] = [battle[keyB], battle[keyA]];

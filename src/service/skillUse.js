@@ -1,6 +1,6 @@
 import { damageCalculate } from "../util/damageCalculate";
 import { typeCheck, typeCheckText, typeCheckAbil } from "../util/typeCheck";
-import { damage } from "../function/damage";
+import { damage, attackDamage } from "../function/damage";
 import { applySkillEffects } from "./skiiEffect";
 import { skillUseCheck, skillFailCheck } from "./skillCheck";
 
@@ -24,11 +24,7 @@ export const skillUse = (bt, enqueue) => {
   if (def.origin.abil === "프레셔" && atk[ppKey] > 0) {
     atk[ppKey] -= 1;
   }
-  if (
-    atk.item === "구애스카프" ||
-    atk.item === "구애머리띠" ||
-    atk.item === "구애안경"
-  ) {
+  if (atk.item === "구애스카프" || atk.item === "구애머리띠" || atk.item === "구애안경") {
     atk.tempStatus.onlySkill = sk.name;
   }
   enqueue({ battle: bt, text: skillUseText });
@@ -77,7 +73,7 @@ export const skillUse = (bt, enqueue) => {
     }
     // 탈은 상성 0배인지 확인 후 데미지 들어가기 전에 처리해야하므로 타이밍상 여기
 
-    damage(bt, skillDamage, bt.turn.def, enqueue, typeText);
+    attackDamage(bt, skillDamage, bt.turn.def, enqueue, typeText);
   } else if (skillType === "natk") {
     // 도깨비불 같은 상대방 지정 변화기
     let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);

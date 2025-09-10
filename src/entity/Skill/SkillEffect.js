@@ -6,6 +6,7 @@ import { burn, mabi, poison, freeze } from "../../function/statusError";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc } from "../../service/switch";
+import { damageCalculate } from "../../util/damageCalculate";
 
 function skillEffectSearch(name) {
   const functions = {
@@ -150,8 +151,7 @@ function skillEffectSearch(name) {
         def.item = null;
         enqueue({
           battle,
-          text:
-            def.name + "의 " + josa(`${itemName}#{를} `) + "탁쳐서 떨구었다!",
+          text: def.name + "의 " + josa(`${itemName}#{를} `) + "탁쳐서 떨구었다!",
         });
       }
     },
@@ -167,14 +167,16 @@ function skillEffectSearch(name) {
         if (battle.npcBench1.faint !== true) {
           // 1번이 기절 안했으면 1번 교체
           switchNpc(battle, "npcBench1", enqueue);
-        } else if (
-          battle.npcBench2.faint !== true &&
-          battle.npcBench1.faint === true
-        ) {
+        } else if (battle.npcBench2.faint !== true && battle.npcBench1.faint === true) {
           //1번 기절했고 2번 기절 안했으면 2번 교체
           switchNpc(battle, "npcBench2", enqueue);
         }
       }
+    },
+    반동: (battle, enqueue, skillEffect) => {
+      let atk = battle[battle.turn.atk];
+      const text = atk.names + " 반동으로 데미지를 입었다!";
+      damage(battle, atk.temp.recentDamageGive / 3, battle.turn.atk, enqueue, text);
     },
   };
 

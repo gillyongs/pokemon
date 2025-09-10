@@ -4,6 +4,7 @@ import BattlePokemonRepository from "./PokemonCustomRepository";
 // 불변 값은 origin에서 관리한다
 class PokemonOnBattle {
   constructor(id) {
+    this.team = ""; // player or npc
     this.id = id;
     const pokemon = BattlePokemonRepository.getItemById(id);
     this.origin = pokemon;
@@ -39,6 +40,8 @@ class PokemonOnBattle {
       miss: null, // 무릎차기
       roost: null, //날개쉬기
       critical: null, //이번 턴 급소 여부
+      recentDamageGive: null,
+      recentDamageGet: null,
     };
     this.tempStatus = {
       //교체시 초기화

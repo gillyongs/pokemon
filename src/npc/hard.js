@@ -68,12 +68,7 @@ export const npcAiHard = (battle2, actNumber) => {
     let npcDamage4 = damageCalculate(bt);
     if (isNaN(npcDamage4)) npcDamage4 = 0;
 
-    const maxNpcDamage = Math.max(
-      npcDamage1,
-      npcDamage2,
-      npcDamage3,
-      npcDamage4
-    );
+    const maxNpcDamage = Math.max(npcDamage1, npcDamage2, npcDamage3, npcDamage4);
 
     let maxDamageSkill;
     if (maxNpcDamage === npcDamage1) maxDamageSkill = 1;
@@ -93,37 +88,25 @@ export const npcAiHard = (battle2, actNumber) => {
 
     // 선공으로 끝낼 수 있는 경우
     if (true) {
-      if (
-        npcPrior1 > playerPrior ||
-        (fastUser === "npc" && npcPrior1 === playerPrior)
-      ) {
+      if (npcPrior1 > playerPrior || (fastUser === "npc" && npcPrior1 === playerPrior)) {
         if (npcDamage1 >= playerRemainHp) {
           console.log("[선공 - 1번 케이스]");
           return 1;
         }
       }
-      if (
-        npcPrior2 > playerPrior ||
-        (fastUser === "npc" && npcPrior2 === playerPrior)
-      ) {
+      if (npcPrior2 > playerPrior || (fastUser === "npc" && npcPrior2 === playerPrior)) {
         if (npcDamage2 >= playerRemainHp) {
           console.log("[선공 - 2번 케이스]");
           return 2;
         }
       }
-      if (
-        npcPrior3 > playerPrior ||
-        (fastUser === "npc" && npcPrior3 === playerPrior)
-      ) {
+      if (npcPrior3 > playerPrior || (fastUser === "npc" && npcPrior3 === playerPrior)) {
         if (npcDamage3 >= playerRemainHp) {
           console.log("[선공 - 3번 케이스]");
           return 3;
         }
       }
-      if (
-        npcPrior4 > playerPrior ||
-        (fastUser === "npc" && npcPrior4 === playerPrior)
-      ) {
+      if (npcPrior4 > playerPrior || (fastUser === "npc" && npcPrior4 === playerPrior)) {
         if (npcDamage4 >= playerRemainHp) {
           console.log("[선공 - 4번 케이스]");
           return 4;
@@ -143,7 +126,6 @@ export const npcAiHard = (battle2, actNumber) => {
       }
     }
 
-    console.log(npcSkill1.skillEffectList);
     if (npcSkill1.skillEffect) {
     }
   }

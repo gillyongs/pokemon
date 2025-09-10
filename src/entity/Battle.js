@@ -8,6 +8,14 @@ class Battle {
     this.npcBench1 = npcBench1;
     this.playerBench2 = playerBench2;
     this.npcBench2 = npcBench2;
+
+    this.player.team = "player";
+    this.npc.team = "npc";
+    this.playerBench1.team = "player";
+    this.npcBench1.team = "npc";
+    this.playerBench2.team = "player";
+    this.npcBench2.team = "npc";
+
     this.turn = {
       fastUser: null, //기습 조건 체크
       atkSN: null,
@@ -52,14 +60,7 @@ export function createBattle(plyayerArray, npcArray) {
   npcBench2.name = "상대 " + npcBench2.name;
   npcBench2.names = "상대 " + npcBench2.names;
 
-  return new Battle(
-    player,
-    npc,
-    playerBench1,
-    playerBench2,
-    npcBench1,
-    npcBench2
-  );
+  return new Battle(player, npc, playerBench1, playerBench2, npcBench1, npcBench2);
 }
 
 export default Battle;

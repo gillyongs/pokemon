@@ -1,49 +1,64 @@
-export const damage = (
-  battle,
-  skillDamage,
-  getDamagePokemon,
-  enqueue,
-  text
-) => {
-  let pokemon;
+export const damage = (battle, skillDamage, getDamagePokemon, enqueue, text) => {
+  // 공격 외 데미지 (반동, 필드, 상태이상)
+  damageFunction(battle, skillDamage, getDamagePokemon, enqueue, text, false);
+};
+
+export const attackDamage = (battle, skillDamage, getDamagePokemon, enqueue, text) => {
+  // 공격으로 준 데미지
+  damageFunction(battle, skillDamage, getDamagePokemon, enqueue, text, true);
+};
+
+const damageFunction = (battle, skillDamage, getDamagePokemon, enqueue, text, attackYn) => {
+  let defPokemon;
+  let atkPokemon;
   if (getDamagePokemon === "npc") {
-    pokemon = battle.npc;
+    defPokemon = battle.npc;
+    atkPokemon = battle.player;
   } else if (getDamagePokemon === "player") {
-    pokemon = battle.player;
+    defPokemon = battle.player;
+    atkPokemon = battle.npc;
   }
   const skDamage = Math.floor(skillDamage);
 
-  if (pokemon.hp <= 0) {
+  if (defPokemon.hp <= 0) {
     return;
   }
-
+  let actualGiveDamage = skDamage; //실제로 준 데미지
   let gdTrigger = false;
-  if (pokemon.item === "기합의띠" && pokemon.hp === pokemon.origin.hp) {
+  if (defPokemon.item === "기합의띠" && defPokemon.hp === defPokemon.origin.hp && attackYn) {
     gdTrigger = true;
   }
-  pokemon.hp -= skDamage;
-  if (pokemon.hp <= 0) {
-    pokemon.hp = 0;
+  let hpBackUp = defPokemon.hp;
+  defPokemon.hp -= skDamage;
+  if (defPokemon.hp <= 0) {
+    actualGiveDamage = hpBackUp;
+    defPokemon.hp = 0;
     if (gdTrigger) {
-      pokemon.item = null;
-      pokemon.hp = 1;
+      defPokemon.item = null;
+      defPokemon.hp = 1;
+      actualGiveDamage = hpBackUp - 1;
     }
   }
+  if (attackYn) {
+    atkPokemon.temp.recentDamageGive = actualGiveDamage;
+    defPokemon.temp.recentDamageGet = actualGiveDamage;
+  }
+
   if (text) {
     enqueue({ battle: battle, text: text });
   }
   if (battle.turn.atk && battle[battle.turn.atk].temp.critical) {
     enqueue({ battle: battle, text: "급소에 맞았다!" });
   }
-  if (gdTrigger && pokemon.item === null) {
-    enqueue({ battle: battle, text: pokemon.names + " 기합의 띠로 버텼다!" });
+  if (gdTrigger && defPokemon.item === null) {
+    enqueue({ battle: battle, text: defPokemon.names + " 기합의 띠로 버텼다!" });
   }
-  if (pokemon.hp === 0) {
-    pokemon.faint = true;
-    Object.keys(pokemon.status).forEach((key) => {
-      pokemon.status[key] = null;
+  if (defPokemon.hp === 0) {
+    defPokemon.faint = true;
+    Object.keys(defPokemon.status).forEach((key) => {
+      defPokemon.status[key] = null;
     });
     //기절시 모든 상태이상 초기화
-    enqueue({ battle: battle, text: pokemon.names + " 쓰러졌다!" });
+    enqueue({ battle: battle, text: defPokemon.names + " 쓰러졌다!" });
   }
 };
