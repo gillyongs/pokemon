@@ -2,6 +2,7 @@ import { damage } from "../function/damage";
 import { switchNpc } from "./switch";
 import { recover } from "../function/recover";
 import { speedCheck } from "../util/speedCheck";
+import { burn, mabi, poison, freeze } from "../function/statusError";
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
   // 화상딜, 독딜, 날개쉬기 타입복구, NPC 기절시 교체
@@ -33,22 +34,10 @@ export const turnEnd = (battle, enqueue) => {
       fieldEndText = "발밑의 풀이 사라졌다!";
       const text = "의 체력이 회복되었다!";
       if (fast.hp < fast.origin.hp && !fast.faint) {
-        recover(
-          battle,
-          Math.floor(fast.origin.hp / 16),
-          fastUser,
-          enqueue,
-          "[그래스필드] " + fast.name + text
-        );
+        recover(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, "[그래스필드] " + fast.name + text);
       }
       if (slow.hp < slow.origin.hp && !slow.faint) {
-        recover(
-          battle,
-          Math.floor(slow.origin.hp / 16),
-          slowUser,
-          enqueue,
-          "[그래스필드] " + slow.name + text
-        );
+        recover(battle, Math.floor(slow.origin.hp / 16), slowUser, enqueue, "[그래스필드] " + slow.name + text);
       }
     }
 
@@ -65,40 +54,23 @@ export const turnEnd = (battle, enqueue) => {
   }
 
   if (fast.status.poison && !fast.faint) {
-    damage(
-      battle,
-      Math.floor(fast.origin.hp / 8),
-      fastUser,
-      enqueue,
-      fast.names + " 독에 의한 데미지를 입었다!"
-    );
+    damage(battle, Math.floor(fast.origin.hp / 8), fastUser, enqueue, fast.names + " 독에 의한 데미지를 입었다!");
   }
   if (slow.status.poison && !slow.faint) {
-    damage(
-      battle,
-      Math.floor(slow.origin.hp / 8),
-      slowUser,
-      enqueue,
-      slow.names + " 독에 의한 데미지를 입었다!"
-    );
+    damage(battle, Math.floor(slow.origin.hp / 8), slowUser, enqueue, slow.names + " 독에 의한 데미지를 입었다!");
   }
   if (fast.status.burn && !fast.faint) {
-    damage(
-      battle,
-      Math.floor(fast.origin.hp / 16),
-      fastUser,
-      enqueue,
-      fast.names + " 화상 데미지를 입었다!"
-    );
+    damage(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, fast.names + " 화상 데미지를 입었다!");
   }
   if (slow.status.burn && !slow.faint) {
-    damage(
-      battle,
-      Math.floor(slow.origin.hp / 16),
-      slowUser,
-      enqueue,
-      slow.names + " 화상 데미지를 입었다!"
-    );
+    damage(battle, Math.floor(slow.origin.hp / 16), slowUser, enqueue, slow.names + " 화상 데미지를 입었다!");
+  }
+
+  if (fast.item === "화염구슬" && !fast.faint && !fast.status.burn) {
+    burn(battle, fast.team, enqueue, true);
+  }
+  if (slow.item === "화염구슬" && !slow.faint && !slow.status.burn) {
+    burn(battle, slow.team, enqueue, true);
   }
 
   let tempPlayer = battle.player.temp;
@@ -127,10 +99,7 @@ export const turnEnd = (battle, enqueue) => {
     if (battle.npcBench1.faint !== true) {
       // 1번이 기절 안했으면 1번 교체
       switchNpc(battle, "npcBench1", enqueue);
-    } else if (
-      battle.npcBench2.faint !== true &&
-      battle.npcBench1.faint === true
-    ) {
+    } else if (battle.npcBench2.faint !== true && battle.npcBench1.faint === true) {
       //1번 기절했고 2번 기절 안했으면 2번 교체
       switchNpc(battle, "npcBench2", enqueue);
     }

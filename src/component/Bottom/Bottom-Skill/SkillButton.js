@@ -4,13 +4,7 @@ import { typeCheckConsole } from "../../../util/typeCheck";
 import { battleStart } from "../../../service/battleStart";
 import { npcChoice } from "../../../function/npc";
 
-const SkillButton = ({
-  battle,
-  skillNumber,
-  queueObject,
-  pokemon,
-  setText,
-}) => {
+const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => {
   const skill = "sk" + skillNumber;
   const pp = "pp" + skillNumber;
   let sk;
@@ -23,19 +17,22 @@ const SkillButton = ({
 
   const handleSkillClick = (skillIndex) => {
     const onlySkill = battle.player.tempStatus.onlySkill;
+    const doubleSkill = battle.player.tempStatus.recentSkillUse?.name;
+
     if (onlySkill) {
       if (onlySkill !== sk.name) {
         setText("해당 스킬은 사용할 수 없다!");
         return;
       }
     }
+    if (doubleSkill) {
+      if (doubleSkill === sk.name && sk.name === "블러드문") {
+        setText("해당 스킬은 사용할 수 없다!");
+        return;
+      }
+    }
     if (queueObject.queueCheck()) {
-      battleStart(
-        battle,
-        skillIndex,
-        npcChoice(battle, skillIndex),
-        queueObject
-      );
+      battleStart(battle, skillIndex, npcChoice(battle, skillIndex), queueObject);
     }
   };
 
@@ -44,13 +41,10 @@ const SkillButton = ({
       className={sn}
       onClick={() => {
         handleSkillClick(skillNumber);
-      }}
-    >
+      }}>
       <ICON src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
       <NAME skname={sk.name}>{sk.name}</NAME>
-      <EFFECT>
-        {typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2)}
-      </EFFECT>
+      <EFFECT>{typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2)}</EFFECT>
       <PP>
         {battle.player[pp]}/{sk.pp}
       </PP>

@@ -58,6 +58,8 @@ class PokemonOnBattle {
       confuse: null,
       confuseTurnRemain: null, // 별개로 skillUseCheck에서 혼란 턴 끝나면 초기화된다
       onlySkill: null, // 스카프 등 스킬 고정
+      recentSkillUse: null,
+      recentSkillGet: null,
     };
     this.faint = null; //기절 여부
   }

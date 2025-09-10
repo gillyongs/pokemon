@@ -5,46 +5,40 @@ export const statCalculate = (battle) => {
   const attributes = ["atk", "def", "catk", "cdef", "speed"];
 
   attributes.forEach((attr) => {
-    player[attr] =
-      player.origin[attr] * getMultiplier(player.tempStatus.rank[attr]);
+    player[attr] = player.origin[attr] * getMultiplier(player.tempStatus.rank[attr]);
     npc[attr] = npc.origin[attr] * getMultiplier(npc.tempStatus.rank[attr]);
   });
 
-  [player, npc].forEach((entity) => {
+  [battle.player, battle.npc].forEach((entity, index, arr) => {
+    const opponent = arr[1 - index]; // player와 npc를 서로 바꿔줌
+    if (entity.abil === "근성" && entity.status.burn) {
+      entity.atk *= 1.5;
+    }
     if (entity.item === "돌격조끼") {
       entity.cdef *= 1.5;
     }
-    [battle.player, battle.npc].forEach((entity, index, arr) => {
-      const opponent = arr[1 - index]; // player와 npc를 서로 바꿔줌
 
-      if (entity.item === "돌격조끼") {
-        entity.cdef *= 1.5;
-      }
+    if (entity.item === "구애스카프") {
+      entity.speed *= 1.5;
+    }
 
-      if (entity.item === "구애스카프") {
-        entity.speed *= 1.5;
-      }
+    if (entity.item === "구애안경") {
+      entity.catk *= 1.5;
+    }
 
-      if (entity.item === "구애안경") {
-        entity.catk *= 1.5;
-      }
+    if (entity.item === "구애머리띠") {
+      entity.atk *= 1.5;
+    }
 
-      if (entity.item === "구애머리띠") {
-        entity.atk *= 1.5;
-      }
+    if (entity.abil === "재앙의검" && opponent.abil !== "재앙의검") {
+      opponent.def *= 0.75;
+    } //양쪽다 재앙의검이면 적용되지 않음
 
-      if (entity.abil === "재앙의검" && opponent.abil !== "재앙의검") {
-        opponent.def *= 0.75;
-      }
-
-      if (
-        entity.abil === "하드론엔진" &&
-        battle.field.field === "일렉트릭필드"
-      ) {
-        entity.catk *= 1.3;
-      }
-    });
+    if (entity.abil === "하드론엔진" && battle.field.field === "일렉트릭필드") {
+      entity.catk *= 1.3;
+    }
   });
+
   return battle;
 };
 

@@ -36,7 +36,7 @@ export const mabi = (battle, get, enqueue, abilText) => {
   });
 };
 
-export const burn = (battle, get, enqueue) => {
+export const burn = (battle, get, enqueue, ball) => {
   let pokemon;
   if (get === "player") {
     pokemon = battle.player;
@@ -54,6 +54,9 @@ export const burn = (battle, get, enqueue) => {
     return;
   }
   let fireText = pokemon.names + " 화상을 입었다!";
+  if (ball) {
+    fireText = pokemon.names + " 화염구슬 때문에 화상을 입었다!";
+  }
   pokemon.status.burn = true;
   enqueue({
     battle: battle,
@@ -67,12 +70,7 @@ export const poison = (battle, get, enqueue) => {
   } else if (get === "npc") {
     pokemon = battle.npc;
   }
-  if (
-    pokemon.type1 === "독" ||
-    pokemon.type2 === "독" ||
-    pokemon.type1 === "강철" ||
-    pokemon.type2 === "강철"
-  ) {
+  if (pokemon.type1 === "독" || pokemon.type2 === "독" || pokemon.type1 === "강철" || pokemon.type2 === "강철") {
     return;
   }
   if (statusCheck(pokemon.status)) {

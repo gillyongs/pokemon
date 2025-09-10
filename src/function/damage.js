@@ -11,6 +11,7 @@ export const attackDamage = (battle, skillDamage, getDamagePokemon, enqueue, tex
 const damageFunction = (battle, skillDamage, getDamagePokemon, enqueue, text, attackYn) => {
   let defPokemon;
   let atkPokemon;
+
   if (getDamagePokemon === "npc") {
     defPokemon = battle.npc;
     atkPokemon = battle.player;
@@ -18,6 +19,8 @@ const damageFunction = (battle, skillDamage, getDamagePokemon, enqueue, text, at
     defPokemon = battle.player;
     atkPokemon = battle.npc;
   }
+
+  const useSkill = battle[battle.turn.atk].origin["sk" + battle.turn.atkSN];
   const skDamage = Math.floor(skillDamage);
 
   if (defPokemon.hp <= 0) {
@@ -42,6 +45,8 @@ const damageFunction = (battle, skillDamage, getDamagePokemon, enqueue, text, at
   if (attackYn) {
     atkPokemon.temp.recentDamageGive = actualGiveDamage;
     defPokemon.temp.recentDamageGet = actualGiveDamage;
+    atkPokemon.tempStatus.recentSkillUse = useSkill;
+    defPokemon.tempStatus.recentSkillGet = useSkill;
   }
 
   if (text) {

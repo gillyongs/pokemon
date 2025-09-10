@@ -15,7 +15,7 @@ import { useLocation } from "react-router-dom";
 
 const Battle = () => {
   const location = useLocation();
-  const [battle, setBattle] = useState(createBattle(["0008", "0001", "0001"], ["0001", "0001", "0001"]));
+  const [battle, setBattle] = useState(createBattle(["0902-1", "0901-1", "0901-1"], ["0901-1", "0901-1", "0901-1"]));
   //개발용 배틀 객체.
   const [text, setText] = useState("");
   //화면에 보여질 텍스트 전역변수
@@ -31,7 +31,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["0012", "0001", "0001"], ["0001", "0001", "0001"]);
+      battleObject = createBattle(["0902-1", "0901-1", "0901-1"], ["0902-1", "0901-1", "0901-1"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);

@@ -41,7 +41,7 @@ export const damageCalculate = (battle) => {
   // ex) 해수스파우팅, 탁쳐서 떨구기
 
   let damage = (22 * power * atkStat) / 50 / defStat; //고정 공식
-  if (attackPokemon.status.burn != null && sk.stype === "atk") {
+  if (attackPokemon.status.burn != null && sk.stype === "atk" && attackPokemon.abil !== "근성") {
     // 화상 상태이면 물리 데미지 절반
     damage /= 2;
   }
@@ -160,6 +160,10 @@ const powerCalculate = (battle, skill) => {
   if (skill.name === "해수스파우팅") {
     // 체력비례 데미지
     power = (power * atk.hp) / atk.origin.hp;
+  }
+  if (skill.name === "객기" && (atk.status.burn || atk.status.mabi || atk.status.poision || atk.status.mpoision)) {
+    //화상, 독, 마비일때 위력 2배
+    power *= 2;
   }
   return Math.floor(power);
 };
