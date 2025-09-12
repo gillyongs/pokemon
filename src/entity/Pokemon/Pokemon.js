@@ -42,6 +42,7 @@ class PokemonOnBattle {
       critical: null, //이번 턴 급소 여부
       recentDamageGive: null,
       recentDamageGet: null,
+      hapum: null, //하품
     };
     this.tempStatus = {
       //교체시 초기화

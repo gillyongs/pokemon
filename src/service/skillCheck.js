@@ -40,10 +40,7 @@ export const skillUseCheck = (bt, enqueue) => {
     enqueue({ battle: bt, text: confuseText });
   } else if (atk.tempStatus.confuse != null) {
     if (typeof atk.tempStatus.confuseTurnRemain !== "number") {
-      console.error(
-        "confuseTurnRemain is not a number",
-        atk.tempStatus.confuseTurnRemain
-      );
+      console.error("confuseTurnRemain is not a number", atk.tempStatus.confuseTurnRemain);
     }
     enqueue({ battle: bt, text: atk.names + " 혼란에 빠져있다!" });
     atk.tempStatus.confuseTurnRemain -= 1;
@@ -98,7 +95,7 @@ export const skillFailCheck = (bt, enqueue) => {
     return false;
   }
 
-  let accurCheck = random(atk.origin[skKey].accur);
+  let accurCheck = random(atk.origin[skKey].accur, true);
   if (sk.name === "번개" && bt.field.weather === "비") {
     accurCheck = true;
   }

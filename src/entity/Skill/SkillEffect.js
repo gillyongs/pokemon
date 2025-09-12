@@ -178,6 +178,21 @@ function skillEffectSearch(name) {
       const text = atk.names + " 반동으로 데미지를 입었다!";
       damage(battle, atk.temp.recentDamageGive / 3, battle.turn.atk, enqueue, text);
     },
+    하품: (battle, enqueue, skillEffect) => {
+      const def = battle[battle.turn.def];
+      enqueue({
+        battle,
+        text: def.name + "의 " + "졸음을 유도했다!",
+      });
+      if (!def.status.sleep && !def.temp.hapum) {
+        def.temp.hapum = 1;
+      } else {
+        enqueue({
+          battle,
+          text: def.name + "하지만 실패했다!",
+        });
+      }
+    },
   };
 
   return functions[name] || null;
