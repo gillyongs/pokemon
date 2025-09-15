@@ -28,7 +28,7 @@ export function useQueue() {
   };
 
   const queueCheck = () => {
-    if (queue.length > 1) {
+    if (queue.length > 0) {
       return false;
     }
     return true;

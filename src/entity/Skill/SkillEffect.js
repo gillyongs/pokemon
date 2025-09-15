@@ -20,7 +20,7 @@ function skillEffectSearch(name) {
           damage(battle, atk.origin.hp / 10, battle.turn.atk, enqueue, text);
         }
       }
-      if (def.abil === "정전기" && sk.touch && !atk.faint) {
+      if (def.abil === "정전기" && sk.feature.touch && !atk.faint) {
         if (random(30)) {
           mabi(battle, battle.turn.atk, enqueue, true);
         }
@@ -180,16 +180,50 @@ function skillEffectSearch(name) {
     },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
-      enqueue({
-        battle,
-        text: def.name + "의 " + "졸음을 유도했다!",
-      });
-      if (!def.status.sleep && !def.temp.hapum) {
-        def.temp.hapum = 1;
+      if (!statusCheck(def.status) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0) {
+        def.tempStatus.hapum = 1;
+        enqueue({
+          battle,
+          text: def.name + "의 " + "졸음을 유도했다!",
+        });
       } else {
         enqueue({
           battle,
-          text: def.name + "하지만 실패했다!",
+          text: "하지만 실패했다!",
+        });
+      }
+    },
+    방어: (battle, enqueue, skillEffect) => {
+      const skillUser = battle[battle.turn.atk];
+      const protectUse = skillUser.tempStatus.protectUse; //방어 연속 사용 횟수
+      let protectSuccess = false;
+      if (!protectUse) {
+        // 1회차 반드시 성공
+        protectSuccess = true;
+      } else if (protectUse === 1) {
+        protectSuccess = random(33);
+      } else if (protectUse === 2) {
+        protectSuccess = random(11);
+      } else if (protectUse > 2) {
+        protectSuccess = random(4);
+      }
+      if (protectSuccess) {
+        skillUser.temp.protect = true;
+        if (!protectUse) {
+          skillUser.tempStatus.protectUse = 1;
+        } else {
+          skillUser.tempStatus.protectUse += 1;
+        }
+
+        enqueue({
+          battle,
+          text: skillUser.names + " 방어 태세에 들어갔다!",
+        });
+      } else {
+        skillUser.tempStatus.protectUse = null;
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
         });
       }
     },
@@ -199,3 +233,7 @@ function skillEffectSearch(name) {
 }
 
 export default skillEffectSearch;
+
+const statusCheck = (status) => {
+  return Object.values(status).some((value) => value !== null);
+};

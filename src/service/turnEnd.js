@@ -2,7 +2,7 @@ import { damage } from "../function/damage";
 import { switchNpc } from "./switch";
 import { recover } from "../function/recover";
 import { speedCheck } from "../util/speedCheck";
-import { burn, mabi, poison, freeze } from "../function/statusError";
+import { burn, mabi, poison, freeze, sleep } from "../function/statusError";
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
   // 화상딜, 독딜, 날개쉬기 타입복구, NPC 기절시 교체
@@ -53,6 +53,13 @@ export const turnEnd = (battle, enqueue) => {
     }
   }
 
+  if (fast.item === "먹다남은음식" && !fast.faint && fast.hp < fast.origin.hp) {
+    recover(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, fast.names + " 먹다남은음식으로 인해 조금 회복했다.");
+  }
+  if (slow.item === "먹다남은음식" && !slow.faint && slow.hp < slow.origin.hp) {
+    recover(battle, Math.floor(slow.origin.hp / 16), slowUser, enqueue, slow.names + " 먹다남은음식으로 인해 조금 회복했다.");
+  }
+
   if (fast.status.poison && !fast.faint) {
     damage(battle, Math.floor(fast.origin.hp / 8), fastUser, enqueue, fast.names + " 독에 의한 데미지를 입었다!");
   }
@@ -67,10 +74,26 @@ export const turnEnd = (battle, enqueue) => {
   }
 
   if (fast.item === "화염구슬" && !fast.faint && !fast.status.burn) {
+    //화염구슬로 화상을 입은 턴엔 화상 데미지를 입지 않는다
     burn(battle, fast.team, enqueue, true);
   }
   if (slow.item === "화염구슬" && !slow.faint && !slow.status.burn) {
     burn(battle, slow.team, enqueue, true);
+  }
+
+  if (fast.tempStatus.hapum === 0 && !fast.faint) {
+    fast.tempStatus.hapum = null;
+    sleep(battle, fast.team, enqueue, true);
+  }
+  if (slow.tempStatus.hapum === 0 && !slow.faint) {
+    slow.tempStatus.hapum = null;
+    sleep(battle, slow.team, enqueue, true);
+  }
+  if (fast.tempStatus.hapum === 1 && !fast.faint) {
+    fast.tempStatus.hapum = 0;
+  }
+  if (slow.tempStatus.hapum === 1 && !slow.faint) {
+    slow.tempStatus.hapum = 0;
   }
 
   let tempPlayer = battle.player.temp;

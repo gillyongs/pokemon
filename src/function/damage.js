@@ -52,10 +52,12 @@ const damageFunction = (battle, skillDamage, getDamagePokemon, enqueue, text, at
   if (text) {
     enqueue({ battle: battle, text: text });
   }
-  if (battle.turn.atk && battle[battle.turn.atk].temp.critical) {
-    enqueue({ battle: battle, text: "급소에 맞았다!" });
+  if (battle.turn.atk && battle[battle.turn.atk].temp.critical && attackYn) {
+    if (!useSkill.feature.oneShot) {
+      enqueue({ battle: battle, text: "급소에 맞았다!" });
+    } //일격기는 급소 맞지않음
   }
-  if (gdTrigger && defPokemon.item === null) {
+  if (gdTrigger && defPokemon.item === null && attackYn) {
     enqueue({ battle: battle, text: defPokemon.names + " 기합의 띠로 버텼다!" });
   }
   if (defPokemon.hp === 0) {

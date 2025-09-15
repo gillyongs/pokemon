@@ -24,6 +24,22 @@ const Battle = () => {
   const [bottom, setBottom] = useState("skill");
   // 밑 화면 상태. 스킬, 교체, 정보
   const [bench, setBench] = useState(null);
+
+  // 0145  썬더
+  // 0250  칠색조
+  // 0382  가이오가
+  // 0778  따라큐
+  // 0812  고릴타
+  // 0815  에이스번
+  // 0888  자시안
+  // 0889  자마젠타
+  // 0890  무한다이노
+  // 0901  다투곰
+  // 0902  달투곰
+  // 0977  어써러셔
+  // 1002  파이젠
+  // 1008  미라이돈
+
   useEffect(() => {
     let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
     queueObject.resetQueue();
@@ -31,7 +47,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["0977-1", "0901-1", "0901-1"], ["0977-1", "0901-1", "0901-1"]);
+      battleObject = createBattle(["0977-1", "0901-1", "0901-1"], ["0889-1", "0901-1", "0901-1"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);

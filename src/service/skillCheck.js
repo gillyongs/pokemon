@@ -3,9 +3,9 @@ import { random } from "../util/randomCheck";
 import { confuseDamageCalculate } from "../util/damageCalculate";
 import { damage } from "../function/damage";
 
-export const skillUseCheck = (bt, enqueue) => {
+export const beforeSkillCheck = (bt, enqueue) => {
   //스킬명이 뜨기 전에 처리하는 트리거
-  //풀죽음, 마비, 혼란
+  //풀죽음, 마비, 혼란, 잠듦
   const atk = bt[bt.turn.atk];
   if (atk.temp.fullDeath != null) {
     let fullDeathText = atk.names + " 풀이 죽어 기술을 쓸 수 없다!";
@@ -33,6 +33,19 @@ export const skillUseCheck = (bt, enqueue) => {
     }
   }
 
+  if (atk.status.sleep === 0) {
+    let wakeUpText = atk.names + " 눈을 떴다!";
+    atk.status.sleep = null;
+    enqueue({ battle: bt, text: wakeUpText });
+  } else if (atk.status.sleep != null) {
+    if (typeof atk.status.sleep !== "number") {
+      console.error("sleepTurnRemain is not a number", atk.tempStatus.confuseTurnRemain);
+    }
+    enqueue({ battle: bt, text: atk.names + " 쿨쿨 잠들어 있다" });
+    atk.status.sleep -= 1;
+    return false;
+  }
+
   if (atk.tempStatus.confuseTurnRemain === 0) {
     let confuseText = atk.name + " 의 혼란이 풀렸다!";
     atk.tempStatus.confuseTurnRemain = null;
@@ -54,7 +67,7 @@ export const skillUseCheck = (bt, enqueue) => {
   return true;
 };
 
-export const skillFailCheck = (bt, enqueue) => {
+export const afterSkillCheck = (bt, enqueue) => {
   // 스킬명이 뜬 다음에 처리하는 트리거
   // 사용조건체크(ex 기습), 상대방 기절 여부, 명중
   // 리베로는 실패해도 발동되기에 타이밍상 여기
@@ -92,6 +105,12 @@ export const skillFailCheck = (bt, enqueue) => {
   if (def.faint === true && skillType !== "buf") {
     //상대가 이미 기절한 경우
     enqueue({ battle: bt, text: "하지만 실패했다!" });
+    return false;
+  }
+
+  if (def.temp.protect === true && skillType !== "buf") {
+    //방어로 막은 경우
+    enqueue({ battle: bt, text: def.names + " 공격으로부터 몸을 지켰다!" });
     return false;
   }
 

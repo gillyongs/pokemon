@@ -112,5 +112,26 @@ export const freeze = (battle, get, enqueue, abilText) => {
     text: freezeText,
   });
 };
-export const sleep = (battle, enqueue) => {};
+export const sleep = (battle, get, enqueue) => {
+  let pokemon;
+  if (get === "player") {
+    pokemon = battle.player;
+  } else if (get === "npc") {
+    pokemon = battle.npc;
+  }
+  if (statusCheck(pokemon.status)) {
+    //이미 걸린 상태이상이 있는지 체크
+    return;
+  }
+  if (faintCheck(pokemon)) {
+    return;
+  }
+  let sleepText = pokemon.names + "  잠들어 버렸다!";
+  // 1~3 중 하나를 33% 확률로 선택
+  pokemon.status.sleep = Math.floor(Math.random() * 3) + 1;
+  enqueue({
+    battle: battle,
+    text: sleepText,
+  });
+};
 export const confuse = (battle, enqueue) => {};

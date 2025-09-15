@@ -16,6 +16,15 @@ class PokemonOnBattle {
     this.catk = pokemon.catk;
     this.cdef = pokemon.cdef;
     this.speed = pokemon.speed;
+    this.noRankStat = {
+      //랭크업만을 제외한 스탯
+      //origin과 달리 아이템(돌조,스카프) 특성(파이젠) 등을 반영한다
+      atk: pokemon.atk,
+      def: pokemon.def,
+      catk: pokemon.catk,
+      cdef: pokemon.cdef,
+      speed: pokemon.speed,
+    };
     this.type1 = pokemon.type1;
     this.type2 = pokemon.type2;
     this.item = pokemon.item;
@@ -42,7 +51,7 @@ class PokemonOnBattle {
       critical: null, //이번 턴 급소 여부
       recentDamageGive: null,
       recentDamageGet: null,
-      hapum: null, //하품
+      protect: null, //방어
     };
     this.tempStatus = {
       //교체시 초기화
@@ -61,6 +70,8 @@ class PokemonOnBattle {
       onlySkill: null, // 스카프 등 스킬 고정
       recentSkillUse: null,
       recentSkillGet: null,
+      hapum: null, //하품
+      protectUse: null,
     };
     this.faint = null; //기절 여부
   }

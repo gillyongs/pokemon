@@ -2,7 +2,7 @@ import { damageCalculate } from "../util/damageCalculate";
 import { typeCheck, typeCheckText, typeCheckAbil } from "../util/typeCheck";
 import { damage, attackDamage } from "../function/damage";
 import { applySkillEffects } from "./skiiEffect";
-import { skillUseCheck, skillFailCheck } from "./skillCheck";
+import { beforeSkillCheck, afterSkillCheck } from "./skillCheck";
 
 export const skillUse = (bt, enqueue) => {
   const skillNumber = bt.turn.atkSN;
@@ -13,7 +13,7 @@ export const skillUse = (bt, enqueue) => {
   const sk = atk.origin[skKey];
   const skillType = bt[bt.turn.atk].origin["sk" + bt.turn.atkSN].stype;
 
-  if (skillUseCheck(bt, enqueue) === false) {
+  if (beforeSkillCheck(bt, enqueue) === false) {
     // 스킬명이 뜨기 전에 처리하는 트리거
     // 풀죽음 마비 혼란
     return;
@@ -29,7 +29,7 @@ export const skillUse = (bt, enqueue) => {
   }
   enqueue({ battle: bt, text: skillUseText });
 
-  if (skillFailCheck(bt, enqueue) === false) {
+  if (afterSkillCheck(bt, enqueue) === false) {
     // 스킬명이 뜬 다음에 처리하는 트리거
     // 사용조건체크(ex 기습), 상대방 기절 여부, 명중
     // 리베로는 실패해도 발동되기에 타이밍상 여기
@@ -74,6 +74,10 @@ export const skillUse = (bt, enqueue) => {
     // 탈은 상성 0배인지 확인 후 데미지 들어가기 전에 처리해야하므로 타이밍상 여기
 
     attackDamage(bt, skillDamage, bt.turn.def, enqueue, typeText);
+
+    if (sk.feature.oneShot) {
+      enqueue({ battle: bt, text: "일격필살!" });
+    }
   } else if (skillType === "natk") {
     // 도깨비불 같은 상대방 지정 변화기
     let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);

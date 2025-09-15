@@ -13,6 +13,10 @@ export const damageCalculate = (battle) => {
   const skillKey = `sk${skillNumber}`;
   const sk = attackPokemon.origin[skillKey]; // 시전 스킬
 
+  if (sk.feature.oneShot) {
+    return defensePokemon.origin.hp;
+  }
+
   let dtype = "";
   if (sk.stype === "atk") {
     // 물리 공격이면 상대 방어력과 계산
@@ -23,17 +27,30 @@ export const damageCalculate = (battle) => {
   }
 
   let atkStat = attackPokemon[sk.stype]; // 공격포켓몬의 물리/특수 능력치 (물리 or 특수 = 스킬의 stype)
+  if (defensePokemon.abil === "천진") {
+    atkStat = attackPokemon.noRankStat[sk.stype];
+    // 특성 천진
+    // 상대방의 능력치 변화를 무시한다
+    // 맞는쪽이 천진이면 공격쪽의 랭크업이 무시된다
+  }
   if (sk.name === "바디프레스") {
     // 바디프레스는 공격력 대신 방어력을 사용
     atkStat = attackPokemon.def;
   }
+
   let defStat = defensePokemon[dtype]; // 방어포켓몬의 방어/특방 능력치
   for (const effect of sk.skillEffectList) {
     if (effect.name === "천진") {
-      defStat *= getMultiplier(-defensePokemon.tempStatus.rank[dtype]);
-      // 천진 = 사용자 랭크업을 무시하는 특성
-      // 랭크 반영된 수치에 역계산을 한다
+      defStat = defensePokemon.noRankStat[dtype];
+      // 성스러운칼 부가효과
+      // 상대방의 능력치 변화를 무시한다
     }
+  }
+  if (attackPokemon.abil === "천진") {
+    defStat = defensePokemon.noRankStat[dtype];
+    //특성 천진
+    // 상대방의 능력치 변화를 무시한다
+    // 공격쪽이 천진이면 상대방의 랭크업이 무시된다
   }
 
   let power = powerCalculate(battle, sk);

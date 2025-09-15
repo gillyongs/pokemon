@@ -7,35 +7,44 @@ export const statCalculate = (battle) => {
   attributes.forEach((attr) => {
     player[attr] = player.origin[attr] * getMultiplier(player.tempStatus.rank[attr]);
     npc[attr] = npc.origin[attr] * getMultiplier(npc.tempStatus.rank[attr]);
+    player.noRankStat[attr] = player.origin[attr];
+    npc.noRankStat[attr] = npc.origin[attr];
   });
 
   [battle.player, battle.npc].forEach((entity, index, arr) => {
     const opponent = arr[1 - index]; // player와 npc를 서로 바꿔줌
-    if (entity.abil === "근성" && entity.status.burn) {
+    if (entity.abil === "근성" && (entity.status.burn || entity.status.mabi || entity.status.poision || entity.status.mpoision)) {
       entity.atk *= 1.5;
+      entity.noRankStat.atk *= 1.5; // 특성 아이템만 반영하는 스탯
     }
     if (entity.item === "돌격조끼") {
       entity.cdef *= 1.5;
+      entity.noRankStat.cdef *= 1.5;
     }
 
     if (entity.item === "구애스카프") {
       entity.speed *= 1.5;
+      entity.noRankStat.speed *= 1.5;
     }
 
     if (entity.item === "구애안경") {
       entity.catk *= 1.5;
+      entity.noRankStat.catk *= 1.5;
     }
 
     if (entity.item === "구애머리띠") {
       entity.atk *= 1.5;
+      entity.noRankStat.atk *= 1.5;
     }
 
     if (entity.abil === "재앙의검" && opponent.abil !== "재앙의검") {
       opponent.def *= 0.75;
+      opponent.noRankStat.def *= 0.75;
     } //양쪽다 재앙의검이면 적용되지 않음
 
     if (entity.abil === "하드론엔진" && battle.field.field === "일렉트릭필드") {
       entity.catk *= 1.3;
+      entity.noRankStat.catk *= 1.5;
     }
   });
 
