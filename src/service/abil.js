@@ -20,18 +20,20 @@ export const abil = (bt, atks, enqueue) => {
   const atkAbil = atk.abil;
   const defAbil = def.abil;
 
-  if (atkAbil === "재앙의검") {
-    enqueue({
-      battle: bt,
-      text: "[특성 재앙의검] " + atk.name + " 주위의 방어가 약해졌다!",
-    });
-  }
-  if (atkAbil === "재앙의그릇") {
-    enqueue({
-      battle: bt,
-      text: "[특성 재앙의그릇] " + atk.name + " 주위의 특수공격이 약해졌다!",
-    });
-  }
+  const calamityMessages = {
+    재앙의검: "주위의 방어가 약해졌다!",
+    재앙의그릇: "주위의 특수공격이 약해졌다!",
+    재앙의구슬: "주위의 특수방어가 약해졌다!",
+    재앙의목간: "주위의 공격이 약해졌다!",
+  };
+  Object.entries(calamityMessages).forEach(([abil, message]) => {
+    if (atkAbil === abil) {
+      enqueue({
+        battle: bt,
+        text: `[특성 ${abil}] ${atk.name} ${message}`,
+      });
+    }
+  });
   // 능력치 깎는건 어차피 statCalculate에서 작동하므로 text만 띄어주며됨
 
   if (atkAbil === "불요의검") {

@@ -432,6 +432,26 @@ class SkillList {
         "natk", null, 
         "상대를 날려버려서 교대할 포켓몬을 끌어낸다. ",
         [{name: "강제교체"}],{}),    
+        
+      new Skill("악의파동", "악",
+        80, 100, 15, 0, 
+        "catk", null, 
+        "20%의 확률로 상대를 풀죽게 만든다.",
+        [{ name: "풀죽음", probability: 20 }], 
+        {}),
+
+      new Skill("오버히트", "불꽃", 
+        130, 90, 5, 0,  
+        "catk", null, 
+        "사용 후 사용자의 특수공격이 2랭크 떨어진다.",
+        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: -2 }]),
+
+        
+      new Skill("불대문자", "불꽃", 
+        110, 80, 5, 0, 
+        "catk", null, 
+        "10% 확률로 상대를 화상 상태로 만든다.",
+        [{ name: "화상", probability: 10 }], {}),
     ];
   }
   // ID로 객체 찾기

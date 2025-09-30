@@ -17,7 +17,9 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => 
 
   const handleSkillClick = (skillIndex) => {
     const onlySkill = battle.player.tempStatus.onlySkill;
+    // 스카프 등으로 사용 가능한 스킬이 고정된 경우
     const doubleSkill = battle.player.tempStatus.recentSkillUse?.name;
+    // 두번 연속 사용 불가 스킬 (블러드문)
 
     if (onlySkill) {
       if (onlySkill !== sk.name) {

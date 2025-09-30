@@ -36,16 +36,20 @@ export const statCalculate = (battle) => {
       entity.atk *= 1.5;
       entity.noRankStat.atk *= 1.5;
     }
+    const calamityMap = {
+      재앙의검: "def",
+      재앙의그릇: "catk",
+      재앙의구슬: "cdef",
+      재앙의목간: "atk",
+    };
 
-    if (entity.abil === "재앙의검" && opponent.abil !== "재앙의검") {
-      opponent.def *= 0.75;
-      opponent.noRankStat.def *= 0.75;
-    } //양쪽다 재앙의검이면 적용되지 않음
-
-    if (entity.abil === "재앙의그릇" && opponent.abil !== "재앙의그릇") {
-      opponent.catk *= 0.75;
-      opponent.noRankStat.catk *= 0.75;
-    }
+    Object.entries(calamityMap).forEach(([abil, stat]) => {
+      // p1이 abil일 때 p2에 적용
+      if (entity.abil === abil && opponent.abil !== abil) {
+        opponent[stat] *= 0.75;
+        opponent.noRankStat[stat] *= 0.75;
+      }
+    });
 
     if (entity.abil === "하드론엔진" && battle.field.field === "일렉트릭필드") {
       entity.catk *= 1.3;
