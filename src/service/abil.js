@@ -46,6 +46,11 @@ export const abil = (bt, atks, enqueue) => {
     rank(bt, enqueue, atks, "def", 1, text);
   }
 
+  if (atkAbil === "위협") {
+    const text = "[특성 위협]";
+    rank(bt, enqueue, defs, "atk", -1, text);
+  }
+
   if (atkAbil === "잔비" && bt.field.weather !== "비") {
     bt.field.weather = "비";
     bt.field.weatherTurnRemain = 5;

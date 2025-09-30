@@ -25,6 +25,10 @@ function skillEffectSearch(name) {
           mabi(battle, battle.turn.atk, enqueue, true);
         }
       }
+      if (def.item === "울퉁불퉁멧" && sk.feature.touch && !atk.faint) {
+        const text = atk.names + " 울퉁불퉁멧 때문에 데미지를 입었다!";
+        damage(battle, atk.origin.hp / 6, battle.turn.atk, enqueue, text);
+      }
     },
 
     능력치증감: (battle, enqueue, skillEffect) => {
