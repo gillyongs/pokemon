@@ -9,6 +9,7 @@ export const statCalculate = (battle) => {
     npc[attr] = npc.origin[attr] * getMultiplier(npc.tempStatus.rank[attr]);
     player.noRankStat[attr] = player.origin[attr];
     npc.noRankStat[attr] = npc.origin[attr];
+    //랭크업 미반영 스탯. 천진 때문에 사용
   });
 
   [battle.player, battle.npc].forEach((entity, index, arr) => {
@@ -20,6 +21,10 @@ export const statCalculate = (battle) => {
     if (entity.item === "돌격조끼") {
       entity.cdef *= 1.5;
       entity.noRankStat.cdef *= 1.5;
+    }
+    if (entity.status.mabi) {
+      entity.speed *= 0.5;
+      entity.noRankStat.cdef *= 0.5;
     }
 
     if (entity.item === "구애스카프") {
@@ -35,6 +40,15 @@ export const statCalculate = (battle) => {
     if (entity.item === "구애머리띠") {
       entity.atk *= 1.5;
       entity.noRankStat.atk *= 1.5;
+    }
+
+    if (entity.abil === "고대활성" && entity.tempStatus.protosynthesis !== null) {
+      let num = 1.3;
+      if (entity.tempStatus.protosynthesis === "speed") {
+        num = 1.5;
+      }
+      entity[entity.tempStatus.protosynthesis] *= num;
+      entity.noRankStat[entity.tempStatus.protosynthesis] *= num;
     }
     const calamityMap = {
       재앙의검: "def",

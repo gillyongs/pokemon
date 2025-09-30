@@ -15,7 +15,7 @@ export const skillUse = (bt, enqueue) => {
 
   if (beforeSkillCheck(bt, enqueue) === false) {
     // 스킬명이 뜨기 전에 처리하는 트리거
-    // 풀죽음 마비 혼란
+    //풀죽음, 마비, 혼란, 잠듦, 도발
     return;
   }
 

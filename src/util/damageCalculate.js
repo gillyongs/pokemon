@@ -186,5 +186,14 @@ const powerCalculate = (battle, skill) => {
     //화상, 독, 마비일때 위력 2배
     power *= 2;
   }
+  if (skill.name === "병상첨병") {
+    // 상대가 상태이상이면 위력 2배
+
+    if (statusCheck(battle[battle.turn.def].status)) power *= 2;
+  }
   return Math.floor(power);
+};
+
+const statusCheck = (status) => {
+  return Object.values(status).some((value) => value !== null);
 };

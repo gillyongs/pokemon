@@ -29,7 +29,7 @@ function tryBerry(defPokemon, battle, enqueue) {
 // abil : 스텔스록
 // skillCheck: 혼란 자해데미지
 // turnEnd: 독, 화상 데미지
-// skillEffect: 생구, 무릎차기 빗나감, 반동
+// skillEffect: 생구, 무릎차기 빗나감, 반동, 울퉁불퉁멧
 export function damage(battle, damageValue, getDamagePokemon, enqueue, text) {
   const defPokemon = battle[getDamagePokemon];
   const actualDamage = applyDamage(defPokemon, Math.floor(damageValue));

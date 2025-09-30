@@ -1,6 +1,7 @@
 import { rank } from "../function/rank";
 import { damage } from "../function/damage";
 import { typeCheck } from "../util/typeCheck";
+import { statCalculate } from "../function/statCalculate";
 export const abil = (bt, atks, enqueue) => {
   //특성 발동
   //배틀이 시작될때, 교체해서 나올때 발동
@@ -51,6 +52,47 @@ export const abil = (bt, atks, enqueue) => {
     rank(bt, enqueue, defs, "atk", -1, text);
   }
 
+  const stats = {
+    atk: atk.atk,
+    def: atk.def,
+    catk: atk.catk,
+    cdef: atk.cdef,
+    speed: atk.speed,
+  };
+
+  const statsKr = {
+    atk: "공격이",
+    def: "방어가",
+    catk: "특수공격이",
+    cdef: "특수방어가",
+    speed: "스피드가",
+  };
+  statCalculate(bt);
+  const maxKey = Object.keys(stats).reduce((a, b) => (stats[a] > stats[b] ? a : b));
+  if (atkAbil === "고대활성") {
+    if (bt.field.weather === "쾌청") {
+      //날씨 쾌청이면 쾌청 먼저
+      atk.tempStatus.protosynthesis = maxKey;
+      enqueue({
+        battle: bt,
+        text: "[특성 고대활성] " + atk.names + " 쾌청에 의해 고대활성을 발동했다!",
+      });
+      enqueue({
+        battle: bt,
+        text: atk.names + " 의 " + statsKr[maxKey] + " 강화되었다!",
+      });
+    } else if (atk.item === "부스트에너지") {
+      atk.tempStatus.protosynthesis = maxKey;
+      enqueue({
+        battle: bt,
+        text: "[특성 고대활성] " + atk.names + " 부스트에너지에 의해 고대활성을 발동했다!",
+      });
+      enqueue({
+        battle: bt,
+        text: atk.name + "의 " + statsKr[maxKey] + " 강화되었다!",
+      });
+    }
+  }
   if (atkAbil === "잔비" && bt.field.weather !== "비") {
     bt.field.weather = "비";
     bt.field.weatherTurnRemain = 5;

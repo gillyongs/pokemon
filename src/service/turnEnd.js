@@ -96,6 +96,20 @@ export const turnEnd = (battle, enqueue) => {
     slow.tempStatus.hapum = 0;
   }
 
+  if (fast.tempStatus.taunt === 0 && !fast.faint) {
+    // 도발 3턴은 행동을 기준으로 센다
+    // 선 도발 맞았으면 그 턴 포함 3턴
+    // 후 도발 맞았으면 그 다음 턴부터 3턴 (이건 확실함) -> 카운트는 skillCheck에서
+    // 도발 풀리는건 턴 종료시 (일단 행동한 다음에 풀리는건 확실함) -> 풀리는건 turnEnd에서
+    let wakeUpText = fast.names + " 도발의 효과가 풀렸다!";
+    fast.tempStatus.taunt = null;
+    enqueue({ battle: battle, text: wakeUpText });
+  }
+  if (slow.tempStatus.taunt === 0 && !slow.faint) {
+    let wakeUpText = slow.names + " 도발의 효과가 풀렸다!";
+    slow.tempStatus.taunt = null;
+    enqueue({ battle: battle, text: wakeUpText });
+  }
   let tempPlayer = battle.player.temp;
   let tempNpc = battle.npc.temp;
 

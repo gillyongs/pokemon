@@ -264,6 +264,23 @@ function skillEffectSearch(name) {
         handleForceSwitch(battle, enqueue, "playerBench1", "playerBench2", switchPlayerForce);
       }
     },
+
+    도발: (battle, enqueue, skillEffect) => {
+      const def = battle.turn.def;
+      const defPokemon = battle[def];
+      if (defPokemon.tempStatus.taunt !== null) {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+      } else {
+        defPokemon.tempStatus.taunt = 3;
+        enqueue({
+          battle,
+          text: defPokemon.names + " 도발에 넘어가 버렸다!",
+        });
+      }
+    },
   };
 
   return functions[name] || null;

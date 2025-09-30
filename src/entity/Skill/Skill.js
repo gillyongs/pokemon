@@ -222,7 +222,7 @@ class SkillList {
 
       new Skill("치근거리기", "페어리", 
         90, 90, 10, 0,  
-        "catk", null, 
+        "atk", null, 
         "10% 확률로 상대의 공격을 1랭크 떨어뜨린다.",
         [{ name: "능력치증감", probability: 10, abil: "atk", target: "def", value: -1 }],{touch:true} ),
         
@@ -452,6 +452,29 @@ class SkillList {
         "catk", null, 
         "10% 확률로 상대를 화상 상태로 만든다.",
         [{ name: "화상", probability: 10 }], {}),
+      
+      new Skill("문포스", "페어리", 
+        95, 100, 15, 0,  
+        "catk", null, 
+        "30% 확률로 상대의 특수공격을 1랭크 떨어뜨린다.",
+        [{ name: "능력치증감", probability: 30, abil: "catk", target: "def", value: -1 }],{} ),
+
+      new Skill("전기자석파", "전기", 
+        "-", 90, 20, 0,  
+        "natk", null, 
+        "약한 전격을 날려서 상대를 마비 상태로 만든다.",
+        [{ name: "마비", probability: 100 }], {}),
+
+      new Skill("병상첨병", "고스트", 
+        65, 100, 10, 0, 
+        "catk", null, "상태이상인 상대에게 데미지가 2배가 된다.",
+        [],{}),
+       
+      new Skill("도발", "악", 
+        "-", 100, 20, 0,  
+        "natk", null, 
+        "상대를 화나게 하여 3턴 동안 데미지를 주는 기술밖에 쓸 수 없게 한다.",
+        [{ name: "도발" }], {}),
     ];
   }
   // ID로 객체 찾기

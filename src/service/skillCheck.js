@@ -2,11 +2,12 @@ import skillRequirementSearch from "../entity/Skill/SkillRequirement";
 import { random } from "../util/randomCheck";
 import { confuseDamageCalculate } from "../util/damageCalculate";
 import { damage } from "../function/damage";
-
+import { josa } from "josa";
 export const beforeSkillCheck = (bt, enqueue) => {
   //스킬명이 뜨기 전에 처리하는 트리거
-  //풀죽음, 마비, 혼란, 잠듦
+  //풀죽음, 마비, 혼란, 잠듦, 도발
   const atk = bt[bt.turn.atk];
+
   if (atk.temp.fullDeath != null) {
     let fullDeathText = atk.names + " 풀이 죽어 기술을 쓸 수 없다!";
     enqueue({ battle: bt, text: fullDeathText });
@@ -60,6 +61,19 @@ export const beforeSkillCheck = (bt, enqueue) => {
     if (random(33)) {
       let confuseText = atk.names + " 영문도 모른 채 자신을 공격했다!";
       damage(bt, confuseDamageCalculate(bt), bt.turn.atk, enqueue, confuseText);
+      return false;
+    }
+  }
+  //도발이 걸려있는 경우
+  if (atk.tempStatus.taunt !== null) {
+    // 도발 3턴은 행동을 기준으로 센다
+    // 선 도발 맞았으면 그 턴 포함 3턴
+    // 후 도발 맞았으면 그 다음 턴부터 3턴 (이건 확실함) -> 카운트는 skillCheck에서
+    // 도발 풀리는건 턴 종료시 (일단 행동한 다음에 풀리는건 확실함) -> 풀리는건 turnEnd에서
+    atk.tempStatus.taunt -= 1;
+    const useSkill = atk.origin["sk" + bt.turn.atkSN];
+    if (useSkill.stype === "buf") {
+      enqueue({ battle: bt, text: atk.names + " 도발당한 상태라서 " + josa(`${useSkill.name}#{를} `) + "쓸 수 없다!" });
       return false;
     }
   }
