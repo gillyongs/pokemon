@@ -94,6 +94,7 @@ class BattlePokemon {
       console.error("speeds must be a number", speeds);
     if (hps + atks + catks + defs + cdefs + speeds !== 508) {
       console.error(id + "노력치 오류");
+            console.error(hps + atks + catks + defs + cdefs + speeds );
     }
     if (!["atk", "def", "catk", "cdef", "speed"].includes(up))
       console.error(
@@ -134,6 +135,9 @@ const abilText = {
   프레셔: "상대가 쓰는 기술의 PP를 많이 줄인다.",
   탈: "탈로 1번 공격을 막을 수 있다.",
   재앙의검: "이 특성을 가진 포켓몬을 제외한 모든 포켓몬의 방어를 약하게 만든다.",
+  재앙의그릇: "이 특성을 가진 포켓몬을 제외한 모든 포켓몬의 특수공격을 약하게 만든다.",
+  재앙의목간: "이 특성을 가진 포켓몬을 제외한 모든 포켓몬의 공격을 약하게 만든다.",
+  재앙의구슬: "이 특성을 가진 포켓몬을 제외한 모든 포켓몬의 특수방어를 약하게 만든다.",
   불요의검: "등장했을 때 공격이 1랭크 올라간다.",
   불굴의방패: "등장했을 때 방어가 1랭크 올라간다.",
   그래스메이커: "전투에 나오면 지형을 그래스필드로 만든다.",

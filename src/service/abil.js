@@ -1,5 +1,6 @@
 import { rank } from "../function/rank";
-
+import { damage } from "../function/damage";
+import { typeCheck } from "../util/typeCheck";
 export const abil = (bt, atks, enqueue) => {
   //특성 발동
   //배틀이 시작될때, 교체해서 나올때 발동
@@ -25,7 +26,13 @@ export const abil = (bt, atks, enqueue) => {
       text: "[특성 재앙의검] " + atk.name + " 주위의 방어가 약해졌다!",
     });
   }
-  // 방어 깎는건 어차피 statCalculate에서 작동하므로 text만 띄어주며됨
+  if (atkAbil === "재앙의그릇") {
+    enqueue({
+      battle: bt,
+      text: "[특성 재앙의그릇] " + atk.name + " 주위의 특수공격이 약해졌다!",
+    });
+  }
+  // 능력치 깎는건 어차피 statCalculate에서 작동하므로 text만 띄어주며됨
 
   if (atkAbil === "불요의검") {
     const text = "[특성 불요의검]";
@@ -62,5 +69,12 @@ export const abil = (bt, atks, enqueue) => {
       battle: bt,
       text: "[특성 하드론엔진] " + atk.names + " 일렉트릭필드를 전개하여 미래 기관을 가동했다!",
     });
+  }
+
+  if (bt.field[atks].sRock && atk.item !== "통굽부츠") {
+    //스텔스록
+    const text = atk.name + "에게 뾰족한 바위가 박혔다!";
+    const typeDamage = typeCheck("바위", atk.type1, atk.type2);
+    damage(bt, Math.floor((atk.origin.hp * typeDamage) / 8), atks, enqueue, text);
   }
 };

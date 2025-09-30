@@ -2,24 +2,28 @@
 
 import { statCalculate } from "../function/statCalculate";
 import { recoverNoText } from "../function/recover";
-export const switchPokemon = (battle, keyA, keyB) => {
+import { damage } from "../function/damage";
+export const switchPokemon = (battle, IN, OUT) => {
   // 교체 함수.
   // 실제 객체의 값을 바꾸고
   // pokemon.tempStatus 값을 초기화한다
 
-  if (!battle || !battle[keyA] || !battle[keyB]) {
+  //IN: player or npc
+  //OUT: playerBench1,2 // npcBench1,2
+
+  if (!battle || !battle[IN] || !battle[OUT]) {
     console.error("Invalid battle object or keys");
     return;
   }
 
-  const pokemon = battle[keyA];
-  if (pokemon.abil === "재생력") {
+  const pokemonIn = battle[IN]; //교체로 들어가는 포켓몬
+  if (pokemonIn.abil === "재생력") {
     // 재생력 특성을 지닌 포켓몬은 교체시 체력이 회복
-    const hp = pokemon.origin.hp;
-    recoverNoText(battle, Math.floor(hp / 3), pokemon);
+    const hp = pokemonIn.origin.hp;
+    recoverNoText(battle, Math.floor(hp / 3), pokemonIn);
   }
 
-  const ts = pokemon.tempStatus;
+  const ts = pokemonIn.tempStatus;
 
   Object.keys(ts).forEach((key) => {
     if (key !== "rank") {
@@ -30,10 +34,10 @@ export const switchPokemon = (battle, keyA, keyB) => {
       });
     }
   });
-  pokemon.type1 = pokemon.origin.type1;
-  pokemon.type2 = pokemon.origin.type2;
+  pokemonIn.type1 = pokemonIn.origin.type1;
+  pokemonIn.type2 = pokemonIn.origin.type2;
   // 리베로 타입 초기화
   statCalculate(battle);
 
-  [battle[keyA], battle[keyB]] = [battle[keyB], battle[keyA]];
+  [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
 };

@@ -1,71 +1,131 @@
-export const damage = (battle, skillDamage, getDamagePokemon, enqueue, text) => {
-  // 공격 외 데미지 (반동, 필드, 상태이상)
-  damageFunction(battle, skillDamage, getDamagePokemon, enqueue, text, false);
-};
+import { recover } from "../function/recover";
 
-export const attackDamage = (battle, skillDamage, getDamagePokemon, enqueue, text) => {
-  // 공격으로 준 데미지
-  damageFunction(battle, skillDamage, getDamagePokemon, enqueue, text, true);
-};
+// ====================== 공통 유틸 함수 ======================
 
-const damageFunction = (battle, skillDamage, getDamagePokemon, enqueue, text, attackYn) => {
-  let defPokemon;
-  let atkPokemon;
+// HP 감소 적용
+function applyDamage(defPokemon, damage) {
+  const prevHp = defPokemon.hp;
+  defPokemon.hp = Math.max(defPokemon.hp - damage, 0);
+  return prevHp - defPokemon.hp; // 실제 입은 데미지
+}
 
-  if (getDamagePokemon === "npc") {
-    defPokemon = battle.npc;
-    atkPokemon = battle.player;
-  } else if (getDamagePokemon === "player") {
-    defPokemon = battle.player;
-    atkPokemon = battle.npc;
+// 기절 처리
+function handleFaint(defPokemon, enqueue, battle) {
+  defPokemon.hp = 0;
+  defPokemon.faint = true;
+  Object.keys(defPokemon.status).forEach((k) => (defPokemon.status[k] = null));
+  enqueue({ battle, text: defPokemon.names + " 쓰러졌다!" });
+}
+
+// 자뭉열매 처리
+function tryBerry(defPokemon, battle, enqueue) {
+  if (defPokemon.item === "자뭉열매" && defPokemon.hp <= defPokemon.origin.hp / 2) {
+    defPokemon.item = null;
+    recover(battle, Math.floor(defPokemon.origin.hp / 4), defPokemon, enqueue, defPokemon.names + " 자뭉열매로 체력을 회복했다!");
   }
+}
 
+// ====================== 공격 외 데미지 ======================
+// abil : 스텔스록
+// skillCheck: 혼란 자해데미지
+// turnEnd: 독, 화상 데미지
+// skillEffect: 생구, 무릎차기 빗나감, 반동
+export function damage(battle, damageValue, getDamagePokemon, enqueue, text) {
+  const defPokemon = battle[getDamagePokemon];
+  const actualDamage = applyDamage(defPokemon, Math.floor(damageValue));
+
+  if (text) enqueue({ battle, text });
+
+  if (defPokemon.hp <= 0) {
+    handleFaint(defPokemon, enqueue, battle);
+  } else {
+    tryBerry(defPokemon, battle, enqueue);
+  }
+}
+
+// ====================== 공격 데미지 ======================
+
+// 공격으로 데미지를 줄때
+// skillUse에서만 호출된다
+export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typeText) {
+  const atkPokemon = battle[getDamagePokemon === "npc" ? "player" : "npc"];
+  const defPokemon = battle[getDamagePokemon];
   const useSkill = battle[battle.turn.atk].origin["sk" + battle.turn.atkSN];
-  const skDamage = Math.floor(skillDamage);
 
-  if (defPokemon.hp <= 0) {
-    return;
-  }
-  let actualGiveDamage = skDamage; //실제로 준 데미지
-  let gdTrigger = false;
-  if (defPokemon.item === "기합의띠" && defPokemon.hp === defPokemon.origin.hp && attackYn) {
-    gdTrigger = true;
-  }
-  let hpBackUp = defPokemon.hp;
-  defPokemon.hp -= skDamage;
-  if (defPokemon.hp <= 0) {
-    actualGiveDamage = hpBackUp;
-    defPokemon.hp = 0;
-    if (gdTrigger) {
-      defPokemon.item = null;
-      defPokemon.hp = 1;
-      actualGiveDamage = hpBackUp - 1;
+  let skDamage = Math.floor(skillDamage);
+
+  //실제로 준 데미지
+  //반동이나 흡혈 계산에 사용
+  let actualGiveDamage = skDamage;
+
+  // 기합의띠 트리거
+  const gdTrigger = defPokemon.item === "기합의띠" && defPokemon.hp === defPokemon.origin.hp;
+
+  // 특성 "탈" 처리
+  let talTrigger = false;
+  if (defPokemon.abil === "탈") {
+    talTrigger = true;
+    defPokemon.abil = defPokemon.origin.abil = "탈 (사용됨)";
+    const talHp = Math.ceil(defPokemon.origin.hp / 8);
+    if (skDamage > talHp) {
+      skDamage = talHp;
+      actualGiveDamage = talHp;
     }
   }
-  if (attackYn) {
-    atkPokemon.temp.recentDamageGive = actualGiveDamage;
-    defPokemon.temp.recentDamageGet = actualGiveDamage;
-    atkPokemon.tempStatus.recentSkillUse = useSkill;
-    defPokemon.tempStatus.recentSkillGet = useSkill;
+
+  // HP 차감
+  const prevHp = defPokemon.hp;
+  defPokemon.hp -= skDamage;
+  if (defPokemon.hp <= 0) {
+    actualGiveDamage = prevHp;
+    defPokemon.hp = gdTrigger ? 1 : 0;
+    if (gdTrigger) defPokemon.item = null;
   }
 
-  if (text) {
-    enqueue({ battle: battle, text: text });
+  // 최근 기록
+  atkPokemon.temp.recentDamageGive = actualGiveDamage;
+  defPokemon.temp.recentDamageGet = actualGiveDamage;
+  atkPokemon.tempStatus.recentSkillUse = useSkill;
+  defPokemon.tempStatus.recentSkillGet = useSkill;
+
+  // ================= 텍스트 처리 =================
+  let textTrigger = true;
+  if (talTrigger) {
+    enqueue({ battle, text: "탈이 대타가 되었다!" });
+    textTrigger = false;
   }
-  if (battle.turn.atk && battle[battle.turn.atk].temp.critical && attackYn) {
-    if (!useSkill.feature.oneShot) {
-      enqueue({ battle: battle, text: "급소에 맞았다!" });
-    } //일격기는 급소 맞지않음
+
+  // 상성 텍스트(ex:효과가 굉장했다!)나 급소여부가 출력되지 않는 '공격기' //
+  // 고정 데미지 기술, 일격기
+  const noTextSkills = ["카타스트로피"];
+  const noTextTrigger = noTextSkills.includes(useSkill.name) || useSkill.feature.oneShot;
+
+  if (!noTextTrigger) {
+    if (typeText) {
+      // 효과가 굉장했다!
+      enqueue({ battle, text: typeText });
+      textTrigger = false;
+    }
+
+    if (atkPokemon.temp.critical) {
+      enqueue({ battle, text: "급소에 맞았다!" });
+      textTrigger = false;
+    }
   }
-  if (gdTrigger && defPokemon.item === null && attackYn) {
-    enqueue({ battle: battle, text: defPokemon.names + " 기합의 띠로 버텼다!" });
+
+  if (gdTrigger && defPokemon.item === null) {
+    enqueue({ battle, text: defPokemon.names + " 기합의 띠로 버텼다!" });
+    textTrigger = false;
   }
-  if (defPokemon.hp === 0) {
-    defPokemon.faint = true;
-    Object.keys(defPokemon.status).forEach((key) => {
-      defPokemon.status[key] = null;
-    });
-    //기절시 모든 상태이상 초기화
-    enqueue({ battle: battle, text: defPokemon.names + " 쓰러졌다!" });
+
+  // ================= 후처리 =================
+  if (defPokemon.hp <= 0) {
+    handleFaint(defPokemon, enqueue, battle);
+  } else {
+    // 출력 텍스트가 하나도 없을 때
+    if (textTrigger) {
+      enqueue({ battle, text: defPokemon.name + "에게 데미지를 주었다!" });
+    }
+    tryBerry(defPokemon, battle, enqueue);
   }
-};
+}

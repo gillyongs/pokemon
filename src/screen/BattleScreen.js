@@ -38,6 +38,7 @@ const Battle = () => {
   // 0902  달투곰
   // 0977  어써러셔
   // 1002  파이젠
+  // 1003  딩루
   // 1008  미라이돈
 
   useEffect(() => {
@@ -47,7 +48,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["0977-1", "0901-1", "0901-1"], ["0889-1", "0901-1", "0901-1"]);
+      battleObject = createBattle(["1003-1", "0901-1", "0901-1"], ["1002-1", "0901-1", "0901-1"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);

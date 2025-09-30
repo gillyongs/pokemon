@@ -5,7 +5,7 @@ import { recover } from "../../function/recover";
 import { burn, mabi, poison, freeze } from "../../function/statusError";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
-import { switchNpc } from "../../service/switch";
+import { switchNpc, switchPlayerForce } from "../../service/switch";
 import { damageCalculate } from "../../util/damageCalculate";
 
 function skillEffectSearch(name) {
@@ -227,6 +227,39 @@ function skillEffectSearch(name) {
         });
       }
     },
+
+    스텔스록: (battle, enqueue, skillEffect) => {
+      const def = battle.turn.def;
+      const field = battle.field[def];
+      if (!field.sRock) {
+        field.sRock = true;
+        let sRockText;
+        if (def === "npc") {
+          sRockText = "상대의 주변에 뾰족한 바위가 떠다니기 시작했다!";
+        } else {
+          sRockText = "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!";
+        }
+        enqueue({
+          battle,
+          text: sRockText,
+        });
+      } else {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+      }
+    },
+
+    강제교체: (battle, enqueue, skillEffect) => {
+      if (battle.turn.atk === "player") {
+        // 플레이어가 강제교체 시 NPC가 교체됨
+        handleForceSwitch(battle, enqueue, "npcBench1", "npcBench2", switchNpc);
+      } else if (battle.turn.atk === "npc") {
+        // NPC가 강제교체 시 플레이어가 교체됨
+        handleForceSwitch(battle, enqueue, "playerBench1", "playerBench2", switchPlayerForce);
+      }
+    },
   };
 
   return functions[name] || null;
@@ -236,4 +269,23 @@ export default skillEffectSearch;
 
 const statusCheck = (status) => {
   return Object.values(status).some((value) => value !== null);
+};
+
+const handleForceSwitch = (battle, enqueue, bench1Key, bench2Key, switchFn) => {
+  const bench1Alive = battle[bench1Key].faint !== true;
+  const bench2Alive = battle[bench2Key].faint !== true;
+
+  if (bench1Alive && bench2Alive) {
+    // 둘다 살아있는 경우 랜덤 선택
+    const choice = Math.random() < 0.5 ? bench1Key : bench2Key;
+    switchFn(battle, choice, enqueue, true);
+  } else if (bench1Alive) {
+    //한쪽만 살아있는경우 해당 포켓몬으로 교체
+    switchFn(battle, bench1Key, enqueue, true);
+  } else if (bench2Alive) {
+    switchFn(battle, bench2Key, enqueue, true);
+  } else {
+    //둘다 기절한경우 실패
+    enqueue({ battle, text: "하지만 실패했다!" });
+  }
 };

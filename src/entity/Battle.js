@@ -33,6 +33,12 @@ class Battle {
       fieldTurnRemain: null,
       weather: null,
       weatherTurnRemain: null,
+      player: {
+        sRock: null, //스텔스록
+      },
+      npc: {
+        sRock: null,
+      },
     };
 
     // this.player.status.poison = true;

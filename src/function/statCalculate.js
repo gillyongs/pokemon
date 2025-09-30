@@ -42,6 +42,11 @@ export const statCalculate = (battle) => {
       opponent.noRankStat.def *= 0.75;
     } //양쪽다 재앙의검이면 적용되지 않음
 
+    if (entity.abil === "재앙의그릇" && opponent.abil !== "재앙의그릇") {
+      opponent.catk *= 0.75;
+      opponent.noRankStat.catk *= 0.75;
+    }
+
     if (entity.abil === "하드론엔진" && battle.field.field === "일렉트릭필드") {
       entity.catk *= 1.3;
       entity.noRankStat.catk *= 1.5;

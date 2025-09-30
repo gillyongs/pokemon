@@ -35,6 +35,7 @@ export const skillUse = (bt, enqueue) => {
     // 리베로는 실패해도 발동되기에 타이밍상 여기
     return;
   }
+  //=================================================================================================================
 
   if (skillType === "atk" || skillType === "catk") {
     //공격기 (물리 or 특수)
@@ -42,6 +43,7 @@ export const skillUse = (bt, enqueue) => {
     let cri = atk.tempStatus.rank.critical;
     for (const effect of sk.skillEffectList) {
       if (effect.name === "급소") {
+        //급소에 맞기쉽다 보정 처리
         cri += 1;
       }
     }
@@ -53,6 +55,8 @@ export const skillUse = (bt, enqueue) => {
 
     let skillDamage = damageCalculate(bt);
     let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);
+    // 0배 여부 체크, 효과가 굉장했다! 텍스트 처리에만 사용
+    //상성 관련 데미지 계산은 damageCalculate 안에서 처리
     let typeText = typeCheckText(typeDamage);
 
     if (typeDamage === 0) {
@@ -63,19 +67,10 @@ export const skillUse = (bt, enqueue) => {
     }
     //무효면 부가효과 안터지므로 리턴
 
-    if (def.abil === "탈") {
-      if (skillDamage > def.origin.hp / 8) {
-        skillDamage = def.origin.hp / 8;
-      }
-      def.abil = "탈 (사용됨)";
-      def.origin.abil = "탈 (사용됨)";
-      enqueue({ battle: bt, text: "탈이 대타가 되었다!" });
-    }
-    // 탈은 상성 0배인지 확인 후 데미지 들어가기 전에 처리해야하므로 타이밍상 여기
-
     attackDamage(bt, skillDamage, bt.turn.def, enqueue, typeText);
 
     if (sk.feature.oneShot) {
+      //일격기 성공 텍스트
       enqueue({ battle: bt, text: "일격필살!" });
     }
   } else if (skillType === "natk") {

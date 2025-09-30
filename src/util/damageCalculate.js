@@ -13,8 +13,12 @@ export const damageCalculate = (battle) => {
   const skillKey = `sk${skillNumber}`;
   const sk = attackPokemon.origin[skillKey]; // 시전 스킬
 
+  // 데미지가 고정인 스킬들
   if (sk.feature.oneShot) {
     return defensePokemon.origin.hp;
+  }
+  if (sk.name === "카타스트로피") {
+    return defensePokemon.hp / 2;
   }
 
   let dtype = "";
