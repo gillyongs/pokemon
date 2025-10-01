@@ -153,6 +153,7 @@ function skillEffectSearch(name) {
 
       if (itemName !== null && !noNullItem.includes(itemName)) {
         def.item = null;
+        def.tempStatus.onlySkill = null; // 구애 시리즈로 고정된 스킬
         enqueue({
           battle,
           text: def.name + "의 " + josa(`${itemName}#{를} `) + "탁쳐서 떨구었다!",

@@ -8,12 +8,9 @@ const InfoContainer = styled.div`
   border-radius: 5px;
   background-color: rgba(0, 0, 0, 0.7);
   font-size: 15px;
-  top: ${({ type }) =>
-    type === "type" || type === "status" ? "24vh" : "32vh"};
-  left: ${({ type }) =>
-    type === "item" || type === "status" ? "auto" : "1vw"};
-  right: ${({ type }) =>
-    type === "item" || type === "status" ? "1vw" : "auto"};
+  top: ${({ type }) => (type === "type" || type === "status" ? "24vh" : "32vh")};
+  left: ${({ type }) => (type === "item" || type === "status" ? "auto" : "1vw")};
+  right: ${({ type }) => (type === "item" || type === "status" ? "1vw" : "auto")};
 `;
 
 const InfoIcon = styled.img`
@@ -43,13 +40,18 @@ const InfoButton = ({ pokemon, type, setText }) => {
   let innerText;
   let innerContent;
   let handleClick;
-
+  let itemText;
   if (type === "item") {
     imgSrc = `/pokemon/img/item/${pokemon.item}.webp`;
     innerText = "지닌아이템";
     innerContent = pokemon.item;
+    itemText = pokemon.origin.itemText;
+    if (pokemon.item === null) {
+      innerContent = "없음";
+      itemText = "지닌 아이템 없음";
+    }
     handleClick = () => {
-      setText(pokemon.origin.itemText);
+      setText(itemText);
     };
   } else if (type === "type") {
     imgSrc = `/pokemon/img/type/${pokemon.type1}.svg`;

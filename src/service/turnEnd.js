@@ -152,9 +152,9 @@ export const turnEnd = (battle, enqueue) => {
     if (battle.uturn) {
       return;
     }
-    enqueue({
-      battle: battle,
-      text: battle.player.origin.names + " 무엇을 할까?",
-    });
+    // enqueue({
+    //   battle: battle,
+    //   text: battle.player.origin.names + " 무엇을 할까?",
+    // });
   }
 };

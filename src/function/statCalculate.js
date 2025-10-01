@@ -16,7 +16,7 @@ export const statCalculate = (battle) => {
     const opponent = arr[1 - index]; // player와 npc를 서로 바꿔줌
     if (entity.abil === "근성" && (entity.status.burn || entity.status.mabi || entity.status.poision || entity.status.mpoision)) {
       entity.atk *= 1.5;
-      entity.noRankStat.atk *= 1.5; // 특성 아이템만 반영하는 스탯
+      entity.noRankStat.atk *= 1.5;
     }
     if (entity.item === "돌격조끼") {
       entity.cdef *= 1.5;

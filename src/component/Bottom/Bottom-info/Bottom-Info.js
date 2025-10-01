@@ -12,8 +12,9 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setText }) => {
     <>
       <TextBox text={text} />
       <ChangeButton
+        // 상태창 들어갔다가 다시 나올때 뜨는 텍스트
         onClick={() => {
-          setText(battle.player.origin.names + " 무엇을 할까?");
+          setText(" 누구로 교체할까?");
           setBottom("switch");
         }}
         innerText={"뒤로가기"}
@@ -29,30 +30,10 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setText }) => {
 
       <InfoButton pokemon={pokemon} type={"status"} setText={setText} />
 
-      <InfoSkillButton
-        battle={battle}
-        skillNumber={1}
-        pokemon={pokemon}
-        setText={setText}
-      />
-      <InfoSkillButton
-        battle={battle}
-        skillNumber={2}
-        pokemon={pokemon}
-        setText={setText}
-      />
-      <InfoSkillButton
-        battle={battle}
-        skillNumber={3}
-        pokemon={pokemon}
-        setText={setText}
-      />
-      <InfoSkillButton
-        battle={battle}
-        skillNumber={4}
-        pokemon={pokemon}
-        setText={setText}
-      />
+      <InfoSkillButton battle={battle} skillNumber={1} pokemon={pokemon} setText={setText} />
+      <InfoSkillButton battle={battle} skillNumber={2} pokemon={pokemon} setText={setText} />
+      <InfoSkillButton battle={battle} skillNumber={3} pokemon={pokemon} setText={setText} />
+      <InfoSkillButton battle={battle} skillNumber={4} pokemon={pokemon} setText={setText} />
     </>
   );
 };

@@ -35,6 +35,7 @@ const Battle = () => {
   // 0888  자시안
   // 0889  자마젠타
   // 0890  무한다이노
+  // 0897  흑마렉스
   // 0901  다투곰
   // 0902  달투곰
   // 0977  어써러셔
@@ -51,7 +52,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["0987-1", "0901-1", "0901-1"], ["0987-1", "0901-1", "0901-1"]);
+      battleObject = createBattle(["0897-1", "0901-1", "0901-1"], ["0812-1", "0901-1", "0901-1"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);
@@ -123,7 +124,7 @@ const Battle = () => {
         </TOP>
         <BOTTOM>
           {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} />}
-          {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} />}
+          {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} />}
           {bottom === "info" && <BottomSectionInfo battle={battle} text={text} setText={setText} setBottom={setBottom} bench={bench} />}
         </BOTTOM>
       </BATTLE>

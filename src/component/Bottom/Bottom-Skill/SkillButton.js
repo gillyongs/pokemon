@@ -20,8 +20,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => 
     // 스카프 등으로 사용 가능한 스킬이 고정된 경우
     const doubleSkill = battle.player.tempStatus.recentSkillUse?.name;
     // 두번 연속 사용 불가 스킬 (블러드문)
-
-    if (onlySkill) {
+    if (onlySkill && battle.player.item && battle.player.item.startsWith("구애")) {
       if (onlySkill !== sk.name) {
         setText("해당 스킬은 사용할 수 없다!");
         return;

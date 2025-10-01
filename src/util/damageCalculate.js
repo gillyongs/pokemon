@@ -28,6 +28,9 @@ export const damageCalculate = (battle) => {
   } else if (sk.stype === "catk") {
     // 특수 공격이면 상대 특방과 계산
     dtype = "cdef";
+    if (sk.name === "사이코쇼크") {
+      dtype = "def";
+    }
   }
 
   let atkStat = attackPokemon[sk.stype]; // 공격포켓몬의 물리/특수 능력치 (물리 or 특수 = 스킬의 stype)

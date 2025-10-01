@@ -7,14 +7,7 @@ import { switchPlayer, switchNpc } from "../../../service/switch";
 import { turnEnd } from "../../../service/turnEnd";
 import { attackNpc } from "../../../service/attack";
 import { npcChoice } from "../../../function/npc";
-const BottomSectionSwitch = ({
-  battle,
-  text,
-  bottom,
-  setBottom,
-  setBench,
-  queueObject,
-}) => {
+const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueObject, setText }) => {
   const [selected, setSelected] = useState(null);
   const handleSelected = (bench) => {
     setSelected((prev) => (prev === bench ? null : bench));
@@ -76,40 +69,15 @@ const BottomSectionSwitch = ({
   return (
     <>
       <TextBox text={text} />
-
-      <BenchPokemon
-        battle={battle}
-        index={"player"}
-        selected={selected}
-        handleSelected={handleSelected}
-        setBench={setBench}
-        setBottom={setBottom}
-        handleSwitch={handleSwitch}
-      />
-
-      <BenchPokemon
-        battle={battle}
-        index={"playerBench1"}
-        selected={selected}
-        handleSelected={handleSelected}
-        setBench={setBench}
-        setBottom={setBottom}
-        handleSwitch={handleSwitch}
-      />
-
-      <BenchPokemon
-        battle={battle}
-        index={"playerBench2"}
-        selected={selected}
-        handleSelected={handleSelected}
-        setBench={setBench}
-        setBottom={setBottom}
-        handleSwitch={handleSwitch}
-      />
-
+      <BenchPokemon battle={battle} index={"player"} selected={selected} handleSelected={handleSelected} setBench={setBench} setBottom={setBottom} handleSwitch={handleSwitch} />
+      <BenchPokemon battle={battle} index={"playerBench1"} selected={selected} handleSelected={handleSelected} setBench={setBench} setBottom={setBottom} handleSwitch={handleSwitch} />
+      <BenchPokemon battle={battle} index={"playerBench2"} selected={selected} handleSelected={handleSelected} setBench={setBench} setBottom={setBottom} handleSwitch={handleSwitch} />
       {bottom === "switch" && (
         <ChangeButton
-          onClick={() => setBottom("skill")}
+          onClick={() => {
+            setText(battle.player.origin.names + " 무엇을 할까?");
+            setBottom("skill");
+          }}
           innerText={"뒤로가기"}
         />
       )}
