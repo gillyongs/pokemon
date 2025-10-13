@@ -75,6 +75,8 @@ export const skillUse = (bt, enqueue) => {
     }
   } else if (skillType === "natk") {
     // 도깨비불 같은 상대방 지정 변화기
+    // 변화기 중 방어에 막히는거, 상대방 기절했을때 안써지는거
+
     const natkTypeCheckSkills = ["전기자석파"];
     // 변화기는 타입 상성의 영향을 받지 않는다
     // 근데 전기자석파는 제외

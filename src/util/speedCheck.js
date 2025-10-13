@@ -1,23 +1,21 @@
 export const speedCheck = (battle) => {
-  // 특성, 교체를 누가 먼저할지 정함
-  // battleScreen이랑 battleStart에서 각각 발동
+  // 스피드가 더 빠른쪽 리턴
+  // battleScreen(맞특성)
+  // battleStart(맞교체)
+  // turnEnd(필드효과, 상태이상 etc)
   const playerSpeed = battle.player.speed;
   const npcSpeed = battle.npc.speed;
-  if (playerSpeed > npcSpeed) {
-    return "player";
-  } else if (playerSpeed < npcSpeed) {
-    return "npc";
-  } else if (playerSpeed === npcSpeed) {
-    if (Math.random() < 0.5) {
-      return "player";
-    } else {
-      return "npc";
-    }
+  const trickRoom = battle.field.trickRoom;
+  if (playerSpeed === npcSpeed) {
+    return Math.random() < 0.5 ? "player" : "npc";
   }
+
+  const faster = playerSpeed > npcSpeed ? "player" : "npc";
+  return trickRoom ? (faster === "player" ? "npc" : "player") : faster;
 };
 
 export const skillSpeedCheck = (battle) => {
-  // 스킬의 우선도를 고려하여 누가 먼저 공격할지 정함
+  // 스킬의 우선도까지 고려하여 빠른쪽 리턴
   // battleStart.js에서 사용
   const playerPri = priCalculate(battle, "player");
   const npcPri = priCalculate(battle, "npc");

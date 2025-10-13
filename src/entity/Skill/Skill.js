@@ -11,6 +11,8 @@ class Skill {
     this.pp = ppp;
     this.prior = prior;
     this.stype = stype; //atk = 물리공격, catk = 특수공격, natk = 상대방 대상 변화기, buf = 자신 대상 변화기
+    // 방어에 막히면 natk 아니면 buf. 
+    // 상대방이 기절했을때 실패하면 natk 써지면 buf -> 이 경우 날려버리기가 좀 애매함 (방어에 안막힘)
     this.skillEffectList = skillEffectList;
     this.skillEffectList.unshift({ name: "공통" });
     this.skillRequirement = skillRequirement;
@@ -426,13 +428,15 @@ class SkillList {
         "buf", null, 
         "상대의 주위에 바위를 띄워 교체되어 나온 상대 포켓몬에게 데미지를 준다.",
         [{name: "스텔스록"}],{}),    
-      
+      //방어에 안막히니까 buf 맞음
+
       new Skill("날려버리기", "노말", 
         "-", "-", 20, -6,  
-        "natk", null, 
-        "상대를 날려버려서 교대할 포켓몬을 끌어낸다. ",
+        "buf", null, 
+        "상대를 날려버려서 교대할 포켓몬을 끌어낸다. (우선도 -6)",
         [{name: "강제교체"}],{}),    
-        
+      //방어에 안막힘. 왜 안막히지
+
       new Skill("악의파동", "악",
         80, 100, 15, 0, 
         "catk", null, 
@@ -498,6 +502,21 @@ class SkillList {
         "natk", null, 
         "상대의 빈틈을 노려 자신과 상대가 지닌 물건을 바꿔치기한다.",
         [{ name: "트릭" }], {}),
+       
+      new Skill("블리자드랜스", "얼음", 
+        120, 100, 5, 0, 
+        "atk", null, "눈보라를 두른 얼음의 창을 상대에게 던져서 공격한다.",
+        [],{}),
+      new Skill("10만마력", "땅", 
+        95, 95, 10, 0, 
+        "atk", null, "온몸을 써서 상대를 맹렬히 공격한다.",
+        [],{touch:true}),
+
+      new Skill("트릭룸", "에스퍼", 
+        "-", "-", 5, -7,  
+        "buf", null, 
+        "이상한 공간을 만든다. 5턴 동안 느린 포켓몬부터 행동할 수 있다. (우선도 -7)",
+        [{ name: "트릭룸" }], ),
     ];
   }
   // ID로 객체 찾기

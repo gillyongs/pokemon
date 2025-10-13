@@ -305,6 +305,21 @@ function skillEffectSearch(name) {
         text: atk.names + " 서로의 도구를 교체했다!",
       });
     },
+    트릭룸: (battle, enqueue, skillEffect) => {
+      const atk = battle[battle.turn.atk];
+      if (battle.field.trickRoom === null) {
+        battle.field.trickRoom = 5;
+        enqueue({
+          battle,
+          text: atk.names + " 시공을 뒤틀었다!",
+        });
+      } else {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+      }
+    },
   };
 
   return functions[name] || null;

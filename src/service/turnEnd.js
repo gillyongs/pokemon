@@ -3,6 +3,7 @@ import { switchNpc } from "./switch";
 import { recover } from "../function/recover";
 import { speedCheck } from "../util/speedCheck";
 import { burn, mabi, poison, freeze, sleep } from "../function/statusError";
+import { flyingCheck } from "../util/flyingCheck";
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
   // 화상딜, 독딜, 날개쉬기 타입복구, NPC 기절시 교체
@@ -28,15 +29,24 @@ export const turnEnd = (battle, enqueue) => {
       enqueue({ battle, text: text });
     }
   }
+
+  if (battle.field.trickRoom !== null) {
+    battle.field.trickRoom -= 1;
+    if (battle.field.trickRoom === 0) {
+      battle.field.trickRoom = null;
+      enqueue({ battle, text: "뒤틀린 시공이 원래대로 되돌아왔다!" });
+    }
+  }
+
   if (field !== null) {
     let fieldEndText;
     if (field === "그래스필드") {
       fieldEndText = "발밑의 풀이 사라졌다!";
       const text = "의 체력이 회복되었다!";
-      if (fast.hp < fast.origin.hp && !fast.faint) {
+      if (fast.hp < fast.origin.hp && !fast.faint && flyingCheck(battle, fast)) {
         recover(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, "[그래스필드] " + fast.name + text);
       }
-      if (slow.hp < slow.origin.hp && !slow.faint) {
+      if (slow.hp < slow.origin.hp && !slow.faint && flyingCheck(battle, slow)) {
         recover(battle, Math.floor(slow.origin.hp / 16), slowUser, enqueue, "[그래스필드] " + slow.name + text);
       }
     }

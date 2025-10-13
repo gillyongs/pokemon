@@ -33,6 +33,8 @@ class Battle {
       fieldTurnRemain: null,
       weather: null,
       weatherTurnRemain: null,
+      trickRoom: null,
+      //공간변화는 중첩가능
       player: {
         sRock: null, //스텔스록
       },

@@ -2,6 +2,7 @@ import { statCalculate } from "../function/statCalculate";
 import { typeCheckAbil } from "./typeCheck";
 import { getMultiplier } from "../function/statCalculate";
 import { noNullItem } from "../entity/Item";
+import { flyingCheck } from "./flyingCheck";
 
 export const damageCalculate = (battle) => {
   //데미지 계산
@@ -81,13 +82,17 @@ export const damageCalculate = (battle) => {
 
   const field = battle.field.field; // 필드 보정
   if (field !== null) {
-    if (attackPokemon.type1 !== "비행" && attackPokemon.type2 !== "비행" && attackPokemon.abil !== "부유") {
+    if (flyingCheck(battle, attackPokemon)) {
       if (field === "그래스필드" && sk.type === "풀") {
         damage *= 1.3;
       }
       if (field === "일렉트릭필드" && sk.type === "전기") {
         damage *= 1.3;
       }
+    }
+
+    if (field === "그래스필드" && sk.name === "지진") {
+      damage *= 0.5; //비행여부 상관없이 적용됨
     }
   }
 

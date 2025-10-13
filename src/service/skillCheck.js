@@ -72,7 +72,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
     // 도발 풀리는건 턴 종료시 (일단 행동한 다음에 풀리는건 확실함) -> 풀리는건 turnEnd에서
     atk.tempStatus.taunt -= 1;
     const useSkill = atk.origin["sk" + bt.turn.atkSN];
-    if (useSkill.stype === "buf") {
+    if (useSkill.stype === "buf" || useSkill.stype === "natk") {
       enqueue({ battle: bt, text: atk.names + " 도발당한 상태라서 " + josa(`${useSkill.name}#{를} `) + "쓸 수 없다!" });
       return false;
     }
@@ -118,6 +118,14 @@ export const afterSkillCheck = (bt, enqueue) => {
 
   if (def.faint === true && skillType !== "buf") {
     //상대가 이미 기절한 경우
+    enqueue({ battle: bt, text: "하지만 실패했다!" });
+    return false;
+  }
+
+  if (def.faint === true && sk.name === "날려버리기") {
+    //날려버리기는 방어에 막히지 않아서 buf인데
+    //상대방 기절시 강제 교체 시키는지 실패하는지 모르겠음
+    //일단 실패하게 해놓음
     enqueue({ battle: bt, text: "하지만 실패했다!" });
     return false;
   }
