@@ -120,7 +120,7 @@ export const damageCalculate = (battle) => {
 
     if (field === "그래스필드" && sk.name === "지진") {
       damage *= 0.5; //비행여부 상관없이 적용됨
-      attackPokemon.log.damage1 += " / 0.5 (그래스필드+지진)";
+      attackPokemon.log.damage1 += " * 0.5 (그래스필드+지진)";
     }
   }
   damage = Math.floor(damage);
@@ -157,8 +157,8 @@ export const damageCalculate = (battle) => {
   const randomNum = getRandomNumber(); // 랜덤값
   damage = (damage * randomNum) / 100;
   attackPokemon.log.damage2 += " * " + randomNum + "(랜덤값) / 100 = " + Math.floor(damage);
-  // console.log(attackPokemon.log.damage1);
-  // console.log(attackPokemon.log.damage2);
+  console.log(attackPokemon.log.damage1);
+  console.log(attackPokemon.log.damage2);
   return Math.floor(damage);
 };
 

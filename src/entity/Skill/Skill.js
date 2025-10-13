@@ -210,6 +210,13 @@ class SkillList {
         "자신의 공격을 2랭크 올린다.",
         [{ name: "능력치증감", probability: 100, abil: "atk", target: "atk", value: 2 }],),
 
+      new Skill("용의춤", "드래곤", 
+        "-", "-", 20, 0,  
+        "buf", null, 
+        "자신의 공격과 스피드를 1랭크 올린다.",
+        [{ name: "능력치증감", probability: 100, abil: "atk", target: "atk", value: 1 },
+          { name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 }],),
+        
       new Skill("섀도크루", "고스트", 
         70, 100, 15, 0,  
         "atk", null, 
@@ -220,6 +227,12 @@ class SkillList {
         40, 100, 30, 1,  
         "atk", null, 
         "우선도 +1",
+        [], {touch:true}  ),
+
+      new Skill("신속", "노말", 
+        80, 100, 5, 2,  
+        "atk", null, 
+        "우선도 +2",
         [], {touch:true}  ),
 
       new Skill("치근거리기", "페어리", 

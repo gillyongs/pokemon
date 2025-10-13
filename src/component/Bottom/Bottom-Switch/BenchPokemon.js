@@ -1,27 +1,12 @@
 import styled from "styled-components";
 import HpBar from "../../HpBar";
 
-const BenchPokemon = ({
-  battle,
-  index,
-  selected,
-  handleSelected,
-  setBench,
-  setBottom,
-  handleSwitch,
-}) => {
+const BenchPokemon = ({ battle, index, selected, handleSelected, setBench, setBottom, handleSwitch }) => {
   const pokemon = battle[index];
   return (
-    <BenchWrapper
-      className={`${index} ${selected === index ? "selected" : ""}`}
-      onClick={() => handleSelected(index)}
-    >
+    <BenchWrapper className={`${index} ${selected === index ? "selected" : ""}`} onClick={() => handleSelected(index)}>
       <PokemonName className={`${index}`}>{pokemon.origin.name}</PokemonName>
-      <PokemonImage
-        className={`${index}`}
-        src={`/pokemon/img/pokemon/${pokemon.origin.pokemon_id}.webp`}
-        alt={`bench2`}
-      />
+      <PokemonImage className={`${index}`} src={`/pokemon/img/pokemon/${pokemon.origin.pokemon_id}.webp`} alt={`bench2`} />
       <SwitchHpBar>
         <HpBar hp={pokemon.hp} maxHp={pokemon.origin.hp} />
       </SwitchHpBar>
@@ -37,10 +22,7 @@ const BenchPokemon = ({
       {selected === index && (
         <div>
           {index !== "player" && !pokemon.faint && (
-            <PokemonButton
-              className="switch"
-              onClick={() => handleSwitch(index)}
-            >
+            <PokemonButton className="switch" onClick={() => handleSwitch(index)}>
               교체
             </PokemonButton>
           )}
@@ -51,8 +33,7 @@ const BenchPokemon = ({
               e.stopPropagation();
               setBench(index);
               setBottom("info");
-            }}
-          >
+            }}>
             상세정보
           </PokemonButton>
         </div>
@@ -101,10 +82,10 @@ const PokemonName = styled.div`
 
 const PokemonImage = styled.img`
   position: absolute;
-  height: 12vh;
-  width: 12vh;
-  left: 2vh;
-  bottom: 0.3vh;
+  height: 11vh;
+  width: 11vh;
+  left: 3vh;
+  bottom: -0.1vh;
 `;
 
 const SwitchHpBar = styled.div`

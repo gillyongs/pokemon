@@ -85,11 +85,15 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   if (defPokemon.abil === "탈") {
     talTrigger = true;
     defPokemon.abil = defPokemon.origin.abil = "탈 (사용됨)";
-    const talHp = Math.ceil(defPokemon.origin.hp / 8);
+    const talHp = Math.floor(defPokemon.origin.hp / 8);
     if (skDamage > talHp) {
       skDamage = talHp;
       actualGiveDamage = talHp;
     }
+  }
+
+  if (defPokemon.abil === "멀티스케일" && defPokemon.hp === defPokemon.origin.hp) {
+    skDamage = Math.floor(skDamage / 2);
   }
 
   // HP 차감
