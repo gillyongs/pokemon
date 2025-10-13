@@ -29,6 +29,10 @@ export function useQueue() {
 
   const queueCheck = () => {
     if (queue.length > 0) {
+      if (queue[0].skip) {
+        //turnEnd.js에서 마지막에 넣은 "~는 무엇을 할까?"는 skip 가능하게
+        return true;
+      }
       return false;
     }
     return true;

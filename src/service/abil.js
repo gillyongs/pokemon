@@ -97,7 +97,7 @@ export const abil = (bt, atks, enqueue) => {
       });
       enqueue({
         battle: bt,
-        text: atk.names + " 의 " + statsKr[maxKey] + " 강화되었다!",
+        text: "[특성 고대활성] " + atk.name + " 의 " + statsKr[maxKey] + " 강화되었다!",
       });
     } else if (atk.item === "부스트에너지") {
       atk.tempStatus.protosynthesis = maxKey;
@@ -107,7 +107,7 @@ export const abil = (bt, atks, enqueue) => {
       });
       enqueue({
         battle: bt,
-        text: atk.name + "의 " + statsKr[maxKey] + " 강화되었다!",
+        text: "[특성 고대활성] " + atk.name + "의 " + statsKr[maxKey] + " 강화되었다!",
       });
     }
   }
@@ -136,6 +136,22 @@ export const abil = (bt, atks, enqueue) => {
       battle: bt,
       text: "[특성 하드론엔진] " + atk.names + " 일렉트릭필드를 전개하여 미래 기관을 가동했다!",
     });
+  }
+
+  if (atkAbil === "진홍빛고동") {
+    if (bt.field.weather === "쾌청") {
+      enqueue({
+        battle: bt,
+        text: "[특성 진홍빛고동] " + atk.names + " 햇살을 받아 고대의 고동을 폭발시켰다!",
+      });
+    } else {
+      bt.field.weather = "쾌청";
+      bt.field.weatherTurnRemain = 5;
+      enqueue({
+        battle: bt,
+        text: "[특성 진홍빛고동] " + atk.names + " 햇살을 강하게 하여 고대의 고동을 폭발시켰다!",
+      });
+    }
   }
 
   if (bt.field[atks].sRock && atk.item !== "통굽부츠") {

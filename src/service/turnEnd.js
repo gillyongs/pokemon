@@ -17,6 +17,14 @@ export const turnEnd = (battle, enqueue) => {
   const slow = battle[slowUser];
   const field = battle.field.field;
 
+  if (battle.field.trickRoom !== null) {
+    battle.field.trickRoom -= 1;
+    if (battle.field.trickRoom === 0) {
+      battle.field.trickRoom = null;
+      enqueue({ battle, text: "뒤틀린 시공이 원래대로 되돌아왔다!" });
+    }
+  }
+
   if (battle.field.weather !== null) {
     battle.field.weatherTurnRemain -= 1;
     if (battle.field.weatherTurnRemain === 0) {
@@ -26,15 +34,10 @@ export const turnEnd = (battle, enqueue) => {
       if (weather === "비") {
         text = "비가 그쳤다!";
       }
+      if (weather === "쾌청") {
+        text = "햇살이 원래대로 되돌아왔다!";
+      }
       enqueue({ battle, text: text });
-    }
-  }
-
-  if (battle.field.trickRoom !== null) {
-    battle.field.trickRoom -= 1;
-    if (battle.field.trickRoom === 0) {
-      battle.field.trickRoom = null;
-      enqueue({ battle, text: "뒤틀린 시공이 원래대로 되돌아왔다!" });
     }
   }
 
@@ -105,12 +108,43 @@ export const turnEnd = (battle, enqueue) => {
   if (slow.tempStatus.hapum === 1 && !slow.faint) {
     slow.tempStatus.hapum = 0;
   }
+  const getConfuseTurn = () => {
+    return Math.floor(Math.random() * 4) + 1;
+  };
+
+  if (fast.auto !== null && !fast.faint) {
+    //역린 등 자동행동
+    fast.auto -= 1;
+
+    if (fast.auto === 0) {
+      fast.auto = null;
+      fast.autoSN = null;
+      if (fast.tempStatus.confuse === null) {
+        fast.tempStatus.confuse = true;
+        fast.tempStatus.confuseTurnRemain = getConfuseTurn();
+        enqueue({ battle, text: fast.names + " 몹시 지쳐서 혼란에 빠졌다!" });
+      }
+    }
+  }
+
+  if (slow.auto !== null && !slow.faint) {
+    slow.auto -= 1;
+    if (slow.auto === 0) {
+      slow.auto = null;
+      slow.autoSN = null;
+      if (slow.tempStatus.confuse === null) {
+        slow.tempStatus.confuse = true;
+        slow.tempStatus.confuseTurnRemain = getConfuseTurn();
+        enqueue({ battle, text: slow.names + " 몹시 지쳐서 혼란에 빠졌다!" });
+      }
+    }
+  }
 
   if (fast.tempStatus.taunt === 0 && !fast.faint) {
-    // 도발 3턴은 행동을 기준으로 센다
-    // 선 도발 맞았으면 그 턴 포함 3턴
-    // 후 도발 맞았으면 그 다음 턴부터 3턴 (이건 확실함) -> 카운트는 skillCheck에서
-    // 도발 풀리는건 턴 종료시 (일단 행동한 다음에 풀리는건 확실함) -> 풀리는건 turnEnd에서
+    // 선 도발 맞았으면 그 턴 포함 3턴 (추정)
+    // 후 도발 맞았으면 그 다음 턴부터 3턴 (이건 확실함)
+    // -> 카운트는 skillCheck에서 해야함
+    // 도발 풀리는건 턴 종료시 (반 확정) -> 풀리는건 turnEnd에서
     let wakeUpText = fast.names + " 도발의 효과가 풀렸다!";
     fast.tempStatus.taunt = null;
     enqueue({ battle: battle, text: wakeUpText });
@@ -151,7 +185,6 @@ export const turnEnd = (battle, enqueue) => {
       switchNpc(battle, "npcBench2", enqueue);
     }
   }
-
   if (battle.player.faint) {
     battle.turn.textFreeze = true;
     enqueue({
@@ -162,9 +195,11 @@ export const turnEnd = (battle, enqueue) => {
     if (battle.uturn) {
       return;
     }
-    // enqueue({
-    //   battle: battle,
-    //   text: battle.player.origin.names + " 무엇을 할까?",
-    // });
+    enqueue({
+      battle: battle,
+      text: battle.player.origin.names + " 무엇을 할까?",
+      skip: true,
+    });
+    //이거 없으면 텍스트 없는게 (enqueue 안한게) 반영이 안됨
   }
 };

@@ -6,7 +6,6 @@ import { burn, mabi, poison, freeze } from "../../function/statusError";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchPlayerForce } from "../../service/switch";
-import { damageCalculate } from "../../util/damageCalculate";
 
 function skillEffectSearch(name) {
   const functions = {
@@ -319,6 +318,14 @@ function skillEffectSearch(name) {
           text: "하지만 실패했다!",
         });
       }
+    },
+    자동: (battle, enqueue, skillEffect) => {
+      const atk = battle[battle.turn.atk];
+      if (atk.auto !== null) {
+        return;
+      }
+      atk.auto = Math.random() < 0.5 ? 2 : 3;
+      atk.autoSN = battle.turn[battle.turn.atk + "SN"];
     },
   };
 

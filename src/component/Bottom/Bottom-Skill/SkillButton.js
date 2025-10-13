@@ -15,24 +15,53 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => 
   }
   const sn = getNumberText(skillNumber);
 
+  const handleDequeue = () => {
+    if (queueObject.queue.length > 0) {
+      if (battle.turn.textFreeze) {
+        return;
+      }
+      queueObject.dequeue();
+    }
+  };
+
   const handleSkillClick = (skillIndex) => {
-    const onlySkill = battle.player.tempStatus.onlySkill;
-    // 스카프 등으로 사용 가능한 스킬이 고정된 경우
-    const doubleSkill = battle.player.tempStatus.recentSkillUse?.name;
-    // 두번 연속 사용 불가 스킬 (블러드문)
-    if (onlySkill && battle.player.item && battle.player.item.startsWith("구애")) {
-      if (onlySkill !== sk.name) {
-        setText("해당 스킬은 사용할 수 없다!");
-        return;
-      }
-    }
-    if (doubleSkill) {
-      if (doubleSkill === sk.name && sk.name === "블러드문") {
-        setText("해당 스킬은 사용할 수 없다!");
-        return;
-      }
-    }
+    handleDequeue();
+    //dequeue를 한 다음에 스킬 버튼 실행해야하는데
+    //dequeue를 전체로 박아놨더니 스킬버튼 실행 후 dequeue해서 에러 발생
+    //stopPropagation 해놓고 dequeue를 추가로 앞에 넣음
     if (queueObject.queueCheck()) {
+      const onlySkill = battle.player.tempStatus.onlySkill;
+      // 스카프 등으로 사용 가능한 스킬이 고정된 경우
+      if (onlySkill && battle.player.item && battle.player.item.startsWith("구애")) {
+        if (onlySkill !== sk.name) {
+          if (battle.player.auto) {
+            return;
+            //enqueue하기떄문에 역린중에 다른 스킬 누르면 끊김
+          }
+          queueObject.enqueue({ battle, text: "아이템 효과로 인해 해당 스킬은 사용할 수 없다!", skip: true });
+          setText("해당 스킬은 사용할 수 없다!");
+          return;
+        }
+      }
+      const doubleSkill = battle.player.tempStatus.recentSkillUse?.name;
+      // 두번 연속 사용 불가 스킬 (블러드문)
+      if (doubleSkill) {
+        if (doubleSkill === sk.name && sk.name === "블러드문") {
+          if (battle.player.auto) {
+            return;
+          }
+          queueObject.enqueue({ battle, text: "해당 스킬은 연속으로 사용할 수 없다!", skip: true });
+          return;
+        }
+      }
+
+      if (battle.player.tempStatus.taunt !== null) {
+        if (sk.stype === "natk" || sk.stype === "buf") {
+          queueObject.enqueue({ battle, text: "도발 때문에 해당 스킬은 사용할 수 없다!", skip: true });
+          return;
+        }
+      }
+
       battleStart(battle, skillIndex, npcChoice(battle, skillIndex), queueObject);
     }
   };
@@ -40,7 +69,8 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => 
   return (
     <SKILL
       className={sn}
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation(); // ✅ 상위 onClick(handleDequeue)으로 이벤트 전파 방지
         handleSkillClick(skillNumber);
       }}>
       <ICON src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />

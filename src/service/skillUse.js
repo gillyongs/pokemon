@@ -2,7 +2,7 @@ import { damageCalculate } from "../util/damageCalculate";
 import { typeCheck, typeCheckText, typeCheckAbil } from "../util/typeCheck";
 import { damage, attackDamage } from "../function/damage";
 import { applySkillEffects } from "./skiiEffect";
-import { beforeSkillCheck, afterSkillCheck } from "./skillCheck";
+import { beforeSkillCheck, afterSkillCheck, beforeTurnPass } from "./skillCheck";
 
 export const skillUse = (bt, enqueue) => {
   const skillNumber = bt.turn.atkSN;
@@ -12,10 +12,10 @@ export const skillUse = (bt, enqueue) => {
   const def = bt[bt.turn.def];
   const sk = atk.origin[skKey];
   const skillType = bt[bt.turn.atk].origin["sk" + bt.turn.atkSN].stype;
-
   if (beforeSkillCheck(bt, enqueue) === false) {
     // 스킬명이 뜨기 전에 처리하는 트리거
-    //풀죽음, 마비, 혼란, 잠듦, 도발
+    //풀죽음, 마비, 혼란, 잠듦, 선도발
+    handleAutoFail(bt);
     return;
   }
 
@@ -31,8 +31,10 @@ export const skillUse = (bt, enqueue) => {
 
   if (afterSkillCheck(bt, enqueue) === false) {
     // 스킬명이 뜬 다음에 처리하는 트리거
-    // 사용조건체크(ex 기습), 상대방 기절 여부, 명중
+    // 사용조건체크(ex 기습), 상대방 기절 여부, 명중, 방어
     // 리베로는 실패해도 발동되기에 타이밍상 여기
+
+    handleAutoFail(bt);
     return;
   }
   //=================================================================================================================
@@ -63,6 +65,7 @@ export const skillUse = (bt, enqueue) => {
       atk.temp.miss = true;
       const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
       enqueue({ battle: bt, text: typeText });
+      handleAutoFail(bt);
       return;
     }
     //무효면 부가효과 안터지므로 리턴
@@ -112,4 +115,16 @@ const criticalRate = (input) => {
   }
 
   return Math.random() < probability;
+};
+
+const handleAutoFail = (bt) => {
+  const atk = bt[bt.turn.atk];
+  if (atk.auto !== null) {
+    if (atk.auto > 1) {
+      atk.auto = null;
+      atk.autoSN = null;
+      // 3턴 역린이 2번째에 끊긴 경우 혼란이 적용되지 않는다
+    }
+    // 역린이 마지막턴에 끊긴 경우 혼란이 적용된다
+  }
 };

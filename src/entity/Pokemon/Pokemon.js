@@ -77,6 +77,17 @@ class PokemonOnBattle {
       protosynthesis: null, //고대활성
     };
     this.faint = null; //기절 여부
+    this.auto = null; //자동 행동 여부 (역린)
+    this.autoSN = null;
+    this.log = {
+      stat: {
+        atk: pokemon.atk,
+        def: pokemon.def,
+        catk: pokemon.catk,
+        cdef: pokemon.cdef,
+        speed: pokemon.speed,
+      },
+    };
   }
 }
 

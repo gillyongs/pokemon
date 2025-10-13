@@ -105,6 +105,10 @@ export const freeze = (battle, get, enqueue, abilText) => {
   if (faintCheck(pokemon)) {
     return;
   }
+  if (battle.field.weather === "쾌청") {
+    return;
+    //날씨가 쾌청이면 얼지 않는다
+  }
   let freezeText = pokemon.names + " 얼어붙었다!";
   pokemon.status.freeze = true;
   enqueue({
@@ -127,8 +131,9 @@ export const sleep = (battle, get, enqueue) => {
     return;
   }
   let sleepText = pokemon.names + "  잠들어 버렸다!";
-  // 1~3 중 하나를 33% 확률로 선택
-  pokemon.status.sleep = Math.floor(Math.random() * 3) + 1;
+  pokemon.status.sleep = Math.floor(Math.random() * 3) + 2;
+  // 기대값 : 2, 3, 4
+  // 수면은 0이 되면 바로 깨므로 최소 1턴 자려면 값이 2여야함
   enqueue({
     battle: battle,
     text: sleepText,

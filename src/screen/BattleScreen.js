@@ -12,6 +12,8 @@ import BottomSectionSwitch from "../component/Bottom/Bottom-Switch/Bottom-Switch
 import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
 import { speedCheck } from "../util/speedCheck";
 import { useLocation } from "react-router-dom";
+import { battleStart } from "../service/battleStart";
+import { npcChoice } from "../function/npc";
 
 const Battle = () => {
   const location = useLocation();
@@ -44,6 +46,7 @@ const Battle = () => {
   // 1002  파이젠
   // 1003  딩루
   // 1004  위유이
+  // 1007  코라이돈
   // 1008  미라이돈
 
   useEffect(() => {
@@ -53,7 +56,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["0896-1", "0901-1", "0901-1"], ["0250-1", "0901-1", "0901-1"]);
+      battleObject = createBattle(["0977-1", "0987-1", "0901-1"], ["1007-1", "0901-1", "0901-1"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);
@@ -98,7 +101,11 @@ const Battle = () => {
       }
     }
     if (queue.length === 0) {
-      setText(battle.player.origin.names + " 무엇을 할까?");
+      if (battle.player.auto) {
+        battleStart(battle, battle.player.autoSN, npcChoice(battle, battle.player.autoSN), queueObject);
+      } else {
+        setText(battle.player.origin.names + " 무엇을 할까?");
+      }
     }
   }, [queueObject.queue]);
 

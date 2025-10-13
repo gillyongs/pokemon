@@ -25,7 +25,7 @@ class Battle {
       playerSN: null, // 우선도 체크에 사용
       npcSN: null,
       turnEnd: null,
-      textFreeze: null,
+      textFreeze: null, // 화면 넘어가지 않음. 유턴이나 교체
     };
     //turnEnd 같은 변수때문에 턴이 시작될때 = battleStart.js에서 초기화된다
     this.field = {

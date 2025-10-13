@@ -3,14 +3,43 @@ import { random } from "../util/randomCheck";
 import { confuseDamageCalculate } from "../util/damageCalculate";
 import { damage } from "../function/damage";
 import { josa } from "josa";
+
 export const beforeSkillCheck = (bt, enqueue) => {
   //스킬명이 뜨기 전에 처리하는 트리거
   //풀죽음, 마비, 혼란, 잠듦, 도발
+
   const atk = bt[bt.turn.atk];
+
+  if (atk.tempStatus.taunt > 0) {
+    //선 도발 맞으면 그 턴 포함 3턴 (추정)
+    //후 도발 맞으면 그 다음턴부터 3턴 (확정)
+    //풀죽음이나 상태이상으로 행동 못해도 턴은 지나갈 것 같음 (추정)
+    //선도발로 변화기 막히는건 밑에서 처리
+    //도발 풀리는건 turnEnd에서 처리
+    atk.tempStatus.taunt -= 1;
+  }
+
+  if (atk.status.sleep > 0) {
+    //후 수면 맞으면 그 다음턴은 확정 수면
+    //풀죽음 해도 수면 턴은 지나갈 것 같음 (추정)
+    //풀죽음보다 앞에 배치
+    //수면으로 행동 못하는건 풀죽음 다음에 처리
+    atk.status.sleep -= 1;
+    if (atk.status.sleep === 0) {
+      let wakeUpText = atk.names + " 눈을 떴다!";
+      atk.status.sleep = null;
+      enqueue({ battle: bt, text: wakeUpText });
+    }
+  }
 
   if (atk.temp.fullDeath != null) {
     let fullDeathText = atk.names + " 풀이 죽어 기술을 쓸 수 없다!";
     enqueue({ battle: bt, text: fullDeathText });
+    return false;
+  }
+
+  if (atk.status.sleep != null) {
+    enqueue({ battle: bt, text: atk.names + " 쿨쿨 잠들어 있다" });
     return false;
   }
 
@@ -34,20 +63,8 @@ export const beforeSkillCheck = (bt, enqueue) => {
     }
   }
 
-  if (atk.status.sleep === 0) {
-    let wakeUpText = atk.names + " 눈을 떴다!";
-    atk.status.sleep = null;
-    enqueue({ battle: bt, text: wakeUpText });
-  } else if (atk.status.sleep != null) {
-    if (typeof atk.status.sleep !== "number") {
-      console.error("sleepTurnRemain is not a number", atk.tempStatus.confuseTurnRemain);
-    }
-    enqueue({ battle: bt, text: atk.names + " 쿨쿨 잠들어 있다" });
-    atk.status.sleep -= 1;
-    return false;
-  }
-
   if (atk.tempStatus.confuseTurnRemain === 0) {
+    //혼란은 행동 기준이므로 상태이상이나 풀죽음으로 막히면 턴 수 계산 x
     let confuseText = atk.name + " 의 혼란이 풀렸다!";
     atk.tempStatus.confuseTurnRemain = null;
     atk.tempStatus.confuse = null;
@@ -64,13 +81,9 @@ export const beforeSkillCheck = (bt, enqueue) => {
       return false;
     }
   }
-  //도발이 걸려있는 경우
+
+  //상대 선도발을 맞은 경우
   if (atk.tempStatus.taunt !== null) {
-    // 도발 3턴은 행동을 기준으로 센다
-    // 선 도발 맞았으면 그 턴 포함 3턴
-    // 후 도발 맞았으면 그 다음 턴부터 3턴 (이건 확실함) -> 카운트는 skillCheck에서
-    // 도발 풀리는건 턴 종료시 (일단 행동한 다음에 풀리는건 확실함) -> 풀리는건 turnEnd에서
-    atk.tempStatus.taunt -= 1;
     const useSkill = atk.origin["sk" + bt.turn.atkSN];
     if (useSkill.stype === "buf" || useSkill.stype === "natk") {
       enqueue({ battle: bt, text: atk.names + " 도발당한 상태라서 " + josa(`${useSkill.name}#{를} `) + "쓸 수 없다!" });
