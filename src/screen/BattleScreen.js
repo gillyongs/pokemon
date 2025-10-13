@@ -52,7 +52,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["0897-1", "0901-1", "0901-1"], ["0812-1", "0901-1", "0901-1"]);
+      battleObject = createBattle(["0889-1", "0901-1", "0901-1"], ["0888-1", "0901-1", "0901-1"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);

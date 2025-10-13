@@ -14,4 +14,4 @@ export const itemText = {
   부스트에너지: "에너지가 가득한 캡슐. 어떤 특성을 가진 포켓몬에게 지니게 하면 그 힘을 증폭시킨다.",
 };
 
-export const noNullItem = ["녹슨검", "녹슨방패"]; //탁떨로 안떨궈지는거
+export const noNullItem = ["녹슨검", "녹슨방패"]; //탁떨, 트릭 적용 안되는 아이템

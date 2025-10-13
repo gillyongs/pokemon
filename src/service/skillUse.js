@@ -75,8 +75,11 @@ export const skillUse = (bt, enqueue) => {
     }
   } else if (skillType === "natk") {
     // 도깨비불 같은 상대방 지정 변화기
+    const natkTypeCheckSkills = ["전기자석파"];
+    // 변화기는 타입 상성의 영향을 받지 않는다
+    // 근데 전기자석파는 제외
     let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);
-    if (typeDamage === 0) {
+    if (typeDamage === 0 && natkTypeCheckSkills.includes(sk.name)) {
       const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
       enqueue({ battle: bt, text: typeText });
       return;

@@ -19,11 +19,7 @@ export const typeCheckAbil = (battle, stype, type1, type2) => {
   // 특성 등을 반영한 실제 상성적용
   // 저수, 피뢰침 같은 특성은 텍스트엔 무효로 안나오게 해야하므로 함수 따로 사용
   if (typeChart[stype][type1] === 0 || typeChart[stype][type2] === 0) {
-    if (
-      battle[battle.turn.atk].abil === "심안" &&
-      (stype === "격투" || stype === "노말") &&
-      (type1 === "고스트" || type2 === "고스트")
-    ) {
+    if (battle[battle.turn.atk].abil === "심안" && (stype === "격투" || stype === "노말") && (type1 === "고스트" || type2 === "고스트")) {
       // 그냥 지나가게
     } else {
       return 0;
@@ -43,7 +39,10 @@ export const typeCheckAbil = (battle, stype, type1, type2) => {
   return typeDamage;
 };
 
-export const typeCheckConsole = (stype, type1, type2) => {
+export const typeCheckConsole = (stype, type1, type2, skillType) => {
+  if (skillType === "natk" || skillType === "buf") {
+    return;
+  }
   const typeDamage = typeCheck(stype, type1, type2);
   if (typeDamage === 1) {
     return "○ 효과가 있음";
@@ -117,6 +116,7 @@ const typeChart = {
     불꽃: 0.5,
     물: 0.5,
     강철: 0.5,
+    얼음: 0.5,
     기타: 1,
   },
   격투: {
@@ -155,13 +155,14 @@ const typeChart = {
     기타: 1,
   },
   비행: { 풀: 2, 격투: 2, 벌레: 2, 전기: 0.5, 바위: 0.5, 강철: 0.5, 기타: 1 },
-  에스퍼: { 격투: 2, 독: 2, 에스퍼: 0.5, 악: 0.5, 강철: 0.5, 기타: 1 },
+  에스퍼: { 격투: 2, 독: 2, 에스퍼: 0.5, 악: 0, 강철: 0.5, 기타: 1 },
   벌레: {
     풀: 2,
     에스퍼: 2,
     악: 2,
     불꽃: 0.5,
     격투: 0.5,
+    독: 0.5,
     비행: 0.5,
     고스트: 0.5,
     강철: 0.5,

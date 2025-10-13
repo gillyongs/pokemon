@@ -28,6 +28,7 @@ class PokemonOnBattle {
     this.type1 = pokemon.type1;
     this.type2 = pokemon.type2;
     this.item = pokemon.item;
+    this.itemText = pokemon.itemText;
     this.abil = pokemon.abil;
     this.pp1 = pokemon.sk1.pp;
     this.pp2 = pokemon.sk2.pp;

@@ -1,5 +1,5 @@
 import { recover } from "../function/recover";
-
+import { rank } from "./rank";
 // ====================== 공통 유틸 함수 ======================
 
 // HP 감소 적용
@@ -10,15 +10,34 @@ function applyDamage(defPokemon, damage) {
 }
 
 // 기절 처리
-function handleFaint(defPokemon, enqueue, battle) {
+function handleFaint(defPokemon, enqueue, battle, atkAbil) {
   defPokemon.hp = 0;
   defPokemon.faint = true;
   Object.keys(defPokemon.status).forEach((k) => (defPokemon.status[k] = null));
   enqueue({ battle, text: defPokemon.names + " 쓰러졌다!" });
+
+  const faintRankUpAbils = {
+    "혼연일체(흑)": "catk",
+    "혼연일체(백)": "atk",
+    자기과신: "atk",
+  };
+  if (Object.keys(faintRankUpAbils).includes(atkAbil)) {
+    let abilName = atkAbil;
+    if (abilName.startsWith("혼연일체")) {
+      abilName = "혼연일체";
+    }
+    rank(battle, enqueue, battle[battle.turn.atk], faintRankUpAbils[atkAbil], 1, "[특성 " + abilName + "]");
+    return;
+  }
 }
 
 // 자뭉열매 처리
-function tryBerry(defPokemon, battle, enqueue) {
+function tryBerry(defPokemon, battle, enqueue, atkAbil) {
+  let noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
+
+  if (noBerryAbil.includes(atkAbil)) {
+    return;
+  }
   if (defPokemon.item === "자뭉열매" && defPokemon.hp <= defPokemon.origin.hp / 2) {
     defPokemon.item = null;
     recover(battle, Math.floor(defPokemon.origin.hp / 4), defPokemon, enqueue, defPokemon.names + " 자뭉열매로 체력을 회복했다!");
@@ -119,13 +138,14 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
 
   // ================= 후처리 =================
+  let atkAbil = battle[battle.turn.atk].abil;
   if (defPokemon.hp <= 0) {
-    handleFaint(defPokemon, enqueue, battle);
+    handleFaint(defPokemon, enqueue, battle, atkAbil);
   } else {
     // 출력 텍스트가 하나도 없을 때
     if (textTrigger) {
       enqueue({ battle, text: defPokemon.name + "에게 데미지를 주었다!" });
     }
-    tryBerry(defPokemon, battle, enqueue);
+    tryBerry(defPokemon, battle, enqueue, atkAbil);
   }
 }

@@ -282,6 +282,29 @@ function skillEffectSearch(name) {
         });
       }
     },
+    트릭: (battle, enqueue, skillEffect) => {
+      const def = battle[battle.turn.def];
+      const atk = battle[battle.turn.atk];
+
+      if (noNullItem.includes(atk.item) || noNullItem.includes(def.item)) {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+        return;
+      }
+      // 아이템 교환
+      [atk.item, def.item] = [def.item, atk.item];
+      [atk.itemText, def.itemText] = [def.itemText, atk.itemText];
+
+      // 구애 시리즈로 고정된 스킬 초기화
+      atk.tempStatus.onlySkill = null;
+      def.tempStatus.onlySkill = null;
+      enqueue({
+        battle,
+        text: atk.names + " 서로의 도구를 교체했다!",
+      });
+    },
   };
 
   return functions[name] || null;

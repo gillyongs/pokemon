@@ -1,18 +1,13 @@
 import { statCalculate } from "./statCalculate";
 
-export const rank = (
-  battle,
-  enqueue,
-  rankPokemon,
-  rankType,
-  rankValue,
-  text
-) => {
+export const rank = (battle, enqueue, rankPokemon, rankType, rankValue, text) => {
   let pokemon;
   if (rankPokemon === "npc") {
     pokemon = battle.npc;
   } else if (rankPokemon === "player") {
     pokemon = battle.player;
+  } else if (typeof rankPokemon === "object" && rankPokemon !== null) {
+    pokemon = rankPokemon; // 이미 포켓몬 객체일 경우 그대로 할당
   }
   let rank = pokemon.tempStatus.rank;
   let rankText = pokemon.name + "의 " + getStatName(rankType); //공격'은' 더 이상 올라갈 수 없다!

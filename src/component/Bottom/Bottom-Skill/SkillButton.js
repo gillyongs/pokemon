@@ -45,7 +45,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => 
       }}>
       <ICON src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
       <NAME skname={sk.name}>{sk.name}</NAME>
-      <EFFECT>{typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2)}</EFFECT>
+      <EFFECT>{typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2, sk.stype)}</EFFECT>
       <PP>
         {battle.player[pp]}/{sk.pp}
       </PP>

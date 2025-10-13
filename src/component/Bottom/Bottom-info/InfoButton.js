@@ -45,7 +45,7 @@ const InfoButton = ({ pokemon, type, setText }) => {
     imgSrc = `/pokemon/img/item/${pokemon.item}.webp`;
     innerText = "지닌아이템";
     innerContent = pokemon.item;
-    itemText = pokemon.origin.itemText;
+    itemText = pokemon.itemText;
     if (pokemon.item === null) {
       innerContent = "없음";
       itemText = "지닌 아이템 없음";

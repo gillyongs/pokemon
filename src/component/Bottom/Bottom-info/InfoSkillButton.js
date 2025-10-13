@@ -16,9 +16,7 @@ const LongSkillButton = ({ battle, skillNumber, setText, pokemon }) => {
     <ButtonContainer className={sn} onClick={() => setText(sk.text)}>
       <SkillTypeIcon src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
       <SkillName>{sk.name}</SkillName>
-      <SkillEffect>
-        {typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2)}
-      </SkillEffect>
+      <SkillEffect>{typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2, sk.stype)}</SkillEffect>
       <SkillPP>
         {pokemon[pp]}/{sk.pp}
       </SkillPP>

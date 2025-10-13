@@ -1,5 +1,5 @@
 import { npcAiHard } from "../npc/hard";
 export const npcChoice = (battle, actNumber) => {
-  return 3; //znpc
+  return 2; //npcact
   return npcAiHard(battle, actNumber);
 };

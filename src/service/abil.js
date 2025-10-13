@@ -52,6 +52,24 @@ export const abil = (bt, atks, enqueue) => {
     rank(bt, enqueue, defs, "atk", -1, text);
   }
 
+  if (atkAbil === "혼연일체(흑)" || atkAbil === "혼연일체(백)") {
+    const text = "[특성 혼연일체]";
+    enqueue({
+      battle: bt,
+      text: "[특성 혼연일체] " + atk.names + " 두 가지 특성을 겸비한다!",
+    });
+    let team;
+    if (atk.team === "player") {
+      team = "상대";
+    } else {
+      team = "우리";
+    }
+    enqueue({
+      battle: bt,
+      text: "[특성 혼연일체] " + team + " 편은 긴장해서 나무열매를 먹을 수 없게 되었다!",
+    });
+  }
+
   const stats = {
     atk: atk.atk,
     def: atk.def,
@@ -122,6 +140,7 @@ export const abil = (bt, atks, enqueue) => {
 
   if (bt.field[atks].sRock && atk.item !== "통굽부츠") {
     //스텔스록
+    //맞교체일떄 고려하면 함수 따로 파야하긴 하는데
     const text = atk.name + "에게 뾰족한 바위가 박혔다!";
     const typeDamage = typeCheck("바위", atk.type1, atk.type2);
     damage(bt, Math.floor((atk.origin.hp * typeDamage) / 8), atks, enqueue, text);
