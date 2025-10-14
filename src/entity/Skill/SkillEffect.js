@@ -13,18 +13,41 @@ function skillEffectSearch(name) {
       let atk = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
       let sk = atk.origin["sk" + battle.turn.atkSN];
+      let touch = sk.feature.touch;
+      if (sk.feature.punch && atk.item === "펀치글러브") {
+        touch = false;
+      }
       if (atk.item === "생명의구슬" && !atk.faint) {
         if (sk.stype === "atk" || sk.stype === "catk") {
           const text = atk.name + "의 생명이 조금 깎였다!";
           damage(battle, atk.origin.hp / 10, battle.turn.atk, enqueue, text);
         }
       }
-      if (def.abil === "정전기" && sk.feature.touch && !atk.faint) {
+      if (def.abil === "정전기" && touch && !atk.faint) {
         if (random(30)) {
           mabi(battle, battle.turn.atk, enqueue, true);
         }
       }
-      if (def.item === "울퉁불퉁멧" && sk.feature.touch && !atk.faint) {
+      if (def.item === "울퉁불퉁멧" && touch && !atk.faint) {
+        const text = atk.names + " 울퉁불퉁멧 때문에 데미지를 입었다!";
+        damage(battle, atk.origin.hp / 6, battle.turn.atk, enqueue, text);
+      }
+    },
+
+    연격: (battle, enqueue, skillEffect) => {
+      let atk = battle[battle.turn.atk];
+      let def = battle[battle.turn.def];
+      let sk = atk.origin["sk" + battle.turn.atkSN];
+      let touch = sk.feature.touch;
+      if (sk.feature.punch && atk.item === "펀치글러브") {
+        touch = false;
+      }
+      if (def.abil === "정전기" && touch && !atk.faint) {
+        if (random(30)) {
+          mabi(battle, battle.turn.atk, enqueue, true);
+        }
+      }
+      if (def.item === "울퉁불퉁멧" && touch && !atk.faint) {
         const text = atk.names + " 울퉁불퉁멧 때문에 데미지를 입었다!";
         damage(battle, atk.origin.hp / 6, battle.turn.atk, enqueue, text);
       }

@@ -86,6 +86,8 @@ export const damageCalculate = (battle) => {
     damage /= 2;
     attackPokemon.log.damage1 += " / 2 (화상)";
   }
+
+  // 날씨 ==========================================================
   const weather = battle.field.weather; // 날씨 보정
   if (weather === "비") {
     if (sk.type === "물") {
@@ -108,7 +110,9 @@ export const damageCalculate = (battle) => {
     }
   }
 
-  const field = battle.field.field; // 필드 보정
+  // 필드 ==========================================================
+
+  const field = battle.field.field;
   if (field !== null) {
     if (flyingCheck(battle, attackPokemon)) {
       if (field === "그래스필드" && sk.type === "풀") {
@@ -126,19 +130,33 @@ export const damageCalculate = (battle) => {
       attackPokemon.log.damage1 += " * 0.5 (그래스필드+지진)";
     }
   }
+
+  // 아이템 ==========================================================
+
+  if (sk.feature?.punch && attackPokemon.item === "펀치글러브") {
+    damage *= 1.1;
+    attackPokemon.log.damage1 += " * 1.1 (펀치글러브)";
+  }
+
+  // ======================================================================  [고정 공식] ===================
+
   damage = Math.floor(damage);
   attackPokemon.log.damage1 += " = " + damage;
   // attackPokemon.log.damage2 = damage + " + 2";
   damage += 2; // 고정 공식
   attackPokemon.log.damage2 = damage;
+
+  // 자속보정 ===============================================================
   if (sk.type === attackPokemon.type1 || sk.type === attackPokemon.type2) {
-    // 자속보정
     damage *= 1.5;
     attackPokemon.log.damage2 += " * 1.5 (자속보정)";
   }
+
+  // 상성보정 ================================================================
   const typeDamege = typeCheckAbil(battle, sk.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
   damage *= typeDamege;
   attackPokemon.log.damage2 += " * " + typeDamege + "(상성보정)";
+
   if (sk.name === "라이트닝드라이브") {
     // 약점인 기술이 추가 데미지를 준다
     if (typeDamege > 1) {
@@ -151,11 +169,15 @@ export const damageCalculate = (battle) => {
     damage *= 1.3;
     attackPokemon.log.damage2 += " * 1.3 (생구)";
   }
+  //생구는 +2 다음
+
+  // 급소 =============================================================================
   if (attackPokemon.temp.critical) {
-    // 급소
     damage *= 1.5;
     attackPokemon.log.damage2 += " * 1.5 (급소)";
   }
+
+  // 특성 ===============================================================================
   if (defensePokemon.abil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
     damage *= 0.5;
     attackPokemon.log.damage2 += " * 0.5 (멀티스케일)";

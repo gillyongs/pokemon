@@ -18,7 +18,7 @@ const doRecover = (battle, recoverValue, recoveredPokemon, { enqueue, text, sile
 
   if (pokemon.hp >= pokemon.origin.hp) {
     if (!silent && enqueue) {
-      if (text.includes("씨뿌리기")) {
+      if (text && text.includes("씨뿌리기")) {
         enqueue({ battle, text });
       } else {
         enqueue({ battle, text: "더 이상 회복할 수 없다!" });

@@ -49,7 +49,15 @@ export const abil = (bt, atks, enqueue) => {
 
   if (atkAbil === "위협") {
     const text = "[특성 위협]";
-    rank(bt, enqueue, defs, "atk", -1, text);
+    if (def.tempStatus.substitute) {
+      // 대타출동 상태면 위협 안통함
+      enqueue({
+        battle: bt,
+        text: text + " " + def.name + "에겐 효과가 없는 것 같다...",
+      });
+    } else {
+      rank(bt, enqueue, defs, "atk", -1, text);
+    }
   }
 
   if (atkAbil === "혼연일체(흑)" || atkAbil === "혼연일체(백)") {

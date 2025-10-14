@@ -144,9 +144,15 @@ export const afterSkillCheck = (bt, enqueue) => {
   }
 
   if (def.temp.protect === true && skillType !== "buf") {
-    //방어로 막은 경우
-    enqueue({ battle: bt, text: def.names + " 공격으로부터 몸을 지켰다!" });
-    return false;
+    if (atk.abil === "보이지않는주먹" && sk.feature?.touch && atk.item !== "펀치1글러브") {
+      //특성 보이지않는 주먹 : 접촉기가 방어를 무시한다
+      //펀치글러브를 끼면 해당 특성 적용 안됨
+      enqueue({ battle: bt, text: "[특성 보이지않는주먹] " + atk.name + "의 공격은 막을 수 없다!" });
+    } else {
+      //방어로 막은 경우
+      enqueue({ battle: bt, text: def.names + " 공격으로부터 몸을 지켰다!" });
+      return false;
+    }
   }
 
   let accurCheck = random(atk.origin[skKey].accur, true);

@@ -211,6 +211,12 @@ class SkillList {
         "우선도 +1",
         [], ),
 
+      new Skill("아쿠아제트", "물", 
+        40, 100, 20, 1,  
+        "atk", null, 
+        "우선도 +1",
+        [], {touch:true}),
+
       new Skill("칼춤", "노말", 
         "-", "-", 20, 0,  
         "buf", null, 
@@ -412,6 +418,12 @@ class SkillList {
         "자신의 스피드를 1랭크 올린다.",
         [{ name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 }], {touch:true}),
 
+      new Skill("암석봉인", "바위", 
+        60, 95, 15, 0,  
+        "atk", null, 
+        "상대방의 스피드를 1랭크 떨어뜨다.",
+        [{ name: "능력치증감", probability: 100, abil: "speed", target: "def", value: -1 }], {}),
+
       new Skill("객기", "노말", 
         70, 100, 20, 0,  
         "atk", null, 
@@ -554,6 +566,7 @@ class SkillList {
         120, 100, 5, 0, 
         "atk", null, "눈보라를 두른 얼음의 창을 상대에게 던져서 공격한다.",
         [],{}),
+
       new Skill("10만마력", "땅", 
         95, 95, 10, 0, 
         "atk", null, "온몸을 써서 상대를 맹렬히 공격한다.",
@@ -576,6 +589,16 @@ class SkillList {
         "atk", null, 
         "2~3턴 동안 마구 난동 부려서 공격한다. 난동 부린 뒤에는 혼란에 빠진다.",
         [{name: "자동"}], {touch:true}),  
+
+      new Skill("수류연타", "물", 
+        25, 100, 5, 0, 
+        "atk", null, "물 흐르듯 3회의 연격을 날린다. 반드시 급소에 맞는다.",
+        [], {touch:true, punch:true, suru:true, mustCritical: true}),
+
+      new Skill("고드름침", "얼음", 
+        25, 100, 30, 0, 
+        "atk", null, "2-5회 동안 연속으로 쓴다",
+        [], {twoFive:true}),
     ];
   }
   // ID로 객체 찾기

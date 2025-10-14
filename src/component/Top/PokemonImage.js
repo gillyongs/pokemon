@@ -8,14 +8,7 @@ const PokemonImage = ({ battle, type }) => {
 
   const imageSrc = isSubstitute ? `/pokemon/img/background/substitute_${type === "npc" ? "front" : "back"}.webp` : `/pokemon/img/pokemon/${pokemon.origin.pokemon_id}.webp`;
 
-  return (
-    <StyledPokemonImage
-      className={type}
-      src={imageSrc}
-      alt={`${type} Pokemon`}
-      $isSubstitute={isSubstitute} // ✅ $붙이기
-    />
-  );
+  return <StyledPokemonImage className={type} src={imageSrc} alt={`${type} Pokemon`} $isSubstitute={isSubstitute} />;
 };
 
 export default PokemonImage;

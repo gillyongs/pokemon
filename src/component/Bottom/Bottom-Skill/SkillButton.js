@@ -29,41 +29,46 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => 
     //dequeue를 한 다음에 스킬 버튼 실행해야하는데
     //dequeue를 전체로 박아놨더니 스킬버튼 실행 후 dequeue해서 에러 발생
     //stopPropagation 해놓고 dequeue를 추가로 앞에 넣음
-    if (queueObject.queueCheck()) {
-      const onlySkill = battle.player.tempStatus.onlySkill;
-      // 스카프 등으로 사용 가능한 스킬이 고정된 경우
-      if (onlySkill && battle.player.item && battle.player.item.startsWith("구애")) {
-        if (onlySkill !== sk.name) {
-          if (battle.player.auto) {
-            return;
-            //enqueue하기떄문에 역린중에 다른 스킬 누르면 끊김
-          }
-          queueObject.enqueue({ battle, text: "아이템 효과로 인해 해당 스킬은 사용할 수 없다!", skip: true });
-          setText("해당 스킬은 사용할 수 없다!");
-          return;
-        }
-      }
-      const doubleSkill = battle.player.tempStatus.recentSkillUse?.name;
-      // 두번 연속 사용 불가 스킬 (블러드문)
-      if (doubleSkill) {
-        if (doubleSkill === sk.name && sk.name === "블러드문") {
-          if (battle.player.auto) {
-            return;
-          }
-          queueObject.enqueue({ battle, text: "해당 스킬은 연속으로 사용할 수 없다!", skip: true });
-          return;
-        }
-      }
 
-      if (battle.player.tempStatus.taunt !== null) {
-        if (sk.stype === "natk" || sk.stype === "buf") {
-          queueObject.enqueue({ battle, text: "도발 때문에 해당 스킬은 사용할 수 없다!", skip: true });
-          return;
-        }
-      }
+    const player = battle.player;
+    const skill = "sk" + skillIndex;
+    const sk = player.origin[skill]; // 실제 스킬 정보
+    const pp = player["pp" + skillIndex];
 
-      battleStart(battle, skillIndex, npcChoice(battle, skillIndex), queueObject);
+    if (!queueObject.queueCheck()) return;
+
+    const reject = (message) => {
+      if (!player.auto) {
+        //enqueue하기떄문에 역린중에 다른 스킬 누르면 끊김
+        queueObject.enqueue({ battle, text: message, skip: true });
+        setText?.(message);
+      }
+      return true;
+    };
+
+    // ① PP 소진
+    if (pp <= 0) return reject("해당 스킬은 더 이상 사용할 수 없다!");
+
+    // 구애 시리즈로 인해 사용 가능한 스킬이 고정된 경우
+    const { onlySkill } = player.tempStatus;
+    if (onlySkill && player.item?.startsWith("구애") && onlySkill !== sk.name) {
+      return reject("아이템 효과로 인해 해당 스킬은 사용할 수 없다!");
     }
+
+    // 연속 사용 불가 스킬 (ex: 블러드문)
+    const recentSkill = player.tempStatus.recentSkillUse?.name;
+    if (recentSkill === sk.name && sk.name === "블러드문") {
+      return reject("해당 스킬은 연속으로 사용할 수 없다!");
+    }
+
+    // 도발 상태에서 변화기 사용
+    const tauntActive = player.tempStatus.taunt !== null;
+    if (tauntActive && (sk.stype === "natk" || sk.stype === "buf")) {
+      return reject("도발 때문에 해당 스킬은 사용할 수 없다!");
+    }
+
+    // 모든 조건 통과 시 전투 시작
+    battleStart(battle, skillIndex, npcChoice(battle, skillIndex), queueObject);
   };
 
   return (

@@ -73,12 +73,18 @@ export function damage(battle, damageValue, getDamagePokemon, enqueue, text) {
 // skillUse에서 공격 데미지
 // skillCheck에서 혼란 자해 데미지
 // 기준: 특성 탈 까짐, 급소 판정 있음
-export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typeText) {
+export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typeText, serialAttackObject) {
   const atkPokemon = battle[getDamagePokemon === "npc" ? "player" : "npc"];
   const defPokemon = battle[getDamagePokemon];
   const useSkill = battle[battle.turn.atk].origin["sk" + battle.turn.atkSN];
   atkPokemon.tempStatus.recentSkillUse = useSkill;
   defPokemon.tempStatus.recentSkillGet = useSkill;
+  const noTextSkills = ["카타스트로피"];
+  const noTextTrigger = noTextSkills.includes(useSkill.name) || useSkill.feature.oneShot;
+  let commonText = null;
+  if (serialAttackObject) {
+    commonText = "(" + serialAttackObject.num + "타) ";
+  }
 
   let skDamage = Math.floor(skillDamage);
 
@@ -93,7 +99,17 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   if (defPokemon.tempStatus.substitute) {
     if (!useSkill.feature?.sound) {
       // 소리 기술은 대타를 뚫는다
-      enqueue({ battle, text: josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!" });
+      enqueue({ battle, text: (commonText || "") + josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!" });
+
+      if (!noTextTrigger) {
+        if (atkPokemon.temp.critical) {
+          enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
+        }
+        if (typeText) {
+          // 효과가 굉장했다!
+          enqueue({ battle, text: (commonText || "") + typeText });
+        }
+      }
       if (defPokemon.tempStatus.substituteHp <= skDamage) {
         // 대타출동 인형 체력보다 데미지가 큰 경우
         actualGiveDamage = defPokemon.tempStatus.substituteHp;
@@ -138,41 +154,42 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   // ================= 텍스트 처리 =================
   let textTrigger = true;
   if (talTrigger) {
-    enqueue({ battle, text: "탈이 대타가 되었다!" });
+    enqueue({ battle, text: (commonText || "") + "탈이 대타가 되었다!" });
     textTrigger = false;
   }
 
   // 상성 텍스트(ex:효과가 굉장했다!)나 급소여부가 출력되지 않는 '공격기' //
   // 고정 데미지 기술, 일격기
-  const noTextSkills = ["카타스트로피"];
-  const noTextTrigger = noTextSkills.includes(useSkill.name) || useSkill.feature.oneShot;
 
   if (!noTextTrigger) {
-    if (typeText) {
-      // 효과가 굉장했다!
-      enqueue({ battle, text: typeText });
+    if (atkPokemon.temp.critical) {
+      enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
       textTrigger = false;
     }
-
-    if (atkPokemon.temp.critical) {
-      enqueue({ battle, text: "급소에 맞았다!" });
+    if (typeText) {
+      // 효과가 굉장했다!
+      enqueue({ battle, text: (commonText || "") + typeText });
       textTrigger = false;
     }
   }
 
   if (gdTrigger && defPokemon.item === null) {
-    enqueue({ battle, text: defPokemon.names + " 기합의 띠로 버텼다!" });
+    enqueue({ battle, text: (commonText || "") + defPokemon.names + " 기합의 띠로 버텼다!" });
     textTrigger = false;
   }
 
   // ================= 후처리 =================
   let atkAbil = battle[battle.turn.atk].abil;
   if (defPokemon.hp <= 0) {
+    if (useSkill.feature?.oneShot) {
+      //일격기 성공 텍스트
+      enqueue({ battle, text: "일격필살!" });
+    }
     handleFaint(defPokemon, enqueue, battle, atkAbil);
   } else {
     // 출력 텍스트가 하나도 없을 때
     if (textTrigger) {
-      enqueue({ battle, text: defPokemon.name + "에게 데미지를 주었다!" });
+      enqueue({ battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
     }
     tryBerry(defPokemon, battle, enqueue, atkAbil);
   }
