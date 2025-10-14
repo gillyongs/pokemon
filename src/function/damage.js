@@ -81,6 +81,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   defPokemon.tempStatus.recentSkillGet = useSkill;
   const noTextSkills = ["카타스트로피"];
   const noTextTrigger = noTextSkills.includes(useSkill.name) || useSkill.feature.oneShot;
+  let atkAbil = battle[battle.turn.atk].abil;
+
   let commonText = null;
   if (serialAttackObject) {
     commonText = "(" + serialAttackObject.num + "타) ";
@@ -126,12 +128,14 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   // 특성 "탈" 처리
   let talTrigger = false;
   if (defPokemon.abil === "탈") {
-    talTrigger = true;
-    defPokemon.abil = defPokemon.origin.abil = "탈 (사용됨)";
-    const talHp = Math.floor(defPokemon.origin.hp / 8);
-    if (skDamage > talHp) {
-      skDamage = talHp;
-      actualGiveDamage = talHp;
+    if (atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈") {
+      talTrigger = true;
+      defPokemon.abil = defPokemon.origin.abil = "탈 (사용됨)";
+      const talHp = Math.floor(defPokemon.origin.hp / 8);
+      if (skDamage > talHp) {
+        skDamage = talHp;
+        actualGiveDamage = talHp;
+      }
     }
   }
 
@@ -179,11 +183,15 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
 
   // ================= 후처리 =================
-  let atkAbil = battle[battle.turn.atk].abil;
+
   if (defPokemon.hp <= 0) {
     if (useSkill.feature?.oneShot) {
       //일격기 성공 텍스트
       enqueue({ battle, text: "일격필살!" });
+    }
+    if (textTrigger && serialAttackObject) {
+      //연속기일때 텍스트 없으면 출력
+      enqueue({ battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
     }
     handleFaint(defPokemon, enqueue, battle, atkAbil);
   } else {

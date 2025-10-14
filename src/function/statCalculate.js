@@ -77,9 +77,18 @@ export const statCalculate = (battle) => {
     Object.entries(calamityMap).forEach(([abil, stat]) => {
       // p1이 abil일 때 p2에 적용
       if (entity.abil === abil && opponent.abil !== abil) {
-        opponent[stat] *= 0.75;
-        opponent.noRankStat[stat] *= 0.75;
-        opponent.log.stat[stat] += " * 0.75 (" + abil + ")";
+        if (abil === "재앙의그릇" || abil === "재앙의목간") {
+          //공,특공을 떨구는 특성으로 틀깨기면 적용 안됨
+          if (opponent.abil !== "틀깨기" && opponent.abil !== "테라볼티지" && opponent.abil !== "터보블레이즈") {
+            opponent[stat] *= 0.75;
+            opponent.noRankStat[stat] *= 0.75;
+            opponent.log.stat[stat] += " * 0.75 (" + abil + ")";
+          }
+        } else {
+          opponent[stat] *= 0.75;
+          opponent.noRankStat[stat] *= 0.75;
+          opponent.log.stat[stat] += " * 0.75 (" + abil + ")";
+        }
       }
     });
 

@@ -151,6 +151,11 @@ class SkillList {
         "catk", null, "상대가 다이맥스 중이면 데미지가 2배가 된다.",
         [],{}),
 
+     new Skill("크로스썬더", "전기", 
+        100, 100, 5, 0, 
+        "atk", null, "크로스플레임과 동시에 사용하면 데미지가 2배가 된다.",
+        [],{}),
+
       new Skill("오물웨이브", "독", 
         95, 100, 10, 0, 
         "catk", null, 
@@ -599,6 +604,13 @@ class SkillList {
         25, 100, 30, 0, 
         "atk", null, "2-5회 동안 연속으로 쓴다",
         [], {twoFive:true}),
+
+      new Skill("스케일샷", "드래곤", 
+        25, 90, 20, 0, 
+        "atk", null, "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.",
+        [{ name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 },
+          { name: "능력치증감", probability: 100, abil: "def", target: "atk", value: -1 }
+        ], {twoFive:true}),
     ];
   }
   // ID로 객체 찾기

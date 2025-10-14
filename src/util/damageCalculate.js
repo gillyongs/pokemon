@@ -43,9 +43,12 @@ export const damageCalculate = (battle) => {
     attackStat = "def";
   }
 
+  let atkAbil = attackPokemon.abil;
   let atkStat = attackPokemon[attackStat]; // 공격포켓몬의 물리/특수 능력치 (물리 or 특수 = 스킬의 stype)
   if (defensePokemon.abil === "천진") {
-    atkStat = attackPokemon.noRankStat[attackStat];
+    if (atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈") {
+      atkStat = attackPokemon.noRankStat[attackStat];
+    }
     // 특성 천진
     // 상대방의 능력치 변화를 무시한다
     // 맞는쪽이 천진이면 공격쪽의 랭크업이 무시된다 (ex: 무한 용성군)
@@ -65,7 +68,9 @@ export const damageCalculate = (battle) => {
     }
   }
   if (attackPokemon.abil === "천진") {
-    defStat = defensePokemon.noRankStat[defenseStat];
+    if (atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈") {
+      defStat = defensePokemon.noRankStat[defenseStat];
+    }
     //특성 천진
     // 상대방의 능력치 변화를 무시한다
     // 공격쪽이 천진이면 상대방의 랭크업이 무시된다
@@ -179,8 +184,12 @@ export const damageCalculate = (battle) => {
 
   // 특성 ===============================================================================
   if (defensePokemon.abil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
-    damage *= 0.5;
-    attackPokemon.log.damage2 += " * 0.5 (멀티스케일)";
+    let atkAbil = attackPokemon.abil;
+    if (atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈") {
+      damage *= 0.5;
+      attackPokemon.log.damage2 += " * 0.5 (멀티스케일)";
+    }
+
     // 멀티스케일은 공격 데미지에만 적용된다
     // 혼란 자해 데미지에 적용 안되다함 (위키피셜)
     // 생구에 멀스 적용 안됨

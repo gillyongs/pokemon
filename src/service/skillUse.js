@@ -83,7 +83,7 @@ export const skillUse = (bt, enqueue) => {
 
     //연속기
     if (sk.feature?.twoFive || sk.feature?.suru) {
-      let num = randomTwoFive();
+      let num = randomTwoFive(atk.item);
       //2~5회 공격. 확률은 35 35 15 15
       if (sk.feature?.suru) {
         //수류연타는 3회 고정
@@ -180,8 +180,14 @@ const handleAutoFail = (bt) => {
   }
 };
 
-const randomTwoFive = () => {
+const randomTwoFive = (item) => {
   const r = Math.random() * 100; // 0 ~ 99.999...
+
+  if (item === "속임수주사위") {
+    // 최소 4타 보정
+    if (r < 85) return 4; // 70 ~ 84.999 (85%)
+    else return 5; // 85 ~ 99.999 (15%) -> 5회 확률은 정확히 모르겠음
+  }
 
   if (r < 35) return 2; // 0 ~ 34.999 (35%)
   else if (r < 70) return 3; // 35 ~ 69.999 (35%)
