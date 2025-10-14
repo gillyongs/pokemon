@@ -83,10 +83,19 @@ export const skillUse = (bt, enqueue) => {
     const natkTypeCheckSkills = ["전기자석파"];
     // 변화기는 타입 상성의 영향을 받지 않는다
     // 근데 전기자석파는 제외
+    // 뱀눈초리는 고소트한테 들어가는게 맞음
     let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);
     if (typeDamage === 0 && natkTypeCheckSkills.includes(sk.name)) {
       const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
       enqueue({ battle: bt, text: typeText });
+      return;
+    }
+    const noSubstitueSkills = ["앵콜", "도발", "저주", "흑안개", "날려버리기"];
+    // 대타출동으로 막을 수 없는 스킬
+    // 트릭, 하품, 전기자석파 등은 실패한다
+
+    if (!noSubstitueSkills.includes(sk.name) && bt[bt.turn.def].tempStatus.substitute) {
+      enqueue({ battle: bt, text: "하지만 실패했다!" });
       return;
     }
   }

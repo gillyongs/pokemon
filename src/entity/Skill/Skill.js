@@ -197,7 +197,7 @@ class SkillList {
         90, 100, 10, 0,  
         "catk",  null, 
         "시끄럽게 울리는 큰 진동을 상대에게 전달하여 공격한다.",
-        []),
+        [], {sound: true}),
 
       new Skill("대지의힘", "땅", 
         90, 100, 10, 0,  
@@ -345,6 +345,12 @@ class SkillList {
         "사용 후 사용자의 특수공격이 2랭크 떨어진다.",
         [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: -2 }]),
       
+      new Skill("리프스톰", "풀", 
+        130, 90, 5, 0,  
+        "catk", null, 
+        "사용 후 사용자의 특수공격이 2랭크 떨어진다.",
+        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: -2 }]),
+
       new Skill("라이트닝드라이브", "전기", 
         100, 100, 5, 0,  
         "catk", null, 
@@ -488,6 +494,27 @@ class SkillList {
         "natk", null, 
         "약한 전격을 날려서 상대를 마비 상태로 만든다.",
         [{ name: "마비", probability: 100 }], {}),
+
+        
+      new Skill("뱀눈초리", "노말", 
+        "-", 100, 30, 0,  
+        "natk", null, 
+        "배의 무늬로 겁을 주어 상대를 마비 상태로 만든다.",
+        [{ name: "마비", probability: 100 }], {}),
+
+
+      new Skill("씨뿌리기", "풀", 
+        "-", 90, 10, 0,  
+        "natk", null, 
+        "상대에게 씨를 뿌려 매 턴 상대 최대 HP의 ⅛만큼 빼앗아 회복한다.",
+        [{ name: "씨뿌리기"}], {}),
+
+      
+      new Skill("대타출동", "노말", 
+        "-", "-", 10, 0,  
+        "buf", null, 
+        "자신의 HP를 ¼ 깎아서 분신을 만든다. 분신은 자신의 대타가 된다.",
+        [{ name: "대타출동"}], {}),
 
       new Skill("병상첨병", "고스트", 
         65, 100, 10, 0, 

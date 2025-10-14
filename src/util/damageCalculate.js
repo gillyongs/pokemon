@@ -5,7 +5,9 @@ import { noNullItem } from "../entity/Item";
 import { flyingCheck } from "./flyingCheck";
 
 export const damageCalculate = (battle) => {
-  //데미지 계산
+  // 데미지를 "계산"만 해서 주는 함수
+  // battle 객체 내부의 값을 바꾸지 않는다 (log 제외)
+  // => 지닌 아이템, 특성이 바뀌는 기합의띠, 탈은 damage 함수에서 처리한다
   statCalculate(battle);
   //랭크업 등 스탯 반영
   const skillNumber = battle.turn.atkSN;
@@ -16,6 +18,7 @@ export const damageCalculate = (battle) => {
 
   // 데미지가 고정인 스킬들
   if (sk.feature.oneShot) {
+    //일격기
     return defensePokemon.origin.hp;
   }
   if (sk.name === "카타스트로피") {
@@ -152,6 +155,15 @@ export const damageCalculate = (battle) => {
     // 급소
     damage *= 1.5;
     attackPokemon.log.damage2 += " * 1.5 (급소)";
+  }
+  if (defensePokemon.abil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
+    damage *= 0.5;
+    attackPokemon.log.damage2 += " * 0.5 (멀티스케일)";
+    // 멀티스케일은 공격 데미지에만 적용된다
+    // 혼란 자해 데미지에 적용 안되다함 (위키피셜)
+    // 생구에 멀스 적용 안됨
+    // 일격기, 카운터, 고정 데미지 기술(지구던지기)도 적용 안 됨
+    // 카타스트로피는 모르겠음.
   }
 
   const randomNum = getRandomNumber(); // 랜덤값

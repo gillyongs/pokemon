@@ -75,6 +75,9 @@ class PokemonOnBattle {
       protectUse: null, //방어 연속 사용 횟수 -> 방어 성공률 계산
       taunt: null, //도발
       protosynthesis: null, //고대활성
+      seed: null, //씨뿌리기
+      substitute: null, //대타출동
+      substituteHp: null, //대타출동 인형 남은 체력
     };
     this.faint = null; //기절 여부
     this.auto = null; //자동 행동 여부 (역린)

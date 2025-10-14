@@ -13,6 +13,10 @@ export const rank = (battle, enqueue, rankPokemon, rankType, rankValue, text) =>
   let rankText = pokemon.name + "의 " + getStatName(rankType); //공격'은' 더 이상 올라갈 수 없다!
   let rankText2 = pokemon.name + "의 " + getStatName2(rankType); //공격'이' 크게 올랐다!
 
+  if (pokemon.abil === "심술꾸러기") {
+    rankValue = -rankValue;
+  }
+
   if (rank[rankType] === -6 && rankValue < 0) {
     rankText2 = rankText2 + " 더 이상 떨어질 수 없다!";
     enqueue({ battle, text: rankText2 });

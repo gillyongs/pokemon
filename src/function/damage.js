@@ -1,5 +1,7 @@
+import { type } from "@testing-library/user-event/dist/type";
 import { recover } from "../function/recover";
 import { rank } from "./rank";
+import { josa } from "josa";
 // ====================== 공통 유틸 함수 ======================
 
 // HP 감소 적용
@@ -45,31 +47,38 @@ function tryBerry(defPokemon, battle, enqueue, atkAbil) {
 }
 
 // ====================== 공격 외 데미지 ======================
+// 기준 = 급소 없음, 탈 안 까임, 멀스 적용 안됨(일단 생구는 확실히 적용 안됨)
 // abil : 스텔스록
-// skillCheck: 혼란 자해데미지
-// turnEnd: 독, 화상 데미지
+// turnEnd: 독, 화상, 씨뿌리기
 // skillEffect: 생구, 무릎차기 빗나감, 반동, 울퉁불퉁멧
+
 export function damage(battle, damageValue, getDamagePokemon, enqueue, text) {
   const defPokemon = battle[getDamagePokemon];
   const actualDamage = applyDamage(defPokemon, Math.floor(damageValue));
-
+  const atkPokemon = battle[getDamagePokemon === "npc" ? "player" : "npc"];
+  const atkAbil = atkPokemon.abil;
   if (text) enqueue({ battle, text });
 
   if (defPokemon.hp <= 0) {
     handleFaint(defPokemon, enqueue, battle);
   } else {
-    tryBerry(defPokemon, battle, enqueue);
+    tryBerry(defPokemon, battle, enqueue, atkAbil);
   }
+  return actualDamage;
 }
 
 // ====================== 공격 데미지 ======================
 
 // 공격으로 데미지를 줄때
-// skillUse에서만 호출된다
+// skillUse에서 공격 데미지
+// skillCheck에서 혼란 자해 데미지
+// 기준: 특성 탈 까짐, 급소 판정 있음
 export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typeText) {
   const atkPokemon = battle[getDamagePokemon === "npc" ? "player" : "npc"];
   const defPokemon = battle[getDamagePokemon];
   const useSkill = battle[battle.turn.atk].origin["sk" + battle.turn.atkSN];
+  atkPokemon.tempStatus.recentSkillUse = useSkill;
+  defPokemon.tempStatus.recentSkillGet = useSkill;
 
   let skDamage = Math.floor(skillDamage);
 
@@ -79,6 +88,24 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   // 기합의띠 트리거
   const gdTrigger = defPokemon.item === "기합의띠" && defPokemon.hp === defPokemon.origin.hp;
+
+  // 대타출동
+  if (defPokemon.tempStatus.substitute) {
+    if (!useSkill.feature?.sound) {
+      // 소리 기술은 대타를 뚫는다
+      enqueue({ battle, text: josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!" });
+      if (defPokemon.tempStatus.substituteHp <= skDamage) {
+        // 대타출동 인형 체력보다 데미지가 큰 경우
+        actualGiveDamage = defPokemon.tempStatus.substituteHp;
+        defPokemon.tempStatus.substitute = null;
+        defPokemon.tempStatus.substituteHp = null;
+        enqueue({ battle, text: defPokemon.name + "의 대타는 사라져 버렸다..." });
+      } else {
+        defPokemon.tempStatus.substituteHp -= skDamage;
+      }
+      return;
+    }
+  }
 
   // 특성 "탈" 처리
   let talTrigger = false;
@@ -92,24 +119,21 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
   }
 
-  if (defPokemon.abil === "멀티스케일" && defPokemon.hp === defPokemon.origin.hp) {
-    skDamage = Math.floor(skDamage / 2);
-  }
-
   // HP 차감
   const prevHp = defPokemon.hp;
   defPokemon.hp -= skDamage;
   if (defPokemon.hp <= 0) {
     actualGiveDamage = prevHp;
     defPokemon.hp = gdTrigger ? 1 : 0;
-    if (gdTrigger) defPokemon.item = null;
+    if (gdTrigger) {
+      defPokemon.item = null;
+      actualGiveDamage -= 1;
+    }
   }
 
   // 최근 기록
   atkPokemon.temp.recentDamageGive = actualGiveDamage;
   defPokemon.temp.recentDamageGet = actualGiveDamage;
-  atkPokemon.tempStatus.recentSkillUse = useSkill;
-  defPokemon.tempStatus.recentSkillGet = useSkill;
 
   // ================= 텍스트 처리 =================
   let textTrigger = true;

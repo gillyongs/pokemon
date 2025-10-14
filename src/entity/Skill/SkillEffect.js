@@ -327,6 +327,39 @@ function skillEffectSearch(name) {
       atk.auto = Math.random() < 0.5 ? 2 : 3;
       atk.autoSN = battle.turn[battle.turn.atk + "SN"];
     },
+
+    씨뿌리기: (battle, enqueue, skillEffect) => {
+      const def = battle.turn.def;
+      const defPokemon = battle[def];
+      if (defPokemon.tempStatus.seed !== null || defPokemon.type1 === "풀" || defPokemon.type2 === "풀") {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+      } else {
+        defPokemon.tempStatus.seed = true;
+        enqueue({
+          battle,
+          text: defPokemon.name + "에게 씨앗을 심었다!",
+        });
+      }
+    },
+    대타출동: (battle, enqueue, skillEffect) => {
+      const atk = battle.turn.atk;
+      const atkPokemon = battle[atk];
+      const needHp = Math.floor(atkPokemon.origin.hp / 4);
+
+      if (atkPokemon.tempStatus.substitute !== null || atkPokemon.hp <= needHp) {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+      } else {
+        atkPokemon.tempStatus.substitute = true;
+        atkPokemon.tempStatus.substituteHp = needHp;
+        damage(battle, needHp, battle.turn.atk, enqueue, atkPokemon.name + "의 대타가 나타났다!");
+      }
+    },
   };
 
   return functions[name] || null;

@@ -1,7 +1,7 @@
 import skillRequirementSearch from "../entity/Skill/SkillRequirement";
 import { random } from "../util/randomCheck";
 import { confuseDamageCalculate } from "../util/damageCalculate";
-import { damage } from "../function/damage";
+import { attackDamage, damage } from "../function/damage";
 import { josa } from "josa";
 
 export const beforeSkillCheck = (bt, enqueue) => {
@@ -77,7 +77,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
     atk.tempStatus.confuseTurnRemain -= 1;
     if (random(33)) {
       let confuseText = atk.names + " 영문도 모른 채 자신을 공격했다!";
-      damage(bt, confuseDamageCalculate(bt), bt.turn.atk, enqueue, confuseText);
+      attackDamage(bt, confuseDamageCalculate(bt), bt.turn.atk, enqueue, confuseText);
       return false;
     }
   }

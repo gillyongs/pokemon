@@ -73,6 +73,16 @@ export const turnEnd = (battle, enqueue) => {
     recover(battle, Math.floor(slow.origin.hp / 16), slowUser, enqueue, slow.names + " 먹다남은음식으로 인해 조금 회복했다.");
   }
 
+  if (fast.tempStatus.seed && !fast.faint) {
+    const seedDamage = damage(battle, Math.floor(fast.origin.hp / 8), fastUser, enqueue);
+    recover(battle, Math.floor(seedDamage), slowUser, enqueue, "씨뿌리기가 " + fast.name + "의 체력을 빼앗는다!");
+  }
+
+  if (slow.tempStatus.seed && !slow.faint) {
+    const seedDamage = damage(battle, Math.floor(slow.origin.hp / 8), slowUser, enqueue);
+    recover(battle, Math.floor(seedDamage), fastUser, enqueue, "씨뿌리기가 " + slow.name + "의 체력을 빼앗는다!");
+  }
+
   if (fast.status.poison && !fast.faint) {
     damage(battle, Math.floor(fast.origin.hp / 8), fastUser, enqueue, fast.names + " 독에 의한 데미지를 입었다!");
   }
