@@ -133,6 +133,13 @@ class SkillList {
         [{ name: "풀죽음", probability: 30 }], 
         {touch:true}),
 
+      new Skill("폭포오르기", "물",
+        80, 100, 15, 0, 
+        "atk", null, 
+        "30%의 확률로 상대를 풀죽게 만든다.",
+        [{ name: "풀죽음", probability: 20 }], 
+        {touch:true}),
+
       new Skill("섀도볼", "고스트", 
         80, 100, 15, 0, 
         "catk", null, 

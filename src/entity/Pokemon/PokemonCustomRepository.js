@@ -6,10 +6,14 @@ import BattlePokemon from "./PokemonCustom";
 class BattlePokemonRepository {
   constructor() {
     this.items = [
+
+new BattlePokemon("0130-1", "0130", "6V", 244, 0, 252, 0, 0, 12, "def", "catk",  // 갸라도스
+  "폭포오르기", "지진", "도발", "전기자석파", "울퉁불퉁멧", "위협"),
+
 new BattlePokemon("0145-1", "0145", "5V1A", 0, 0, 4, 252, 0, 252, "speed", "atk",  // 썬더
   "10만볼트", "열풍", "폭풍", "날개쉬기", "생명의구슬", "정전기"),
 
-new BattlePokemon("0149-1", "0149", "5V1A", 196, 252, 4, 0, 4, 52, "atk", "catk",  // 망나뇽
+new BattlePokemon("0149-1", "0149", "6V", 196, 252, 4, 0, 4, 52, "atk", "catk",  // 망나뇽
   "신속", "역린", "지진", "아이언헤드", "구애머리띠", "멀티스케일"),
 
 new BattlePokemon("0250-1", "0250", "6V", 252, 36, 76, 0, 92, 52, "atk", "catk",   // 칠색조

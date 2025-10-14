@@ -80,6 +80,8 @@ class PokemonOnBattle {
     this.auto = null; //자동 행동 여부 (역린)
     this.autoSN = null;
     this.log = {
+      damage1: null,
+      damage2: null,
       stat: {
         atk: pokemon.atk,
         def: pokemon.def,

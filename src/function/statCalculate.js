@@ -97,6 +97,8 @@ export const statCalculate = (battle) => {
   });
 
   attributes.forEach((attr) => {
+    player[attr] = Math.floor(player[attr]);
+    npc[attr] = Math.floor(npc[attr]);
     player.log.stat[attr] += " = " + player[attr];
     npc.log.stat[attr] += " = " + npc[attr];
   });
