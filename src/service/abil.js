@@ -37,16 +37,35 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
   });
   // 능력치 깎는건 어차피 statCalculate에서 작동하므로 text만 띄어주며됨
 
-  if (atkAbil === "불요의검") {
+  if (atkAbil === "불요의검" && atk.item === "녹슨검") {
     const text = "[특성 불요의검]";
     rank(bt, enqueue, atks, "atk", 1, text);
   }
 
-  if (atkAbil === "불굴의방패") {
+  if (atkAbil === "불굴의방패" && atk.item === "녹슨방패") {
     const text = "[특성 불굴의방패]";
     rank(bt, enqueue, atks, "def", 1, text);
   }
 
+  if (atkAbil === "터보블레이즈") {
+    enqueue({
+      battle: bt,
+      text: "[특성 테라볼티지] " + atk.names + " 활활 타오르는 오라를 발산하고 있다!",
+    });
+  }
+  if (atkAbil === "테라볼티지") {
+    enqueue({
+      battle: bt,
+      text: "[특성 테라볼티지] " + atk.names + " 세차게 튀는 오라를 발산하고 있다!",
+    });
+  }
+
+  if (atkAbil === "틀깨기") {
+    enqueue({
+      battle: bt,
+      text: "[특성 틀깨기] " + atk.names + "에겐 특성이 통하지 않는다!",
+    });
+  }
   if (atkAbil === "위협") {
     const text = "[특성 위협]";
     if (def.tempStatus.substitute) {

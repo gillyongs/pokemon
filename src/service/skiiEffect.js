@@ -16,7 +16,7 @@ export const applySkillEffects = (bt, enqueue) => {
 };
 
 export const applySkillEffectSerial = (bt, enqueue, skillEffectList) => {
-  // skillUser 끝부분에서 호출되는 함수
+  // 연속기에서 여러번 실행되는 부가효과 (울맷 etc..) 처리
 
   if (Array.isArray(skillEffectList)) {
     skillEffectList.forEach((skillEffect) => {

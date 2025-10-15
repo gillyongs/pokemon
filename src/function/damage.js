@@ -2,6 +2,8 @@ import { type } from "@testing-library/user-event/dist/type";
 import { recover } from "../function/recover";
 import { rank } from "./rank";
 import { josa } from "josa";
+import { applyOnHitEvents } from "../service/applyOnHitEvents.js";
+
 // ====================== 공통 유틸 함수 ======================
 
 // HP 감소 적용
@@ -94,9 +96,6 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   //반동이나 흡혈 계산에 사용
   let actualGiveDamage = skDamage;
 
-  // 기합의띠 트리거
-  const gdTrigger = defPokemon.item === "기합의띠" && defPokemon.hp === defPokemon.origin.hp;
-
   // 대타출동
   if (defPokemon.tempStatus.substitute) {
     if (!useSkill.feature?.sound) {
@@ -138,7 +137,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       }
     }
   }
-
+  // 기합의띠 트리거
+  const gdTrigger = defPokemon.item === "기합의띠" && defPokemon.hp === defPokemon.origin.hp;
   // HP 차감
   const prevHp = defPokemon.hp;
   defPokemon.hp -= skDamage;
@@ -201,4 +201,6 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
     tryBerry(defPokemon, battle, enqueue, atkAbil);
   }
+
+  applyOnHitEvents(battle, enqueue);
 }
