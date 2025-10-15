@@ -36,7 +36,7 @@ const StyledPokemonImage = styled.img`
     className === "plr"
       ? css`
           right: 8.5vw;
-          top: -3vh;
+          top: -1.5vh;
           ${!$isSubstitute &&
           css`
             transform: scaleX(-1);

@@ -455,7 +455,7 @@ class SkillList {
 
       new Skill("방어", "노말", 
         "-", "-", 10, 4,  
-        "buf", null, 
+        "buf", "방어", 
         "상대의 공격을 전혀 받지 않는다. 연속으로 쓰면 실패하기 쉽다. (우선도 +4)",
         [{name: "방어"}],{}),    
       
@@ -519,14 +519,14 @@ class SkillList {
         "-", 90, 20, 0,  
         "natk", null, 
         "약한 전격을 날려서 상대를 마비 상태로 만든다.",
-        [{ name: "마비", probability: 100 }], {}),
+        [{ name: "마비", probability: 100, failText:true }], {}),
 
         
       new Skill("뱀눈초리", "노말", 
         "-", 100, 30, 0,  
         "natk", null, 
         "배의 무늬로 겁을 주어 상대를 마비 상태로 만든다.",
-        [{ name: "마비", probability: 100 }], {}),
+        [{ name: "마비", probability: 100, failText:true  }], {}),
 
 
       new Skill("씨뿌리기", "풀", 

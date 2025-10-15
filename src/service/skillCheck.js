@@ -6,7 +6,14 @@ import { josa } from "josa";
 
 export const beforeSkillCheck = (bt, enqueue) => {
   //스킬명이 뜨기 전에 처리하는 트리거
-  //풀죽음, 마비, 혼란, 잠듦, 도발
+  // 수면, 마비, 얼음, 풀죽음, 도발, 혼란
+  // 수면, 얼음 -> 풀죽음,도발 -> 마비 -> 혼란
+  // 수면 상태면 풀죽음, 도발 메시지 안 뜸
+  // 수면 깨면 풀죽음, 도발 텍스트 뜸
+  // 얼음도 이와 동일한 판정일 것으로 추정
+  // 풀죽음 도발 동시에 불가
+  // 풀죽거나 도발이면 마비 텍스트 안 뜸
+  // 선도발, 마비, 얼음으로 행동 불가시 혼란 카운트 세지 않음
 
   const atk = bt[bt.turn.atk];
   const useSkill = atk.origin["sk" + bt.turn.atkSN];
@@ -20,11 +27,11 @@ export const beforeSkillCheck = (bt, enqueue) => {
     atk.tempStatus.taunt -= 1;
   }
 
+  // 수면
   if (atk.status.sleep > 0) {
-    //후 수면 맞으면 그 다음턴은 확정 수면
-    //풀죽음 해도 수면 턴은 지나갈 것 같음 (추정)
-    //풀죽음보다 앞에 배치
-    //수면으로 행동 못하는건 풀죽음 다음에 처리
+    // 후 수면 맞으면 그 다음턴은 확정 수면 = 사용자 행동마다 카운트
+    // 교체 직후 도발 맞으면 그 턴 포함 3턴이지만
+    // 교체 직후 수면 걸리면 그 다음 턴부터 센다
     atk.status.sleep -= 1;
     if (atk.status.sleep === 0) {
       let wakeUpText = atk.names + " 눈을 떴다!";
@@ -32,18 +39,12 @@ export const beforeSkillCheck = (bt, enqueue) => {
       enqueue({ battle: bt, text: wakeUpText });
     }
   }
-
-  if (atk.temp.fullDeath != null) {
-    let fullDeathText = atk.names + " 풀이 죽어 기술을 쓸 수 없다!";
-    enqueue({ battle: bt, text: fullDeathText });
-    return false;
-  }
-
-  if (atk.status.sleep != null) {
+  if (atk.status.sleep !== null) {
     enqueue({ battle: bt, text: atk.names + " 쿨쿨 잠들어 있다" });
     return false;
   }
 
+  // 얼음
   if (atk.status.freeze !== null) {
     if (random(80) && useSkill.type !== "불꽃") {
       let freezeText = atk.names + " 얼어버려서 움직일 수 없다!";
@@ -56,7 +57,22 @@ export const beforeSkillCheck = (bt, enqueue) => {
     }
   }
 
-  if (atk.status.mabi != null) {
+  // 풀죽음
+  if (atk.temp.fullDeath !== null) {
+    let fullDeathText = atk.names + " 풀이 죽어 기술을 쓸 수 없다!";
+    enqueue({ battle: bt, text: fullDeathText });
+    return false;
+  }
+
+  // 상대 선도발을 맞은 경우
+  if (atk.tempStatus.taunt !== null) {
+    if (useSkill.stype === "buf" || useSkill.stype === "natk") {
+      enqueue({ battle: bt, text: atk.names + " 도발당한 상태라서 " + josa(`${useSkill.name}#{를} `) + "쓸 수 없다!" });
+      return false;
+    }
+  }
+
+  if (atk.status.mabi !== null) {
     if (random(25)) {
       let mabiText = atk.names + " 몸이 저려서 움직일 수 없다!";
       enqueue({ battle: bt, text: mabiText });
@@ -65,12 +81,14 @@ export const beforeSkillCheck = (bt, enqueue) => {
   }
 
   if (atk.tempStatus.confuse === 0) {
-    //혼란은 행동 기준이므로 상태이상이나 풀죽음으로 막히면 턴 수 계산 x
     let confuseText = atk.name + " 의 혼란이 풀렸다!";
     atk.tempStatus.confuse = null;
     enqueue({ battle: bt, text: confuseText });
   } else if (atk.tempStatus.confuse && atk.tempStatus.confuse > 0) {
     enqueue({ battle: bt, text: atk.names + " 혼란에 빠져있다!" });
+    // 혼란은 행동 기준이므로 상태이상이나 풀죽음으로 막히면 턴 수 계산 x
+    // 이 텍스트가 뜨는게 기준 같음
+    // 선도발로 변화기가 끊겨도 해당 텍스트가 안 뜨기에 카운트 세지 않음
     atk.tempStatus.confuse -= 1;
     if (random(33)) {
       //상대방이 패널티로 기절해도 혼란 자해는 가능하다
@@ -80,16 +98,12 @@ export const beforeSkillCheck = (bt, enqueue) => {
     }
   }
 
-  //상대 선도발을 맞은 경우
-  if (atk.tempStatus.taunt !== null) {
-    if (useSkill.stype === "buf" || useSkill.stype === "natk") {
-      enqueue({ battle: bt, text: atk.names + " 도발당한 상태라서 " + josa(`${useSkill.name}#{를} `) + "쓸 수 없다!" });
-      return false;
-    }
-  }
-
   return true;
 };
+
+// ================================================================================================================================
+// ================================================================================================================================
+// ================================================================================================================================
 
 export const afterSkillCheck = (bt, enqueue) => {
   // 스킬명이 뜬 다음에 처리하는 트리거
@@ -102,6 +116,31 @@ export const afterSkillCheck = (bt, enqueue) => {
   const def = bt[bt.turn.def];
   const sk = atk.origin[skKey];
   const skillType = bt[bt.turn.atk].origin["sk" + bt.turn.atkSN].stype;
+
+  if (sk.skillRequirement) {
+    // 기습, 방어 사용조건 체크
+    // 상대가 먼저 행동할경우, 추가로 기습은 상대방이 공격기를 쓰지 않았을 경우 실패한다. (행동엔 교체가 포함된다)
+    // 스텔스록, 도발, 대타출동 등 대부분의 기술이 실패할 경우 리베로가 발동되지 않지만 (= skillEffect에서 처리해도 되지만)
+    // 기습과 방어는 실패해도 리베로가 발동된다
+    // 애초에 기습은 공격기라 미리 처리해야한다
+    const skillFunction = skillRequirementSearch(sk.skillRequirement);
+    if (typeof skillFunction === "function") {
+      const skillCheck = skillFunction(bt, enqueue);
+      if (!skillCheck) {
+        enqueue({ battle: bt, text: "하지만 실패했다!" });
+        return false;
+      }
+    }
+  }
+
+  if (def.faint === true && skillType !== "buf") {
+    // 상대가 이미 기절한 경우
+    // 마찬가지로 리베로가 발동하지 않는다
+    enqueue({ battle: bt, text: "하지만 실패했다!" });
+    return false;
+  }
+
+  // ==================================================================================================================
 
   if (atk.abil === "리베로") {
     if (sk.type === atk.type1 && atk.type2 === null) {
@@ -116,34 +155,22 @@ export const afterSkillCheck = (bt, enqueue) => {
     }
   }
 
-  if (sk.skillRequirement) {
-    const skillFunction = skillRequirementSearch(sk.skillRequirement);
-    if (typeof skillFunction === "function") {
-      const skillCheck = skillFunction(bt, enqueue);
-      if (!skillCheck) {
-        enqueue({ battle: bt, text: "하지만 실패했다!" });
-        return false;
-      }
-    }
-  }
+  // ==================================================================================================================
 
-  if (def.faint === true && skillType !== "buf") {
-    //상대가 이미 기절한 경우
-    enqueue({ battle: bt, text: "하지만 실패했다!" });
-    return false;
-  }
-
-  const noProtectSkills = ["날려버리기"]; // 방어로 막을 수 없는 스킬
+  // 방어로 막힌경우
+  // 리베로가 발동된다
 
   if (def.temp.protect === true && skillType !== "buf") {
     let protectSuccess = true;
+
     if (atk.abil === "보이지않는주먹" && sk.feature?.touch && atk.item !== "펀치글러브") {
       //특성 보이지않는 주먹 : 접촉기가 방어를 무시한다
-      //펀치글러브를 끼면 해당 특성 적용 안됨
+      //펀치글러브를 끼면 접촉판정이 사라지므로 해당 특성 적용 안됨
       enqueue({ battle: bt, text: "[특성 보이지않는주먹] " + atk.name + "의 공격은 막을 수 없다!" });
       protectSuccess = false;
     }
 
+    const noProtectSkills = ["날려버리기"]; // 방어로 막을 수 없는 스킬
     if (noProtectSkills.includes(sk.name)) {
       protectSuccess = false;
     }
@@ -156,6 +183,14 @@ export const afterSkillCheck = (bt, enqueue) => {
     }
   }
 
+  // 특성 옹골참에 일격기가 막힌 경우
+  // 리베로가 발동된다
+  if (sk.feature?.oneShot && def.abil === "옹골참") {
+    enqueue({ battle: bt, text: "[특성 옹골참] " + def.name + "에겐 효과가 없는 것 같다..." });
+  }
+
+  // 스킬이 빗나간 경우
+  // 리베로가 발동된다
   let accurCheck = random(atk.origin[skKey].accur, true);
   //필중기는 random 안에서 처리
   if (sk.name === "번개" && bt.field.weather === "비") {

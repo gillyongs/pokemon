@@ -38,8 +38,9 @@ export const skillUse = (bt, enqueue) => {
 
   if (afterSkillCheck(bt, enqueue) === false) {
     // 스킬명이 뜬 다음에 처리하는 트리거
-    // 사용조건체크(ex 기습), 상대방 기절 여부, 명중, 방어
-    // 리베로는 실패해도 발동되기에 타이밍상 여기
+    // 스킬에 실패하더라고 pp는 닳는다
+    // 스킬성공여부(기습, 방어), 상대방 기절 여부, 명중, 방어
+    // 리베로가 발동되는 조건이 있고 아닌 조건이 있어 중간에 삽입
 
     handleAutoFail(bt);
     return;

@@ -16,7 +16,7 @@ function skillEffectSearch(name) {
       if (atk.item === "생명의구슬" && !atk.faint) {
         if (sk.stype === "atk" || sk.stype === "catk") {
           const text = atk.name + "의 생명이 조금 깎였다!";
-          damage(battle, atk.origin.hp, battle.turn.atk, enqueue, text);
+          damage(battle, atk.origin.hp / 10, battle.turn.atk, enqueue, text);
         }
       }
       if (def.status.freeze && !def.faint) {
@@ -61,7 +61,7 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      mabi(battle, battle.turn.def, enqueue);
+      mabi(battle, battle.turn.def, enqueue, skillEffect.failText);
     },
     얼음: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
@@ -174,38 +174,13 @@ function skillEffectSearch(name) {
       }
     },
     방어: (battle, enqueue, skillEffect) => {
+      // 방어 성공 여부는 skillRequirement에서 처리
       const skillUser = battle[battle.turn.atk];
-      const protectUse = skillUser.tempStatus.protectUse; //방어 연속 사용 횟수
-      let protectSuccess = false;
-      if (!protectUse) {
-        // 1회차 반드시 성공
-        protectSuccess = true;
-      } else if (protectUse === 1) {
-        protectSuccess = random(33);
-      } else if (protectUse === 2) {
-        protectSuccess = random(11);
-      } else if (protectUse > 2) {
-        protectSuccess = random(4);
-      }
-      if (protectSuccess) {
-        skillUser.temp.protect = true;
-        if (!protectUse) {
-          skillUser.tempStatus.protectUse = 1;
-        } else {
-          skillUser.tempStatus.protectUse += 1;
-        }
-
-        enqueue({
-          battle,
-          text: skillUser.names + " 방어 태세에 들어갔다!",
-        });
-      } else {
-        skillUser.tempStatus.protectUse = null;
-        enqueue({
-          battle,
-          text: "하지만 실패했다!",
-        });
-      }
+      skillUser.temp.protect = true;
+      enqueue({
+        battle,
+        text: skillUser.names + " 방어 태세에 들어갔다!",
+      });
     },
 
     스텔스록: (battle, enqueue, skillEffect) => {
@@ -324,10 +299,9 @@ function skillEffectSearch(name) {
           text: atk.names + " 시공을 뒤틀었다!",
         });
       } else {
-        enqueue({
-          battle,
-          text: "하지만 실패했다!",
-        });
+        //트릭룸 두번쓰면 없어진다
+        battle.field.trickRoom = null;
+        enqueue({ battle, text: "뒤틀린 시공이 원래대로 되돌아왔다!" });
       }
     },
     자동: (battle, enqueue, skillEffect) => {

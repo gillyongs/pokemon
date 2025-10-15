@@ -30,6 +30,7 @@ const Battle = () => {
   // 0130  갸라도스
   // 0145  썬더
   // 0149  망나뇽
+  // 0205   쏘콘
   // 0250  칠색조
   // 0382  가이오가
   // 0497  샤로다
@@ -62,7 +63,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["0145-1", "0645-1", "0901-1"], ["0497-1", "0901-1", "0901-1"]);
+      battleObject = createBattle(["0896-1", "0645-1", "0901-1"], ["0205-1", "0645-1", "0901-1"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);

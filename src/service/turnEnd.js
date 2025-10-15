@@ -151,10 +151,7 @@ export const turnEnd = (battle, enqueue) => {
   }
 
   if (fast.tempStatus.taunt === 0 && !fast.faint) {
-    // 선 도발 맞았으면 그 턴 포함 3턴 (추정)
-    // 후 도발 맞았으면 그 다음 턴부터 3턴 (이건 확실함)
-    // -> 카운트는 skillCheck에서 해야함
-    // 도발 풀리는건 턴 종료시 (반 확정) -> 풀리는건 turnEnd에서
+    // 도발 해제는 턴이 종료될때 실행된다 (연속 도발을 막기 위해서일듯 함)
     let wakeUpText = fast.names + " 도발의 효과가 풀렸다!";
     fast.tempStatus.taunt = null;
     enqueue({ battle: battle, text: wakeUpText });

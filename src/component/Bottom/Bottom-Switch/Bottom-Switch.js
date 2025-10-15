@@ -44,11 +44,9 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
       bt.uturn = null;
       switchPlayer(bt, index, queueObject.enqueue);
       queueObject.dequeue(); // "누구로 교체할까?"를 dequque를 막아놨기에 직접 해줘야함
-
       if (
-        bt.turn.fastUser === "npc" || // npc가 더 빠른 경우 = 이미 행동을 한 경우
-        bt.npc.faint || // npc가 유턴을 맞고 기절한 경우
-        bt.turn.fastUser === null // npc가 교체를 한 경우 = 이미 행동을 한 경우
+        bt.turn.fastActUser === "npc" || // npc가 더 빠른 경우 = 이미 행동을 한 경우
+        bt.npc.faint // npc가 유턴을 맞고 기절한 경우
       ) {
         turnEnd(bt, queueObject.enqueue);
       } else if (bt.turn.fastUser === "player") {

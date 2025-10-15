@@ -17,7 +17,7 @@ class Battle {
     this.npcBench2.team = "npc";
 
     this.turn = {
-      fastUser: null, // 선공 -> 기습 성공 여부에 필요
+      fastActUser: null, // 먼저 '행동'한 쪽. 교체도 포함한다. 기습과 방어 성공여부 체크에 사용.
       atkSN: null,
       defSN: null,
       atk: null, //battle[battle.turn.atk] = player or npc

@@ -52,7 +52,7 @@ export const applyOnHitEvents = (battle, enqueue) => {
   }
   if (defPokemon.abil === "정전기" && touch && !atkPokemon.faint) {
     if (random(30)) {
-      mabi(battle, battle.turn.atk, enqueue, true);
+      mabi(battle, battle.turn.atk, enqueue, null, true);
     }
   }
   if (defPokemon.item === "울퉁불퉁멧" && touch && !atkPokemon.faint) {

@@ -31,7 +31,8 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
 
   if (typeof actNumber === "string" && typeof npcActNumber === "string") {
     //맞교체
-    let fastUser = speedCheck(bt);
+    let fastUser = speedCheck(bt); // 우선도 없이 스피드만 체크
+    bt.turn.fastActUser = fastUser; // 기습, 방어 성공여부 떄문에 넣는다
     if (fastUser === "player") {
       switchPlayer(bt, actNumber, enqueue);
       switchNpc(bt, npcActNumber, enqueue);
@@ -44,6 +45,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     typeof actNumber === "string" &&
     typeof npcActNumber === "number"
   ) {
+    bt.turn.fastActUser = "player"; // 교체도 먼저 행동한 것으로 간주
     switchPlayer(bt, actNumber, enqueue);
     attackNpc(bt, actNumber, npcActNumber, enqueue);
   } else if (
@@ -51,6 +53,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     typeof npcActNumber === "string" &&
     typeof actNumber === "number"
   ) {
+    bt.turn.fastActUser = "npc"; // 교체도 먼저 행동한 것으로 간주
     switchNpc(bt, npcActNumber, enqueue);
     attackPlayer(bt, actNumber, npcActNumber, enqueue);
     if (uTurnTrigger) {
@@ -62,7 +65,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     typeof npcActNumber === "number"
   ) {
     let fastUser = skillSpeedCheck(bt);
-    bt.turn.fastUser = fastUser; //기습 사용조건때문에 넣는다
+    bt.turn.fastActUser = fastUser; //기습 사용조건때문에 넣는다
 
     if (fastUser === "player") {
       attackPlayer(bt, actNumber, npcActNumber, enqueue);
@@ -79,7 +82,11 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
       if (bt[bt.turn.def].faint !== true) {
         attackPlayer(bt, actNumber, npcActNumber, enqueue);
         if (uTurnTrigger) {
-          return;
+          if (!bt.npc.temp.protect) {
+            return;
+          }
+          //npc가 방어로 유턴을 막은 경우
+          //유턴이 실행되지 않았으므로 유턴 트리거 실행 x
         }
       }
     }

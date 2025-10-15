@@ -135,15 +135,33 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
   }
   // 기합의띠 트리거
-  const gdTrigger = defPokemon.item === "기합의띠" && defPokemon.hp === defPokemon.origin.hp;
+  let gdTrigger = defPokemon.item === "기합의띠";
+
+  // 옹골참 트리거
+  let ogcTrigger = defPokemon.abil === "옹골참" && atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈";
+
+  let noOneShot = defPokemon.hp === defPokemon.origin.hp && (gdTrigger || ogcTrigger);
+
+  let ogcTextTrigger = false;
+  let gdTextTrigger = false;
+
   // HP 차감
   const prevHp = defPokemon.hp;
   defPokemon.hp -= skDamage;
   if (defPokemon.hp <= 0) {
     actualGiveDamage = prevHp;
-    defPokemon.hp = gdTrigger ? 1 : 0;
-    if (gdTrigger) {
-      defPokemon.item = null;
+    defPokemon.hp = noOneShot ? 1 : 0;
+    if (noOneShot) {
+      if (ogcTrigger) {
+        // 옹골참
+        ogcTextTrigger = true;
+        // 옹골참 기띠가 동시에 있으면 옹골참이 먼저 쓰인다
+        // 기합의띠로 버텼다! 텍스트 안 뜨게 false 처리
+      } else if (gdTrigger) {
+        gdTextTrigger = true;
+        defPokemon.item = null;
+      }
+
       actualGiveDamage -= 1;
     }
   }
@@ -174,7 +192,12 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
   }
 
-  if (gdTrigger && defPokemon.item === null) {
+  if (ogcTextTrigger) {
+    enqueue({ battle, text: (commonText || "") + "[특성 옹골참] " + defPokemon.names + " 옹골참으로 버텼다!" });
+    defaultText = false;
+  }
+
+  if (gdTextTrigger) {
     enqueue({ battle, text: (commonText || "") + defPokemon.names + " 기합의 띠로 버텼다!" });
     defaultText = false;
   }
