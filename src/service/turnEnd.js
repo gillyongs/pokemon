@@ -46,10 +46,10 @@ export const turnEnd = (battle, enqueue) => {
     if (field === "그래스필드") {
       fieldEndText = "발밑의 풀이 사라졌다!";
       const text = "의 체력이 회복되었다!";
-      if (fast.hp < fast.origin.hp && !fast.faint && flyingCheck(battle, fast)) {
+      if (fast.hp < fast.origin.hp && !fast.faint && !flyingCheck(battle, fast)) {
         recover(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, "[그래스필드] " + fast.name + text);
       }
-      if (slow.hp < slow.origin.hp && !slow.faint && flyingCheck(battle, slow)) {
+      if (slow.hp < slow.origin.hp && !slow.faint && !flyingCheck(battle, slow)) {
         recover(battle, Math.floor(slow.origin.hp / 16), slowUser, enqueue, "[그래스필드] " + slow.name + text);
       }
     }
@@ -83,11 +83,21 @@ export const turnEnd = (battle, enqueue) => {
     recover(battle, Math.floor(seedDamage), fastUser, enqueue, "씨뿌리기가 " + slow.name + "의 체력을 빼앗는다!");
   }
 
+  // 상태이상 데미지 부여 ============================================================================================
+
   if (fast.status.poison && !fast.faint) {
     damage(battle, Math.floor(fast.origin.hp / 8), fastUser, enqueue, fast.names + " 독에 의한 데미지를 입었다!");
   }
   if (slow.status.poison && !slow.faint) {
     damage(battle, Math.floor(slow.origin.hp / 8), slowUser, enqueue, slow.names + " 독에 의한 데미지를 입었다!");
+  }
+  if (fast.status.mpoison && !fast.faint) {
+    damage(battle, Math.floor((fast.origin.hp * fast.status.mpoison) / 16), fastUser, enqueue, fast.names + " 독에 의한 데미지를 입었다!");
+    fast.status.mpoison += 1;
+  }
+  if (slow.status.mpoison && !slow.faint) {
+    damage(battle, Math.floor((slow.origin.hp * slow.status.mpoison) / 16), slowUser, enqueue, slow.names + " 독에 의한 데미지를 입었다!");
+    slow.status.mpoison += 1;
   }
   if (fast.status.burn && !fast.faint) {
     damage(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, fast.names + " 화상 데미지를 입었다!");

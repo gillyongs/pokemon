@@ -64,6 +64,8 @@ export const burn = (battle, get, enqueue, ball) => {
   });
 };
 export const poison = (battle, get, enqueue) => {
+  //스킬 부가효과, 독압정에서 사용
+  //데미지 부여는 turnEnd에서
   let pokemon;
   if (get === "player") {
     pokemon = battle.player;
@@ -82,6 +84,33 @@ export const poison = (battle, get, enqueue) => {
   }
   let poisonText = pokemon.name + "의 몸에 독이 퍼졌다!";
   pokemon.status.poison = true;
+  enqueue({
+    battle: battle,
+    text: poisonText,
+  });
+};
+//맹독
+export const mPoison = (battle, get, enqueue) => {
+  //독압정에서 사용
+  //데미지 부여는 turnEnd에서
+  let pokemon;
+  if (get === "player") {
+    pokemon = battle.player;
+  } else if (get === "npc") {
+    pokemon = battle.npc;
+  }
+  if (pokemon.type1 === "독" || pokemon.type2 === "독" || pokemon.type1 === "강철" || pokemon.type2 === "강철") {
+    return;
+  }
+  if (statusCheck(pokemon.status)) {
+    //이미 걸린 상태이상이 있는지 체크
+    return;
+  }
+  if (faintCheck(pokemon)) {
+    return;
+  }
+  let poisonText = pokemon.name + "의 몸에 맹독이 퍼졌다!";
+  pokemon.status.mpoison = 1;
   enqueue({
     battle: battle,
     text: poisonText,

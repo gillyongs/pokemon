@@ -140,7 +140,7 @@ const statusMap = {
   freeze: "skyblue",
   mabi: "rgb(158, 156, 42)",
   poison: "purple",
-  mpoison: "darkpurple",
+  mpoison: "rgba(83, 14, 99, 1)",
 };
 
 const statusKor = {

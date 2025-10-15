@@ -22,6 +22,10 @@ export const switchPokemon = (battle, IN, OUT) => {
     const hp = pokemonIn.origin.hp;
     recoverNoText(battle, Math.floor(hp / 3), pokemonIn);
   }
+  if (pokemonIn.status.mpoison && pokemonIn.status.mpoison > 1) {
+    pokemonIn.status.mpoison = 1;
+    //맹독 스탯 초기화
+  }
 
   const ts = pokemonIn.tempStatus;
 
@@ -34,9 +38,10 @@ export const switchPokemon = (battle, IN, OUT) => {
       });
     }
   });
+  // 리베로 타입 초기화
   pokemonIn.type1 = pokemonIn.origin.type1;
   pokemonIn.type2 = pokemonIn.origin.type2;
-  // 리베로 타입 초기화
+
   statCalculate(battle);
 
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];

@@ -1,5 +1,6 @@
 import { switchPokemon } from "../util/switchPokemon";
 import { abil } from "./abil";
+import { floorCheck } from "./floorCheck";
 
 export const switchPlayer = (battle, actNumber, enqueue) => {
   // 플레이어 교체
@@ -16,6 +17,7 @@ export const switchPlayer = (battle, actNumber, enqueue) => {
     text: "가랏! " + battle.player.origin.name + "!",
   });
   abil(battle, "player", enqueue);
+  floorCheck(battle, "player", enqueue);
 };
 
 export const switchPlayerForce = (battle, actNumber, enqueue) => {
@@ -25,6 +27,7 @@ export const switchPlayerForce = (battle, actNumber, enqueue) => {
     text: battle.player.origin.names + " 배틀에 끌려나왔다!",
   });
   abil(battle, "player", enqueue);
+  floorCheck(battle, "player", enqueue);
 };
 
 export const switchNpc = (battle, actNumber, enqueue, force) => {
@@ -52,4 +55,5 @@ export const switchNpc = (battle, actNumber, enqueue, force) => {
     });
   }
   abil(battle, "npc", enqueue);
+  floorCheck(battle, "npc", enqueue);
 };

@@ -27,8 +27,7 @@ const INFO = styled.div`
   height: 13.5vh;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 15px;
-  ${({ type }) =>
-    type === "npc" ? "top: 3vh; left: 3vw;" : "bottom: 3vh; right: 3vw;"}
+  ${({ type }) => (type === "npc" ? "top: 3vh; left: 3vw;" : "bottom: 3vh; right: 3vw;")}
 `;
 
 const NAME = styled.div`
@@ -56,7 +55,7 @@ const statusMap = {
   freeze: "skyblue",
   mabi: "rgb(158, 156, 42)",
   poison: "purple",
-  mpoison: "darkpurple",
+  mpoison: "rgba(83, 14, 99, 1)",
 };
 
 const statusKor = {

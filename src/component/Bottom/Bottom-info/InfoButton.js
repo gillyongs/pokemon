@@ -86,9 +86,9 @@ const InfoButton = ({ pokemon, type, setText }) => {
         statusText = "얼음";
       } else if (pokemon.status.mabi) {
         statusText = "마비";
-      } else if (pokemon.status.posion) {
+      } else if (pokemon.status.poison) {
         statusText = "독";
-      } else if (pokemon.status.mposion) {
+      } else if (pokemon.status.mpoison) {
         statusText = "맹독";
       } else if (pokemon.status.sleep) {
         statusText = "잠듦";

@@ -18,7 +18,7 @@ class PokemonOnBattle {
     this.speed = pokemon.speed;
     this.noRankStat = {
       //랭크업만을 제외한 스탯
-      //origin과 달리 아이템(돌조,스카프) 특성(파이젠) 등을 반영한다
+      //origin과 달리 아이템(돌조,스카프) 특성(파오젠) 등을 반영한다
       atk: pokemon.atk,
       def: pokemon.def,
       catk: pokemon.catk,

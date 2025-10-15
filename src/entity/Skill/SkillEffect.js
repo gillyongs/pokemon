@@ -278,6 +278,41 @@ function skillEffectSearch(name) {
       }
     },
 
+    독압정: (battle, enqueue, skillEffect) => {
+      const def = battle.turn.def;
+      const field = battle.field[def];
+      if (!field.poisonSpikes) {
+        field.poisonSpikes = 1; // 독압정
+        let sRockText;
+        if (def === "npc") {
+          sRockText = "상대의 발밑에 독압정이 뿌려졌다!";
+        } else {
+          sRockText = "아군의 발밑에 독압정이 뿌려졌다!";
+        }
+        enqueue({
+          battle,
+          text: sRockText,
+        });
+      } else if (field.poisonSpikes === 1) {
+        field.poisonSpikes = 2; // 맹독압정
+        let sRockText;
+        if (def === "npc") {
+          sRockText = "상대의 발밑에 맹독압정이 뿌려졌다!";
+        } else {
+          sRockText = "아군의 발밑에 맹독압정이 뿌려졌다!";
+        }
+        enqueue({
+          battle,
+          text: sRockText,
+        });
+      } else {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+      }
+    },
+
     강제교체: (battle, enqueue, skillEffect) => {
       if (battle.turn.atk === "player") {
         // 플레이어가 강제교체 시 NPC가 교체됨
@@ -381,6 +416,20 @@ function skillEffectSearch(name) {
         atkPokemon.tempStatus.substitute = true;
         atkPokemon.tempStatus.substituteHp = needHp;
         damage(battle, needHp, battle.turn.atk, enqueue, atkPokemon.name + "의 대타가 나타났다!");
+      }
+    },
+
+    스핀: (battle, enqueue, skillEffect) => {
+      const def = battle[battle.turn.def];
+      const atk = battle[battle.turn.atk];
+      const field = battle.field[battle.turn.atk];
+      Object.keys(field).forEach((key) => {
+        //장판 제거
+        field[key] = null;
+      });
+      if (atk.tempStatus.seed) {
+        //씨뿌리기 제거
+        atk.tempStatus.seed = null;
       }
     },
   };

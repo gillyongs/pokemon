@@ -37,9 +37,13 @@ class Battle {
       //공간변화는 중첩가능
       player: {
         sRock: null, //스텔스록
+        spikes: null, // 압정뿌리기
+        poisonSpikes: null, // 독압정 (1 = 독, 2 = 맹독)
       },
       npc: {
-        sRock: null,
+        sRock: null, //스텔스록
+        spikes: null, // 압정뿌리기
+        poisonSpikes: null, // 독압정 (1 = 독, 2 = 맹독)
       },
     };
 

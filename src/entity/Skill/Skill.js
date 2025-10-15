@@ -156,6 +156,11 @@ class SkillList {
         "atk", null, "크로스플레임과 동시에 사용하면 데미지가 2배가 된다.",
         [],{}),
 
+      new Skill("파워젬", "바위", 
+        80, 100, 20, 0, 
+        "catk", null, "보석처럼 반짝이는 빛을 발사하여 상대를 공격한다.",
+        [],{}),
+
       new Skill("오물웨이브", "독", 
         95, 100, 10, 0, 
         "catk", null, 
@@ -473,6 +478,12 @@ class SkillList {
         [{name: "스텔스록"}],{}),    
       //방어에 안막히니까 buf 맞음
 
+      new Skill("독압정", "독", 
+        "-", "-", 20, 0,  
+        "buf", null, 
+        "상대의 발밑에 독 압정을 뿌려 교체로 나온 상대 포켓몬에게 독을 퍼지게 한다. 2번 깔았을 경우 맹독을 퍼지게 한다.",
+        [{name: "독압정"}],{}),    
+
       new Skill("날려버리기", "노말", 
         "-", "-", 20, -6,  
         "buf", null, 
@@ -611,6 +622,10 @@ class SkillList {
         [{ name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 },
           { name: "능력치증감", probability: 100, abil: "def", target: "atk", value: -1 }
         ], {twoFive:true}),
+      new Skill("킬러스핀", "독", 
+        30, 100, 15, 0, 
+        "atk", null, "상대를 독 상태로 만들고 아군의 필드 및 교체불가, 씨뿌리기 효과를 제거한다",
+        [{ name: "독", probability: 100 }, {name:"스핀"}],{}),
     ];
   }
   // ID로 객체 찾기

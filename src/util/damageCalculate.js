@@ -119,7 +119,7 @@ export const damageCalculate = (battle) => {
 
   const field = battle.field.field;
   if (field !== null) {
-    if (flyingCheck(battle, attackPokemon)) {
+    if (!flyingCheck(battle, attackPokemon)) {
       if (field === "그래스필드" && sk.type === "풀") {
         damage *= 1.3;
         attackPokemon.log.damage1 += " * 1.3 (그래스필드+풀)";
@@ -279,7 +279,7 @@ const powerCalculate = (battle, skill) => {
     // 체력비례 데미지
     power = (power * atk.hp) / atk.origin.hp;
   }
-  if (skill.name === "객기" && (atk.status.burn || atk.status.mabi || atk.status.poision || atk.status.mpoision)) {
+  if (skill.name === "객기" && (atk.status.burn || atk.status.mabi || atk.status.poison || atk.status.mpoison)) {
     //화상, 독, 마비일때 위력 2배
     power *= 2;
   }

@@ -50,7 +50,7 @@ export const statCalculate = (battle) => {
 
     // 특성 ===========================================================================
 
-    if (entity.abil === "근성" && (entity.status.burn || entity.status.mabi || entity.status.poision || entity.status.mpoision)) {
+    if (entity.abil === "근성" && (entity.status.burn || entity.status.mabi || entity.status.poison || entity.status.mpoison)) {
       entity.atk *= 1.5;
       entity.noRankStat.atk *= 1.5;
       entity.log.stat.atk += " * 1.5 (근성)";
