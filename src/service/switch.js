@@ -1,6 +1,6 @@
-import { switchPokemon } from "../util/switchPokemon";
-import { abil } from "./abil";
-import { floorCheck } from "./floorCheck";
+import { switchPokemon } from "../function/switchPokemon";
+import { applyAbilityEffects } from "./abil";
+import { applyFieldEffects } from "./field";
 
 export const switchPlayer = (battle, actNumber, enqueue) => {
   // 플레이어 교체
@@ -16,8 +16,8 @@ export const switchPlayer = (battle, actNumber, enqueue) => {
     battle,
     text: "가랏! " + battle.player.origin.name + "!",
   });
-  abil(battle, "player", enqueue);
-  floorCheck(battle, "player", enqueue);
+  applyAbilityEffects(battle, "player", enqueue);
+  applyFieldEffects(battle, "player", enqueue);
 };
 
 export const switchPlayerForce = (battle, actNumber, enqueue) => {
@@ -26,8 +26,8 @@ export const switchPlayerForce = (battle, actNumber, enqueue) => {
     battle,
     text: battle.player.origin.names + " 배틀에 끌려나왔다!",
   });
-  abil(battle, "player", enqueue);
-  floorCheck(battle, "player", enqueue);
+  applyAbilityEffects(battle, "player", enqueue);
+  applyFieldEffects(battle, "player", enqueue);
 };
 
 export const switchNpc = (battle, actNumber, enqueue, force) => {
@@ -54,6 +54,6 @@ export const switchNpc = (battle, actNumber, enqueue, force) => {
       text: "상대는 " + battle.npc.origin.namess + " 내보냈다!",
     });
   }
-  abil(battle, "npc", enqueue);
-  floorCheck(battle, "npc", enqueue);
+  applyAbilityEffects(battle, "npc", enqueue);
+  applyFieldEffects(battle, "npc", enqueue);
 };

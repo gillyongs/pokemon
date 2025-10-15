@@ -2,7 +2,7 @@ import { rank } from "../function/rank";
 import { damage } from "../function/damage";
 import { typeCheck } from "../util/typeCheck";
 import { statCalculate } from "../function/statCalculate";
-export const abil = (bt, atks, enqueue) => {
+export const applyAbilityEffects = (bt, atks, enqueue) => {
   //특성 발동
   //배틀이 시작될때, 교체해서 나올때 발동
   //전자는 battleScrren.js에 useEffect

@@ -3,7 +3,7 @@ import styled, { createGlobalStyle } from "styled-components";
 import "./Main.css";
 import { createBattle } from "../entity/Battle";
 import { useQueue } from "../util/useQueue";
-import { abil } from "../service/abil";
+import { applyAbilityEffects } from "../service/abil";
 
 import PokemonInfo from "../component/Top/PokemonInfo";
 import PokemonImage from "../component/Top/PokemonImage";
@@ -68,8 +68,8 @@ const Battle = () => {
     const fastUser = speedCheck(battleObject);
     const slowUser = fastUser === "player" ? "npc" : "player";
     let bt = structuredClone(battleObject);
-    abil(bt, fastUser, queueObject.enqueue);
-    abil(bt, slowUser, queueObject.enqueue);
+    applyAbilityEffects(bt, fastUser, queueObject.enqueue);
+    applyAbilityEffects(bt, slowUser, queueObject.enqueue);
 
     if (queueObject.queue.length === 0) {
       setText(battleObject.player.origin.names + " 무엇을 할까?");

@@ -2,9 +2,9 @@ import { rank } from "../function/rank";
 import { damage } from "../function/damage";
 import { typeCheck } from "../util/typeCheck";
 import { statCalculate } from "../function/statCalculate";
-import { poison, mPoison } from "../function/statusError";
+import { poison, mPoison } from "../function/statusCondition";
 import { flyingCheck } from "../util/flyingCheck";
-export const floorCheck = (bt, atks, enqueue) => {
+export const applyFieldEffects = (bt, atks, enqueue) => {
   //교체해서 나올때 장판(스텔스록, 독압정) 체크
   //switch.js에서 호출
 

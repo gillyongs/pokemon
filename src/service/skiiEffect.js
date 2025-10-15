@@ -47,5 +47,3 @@ export const skillEffectsAfter = (bt, enqueue) => {
     });
   }
 };
-
-export const skillEffectsBefore = (bt, enqueue) => {};

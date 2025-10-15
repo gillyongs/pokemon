@@ -2,7 +2,7 @@ import { damage } from "../function/damage";
 import { switchNpc } from "./switch";
 import { recover } from "../function/recover";
 import { speedCheck } from "../util/speedCheck";
-import { burn, mabi, poison, freeze, sleep } from "../function/statusError";
+import { burn, mabi, poison, freeze, sleep } from "../function/statusCondition";
 import { flyingCheck } from "../util/flyingCheck";
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음

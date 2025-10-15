@@ -2,7 +2,7 @@ import { damage } from "../../function/damage";
 import { random } from "../../util/randomCheck";
 import { rank } from "../../function/rank";
 import { recover } from "../../function/recover";
-import { burn, mabi, poison, freeze } from "../../function/statusError";
+import { burn, mabi, poison, freeze } from "../../function/statusCondition";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchPlayerForce } from "../../service/switch";
