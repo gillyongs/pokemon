@@ -2,7 +2,7 @@ import { damage } from "../function/damage";
 import { switchNpc } from "./switch";
 import { recover } from "../function/recover";
 import { speedCheck } from "../util/speedCheck";
-import { burn, mabi, poison, freeze, sleep } from "../function/statusCondition";
+import { burn, mabi, poison, freeze, sleep, confuse } from "../function/statusCondition";
 import { flyingCheck } from "../util/flyingCheck";
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
@@ -128,10 +128,8 @@ export const turnEnd = (battle, enqueue) => {
   if (slow.tempStatus.hapum === 1 && !slow.faint) {
     slow.tempStatus.hapum = 0;
   }
-  const getConfuseTurn = () => {
-    return Math.floor(Math.random() * 4) + 1;
-  };
 
+  let autoConfuseText = fast.names + " 몹시 지쳐서 혼란에 빠졌다!";
   if (fast.auto !== null && !fast.faint) {
     //역린 등 자동행동
     fast.auto -= 1;
@@ -139,11 +137,7 @@ export const turnEnd = (battle, enqueue) => {
     if (fast.auto === 0) {
       fast.auto = null;
       fast.autoSN = null;
-      if (fast.tempStatus.confuse === null) {
-        fast.tempStatus.confuse = true;
-        fast.tempStatus.confuseTurnRemain = getConfuseTurn();
-        enqueue({ battle, text: fast.names + " 몹시 지쳐서 혼란에 빠졌다!" });
-      }
+      confuse(battle, fastUser, enqueue, autoConfuseText);
     }
   }
 
@@ -152,11 +146,7 @@ export const turnEnd = (battle, enqueue) => {
     if (slow.auto === 0) {
       slow.auto = null;
       slow.autoSN = null;
-      if (slow.tempStatus.confuse === null) {
-        slow.tempStatus.confuse = true;
-        slow.tempStatus.confuseTurnRemain = getConfuseTurn();
-        enqueue({ battle, text: slow.names + " 몹시 지쳐서 혼란에 빠졌다!" });
-      }
+      confuse(battle, slowUser, enqueue, autoConfuseText);
     }
   }
 

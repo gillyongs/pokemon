@@ -14,7 +14,8 @@ export const skillUse = (bt, enqueue) => {
 
   if (beforeSkillCheck(bt, enqueue) === false) {
     // 스킬명이 뜨기 전에 처리하는 트리거
-    //풀죽음, 마비, 혼란, 잠듦, 선도발
+    // 아직 스킬을 사용하지 않았으므로 pp가 소모되지 않는다
+    // 풀죽음, 마비, 혼란, 잠듦, 선도발
     handleAutoFail(bt);
     return;
   }
@@ -73,7 +74,7 @@ export const skillUse = (bt, enqueue) => {
     let typeText = typeCheckText(typeDamage);
 
     if (typeDamage === 0) {
-      atk.temp.miss = true;
+      atk.temp.jumpKickFail = true;
       const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
       enqueue({ battle: bt, text: typeText });
       handleAutoFail(bt);
@@ -91,11 +92,6 @@ export const skillUse = (bt, enqueue) => {
       }
       for (let i = 1; i <= num; i++) {
         attackDamage(bt, skillDamage, bt.turn.def, enqueue, null, { num: i, first: i === 1, last: i === num });
-        if (i !== num) {
-          applySkillEffectSerial(bt, enqueue, [{ name: "연격" }]);
-          // 매 타격마다 발생하는 이벤트 모음 -> 철가시, 울맷, 정전기
-          // 마지막 타격에만 터지는 효과가 존재하므로 마지막은 따로 적용 (ex: 생구 반동)
-        }
         if (def.faint) {
           break;
           // 상대 기절하면 연속기 종료
@@ -128,8 +124,8 @@ export const skillUse = (bt, enqueue) => {
       return;
     }
     const noSubstitueSkills = ["앵콜", "도발", "저주", "흑안개", "날려버리기"];
-    // 대타출동으로 막을 수 없는 스킬
-    // 트릭, 하품, 전기자석파 등은 실패한다
+    // 대타출동으로 막을 수 없는 상대방 대상 변화기 (natk)
+    // 트릭, 하품, 뽐내기, 전기자석파 등은 실패한다
 
     if (!noSubstitueSkills.includes(sk.name) && bt[bt.turn.def].tempStatus.substitute) {
       enqueue({ battle: bt, text: "하지만 실패했다!" });

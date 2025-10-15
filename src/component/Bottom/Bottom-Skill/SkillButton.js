@@ -52,7 +52,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => 
     // 구애 시리즈로 인해 사용 가능한 스킬이 고정된 경우
     const { onlySkill } = player.tempStatus;
     if (onlySkill && player.item?.startsWith("구애") && onlySkill !== sk.name) {
-      return reject("아이템 효과로 인해 해당 스킬은 사용할 수 없다!");
+      return reject(player.item + " 효과로 인해 해당 스킬은 사용할 수 없다!");
     }
 
     // 연속 사용 불가 스킬 (ex: 블러드문)
@@ -65,6 +65,12 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => 
     const tauntActive = player.tempStatus.taunt !== null;
     if (tauntActive && (sk.stype === "natk" || sk.stype === "buf")) {
       return reject("도발 때문에 해당 스킬은 사용할 수 없다!");
+    }
+
+    // 돌조 입고 변화기 사용
+    const dolJo = player.item === "돌격조끼";
+    if (dolJo && (sk.stype === "natk" || sk.stype === "buf")) {
+      return reject("돌격조끼 때문에 해당 스킬은 사용할 수 없다!");
     }
 
     // 모든 조건 통과 시 전투 시작

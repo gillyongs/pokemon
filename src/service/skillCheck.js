@@ -9,10 +9,11 @@ export const beforeSkillCheck = (bt, enqueue) => {
   //풀죽음, 마비, 혼란, 잠듦, 도발
 
   const atk = bt[bt.turn.atk];
+  const useSkill = atk.origin["sk" + bt.turn.atkSN];
 
   if (atk.tempStatus.taunt > 0) {
-    //선 도발 맞으면 그 턴 포함 3턴 (추정)
-    //후 도발 맞으면 그 다음턴부터 3턴 (확정)
+    //선 도발 맞으면 그 턴 포함 3턴
+    //후 도발 맞으면 그 다음턴부터 3턴
     //풀죽음이나 상태이상으로 행동 못해도 턴은 지나갈 것 같음 (추정)
     //선도발로 변화기 막히는건 밑에서 처리
     //도발 풀리는건 turnEnd에서 처리
@@ -44,7 +45,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
   }
 
   if (atk.status.freeze !== null) {
-    if (random(80)) {
+    if (random(80) && useSkill.type !== "불꽃") {
       let freezeText = atk.names + " 얼어버려서 움직일 수 없다!";
       enqueue({ battle: bt, text: freezeText });
       return false;
@@ -63,19 +64,16 @@ export const beforeSkillCheck = (bt, enqueue) => {
     }
   }
 
-  if (atk.tempStatus.confuseTurnRemain === 0) {
+  if (atk.tempStatus.confuse === 0) {
     //혼란은 행동 기준이므로 상태이상이나 풀죽음으로 막히면 턴 수 계산 x
     let confuseText = atk.name + " 의 혼란이 풀렸다!";
-    atk.tempStatus.confuseTurnRemain = null;
     atk.tempStatus.confuse = null;
     enqueue({ battle: bt, text: confuseText });
-  } else if (atk.tempStatus.confuse != null) {
-    if (typeof atk.tempStatus.confuseTurnRemain !== "number") {
-      console.error("confuseTurnRemain is not a number", atk.tempStatus.confuseTurnRemain);
-    }
+  } else if (atk.tempStatus.confuse && atk.tempStatus.confuse > 0) {
     enqueue({ battle: bt, text: atk.names + " 혼란에 빠져있다!" });
-    atk.tempStatus.confuseTurnRemain -= 1;
+    atk.tempStatus.confuse -= 1;
     if (random(33)) {
+      //상대방이 패널티로 기절해도 혼란 자해는 가능하다
       let confuseText = atk.names + " 영문도 모른 채 자신을 공격했다!";
       attackDamage(bt, confuseDamageCalculate(bt), bt.turn.atk, enqueue, confuseText);
       return false;
@@ -84,7 +82,6 @@ export const beforeSkillCheck = (bt, enqueue) => {
 
   //상대 선도발을 맞은 경우
   if (atk.tempStatus.taunt !== null) {
-    const useSkill = atk.origin["sk" + bt.turn.atkSN];
     if (useSkill.stype === "buf" || useSkill.stype === "natk") {
       enqueue({ battle: bt, text: atk.names + " 도발당한 상태라서 " + josa(`${useSkill.name}#{를} `) + "쓸 수 없다!" });
       return false;
@@ -98,6 +95,7 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 스킬명이 뜬 다음에 처리하는 트리거
   // 사용조건체크(ex 기습), 상대방 기절 여부, 명중
   // 리베로는 실패해도 발동되기에 타이밍상 여기
+
   const skillNumber = bt.turn.atkSN;
   const skKey = `sk${skillNumber}`;
   const atk = bt[bt.turn.atk];
@@ -135,32 +133,36 @@ export const afterSkillCheck = (bt, enqueue) => {
     return false;
   }
 
-  if (def.faint === true && sk.name === "날려버리기") {
-    //날려버리기는 방어에 막히지 않아서 buf인데
-    //상대방 기절시 강제 교체 시키는지 실패하는지 모르겠음
-    //일단 실패하게 해놓음
-    enqueue({ battle: bt, text: "하지만 실패했다!" });
-    return false;
-  }
+  const noProtectSkills = ["날려버리기"]; // 방어로 막을 수 없는 스킬
 
   if (def.temp.protect === true && skillType !== "buf") {
-    if (atk.abil === "보이지않는주먹" && sk.feature?.touch && atk.item !== "펀치1글러브") {
+    let protectSuccess = true;
+    if (atk.abil === "보이지않는주먹" && sk.feature?.touch && atk.item !== "펀치글러브") {
       //특성 보이지않는 주먹 : 접촉기가 방어를 무시한다
       //펀치글러브를 끼면 해당 특성 적용 안됨
       enqueue({ battle: bt, text: "[특성 보이지않는주먹] " + atk.name + "의 공격은 막을 수 없다!" });
-    } else {
+      protectSuccess = false;
+    }
+
+    if (noProtectSkills.includes(sk.name)) {
+      protectSuccess = false;
+    }
+
+    if (protectSuccess) {
       //방어로 막은 경우
+      atk.temp.jumpKickFail = true;
       enqueue({ battle: bt, text: def.names + " 공격으로부터 몸을 지켰다!" });
       return false;
     }
   }
 
   let accurCheck = random(atk.origin[skKey].accur, true);
+  //필중기는 random 안에서 처리
   if (sk.name === "번개" && bt.field.weather === "비") {
     accurCheck = true;
   }
   if (!accurCheck && skillType !== "buf") {
-    atk.temp.miss = true;
+    atk.temp.jumpKickFail = true;
     enqueue({ battle: bt, text: "하지만 빗나갔다!" });
     return false;
   }

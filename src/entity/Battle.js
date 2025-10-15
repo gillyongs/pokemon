@@ -17,7 +17,7 @@ class Battle {
     this.npcBench2.team = "npc";
 
     this.turn = {
-      fastUser: null, //기습 조건 체크
+      fastUser: null, // 선공 -> 기습 성공 여부에 필요
       atkSN: null,
       defSN: null,
       atk: null, //battle[battle.turn.atk] = player or npc

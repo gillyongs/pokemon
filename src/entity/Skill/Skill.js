@@ -11,8 +11,8 @@ class Skill {
     this.pp = ppp;
     this.prior = prior;
     this.stype = stype; //atk = 물리공격, catk = 특수공격, natk = 상대방 대상 변화기, buf = 자신 대상 변화기
-    // 방어에 막히면 natk 아니면 buf. 
-    // 상대방이 기절했을때 실패하면 natk 써지면 buf -> 이 경우 날려버리기가 좀 애매함 (방어에 안막힘)
+    // natk = 상대방이 기절하면 실패, buf = 상대방이 기절해도 성공
+    // 방어 가능 여부와 판정이 비슷하나 날려버리기는 방어를 뚫는다
     this.skillEffectList = skillEffectList;
     this.skillEffectList.unshift({ name: "공통" });
     this.skillRequirement = skillRequirement;
@@ -111,7 +111,7 @@ class SkillList {
         120, 100, 5, 0, 
         "atk", null, 
         "10%의 확률로 상대를 화상 상태로 만든다.", 
-        [{ name: "화상", probability: 10 }, { name: "얼음치료" }], {}),
+        [{ name: "화상", probability: 10 }], {}),
 
       new Skill("무릎차기", "격투", 
         130, 90, 10, 0, 
@@ -402,7 +402,7 @@ class SkillList {
         100, 95, 5, 0,  
         "atk", null, 
         "50%의 확률로 상대를 화상 상태로 만든다.", 
-        [{ name: "화상", probability: 50 }, { name: "얼음치료" }]),
+        [{ name: "화상", probability: 50 }]),
 
       new Skill("지진", "땅", 
         100, 100, 10, 0,  
@@ -476,7 +476,6 @@ class SkillList {
         "buf", null, 
         "상대의 주위에 바위를 띄워 교체되어 나온 상대 포켓몬에게 데미지를 준다.",
         [{name: "스텔스록"}],{}),    
-      //방어에 안막히니까 buf 맞음
 
       new Skill("독압정", "독", 
         "-", "-", 20, 0,  
@@ -486,10 +485,9 @@ class SkillList {
 
       new Skill("날려버리기", "노말", 
         "-", "-", 20, -6,  
-        "buf", null, 
+        "natk", null, 
         "상대를 날려버려서 교대할 포켓몬을 끌어낸다. (우선도 -6)",
         [{name: "강제교체"}],{}),    
-      //방어에 안막힘. 왜 안막히지
 
       new Skill("악의파동", "악",
         80, 100, 15, 0, 

@@ -20,6 +20,7 @@ const doRecover = (battle, recoverValue, recoveredPokemon, { enqueue, text, sile
     if (!silent && enqueue) {
       if (text && text.includes("씨뿌리기")) {
         enqueue({ battle, text });
+        //씨뿌리기 -> 풀피여도 텍스트는 떠야함
       } else {
         enqueue({ battle, text: "더 이상 회복할 수 없다!" });
       }

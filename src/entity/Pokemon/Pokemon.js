@@ -47,7 +47,7 @@ class PokemonOnBattle {
       // 매 턴 초기화
       // turnEnd.js에서 초기화된다
       fullDeath: null, //풀죽음
-      miss: null, // 이번턴 명중 여부 -> 무릎차기
+      jumpKickFail: null, // 무릎차기 실패 여부 -> 1.빗나감 2.방어 3.상성(고스트)
       roost: null, //날개쉬기
       critical: null, //이번 턴 급소 여부 아 근데 이거 다단히트 생기면 바꿔야하는데
       recentDamageGive: null, // 최근 준 데미지 -> 반동, 흡혈 계산에 사용
@@ -67,12 +67,11 @@ class PokemonOnBattle {
         critical: 0,
       },
       confuse: null,
-      confuseTurnRemain: null, // 별개로 skillUseCheck에서 혼란 턴 끝나면 초기화된다
       onlySkill: null, // 스카프 등 고정된 스킬
       recentSkillUse: null, // 최근 사용 스킬 -> 연속사용불가스킬 (블러드문) 체크에 사용.
       recentSkillGet: null,
       hapum: null, //하품
-      protectUse: null, //방어 연속 사용 횟수 -> 방어 성공률 계산
+      protectUse: null, //방어 연속 사용 횟수 -> 방어 성공률 계산에 사용
       taunt: null, //도발
       protosynthesis: null, //고대활성
       seed: null, //씨뿌리기

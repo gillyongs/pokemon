@@ -16,7 +16,6 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   Object.keys(bt.turn).forEach((key) => {
     bt.turn[key] = null;
   });
-  // turnEnd 같은 프로퍼티도 있어서 턴이 시작할때 초기화해야함
 
   bt.turn.playerSN = actNumber;
   bt.turn.npcSN = npcActNumber;

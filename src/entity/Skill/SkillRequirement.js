@@ -4,8 +4,7 @@ function skillRequirementSearch(name) {
       if (battle.turn.atk !== battle.turn.fastUser) {
         return false;
       }
-      const stype =
-        battle[battle.turn.def].origin["sk" + battle.turn.defSN].stype;
+      const stype = battle[battle.turn.def].origin["sk" + battle.turn.defSN].stype;
       if (stype !== "atk" && stype !== "catk") {
         return false;
       }

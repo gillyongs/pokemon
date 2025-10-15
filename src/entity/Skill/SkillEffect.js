@@ -2,7 +2,7 @@ import { damage } from "../../function/damage";
 import { random } from "../../util/randomCheck";
 import { rank } from "../../function/rank";
 import { recover } from "../../function/recover";
-import { burn, mabi, poison, freeze } from "../../function/statusCondition";
+import { burn, mabi, poison, freeze, confuse } from "../../function/statusCondition";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchPlayerForce } from "../../service/switch";
@@ -13,43 +13,22 @@ function skillEffectSearch(name) {
       let atk = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
       let sk = atk.origin["sk" + battle.turn.atkSN];
-      let touch = sk.feature.touch;
-      if (sk.feature.punch && atk.item === "펀치글러브") {
-        touch = false;
-      }
       if (atk.item === "생명의구슬" && !atk.faint) {
         if (sk.stype === "atk" || sk.stype === "catk") {
           const text = atk.name + "의 생명이 조금 깎였다!";
-          damage(battle, atk.origin.hp / 10, battle.turn.atk, enqueue, text);
+          damage(battle, atk.origin.hp, battle.turn.atk, enqueue, text);
         }
       }
-      if (def.abil === "정전기" && touch && !atk.faint) {
-        if (random(30)) {
-          mabi(battle, battle.turn.atk, enqueue, true);
+      if (def.status.freeze && !def.faint) {
+        const meltSkills = ["열탕", "스팀버스트", "열사의대지", "휘적휘적포"];
+        if (sk.type === "불꽃" || meltSkills.includes(sk.name)) {
+          let freezeCureText = def.name + "의 얼음이 녹았다!";
+          def.status.freeze = null;
+          enqueue({
+            battle: battle,
+            text: freezeCureText,
+          });
         }
-      }
-      if (def.item === "울퉁불퉁멧" && touch && !atk.faint) {
-        const text = atk.names + " 울퉁불퉁멧 때문에 데미지를 입었다!";
-        damage(battle, atk.origin.hp / 6, battle.turn.atk, enqueue, text);
-      }
-    },
-
-    연격: (battle, enqueue, skillEffect) => {
-      let atk = battle[battle.turn.atk];
-      let def = battle[battle.turn.def];
-      let sk = atk.origin["sk" + battle.turn.atkSN];
-      let touch = sk.feature.touch;
-      if (sk.feature.punch && atk.item === "펀치글러브") {
-        touch = false;
-      }
-      if (def.abil === "정전기" && touch && !atk.faint) {
-        if (random(30)) {
-          mabi(battle, battle.turn.atk, enqueue, true);
-        }
-      }
-      if (def.item === "울퉁불퉁멧" && touch && !atk.faint) {
-        const text = atk.names + " 울퉁불퉁멧 때문에 데미지를 입었다!";
-        damage(battle, atk.origin.hp / 6, battle.turn.atk, enqueue, text);
       }
     },
 
@@ -61,6 +40,8 @@ function skillEffectSearch(name) {
       if (battle[target].faint) {
         return;
       }
+      // 반대로 랭크업을 주는쪽은
+      // 기절해도 정상적으로 적용된다
       rank(battle, enqueue, target, skillEffect.abil, skillEffect.value);
     },
 
@@ -88,21 +69,11 @@ function skillEffectSearch(name) {
       }
       freeze(battle, battle.turn.def, enqueue);
     },
-
-    얼음치료: (battle, enqueue, skillEffect) => {
-      let def = battle[battle.turn.def];
-      if (def.status.freeze == null) {
+    혼란: (battle, enqueue, skillEffect) => {
+      if (random(100 - skillEffect.probability)) {
         return;
       }
-      if (def.faint) {
-        return;
-      }
-      let freezeCureText = def.name + "의 얼음이 녹았다!";
-      def.status.freeze = null;
-      enqueue({
-        battle: battle,
-        text: freezeCureText,
-      });
+      confuse(battle, battle.turn.def, enqueue);
     },
     풀죽음: (battle, enqueue, skillEffect) => {
       let def = battle[battle.turn.def];
@@ -113,34 +84,9 @@ function skillEffectSearch(name) {
     },
     빗나감패널티: (battle, enqueue, skillEffect) => {
       let atk = battle[battle.turn.atk];
-      if (atk.temp.miss) {
+      if (atk.temp.jumpKickFail) {
         const text = atk.names + " 의욕이 넘쳐 땅에 부딪쳤다!";
         damage(battle, atk.origin.hp / 2, battle.turn.atk, enqueue, text);
-      }
-    },
-
-    혼란: (battle, enqueue, skillEffect) => {
-      let def = battle[battle.turn.def];
-      if (def.tempStatus.confuse !== null) {
-        //이미 혼란에 걸려있는지 체크
-        return;
-      }
-      if (def.faint) {
-        return;
-      }
-      if (random(skillEffect.probability)) {
-        // 정해진 확률에 따라 부여
-        const getConfuseTurn = () => {
-          return Math.floor(Math.random() * 4) + 1;
-        };
-        def.tempStatus.confuse = true;
-        def.tempStatus.confuseTurnRemain = getConfuseTurn();
-        let confuseText = battle[battle.turn.def].names + " 혼란에 빠졌다!";
-        enqueue({
-          battle: battle,
-          text: confuseText,
-        });
-        return;
       }
     },
     회복: (battle, enqueue, skillEffect) => {
@@ -156,9 +102,11 @@ function skillEffectSearch(name) {
       if (pokemon.type1 === "비행") {
         if (pokemon.type2 !== null) {
           pokemon.type1 = null;
+          // 비행 전기 -> 비행
         }
         if (pokemon.type2 === null) {
           pokemon.type1 = "노말";
+          // 비행 -> 노말
         }
       } else if (pokemon.type2 === "비행") {
         if (pokemon.type1 !== null) {
@@ -170,10 +118,15 @@ function skillEffectSearch(name) {
       }
     },
     탁떨: (battle, enqueue, skillEffect) => {
+      const atk = battle[battle.turn.atk];
       const def = battle[battle.turn.def];
       const itemName = def.item;
 
-      if (itemName !== null && !noNullItem.includes(itemName)) {
+      if (itemName !== null && !noNullItem.includes(itemName) && !atk.faint) {
+        // 대부분 아이템이 발동하고 떨어진다 (ex: 기합의띠)
+        // 울멧이나 철가시로 공격자가 기절하면 아이템은 떨구지 못한다
+        // 약보 : 추가뎀은 무조건 적용. 악타입 약점이면 아이템이 써지고 아니면 떨어진다
+        // 탈출버튼, 레드카드, 나무열매 : 발동하지 않고 떨어진다
         def.item = null;
         def.tempStatus.onlySkill = null; // 구애 시리즈로 고정된 스킬
         enqueue({

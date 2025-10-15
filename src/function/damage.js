@@ -6,6 +6,8 @@ import { applyOnHitEvents } from "../service/applyOnHitEvents.js";
 
 // ====================== 공통 유틸 함수 ======================
 
+const noTextSkills = ["카타스트로피"];
+
 // HP 감소 적용
 function applyDamage(defPokemon, damage) {
   const prevHp = defPokemon.hp;
@@ -19,27 +21,17 @@ function handleFaint(defPokemon, enqueue, battle, atkAbil) {
   defPokemon.faint = true;
   Object.keys(defPokemon.status).forEach((k) => (defPokemon.status[k] = null));
   enqueue({ battle, text: defPokemon.names + " 쓰러졌다!" });
-
-  const faintRankUpAbils = {
-    "혼연일체(흑)": "catk",
-    "혼연일체(백)": "atk",
-    자기과신: "atk",
-  };
-  if (Object.keys(faintRankUpAbils).includes(atkAbil)) {
-    let abilName = atkAbil;
-    if (abilName.startsWith("혼연일체")) {
-      abilName = "혼연일체";
-    }
-    rank(battle, enqueue, battle[battle.turn.atk], faintRankUpAbils[atkAbil], 1, "[특성 " + abilName + "]");
-    return;
-  }
 }
 
 // 자뭉열매 처리
-function tryBerry(defPokemon, battle, enqueue, atkAbil) {
+function tryBerry(defPokemon, battle, enqueue, atkAbil, noBerrySkill) {
   let noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
 
   if (noBerryAbil.includes(atkAbil)) {
+    return;
+  }
+
+  if (noBerrySkill) {
     return;
   }
   if (defPokemon.item === "자뭉열매" && defPokemon.hp <= defPokemon.origin.hp / 2) {
@@ -81,8 +73,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   const useSkill = battle[battle.turn.atk].origin["sk" + battle.turn.atkSN];
   atkPokemon.tempStatus.recentSkillUse = useSkill;
   defPokemon.tempStatus.recentSkillGet = useSkill;
-  const noTextSkills = ["카타스트로피"];
-  const noTextTrigger = noTextSkills.includes(useSkill.name) || useSkill.feature.oneShot;
+
+  const isNoTextSkill = noTextSkills.includes(useSkill.name) || useSkill.feature.oneShot;
+  // 일격기나 고정데미지 스킬은 상성, 급소 텍스트가 뜨지 않는다
   let atkAbil = battle[battle.turn.atk].abil;
 
   let commonText = null;
@@ -102,7 +95,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       // 소리 기술은 대타를 뚫는다
       enqueue({ battle, text: (commonText || "") + josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!" });
 
-      if (!noTextTrigger) {
+      if (!isNoTextSkill) {
         if (atkPokemon.temp.critical) {
           enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
         }
@@ -120,7 +113,11 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       } else {
         defPokemon.tempStatus.substituteHp -= skDamage;
       }
+      atkPokemon.temp.recentDamageGive = actualGiveDamage;
+      defPokemon.temp.recentDamageGet = actualGiveDamage;
+
       return;
+      // 대타출동 상태일땐 피격 이벤트 (ex:울멧)이 발동하지 않음
     }
   }
 
@@ -156,30 +153,30 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   defPokemon.temp.recentDamageGet = actualGiveDamage;
 
   // ================= 텍스트 처리 =================
-  let textTrigger = true;
+  let defaultText = true;
   if (talTrigger) {
     enqueue({ battle, text: (commonText || "") + "탈이 대타가 되었다!" });
-    textTrigger = false;
+    defaultText = false;
   }
 
   // 상성 텍스트(ex:효과가 굉장했다!)나 급소여부가 출력되지 않는 '공격기' //
   // 고정 데미지 기술, 일격기
 
-  if (!noTextTrigger) {
+  if (!isNoTextSkill) {
     if (atkPokemon.temp.critical) {
       enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
-      textTrigger = false;
+      defaultText = false;
     }
     if (typeText) {
       // 효과가 굉장했다!
       enqueue({ battle, text: (commonText || "") + typeText });
-      textTrigger = false;
+      defaultText = false;
     }
   }
 
   if (gdTrigger && defPokemon.item === null) {
     enqueue({ battle, text: (commonText || "") + defPokemon.names + " 기합의 띠로 버텼다!" });
-    textTrigger = false;
+    defaultText = false;
   }
 
   // ================= 후처리 =================
@@ -189,17 +186,40 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       //일격기 성공 텍스트
       enqueue({ battle, text: "일격필살!" });
     }
-    if (textTrigger && serialAttackObject) {
-      //연속기일때 텍스트 없으면 출력
-      enqueue({ battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
+    if (serialAttackObject) {
+      if (typeText) {
+        //연속기일때 텍스트 없으면 출력
+        enqueue({ battle, text: typeText });
+      }
+      if (defaultText) {
+        //연속기일때 텍스트 없으면 출력
+        enqueue({ battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
+      }
     }
+
     handleFaint(defPokemon, enqueue, battle, atkAbil);
+
+    const faintRankUpAbils = {
+      "혼연일체(흑)": "catk",
+      "혼연일체(백)": "atk",
+      자기과신: "atk",
+    };
+    if (Object.keys(faintRankUpAbils).includes(atkAbil)) {
+      let abilName = atkAbil;
+      if (abilName.startsWith("혼연일체")) {
+        abilName = "혼연일체";
+      }
+      rank(battle, enqueue, battle[battle.turn.atk], faintRankUpAbils[atkAbil], 1, "[특성 " + abilName + "]");
+    }
   } else {
     // 출력 텍스트가 하나도 없을 때
-    if (textTrigger) {
+    if (defaultText) {
       enqueue({ battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
     }
-    tryBerry(defPokemon, battle, enqueue, atkAbil);
+
+    const noBerrySkill = useSkill.name === "탁쳐서떨구기";
+    // 탁떨을 맞고 반피 이하가 되면 열매를 먹기 전에 떨군다
+    tryBerry(defPokemon, battle, enqueue, atkAbil, noBerrySkill);
   }
 
   applyOnHitEvents(battle, enqueue);

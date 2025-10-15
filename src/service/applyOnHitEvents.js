@@ -1,4 +1,12 @@
+import { mabi } from "../function/statusCondition";
+import { damage } from "../function/damage";
+import { random } from "../util/randomCheck";
+
 export const applyOnHitEvents = (battle, enqueue) => {
+  // 피격시 발동되는 특성, 아이템 모음
+  // 독치장(킬라플로르), 울퉁불퉁멧, 철가시, 정전기
+  // 대타출동 상태로 맞을땐 해당 피격 이벤트가 발생하지 않음
+
   const atk = battle.turn.atk;
   const def = battle.turn.def;
   const atkPokemon = battle[battle.turn.atk];
@@ -36,5 +44,19 @@ export const applyOnHitEvents = (battle, enqueue) => {
         });
       }
     }
+  }
+
+  let touch = useSkill.feature.touch;
+  if (useSkill.feature.punch && atkPokemon.item === "펀치글러브") {
+    touch = false;
+  }
+  if (defPokemon.abil === "정전기" && touch && !atkPokemon.faint) {
+    if (random(30)) {
+      mabi(battle, battle.turn.atk, enqueue, true);
+    }
+  }
+  if (defPokemon.item === "울퉁불퉁멧" && touch && !atkPokemon.faint) {
+    const text = atkPokemon.names + " 울퉁불퉁멧 때문에 데미지를 입었다!";
+    damage(battle, atkPokemon.origin.hp / 6, atk, enqueue, text);
   }
 };

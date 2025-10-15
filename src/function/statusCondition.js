@@ -1,171 +1,99 @@
-const statusCheck = (status) => {
-  return Object.values(status).some((value) => value !== null);
-};
+const statusCheck = (status) => Object.values(status).some((v) => v !== null);
+const faintCheck = (pokemon) => pokemon.faint;
 
-const faintCheck = (pokemon) => {
-  if (pokemon.faint) {
-    return true;
-  }
-};
+// 공통 처리 함수
+const applyStatus = (battle, get, enqueue, options) => {
+  const { key, immuneTypes = [], condition, text, extra } = options;
 
-export const mabi = (battle, get, enqueue, abilText) => {
-  let pokemon;
-  if (get === "player") {
-    pokemon = battle.player;
-  } else if (get === "npc") {
-    pokemon = battle.npc;
+  const pokemon = get === "player" ? battle.player : battle.npc;
+
+  // 면역 타입 체크
+  if (immuneTypes.includes(pokemon.type1) || immuneTypes.includes(pokemon.type2)) return;
+
+  // 상태 중복 체크
+  if (statusCheck(pokemon.status)) return;
+
+  // 기절 체크
+  if (faintCheck(pokemon)) return;
+
+  // 추가 조건  (쾌청 상태면 얼지 않는다)
+  if (condition && !condition(battle, pokemon)) return;
+
+  // 상태 적용
+  if (typeof extra === "function") {
+    extra(pokemon); // 맹독은 맹독턴 (갈수록 증가), 수면은 수면턴 (갈수록 감소)을 true 대신 부여
+  } else {
+    pokemon.status[key] = true;
   }
-  if (pokemon.type1 === "전기" || pokemon.type2 === "전기") {
-    return;
-  }
-  if (statusCheck(pokemon.status)) {
-    //이미 걸린 상태이상이 있는지 체크
-    return;
-  }
-  if (faintCheck(pokemon)) {
-    return;
-  }
-  let mabiText = pokemon.names + " 마비되어 기술이 나오기 어려워졌다!";
-  if (abilText) {
-    mabiText = "[특성 정전기] " + mabiText;
-  }
-  pokemon.status.mabi = true;
+
+  // 출력 텍스트
   enqueue({
-    battle: battle,
-    text: mabiText,
+    battle,
+    text: typeof text === "function" ? text(pokemon) : text,
   });
 };
 
-export const burn = (battle, get, enqueue, ball) => {
-  let pokemon;
-  if (get === "player") {
-    pokemon = battle.player;
-  } else if (get === "npc") {
-    pokemon = battle.npc;
-  }
-  if (pokemon.type1 === "불꽃" || pokemon.type2 === "불꽃") {
-    return;
-  }
-  if (statusCheck(pokemon.status)) {
-    //이미 걸린 상태이상이 있는지 체크
-    return;
-  }
-  if (faintCheck(pokemon)) {
-    return;
-  }
-  let fireText = pokemon.names + " 화상을 입었다!";
-  if (ball) {
-    fireText = pokemon.names + " 화염구슬 때문에 화상을 입었다!";
-  }
-  pokemon.status.burn = true;
-  enqueue({
-    battle: battle,
-    text: fireText,
-  });
-};
-export const poison = (battle, get, enqueue) => {
-  //스킬 부가효과, 독압정에서 사용
-  //데미지 부여는 turnEnd에서
-  let pokemon;
-  if (get === "player") {
-    pokemon = battle.player;
-  } else if (get === "npc") {
-    pokemon = battle.npc;
-  }
-  if (pokemon.type1 === "독" || pokemon.type2 === "독" || pokemon.type1 === "강철" || pokemon.type2 === "강철") {
-    return;
-  }
-  if (statusCheck(pokemon.status)) {
-    //이미 걸린 상태이상이 있는지 체크
-    return;
-  }
-  if (faintCheck(pokemon)) {
-    return;
-  }
-  let poisonText = pokemon.name + "의 몸에 독이 퍼졌다!";
-  pokemon.status.poison = true;
-  enqueue({
-    battle: battle,
-    text: poisonText,
-  });
-};
-//맹독
-export const mPoison = (battle, get, enqueue) => {
-  //독압정에서 사용
-  //데미지 부여는 turnEnd에서
-  let pokemon;
-  if (get === "player") {
-    pokemon = battle.player;
-  } else if (get === "npc") {
-    pokemon = battle.npc;
-  }
-  if (pokemon.type1 === "독" || pokemon.type2 === "독" || pokemon.type1 === "강철" || pokemon.type2 === "강철") {
-    return;
-  }
-  if (statusCheck(pokemon.status)) {
-    //이미 걸린 상태이상이 있는지 체크
-    return;
-  }
-  if (faintCheck(pokemon)) {
-    return;
-  }
-  let poisonText = pokemon.name + "의 몸에 맹독이 퍼졌다!";
-  pokemon.status.mpoison = 1;
-  enqueue({
-    battle: battle,
-    text: poisonText,
-  });
-};
+// ---- 상태이상별 함수 ----
 
-export const freeze = (battle, get, enqueue, abilText) => {
-  let pokemon;
-  if (get === "player") {
-    pokemon = battle.player;
-  } else if (get === "npc") {
-    pokemon = battle.npc;
-  }
-  if (pokemon.type1 === "얼음" || pokemon.type2 === "얼음") {
-    return;
-  }
-  if (statusCheck(pokemon.status)) {
-    //이미 걸린 상태이상이 있는지 체크
-    return;
-  }
-  if (faintCheck(pokemon)) {
-    return;
-  }
-  if (battle.field.weather === "쾌청") {
-    return;
-    //날씨가 쾌청이면 얼지 않는다
-  }
-  let freezeText = pokemon.names + " 얼어붙었다!";
-  pokemon.status.freeze = true;
-  enqueue({
-    battle: battle,
-    text: freezeText,
+export const mabi = (battle, get, enqueue, abilText) =>
+  applyStatus(battle, get, enqueue, {
+    key: "mabi",
+    immuneTypes: ["전기"],
+    text: (p) => (abilText ? "[특성 정전기] " : "") + `${p.names} 마비되어 기술이 나오기 어려워졌다!`,
   });
-};
-export const sleep = (battle, get, enqueue) => {
-  let pokemon;
-  if (get === "player") {
-    pokemon = battle.player;
-  } else if (get === "npc") {
-    pokemon = battle.npc;
-  }
-  if (statusCheck(pokemon.status)) {
-    //이미 걸린 상태이상이 있는지 체크
-    return;
-  }
-  if (faintCheck(pokemon)) {
-    return;
-  }
-  let sleepText = pokemon.names + "  잠들어 버렸다!";
-  pokemon.status.sleep = Math.floor(Math.random() * 3) + 2;
-  // 기대값 : 2, 3, 4
-  // 수면은 0이 되면 바로 깨므로 최소 1턴 자려면 값이 2여야함
-  enqueue({
-    battle: battle,
-    text: sleepText,
+
+export const burn = (battle, get, enqueue, ball) =>
+  applyStatus(battle, get, enqueue, {
+    key: "burn",
+    immuneTypes: ["불꽃"],
+    text: (p) => (ball ? `${p.names} 화염구슬 때문에 화상을 입었다!` : `${p.names} 화상을 입었다!`),
   });
+
+export const poison = (battle, get, enqueue) =>
+  applyStatus(battle, get, enqueue, {
+    key: "poison",
+    immuneTypes: ["독", "강철"],
+    text: (p) => `${p.name}의 몸에 독이 퍼졌다!`,
+  });
+
+export const mPoison = (battle, get, enqueue) =>
+  applyStatus(battle, get, enqueue, {
+    key: "mpoison",
+    immuneTypes: ["독", "강철"],
+    extra: (p) => (p.status.mpoison = 1),
+    text: (p) => `${p.name}의 몸에 맹독이 퍼졌다!`,
+  });
+
+export const freeze = (battle, get, enqueue) =>
+  applyStatus(battle, get, enqueue, {
+    key: "freeze",
+    immuneTypes: ["얼음"],
+    condition: (battle) => battle.field.weather !== "쾌청", // 쾌청 시 실패
+    text: (p) => `${p.names} 얼어붙었다!`,
+  });
+
+export const sleep = (battle, get, enqueue) =>
+  applyStatus(battle, get, enqueue, {
+    key: "sleep",
+    extra: (p) => (p.status.sleep = Math.floor(Math.random() * 3) + 2),
+    text: (p) => `${p.names} 잠들어 버렸다!`,
+  });
+
+export const confuse = (battle, get, enqueue, autoConfuseText) => {
+  const pokemon = get === "player" ? battle.player : battle.npc;
+
+  //이미 혼란에 걸려있는지 체크
+  if (pokemon.tempStatus.confuse !== null) return;
+
+  if (faintCheck(pokemon)) return;
+
+  const getConfuseTurn = () => {
+    return Math.floor(Math.random() * 3) + 2;
+    // 2 ~ 4턴.
+  };
+
+  pokemon.tempStatus.confuse = getConfuseTurn();
+
+  let confuseText = pokemon.names + " 혼란에 빠졌다!";
+  if (autoConfuseText) enqueue({ battle: battle, text: autoConfuseText ? autoConfuseText : confuseText });
 };
-export const confuse = (battle, enqueue) => {};
