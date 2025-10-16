@@ -1,6 +1,6 @@
 import { rank, getStatName, maxStatFinder } from "../function/rankStat";
 import { getMultiplier } from "../function/rankStat";
-
+import { sunny } from "../function/weatherField";
 // ======================================================
 // applyAbilityEffects
 // ======================================================
@@ -70,8 +70,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
   // ④ 고대활성
   // -------------------------------
   if (atkAbil === "고대활성") {
-    const maxKey = maxStatFinder(atk, atk, getMultiplier); // getMultiplier 외부 정의 필요
-    const textStat = getStatName(maxKey);
+    const maxKey = maxStatFinder(atk);
     if (bt.field.weather === "쾌청") {
       atk.tempStatus.protosynthesis = maxKey;
       enqueue({
@@ -88,7 +87,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
     if (atk.tempStatus.protosynthesis) {
       enqueue({
         battle: bt,
-        text: `[특성 고대활성] ${atk.name}의 ${textStat}이(가) 강화되었다!`,
+        text: `[특성 고대활성] ${atk.name}의 ${getStatName(maxKey)} 강화되었다!`,
       });
     }
   }
@@ -122,12 +121,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
         text: `[특성 진홍빛고동] ${atk.names} 햇살을 받아 고대의 고동을 폭발시켰다!`,
       });
     } else {
-      bt.field.weather = "쾌청";
-      bt.field.weatherTurnRemain = 5;
-      enqueue({
-        battle: bt,
-        text: `[특성 진홍빛고동] ${atk.names} 햇살을 강하게 하여 고대의 고동을 폭발시켰다!`,
-      });
+      sunny(bt, enqueue, `[특성 진홍빛고동] ${atk.names} 햇살을 강하게 하여 고대의 고동을 폭발시켰다!`);
     }
   }
 

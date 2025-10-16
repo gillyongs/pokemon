@@ -67,7 +67,7 @@ const InfoButton = ({ pokemon, type, setText }) => {
     innerText = "특성";
     innerContent = pokemon.origin.abil;
     handleClick = () => {
-      setText(pokemon.origin.abilText);
+      setText(pokemon.abilObj.text);
     };
   } else if (type === "status") {
     if (pokemon.origin.type2) {

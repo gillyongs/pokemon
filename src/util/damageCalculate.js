@@ -17,8 +17,8 @@ export const damageCalculate = (battle) => {
 
   const atkAbil = attackPokemon.abil;
   const defAbil = defensePokemon.abil;
-  const noTggAtk = atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈";
-  const noTggDef = defAbil !== "틀깨기" && defAbil !== "테라볼티지" && defAbil !== "터보블레이즈";
+
+  const noTggAtk = !attackPokemon.abilObj.feature?.tgg;
 
   // 데미지가 고정인 스킬들 ===============================================================================================
 

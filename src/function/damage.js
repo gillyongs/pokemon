@@ -1,6 +1,6 @@
 import { type } from "@testing-library/user-event/dist/type";
 import { recover } from "../function/recover";
-import { rank } from "./rankStat.js";
+import { maxStatFinder, rank } from "./rankStat.js";
 import { josa } from "josa";
 import { applyOnHitEvents } from "../service/onHit.js";
 
@@ -77,6 +77,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   const isNoTextSkill = noTextSkills.includes(useSkill.name) || useSkill.feature.oneShot;
   // 일격기나 고정데미지 스킬은 상성, 급소 텍스트가 뜨지 않는다
   let atkAbil = battle[battle.turn.atk].abil;
+  let atkAbilObj = battle[battle.turn.atk].abilObj;
 
   let commonText = null;
   if (serialAttackObject) {
@@ -124,7 +125,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   // 특성 "탈" 처리
   let talTrigger = false;
   if (defPokemon.abil === "탈") {
-    if (atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈") {
+    if (!atkAbilObj.feature?.tgg) {
+      //틀깨기
       talTrigger = true;
       defPokemon.abil = defPokemon.origin.abil = "탈 (사용됨)";
       const talHp = Math.floor(defPokemon.origin.hp / 8);
@@ -138,7 +140,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   let gdTrigger = defPokemon.item === "기합의띠";
 
   // 옹골참 트리거
-  let ogcTrigger = defPokemon.abil === "옹골참" && atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈";
+  let ogcTrigger = defPokemon.abil === "옹골참" && !atkAbilObj.feature?.tgg;
 
   let noOneShot = defPokemon.hp === defPokemon.origin.hp && (gdTrigger || ogcTrigger);
 
@@ -222,17 +224,18 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
     handleFaint(defPokemon, enqueue, battle, atkAbil);
 
-    const faintRankUpAbils = {
-      "혼연일체(흑)": "catk",
-      "혼연일체(백)": "atk",
-      자기과신: "atk",
-    };
-    if (Object.keys(faintRankUpAbils).includes(atkAbil)) {
-      let abilName = atkAbil;
-      if (abilName.startsWith("혼연일체")) {
+    // 자기과신
+    if (atkAbilObj.feature?.swip) {
+      let swip = atkAbilObj.feature.swip;
+      let abilName = atkAbilObj.name;
+      if (abilName === "혼연일체(흑)" || abilName === "혼연일체(백)") {
         abilName = "혼연일체";
       }
-      rank(battle, enqueue, battle[battle.turn.atk], faintRankUpAbils[atkAbil], 1, "[특성 " + abilName + "]");
+      if (swip === "max") {
+        swip = maxStatFinder(atkPokemon);
+      }
+
+      rank(battle, enqueue, battle[battle.turn.atk], swip, 1, "[특성 " + abilName + "]");
     }
   } else {
     // 출력 텍스트가 하나도 없을 때
