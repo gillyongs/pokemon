@@ -124,7 +124,7 @@ class SkillList {
         "atk", null, 
         "빗나가면 자신이 전체 HP의 ½의 데미지를 입는다.",
         [{ name: "빗나감패널티" }], 
-        {touch:true}),
+        {touch:true, rebound: true}),
 
       new Skill("기습", "악", 
         70, 100, 5, 2,
@@ -229,6 +229,12 @@ class SkillList {
 
       new Skill("아쿠아제트", "물", 
         40, 100, 20, 1,  
+        "atk", null, 
+        "우선도 +1",
+        [], {touch:true}),
+
+      new Skill("전광석화", "노말", 
+        40, 100, 30, 1,  
         "atk", null, 
         "우선도 +1",
         [], {touch:true}),
@@ -432,8 +438,14 @@ class SkillList {
         120, 100, 15, 0,  
         "atk", null, 
         "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.",
-        [{name: "반동"}], {touch:true}),  
-      
+        [{name: "반동"}], {touch:true, rebound: true}),  
+
+      new Skill("이판사판태클", "노말", 
+        120, 100, 15, 0,  
+        "atk", null, 
+        "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.",
+        [{name: "반동"}], {touch:true, rebound: true}),  
+
       new Skill("개척하기", "풀", 
         50, 100, 20, 0,  
         "atk", null, 
@@ -457,7 +469,7 @@ class SkillList {
         120, 100, 10, 0,  
         "atk", null, 
         "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.",
-        [{name: "반동"}], {touch:true}),  
+        [{name: "반동"}], {touch:true, rebound: true}),  
 
       new Skill("하품", "노말", 
         "-", "-", 10, 0,  
@@ -608,7 +620,7 @@ class SkillList {
         120, 100, 15, 0,  
         "atk", null, 
         "대상에게 준 피해의 ⅓만큼 반동 피해를 받는다. 10% 확률로 상대를 화상 상태로 만든다",
-        [{name: "반동"}, { name: "화상", probability: 10 }], {touch:true}),  
+        [{name: "반동"}, { name: "화상", probability: 10 }], {touch:true, rebound: true}),  
 
       new Skill("역린", "드래곤", 
         120, 100, 10, 0,  

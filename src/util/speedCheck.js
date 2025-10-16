@@ -75,5 +75,9 @@ const priCalculate = (battle, pokemon) => {
       return 1;
     } else return 0;
   }
+
+  if (battle[pokemon].abil === "질풍날개" && sk.type === "비행") {
+    return sk.prior + 1;
+  }
   return sk.prior;
 };

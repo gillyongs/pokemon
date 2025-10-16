@@ -336,6 +336,11 @@ export const damageCalculate = (battle) => {
     attackPokemon.log.damage2 += " * 4/3 (다크오라)";
   }
 
+  if (atkAbil === "이판사판" && sk.feature?.rebound) {
+    damage *= 1.2;
+    attackPokemon.log.damage2 += " * 1.2 (이판사판)";
+  }
+
   // 랜덤값 ======================================================================================================
 
   const randomNum = getRandomNumber(); // 랜덤값
