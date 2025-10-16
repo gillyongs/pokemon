@@ -1,5 +1,4 @@
 import { speedCheck, skillSpeedCheck } from "../util/speedCheck";
-import { statCalculate } from "../function/statCalculate";
 import { turnEnd } from "./turnEnd";
 import { switchNpc, switchPlayer } from "./switch";
 import { attackNpc, attackPlayer } from "./attack";
@@ -12,7 +11,6 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   const enqueue = queueObject.enqueue;
 
   let bt = structuredClone(battle);
-  statCalculate(bt);
   Object.keys(bt.turn).forEach((key) => {
     bt.turn[key] = null;
   });
@@ -69,7 +67,6 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
 
     if (fastUser === "player") {
       attackPlayer(bt, actNumber, npcActNumber, enqueue);
-      statCalculate(bt);
       if (uTurnTrigger) {
         return;
       }
@@ -78,7 +75,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
       }
     } else {
       attackNpc(bt, actNumber, npcActNumber, enqueue);
-      statCalculate(bt);
+
       if (bt[bt.turn.def].faint !== true) {
         attackPlayer(bt, actNumber, npcActNumber, enqueue);
         if (uTurnTrigger) {

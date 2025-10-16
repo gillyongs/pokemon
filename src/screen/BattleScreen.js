@@ -13,7 +13,7 @@ import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
 import { speedCheck } from "../util/speedCheck";
 import { useLocation } from "react-router-dom";
 import { battleStart } from "../service/battleStart";
-import { npcChoice } from "../function/npc";
+import { npcChoice } from "../npc/npc";
 
 const Battle = () => {
   const location = useLocation();
@@ -66,7 +66,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["0717-1", "0645-1", "0901-1"], ["0897-1", "0645-1", "0901-1"]);
+      battleObject = createBattle(["0717-1", "0645-1", "0901-1"], ["0812-1", "0645-1", "0901-1"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);

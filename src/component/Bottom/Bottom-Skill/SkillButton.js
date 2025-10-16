@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { typeCheckConsole } from "../../../util/typeCheck";
 import { battleStart } from "../../../service/battleStart";
-import { npcChoice } from "../../../function/npc";
+import { npcChoice } from "../../../npc/npc";
 
 const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => {
   const skill = "sk" + skillNumber;

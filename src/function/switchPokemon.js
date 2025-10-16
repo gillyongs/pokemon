@@ -1,8 +1,5 @@
 // swapBattleEntities.js
-
-import { statCalculate } from "../function/statCalculate";
 import { recoverNoText } from "../function/recover";
-import { damage } from "../function/damage";
 export const switchPokemon = (battle, IN, OUT) => {
   // 교체 함수.
   // 실제 객체의 값을 바꾸고
@@ -41,8 +38,6 @@ export const switchPokemon = (battle, IN, OUT) => {
   // 리베로 타입 초기화
   pokemonIn.type1 = pokemonIn.origin.type1;
   pokemonIn.type2 = pokemonIn.origin.type2;
-
-  statCalculate(battle);
 
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
 };

@@ -28,12 +28,19 @@ class BattlePokemon {
     this.type1 = pokemon.type1;
     this.type2 = pokemon.type2;
 
+    this.stat = {
+      atk: null,
+      def: null,
+      catk: null,
+      cdef: null,
+      speed: null,
+    }
     this.hp = pokemon.hp * 2 + Math.floor(hps / 4);
-    this.atk = pokemon.atk * 2 + Math.floor(atks / 4);
-    this.def = pokemon.def * 2 + Math.floor(defs / 4);
-    this.catk = pokemon.catk * 2 + Math.floor(catks / 4);
-    this.cdef = pokemon.cdef * 2 + Math.floor(cdefs / 4);
-    this.speed = pokemon.speed * 2 + Math.floor(speeds / 4);
+    this.stat.atk = pokemon.atk * 2 + Math.floor(atks / 4);
+    this.stat.def = pokemon.def * 2 + Math.floor(defs / 4);
+    this.stat.catk = pokemon.catk * 2 + Math.floor(catks / 4);
+    this.stat.cdef = pokemon.cdef * 2 + Math.floor(cdefs / 4);
+    this.stat.speed = pokemon.speed * 2 + Math.floor(speeds / 4);
 
     const gachaStats = {
       "6V": ["hp", "atk", "def", "catk", "cdef", "speed"],
@@ -44,36 +51,44 @@ class BattlePokemon {
 
     if (gachaStats[gacha]) {
       gachaStats[gacha].forEach((stat) => {
-        this[stat] += 31;
+        if(stat === "hp"){
+          this[stat]+=31
+        }
+        else{
+          this.stat[stat] += 31;
+        }
       });
+
     } else {
       console.error(this.id + " 개체치부여안됨");
     }
 
-    this.hp = Math.floor(this.hp / 2) + 60;
-    this.atk = Math.floor(this.atk / 2) + 5;
-    this.def = Math.floor(this.def / 2) + 5;
-    this.catk = Math.floor(this.catk / 2) + 5;
-    this.cdef = Math.floor(this.cdef / 2) + 5;
-    this.speed = Math.floor(this.speed / 2) + 5;
+    this.stat.hp = Math.floor(this.hp / 2) + 60;
+    this.stat.atk = Math.floor(this.stat.atk / 2) + 5;
+    this.stat.def = Math.floor(this.stat.def / 2) + 5;
+    this.stat.catk = Math.floor(this.stat.catk / 2) + 5;
+    this.stat.cdef = Math.floor(this.stat.cdef / 2) + 5;
+    this.stat.speed = Math.floor(this.stat.speed / 2) + 5;
+
 
     let updowntrigger = 0;
     if (up === "hp" || down === "hp") {
       console.error("성격체력오류");
     }
-    if (this[up]) {
-      this[up] = Math.floor(this[up] * 1.1);
+    if (this.stat[up]) {
+      this.stat[up] = Math.floor(this.stat[up] * 1.1);
       updowntrigger += 1;
     }
 
-    if (this[down]) {
-      this[down] = Math.floor(this[down] * 0.9);
+    if (this.stat[down]) {
+      this.stat[down] = Math.floor(this.stat[down] * 0.9);
       updowntrigger += 1;
     }
 
     if (updowntrigger !== 2) {
       console.error(this.id + " 성격처리오류");
     }
+
   }
   // prettier-ignore
   _validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil){

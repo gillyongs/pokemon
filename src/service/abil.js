@@ -1,7 +1,8 @@
-import { rank } from "../function/rank";
+import { rank, getStatName } from "../function/rankStat";
 import { damage } from "../function/damage";
 import { typeCheck } from "../util/typeCheck";
-import { statCalculate } from "../function/statCalculate";
+import { maxStatFinder } from "../function/rankStat";
+
 export const applyAbilityEffects = (bt, atks, enqueue) => {
   //특성 발동
   //배틀이 시작될때, 교체해서 나올때 발동
@@ -35,7 +36,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
       });
     }
   });
-  // 능력치 깎는건 어차피 statCalculate에서 작동하므로 text만 띄어주며됨
+  // 능력치 깎는건 어차피 damageCalculate에서 작동하므로 text만 띄어주며됨
 
   if (atkAbil === "불요의검" && atk.item === "녹슨검") {
     const text = "[특성 불요의검]";
@@ -45,6 +46,26 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
   if (atkAbil === "불굴의방패" && atk.item === "녹슨방패") {
     const text = "[특성 불굴의방패]";
     rank(bt, enqueue, atks, "def", 1, text);
+  }
+
+  if (atkAbil === "다크오라") {
+    enqueue({
+      battle: bt,
+      text: "[특성 다크오라] " + atk.names + " 다크오라를 발산하고있다!",
+    });
+  }
+
+  if (atkAbil === "페어리오라") {
+    enqueue({
+      battle: bt,
+      text: "[특성 페어리오라] " + atk.names + " 페어리오라 발산하고있다!",
+    });
+  }
+  if (atkAbil === "테라볼티지") {
+    enqueue({
+      battle: bt,
+      text: "[특성 테라볼티지] " + atk.names + " 세차게 튀는 오라를 발산하고 있다!",
+    });
   }
 
   if (atkAbil === "터보블레이즈") {
@@ -63,7 +84,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
   if (atkAbil === "틀깨기") {
     enqueue({
       battle: bt,
-      text: "[특성 틀깨기] " + atk.names + "에겐 특성이 통하지 않는다!",
+      text: "[특성 틀깨기] " + atk.names + " 상대 특성에 방해받지 않고 상대에게 기술을 쓸 수 있다.",
     });
   }
   if (atkAbil === "위협") {
@@ -97,23 +118,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
     });
   }
 
-  const stats = {
-    atk: atk.atk,
-    def: atk.def,
-    catk: atk.catk,
-    cdef: atk.cdef,
-    speed: atk.speed,
-  };
-
-  const statsKr = {
-    atk: "공격이",
-    def: "방어가",
-    catk: "특수공격이",
-    cdef: "특수방어가",
-    speed: "스피드가",
-  };
-  statCalculate(bt);
-  const maxKey = Object.keys(stats).reduce((a, b) => (stats[a] > stats[b] ? a : b));
+  const maxKey = maxStatFinder(atk);
   if (atkAbil === "고대활성") {
     if (bt.field.weather === "쾌청") {
       //날씨 쾌청이면 쾌청 먼저
@@ -124,7 +129,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
       });
       enqueue({
         battle: bt,
-        text: "[특성 고대활성] " + atk.name + " 의 " + statsKr[maxKey] + " 강화되었다!",
+        text: "[특성 고대활성] " + atk.name + " 의 " + getStatName(maxKey) + " 강화되었다!",
       });
     } else if (atk.item === "부스트에너지") {
       atk.tempStatus.protosynthesis = maxKey;
@@ -134,7 +139,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
       });
       enqueue({
         battle: bt,
-        text: "[특성 고대활성] " + atk.name + "의 " + statsKr[maxKey] + " 강화되었다!",
+        text: "[특성 고대활성] " + atk.name + "의 " + getStatName(maxKey) + " 강화되었다!",
       });
     }
   }

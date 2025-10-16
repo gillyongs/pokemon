@@ -11,20 +11,6 @@ class PokemonOnBattle {
     this.name = pokemon.name; // 메타몽때문에 이름도 가변값이 필요
     this.names = pokemon.names;
     this.hp = pokemon.hp; // 현재 체력
-    this.atk = pokemon.atk;
-    this.def = pokemon.def;
-    this.catk = pokemon.catk;
-    this.cdef = pokemon.cdef;
-    this.speed = pokemon.speed;
-    this.noRankStat = {
-      //랭크업만을 제외한 스탯
-      //origin과 달리 아이템(돌조,스카프) 특성(파오젠) 등을 반영한다
-      atk: pokemon.atk,
-      def: pokemon.def,
-      catk: pokemon.catk,
-      cdef: pokemon.cdef,
-      speed: pokemon.speed,
-    };
     this.type1 = pokemon.type1;
     this.type2 = pokemon.type2;
     this.item = pokemon.item;
@@ -85,13 +71,8 @@ class PokemonOnBattle {
     this.log = {
       damage1: null,
       damage2: null,
-      stat: {
-        atk: pokemon.atk,
-        def: pokemon.def,
-        catk: pokemon.catk,
-        cdef: pokemon.cdef,
-        speed: pokemon.speed,
-      },
+      speedCalculate: null,
+      speedVS: null,
     };
   }
 }

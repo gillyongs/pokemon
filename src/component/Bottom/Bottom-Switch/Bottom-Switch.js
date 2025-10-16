@@ -6,7 +6,7 @@ import { battleStart } from "../../../service/battleStart";
 import { switchPlayer, switchNpc } from "../../../service/switch";
 import { turnEnd } from "../../../service/turnEnd";
 import { attackNpc } from "../../../service/attack";
-import { npcChoice } from "../../../function/npc";
+import { npcChoice } from "../../../npc/npc";
 const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueObject, setText }) => {
   const [selected, setSelected] = useState(null);
   const handleSelected = (bench) => {

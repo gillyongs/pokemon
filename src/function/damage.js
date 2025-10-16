@@ -1,8 +1,8 @@
 import { type } from "@testing-library/user-event/dist/type";
 import { recover } from "../function/recover";
-import { rank } from "./rank";
+import { rank } from "./rankStat.js";
 import { josa } from "josa";
-import { applyOnHitEvents } from "../service/applyOnHitEvents.js";
+import { applyOnHitEvents } from "../service/onHit.js";
 
 // ====================== 공통 유틸 함수 ======================
 

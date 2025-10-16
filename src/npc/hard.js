@@ -1,6 +1,5 @@
-import { statCalculate } from "../function/statCalculate";
 import { damageCalculate } from "../util/damageCalculate";
-import { skillSpeedCheck, speedCheck } from "../util/speedCheck";
+import { speedCheck } from "../util/speedCheck";
 
 export const npcAiHard = (battle2, actNumber) => {
   const bt = structuredClone(battle2);

@@ -1,6 +1,6 @@
 import { damage } from "../../function/damage";
 import { random } from "../../util/randomCheck";
-import { rank } from "../../function/rank";
+import { rank } from "../../function/rankStat";
 import { recover, recoverNoText } from "../../function/recover";
 import { burn, mabi, poison, freeze, confuse } from "../../function/statusCondition";
 import { josa } from "josa";
@@ -365,11 +365,13 @@ function skillEffectSearch(name) {
 
     흡수: (battle, enqueue, skillEffect) => {
       //풀피면 체력 회복 안되고 -> 생구 터짐
+
       let atk = battle[battle.turn.atk];
       const def = battle[battle.turn.def];
       const text = josa(`${def.name}#{으로}`) + "부터 체력을 흡수했다!";
-      recoverNoText(battle, (atk.temp.recentDamageGive * 3) / 4, battle.turn.atk);
+
       if (atk.hp !== atk.origin.hp) {
+        recoverNoText(battle, (atk.temp.recentDamageGive * 3) / 4, battle.turn.atk);
         enqueue({
           battle,
           text: text,

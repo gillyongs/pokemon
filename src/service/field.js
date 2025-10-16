@@ -1,7 +1,5 @@
-import { rank } from "../function/rank";
 import { damage } from "../function/damage";
 import { typeCheck } from "../util/typeCheck";
-import { statCalculate } from "../function/statCalculate";
 import { poison, mPoison } from "../function/statusCondition";
 import { flyingCheck } from "../util/flyingCheck";
 export const applyFieldEffects = (bt, atks, enqueue) => {

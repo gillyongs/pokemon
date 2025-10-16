@@ -3,7 +3,7 @@ import { typeCheck, typeCheckText, typeCheckAbil } from "../util/typeCheck";
 import { damage, attackDamage } from "../function/damage";
 import { applySkillEffects, applySkillEffectSerial } from "./skiiEffect";
 import { beforeSkillCheck, afterSkillCheck, beforeTurnPass } from "./skillCheck";
-import { rank } from "../function/rank";
+import { rank } from "../function/rankStat";
 
 export const skillUse = (bt, enqueue) => {
   const skillNumber = bt.turn.atkSN;
