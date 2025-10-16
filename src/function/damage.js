@@ -86,7 +86,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   let skDamage = Math.floor(skillDamage);
 
   //실제로 준 데미지
-  //반동이나 흡혈 계산에 사용
+  //반동이나 흡수 계산에 사용
   let actualGiveDamage = skDamage;
 
   // 대타출동

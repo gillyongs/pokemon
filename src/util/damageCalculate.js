@@ -15,6 +15,10 @@ export const damageCalculate = (battle) => {
   const defensePokemon = battle[battle.turn.def];
   const skillKey = `sk${skillNumber}`;
   const sk = attackPokemon.origin[skillKey]; // 시전 스킬
+  const atkAbil = attackPokemon.abil;
+  const defAbil = defensePokemon.abil;
+  const noTggAtk = atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈";
+  const noTggDef = defAbil !== "틀깨기" && defAbil !== "테라볼티지" && defAbil !== "터보블레이즈";
 
   // 데미지가 고정인 스킬들
   if (sk.feature.oneShot) {
@@ -43,10 +47,9 @@ export const damageCalculate = (battle) => {
     attackStat = "def";
   }
 
-  let atkAbil = attackPokemon.abil;
   let atkStat = attackPokemon[attackStat]; // 공격포켓몬의 물리/특수 능력치 (물리 or 특수 = 스킬의 stype)
-  if (defensePokemon.abil === "천진") {
-    if (atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈") {
+  if (defAbil === "천진") {
+    if (noTggAtk) {
       atkStat = attackPokemon.noRankStat[attackStat];
     }
     // 특성 천진
@@ -68,7 +71,7 @@ export const damageCalculate = (battle) => {
     }
   }
   if (attackPokemon.abil === "천진") {
-    if (atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈") {
+    if (noTggDef) {
       defStat = defensePokemon.noRankStat[defenseStat];
     }
     //특성 천진
@@ -78,6 +81,18 @@ export const damageCalculate = (battle) => {
   if (attackPokemon.temp.critical && defensePokemon.tempStatus.rank[defenseStat] > 0) {
     defStat = defensePokemon.noRankStat[defenseStat];
     // 급소에 맞았을 경우 방어측에게 유리한 랭크업이 무시된다
+  }
+
+  if (sk.name === "속임수") {
+    atkStat = defensePokemon.origin.atk * getMultiplier(defensePokemon.tempStatus.rank.atk);
+    if (defensePokemon.abil === "천진") {
+      atkStat = defensePokemon.origin.atk;
+    }
+    // 속임수는 상대방의 공격력을 사용하여 공격한다.
+    // 상대방의 랭크업은 적용하되, 상대방의 아이템, 특성, 화상은 적용하지 않는다
+    // 본인의 아이템, 특성, 화상은 적용한다
+    // 천진몬이 속임수 사용할때엔 영향이 없다 (상대방의 방어력 랭크변화를 무시하므로)
+    // 천진몬에게 속임수 사용시 천진몬의 랭크변화를 제거한 공격력을 가져온다
   }
 
   let power = powerCalculate(battle, sk);
@@ -183,19 +198,31 @@ export const damageCalculate = (battle) => {
   }
 
   // 특성 ===============================================================================
-  if (defensePokemon.abil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
-    let atkAbil = attackPokemon.abil;
-    if (atkAbil !== "틀깨기" && atkAbil !== "테라볼티지" && atkAbil !== "터보블레이즈") {
-      damage *= 0.5;
-      attackPokemon.log.damage2 += " * 0.5 (멀티스케일)";
-    }
 
+  if (defAbil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
+    if (noTggAtk) {
+    }
     // 멀티스케일은 공격 데미지에만 적용된다
     // 혼란 자해 데미지에 적용 안되다함 (위키피셜)
     // 생구에 멀스 적용 안됨
-    // 일격기, 카운터, 고정 데미지 기술(지구던지기)도 적용 안 됨
-    // 카타스트로피는 모르겠음.
+    // 고정 데미지 기술(일격기, 카운터, 지구던지기, 카타스트로피)도 적용 안 됨
   }
+
+  if ((atkAbil === "페어리오라" || defAbil === "페어리오라") && sk.type === "페어리") {
+    if (noTggAtk && noTggDef) {
+      damage = (damage * 4) / 3;
+      attackPokemon.log.damage2 += " * 4/3 (페어리오라)";
+    }
+  }
+
+  if ((atkAbil === "다크오라" || defAbil === "다크오라") && sk.type === "악") {
+    if (noTggAtk && noTggDef) {
+      damage = (damage * 4) / 3;
+      attackPokemon.log.damage2 += " * 4/3 (다크오라)";
+    }
+  }
+
+  // 랜덤값 ======================================================================================================
 
   const randomNum = getRandomNumber(); // 랜덤값
   damage = (damage * randomNum) / 100;

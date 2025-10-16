@@ -50,7 +50,7 @@ class PokemonOnBattle {
       jumpKickFail: null, // 무릎차기 실패 여부 -> 1.빗나감 2.방어 3.상성(고스트)
       roost: null, //날개쉬기
       critical: null, //이번 턴 급소 여부 아 근데 이거 다단히트 생기면 바꿔야하는데
-      recentDamageGive: null, // 최근 준 데미지 -> 반동, 흡혈 계산에 사용
+      recentDamageGive: null, // 최근 준 데미지 -> 반동, 흡수 계산에 사용
       recentDamageGet: null,
       protect: null, //방어
     };
@@ -81,6 +81,7 @@ class PokemonOnBattle {
     this.faint = null; //기절 여부
     this.auto = null; //자동 행동 여부 (역린)
     this.autoSN = null;
+    this.charge = null; //충전중 여부 (파워풀허브 없이 충전 기술을 썼을때)
     this.log = {
       damage1: null,
       damage2: null,

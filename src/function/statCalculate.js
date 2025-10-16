@@ -7,9 +7,10 @@ export const statCalculate = (battle) => {
   attributes.forEach((attr) => {
     player[attr] = player.origin[attr] * getMultiplier(player.tempStatus.rank[attr]);
     npc[attr] = npc.origin[attr] * getMultiplier(npc.tempStatus.rank[attr]);
+    //랭크업 미반영 스탯. 천진 데미지 계산에 사용
     player.noRankStat[attr] = player.origin[attr];
     npc.noRankStat[attr] = npc.origin[attr];
-    //랭크업 미반영 스탯. 천진 데미지 계산에 사용
+    // 로그
     player.log.stat[attr] = player.origin[attr] + " * " + getMultiplier(player.tempStatus.rank[attr]) + "(랭크업)";
     npc.log.stat[attr] = npc.origin[attr] + " * " + getMultiplier(npc.tempStatus.rank[attr]) + "(랭크업)";
   });

@@ -38,7 +38,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => 
     if (!queueObject.queueCheck()) return;
 
     const reject = (message) => {
-      if (!player.auto) {
+      if (!player.auto && !player.charge) {
         //enqueue하기떄문에 역린중에 다른 스킬 누르면 끊김
         queueObject.enqueue({ battle, text: message, skip: true });
         setText?.(message);

@@ -14,7 +14,7 @@ class Skill {
     // natk = 상대방이 기절하면 실패, buf = 상대방이 기절해도 성공
     // 방어 가능 여부와 판정이 비슷하나 날려버리기는 방어를 뚫는다
     this.skillEffectList = skillEffectList;
-    this.skillEffectList.unshift({ name: "공통" });
+    this.skillEffectList.push({ name: "공통" });
     this.skillRequirement = skillRequirement;
     this.feature = feature
     if(!feature){
@@ -112,6 +112,12 @@ class SkillList {
         "atk", null, 
         "10%의 확률로 상대를 화상 상태로 만든다.", 
         [{ name: "화상", probability: 10 }], {}),
+      
+      new Skill("기합구슬", "격투", 
+        120, 70, 5, 0, 
+        "catk", null, 
+        "10%의 확률로 상대의 특수방어를 떨어뜨린다.", 
+        [{ name: "능력치증감", probability: 10, abil: "cdef", target: "def", value: -1 }], {}),
 
       new Skill("무릎차기", "격투", 
         130, 90, 10, 0, 
@@ -226,6 +232,12 @@ class SkillList {
         "atk", null, 
         "우선도 +1",
         [], {touch:true}),
+
+      new Skill("풀묶기", "풀", 
+        90, 100, 20, 0,  
+        "catk", null, 
+        "풀을 휘감아서 상대를 쓰러뜨린다.",
+        [], {}),
 
       new Skill("칼춤", "노말", 
         "-", "-", 20, 0,  
@@ -624,6 +636,34 @@ class SkillList {
         30, 100, 15, 0, 
         "atk", null, "상대를 독 상태로 만들고 아군의 필드 및 교체불가, 씨뿌리기 효과를 제거한다",
         [{ name: "독", probability: 100 }, {name:"스핀"}],{}),
+
+      new Skill("지오컨트롤", "페어리", 
+        "-", "-", 10, 0,  
+        "buf", null, 
+        "1턴째에 에너지를 흡수하여 2턴째에 특수공격, 특수방어, 스피드를 2랭크 올린다.",
+        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: 2 },
+          { name: "능력치증감", probability: 100, abil: "cdef", target: "atk", value: 2 },
+          { name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 2 }],{charge: {text:" 파워를 모으고 있다!", head:"names"}}),
+
+      new Skill("메테오빔", "바위", 
+        120, 90, 10, 0,  
+        "catk", null, 
+        "1턴째에 특수공격을 1랭크 올리고 2턴째에 상대를 공격한다.",
+        [],{charge: { head:"name", text:"에게서 우주의 힘이 넘쳐난다!", rankUpStat:"catk"}}),
+        
+      new Skill("데스윙", "비행",
+        80, 100, 10, 0, 
+        "catk", null, 
+        "준 데미지의 ¾만큼 HP를 회복한다.",
+        [{ name: "흡수" }], 
+        ),
+        
+      new Skill("속임수", "악",
+        95, 100, 14, 0, 
+        "atk", null, 
+        "상대방의 공격력으로 데미지를 계산한다.",
+        [], 
+        ),
     ];
   }
   // ID로 객체 찾기

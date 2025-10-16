@@ -1,7 +1,7 @@
 import { damage } from "../../function/damage";
 import { random } from "../../util/randomCheck";
 import { rank } from "../../function/rank";
-import { recover } from "../../function/recover";
+import { recover, recoverNoText } from "../../function/recover";
 import { burn, mabi, poison, freeze, confuse } from "../../function/statusCondition";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
@@ -20,6 +20,8 @@ function skillEffectSearch(name) {
         }
       }
       if (def.status.freeze && !def.faint) {
+        // 얼음치료와 상태이상 부여 이벤트가 동시에 있으면 상태이상 부여가 먼저 발생한다
+        // => 상태이상 부여가 실패하고 얼음이 녹아 상태이상이 없는 상태가 된다
         const meltSkills = ["열탕", "스팀버스트", "열사의대지", "휘적휘적포"];
         if (sk.type === "불꽃" || meltSkills.includes(sk.name)) {
           let freezeCureText = def.name + "의 얼음이 녹았다!";
@@ -305,6 +307,7 @@ function skillEffectSearch(name) {
       }
     },
     자동: (battle, enqueue, skillEffect) => {
+      // 역린
       const atk = battle[battle.turn.atk];
       if (atk.auto !== null) {
         return;
@@ -357,6 +360,20 @@ function skillEffectSearch(name) {
       if (atk.tempStatus.seed) {
         //씨뿌리기 제거
         atk.tempStatus.seed = null;
+      }
+    },
+
+    흡수: (battle, enqueue, skillEffect) => {
+      //풀피면 체력 회복 안되고 -> 생구 터짐
+      let atk = battle[battle.turn.atk];
+      const def = battle[battle.turn.def];
+      const text = josa(`${def.name}#{으로}`) + "부터 체력을 흡수했다!";
+      recoverNoText(battle, (atk.temp.recentDamageGive * 3) / 4, battle.turn.atk);
+      if (atk.hp !== atk.origin.hp) {
+        enqueue({
+          battle,
+          text: text,
+        });
       }
     },
   };

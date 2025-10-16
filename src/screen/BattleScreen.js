@@ -30,13 +30,16 @@ const Battle = () => {
   // 0130  갸라도스
   // 0145  썬더
   // 0149  망나뇽
-  // 0205   쏘콘
+  // 0205  쏘콘
   // 0250  칠색조
   // 0382  가이오가
   // 0497  샤로다
   // 0644  블랙큐레무
   // 0645  랜드로스
+  // 0716  제르네아스
+  // 0717  이벨타르
   // 0778  따라큐
+  // 0793  텅비드
   // 0812  고릴타
   // 0815  에이스번
   // 0888  자시안
@@ -63,7 +66,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["0896-1", "0645-1", "0901-1"], ["0205-1", "0645-1", "0901-1"]);
+      battleObject = createBattle(["0717-1", "0645-1", "0901-1"], ["0897-1", "0645-1", "0901-1"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);
@@ -108,7 +111,7 @@ const Battle = () => {
       }
     }
     if (queue.length === 0) {
-      if (battle.player.auto) {
+      if (battle.player.auto || battle.player.charge) {
         battleStart(battle, battle.player.autoSN, npcChoice(battle, battle.player.autoSN), queueObject);
       } else {
         setText(battle.player.origin.names + " 무엇을 할까?");

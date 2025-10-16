@@ -3,6 +3,7 @@ import { typeCheck, typeCheckText, typeCheckAbil } from "../util/typeCheck";
 import { damage, attackDamage } from "../function/damage";
 import { applySkillEffects, applySkillEffectSerial } from "./skiiEffect";
 import { beforeSkillCheck, afterSkillCheck, beforeTurnPass } from "./skillCheck";
+import { rank } from "../function/rank";
 
 export const skillUse = (bt, enqueue) => {
   const skillNumber = bt.turn.atkSN;
@@ -35,6 +36,34 @@ export const skillUse = (bt, enqueue) => {
   // 스킬 사용 텍스트
   const skillUseText = atk.name + "의 " + sk.name + "!";
   enqueue({ battle: bt, text: skillUseText });
+
+  //충전 기술
+  // 충전 후 리베로가 발동된다
+  if (sk.feature.charge) {
+    if (atk.charge) {
+      //이미 충전을 한 경우 그냥 지나간다
+      atk.charge = null;
+      atk.autoSN = null;
+    } else {
+      const chargeObj = sk.feature.charge;
+      enqueue({ battle: bt, text: atk[chargeObj.head] + sk.feature.charge.text });
+      // 충전 텍스트 (ex:"제르네아스는 파워를 모으고 있다!", "텅비드에게서 우주의 힘이 넘쳐난다!")
+      if (chargeObj.rankUpStat) {
+        rank(bt, enqueue, bt.turn.atk, chargeObj.rankUpStat, 1);
+      }
+
+      if (atk.item === "파워풀허브") {
+        atk.item = null;
+        enqueue({ battle: bt, text: atk.name + "은 파워풀허브로 힘이 넘쳐흐른다!" });
+        enqueue({ battle: bt, text: skillUseText }); // 스킬 텍스트 2번 뜨는게 맞음
+      } else {
+        atk.charge = true;
+        atk.autoSN = skillNumber;
+
+        return;
+      }
+    }
+  }
 
   if (afterSkillCheck(bt, enqueue) === false) {
     // 스킬명이 뜬 다음에 처리하는 트리거
