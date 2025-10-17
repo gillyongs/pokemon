@@ -17,15 +17,20 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
   const atk = bt[atks];
   const def = bt[defs];
 
-  if (atk.item === "통굽부츠" || flyingCheck(bt, atk)) {
+  if (atk.item === "통굽부츠") {
     return;
   }
 
   // 스텔스록
   if (bt.field[atks].sRock) {
+    // 공중 판정 안받음 (풍선도)
     const text = atk.name + "에게 뾰족한 바위가 박혔다!";
     const typeDamage = typeCheck("바위", atk.type1, atk.type2);
     damage(bt, Math.floor((atk.origin.hp * typeDamage) / 8), atks, enqueue, text);
+  }
+
+  if (flyingCheck(bt, atk)) {
+    return;
   }
   // 독압정
   let poisonSpikes = bt.field[atks].poisonSpikes;

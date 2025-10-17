@@ -84,10 +84,9 @@ export const damageCalculate = (battle) => {
 
   // 방어포켓몬의 방어/특방 능력치
   let noRankDefStat = defensePokemon.origin.stat[defenseStat];
-  let rankNumDef = attackPokemon.tempStatus.rank[attackStat];
-  let rankUpDef = getMultiplier(rankNumDef);
+  let rankNumDef = defensePokemon.tempStatus.rank[defenseStat];
+  let rankUpDef = Math.floor(getMultiplier(rankNumDef));
   let defStat = noRankDefStat * rankUpDef;
-
   // 성스러운칼 부가효과
   // 상대방의 능력치 변화를 무시한다
   for (const effect of sk.skillEffectList) {
@@ -107,6 +106,8 @@ export const damageCalculate = (battle) => {
     defStat = noRankDefStat;
   }
 
+  atkStat = Math.floor(atkStat);
+  defStat = Math.floor(defStat);
   // 속임수 ================================================================================================================
 
   if (sk.name === "속임수") {
@@ -275,7 +276,39 @@ export const damageCalculate = (battle) => {
     attackPokemon.log.damage1 += " * 1.1 (펀치글러브)";
   }
 
-  // 타오르는불꽃 ==========================================================
+  // 특성 ===========================================================================================
+
+  if (defAbil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
+    if (noTggAtk) {
+      damage *= 0.5;
+      attackPokemon.log.damage1 += " * 0.5 (멀티스케일)";
+    }
+    // 멀티스케일은 공격 데미지에만 적용된다
+    // 혼란 자해 데미지에 적용 안되다함 (위키피셜)
+    // 생구에 멀스 적용 안됨
+    // 고정 데미지 기술(일격기, 카운터, 지구던지기, 카타스트로피)도 적용 안 됨
+  }
+
+  if ((atkAbil === "페어리오라" || defAbil === "페어리오라") && sk.type === "페어리") {
+    // 틀깨기 적용 안됨
+    damage = (damage * 4) / 3;
+    attackPokemon.log.damage1 += " * 4/3 (페어리오라)";
+  }
+
+  if ((atkAbil === "다크오라" || defAbil === "다크오라") && sk.type === "악") {
+    damage = (damage * 4) / 3;
+    attackPokemon.log.damage1 += " * 4/3 (다크오라)";
+  }
+
+  if (atkAbil === "이판사판" && sk.feature?.rebound) {
+    damage *= 1.2;
+    attackPokemon.log.damage1 += " * 1.2 (이판사판)";
+  }
+
+  if (atkAbil === "옹골찬턱" && sk.feature?.bite) {
+    damage *= 1.5;
+    attackPokemon.log.damage1 += " * 1.5 (옹골찬턱)";
+  }
 
   if (sk.type === "불꽃" && attackPokemon.tempStatus.flashFire) {
     damage *= 1.5;
@@ -321,35 +354,6 @@ export const damageCalculate = (battle) => {
   if (attackPokemon.temp.critical) {
     damage *= 1.5;
     attackPokemon.log.damage2 += " * 1.5 (급소)";
-  }
-
-  // 특성 ===============================================================================
-
-  if (defAbil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
-    if (noTggAtk) {
-      damage *= 0.5;
-      attackPokemon.log.damage2 += " * 0.5 (멀티스케일)";
-    }
-    // 멀티스케일은 공격 데미지에만 적용된다
-    // 혼란 자해 데미지에 적용 안되다함 (위키피셜)
-    // 생구에 멀스 적용 안됨
-    // 고정 데미지 기술(일격기, 카운터, 지구던지기, 카타스트로피)도 적용 안 됨
-  }
-
-  if ((atkAbil === "페어리오라" || defAbil === "페어리오라") && sk.type === "페어리") {
-    // 틀깨기 적용 안됨
-    damage = (damage * 4) / 3;
-    attackPokemon.log.damage2 += " * 4/3 (페어리오라)";
-  }
-
-  if ((atkAbil === "다크오라" || defAbil === "다크오라") && sk.type === "악") {
-    damage = (damage * 4) / 3;
-    attackPokemon.log.damage2 += " * 4/3 (다크오라)";
-  }
-
-  if (atkAbil === "이판사판" && sk.feature?.rebound) {
-    damage *= 1.2;
-    attackPokemon.log.damage2 += " * 1.2 (이판사판)";
   }
 
   // 랜덤값 ======================================================================================================
@@ -431,6 +435,11 @@ const powerCalculate = (battle, skill) => {
   if (skill.name === "탁쳐서떨구기") {
     // 상대한테 도구가 있고 떨굴 수 있는 아이템이면 위력 1.5배
     if (itemName !== null && !noNullItem.includes(itemName)) power *= 1.5;
+  }
+  if (skill.name === "아가미물기") {
+    // 먼저 공격하면 위력 2배
+    if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].temp.useSkill) power *= 2;
+    // 유턴이나 교체로 나온 포켓몬은 본인이 스킬을 시전한게 아니므로 2배 적용됨
   }
   if (skill.name === "해수스파우팅") {
     // 체력비례 데미지

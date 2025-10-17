@@ -205,11 +205,19 @@ export const afterSkillCheck = (bt, enqueue) => {
 
   // 스킬이 빗나간 경우
   // 리베로가 발동된다
-  let accurCheck = random(atk.origin[skKey].accur, true);
+  const weatherSkill = ["번개", "폭풍"];
+  let accurPercent = atk.origin[skKey].accur;
+  if (weatherSkill.includes(sk.name) && bt.field.weather === "쾌청") {
+    accurPercent = 50;
+  }
+
+  let accurCheck = random(accurPercent, true);
   //필중기는 random 안에서 처리
-  if (sk.name === "번개" && bt.field.weather === "비") {
+
+  if (weatherSkill.includes(sk.name) && bt.field.weather === "비") {
     accurCheck = true;
   }
+
   if (!accurCheck && skillType !== "buf") {
     atk.temp.jumpKickFail = true;
     enqueue({ battle: bt, text: "하지만 빗나갔다!" });

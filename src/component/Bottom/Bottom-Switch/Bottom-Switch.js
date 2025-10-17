@@ -59,6 +59,12 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
   } else if (bottom === "switch") {
     // 행동으로 교체를 고른 경우
     handleSwitch = (index) => {
+      if (battle.player.tempStatus.switchLock !== null) {
+        // 교체불가 상태 (마그마스톰)
+        // 유턴이나 기절로 인한 교체는 가능
+        setText("교체할 수 없다!");
+        return;
+      }
       setBottom("skill");
       battleStart(battle, index, npcChoice(battle, index), queueObject);
     };

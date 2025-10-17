@@ -115,6 +115,7 @@ function skillEffectSearch(name) {
           pokemon.type2 = null;
         }
         if (pokemon.type1 === null) {
+          // 불가능하긴한데 일단 넣음
           pokemon.type2 = "노말";
         }
       }
@@ -376,6 +377,16 @@ function skillEffectSearch(name) {
           battle,
           text: text,
         });
+      }
+    },
+
+    구속: (battle, enqueue, skillEffect) => {
+      const def = battle[battle.turn.def];
+      if (def.tempStatus.switchLock === null && !def.faint) {
+        def.tempStatus.switchLock = skillEffect.skillName;
+        def.tempStatus.switchLockTurnRemain = Math.random() < 0.5 ? 4 : 5;
+        //4~5턴인데 확률은 모르겠음
+        enqueue({ battle, text: def.names + " " + skillEffect.text });
       }
     },
   };

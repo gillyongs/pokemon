@@ -24,6 +24,14 @@ export const switchPokemon = (battle, IN, OUT) => {
     //맹독 스탯 초기화
   }
 
+  let op = IN === "player" ? "npc" : "player";
+  if (battle[op].tempStatus.switchLock !== null) {
+    battle[op].tempStatus.switchLock = null;
+    battle[op].tempStatus.switchLockTurnRemain = null;
+    // 마그마스톰 등으로 상대를 구속 후 교체하면 구속 효과가 풀린다
+    // 물론 해당 턴에는 교체할 수 없다
+  }
+
   const ts = pokemonIn.tempStatus;
 
   Object.keys(ts).forEach((key) => {

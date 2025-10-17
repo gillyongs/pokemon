@@ -83,6 +83,29 @@ export const turnEnd = (battle, enqueue) => {
     recover(battle, Math.floor(seedDamage), fastUser, enqueue, "씨뿌리기가 " + slow.name + "의 체력을 빼앗는다!");
   }
 
+  if (fast.tempStatus.switchLock && !fast.faint) {
+    let skillName = fast.tempStatus.switchLock;
+    fast.tempStatus.switchLockTurnRemain -= 1;
+    if (fast.tempStatus.switchLockTurnRemain === 0) {
+      fast.tempStatus.switchLockTurnRemain = null;
+      fast.tempStatus.switchLock = null;
+      enqueue({ battle, text: fast.names + " " + skillName + "에게서 벗어났다!" });
+    } else {
+      damage(battle, Math.floor(fast.origin.hp / 8), fastUser, enqueue, fast.names + " " + skillName + "의 데미지를 입고 있다.");
+    }
+  }
+  if (slow.tempStatus.switchLock && !slow.faint) {
+    let skillName = slow.tempStatus.switchLock;
+    slow.tempStatus.switchLockTurnRemain -= 1;
+    if (slow.tempStatus.switchLockTurnRemain === 0) {
+      slow.tempStatus.switchLockTurnRemain = null;
+      slow.tempStatus.switchLock = null;
+      enqueue({ battle, text: slow.names + " " + skillName + "에게서 벗어났다!" });
+    } else {
+      damage(battle, Math.floor(slow.origin.hp / 8), slowUser, enqueue, slow.names + " " + skillName + "의 데미지를 입고 있다.");
+    }
+  }
+
   // 상태이상 데미지 부여 ============================================================================================
 
   if (fast.status.poison && !fast.faint) {

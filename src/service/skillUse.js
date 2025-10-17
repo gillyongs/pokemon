@@ -1,5 +1,5 @@
 import { damageCalculate } from "../util/damageCalculate";
-import { typeCheck, typeCheckText, typeCheckAbil } from "../util/typeCheck";
+import { typeCheckText, typeCheckAbil } from "../util/typeCheck";
 import { damage, attackDamage } from "../function/damage";
 import { applySkillEffects, applySkillEffectSerial } from "./skiiEffect";
 import { beforeSkillCheck, afterSkillCheck, beforeTurnPass } from "./skillCheck";
@@ -115,7 +115,7 @@ export const skillUse = (bt, enqueue) => {
 
     //연속기
     if (sk.feature?.twoFive || sk.feature?.suru) {
-      let num = randomTwoFive(atk.item);
+      let num = randomTwoFive(bt, atk.item);
       //2~5회 공격. 확률은 35 35 15 15
       if (sk.feature?.suru) {
         //수류연타는 3회 고정
@@ -207,8 +207,12 @@ const handleAutoFail = (bt) => {
   }
 };
 
-const randomTwoFive = (item) => {
+const randomTwoFive = (battle, item) => {
   const r = Math.random() * 100; // 0 ~ 99.999...
+
+  if (battle[battle.turn.atk].abil === "스킬링크") {
+    return 5;
+  }
 
   if (item === "속임수주사위") {
     // 최소 4타 보정

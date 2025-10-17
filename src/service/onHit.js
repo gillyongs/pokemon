@@ -64,4 +64,10 @@ export const applyOnHitEvents = (battle, enqueue) => {
     const text = atkPokemon.names + " 울퉁불퉁멧 때문에 데미지를 입었다!";
     damage(battle, atkPokemon.origin.hp / 6, atk, enqueue, text);
   }
+  if (defPokemon.item === "풍선") {
+    //기절하거나 탁떨에 맞아도 풍선은 터진다
+    const text = defPokemon.name + "의 풍선이 터졌다!";
+    defPokemon.item = null;
+    enqueue({ battle, text: text });
+  }
 };

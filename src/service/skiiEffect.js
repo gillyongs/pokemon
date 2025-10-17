@@ -2,7 +2,7 @@ import skillEffectSearch from "../entity/Skill/SkillEffect";
 
 export const applySkillEffects = (bt, enqueue) => {
   // skillUser 끝부분에서 호출되는 함수
-  const skillEffectList = bt[bt.turn.atk].temp.useSkill.skillEffectList;
+  const skillEffectList = bt[bt.turn.atk].temp.useSkill?.skillEffectList;
   if (Array.isArray(skillEffectList)) {
     skillEffectList.forEach((skillEffect) => {
       if (skillEffect.name) {
@@ -35,7 +35,7 @@ export const skillEffectsAfter = (bt, enqueue) => {
   // skillUse 끝부분에서 처리함
   // 스킬이 빗나갔을때에도 발동되는 부가효과만 여기서 처리.
   // 아직은 무릎차기 밖에 없음
-  const skillEffectList = bt[bt.turn.atk].temp.useSkill.skillEffectList;
+  const skillEffectList = bt[bt.turn.atk].temp.useSkill?.skillEffectList;
   if (Array.isArray(skillEffectList)) {
     skillEffectList.forEach((skillEffect) => {
       if (skillEffect.name === "빗나감패널티") {

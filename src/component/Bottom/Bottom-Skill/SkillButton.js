@@ -4,15 +4,11 @@ import { typeCheckConsole } from "../../../util/typeCheck";
 import { battleStart } from "../../../service/battleStart";
 import { npcChoice } from "../../../npc/npc";
 
-const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => {
+const SkillButton = ({ battle, skillNumber, queueObject, setText }) => {
   const skill = "sk" + skillNumber;
   const pp = "pp" + skillNumber;
-  let sk;
-  if (!pokemon) {
-    sk = battle.player.origin[skill];
-  } else {
-    sk = pokemon.origin[skill];
-  }
+  let sk = battle.player.origin[skill];
+
   const sn = getNumberText(skillNumber);
 
   const handleDequeue = () => {
@@ -86,7 +82,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, pokemon, setText }) => 
       }}>
       <ICON src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
       <NAME skname={sk.name}>{sk.name}</NAME>
-      <EFFECT>{typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2, sk.stype)}</EFFECT>
+      <EFFECT>{typeCheckConsole(battle.player, sk.type, battle.npc.type1, battle.npc.type2, sk.stype)}</EFFECT>
       <PP>
         {battle.player[pp]}/{sk.pp}
       </PP>

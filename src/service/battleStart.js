@@ -22,7 +22,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   let npcUseSkill = null;
   if (typeof actNumber === "number") {
     playerUseSkill = bt.player.origin["sk" + actNumber];
-    if (playerUseSkill.name === "유턴" || playerUseSkill.name === "볼트체인지") {
+    if (playerUseSkill.feature.uturn) {
       uTurnTrigger = true;
     }
   }
@@ -68,9 +68,9 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     typeof npcActNumber === "number"
   ) {
     let fastUser = skillSpeedCheck(bt);
-    bt.turn.fastActUser = fastUser; //기습 사용조건때문에 넣는다
     bt.player.temp.useSkill = playerUseSkill;
     bt.npc.temp.useSkill = npcUseSkill;
+    bt.turn.fastActUser = fastUser; //기습 사용조건때문에 넣는다
 
     if (fastUser === "player") {
       attackPlayer(bt, actNumber, npcActNumber, enqueue);

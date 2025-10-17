@@ -15,6 +15,12 @@ class Skill {
     // 방어 가능 여부와 판정이 비슷하나 날려버리기는 방어를 뚫는다
     this.skillEffectList = skillEffectList;
     this.skillEffectList.push({ name: "공통" });
+    const lateAct = ["유턴"];  //공통(생명의구슬)보다 늦게 터지는거
+    const moveItems = this.skillEffectList.filter(item => lateAct.includes(item.name));
+    this.skillEffectList = this.skillEffectList.filter(item => !lateAct.includes(item.name));
+    this.skillEffectList.push(...moveItems);
+    // 생구 반동을 받고 유턴으로 들어가야함
+    
     this.skillRequirement = skillRequirement;
     this.feature = feature
     if(!feature){
@@ -131,6 +137,12 @@ class SkillList {
         "atk", {name:"기습"}, 
         "상대가 쓴 기술이 공격기술이 아니면 실패한다. (우선도 +1)",
         [], {touch:true}),
+
+      new Skill("아가미물기", "물", 
+        85, 100, 10, 0,
+        "atk", null, 
+        "상대보다 먼저 기술을 사용하면 위력이 2배가 된다.",
+        [], {bite:true, touch:true}),
 
       new Skill("아이언헤드", "강철",
         80, 100, 15, 0, 
@@ -251,6 +263,17 @@ class SkillList {
         "자신의 공격을 2랭크 올린다.",
         [{ name: "능력치증감", probability: 100, abil: "atk", target: "atk", value: 2 }],),
 
+      new Skill("껍질깨기", "노말", 
+        "-", "-", 15, 0,  
+        "buf", null, 
+        "자신의 방어와 특수방어를 1랭크 떨어뜨리고 공격과 특수공격, 스피드를 2랭크 올린다.",
+        [{ name: "능력치증감", probability: 100, abil: "def", target: "atk", value: -1 },
+          { name: "능력치증감", probability: 100, abil: "cdef", target: "atk", value: -1 },
+          { name: "능력치증감", probability: 100, abil: "atk", target: "atk", value: 2 },
+          { name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: 2 },
+          { name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 2 }
+        ], {}),
+
       new Skill("용의춤", "드래곤", 
         "-", "-", 20, 0,  
         "buf", null, 
@@ -335,7 +358,7 @@ class SkillList {
         70, 100, 20, 0,  
         "atk",  null, 
         "공격 후 다른 포켓몬과 교체한다.",
-        [{name: "유턴"}], {touch:true}),
+        [{name: "유턴"}], {touch:true, uturn:true}),
 
       new Skill("해수스파우팅", "물", 
         150, 100, 5, 0,  
@@ -365,7 +388,7 @@ class SkillList {
         70, 100, 20, 0,  
         "catk",  null, 
         "공격 후 다른 포켓몬과 교체한다.",
-        [{name: "유턴"}]),
+        [{name: "유턴"}],{uturn:true}),
 
       new Skill("매지컬샤인", "페어리", 
         80, 100, 10, 0,  
@@ -414,7 +437,14 @@ class SkillList {
         "atk", null, 
         "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.",
         [{ name: "능력치증감", probability: 20, abil: "def", target: "def", value: -1 }],
-      {touch:true} ),
+      {touch:true, bite:true} ),
+
+      new Skill("사이코팽", "에스퍼", 
+        85, 100, 10, 0,  
+        "atk", null, 
+        "상대 진영에 빛의장막이나 리플렉터가 존재한다면 파괴할 수 있다.",
+        [{ name: "벽부수기",  }],
+      {touch:true, bite:true} ),
 
       new Skill("성스러운불꽃", "불꽃", 
         100, 95, 5, 0,  
@@ -645,15 +675,21 @@ class SkillList {
         "atk", null, "2-5회 동안 연속으로 쓴다",
         [], {twoFive:true}),
 
+      new Skill("록블라스트", "바위", 
+        25, 90, 10, 0, 
+        "atk", null, "2-5회 동안 연속으로 쓴다",
+        [], {twoFive:true}),
+
       new Skill("스케일샷", "드래곤", 
         25, 90, 20, 0, 
         "atk", null, "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.",
         [{ name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 },
           { name: "능력치증감", probability: 100, abil: "def", target: "atk", value: -1 }
         ], {twoFive:true}),
+
       new Skill("킬러스핀", "독", 
         30, 100, 15, 0, 
-        "atk", null, "상대를 독 상태로 만들고 아군의 필드 및 교체불가, 씨뿌리기 효과를 제거한다",
+        "atk", null, "상대를 독 상태로 만들고 아군의 필드 및 구속, 씨뿌리기 효과를 제거한다",
         [{ name: "독", probability: 100 }, {name:"스핀"}],{}),
 
       new Skill("지오컨트롤", "페어리", 
@@ -688,6 +724,13 @@ class SkillList {
         "catk", {name:"반사", stat:"catk"}, 
         "상대에게 받은 특수공격의 데미지를 2배로 만들어 그 상대에게 돌려준다. (우선도-5)",
         [], {reflect: true} 
+        ),
+
+      new Skill("마그마스톰", "불꽃",
+        100, 75, 5, 0, 
+        "catk", null, 
+        "세차게 타오르는 불꽃 속에 4~5턴 동안 상대를 가두어 공격한다.",
+        [{name:"구속", skillName:"마그마스톰", text: "마그마의 소용돌이에 갇혔다!"}], {} 
         ),
     ];
   }

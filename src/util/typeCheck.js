@@ -1,4 +1,6 @@
 export const typeCheck = (stype, type1, type2) => {
+  // 특성을 반영하지 않고 오직 상성만을 본다
+  // field.js에서 스텔스록 데미지 계산에 사용
   if (typeChart[stype][type1] === 0 || typeChart[stype][type2] === 0) {
     return 0;
   }
@@ -15,9 +17,55 @@ export const typeCheck = (stype, type1, type2) => {
   return typeDamage;
 };
 
+export const typeCheckConsole = (pokemon, stype, type1, type2, skillType) => {
+  // 스킬창 밑에 뜨는 상성 텍스트
+  // 이 스킬이 상대방에게 맞았을때 상성이 뜬다
+  // 건조피부, 저수 등 상대방의 특성은 반영하면 안되지만
+  // 심안 등 본인의 특성은 반영해서 보여준다
+  // skillButton(메인화면), InfoSkillButton(교체화면)에서 호출해서 사용한다
+
+  if (skillType === "natk" || skillType === "buf") {
+    return;
+  }
+
+  if (typeChart[stype][type1] === 0 || typeChart[stype][type2] === 0) {
+    if (pokemon.abil === "심안" && (stype === "격투" || stype === "노말") && (type1 === "고스트" || type2 === "고스트")) {
+      // 심안은 공격측 특성이므로 반영해서 보여준다
+    } else {
+      return "✕ 효과가 없음";
+    }
+  }
+  let typeDamage = 1;
+  if (typeChart[stype]) {
+    if (typeChart[stype][type1]) {
+      //0이면 통과함 (그래서 앞에서 따로 체크)
+      typeDamage *= typeChart[stype][type1];
+    }
+    if (typeChart[stype][type2]) {
+      typeDamage *= typeChart[stype][type2];
+    }
+  }
+
+  if (typeDamage === 1) {
+    return "○ 효과가 있음";
+  }
+  if (typeDamage > 1) {
+    return "◎ 효과가 굉장함";
+  }
+  if (typeDamage === 0) {
+    return "✕ 효과가 없음";
+  }
+  if (typeDamage < 1) {
+    return "△ 효과가 별로";
+  }
+};
+
 export const typeCheckAbil = (battle, stype, type1, type2) => {
-  // 특성 등을 반영한 실제 상성적용
-  // 저수, 피뢰침 같은 특성은 텍스트엔 무효로 안나오게 해야하므로 함수 따로 사용
+  // 배틀에 적용되는 실제 상성
+  // 타오르는불꽃은 불꽃 기술 데미지 올라가는거 적용해야하므로 따로 처리
+
+  // damageCalculate에서 호출되며
+  // useSkill에서도 상성 텍스트 (효과가 별로인 것 같다...)나 변화기 상성 계산 (전기자석파) 계산에 쓰인다
   if (typeChart[stype][type1] === 0 || typeChart[stype][type2] === 0) {
     if (battle[battle.turn.atk].abil === "심안" && (stype === "격투" || stype === "노말") && (type1 === "고스트" || type2 === "고스트")) {
       // 그냥 지나가게
@@ -39,33 +87,9 @@ export const typeCheckAbil = (battle, stype, type1, type2) => {
   return typeDamage;
 };
 
-export const typeCheckConsole = (stype, type1, type2, skillType) => {
-  if (skillType === "natk" || skillType === "buf") {
-    return;
-  }
-  const typeDamage = typeCheck(stype, type1, type2);
-  if (typeDamage === 1) {
-    return "○ 효과가 있음";
-  }
-  if (typeDamage > 1) {
-    return "◎ 효과가 굉장함";
-  }
-  if (typeDamage === 0) {
-    return "✕ 효과가 없음";
-  }
-  if (typeDamage < 1) {
-    return "△ 효과가 별로";
-  }
-};
-
-export const typeCheckText = (stype, type1, type2) => {
-  let typeDamage;
-  if (!type1 && !type2) {
-    typeDamage = stype;
-    //인자를 하나만 받으면 typeDamage로 보고 계산 생략
-  } else {
-    typeDamage = typeCheck(stype, type1, type2);
-  }
+export const typeCheckText = (typeDamage) => {
+  // 상성 텍스트 출력
+  // skillUse에서 typeCheckAbil 호출하여 상성 계산하고 나온 보정값만 넣는다
   if (typeDamage === 1) {
     return null;
   }

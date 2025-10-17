@@ -1,22 +1,22 @@
 import styled from "styled-components";
 import { typeCheckConsole } from "../../../util/typeCheck";
 
-const LongSkillButton = ({ battle, skillNumber, setText, pokemon }) => {
+const InfoSkillButton = ({ battle, skillNumber, pokemon, setText }) => {
   const skill = "sk" + skillNumber;
   const pp = "pp" + skillNumber;
   let sk;
-  if (pokemon === undefined || pokemon === null) {
-    sk = battle.player.origin[skill];
-  } else {
-    sk = pokemon.origin[skill];
+  if (!pokemon) {
+    pokemon = battle.player;
   }
+  sk = pokemon.origin[skill];
+
   const sn = getNumberText(skillNumber);
 
   return (
     <ButtonContainer className={sn} onClick={() => setText(sk.text)}>
       <SkillTypeIcon src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
       <SkillName>{sk.name}</SkillName>
-      <SkillEffect>{typeCheckConsole(sk.type, battle.npc.type1, battle.npc.type2, sk.stype)}</SkillEffect>
+      <SkillEffect>{typeCheckConsole(pokemon, sk.type, battle.npc.type1, battle.npc.type2, sk.stype)}</SkillEffect>
       <SkillPP>
         {pokemon[pp]}/{sk.pp}
       </SkillPP>
@@ -96,4 +96,4 @@ const SkillPP = styled.div`
   border-radius: 5px;
 `;
 
-export default LongSkillButton;
+export default InfoSkillButton;

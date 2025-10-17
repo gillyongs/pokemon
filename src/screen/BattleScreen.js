@@ -17,7 +17,7 @@ import { npcChoice } from "../npc/npc";
 
 const Battle = () => {
   const location = useLocation();
-  const [battle, setBattle] = useState(createBattle(["어써러셔", "어써러셔", "어써러셔"], ["어써러셔", "어써러셔", "어써러셔"]));
+  const [battle, setBattle] = useState(createBattle(["어써러셔", "어써러셔", "어써러셔"], ["썬더", "어써러셔", "어써러셔"]));
   //개발용 배틀 객체.
   const [text, setText] = useState("");
   //화면에 보여질 텍스트 전역변수
@@ -29,6 +29,7 @@ const Battle = () => {
 
   //   샤로다               대타출동:4
   //   어써러셔             방어:2
+  //   랜드로스             유턴:4
 
   useEffect(() => {
     let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
@@ -37,7 +38,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["샹델라", "코라이돈", "어써러셔"], ["에이스번", "코라이돈", "파오젠"]);
+      battleObject = createBattle(["백마렉스", "코라이돈", "어써러셔"], ["히드런", "코라이돈", "파오젠"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);
