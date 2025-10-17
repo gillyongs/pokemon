@@ -22,13 +22,12 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   let npcUseSkill = null;
   if (typeof actNumber === "number") {
     playerUseSkill = bt.player.origin["sk" + actNumber];
+    if (playerUseSkill.name === "유턴" || playerUseSkill.name === "볼트체인지") {
+      uTurnTrigger = true;
+    }
   }
   if (typeof npcActNumber === "number") {
     npcUseSkill = bt.npc.origin["sk" + npcActNumber];
-  }
-
-  if (playerUseSkill.name === "유턴" || playerUseSkill.name === "볼트체인지") {
-    uTurnTrigger = true;
   }
 
   if (typeof actNumber === "string" && typeof npcActNumber === "string") {

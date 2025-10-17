@@ -16,9 +16,10 @@ const InfoContainer = styled.div`
 const InfoIcon = styled.img`
   position: absolute;
   width: 40px;
-  height: 80%;
-  top: 4px;
-  left: 4px;
+  height: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 8px;
   border-radius: 5px;
 `;
 

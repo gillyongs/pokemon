@@ -27,37 +27,8 @@ const Battle = () => {
   // 밑 화면 상태. 스킬, 교체, 정보
   const [bench, setBench] = useState(null);
 
-  // 0130  갸라도스
-  // 0145  썬더
-  // 0149  망나뇽
-  // 0205  쏘콘
-  // 0250  칠색조
-  // 0382  가이오가
-  // 0497  샤로다               대타출동:4
-  // 0644  블랙큐레무
-  // 0645  랜드로스
-  // 0716  제르네아스
-  // 0717  이벨타르
-  // 0778  따라큐
-  // 0793  텅비드
-  // 0812  고릴타
-  // 0815  에이스번
-  // 0888  자시안
-  // 0889  자마젠타
-  // 0890  무한다이노
-  // 0892  물라오스
-  // 0896  백마렉스
-  // 0897  흑마렉스
-  // 0901  다투곰
-  // 0902  달투곰
-  // 0970  킬라플로르
-  // 0977  어써러셔             방어:2
-  // 0987  날개치는머리
-  // 1002  파오젠
-  // 1003  딩루
-  // 1004  위유이
-  // 1007  코라이돈
-  // 1008  미라이돈
+  //   샤로다               대타출동:4
+  //   어써러셔             방어:2
 
   useEffect(() => {
     let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
@@ -66,7 +37,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["고릴타", "코라이돈", "어써러셔"], ["샤로다", "코라이돈", "파오젠"]);
+      battleObject = createBattle(["샹델라", "코라이돈", "어써러셔"], ["에이스번", "코라이돈", "파오젠"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);

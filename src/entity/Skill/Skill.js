@@ -538,6 +538,13 @@ class SkillList {
         "catk", null, 
         "30% 확률로 상대의 특수공격을 1랭크 떨어뜨린다.",
         [{ name: "능력치증감", probability: 30, abil: "catk", target: "def", value: -1 }],{} ),
+      
+      new Skill("에너지볼", "풀", 
+        90, 100, 10, 0,  
+        "catk", null, 
+        "10% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.",
+        [{ name: "능력치증감", probability: 10, abil: "cdef", target: "def", value: -1 }],{} ),
+      
 
       new Skill("전기자석파", "전기", 
         "-", 90, 20, 0,  

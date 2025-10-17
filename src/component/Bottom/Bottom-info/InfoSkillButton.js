@@ -51,12 +51,12 @@ const ButtonContainer = styled.div`
     left: 1vw;
   }
   &.two {
-    top: 48vh;
-    left: 1vw;
-  }
-  &.three {
     top: 40vh;
     right: 1vw;
+  }
+  &.three {
+    top: 48vh;
+    left: 1vw;
   }
   &.four {
     top: 48vh;
@@ -68,8 +68,9 @@ const SkillTypeIcon = styled.img`
   position: absolute;
   width: 40px;
   height: 80%;
-  top: 4px;
-  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 8px;
   border-radius: 5px;
 `;
 

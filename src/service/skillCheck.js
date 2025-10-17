@@ -183,10 +183,24 @@ export const afterSkillCheck = (bt, enqueue) => {
     }
   }
 
+  // 특성 타오르는불꽃에 불꽃 기술이 막힌 경우
+  // 방어로 막으면 특성 발동하지 않음
+  if (sk.type === "불꽃" && def.abil === "타오르는불꽃") {
+    if (def.tempStatus.flashFire) {
+      // 이미 발동된 경우
+      enqueue({ battle: bt, text: "[특성 타오르는불꽃] " + def.name + "에겐 효과가 없는 것 같다..." });
+    } else {
+      def.tempStatus.flashFire = true;
+      enqueue({ battle: bt, text: "[특성 타오르는불꽃] " + def.names + " 불꽃의 위력이 올라갔다!" });
+    }
+    return false;
+  }
+
   // 특성 옹골참에 일격기가 막힌 경우
   // 리베로가 발동된다
   if (sk.feature?.oneShot && def.abil === "옹골참") {
     enqueue({ battle: bt, text: "[특성 옹골참] " + def.name + "에겐 효과가 없는 것 같다..." });
+    return false;
   }
 
   // 스킬이 빗나간 경우

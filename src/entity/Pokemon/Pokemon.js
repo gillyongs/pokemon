@@ -65,6 +65,7 @@ class PokemonOnBattle {
       seed: null, //씨뿌리기
       substitute: null, //대타출동
       substituteHp: null, //대타출동 인형 남은 체력
+      flashFire: null, //타오르는불꽃
     };
     this.faint = null; //기절 여부
     this.auto = null; //자동 행동 여부 (역린)
