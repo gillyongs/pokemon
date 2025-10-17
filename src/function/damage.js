@@ -70,7 +70,8 @@ export function damage(battle, damageValue, getDamagePokemon, enqueue, text) {
 export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typeText, serialAttackObject) {
   const atkPokemon = battle[getDamagePokemon === "npc" ? "player" : "npc"];
   const defPokemon = battle[getDamagePokemon];
-  const useSkill = battle[battle.turn.atk].origin["sk" + battle.turn.atkSN];
+  const useSkill = atkPokemon.temp.useSkill;
+
   atkPokemon.tempStatus.recentSkillUse = useSkill;
   defPokemon.tempStatus.recentSkillGet = useSkill;
 

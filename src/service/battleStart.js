@@ -18,12 +18,16 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   bt.turn.playerSN = actNumber;
   bt.turn.npcSN = npcActNumber;
   let uTurnTrigger = false;
-  let skName;
+  let playerUseSkill = null;
+  let npcUseSkill = null;
   if (typeof actNumber === "number") {
-    skName = bt.player.origin["sk" + actNumber].name;
+    playerUseSkill = bt.player.origin["sk" + actNumber];
+  }
+  if (typeof npcActNumber === "number") {
+    npcUseSkill = bt.npc.origin["sk" + npcActNumber];
   }
 
-  if (skName === "유턴" || skName === "볼트체인지") {
+  if (playerUseSkill.name === "유턴" || playerUseSkill.name === "볼트체인지") {
     uTurnTrigger = true;
   }
 
@@ -44,6 +48,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     typeof npcActNumber === "number"
   ) {
     bt.turn.fastActUser = "player"; // 교체도 먼저 행동한 것으로 간주
+    bt.npc.temp.useSkill = npcUseSkill;
     switchPlayer(bt, actNumber, enqueue);
     attackNpc(bt, actNumber, npcActNumber, enqueue);
   } else if (
@@ -52,6 +57,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     typeof actNumber === "number"
   ) {
     bt.turn.fastActUser = "npc"; // 교체도 먼저 행동한 것으로 간주
+    bt.player.temp.useSkill = playerUseSkill;
     switchNpc(bt, npcActNumber, enqueue);
     attackPlayer(bt, actNumber, npcActNumber, enqueue);
     if (uTurnTrigger) {
@@ -64,6 +70,8 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   ) {
     let fastUser = skillSpeedCheck(bt);
     bt.turn.fastActUser = fastUser; //기습 사용조건때문에 넣는다
+    bt.player.temp.useSkill = playerUseSkill;
+    bt.npc.temp.useSkill = npcUseSkill;
 
     if (fastUser === "player") {
       attackPlayer(bt, actNumber, npcActNumber, enqueue);

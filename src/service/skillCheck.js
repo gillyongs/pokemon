@@ -16,7 +16,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
   // 선도발, 마비, 얼음으로 행동 불가시 혼란 카운트 세지 않음
 
   const atk = bt[bt.turn.atk];
-  const useSkill = atk.origin["sk" + bt.turn.atkSN];
+  const useSkill = atk.temp.useSkill;
 
   if (atk.tempStatus.taunt > 0) {
     //선 도발 맞으면 그 턴 포함 3턴
@@ -123,9 +123,9 @@ export const afterSkillCheck = (bt, enqueue) => {
     // 스텔스록, 도발, 대타출동 등 대부분의 기술이 실패할 경우 리베로가 발동되지 않지만 (= skillEffect에서 처리해도 되지만)
     // 기습과 방어는 실패해도 리베로가 발동된다
     // 애초에 기습은 공격기라 미리 처리해야한다
-    const skillFunction = skillRequirementSearch(sk.skillRequirement);
+    const skillFunction = skillRequirementSearch(sk.skillRequirement.name);
     if (typeof skillFunction === "function") {
-      const skillCheck = skillFunction(bt, enqueue);
+      const skillCheck = skillFunction(bt, enqueue, sk.skillRequirement);
       if (!skillCheck) {
         enqueue({ battle: bt, text: "하지만 실패했다!" });
         return false;

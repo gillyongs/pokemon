@@ -83,10 +83,10 @@ class Skill {
     }
       
     if (
-      typeof skillRequirement !== "string" &&
+      typeof skillRequirement !== "object" &&
       (skillRequirement !== undefined) & (skillRequirement !== null)
     ){
-      console.error("skillRequirement must be a string", skillRequirement);
+      console.error("skillRequirement must be a object", skillRequirement);
       console.error(name)
     }
       
@@ -128,7 +128,7 @@ class SkillList {
 
       new Skill("기습", "악", 
         70, 100, 5, 2,
-        "atk", "기습", 
+        "atk", {name:"기습"}, 
         "상대가 쓴 기술이 공격기술이 아니면 실패한다. (우선도 +1)",
         [], {touch:true}),
 
@@ -479,7 +479,7 @@ class SkillList {
 
       new Skill("방어", "노말", 
         "-", "-", 10, 4,  
-        "buf", "방어", 
+        "buf", {name:"방어"}, 
         "상대의 공격을 전혀 받지 않는다. 연속으로 쓰면 실패하기 쉽다. (우선도 +4)",
         [{name: "방어"}],{}),    
       
@@ -671,10 +671,16 @@ class SkillList {
         ),
         
       new Skill("속임수", "악",
-        95, 100, 14, 0, 
+        95, 100, 15, 0, 
         "atk", null, 
         "상대방의 공격력으로 데미지를 계산한다.",
         [], 
+        ),
+      new Skill("미러코트", "에스퍼",
+        '-', 100, 20, -5, 
+        "catk", {name:"반사", stat:"catk"}, 
+        "상대에게 받은 특수공격의 데미지를 2배로 만들어 그 상대에게 돌려준다. (우선도-5)",
+        [], {reflect: true} 
         ),
     ];
   }

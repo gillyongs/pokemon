@@ -6,8 +6,20 @@ function skillRequirementSearch(name) {
       if (battle.turn.atk !== battle.turn.fastActUser) {
         return false;
       }
-      const stype = battle[battle.turn.def].origin["sk" + battle.turn.defSN].stype;
+      const stype = battle[battle.turn.def].temp.useSkill.stype;
       if (stype !== "atk" && stype !== "catk") {
+        return false;
+      }
+      return true;
+    },
+    반사: (battle, enqueue, obj) => {
+      const pokemon = battle[battle.turn.atk];
+      const reflectSkill = battle[battle.turn.def].temp.useSkill;
+
+      if (reflectSkill === null || reflectSkill.stype !== obj.stat) {
+        return false;
+      }
+      if (pokemon.temp.recentDamageGet === null) {
         return false;
       }
       return true;

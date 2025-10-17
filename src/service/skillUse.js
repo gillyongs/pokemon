@@ -31,6 +31,7 @@ export const skillUse = (bt, enqueue) => {
   // 구애 스킬 고정 처리
   if (atk.item === "구애스카프" || atk.item === "구애머리띠" || atk.item === "구애안경") {
     atk.tempStatus.onlySkill = sk.name;
+    // 상대방이 기절해서 스킬 실패해도 고정됨
   }
 
   // 스킬 사용 텍스트

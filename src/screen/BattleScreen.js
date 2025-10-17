@@ -33,7 +33,7 @@ const Battle = () => {
   // 0205  쏘콘
   // 0250  칠색조
   // 0382  가이오가
-  // 0497  샤로다
+  // 0497  샤로다               대타출동:4
   // 0644  블랙큐레무
   // 0645  랜드로스
   // 0716  제르네아스
@@ -51,7 +51,7 @@ const Battle = () => {
   // 0901  다투곰
   // 0902  달투곰
   // 0970  킬라플로르
-  // 0977  어써러셔
+  // 0977  어써러셔             방어:2
   // 0987  날개치는머리
   // 1002  파오젠
   // 1003  딩루
@@ -66,7 +66,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["찌르호크", "코라이돈", "어써러셔"], ["따라큐", "코라이돈", "파오젠"]);
+      battleObject = createBattle(["고릴타", "코라이돈", "어써러셔"], ["샤로다", "코라이돈", "파오젠"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);

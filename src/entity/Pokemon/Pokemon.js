@@ -40,6 +40,7 @@ class PokemonOnBattle {
       recentDamageGive: null, // 최근 준 데미지 -> 반동, 흡수 계산에 사용
       recentDamageGet: null,
       protect: null, //방어
+      useSkill: null, //이번턴 사용한 (사용할) 스킬
     };
     this.tempStatus = {
       //교체시 초기화

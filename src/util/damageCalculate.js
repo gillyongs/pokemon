@@ -29,6 +29,10 @@ export const damageCalculate = (battle) => {
   if (sk.name === "카타스트로피") {
     return defensePokemon.hp / 2;
   }
+  if (sk.feature.reflect) {
+    // 성공 실패 조건은 skillRequurement에서 관리
+    return Math.floor(attackPokemon.temp.recentDamageGet) * 2;
+  }
 
   // 스탯 ================================================================================================================
 
