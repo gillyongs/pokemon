@@ -30,7 +30,7 @@ export const turnEnd = (battle, enqueue) => {
   if (battle.field.weather !== null) {
     battle.field.weatherTurnRemain -= 1;
     if (battle.field.weatherTurnRemain <= 0) {
-      weatherChange(battle, enqueue, null);
+      weatherChange(battle, null, enqueue, null);
     }
   }
 

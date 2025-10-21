@@ -234,7 +234,7 @@ export const damageCalculate = (battle) => {
     }
     if (sk.type === "불꽃") {
       damage *= 0.5;
-      attackPokemon.log.damage1 += " / 2 (비+불꽃)";
+      attackPokemon.log.damage1 += " * 0.5 (비+불꽃)";
     }
   }
   if (weather === "쾌청") {
@@ -244,7 +244,7 @@ export const damageCalculate = (battle) => {
     }
     if (sk.type === "물") {
       damage *= 0.5;
-      attackPokemon.log.damage1 += " / 2 (쾌청+물)";
+      attackPokemon.log.damage1 += " * 0.5 (쾌청+물)";
     }
   }
 

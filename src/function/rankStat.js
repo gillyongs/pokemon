@@ -128,3 +128,9 @@ export const maxStatFinder = (pokemon) => {
 
   return maxKey;
 };
+
+export const rankReset = (pokemon) => {
+  Object.keys(pokemon.tempStatus.rank).forEach((key) => {
+    pokemon.tempStatus.rank[key] = 0;
+  });
+};

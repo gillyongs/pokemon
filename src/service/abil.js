@@ -100,11 +100,12 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
   // -------------------------------
   const weatherAbilities = {
     잔비: { type: "weather", value: "비", text: "주변에 비가 내리기 시작했다!", head: "name" },
+    가뭄: { type: "weather", value: "쾌청", text: "주변의 햇살이 강해졌다!", head: "name" },
   };
 
   Object.entries(weatherAbilities).forEach(([abil, { type, value, text, head }]) => {
     if (atkAbil === abil && bt.field[type] !== value) {
-      weatherChange(bt, enqueue, value, `[특성 ${abil}] ${atk[head]} ${text}`);
+      weatherChange(bt, atk, enqueue, value, `[특성 ${abil}] ${atk[head]} ${text}`);
     }
   });
 
@@ -133,7 +134,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
         text: `[특성 진홍빛고동] ${atk.names} 햇살을 받아 고대의 고동을 폭발시켰다!`,
       });
     } else {
-      weatherChange(bt, enqueue, "쾌청", `[특성 진홍빛고동] ${atk.names} 햇살을 강하게 하여 고대의 고동을 폭발시켰다!`);
+      weatherChange(bt, atk, enqueue, "쾌청", `[특성 진홍빛고동] ${atk.names} 햇살을 강하게 하여 고대의 고동을 폭발시켰다!`);
     }
   }
 

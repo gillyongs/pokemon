@@ -1,15 +1,15 @@
 import { speedCheck } from "../util/speedCheck";
 import { maxStatFinder, getStatName } from "./rankStat";
 
-export const weatherChange = (battle, enqueue, weather, text) => {
+export const weatherChange = (battle, pokemon, enqueue, weather, text) => {
   const beforeWeather = battle.field.weather;
   const fastUser = speedCheck(battle);
   const slowUser = fastUser === "npc" ? "player" : "npc";
 
   if (weather === "쾌청") {
-    sunny(battle, enqueue, text);
+    sunny(battle, enqueue, text, pokemon);
   } else if (weather === "비") {
-    rainy(battle, enqueue, text);
+    rainy(battle, enqueue, text, pokemon);
   } else if (weather === null) {
     battle.field.weather = null;
     let text;
@@ -30,13 +30,14 @@ export const weatherChange = (battle, enqueue, weather, text) => {
   }
 };
 
-export const sunny = (battle, enqueue, text) => {
+export const sunny = (battle, enqueue, text, pokemon) => {
   // 이미 쾌청이면 종료
   if (battle.field.weather === "쾌청") return;
 
   // 날씨 변경
   battle.field.weather = "쾌청";
   battle.field.weatherTurnRemain = 5;
+  if (pokemon.item === "뜨거운바위") battle.field.weatherTurnRemain = 8;
 
   if (text) enqueue({ battle, text });
 
@@ -91,11 +92,12 @@ const handleProtosynthesisEnd = (battle, pokemon, enqueue) => {
   }
 };
 
-export const rainy = (battle, enqueue, text) => {
+export const rainy = (battle, enqueue, text, pokemon) => {
   if (battle.field.weather === "비") return;
 
   battle.field.weather = "비";
   battle.field.weatherTurnRemain = 5;
+  if (pokemon.item === "축축한바위") battle.field.weatherTurnRemain = 8;
 
   if (text) enqueue({ battle, text });
 };

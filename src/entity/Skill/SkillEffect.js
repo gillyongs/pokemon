@@ -1,6 +1,6 @@
 import { damage } from "../../function/damage";
 import { random } from "../../util/randomCheck";
-import { rank } from "../../function/rankStat";
+import { rank, rankReset } from "../../function/rankStat";
 import { recover, recoverNoText } from "../../function/recover";
 import { burn, mabi, poison, freeze, confuse } from "../../function/statusCondition";
 import { josa } from "josa";
@@ -388,6 +388,16 @@ function skillEffectSearch(name) {
         //4~5턴인데 확률은 모르겠음
         enqueue({ battle, text: def.names + " " + skillEffect.text });
       }
+    },
+
+    능력치초기화: (battle, enqueue, skillEffect) => {
+      // 방어 성공 여부는 skillRequirement에서 처리
+      const def = battle[battle.turn.def];
+      rankReset(def);
+      enqueue({
+        battle,
+        text: def.name + "의 능력치 변화가 원래대로 되돌아갔다!",
+      });
     },
   };
 
