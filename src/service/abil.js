@@ -152,4 +152,8 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
       });
     }
   }
+
+  if (atk.item === "풍선") {
+    enqueue({ battle: bt, text: atk.names + " 풍선으로 떠 있다!" });
+  }
 };

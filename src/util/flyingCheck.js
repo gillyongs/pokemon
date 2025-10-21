@@ -15,7 +15,9 @@ export function flyingCheck(battle, poke) {
   if (pokemon.abil === "부유") {
     return true;
   }
-
+  if (pokemon.item === "풍선") {
+    return true;
+  }
   if (pokemon.type1 === "비행" || pokemon.type2 === "비행") {
     if (pokemon.temp.roost) {
       //날개쉬기

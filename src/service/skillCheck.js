@@ -182,10 +182,10 @@ export const afterSkillCheck = (bt, enqueue) => {
     }
   }
 
-  // 특성 타오르는불꽃에 불꽃 기술이 막힌 경우엔 발동한다
+  // 특성 타오르는불꽃에 불꽃 기술이 막힌 경우 리베로가 발동한다
   // 방어로 막으면 특성 발동하지 않음
   // 대타출동 상태일때 불꽃기술 맞으면 특성 발동함
-  if (sk.type === "불꽃" && def.abil === "타오르는불꽃") {
+  if (sk.type === "불꽃" && sk.type !== "buf" && def.abil === "타오르는불꽃") {
     if (def.tempStatus.flashFire) {
       // 이미 발동된 경우
       enqueue({ battle: bt, text: "[특성 타오르는불꽃] " + def.name + "에겐 효과가 없는 것 같다..." });
@@ -193,6 +193,14 @@ export const afterSkillCheck = (bt, enqueue) => {
       def.tempStatus.flashFire = true;
       enqueue({ battle: bt, text: "[특성 타오르는불꽃] " + def.names + " 불꽃의 위력이 올라갔다!" });
     }
+    return false;
+  }
+
+  // 풍선 아이템을 지니고 있으면 땅타입 기술을 맞지 않는다
+  // 대타출동 상태여도 적용된다
+  // 그래서인지 대타출동상태일때 다른기술 맞아도 풍선이 터진다
+  if (sk.type === "땅" && sk.type !== "buf" && def.item === "풍선") {
+    enqueue({ battle: bt, text: def.name + "에겐 효과가 없는 것 같다..." });
     return false;
   }
 

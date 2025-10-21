@@ -2,7 +2,7 @@ import { type } from "@testing-library/user-event/dist/type";
 import { recover } from "../function/recover";
 import { maxStatFinder, rank } from "./rankStat.js";
 import { josa } from "josa";
-import { applyOnHitEvents } from "../service/onHit.js";
+import { applyOnHitEvents, subtituteOnHitEvents } from "../service/onHit.js";
 
 // ====================== 공통 유틸 함수 ======================
 
@@ -98,12 +98,12 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       enqueue({ battle, text: (commonText || "") + josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!" });
 
       if (!isNoTextSkill) {
-        if (atkPokemon.temp.critical) {
-          enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
-        }
         if (typeText) {
           // 효과가 굉장했다!
           enqueue({ battle, text: (commonText || "") + typeText });
+        }
+        if (atkPokemon.temp.critical) {
+          enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
         }
       }
       if (defPokemon.tempStatus.substituteHp <= skDamage) {
@@ -117,9 +117,10 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       }
       atkPokemon.temp.recentDamageGive = actualGiveDamage;
       defPokemon.temp.recentDamageGet = actualGiveDamage;
-
+      subtituteOnHitEvents(battle, enqueue);
+      // 대타출동 상태일땐 대부분의 피격 이벤트 (ex:울멧)가 발동하지 않음
+      // 대타출동 상태일때에도 발생하는 이벤트 처리 (풍선)
       return;
-      // 대타출동 상태일땐 피격 이벤트 (ex:울멧)이 발동하지 않음
     }
   }
 
@@ -184,13 +185,13 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   // 고정 데미지 기술, 일격기
 
   if (!isNoTextSkill) {
-    if (atkPokemon.temp.critical) {
-      enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
-      defaultText = false;
-    }
     if (typeText) {
       // 효과가 굉장했다!
       enqueue({ battle, text: (commonText || "") + typeText });
+      defaultText = false;
+    }
+    if (atkPokemon.temp.critical) {
+      enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
       defaultText = false;
     }
   }

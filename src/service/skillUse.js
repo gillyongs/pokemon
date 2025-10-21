@@ -69,7 +69,7 @@ export const skillUse = (bt, enqueue) => {
   if (afterSkillCheck(bt, enqueue) === false) {
     // 스킬명이 뜬 다음에 처리하는 트리거
     // 스킬에 실패하더라고 pp는 닳는다
-    // 스킬성공여부(기습, 방어), 상대방 기절 여부, 명중, 방어, 타오르는불꽃
+    // 스킬성공여부(기습, 방어), 상대방 기절 여부, 명중, 방어, 타오르는불꽃, 풍선
     // 리베로가 발동되는 조건이 있고 아닌 조건이 있어 중간에 삽입
 
     handleAutoFail(bt);
@@ -111,7 +111,8 @@ export const skillUse = (bt, enqueue) => {
       handleAutoFail(bt);
       return;
     }
-    //무효면 부가효과 안터지므로 리턴
+    // 무효면 부가효과 안터지므로 리턴
+    // 리베로는 발동된다
 
     //연속기
     if (sk.feature?.twoFive || sk.feature?.suru) {
@@ -156,7 +157,7 @@ export const skillUse = (bt, enqueue) => {
     }
     const noSubstitueSkills = ["앵콜", "도발", "저주", "흑안개", "날려버리기"];
     // 대타출동으로 막을 수 없는 상대방 대상 변화기 (natk)
-    // 트릭, 하품, 뽐내기, 전기자석파 등은 실패한다
+    // 트릭, 하품, 뽐내기, 전기자석파, 씨뿌리기 등은 실패한다
 
     if (!noSubstitueSkills.includes(sk.name) && bt[bt.turn.def].tempStatus.substitute) {
       enqueue({ battle: bt, text: "하지만 실패했다!" });

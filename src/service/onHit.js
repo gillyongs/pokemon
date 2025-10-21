@@ -65,7 +65,26 @@ export const applyOnHitEvents = (battle, enqueue) => {
     damage(battle, atkPokemon.origin.hp / 6, atk, enqueue, text);
   }
   if (defPokemon.item === "풍선") {
-    //기절하거나 탁떨에 맞아도 풍선은 터진다
+    //기절하거나 탁떨에 맞아도 풍선은 무조건 터진다
+    const text = defPokemon.name + "의 풍선이 터졌다!";
+    defPokemon.item = null;
+    enqueue({ battle, text: text });
+  }
+};
+
+export const subtituteOnHitEvents = (battle, enqueue) => {
+  // 대타출동 피격시에도 발동되는 이벤트 모음
+  // 풍선
+
+  const atk = battle.turn.atk;
+  const def = battle.turn.def;
+  const atkPokemon = battle[battle.turn.atk];
+  const defPokemon = battle[battle.turn.def];
+  const skillNumber = battle.turn.atkSN;
+  const skKey = `sk${skillNumber}`;
+  const useSkill = atkPokemon.origin[skKey];
+
+  if (defPokemon.item === "풍선") {
     const text = defPokemon.name + "의 풍선이 터졌다!";
     defPokemon.item = null;
     enqueue({ battle, text: text });
