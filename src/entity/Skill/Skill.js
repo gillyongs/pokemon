@@ -360,6 +360,18 @@ class SkillList {
         "공격 후 다른 포켓몬과 교체한다.",
         [{name: "유턴"}], {touch:true, uturn:true}),
 
+      new Skill("퀵턴", "물", 
+        60, 100, 20, 0,  
+        "atk",  null, 
+        "공격 후 다른 포켓몬과 교체한다.",
+        [{name: "유턴"}], {touch:true, uturn:true}),
+
+      new Skill("성묘", "고스트", 
+        50, 100, 10, 0,  
+        "atk",  null, 
+        "쓰러진 같은 편 포켓몬이 많을수록 기술의 위력이 올라간다.",
+        [{}], {}),
+
       new Skill("해수스파우팅", "물", 
         150, 100, 5, 0,  
         "catk", null, 
@@ -388,7 +400,7 @@ class SkillList {
         70, 100, 20, 0,  
         "catk",  null, 
         "공격 후 다른 포켓몬과 교체한다.",
-        [{name: "유턴"}],{uturn:true}),
+        [{name: "유턴"}],{uturn:true}), //접촉아님
 
       new Skill("매지컬샤인", "페어리", 
         80, 100, 10, 0,  

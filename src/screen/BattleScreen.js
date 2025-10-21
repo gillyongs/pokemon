@@ -38,7 +38,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["아고용", "가이오가", "어써러셔"], ["날개치는머리", "코라이돈", "파오젠"]);
+      battleObject = createBattle(["날개치는머리", "한카리아스", "대쓰여너"], ["날개치는머리", "한카리아스", "대쓰여너"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);

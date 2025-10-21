@@ -326,8 +326,13 @@ export const damageCalculate = (battle) => {
 
   // 자속보정 ===============================================================
   if (sk.type === attackPokemon.type1 || sk.type === attackPokemon.type2) {
-    damage *= 1.5;
-    attackPokemon.log.damage2 += " * 1.5 (자속보정)";
+    if (atkAbil === "적응력") {
+      damage *= 2;
+      attackPokemon.log.damage2 += " * 2 (자속보정+적응력)";
+    } else {
+      damage *= 1.5;
+      attackPokemon.log.damage2 += " * 1.5 (자속보정)";
+    }
   }
 
   // 상성보정 ================================================================
@@ -451,8 +456,12 @@ const powerCalculate = (battle, skill) => {
   }
   if (skill.name === "병상첨병") {
     // 상대가 상태이상이면 위력 2배
-
     if (statusCheck(battle[battle.turn.def].status)) power *= 2;
+  }
+  if (skill.name === "성묘") {
+    // 상대가 상태이상이면 위력 2배
+    if (battle[battle.turn.atk + "Bench1"].faint) power += 50;
+    if (battle[battle.turn.atk + "Bench2"].faint) power += 50;
   }
   return Math.floor(power);
 };

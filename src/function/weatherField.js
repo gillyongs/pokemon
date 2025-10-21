@@ -98,5 +98,4 @@ export const rainy = (battle, enqueue, text) => {
   battle.field.weatherTurnRemain = 5;
 
   if (text) enqueue({ battle, text });
-  console.log("aa");
 };
