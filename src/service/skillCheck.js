@@ -120,9 +120,8 @@ export const afterSkillCheck = (bt, enqueue) => {
   if (sk.skillRequirement) {
     // 기습, 방어 사용조건 체크
     // 상대가 먼저 행동할경우, 추가로 기습은 상대방이 공격기를 쓰지 않았을 경우 실패한다. (행동엔 교체가 포함된다)
-    // 스텔스록, 도발, 대타출동 등 대부분의 기술이 실패할 경우 리베로가 발동되지 않지만 (= skillEffect에서 처리해도 되지만)
-    // 기습과 방어는 실패해도 리베로가 발동된다
-    // 애초에 기습은 공격기라 미리 처리해야한다
+    // 스텔스록, 도발, 대타출동 등 대부분의 기술이 실패할 경우 리베로가 발동되지만
+    // 기습과 방어는 실패할 경우 리베로가 발동되지 않는다
     const skillFunction = skillRequirementSearch(sk.skillRequirement.name);
     if (typeof skillFunction === "function") {
       const skillCheck = skillFunction(bt, enqueue, sk.skillRequirement);
@@ -157,7 +156,7 @@ export const afterSkillCheck = (bt, enqueue) => {
 
   // ==================================================================================================================
 
-  // 방어로 막힌경우
+  // 방어에 공격이 막힌경우
   // 리베로가 발동된다
 
   if (def.temp.protect === true && skillType !== "buf") {
@@ -183,8 +182,9 @@ export const afterSkillCheck = (bt, enqueue) => {
     }
   }
 
-  // 특성 타오르는불꽃에 불꽃 기술이 막힌 경우
+  // 특성 타오르는불꽃에 불꽃 기술이 막힌 경우엔 발동한다
   // 방어로 막으면 특성 발동하지 않음
+  // 대타출동 상태일때 불꽃기술 맞으면 특성 발동함
   if (sk.type === "불꽃" && def.abil === "타오르는불꽃") {
     if (def.tempStatus.flashFire) {
       // 이미 발동된 경우
@@ -219,6 +219,7 @@ export const afterSkillCheck = (bt, enqueue) => {
   }
 
   if (!accurCheck && skillType !== "buf") {
+    // 상대방이 대타출동 상태일때 씨뿌리기가 빗나갈 수 있다 (명중해도 실패한다)
     atk.temp.jumpKickFail = true;
     enqueue({ battle: bt, text: "하지만 빗나갔다!" });
     return false;

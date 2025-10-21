@@ -4,6 +4,7 @@ import { recover } from "../function/recover";
 import { speedCheck } from "../util/speedCheck";
 import { burn, mabi, poison, freeze, sleep, confuse } from "../function/statusCondition";
 import { flyingCheck } from "../util/flyingCheck";
+import { weatherChange } from "../function/weatherField";
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
   // 화상딜, 독딜, 날개쉬기 타입복구, NPC 기절시 교체
@@ -18,6 +19,7 @@ export const turnEnd = (battle, enqueue) => {
   const field = battle.field.field;
 
   if (battle.field.trickRoom !== null) {
+    //선후공 상관없이 사용한 턴 포함 5턴
     battle.field.trickRoom -= 1;
     if (battle.field.trickRoom === 0) {
       battle.field.trickRoom = null;
@@ -27,17 +29,8 @@ export const turnEnd = (battle, enqueue) => {
 
   if (battle.field.weather !== null) {
     battle.field.weatherTurnRemain -= 1;
-    if (battle.field.weatherTurnRemain === 0) {
-      const weather = battle.field.weather;
-      battle.field.weather = null;
-      let text;
-      if (weather === "비") {
-        text = "비가 그쳤다!";
-      }
-      if (weather === "쾌청") {
-        text = "햇살이 원래대로 되돌아왔다!";
-      }
-      enqueue({ battle, text: text });
+    if (battle.field.weatherTurnRemain <= 0) {
+      weatherChange(battle, enqueue, null);
     }
   }
 
