@@ -3,6 +3,9 @@ const speedCalculate = (pokemon) => {
   let speed = pokemon.origin.stat.speed;
   pokemon.log.speedCalculate = speed;
   speed *= getMultiplier(pokemon.tempStatus.rank.speed); // 랭크업
+  if (pokemon.tempStatus.rank.speed !== 0) {
+    pokemon.log.speedCalculate += " * " + getMultiplier(pokemon.tempStatus.rank.speed) + " (랭크)";
+  }
   if (pokemon.status.mabi) {
     // 마비에 걸릴시 스피드 절반 감소
     speed *= 0.5;

@@ -50,15 +50,27 @@ class Battle {
         player: {
           healingWish: null, // 치유소원 -> 필드에 적용 후 교체해 나올떄 = field.js에서 처리
           wish: null, //희망사항 -> 다음턴 종료시 필드에 있는 포켓몬 = turnEnd.js에서 처리
+          reflect: null, // 리플렉터
+          lightScreen: null, // 빛의장막
         },
         npc: {
           healingWish: null, // 치유소원
           wish: null, // { name: "맘복치", amount: 시전자체력절반, turnRemain: 1 };
+          reflect: null, // 리플렉터
+          lightScreen: null, // 빛의장막
         },
       },
     };
 
     this.common = {
+      player: {
+        teamKr: "우리",
+        teamKrReverse: "상대",
+      },
+      npc: {
+        teamKr: "상대",
+        teamKrReverse: "우리",
+      },
       temp: {
         // 매 턴 초기화 필요
         uturn: null, // 플레이어 유턴 사용 여부

@@ -99,7 +99,7 @@ export const getMultiplier = (rank) => {
   if (rank >= 1 && rank <= 6) {
     return 1 + rank * 0.5; // 예: 1일 경우 1.5, 2일 경우 2
   } else if (rank <= -1 && rank >= -6) {
-    return mRank[String(rank)];
+    return Number(mRank[String(rank)].toFixed(2));
   } else if (rank === 0) {
     return 1;
   }

@@ -73,7 +73,10 @@ export const turnEnd = (battle, enqueue) => {
     //{ name: "시전자 이름", amount: 시전자체력절반, turnRemain: 1 };
     if (wish.turnRemain === 0) {
       battle.field.noClean[fastUser].wish = null;
-      recover(battle, Math.floor(wish.amount), fastUser, enqueue, wish.name + "의 희망사항이 이루어졌다!");
+      if (fast.hp !== fast.origin.hp) {
+        // 풀피면 아예 발동 안함
+        recover(battle, Math.floor(wish.amount), fastUser, enqueue, wish.name + "의 희망사항이 이루어졌다!");
+      }
     }
     if (wish.turnRemain === 1) {
       //희망사항 사용한 턴
@@ -83,15 +86,20 @@ export const turnEnd = (battle, enqueue) => {
 
   if (battle.field.noClean[slowUser].wish !== null) {
     const wish = battle.field.noClean[slowUser].wish;
+    //{ name: "시전자 이름", amount: 시전자체력절반, turnRemain: 1 };
     if (wish.turnRemain === 0) {
       battle.field.noClean[slowUser].wish = null;
-      recover(battle, Math.floor(wish.amount), slowUser, enqueue, wish.name + "의 희망사항이 이루어졌다!");
+      if (slow.hp !== slow.origin.hp) {
+        // 풀피면 아예 발동 안함
+        recover(battle, Math.floor(wish.amount), slowUser, enqueue, wish.name + "의 희망사항이 이루어졌다!");
+      }
     }
     if (wish.turnRemain === 1) {
       //희망사항 사용한 턴
       wish.turnRemain = 0;
     }
   }
+
   if (fast.item === "먹다남은음식" && !fast.faint && fast.hp < fast.origin.hp) {
     recover(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, fast.names + " 먹다남은음식으로 인해 조금 회복했다.");
   }

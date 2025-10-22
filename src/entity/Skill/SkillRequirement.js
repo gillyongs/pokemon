@@ -13,6 +13,7 @@ function skillRequirementSearch(name) {
       return true;
     },
     반사: (battle, enqueue, obj) => {
+      // 사이코쇼크는 아무튼 특수기이므로 미러코트에 반사됨
       const pokemon = battle[battle.turn.atk];
       const reflectSkill = battle[battle.turn.def].temp.useSkill;
 

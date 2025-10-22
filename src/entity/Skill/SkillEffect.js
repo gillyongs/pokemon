@@ -400,6 +400,7 @@ function skillEffectSearch(name) {
     },
 
     능력치초기화: (battle, enqueue, skillEffect) => {
+      // 능력치 변화가 없어도 발동은 된다
       const def = battle[battle.turn.def];
       rankReset(def);
       enqueue({
@@ -408,15 +409,85 @@ function skillEffectSearch(name) {
       });
     },
     치유소원: (battle, enqueue, skillEffect) => {
+      // 연속 사용해도 실패하지 않는다 (하지만 효과가 중첩되지도 않는다)
       const skillUser = battle[battle.turn.atk];
       battle.field.noClean[battle.turn.atk].healingWish = true;
       handleFaint(skillUser, enqueue, battle);
     },
 
     희망사항: (battle, enqueue, skillEffect) => {
+      if (battle.field.noClean[battle.turn.atk].wish !== null) {
+        //연속사용 안됨
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+        return;
+      }
       const skillUser = battle[battle.turn.atk];
       battle.field.noClean[battle.turn.atk].wish = { name: skillUser.name, amount: Math.floor(skillUser.origin.hp / 2), turnRemain: 1 };
       // 희망사항의 회복량은 시전자 체력의 절반
+    },
+
+    리플렉터: (battle, enqueue, skillEffect) => {
+      const user = battle.turn.atk;
+      const skillUser = battle[user];
+      const field = battle.field.noClean[user];
+      if (field.reflect !== null) {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+        return;
+      }
+      let num = 5;
+      if (skillUser.item === "빛의점토") num = 8;
+      battle.field.noClean[user].reflect = num;
+      enqueue({
+        battle,
+        text: battle.common[user].teamKr + " 편은 리플렉터로 물리공격에 강해졌다!",
+      });
+    },
+
+    빛의장막: (battle, enqueue, skillEffect) => {
+      const user = battle.turn.atk;
+      const skillUser = battle[user];
+      const field = battle.field.noClean[user];
+      if (field.lightScreen !== null) {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+        return;
+      }
+      let num = 5;
+      if (skillUser.item === "빛의점토") num = 8;
+      battle.field.noClean[user].lightScreen = num;
+      enqueue({
+        battle,
+        text: battle.common[user].teamKr + " 편은 빛의장막으로 특수공격에 강해졌다!",
+      });
+    },
+
+    벽부수기: (battle, enqueue, skillEffect) => {
+      const def = battle.turn.def;
+      if (battle.field.noClean[def].reflect === null && battle.field.noClean[def].lightScreen === null) {
+        return;
+      }
+      if (battle.field.noClean[def].reflect !== null) {
+        battle.field.noClean[def].reflect = null;
+        enqueue({
+          battle,
+          text: battle.common[battle.turn.def].teamKr + " 편의 리플렉터가 깨졌다!",
+        });
+      }
+      if (battle.field.noClean[def].lightScreen !== null) {
+        battle.field.noClean[def].lightScreen = null;
+        enqueue({
+          battle,
+          text: battle.common[battle.turn.def].teamKr + " 편의 빛의장막이 깨졌다!",
+        });
+      }
     },
   };
 

@@ -1,5 +1,4 @@
 import { rank, getStatName, maxStatFinder } from "../function/rankStat";
-import { getMultiplier } from "../function/rankStat";
 import { weatherChange } from "../function/weatherField";
 // ======================================================
 // applyAbilityEffects
@@ -59,10 +58,9 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
       battle: bt,
       text: `[특성 혼연일체] ${atk.names} 두 가지 특성을 겸비한다!`,
     });
-    const team = atk.team === "player" ? "상대" : "우리";
     enqueue({
       battle: bt,
-      text: `[특성 혼연일체] ${team} 편은 긴장해서 나무열매를 먹을 수 없게 되었다!`,
+      text: `[특성 혼연일체] ${bt.common[atk.team].teamKrReverse} 편은 긴장해서 나무열매를 먹을 수 없게 되었다!`,
     });
   }
 
@@ -112,6 +110,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
 
   const fieldAbilities = {
     그래스메이커: { type: "field", value: "그래스필드", text: "발밑에 풀이 무성해졌다!", head: "name" },
+    일렉트릭메이커: { type: "field", value: "일렉트릭필드", text: "발밑에 전기가 떠돌기 시작했다!", head: "name" },
   };
 
   Object.entries(fieldAbilities).forEach(([abil, { type, value, text, head }]) => {

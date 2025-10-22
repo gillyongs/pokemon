@@ -140,15 +140,23 @@ export const damageCalculate = (battle) => {
       atkStr += " * 1.5 (근성)";
     }
 
+    if (attackPokemon.tempStatus.protosynthesis === "atk") {
+      atkStat *= 1.3;
+      atkStr += " * 1.3 (고대활성)";
+    }
+
     if (attackPokemon.status.burn !== null && attackStat === "atk" && attackPokemon.abil !== "근성") {
       // 화상 상태이면 공격력 절반
       atkStat *= 0.5;
       atkStr += " * 0.5 (화상)";
     }
 
-    if (attackPokemon.tempStatus.protosynthesis === "atk") {
-      atkStat *= 1.3;
-      atkStr += " * 1.3 (고대활성)";
+    if (battle.field.noClean[battle.turn.def].reflect) {
+      if (sk.feature?.wallBreaker) {
+      } else {
+        atkStat *= 0.5;
+        atkStr += " * 0.5 (리플렉터)";
+      }
     }
 
     if (defAbil === "재앙의목간" && atkAbil !== "재앙의목간") {
@@ -175,6 +183,15 @@ export const damageCalculate = (battle) => {
       if (noTggAtk) {
         atkStat *= 0.75;
         atkStr += " * 0.75 (재앙의그릇)";
+      }
+    }
+
+    if (battle.field.noClean[battle.turn.def].lightScreen) {
+      // 사이코쇼크도 빛장 영향 받는다
+      if (sk.feature?.wallBreaker) {
+      } else {
+        atkStat *= 0.5;
+        atkStr += " * 0.5 (빛의장막)";
       }
     }
     if (attackPokemon.tempStatus.protosynthesis === "catk") {
