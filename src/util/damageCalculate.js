@@ -217,6 +217,10 @@ export const damageCalculate = (battle, serial) => {
       defStat *= 0.75;
       defStr += " * 0.75 (재앙의검)";
     }
+    if (defensePokemon.item === "진화의휘석" && defensePokemon.origin.feature?.evo) {
+      defStat *= 1.5;
+      defStr += " * 1.5 (진화의휘석)";
+    }
   }
 
   // 특방 (cdef) ===================================
@@ -232,6 +236,10 @@ export const damageCalculate = (battle, serial) => {
     if (atkAbil === "재앙의구슬" && defAbil !== "재앙의구슬") {
       defStat *= 0.75;
       defStr += " * 0.75 (재앙의구슬)";
+    }
+    if (defensePokemon.item === "진화의휘석" && defensePokemon.origin.feature?.evo) {
+      defStat *= 1.5;
+      defStr += " * 1.5 (진화의휘석)";
     }
   }
 

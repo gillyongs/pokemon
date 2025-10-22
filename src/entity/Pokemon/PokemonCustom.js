@@ -29,6 +29,7 @@ class BattlePokemon {
     this.namess = pokemon.namess;
     this.type1 = pokemon.type1;
     this.type2 = pokemon.type2;
+    this.feature = pokemon.feature
 
     this.stat = {
       atk: null,

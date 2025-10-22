@@ -2,7 +2,7 @@ import { josa } from "josa";
 class Pokemon {
   // 포켓몬 원본 객체
   // ReadOnly, 불변값
-  constructor(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2) {
+  constructor(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2, feature) {
     // prettier-ignore
     this._validateParams(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2);
     this.id = id;
@@ -17,9 +17,10 @@ class Pokemon {
     this.speed = speed;
     this.type1 = type1;
     this.type2 = type2;
+    this.feature = feature;
   }
   // prettier-ignore
-  _validateParams(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2){
+  _validateParams(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2, feature){
     if (typeof id !== "string") console.error("id must be a string", id);
     if (typeof name !== "string") console.error("name must be a string", name);
     if (typeof total !== "number")
@@ -38,6 +39,8 @@ class Pokemon {
       console.error("type1 must be a string", type1);
     if (type2 !== null && typeof type2 !== "string")
       console.error("type2 must be a string or null", type2);
+    if (feature !== undefined && typeof type2 !== "object")
+      console.error("feature must be a object or undefined", feature);
   }
 }
 // prettier-ignore
@@ -47,6 +50,7 @@ class PokemonRepository {
       //     번호      이름   총종족값 HP 공격 방어 특공 특방 스피드 (나무위키순)
 new Pokemon("0059", "윈디", 555, 90, 110, 80, 100,80, 95, "불꽃", null),
 new Pokemon("0091", "파르셀", 525, 50, 95, 180, 85, 45, 70, "물", "얼음"),
+new Pokemon("0113", "럭키", 450, 250, 5, 5, 35, 105, 50, "노말", null, {evo: true}),
 new Pokemon("0130", "갸라도스", 540, 95, 125, 79, 60, 100, 81, "물", "비행"),
 new Pokemon("0145", "썬더", 580, 90, 90, 85, 125, 90, 100, "전기", "비행"),
 new Pokemon("0149", "망나뇽", 600, 91, 134, 95, 100, 100, 80, "드래곤", "비행"),
