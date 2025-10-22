@@ -151,6 +151,18 @@ class SkillList {
         [{ name: "풀죽음", probability: 30 }], 
         {touch:true}),
 
+      new Skill("헤비봄버", "강철",
+        120, 100, 10, 0, 
+        "atk", null, 
+        "무거운 몸으로 상대에게 부딪쳐 공격한다. ",
+        [], {touch:true}),
+
+      new Skill("에어슬래시", "비행",
+        75, 95, 15, 0, 
+        "catk", null, 
+        "30%의 확률로 상대를 풀죽게 만든다.",
+        [{ name: "풀죽음", probability: 30 }], {}),
+
       new Skill("폭포오르기", "물",
         80, 100, 15, 0, 
         "atk", null, 
@@ -184,6 +196,12 @@ class SkillList {
         "catk", null, 
         "10% 확률로 상대를 독 상태로 만든다.",
         [{ name: "독", probability: 10 }], {}),
+
+      new Skill("독찌르기", "독", 
+        80, 100, 20, 0, 
+        "atk", null, 
+        "30% 확률로 상대를 독 상태로 만든다.",
+        [{ name: "독", probability: 30 }], {touch: true}),
 
       new Skill("화염방사", "불꽃", 
         90, 100, 15, 0, 
@@ -680,24 +698,29 @@ class SkillList {
       new Skill("수류연타", "물", 
         25, 100, 5, 0, 
         "atk", null, "물 흐르듯 3회의 연격을 날린다. 반드시 급소에 맞는다.",
-        [], {touch:true, punch:true, suru:true, mustCritical: true}),
+        [], {touch:true, punch:true, suru:true, mustCritical: true, serial: true}),
 
       new Skill("고드름침", "얼음", 
         25, 100, 30, 0, 
         "atk", null, "2-5회 동안 연속으로 쓴다",
-        [], {twoFive:true}),
+        [], {twoFive:true, serial: true}),
 
       new Skill("록블라스트", "바위", 
         25, 90, 10, 0, 
         "atk", null, "2-5회 동안 연속으로 쓴다",
-        [], {twoFive:true}),
+        [], {twoFive:true, serial: true}),
 
       new Skill("스케일샷", "드래곤", 
         25, 90, 20, 0, 
         "atk", null, "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.",
         [{ name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 },
           { name: "능력치증감", probability: 100, abil: "def", target: "atk", value: -1 }
-        ], {twoFive:true}),
+        ], {twoFive:true, serial: true}),
+
+      new Skill("트리플악셀", "얼음", 
+        20, 90, 10, 0, 
+        "atk", null, "최대 3회 연속으로 공격한다. 기술이 명중할 때마다 위력이 올라간다.",
+        [], {triple:true, serial: true, touch: true}),
 
       new Skill("킬러스핀", "독", 
         30, 100, 15, 0, 

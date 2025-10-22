@@ -4,6 +4,7 @@ import { damage, attackDamage } from "../function/damage";
 import { applySkillEffects, applySkillEffectSerial } from "./skiiEffect";
 import { beforeSkillCheck, afterSkillCheck, beforeTurnPass } from "./skillCheck";
 import { rank } from "../function/rankStat";
+import { random } from "../util/randomCheck";
 
 export const skillUse = (bt, enqueue) => {
   const skillNumber = bt.turn.atkSN;
@@ -114,14 +115,20 @@ export const skillUse = (bt, enqueue) => {
     // 리베로는 발동된다
 
     //연속기
-    if (sk.feature?.twoFive || sk.feature?.suru) {
-      let num = randomTwoFive(bt, atk.item);
-      //2~5회 공격. 확률은 35 35 15 15
-      if (sk.feature?.suru) {
+    if (sk.feature?.serial) {
+      let num = 777;
+      if (sk.feature?.twoFive) {
+        //2~5회 공격. 확률은 35 35 15 15
+        num = randomTwoFive(bt, atk.item);
+      } else if (sk.feature?.suru) {
         //수류연타는 3회 고정
         num = 3;
+      } else if (sk.feature?.triple) {
+        //최대 3회 공격. 본인 명중률에 따라 결정
+        num = randomTripple(bt, atk.item, sk.accur);
       }
       for (let i = 1; i <= num; i++) {
+        skillDamage = damageCalculate(bt, i); // 트리플악셀 위력 재계산
         attackDamage(bt, skillDamage, bt.turn.def, enqueue, null, { num: i, first: i === 1, last: i === num });
         if (def.faint) {
           break;
@@ -222,6 +229,7 @@ const randomTwoFive = (battle, item) => {
 
   if (item === "속임수주사위") {
     // 최소 4타 보정
+    // 첫 공격은 빗나갈 수 있음
     if (r < 85) return 4; // 70 ~ 84.999 (85%)
     else return 5; // 85 ~ 99.999 (15%) -> 5회 확률은 정확히 모르겠음
   }
@@ -230,4 +238,10 @@ const randomTwoFive = (battle, item) => {
   else if (r < 70) return 3; // 35 ~ 69.999 (35%)
   else if (r < 85) return 4; // 70 ~ 84.999 (15%)
   else return 5; // 85 ~ 99.999 (15%)
+};
+
+const randomTripple = (battle, item, accur) => {
+  if (!random(accur)) return 1; // 이미 앞에서 명중 한번 체크 했으므로 최소 1 리턴
+  if (!random(accur)) return 2;
+  return 3;
 };

@@ -4,7 +4,7 @@ import { noNullItem } from "../entity/Item";
 import { flyingCheck } from "./flyingCheck";
 import { pokemonNoStatusCheck } from "../function/statusCondition";
 
-export const damageCalculate = (battle) => {
+export const damageCalculate = (battle, serial) => {
   // 데미지를 "계산"만 해서 주는 함수
   // battle 객체 내부의 값을 바꾸지 않는다 (log 제외)
   // => 지닌 아이템, 특성이 바뀌는 기합의띠, 탈은 damage 함수에서 처리한다
@@ -234,7 +234,7 @@ export const damageCalculate = (battle) => {
 
   // 위력 ======================================================================================================
 
-  let power = powerCalculate(battle, sk);
+  let power = powerCalculate(battle, sk, serial);
   // 위력이 바뀌는 기술은 여기서 처리
   // ex) 해수스파우팅, 탁쳐서 떨구기
 
@@ -451,7 +451,7 @@ const getRandomNumber = () => {
   return weightedNumbers.find(({ cumulative }) => randomValue <= cumulative).num;
 };
 
-const powerCalculate = (battle, skill) => {
+const powerCalculate = (battle, skill, serial) => {
   const atk = battle[battle.turn.atk];
   let power = skill.power;
   const itemName = battle[battle.turn.def].item;
@@ -480,6 +480,11 @@ const powerCalculate = (battle, skill) => {
     // 상대가 상태이상이면 위력 2배
     if (battle[battle.turn.atk + "Bench1"].faint) power += 50;
     if (battle[battle.turn.atk + "Bench2"].faint) power += 50;
+  }
+  if (skill.name === "트리플악셀") {
+    if (serial === 1) power = 20;
+    if (serial === 2) power = 40;
+    if (serial === 3) power = 60;
   }
   return Math.floor(power);
 };
