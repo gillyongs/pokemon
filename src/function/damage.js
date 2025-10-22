@@ -6,7 +6,7 @@ import { applyOnHitEvents, subtituteOnHitEvents } from "../service/onHit.js";
 
 // ====================== 공통 유틸 함수 ======================
 
-const noTextSkills = ["카타스트로피"];
+const noTextSkills = ["카타스트로피", "지구던지기"];
 
 // HP 감소 적용
 function applyDamage(defPokemon, damage) {

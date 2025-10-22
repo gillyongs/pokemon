@@ -298,6 +298,13 @@ class SkillList {
         "자신의 공격과 스피드를 1랭크 올린다.",
         [{ name: "능력치증감", probability: 100, abil: "atk", target: "atk", value: 1 },
           { name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 }],),
+
+      new Skill("명상", "에스퍼", 
+        "-", "-", 20, 0,  
+        "buf", null, 
+        "자신의 특수공격과 특수방어를 1랭크 올린다.",
+        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: 1 },
+          { name: "능력치증감", probability: 100, abil: "cdef", target: "atk", value: 1 }],),
         
       new Skill("섀도크루", "고스트", 
         70, 100, 15, 0,  
@@ -494,6 +501,12 @@ class SkillList {
         "최대 HP의 절반만큼 회복한다.",
         [{ name: "회복" }], ),
 
+      new Skill("알낳기", "노말", 
+        "-", "-", 5, 0,  
+        "buf", null, 
+        "최대 HP의 절반만큼 회복한다.",
+        [{ name: "회복" }], ),
+
       new Skill("브레이브버드", "비행", 
         120, 100, 15, 0,  
         "atk", null, 
@@ -553,7 +566,13 @@ class SkillList {
         "-", 90, 10, 0,  
         "catk", null, 
         "파멸적인 재앙에 휩쓸리게 하여 상대의 HP를 절반으로 만든다.",
-        [],{}),    
+        [],{}),   
+      
+      new Skill("지구던지기", "격투", 
+        "-", 100, 20, 0,  
+        "atk", null, 
+        "자신의 레벨과 똑같은 데미지를 상대에게 준다.",
+        [],{touch: true}),    
 
       new Skill("스텔스록", "바위", 
         "-", "-", 20, 0,  
