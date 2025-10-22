@@ -43,16 +43,6 @@ function processWeather(battle, enqueue) {
     weatherChange(battle, null, enqueue, null);
     return;
   }
-
-  const msgMap = {
-    쾌청: "햇볕이 쨍쩅하다.",
-    비: "비가 내리고있다.",
-    모래바람: "모래바람이 거세게 분다.",
-    싸라기눈: "싸라기눈이 내리고있다.",
-  };
-
-  const text = msgMap[battle.field.weather];
-  if (text) enqueue({ battle, text });
 }
 
 /* -------------------------------------------------------------------------------------------------

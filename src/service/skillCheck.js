@@ -18,15 +18,6 @@ export const beforeSkillCheck = (bt, enqueue) => {
   const atk = bt[bt.turn.atk];
   const useSkill = atk.temp.useSkill;
 
-  if (atk.tempStatus.taunt > 0) {
-    //선 도발 맞으면 그 턴 포함 3턴
-    //후 도발 맞으면 그 다음턴부터 3턴
-    //풀죽음이나 상태이상으로 행동 못해도 턴은 지나갈 것 같음 (추정)
-    //선도발로 변화기 막히는건 밑에서 처리
-    //도발 풀리는건 turnEnd에서 처리
-    atk.tempStatus.taunt -= 1;
-  }
-
   // 수면
   if (atk.status.sleep > 0) {
     // 후 수면 맞으면 그 다음턴은 확정 수면 = 사용자 행동마다 카운트

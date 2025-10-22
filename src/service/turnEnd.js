@@ -1,10 +1,10 @@
-import { damage } from "../function/damage";
 import { switchNpc } from "./switch";
-import { recover } from "../function/recover";
 import { speedCheck } from "../util/speedCheck";
-import { burn, mabi, poison, freeze, sleep, confuse } from "../function/statusCondition";
-import { flyingCheck } from "../util/flyingCheck";
-import { weatherChange } from "../function/weatherField";
+import { processFieldEffects } from "./turnEnd/fieldEvent";
+import { processWish } from "./turnEnd/wishEvent";
+import { processItemEffects } from "./turnEnd/itemEvent";
+import { processSkillEffects } from "./turnEnd/skillEvent";
+import { processStatusCondition } from "./turnEnd/statusConditonEvent";
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
   // 화상딜, 독딜, 날개쉬기 타입복구, NPC 기절시 교체
@@ -16,208 +16,24 @@ export const turnEnd = (battle, enqueue) => {
   const slowUser = fastUser === "player" ? "npc" : "player";
   const fast = battle[fastUser];
   const slow = battle[slowUser];
-  const field = battle.field.field;
 
-  if (battle.field.trickRoom !== null) {
-    //선후공 상관없이 사용한 턴 포함 5턴
-    battle.field.trickRoom -= 1;
-    if (battle.field.trickRoom === 0) {
-      battle.field.trickRoom = null;
-      enqueue({ battle, text: "뒤틀린 시공이 원래대로 되돌아왔다!" });
-    }
-  }
-
-  if (battle.field.weather !== null) {
-    battle.field.weatherTurnRemain -= 1;
-    if (battle.field.weatherTurnRemain <= 0) {
-      weatherChange(battle, null, enqueue, null);
-    } else {
-      let continueText = "";
-      if (battle.field.weather === "쾌청") continueText = "햇볕이 쨍쩅하다.";
-      if (battle.field.weather === "비") continueText = "비가 내리고있다.";
-      enqueue({ battle, text: continueText });
-    }
-  }
-
-  if (field !== null) {
-    let fieldEndText;
-    if (field === "그래스필드") {
-      fieldEndText = "발밑의 풀이 사라졌다!";
-      const text = "의 체력이 회복되었다!";
-      if (fast.hp < fast.origin.hp && !fast.faint && !flyingCheck(battle, fast)) {
-        recover(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, "[그래스필드] " + fast.name + text);
-      }
-      if (slow.hp < slow.origin.hp && !slow.faint && !flyingCheck(battle, slow)) {
-        recover(battle, Math.floor(slow.origin.hp / 16), slowUser, enqueue, "[그래스필드] " + slow.name + text);
-      }
-    }
-
-    if (field === "일렉트릭필드") {
-      fieldEndText = "발밑의 전기가 사라졌다!";
-    }
-    const bf = battle.field;
-    bf.fieldTurnRemain -= 1;
-    if (bf.fieldTurnRemain === 0) {
-      bf.fieldTurnRemain = null;
-      bf.field = null;
-      enqueue({ battle, text: fieldEndText });
-    }
-  }
+  //트릭룸 날씨 필드
+  processFieldEffects(battle, enqueue);
 
   // 희망사항
-  // 스킬을 사용한 다음턴 체력의 1/2를 회복한다
-  // 교체하면 교체한 포켓몬이 (시전자의 체력 1/2만큼) 회복한다
-  // 희망사항 -> 먹밥 -> 독뎀 순서
-  if (battle.field.noClean[fastUser].wish !== null) {
-    const wish = battle.field.noClean[fastUser].wish;
-    //{ name: "시전자 이름", amount: 시전자체력절반, turnRemain: 1 };
-    if (wish.turnRemain === 0) {
-      battle.field.noClean[fastUser].wish = null;
-      if (fast.hp !== fast.origin.hp) {
-        // 풀피면 아예 발동 안함
-        recover(battle, Math.floor(wish.amount), fastUser, enqueue, wish.name + "의 희망사항이 이루어졌다!");
-      }
-    }
-    if (wish.turnRemain === 1) {
-      //희망사항 사용한 턴
-      wish.turnRemain = 0;
-    }
-  }
+  // 희망사항 -> 먹밥 -> 독뎀 순서, 어지간하면 회복이 먼저
+  processWish(battle, enqueue, fastUser);
+  processWish(battle, enqueue, slowUser);
 
-  if (battle.field.noClean[slowUser].wish !== null) {
-    const wish = battle.field.noClean[slowUser].wish;
-    //{ name: "시전자 이름", amount: 시전자체력절반, turnRemain: 1 };
-    if (wish.turnRemain === 0) {
-      battle.field.noClean[slowUser].wish = null;
-      if (slow.hp !== slow.origin.hp) {
-        // 풀피면 아예 발동 안함
-        recover(battle, Math.floor(wish.amount), slowUser, enqueue, wish.name + "의 희망사항이 이루어졌다!");
-      }
-    }
-    if (wish.turnRemain === 1) {
-      //희망사항 사용한 턴
-      wish.turnRemain = 0;
-    }
-  }
+  // 아이템 (먹밥)
+  processItemEffects(battle, enqueue, fastUser, slowUser);
 
-  if (fast.item === "먹다남은음식" && !fast.faint && fast.hp < fast.origin.hp) {
-    recover(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, fast.names + " 먹다남은음식으로 인해 조금 회복했다.");
-  }
-  if (slow.item === "먹다남은음식" && !slow.faint && slow.hp < slow.origin.hp) {
-    recover(battle, Math.floor(slow.origin.hp / 16), slowUser, enqueue, slow.names + " 먹다남은음식으로 인해 조금 회복했다.");
-  }
+  // 기술 (씨뿌리기, 마그마스톰, 도발, 하품, 역린)
+  processSkillEffects(battle, enqueue, fastUser, slowUser);
 
-  if (fast.tempStatus.seed && !fast.faint) {
-    const seedDamage = damage(battle, Math.floor(fast.origin.hp / 8), fastUser, enqueue);
-    recover(battle, Math.floor(seedDamage), slowUser, enqueue, "씨뿌리기가 " + fast.name + "의 체력을 빼앗는다!");
-  }
+  // 상태이상 처리
+  processStatusCondition(battle, enqueue, fastUser, slowUser);
 
-  if (slow.tempStatus.seed && !slow.faint) {
-    const seedDamage = damage(battle, Math.floor(slow.origin.hp / 8), slowUser, enqueue);
-    recover(battle, Math.floor(seedDamage), fastUser, enqueue, "씨뿌리기가 " + slow.name + "의 체력을 빼앗는다!");
-  }
-
-  if (fast.tempStatus.switchLock && !fast.faint) {
-    let skillName = fast.tempStatus.switchLock;
-    fast.tempStatus.switchLockTurnRemain -= 1;
-    if (fast.tempStatus.switchLockTurnRemain === 0) {
-      fast.tempStatus.switchLockTurnRemain = null;
-      fast.tempStatus.switchLock = null;
-      enqueue({ battle, text: fast.names + " " + skillName + "에게서 벗어났다!" });
-    } else {
-      damage(battle, Math.floor(fast.origin.hp / 8), fastUser, enqueue, fast.names + " " + skillName + "의 데미지를 입고 있다.");
-    }
-  }
-  if (slow.tempStatus.switchLock && !slow.faint) {
-    let skillName = slow.tempStatus.switchLock;
-    slow.tempStatus.switchLockTurnRemain -= 1;
-    if (slow.tempStatus.switchLockTurnRemain === 0) {
-      slow.tempStatus.switchLockTurnRemain = null;
-      slow.tempStatus.switchLock = null;
-      enqueue({ battle, text: slow.names + " " + skillName + "에게서 벗어났다!" });
-    } else {
-      damage(battle, Math.floor(slow.origin.hp / 8), slowUser, enqueue, slow.names + " " + skillName + "의 데미지를 입고 있다.");
-    }
-  }
-
-  // 상태이상 데미지 부여 ============================================================================================
-
-  if (fast.status.poison && !fast.faint) {
-    damage(battle, Math.floor(fast.origin.hp / 8), fastUser, enqueue, fast.names + " 독에 의한 데미지를 입었다!");
-  }
-  if (slow.status.poison && !slow.faint) {
-    damage(battle, Math.floor(slow.origin.hp / 8), slowUser, enqueue, slow.names + " 독에 의한 데미지를 입었다!");
-  }
-  if (fast.status.mpoison && !fast.faint) {
-    damage(battle, Math.floor((fast.origin.hp * fast.status.mpoison) / 16), fastUser, enqueue, fast.names + " 독에 의한 데미지를 입었다!");
-    fast.status.mpoison += 1;
-  }
-  if (slow.status.mpoison && !slow.faint) {
-    damage(battle, Math.floor((slow.origin.hp * slow.status.mpoison) / 16), slowUser, enqueue, slow.names + " 독에 의한 데미지를 입었다!");
-    slow.status.mpoison += 1;
-  }
-  if (fast.status.burn && !fast.faint) {
-    damage(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, fast.names + " 화상 데미지를 입었다!");
-  }
-  if (slow.status.burn && !slow.faint) {
-    damage(battle, Math.floor(slow.origin.hp / 16), slowUser, enqueue, slow.names + " 화상 데미지를 입었다!");
-  }
-
-  if (fast.item === "화염구슬" && !fast.faint && !fast.status.burn) {
-    //화염구슬로 화상을 입은 턴엔 화상 데미지를 입지 않는다
-    burn(battle, fast.team, enqueue, true);
-  }
-  if (slow.item === "화염구슬" && !slow.faint && !slow.status.burn) {
-    burn(battle, slow.team, enqueue, true);
-  }
-
-  if (fast.tempStatus.hapum === 0 && !fast.faint) {
-    fast.tempStatus.hapum = null;
-    sleep(battle, fast.team, enqueue, true);
-  }
-  if (slow.tempStatus.hapum === 0 && !slow.faint) {
-    slow.tempStatus.hapum = null;
-    sleep(battle, slow.team, enqueue, true);
-  }
-  if (fast.tempStatus.hapum === 1 && !fast.faint) {
-    fast.tempStatus.hapum = 0;
-  }
-  if (slow.tempStatus.hapum === 1 && !slow.faint) {
-    slow.tempStatus.hapum = 0;
-  }
-
-  let autoConfuseText = fast.names + " 몹시 지쳐서 혼란에 빠졌다!";
-  if (fast.auto !== null && !fast.faint) {
-    //역린 등 자동행동
-    fast.auto -= 1;
-
-    if (fast.auto === 0) {
-      fast.auto = null;
-      fast.autoSN = null;
-      confuse(battle, fastUser, enqueue, autoConfuseText);
-    }
-  }
-
-  if (slow.auto !== null && !slow.faint) {
-    slow.auto -= 1;
-    if (slow.auto === 0) {
-      slow.auto = null;
-      slow.autoSN = null;
-      confuse(battle, slowUser, enqueue, autoConfuseText);
-    }
-  }
-
-  if (fast.tempStatus.taunt === 0 && !fast.faint) {
-    // 도발 해제는 턴이 종료될때 실행된다 (연속 도발을 막기 위해서일듯 함)
-    let wakeUpText = fast.names + " 도발의 효과가 풀렸다!";
-    fast.tempStatus.taunt = null;
-    enqueue({ battle: battle, text: wakeUpText });
-  }
-  if (slow.tempStatus.taunt === 0 && !slow.faint) {
-    let wakeUpText = slow.names + " 도발의 효과가 풀렸다!";
-    slow.tempStatus.taunt = null;
-    enqueue({ battle: battle, text: wakeUpText });
-  }
   let tempPlayer = battle.player.temp;
   let tempNpc = battle.npc.temp;
   let temp = battle.common.temp;

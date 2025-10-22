@@ -263,7 +263,14 @@ function skillEffectSearch(name) {
           text: "하지만 실패했다!",
         });
       } else {
-        defPokemon.tempStatus.taunt = 3;
+        let num = 4;
+        if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].temp.useSkill) {
+          // 선도발을 썼거나                                   교체해서 나온 상대방이 도발을 맞은 경우
+          num = 3;
+          // 그 턴 포함 3턴
+        }
+        //후도발의 경우 그 다음턴 부터 3턴
+        defPokemon.tempStatus.taunt = num;
         enqueue({
           battle,
           text: defPokemon.names + " 도발에 넘어가 버렸다!",
