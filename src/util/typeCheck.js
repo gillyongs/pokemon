@@ -20,7 +20,7 @@ export const typeCheck = (stype, type1, type2) => {
 export const typeCheckConsole = (pokemon, stype, type1, type2, skillType) => {
   // 스킬창 밑에 뜨는 상성 텍스트
   // 이 스킬이 상대방에게 맞았을때 상성이 뜬다
-  // 건조피부, 저수 등 상대방의 특성은 반영하면 안되지만
+  // 부유, 건조피부, 저수 등 상대방의 특성은 반영하면 안되지만
   // 심안 등 본인의 특성은 반영해서 보여준다
   // skillButton(메인화면), InfoSkillButton(교체화면)에서 호출해서 사용한다
 

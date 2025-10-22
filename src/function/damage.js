@@ -6,8 +6,6 @@ import { applyOnHitEvents, subtituteOnHitEvents } from "../service/onHit.js";
 
 // ====================== 공통 유틸 함수 ======================
 
-const noTextSkills = ["카타스트로피", "지구던지기"];
-
 // HP 감소 적용
 function applyDamage(defPokemon, damage) {
   const prevHp = defPokemon.hp;
@@ -75,7 +73,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   atkPokemon.tempStatus.recentSkillUse = useSkill;
   defPokemon.tempStatus.recentSkillGet = useSkill;
 
-  const isNoTextSkill = noTextSkills.includes(useSkill.name) || useSkill.feature.oneShot;
+  const isNoTextSkill = useSkill.feature?.noText || useSkill.feature?.oneShot;
   // 일격기나 고정데미지 스킬은 상성, 급소 텍스트가 뜨지 않는다
   let atkAbil = battle[battle.turn.atk].abil;
   let atkAbilObj = battle[battle.turn.atk].abilObj;

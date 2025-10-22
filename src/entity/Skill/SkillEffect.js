@@ -445,6 +445,11 @@ function skillEffectSearch(name) {
       battle.field.noClean[battle.turn.atk].healingWish = true;
       handleFaint(skillUser, enqueue, battle);
     },
+    초승달춤: (battle, enqueue, skillEffect) => {
+      const skillUser = battle[battle.turn.atk];
+      battle.field.noClean[battle.turn.atk].lunarDance = true;
+      handleFaint(skillUser, enqueue, battle);
+    },
 
     희망사항: (battle, enqueue, skillEffect) => {
       if (battle.field.noClean[battle.turn.atk].wish !== null) {

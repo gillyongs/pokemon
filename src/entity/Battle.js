@@ -49,12 +49,14 @@ class Battle {
         // 고속스핀 등으로 인해 없어지지 않는 필드 요소
         player: {
           healingWish: null, // 치유소원 -> 필드에 적용 후 교체해 나올떄 = field.js에서 처리
+          lunarDance: null, // 초승달춤
           wish: null, //희망사항 -> 다음턴 종료시 필드에 있는 포켓몬 = turnEnd.js에서 처리
           reflect: null, // 리플렉터
           lightScreen: null, // 빛의장막
         },
         npc: {
           healingWish: null, // 치유소원
+          lunarDance: null, // 초승달춤
           wish: null, // { name: "맘복치", amount: 시전자체력절반, turnRemain: 1 };
           reflect: null, // 리플렉터
           lightScreen: null, // 빛의장막

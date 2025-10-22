@@ -17,6 +17,26 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
   const atk = bt[atks];
   const def = bt[defs];
 
+  //초승달춤
+  if (bt.field.noClean[atks].lunarDance) {
+    if (atk.hp === atk.origin.hp && pokemonNoStatusCheck(atk) && atk.pp1 === atk.origin.sk1.pp && atk.pp2 === atk.origin.sk2.pp && atk.pp3 === atk.origin.sk3.pp && atk.pp4 === atk.origin.sk4.pp) {
+      // 회복할게 없는 경우
+    } else {
+      enqueue({ battle: bt, text: atk.names + " 신비한 달빛에 둘러싸였다!" });
+      bt.field.noClean[atks].healingWish = null;
+      atk.hp = atk.origin.hp; //체력 회복
+      Object.keys(atk.status).forEach((key) => {
+        atk.status[key] = null; // 상태이상 회복
+      });
+      atk.pp1 = atk.origin.sk1.pp;
+      atk.pp2 = atk.origin.sk2.pp;
+      atk.pp3 = atk.origin.sk3.pp;
+      atk.pp4 = atk.origin.sk4.pp;
+      // 메타몽 나오면 로직 고려해봐야겠는데
+      enqueue({ battle: bt, text: atk.name + "의 체력과 상태이상과 PP가 회복됐다!" });
+    }
+  }
+
   if (bt.field.noClean[atks].healingWish) {
     //치유소원 -> 교체로 나온 포켓몬의 체력과 상태이상을 회복한다
     //교체로 나온 포켓몬한테 치유할게 없으면 필드에 남는다

@@ -11,8 +11,10 @@ export function flyingCheck(battle, poke) {
   } else if (typeof poke === "object" && poke !== null) {
     pokemon = poke; // 이미 포켓몬 객체일 경우 그대로 할당
   }
+  let enemy = pokemon.team === "player" ? battle["npc"] : battle["player"];
 
-  if (pokemon.abil === "부유") {
+  if (pokemon.abil === "부유" && enemy?.abilObj.feature?.tgg !== true) {
+    // 상대방이 틀깨기면 부유가 적용되지 않는다!
     return true;
   }
   if (pokemon.item === "풍선") {

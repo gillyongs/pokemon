@@ -497,6 +497,13 @@ const powerCalculate = (battle, skill, serial) => {
     if (serial === 2) power = 40;
     if (serial === 3) power = 60;
   }
+  if (skill.name === "어시스트파워") {
+    //
+    const total = Object.values(atk.tempStatus.rank).reduce((sum, v) => {
+      return sum + (typeof v === "number" && v > 0 ? v : 0);
+    }, 0);
+    power += 20 * total;
+  }
   return Math.floor(power);
 };
 
