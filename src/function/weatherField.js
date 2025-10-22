@@ -56,6 +56,7 @@ const handleProtosynthesis = (battle, pokemon, enqueue) => {
 
   const maxKey = maxStatFinder(pokemon);
   pokemon.tempStatus.protosynthesis = maxKey;
+  pokemon.tempStatus.protosynthesisBySun = true;
 
   enqueue({
     battle,
@@ -71,7 +72,7 @@ const handleProtosynthesis = (battle, pokemon, enqueue) => {
 const handleProtosynthesisEnd = (battle, pokemon, enqueue) => {
   // 쾌청이 끝나면 쾌청으로 발동한 고대활성 효과가 사라진다
   if (pokemon.abil !== "고대활성" || pokemon.tempStatus.protosynthesis === null) return;
-
+  if (!pokemon.tempStatus.protosynthesisBySun) return; // 쾌청이 아닌 부스트에너지로 발동한 경우 취소되지 않음
   pokemon.tempStatus.protosynthesis = null;
   enqueue({
     battle,

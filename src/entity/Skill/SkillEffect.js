@@ -1,8 +1,8 @@
-import { damage } from "../../function/damage";
+import { damage, handleFaint } from "../../function/damage";
 import { random } from "../../util/randomCheck";
 import { rank, rankReset } from "../../function/rankStat";
 import { recover, recoverNoText } from "../../function/recover";
-import { burn, mabi, poison, freeze, confuse } from "../../function/statusCondition";
+import { burn, mabi, poison, freeze, confuse, pokemonNoStatusCheck } from "../../function/statusCondition";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchPlayerForce } from "../../service/switch";
@@ -163,7 +163,7 @@ function skillEffectSearch(name) {
     },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
-      if (!statusCheck(def.status) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0) {
+      if (pokemonNoStatusCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0) {
         def.tempStatus.hapum = 1;
         enqueue({
           battle,
@@ -351,6 +351,7 @@ function skillEffectSearch(name) {
     },
 
     스핀: (battle, enqueue, skillEffect) => {
+      //방어로 막히면 안되는게 맞음
       const def = battle[battle.turn.def];
       const atk = battle[battle.turn.atk];
       const field = battle.field[battle.turn.atk];
@@ -361,6 +362,14 @@ function skillEffectSearch(name) {
       if (atk.tempStatus.seed) {
         //씨뿌리기 제거
         atk.tempStatus.seed = null;
+        enqueue({ battle, text: atk.names + " 씨뿌리기에게서 벗어났다!" });
+      }
+      if (atk.tempStatus.switchLock) {
+        let skillName = atk.tempStatus.switchLock;
+        //교체불가 제거
+        atk.tempStatus.switchLock = null;
+        atk.tempStatus.switchLockTurnRemain = null;
+        enqueue({ battle, text: atk.names + " " + skillName + "에게서 벗어났다!" });
       }
     },
 
@@ -391,7 +400,6 @@ function skillEffectSearch(name) {
     },
 
     능력치초기화: (battle, enqueue, skillEffect) => {
-      // 방어 성공 여부는 skillRequirement에서 처리
       const def = battle[battle.turn.def];
       rankReset(def);
       enqueue({
@@ -399,16 +407,23 @@ function skillEffectSearch(name) {
         text: def.name + "의 능력치 변화가 원래대로 되돌아갔다!",
       });
     },
+    치유소원: (battle, enqueue, skillEffect) => {
+      const skillUser = battle[battle.turn.atk];
+      battle.field.noClean[battle.turn.atk].healingWish = true;
+      handleFaint(skillUser, enqueue, battle);
+    },
+
+    희망사항: (battle, enqueue, skillEffect) => {
+      const skillUser = battle[battle.turn.atk];
+      battle.field.noClean[battle.turn.atk].wish = { name: skillUser.name, amount: Math.floor(skillUser.origin.hp / 2), turnRemain: 1 };
+      // 희망사항의 회복량은 시전자 체력의 절반
+    },
   };
 
   return functions[name] || null;
 }
 
 export default skillEffectSearch;
-
-const statusCheck = (status) => {
-  return Object.values(status).some((value) => value !== null);
-};
 
 const handleForceSwitch = (battle, enqueue, bench1Key, bench2Key, switchFn) => {
   const bench1Alive = battle[bench1Key].faint !== true;

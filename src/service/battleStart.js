@@ -17,13 +17,12 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
 
   bt.turn.playerSN = actNumber;
   bt.turn.npcSN = npcActNumber;
-  let uTurnTrigger = false;
   let playerUseSkill = null;
   let npcUseSkill = null;
   if (typeof actNumber === "number") {
     playerUseSkill = bt.player.origin["sk" + actNumber];
     if (playerUseSkill.feature.uturn) {
-      uTurnTrigger = true;
+      bt.common.temp.uturn = true;
     }
   }
   if (typeof npcActNumber === "number") {
@@ -59,7 +58,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     bt.player.temp.useSkill = playerUseSkill;
     switchNpc(bt, npcActNumber, enqueue);
     attackPlayer(bt, actNumber, npcActNumber, enqueue);
-    if (uTurnTrigger) {
+    if (bt.common.temp.uturn) {
       return;
     }
   } else if (
@@ -74,7 +73,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
 
     if (fastUser === "player") {
       attackPlayer(bt, actNumber, npcActNumber, enqueue);
-      if (uTurnTrigger) {
+      if (bt.common.temp.uturn) {
         return;
       }
       if (bt[bt.turn.def].faint !== true) {
@@ -85,7 +84,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
 
       if (bt[bt.turn.def].faint !== true) {
         attackPlayer(bt, actNumber, npcActNumber, enqueue);
-        if (uTurnTrigger) {
+        if (bt.common.temp.uturn) {
           if (!bt.npc.temp.protect) {
             return;
           }

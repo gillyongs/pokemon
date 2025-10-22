@@ -17,7 +17,7 @@ export const skillUse = (bt, enqueue) => {
     // 스킬명이 뜨기 전에 처리하는 트리거
     // 아직 스킬을 사용하지 않았으므로 pp가 소모되지 않는다
     // 풀죽음, 마비, 혼란, 잠듦, 선도발
-    handleAutoFail(bt);
+    handleSkillFail(bt);
     return;
   }
 
@@ -71,8 +71,7 @@ export const skillUse = (bt, enqueue) => {
     // 스킬에 실패하더라고 pp는 닳는다
     // 스킬성공여부(기습, 방어), 상대방 기절 여부, 명중, 방어, 타오르는불꽃, 풍선
     // 리베로가 발동되는 조건이 있고 아닌 조건이 있어 중간에 삽입
-
-    handleAutoFail(bt);
+    handleSkillFail(bt);
     return;
   }
   //=================================================================================================================
@@ -108,7 +107,7 @@ export const skillUse = (bt, enqueue) => {
       atk.temp.jumpKickFail = true;
       const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
       enqueue({ battle: bt, text: typeText });
-      handleAutoFail(bt);
+      handleSkillFail(bt);
       return;
     }
     // 무효면 부가효과 안터지므로 리턴
@@ -196,7 +195,13 @@ const criticalRate = (input) => {
   return Math.random() < probability;
 };
 
-const handleAutoFail = (bt) => {
+const handleSkillFail = (bt) => {
+  // 스킬 실패시 처리할 것
+
+  bt.common.temp.uturn = null;
+  // 유턴이 실패할 경우 null 처리 안해주면 화면 안넘어감
+
+  // 역린 정지
   const atk = bt[bt.turn.atk];
   if (atk.auto !== null) {
     if (atk.auto > 1) {

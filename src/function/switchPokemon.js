@@ -29,7 +29,7 @@ export const switchPokemon = (battle, IN, OUT) => {
     battle[op].tempStatus.switchLock = null;
     battle[op].tempStatus.switchLockTurnRemain = null;
     // 마그마스톰 등으로 상대를 구속 후 교체하면 구속 효과가 풀린다
-    // 물론 해당 턴에는 교체할 수 없다
+    // 물론 상대방은 해당 턴에 교체할 수 없다
   }
 
   const ts = pokemonIn.tempStatus;

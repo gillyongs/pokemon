@@ -1,4 +1,9 @@
-const statusCheck = (status) => Object.values(status).some((v) => v !== null);
+export const pokemonNoStatusCheck = (pokemon) => {
+  const status = pokemon.status;
+  // 모든 프로퍼티의 값이 null이면 true 반환
+  return Object.values(status).every((v) => v === null);
+};
+
 const faintCheck = (pokemon) => pokemon.faint;
 
 // 공통 처리 함수
@@ -13,7 +18,7 @@ const applyStatus = (battle, get, enqueue, options) => {
   }
 
   // 상태 중복 체크
-  if (statusCheck(pokemon.status)) {
+  if (!pokemonNoStatusCheck(pokemon)) {
     if (failText) enqueue({ battle, text: "하지만 실패했다!" });
     return;
   }

@@ -62,6 +62,7 @@ class PokemonOnBattle {
       protectUse: null, //방어 연속 사용 횟수 -> 방어 성공률 계산에 사용
       taunt: null, //도발
       protosynthesis: null, //고대활성
+      protosynthesisBySun: null, //고대활성 쾌청 여부 -> 쾌청으로 발동된 고대활성은 날씨 바뀌면 꺼진다
       seed: null, //씨뿌리기
       substitute: null, // 대타출동
       substituteHp: null, // 대타출동 인형 남은 체력

@@ -31,6 +31,11 @@ export const turnEnd = (battle, enqueue) => {
     battle.field.weatherTurnRemain -= 1;
     if (battle.field.weatherTurnRemain <= 0) {
       weatherChange(battle, null, enqueue, null);
+    } else {
+      let continueText = "";
+      if (battle.field.weather === "쾌청") continueText = "햇볕이 쨍쩅하다.";
+      if (battle.field.weather === "비") continueText = "비가 내리고있다.";
+      enqueue({ battle, text: continueText });
     }
   }
 
@@ -59,6 +64,34 @@ export const turnEnd = (battle, enqueue) => {
     }
   }
 
+  // 희망사항
+  // 스킬을 사용한 다음턴 체력의 1/2를 회복한다
+  // 교체하면 교체한 포켓몬이 (시전자의 체력 1/2만큼) 회복한다
+  // 희망사항 -> 먹밥 -> 독뎀 순서
+  if (battle.field.noClean[fastUser].wish !== null) {
+    const wish = battle.field.noClean[fastUser].wish;
+    //{ name: "시전자 이름", amount: 시전자체력절반, turnRemain: 1 };
+    if (wish.turnRemain === 0) {
+      battle.field.noClean[fastUser].wish = null;
+      recover(battle, Math.floor(wish.amount), fastUser, enqueue, wish.name + "의 희망사항이 이루어졌다!");
+    }
+    if (wish.turnRemain === 1) {
+      //희망사항 사용한 턴
+      wish.turnRemain = 0;
+    }
+  }
+
+  if (battle.field.noClean[slowUser].wish !== null) {
+    const wish = battle.field.noClean[slowUser].wish;
+    if (wish.turnRemain === 0) {
+      battle.field.noClean[slowUser].wish = null;
+      recover(battle, Math.floor(wish.amount), slowUser, enqueue, wish.name + "의 희망사항이 이루어졌다!");
+    }
+    if (wish.turnRemain === 1) {
+      //희망사항 사용한 턴
+      wish.turnRemain = 0;
+    }
+  }
   if (fast.item === "먹다남은음식" && !fast.faint && fast.hp < fast.origin.hp) {
     recover(battle, Math.floor(fast.origin.hp / 16), fastUser, enqueue, fast.names + " 먹다남은음식으로 인해 조금 회복했다.");
   }
@@ -179,6 +212,7 @@ export const turnEnd = (battle, enqueue) => {
   }
   let tempPlayer = battle.player.temp;
   let tempNpc = battle.npc.temp;
+  let temp = battle.common.temp;
 
   if (tempPlayer.roost) {
     tempPlayer.roost = null;
@@ -196,6 +230,9 @@ export const turnEnd = (battle, enqueue) => {
   });
   Object.keys(tempNpc).forEach((key) => {
     tempNpc[key] = null;
+  });
+  Object.keys(temp).forEach((key) => {
+    temp[key] = null;
   });
 
   battle.turn.turnEnd = true;

@@ -75,6 +75,7 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
       // 날씨가 쾌청상태일때 교체로 나온 경우
       // 부스트에너지 사용보다 먼저 발생
       atk.tempStatus.protosynthesis = maxKey;
+      atk.tempStatus.protosynthesisBySun = true;
       enqueue({
         battle: bt,
         text: `[특성 고대활성] ${atk.names} 쾌청에 의해 고대활성을 발동했다!`,

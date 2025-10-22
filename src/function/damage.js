@@ -16,7 +16,7 @@ function applyDamage(defPokemon, damage) {
 }
 
 // 기절 처리
-function handleFaint(defPokemon, enqueue, battle, atkAbil) {
+export function handleFaint(defPokemon, enqueue, battle, atkAbil) {
   defPokemon.hp = 0;
   defPokemon.faint = true;
   Object.keys(defPokemon.status).forEach((k) => (defPokemon.status[k] = null));

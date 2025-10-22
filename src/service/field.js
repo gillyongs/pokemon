@@ -1,6 +1,6 @@
 import { damage } from "../function/damage";
 import { typeCheck } from "../util/typeCheck";
-import { poison, mPoison } from "../function/statusCondition";
+import { poison, mPoison, pokemonNoStatusCheck } from "../function/statusCondition";
 import { flyingCheck } from "../util/flyingCheck";
 export const applyFieldEffects = (bt, atks, enqueue) => {
   //교체해서 나올때 장판(스텔스록, 독압정) 체크
@@ -16,6 +16,23 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
 
   const atk = bt[atks];
   const def = bt[defs];
+  if (bt.field.noClean[atks].healingWish) {
+    //치유소원 -> 교체로 나온 포켓몬의 체력과 상태이상을 회복한다
+    //교체로 나온 포켓몬한테 치유할게 없으면 필드에 남는다
+    //치유소원 발동하고 스텔스록이 터진다
+    //공중판정 없음
+    if (atk.hp === atk.origin.hp && pokemonNoStatusCheck(atk)) {
+      // 회복할게 없는 경우
+    } else {
+      enqueue({ battle: bt, text: "치유소원이 " + atk.name + "에게 전해졌다!" });
+      bt.field.noClean[atks].healingWish = null;
+      atk.hp = atk.origin.hp; //체력 회복
+      Object.keys(atk.status).forEach((key) => {
+        atk.status[key] = null; // 상태이상 회복
+      });
+      enqueue({ battle: bt, text: atk.name + "의 체력과 상태이상이 회복됐다!" });
+    }
+  }
 
   if (atk.item === "통굽부츠") {
     return;

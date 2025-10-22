@@ -30,6 +30,7 @@ const Battle = () => {
   //   샤로다               대타출동:4
   //   어써러셔             방어:2
   //   랜드로스             유턴:4
+  //   날개치는머리          도발:4
 
   useEffect(() => {
     let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
@@ -38,7 +39,7 @@ const Battle = () => {
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["코터스", "한카리아스", "대쓰여너"], ["흑마렉스", "한카리아스", "대쓰여너"]);
+      battleObject = createBattle(["맘복치", "맘복치", "대쓰여너"], ["에이스번", "한카리아스", "대쓰여너"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);

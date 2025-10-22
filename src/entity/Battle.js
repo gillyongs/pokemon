@@ -45,6 +45,24 @@ class Battle {
         spikes: null, // 압정뿌리기
         poisonSpikes: null, // 독압정 (1 = 독, 2 = 맹독)
       },
+      noClean: {
+        // 고속스핀 등으로 인해 없어지지 않는 필드 요소
+        player: {
+          healingWish: null, // 치유소원 -> 필드에 적용 후 교체해 나올떄 = field.js에서 처리
+          wish: null, //희망사항 -> 다음턴 종료시 필드에 있는 포켓몬 = turnEnd.js에서 처리
+        },
+        npc: {
+          healingWish: null, // 치유소원
+          wish: null, // { name: "맘복치", amount: 시전자체력절반, turnRemain: 1 };
+        },
+      },
+    };
+
+    this.common = {
+      temp: {
+        // 매 턴 초기화 필요
+        uturn: null, // 플레이어 유턴 사용 여부
+      },
     };
 
     // this.player.status.poison = true;

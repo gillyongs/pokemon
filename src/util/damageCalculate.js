@@ -2,6 +2,7 @@ import { typeCheckAbil } from "./typeCheck";
 import { getMultiplier } from "../function/rankStat";
 import { noNullItem } from "../entity/Item";
 import { flyingCheck } from "./flyingCheck";
+import { pokemonNoStatusCheck } from "../function/statusCondition";
 
 export const damageCalculate = (battle) => {
   // 데미지를 "계산"만 해서 주는 함수
@@ -456,7 +457,7 @@ const powerCalculate = (battle, skill) => {
   }
   if (skill.name === "병상첨병") {
     // 상대가 상태이상이면 위력 2배
-    if (statusCheck(battle[battle.turn.def].status)) power *= 2;
+    if (!pokemonNoStatusCheck(battle[battle.turn.def])) power *= 2;
   }
   if (skill.name === "성묘") {
     // 상대가 상태이상이면 위력 2배
