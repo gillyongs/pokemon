@@ -1,9 +1,10 @@
+import { noTraceAbil } from "../entity/Abillity";
 import { rank, getStatName, maxStatFinder } from "../function/rankStat";
 import { weatherChange } from "../function/weatherField";
 // ======================================================
 // applyAbilityEffects
 // ======================================================
-export const applyAbilityEffects = (bt, atks, enqueue) => {
+export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   const atk = bt[atks];
   const defs = atks === "player" ? "npc" : "player";
   const def = bt[defs];
@@ -151,6 +152,38 @@ export const applyAbilityEffects = (bt, atks, enqueue) => {
         battle: bt,
         text: `[특성 하드론엔진] ${atk.names} 일렉트릭필드를 전개하여 미래 기관을 가동했다!`,
       });
+    }
+  }
+
+  if (trace) return;
+
+  if (atkAbil === "트레이스") {
+    if (noTraceAbil.includes(def.abil)) {
+      return;
+    } else {
+      atk.abil = def.abil;
+      atk.abilObj = def.abilObj;
+      enqueue({
+        battle: bt,
+        text: `[특성 트레이스] ${atk.names} ${def.name}의 ${def.abil}를 트레이스했다!`,
+      });
+      applyAbilityEffects(bt, atks, enqueue, true);
+    }
+  }
+
+  if (def.abil === "트레이스") {
+    //상대방의 특성을 트레이스하지 못한 경우
+    //트레이스 가능한 특성이 포켓몬이 등장하면 바로 발동한다
+    if (noTraceAbil.includes(atk.abil)) {
+      return;
+    } else {
+      def.abil = atk.abil;
+      def.abilObj = atk.abilObj;
+      enqueue({
+        battle: bt,
+        text: `[특성 트레이스] ${def.names} ${atk.name}의 ${atk.abil}를 트레이스했다!`,
+      });
+      applyAbilityEffects(bt, defs, enqueue, true);
     }
   }
 

@@ -16,6 +16,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
 
   const atk = bt[atks];
   const def = bt[defs];
+
   if (bt.field.noClean[atks].healingWish) {
     //치유소원 -> 교체로 나온 포켓몬의 체력과 상태이상을 회복한다
     //교체로 나온 포켓몬한테 치유할게 없으면 필드에 남는다

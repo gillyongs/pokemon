@@ -71,6 +71,17 @@ function skillEffectSearch(name) {
       }
       freeze(battle, battle.turn.def, enqueue);
     },
+    트라이어택: (battle, enqueue, skillEffect) => {
+      // 20% 확률로 상태이상을 걸고,
+      // 상태이상이 걸릴때 각각 33% 확률로 화상 마비 얼음중 하나가 결정
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      const r = Math.random();
+      if (r < 1 / 3) freeze(battle, battle.turn.def, enqueue);
+      else if (r < 2 / 3) mabi(battle, battle.turn.def, enqueue);
+      else return burn(battle, battle.turn.def, enqueue);
+    },
     혼란: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;

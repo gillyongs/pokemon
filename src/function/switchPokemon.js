@@ -53,5 +53,7 @@ export const switchPokemon = (battle, IN, OUT) => {
   pokemonIn.type1 = pokemonIn.origin.type1;
   pokemonIn.type2 = pokemonIn.origin.type2;
 
+  pokemonIn.abil = pokemonIn.origin.abil;
+
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
 };

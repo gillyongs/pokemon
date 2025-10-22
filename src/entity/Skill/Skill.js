@@ -643,6 +643,12 @@ class SkillList {
         "으스스하고 괴상한 불꽃을 쏘아 상대를 화상 상태로 만든다.",
         [{ name: "화상", probability: 100, failText:true }], {}),
 
+      new Skill("트라이어택", "노말", 
+        80, 100, 10, 0,  
+        "catk", null, 
+        "20% 확률로 상대를 마비, 화상 또는 얼음 상태로 만든다.",
+        [{ name: "트라이어택", probability: 20}], {}),
+
         
       new Skill("뱀눈초리", "노말", 
         "-", 100, 30, 0,  
