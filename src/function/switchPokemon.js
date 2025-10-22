@@ -53,7 +53,9 @@ export const switchPokemon = (battle, IN, OUT) => {
   pokemonIn.type1 = pokemonIn.origin.type1;
   pokemonIn.type2 = pokemonIn.origin.type2;
 
+  // 트레이스 특성 초기화
   pokemonIn.abil = pokemonIn.origin.abil;
+  pokemonIn.abilObj = pokemonIn.origin.abilObj;
 
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
 };
