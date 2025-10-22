@@ -51,7 +51,7 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      burn(battle, battle.turn.def, enqueue);
+      burn(battle, battle.turn.def, enqueue, null, skillEffect.failText);
     },
     독: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
@@ -94,6 +94,19 @@ function skillEffectSearch(name) {
     회복: (battle, enqueue, skillEffect) => {
       const hp = battle[battle.turn.atk].origin.hp;
       recover(battle, Math.floor(hp / 2), battle.turn.atk, enqueue);
+    },
+    아침햇살: (battle, enqueue, skillEffect) => {
+      const hp = battle[battle.turn.atk].origin.hp;
+      let value = hp / 2;
+      if (battle.field.weather === null) {
+        value = hp / 2;
+      }
+      if (battle.field.weather === "쾌청") {
+        value = (hp * 2) / 3;
+      } else {
+        value = hp / 4;
+      }
+      recover(battle, Math.floor(value), battle.turn.atk, enqueue);
     },
     날개쉬기: (battle, enqueue, skillEffect) => {
       const pokemon = battle[battle.turn.atk];

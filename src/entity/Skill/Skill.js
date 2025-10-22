@@ -507,6 +507,12 @@ class SkillList {
         "최대 HP의 절반만큼 회복한다.",
         [{ name: "회복" }], ),
 
+      new Skill("아침햇살", "노말", 
+        "-", "-", 5, 0,  
+        "buf", null, 
+        "사용자의 HP를 회복한다. 날씨에 따라 회복량이 변한다.",
+        [{ name: "아침햇살" }], ),
+
       new Skill("브레이브버드", "비행", 
         120, 100, 15, 0,  
         "atk", null, 
@@ -630,6 +636,12 @@ class SkillList {
         "natk", null, 
         "약한 전격을 날려서 상대를 마비 상태로 만든다.",
         [{ name: "마비", probability: 100, failText:true }], {}),
+      
+      new Skill("도깨비불", "불꽃", 
+        "-", 85, 15, 0,  
+        "natk", null, 
+        "으스스하고 괴상한 불꽃을 쏘아 상대를 화상 상태로 만든다.",
+        [{ name: "화상", probability: 100, failText:true }], {}),
 
         
       new Skill("뱀눈초리", "노말", 
