@@ -45,7 +45,7 @@ const Battle = () => {
       setBattle(battleObject); // 상태 업데이트
     } else {
       battleObject = createBattle(
-        ["미라이돈", "크레세리아", "대쓰여너"],
+        ["마릴리", "크레세리아", "대쓰여너"],
         ["크레세리아", "가이오가", "대쓰여너"]
       );
     }

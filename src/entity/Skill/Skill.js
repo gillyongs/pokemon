@@ -143,6 +143,12 @@ class SkillList {
         "atk", null, 
         "상대보다 먼저 기술을 사용하면 위력이 2배가 된다.",
         [], {bite:true, touch:true}),
+      
+      new Skill("아쿠아브레이크", "물", 
+        85, 100, 10, 0,
+        "atk", null, 
+        "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.",
+        [{ name: "능력치증감", probability: 20, abil: "def", target: "def", value: -1 }], {touch:true}),
 
       new Skill("아이언헤드", "강철",
         80, 100, 15, 0, 

@@ -150,6 +150,10 @@ export const damageCalculate = (battle, serial) => {
       atkStat *= 1.5;
       atkStr += " * 1.5 (근성)";
     }
+    if (atkAbil === "천하장사") {
+      atkStat *= 2;
+      atkStr += " * 2 (천하장사)";
+    }
 
     if (attackPokemon.tempStatus.protosynthesis === "atk") {
       atkStat *= 1.3;

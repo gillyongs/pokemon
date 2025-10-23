@@ -2,7 +2,20 @@ import { josa } from "josa";
 class Pokemon {
   // 포켓몬 원본 객체
   // ReadOnly, 불변값
-  constructor(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2, feature) {
+  constructor(
+    id,
+    name,
+    total,
+    hp,
+    atk,
+    def,
+    catk,
+    cdef,
+    speed,
+    type1,
+    type2,
+    feature
+  ) {
     // prettier-ignore
     this._validateParams(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2);
     this.id = id;
@@ -54,6 +67,7 @@ new Pokemon("0113", "럭키", 450, 250, 5, 5, 35, 105, 50, "노말", null, {evo:
 new Pokemon("0130", "갸라도스", 540, 95, 125, 79, 60, 100, 81, "물", "비행"),
 new Pokemon("0145", "썬더", 580, 90, 90, 85, 125, 90, 100, "전기", "비행"),
 new Pokemon("0149", "망나뇽", 600, 91, 134, 95, 100, 100, 80, "드래곤", "비행"),
+new Pokemon("0184", "마릴리", 420, 100, 50, 80, 60, 80, 50, "물", "페어리"),
 new Pokemon("0205", "쏘콘", 465, 75, 90, 140, 60, 60, 40, "벌레", "강철"),
 new Pokemon("0233", "폴리곤2", 515, 85, 80, 90, 105, 95, 60, "노말", null, {evo: true}),
 new Pokemon("0242", "해피너스", 540, 255, 10, 10, 75, 135, 55, "노말", null),
