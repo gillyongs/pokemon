@@ -53,7 +53,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText }) => {
 
     // 연속 사용 불가 스킬 (ex: 블러드문)
     const recentSkill = player.tempStatus.recentSkillUse?.name;
-    if (recentSkill === sk.name && sk.name === "블러드문") {
+    if (recentSkill === sk.name && sk.feature?.noDouble) {
       return reject("해당 스킬은 연속으로 사용할 수 없다!");
     }
 

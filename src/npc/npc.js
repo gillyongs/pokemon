@@ -1,6 +1,14 @@
+import { npcAiNormal } from "./ai/normal";
+import { npcAiRandom } from "./ai/random";
 import { npcAiHard } from "./hard";
+import { npcCommon } from "./npcCommon";
 let before = null;
 export const npcChoice = (battle, actNumber) => {
+  const choices = npcCommon(battle);
+  npcAiNormal(choices, battle);
+  // 형태: [1,2,3,4,'npcBench1','npcBench2']
+  // 기절한 포켓몬 제외, 구애나 도발로 사용 불가 스킬 제외 등 공통사항 처리
+  return npcAiRandom(choices);
   if (before === null) {
     before = true;
     return 1;
@@ -9,5 +17,8 @@ export const npcChoice = (battle, actNumber) => {
     return 3;
   }
   return "npcBench2"; //npcact
+  // const choices = npcCommon(battle);
+  // 형태: [1,2,3,4,'npcBench1','npcBench2']
+  // 기절한 포켓몬 제외, 구애나 도발로 사용 불가 스킬 제외 등 공통사항 처리
   return npcAiHard(battle, actNumber);
 };
