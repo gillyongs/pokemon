@@ -1,5 +1,5 @@
 import PokemonOriginal from "./PokemonOriginal";
-import skillList from "../Skill/Skill";
+import skillList from "../Skill/skillList";
 import { itemText } from "../Item";
 import { abilObject } from "../Abillity";
 //배틀용 포켓몬 객체
