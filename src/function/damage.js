@@ -2,7 +2,7 @@ import { type } from "@testing-library/user-event/dist/type";
 import { recover } from "../function/recover";
 import { maxStatFinder, rank } from "./rankStat.js";
 import { josa } from "josa";
-import { applyOnHitEvents, subtituteOnHitEvents } from "../service/onHit.js";
+import { applyOnHitEvents, substituteOnHitEvents } from "../service/onHit.js";
 
 // ====================== 공통 유틸 함수 ======================
 
@@ -115,7 +115,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       }
       atkPokemon.temp.recentDamageGive = actualGiveDamage;
       defPokemon.temp.recentDamageGet = actualGiveDamage;
-      subtituteOnHitEvents(battle, enqueue);
+      substituteOnHitEvents(battle, enqueue);
       // 대타출동 상태일땐 대부분의 피격 이벤트 (ex:울멧)가 발동하지 않음
       // 대타출동 상태일때에도 발생하는 이벤트 처리 (풍선)
       return;

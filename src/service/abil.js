@@ -82,6 +82,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     } else if (atk.item === "부스트에너지") {
       // 그 외의 경우
       atk.tempStatus.protosynthesis = maxKey;
+      atk.item = null;
       enqueue({
         battle: bt,
         text: `[특성 고대활성] ${atk.names} 부스트에너지에 의해 고대활성을 발동했다!`,

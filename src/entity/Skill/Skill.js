@@ -74,8 +74,8 @@ export class Skill {
       console.error("pp must be a number", pp);
       console.error(name)
     }
-    if (typeof prior !== "number"){
-      console.error("prior must be a number", prior);
+    if (typeof prior !== "number" && prior !== 'change'){
+      console.error("prior must be a number or 'change'", prior);
       console.error(name)
     }
       

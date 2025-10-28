@@ -80,6 +80,7 @@ const handleProtosynthesisEnd = (battle, pokemon, enqueue) => {
   });
   if (pokemon.item === "부스트에너지") {
     //쾌청 끝났을때 지닌 아이템 부스트에너지면 고대활성 재발동
+    pokemon.item = null;
     enqueue({
       battle: battle,
       text: `[특성 고대활성] ${pokemon.names} 부스트에너지에 의해 고대활성을 발동했다!`,

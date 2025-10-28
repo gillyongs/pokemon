@@ -116,7 +116,7 @@ export const skillUse = (bt, enqueue) => {
 
     //연속기
     if (sk.feature?.serial) {
-      let num = 777;
+      let num = 9999999;
       if (sk.feature?.twoFive) {
         //2~5회 공격. 확률은 35 35 15 15
         num = randomTwoFive(bt, atk.item);
@@ -128,7 +128,7 @@ export const skillUse = (bt, enqueue) => {
         num = randomTripple(bt, atk.item, sk.accur);
       }
       for (let i = 1; i <= num; i++) {
-        skillDamage = damageCalculate(bt, i); // 트리플악셀 위력 재계산
+        skillDamage = damageCalculate(bt, { serial: i }); // 트리플악셀 위력 재계산
         attackDamage(bt, skillDamage, bt.turn.def, enqueue, null, { num: i, first: i === 1, last: i === num });
         if (def.faint) {
           break;

@@ -72,7 +72,7 @@ export const applyOnHitEvents = (battle, enqueue) => {
   }
 };
 
-export const subtituteOnHitEvents = (battle, enqueue) => {
+export const substituteOnHitEvents = (battle, enqueue) => {
   // 대타출동 피격시에도 발동되는 이벤트 모음
   // 풍선
 

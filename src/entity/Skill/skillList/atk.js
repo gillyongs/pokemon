@@ -12,10 +12,6 @@ export const atkSkills = [
 
   new Skill("사이코팽", "에스퍼", 85, 100, 10, 0, "atk", null, "상대 진영에 빛의장막이나 리플렉터가 존재한다면 파괴할 수 있다.", [{ name: "벽부수기" }], { touch: true, bite: true, wallBreaker: true }),
 
-  new Skill("땅가르기", "땅", "-", 30, 5, 0, "atk", null, "땅이 갈라진 곳에 상대를 떨어뜨려 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true }),
-
-  new Skill("지구던지기", "격투", "-", 100, 20, 0, "atk", null, "자신의 레벨과 똑같은 데미지를 상대에게 준다.", [], { noText: true, touch: true }),
-
   new Skill("역린", "드래곤", 120, 100, 10, 0, "atk", null, "2~3턴 동안 마구 난동 부려서 공격한다. 난동 부린 뒤에는 혼란에 빠진다.", [{ name: "자동" }], { touch: true }),
 
   new Skill("킬러스핀", "독", 30, 100, 15, 0, "atk", null, "상대를 독 상태로 만들고 아군 필드의 해로운 효과 및 구속, 씨뿌리기 효과를 제거한다", [{ name: "독", probability: 100 }, { name: "스핀" }], {}),
@@ -23,11 +19,10 @@ export const atkSkills = [
   new Skill("기습", "악", 70, 100, 5, 2, "atk", { name: "기습" }, "상대가 쓴 기술이 공격기술이 아니면 실패한다. (우선도 +1)", [], { touch: true }),
 
   // 선공기 =================================================================================================================
-  new Skill("얼음뭉치", "얼음", 40, 100, 30, 1, "atk", null, "우선도 +1", []),
-  new Skill("그래스슬라이더", "풀", 55, 100, 20, 777, "atk", null, "그래스필드일 때 우선도 +1", [], { touch: true }),
-  new Skill("야습", "고스트", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true }),
+  new Skill("그래스슬라이더", "풀", 55, 100, 20, "change", "atk", null, "그래스필드일 때 우선도 +1", [], { touch: true }),
   new Skill("신속", "노말", 80, 100, 5, 2, "atk", null, "우선도 +2", [], { touch: true }),
-
+  new Skill("얼음뭉치", "얼음", 40, 100, 30, 1, "atk", null, "우선도 +1", []),
+  new Skill("야습", "고스트", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true }),
   new Skill("아쿠아제트", "물", 40, 100, 20, 1, "atk", null, "우선도 +1", [], { touch: true }),
   new Skill("전광석화", "노말", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true }),
 
@@ -67,10 +62,16 @@ export const atkSkills = [
   new Skill("아가미물기", "물", 85, 100, 10, 0, "atk", null, "상대보다 먼저 기술을 사용하면 위력이 2배가 된다.", [], { bite: true, touch: true }),
   new Skill("바디프레스", "격투", 80, 100, 15, 0, "atk", null, "몸을 부딪쳐서 공격한다. 방어가 높을수록 주는 데미지가 올라간다.", [], { touch: true }),
   new Skill("성스러운칼", "격투", 90, 100, 15, 0, "atk", null, "상대의 능력 변화에 상관없이 데미지를 준다.", [{ name: "천진" }], { touch: true }),
+  new Skill("객기", "노말", 70, 100, 20, 0, "atk", null, "자신이 독, 마비, 화상 상태일 때 기술의 위력이 2배가 된다.", [], { touch: true }),
+
+  // 위려 고정
+  new Skill("땅가르기", "땅", "-", 30, 5, 0, "atk", null, "땅이 갈라진 곳에 상대를 떨어뜨려 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true }),
+  new Skill("지구던지기", "격투", "-", 100, 20, 0, "atk", null, "자신의 레벨과 똑같은 데미지를 상대에게 준다.", [], { noText: true, touch: true }),
 
   // 반동
   new Skill("브레이브버드", "비행", 120, 100, 15, 0, "atk", null, "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.", [{ name: "반동" }], { touch: true, rebound: true }),
   new Skill("이판사판태클", "노말", 120, 100, 15, 0, "atk", null, "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.", [{ name: "반동" }], { touch: true, rebound: true }),
+  new Skill("웨이브태클", "물", 120, 100, 10, 0, "atk", null, "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.", [{ name: "반동" }], { touch: true, rebound: true }),
   new Skill("무릎차기", "격투", 130, 90, 10, 0, "atk", null, "빗나가면 자신이 전체 HP의 ½의 데미지를 입는다.", [{ name: "빗나감패널티" }], { touch: true, rebound: true }),
 
   // 상태이상 =================================================================================================================
@@ -84,7 +85,7 @@ export const atkSkills = [
   // 풀죽음
   new Skill("아이언헤드", "강철", 80, 100, 15, 0, "atk", null, "30%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 30 }], { touch: true }),
   new Skill("고드름떨구기", "얼음", 85, 90, 10, 0, "atk", null, "30%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 30 }]),
-  new Skill("폭포오르기", "물", 80, 100, 15, 0, "atk", null, "30%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 20 }], { touch: true }),
+  new Skill("폭포오르기", "물", 80, 100, 15, 0, "atk", null, "20%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 20 }], { touch: true }),
   // 급소
   new Skill("섀도크루", "고스트", 70, 100, 15, 0, "atk", null, "급소에 맞을 확률이 높다.", [{ name: "급소" }], { touch: true }),
 

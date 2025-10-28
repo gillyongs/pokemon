@@ -53,10 +53,10 @@ export const skillSpeedCheck = (battle) => {
   // battleStart.js에서 사용
   const playerPri = priCalculate(battle, "player");
   const npcPri = priCalculate(battle, "npc");
-  if (playerPri === 777) {
+  if (playerPri === "change") {
     console.error("플레이어 우선도 확인 필요");
   }
-  if (npcPri === 777) {
+  if (npcPri === "change") {
     console.error("NPC 우선도 확인 필요");
   }
 
@@ -69,10 +69,16 @@ export const skillSpeedCheck = (battle) => {
   }
 };
 
-const priCalculate = (battle, pokemon) => {
+export const priCalculate = (battle, pokemon, skill) => {
   // 상황에 따라 우선도가 변하는 스킬
-  const sn = pokemon + "SN";
-  const sk = battle[pokemon].origin["sk" + battle.turn[sn]];
+  let sk;
+  if (skill) {
+    sk = skill;
+  } else {
+    const sn = pokemon + "SN";
+    sk = battle[pokemon].origin["sk" + battle.turn[sn]];
+  }
+
   if (sk.name === "그래스슬라이더") {
     if (battle.field.field === "그래스필드") {
       return 1;

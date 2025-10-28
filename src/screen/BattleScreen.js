@@ -7,6 +7,7 @@ import { applyAbilityEffects } from "../service/abil";
 
 import PokemonInfo from "../component/Top/PokemonInfo";
 import PokemonImage from "../component/Top/PokemonImage";
+import ItemImage from "../component/Top/ItemImage";
 import BottomSectionSkill from "../component/Bottom/Bottom-Skill/Bottom-Skill";
 import BottomSectionSwitch from "../component/Bottom/Bottom-Switch/Bottom-Switch";
 import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
@@ -35,11 +36,11 @@ const Battle = () => {
   useEffect(() => {
     let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
     queueObject.resetQueue();
-    const testMode = true;
+    const testMode = false;
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["날개치는머리", "크레세리아", "대쓰여너"], ["날개치는머리", "가이오가", "대쓰여너"]);
+      battleObject = createBattle(["위유이", "크레세리아", "대쓰여너"], ["썬더", "고릴타", "어써러셔"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);
@@ -58,7 +59,7 @@ const Battle = () => {
     if (queue[0]) {
       setBattle(queue[0].battle);
       setText(queue[0].text);
-      console.log(queue);
+      // console.log(queue);
       const player = queue[0].battle.player;
       const turnEnd = queue[0].battle.turn.turnEnd;
 
@@ -109,6 +110,7 @@ const Battle = () => {
           <IMAGE>
             <PokemonImage battle={battle} type="npc" />
             <PokemonImage battle={battle} type="plr" />
+            <ItemImage battle={battle} type="plr" />
           </IMAGE>
           <PokemonInfo battle={battle} type="npc" />
           <PokemonInfo battle={battle} type="plr" />
