@@ -22,6 +22,14 @@ export const damageCalculate = (battle, obj, ai) => {
 
   const noTggAtk = !attackPokemon.abilObj.feature?.tgg;
 
+  if (ai) {
+    const typeDamege = typeCheckAbil(battle, sk.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
+    if (typeDamege === 0) return 0; // 고스트포켓몬에게 지구던지기를 쓰는 경우
+    if (sk.feature.oneShot && defAbil === "옹골참") return 0; // 특성이 옹골참인 상대에게 일격기를 쓰는 경우
+    if (sk.type === "땅" && (defAbil === "부유" || defensePokemon.item === "풍선")) return 0;
+    if (sk.type === "땅" && defAbil === "타오르는불꽃") return 0;
+  }
+
   // 데미지가 고정인 스킬들 ===============================================================================================
 
   if (sk.feature.oneShot) {

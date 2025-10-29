@@ -205,9 +205,6 @@ const criticalRate = (input) => {
 const handleSkillFail = (bt) => {
   // 스킬 실패시 처리할 것
 
-  bt.common.temp.uturn = null;
-  // 유턴이 실패할 경우 null 처리 안해주면 화면 안넘어감
-
   // 역린 정지
   const atk = bt[bt.turn.atk];
   if (atk.auto !== null) {

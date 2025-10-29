@@ -259,41 +259,40 @@ const calculateScoreNatk = (bt, sn, skObj) => {
       }
       if (item.name === "스텔스록") {
         if (bt.field.player.sRock === null) {
-          score += 50;
-          log += ` + 50 (${item.name})`;
+          let value = 25 * getReaminPokemon(bt, "player");
+          score += value;
+          log += ` + ${value} (${item.name})`;
         }
       }
       if (item.name === "독압정") {
         if (bt.field.player.poisonSpikes === null) {
-          score += 40;
-          log += ` + 40 (독압정)`;
+          let value = 20 * getReaminPokemon(bt, "player");
+          score += value;
+          log += ` + ${value} (${item.name})`;
         } else if (bt.field.player.poisonSpikes === 1) {
-          score += 30;
-          log += ` + 30 (맹독압정)`;
+          let value = 15 * getReaminPokemon(bt, "player");
+          score += value;
+          log += ` + ${value} (맹독압정)`;
         }
       }
       if (item.name === "리플렉터") {
         if (bt.field.noClean.npc.reflect === null) {
-          let value = 40;
-          if (playerAtkType === "atk") {
-            value = 60;
-          }
+          let origin = playerAtkType === "atk" ? 20 : 15; // 상대가 물리면 리플렉터를 먼저 치게
+          let value = origin * (getReaminPokemon(bt, "npc") + 1);
           score += value;
           log += ` + ${value} (${item.name})`;
         }
       }
       if (item.name === "빛의장막") {
         if (bt.field.noClean.npc.lightScreen === null) {
-          let value = 40;
-          if (playerAtkType === "catk") {
-            value = 60;
-          }
+          let origin = playerAtkType === "catk" ? 20 : 15;
+          let value = origin * (getReaminPokemon(bt, "npc") + 1);
           score += value;
           log += ` + ${value} (${item.name})`;
         }
       }
       if (item.name === "씨뿌리기") {
-        if (player.tempStatus.seed === null) {
+        if (player.tempStatus.seed === null && player.type1 !== "풀" && player.type2 !== "풀") {
           score += 20;
           log += ` + 20 (${item.name})`;
         }
@@ -302,10 +301,11 @@ const calculateScoreNatk = (bt, sn, skObj) => {
         if (typeof v === "number") return acc + v;
       }, 0);
       if (item.name === "하품") {
-        if (player.tempStatus.hapum === null) {
+        if (player.tempStatus.hapum === null && pokemonNoStatusCheck(player)) {
           let value = 0;
           if (playerRankCount > 0) {
-            value = playerRankCount * 40;
+            value = playerRankCount * 30;
+            // 랭크업이 많이 되어있을수록 교체 압박이 심해지므로 가산점
             score += value;
             log += ` + ${value} (${item.name}-랭크)`;
           } else if (playerRankCount < 0) {
@@ -333,6 +333,14 @@ const calculateScoreNatk = (bt, sn, skObj) => {
         if (bt.field.player.sRock) {
           score += 25;
           log += ` + 25 (${item.name}-스락)`;
+        }
+        if (bt.field.player.spikes) {
+          score += 20;
+          log += ` + 20 (${item.name}-압정)`;
+        }
+        if (bt.field.player.poisonSpikes) {
+          score += 10;
+          log += ` + 10 (${item.name}-독압정)`;
         }
       }
       if (item.name === "초승달춤" || item.name === "치유소원") {
@@ -558,4 +566,13 @@ function calculateTypeScore(bt, index, log) {
   let score = Math.floor((pokemon.origin.hp * pokemon.origin.stat[defStat]) / result / 1000);
   log[index] = `${pokemon.origin.hp} * ${pokemon.origin.stat[defStat]} / ${result} / 1000 = ${score}`;
   return score;
+}
+
+function getReaminPokemon(battle, user) {
+  let result = 0;
+  let index1 = user + "Bench1";
+  let index2 = user + "Bench1";
+  if (!battle[index1].faint) result += 1;
+  if (!battle[index2].faint) result += 1;
+  return result;
 }

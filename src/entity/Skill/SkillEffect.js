@@ -5,7 +5,7 @@ import { recover, recoverNoText } from "../../function/recover";
 import { burn, mabi, poison, freeze, confuse, pokemonNoStatusCheck } from "../../function/statusCondition";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
-import { switchNpc, switchPlayerForce } from "../../service/switch";
+import { switchNpc, switchPlayer, switchPlayerForce } from "../../service/switch";
 
 function skillEffectSearch(name) {
   const functions = {
@@ -163,13 +163,29 @@ function skillEffectSearch(name) {
       }
     },
     유턴: (battle, enqueue, skillEffect) => {
-      if (battle.turn.atk === "player") {
-        battle.uturn = true;
-        battle.turn.textFreeze = true;
-        enqueue({
-          battle,
-          text: "누구로 교체할까?",
-        });
+      if (battle.turn.atk === "player" && !battle.player.faint) {
+        // 플레이어가 유턴을 사용한 경우
+        const faint1 = battle.playerBench1.faint;
+        const faint2 = battle.playerBench2.faint;
+        if (faint1 && faint2) {
+          //둘다 기절헀으면 생략
+        } else if (!faint1 && faint2) {
+          // 첫번째 포켓몬만 기절하지 않은 경우
+          switchPlayer(battle, "playerBench1", enqueue);
+        } else if (faint1 && !faint2) {
+          switchPlayer(battle, "playerBench2", enqueue);
+        } else {
+          // 둘다 기절하지 않았으면 교체 화면을 보여준다
+          battle.common.temp.uturn = true;
+          // battlStart.js에서 이를 기준으로 함수를 끊고
+          // battleScrren.js에서 useEffect(setBottom("uturn"))으로 교체화면을 띄운다
+
+          battle.turn.textFreeze = true; // 텍스트가 넘어가지 않게 처리
+          enqueue({
+            battle,
+            text: "누구로 교체할까?",
+          });
+        }
       } else if (battle.turn.atk === "npc") {
         if (battle.npcBench1.faint !== true) {
           // 1번이 기절 안했으면 1번 교체

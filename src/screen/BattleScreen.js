@@ -36,11 +36,12 @@ const Battle = () => {
   useEffect(() => {
     let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
     queueObject.resetQueue();
-    const testMode = false;
+    const testMode = true;
+    setBottom("skill");
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["위유이", "크레세리아", "대쓰여너"], ["썬더", "고릴타", "어써러셔"]);
+      battleObject = createBattle(["미라이돈", "미라이돈", "미라이돈"], ["랜드로스", "고릴타", "어써러셔"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);
@@ -59,7 +60,7 @@ const Battle = () => {
     if (queue[0]) {
       setBattle(queue[0].battle);
       setText(queue[0].text);
-      // console.log(queue);
+      console.log(queue);
       const player = queue[0].battle.player;
       const turnEnd = queue[0].battle.turn.turnEnd;
 
@@ -67,7 +68,7 @@ const Battle = () => {
         setBottom("mustSwitch");
       }
 
-      if (queue[0].battle.uturn) {
+      if (queue[0].battle.common.temp.uturn) {
         setBottom("uturn");
       }
 

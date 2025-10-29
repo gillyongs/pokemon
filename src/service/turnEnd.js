@@ -76,9 +76,6 @@ export const turnEnd = (battle, enqueue) => {
       text: "누구로 교체 할까?",
     });
   } else {
-    if (battle.uturn) {
-      return;
-    }
     enqueue({
       battle: battle,
       text: battle.player.origin.names + " 무엇을 할까?",

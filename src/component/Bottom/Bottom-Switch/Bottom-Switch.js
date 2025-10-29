@@ -41,7 +41,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
     handleSwitch = (index) => {
       setBottom("skill");
       let bt = structuredClone(battle);
-      bt.uturn = null;
+      bt.common.temp.uturn = null;
       switchPlayer(bt, index, queueObject.enqueue);
       queueObject.dequeue(); // "누구로 교체할까?"를 dequque를 막아놨기에 직접 해줘야함
       if (
@@ -49,7 +49,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
         bt.npc.faint // npc가 유턴을 맞고 기절한 경우
       ) {
         turnEnd(bt, queueObject.enqueue);
-      } else if (bt.turn.fastUser === "player") {
+      } else if (bt.turn.fastActUser === "player") {
         //플레이어가 더 빠른 경우
         // 교체 하고 npc 행동 재개
         attackNpc(bt, bt.turn.playerSN, bt.turn.npcSN, queueObject.enqueue);

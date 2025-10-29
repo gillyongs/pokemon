@@ -17,15 +17,23 @@ class Battle {
     this.npcBench2.team = "npc";
 
     this.turn = {
-      fastActUser: null, // 먼저 '행동'한 쪽. 교체도 포함한다. 기습과 방어 성공여부 체크에 사용.
-      atkSN: null,
-      defSN: null,
+      fastActUser: null, // 먼저 '행동'한 쪽. 교체도 포함한다.
+      // battleStart.js 에서 값을 넣고
+      // SkillRequirements.js 에서 기습과 방어 성공여부 체크,
+      // SkillEfect.js 에서 도발 턴 계산 (교체로 나온 상대에겐 해당 턴 포함 3턴이 적용된다)
+      // Bottom-Switch.js 에서 유턴 교체 후 남은 행동 파악 (선 교체면 npc가 공격을 하고 그 외엔 turnEnd만 호출)
+      // damageCalculate.js 에서 아가미물기 데미지 보정 계산
       atk: null, //battle[battle.turn.atk] = player or npc
       def: null,
-      playerSN: null, // 우선도 체크에 사용
-      npcSN: null,
+      atkSN: null,
+      defSN: null,
+      playerSN: null, // 유턴으로 battleStart 함수가 끊겼을때 Bottom-swirch.js에서 남은 행동을 계속 진행하기 위해 사용
+      npcSN: null, // attackNpc(bt, bt.turn.playerSN, bt.turn.npcSN, queueObject.enqueue);
       turnEnd: null,
-      textFreeze: null, // 화면 넘어가지 않음. 유턴이나 교체
+      // 플레이어가 쓰러졌을때 남은 이벤트(turnend) 마친 다음에 교체 화면이 나오게 하기위해 쓰는 변수
+      //if (player.faint && turnEnd) { setBottom("mustSwitch");}
+      textFreeze: null, // 텍스트가 넘어가지 않게 막음. "누구로 교체할까?"나 "무엇을 할까?" 텍스트 고정
+      //
     };
     //turnEnd 같은 변수때문에 턴이 시작될때 = battleStart.js에서 초기화된다
     this.field = {
@@ -76,6 +84,8 @@ class Battle {
       temp: {
         // 매 턴 초기화 필요
         uturn: null, // 플레이어 유턴 사용 여부
+        //battleStart.js에서 해당 값이 true면 진행을 끊고 교체화면을 띄운다.
+        //선 유턴이면 attackNpc를 실행하고 그 외엔 turnEnd를 실행한다
       },
     };
 
