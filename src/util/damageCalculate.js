@@ -427,14 +427,20 @@ export const confuseDamageCalculate = (battle) => {
   //랭크업 적용됨, 천진은 적용 안됨
   //급소 적용 됨
   const pokemon = battle[battle.turn.atk];
-  let atk = pokemon.atk;
-  let def = pokemon.def;
-  if (pokemon.temp.critical && pokemon.tempStatus.rank[def] > 0) {
-    def = pokemon.origin[def];
+  let originAtk = pokemon.origin.stat.atk;
+  let originDef = pokemon.origin.stat.def;
+  let rankNumAtk = pokemon.tempStatus.rank.atk;
+  let rankNumDef = pokemon.tempStatus.rank.def;
+  let rankUpAtk = Math.floor(getMultiplier(rankNumAtk));
+  let rankUpDef = Math.floor(getMultiplier(rankNumDef));
+  let atk = originAtk * rankUpAtk;
+  let def = originDef * rankUpDef;
+  if (pokemon.temp.critical && pokemon.tempStatus.rank.def > 0) {
+    def = originDef;
     // 급소에 맞았을 경우 방어측에게 유리한 랭크업이 무시된다
   }
-  if (pokemon.temp.critical && pokemon.tempStatus.rank[atk] < 0) {
-    atk = pokemon.origin[atk];
+  if (pokemon.temp.critical && pokemon.tempStatus.rank.atk < 0) {
+    atk = originAtk;
     // 급소에 맞았을 경우 공격측에게 불리한 랭크다운이 무시된다
     // 랭크업은 적용된다
   }

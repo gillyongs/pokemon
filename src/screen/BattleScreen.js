@@ -25,6 +25,7 @@ const Battle = () => {
   const { queueObject } = useQueue();
   //게임 진행용 큐 전역변수
   const [bottom, setBottom] = useState("skill");
+
   // 밑 화면 상태. 스킬, 교체, 정보
   const [bench, setBench] = useState(null);
 
@@ -35,13 +36,13 @@ const Battle = () => {
 
   useEffect(() => {
     let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
+
     queueObject.resetQueue();
-    const testMode = true;
-    setBottom("skill");
+    const testMode = false;
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["미라이돈", "미라이돈", "미라이돈"], ["랜드로스", "고릴타", "어써러셔"]);
+      battleObject = createBattle(["어써러셔", "미라이돈", "미라이돈"], ["랜드로스", "고릴타", "어써러셔"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);
@@ -63,8 +64,8 @@ const Battle = () => {
       console.log(queue);
       const player = queue[0].battle.player;
       const turnEnd = queue[0].battle.turn.turnEnd;
-
-      if (player.faint && turnEnd) {
+      let gameEnd = false;
+      if (player.faint && turnEnd && !gameEnd) {
         setBottom("mustSwitch");
       }
 
@@ -80,9 +81,11 @@ const Battle = () => {
       const playerFaint2 = battle.playerBench2.faint;
       if (npcFaint && npcFaint1 && npcFaint2 && queue.length === 1) {
         alert("승리!");
+        gameEnd = true;
       }
       if (playerFaint && playerFaint1 && playerFaint2 && queue.length === 1) {
         alert("패배!");
+        gameEnd = true;
       }
     }
     if (queue.length === 0) {

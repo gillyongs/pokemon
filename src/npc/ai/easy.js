@@ -320,27 +320,30 @@ const calculateScoreNatk = (bt, sn, skObj) => {
         }
       }
       if (item.name === "강제교체") {
-        let value = 0;
-        if (playerRankCount > 0) {
-          value = playerRankCount * 40;
-          score += value;
-          log += ` + ${value} (${item.name}-랭크)`;
-        } else if (playerRankCount < 0) {
-          value = playerRankCount * -20;
-          score -= value;
-          log += ` - ${value} (${item.name}-랭크)`;
-        }
-        if (bt.field.player.sRock) {
-          score += 25;
-          log += ` + 25 (${item.name}-스락)`;
-        }
-        if (bt.field.player.spikes) {
-          score += 20;
-          log += ` + 20 (${item.name}-압정)`;
-        }
-        if (bt.field.player.poisonSpikes) {
-          score += 10;
-          log += ` + 10 (${item.name}-독압정)`;
+        if (getReaminPokemon(bt, "player") > 0) {
+          // 남은 포켓몬이 없다면 실패하므로 제외
+          let value = 0;
+          if (playerRankCount > 0) {
+            value = playerRankCount * 40;
+            score += value;
+            log += ` + ${value} (${item.name}-랭크)`;
+          } else if (playerRankCount < 0) {
+            value = playerRankCount * -20;
+            score -= value;
+            log += ` - ${value} (${item.name}-랭크)`;
+          }
+          if (bt.field.player.sRock) {
+            score += 25;
+            log += ` + 25 (${item.name}-스락)`;
+          }
+          if (bt.field.player.spikes) {
+            score += 20;
+            log += ` + 20 (${item.name}-압정)`;
+          }
+          if (bt.field.player.poisonSpikes) {
+            score += 10;
+            log += ` + 10 (${item.name}-독압정)`;
+          }
         }
       }
       if (item.name === "초승달춤" || item.name === "치유소원") {

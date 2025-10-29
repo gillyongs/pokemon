@@ -13,7 +13,7 @@ function skillEffectSearch(name) {
       let atk = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
       let sk = atk.origin["sk" + battle.turn.atkSN];
-      if (sk.feature?.pretect !== true) atk.tempStatus.protectUse = null;
+      if (sk.feature?.protect !== true) atk.tempStatus.protectUse = null;
       // 방어 외에 다른 스킬을 사용하였을때 방어 스택 초기화
       if (atk.item === "생명의구슬" && !atk.faint) {
         if (sk.stype === "atk" || sk.stype === "catk") {
