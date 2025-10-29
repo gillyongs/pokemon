@@ -13,6 +13,8 @@ function skillEffectSearch(name) {
       let atk = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
       let sk = atk.origin["sk" + battle.turn.atkSN];
+      if (sk.feature?.pretect !== true) atk.tempStatus.protectUse = null;
+      // 방어 외에 다른 스킬을 사용하였을때 방어 스택 초기화
       if (atk.item === "생명의구슬" && !atk.faint) {
         if (sk.stype === "atk" || sk.stype === "catk") {
           const text = atk.name + "의 생명이 조금 깎였다!";
@@ -22,7 +24,7 @@ function skillEffectSearch(name) {
       if (def.status.freeze && !def.faint) {
         // 얼음치료와 상태이상 부여 이벤트가 동시에 있으면 상태이상 부여가 먼저 발생한다
         // => 상태이상 부여가 실패하고 얼음이 녹아 상태이상이 없는 상태가 된다
-        const meltSkills = ["열탕", "스팀버스트", "열사의대지", "휘적휘적포"];
+        const meltSkills = ["열탕", "스팀버스트", "열사의대지", "휘적휘적포"]; //불꽃 타입이 아니지만 얼음을 녹이는 기술들
         if (sk.type === "불꽃" || meltSkills.includes(sk.name)) {
           let freezeCureText = def.name + "의 얼음이 녹았다!";
           def.status.freeze = null;
