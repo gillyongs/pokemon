@@ -34,15 +34,16 @@ const Battle = () => {
   //   랜드로스             유턴:4
   //   날개치는머리          도발:4
 
+  let screenFix = false;
   useEffect(() => {
     let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
-
+    screenFix = true;
     queueObject.resetQueue();
-    const testMode = false;
+    const testMode = true;
     if (!testMode && battleObject) {
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["어써러셔", "미라이돈", "미라이돈"], ["랜드로스", "고릴타", "어써러셔"]);
+      battleObject = createBattle(["어써러셔", "미라이돈", "미라이돈"], ["가이오가", "고릴타", "어써러셔"]);
     }
     queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
     const fastUser = speedCheck(battleObject);
@@ -65,7 +66,8 @@ const Battle = () => {
       const player = queue[0].battle.player;
       const turnEnd = queue[0].battle.turn.turnEnd;
       let gameEnd = false;
-      if (player.faint && turnEnd && !gameEnd) {
+      if (player.faint && turnEnd && !screenFix) {
+        // 겜 다시시작할때 자꾸 실행되길래 막을려고 screenFix 추가함
         setBottom("mustSwitch");
       }
 
@@ -102,6 +104,7 @@ const Battle = () => {
       if (battle.turn.textFreeze) {
         return;
       }
+      screenFix = false;
       queueObject.dequeue();
     }
   };

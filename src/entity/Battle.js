@@ -1,5 +1,5 @@
 import { generate } from "./Pokemon/Pokemon";
-
+import { Field } from "./Field/Field";
 class Battle {
   constructor(player, npc, playerBench1, playerBench2, npcBench1, npcBench2) {
     this.player = player;
@@ -36,6 +36,7 @@ class Battle {
       //
     };
     //turnEnd 같은 변수때문에 턴이 시작될때 = battleStart.js에서 초기화된다
+    // this.field = new Field();
     this.field = {
       field: null,
       fieldTurnRemain: null,

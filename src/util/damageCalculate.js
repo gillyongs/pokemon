@@ -413,9 +413,9 @@ export const damageCalculate = (battle, obj, ai) => {
   damage = (damage * randomNum) / 100;
   attackPokemon.log.damage2 += " * " + randomNum + "(랜덤값) / 100 = " + Math.floor(damage);
   if (!ai) {
-    // console.log(attackPokemon.name);
-    // console.log(attackPokemon.log.damage1);
-    // console.log(attackPokemon.log.damage2);
+    console.log(attackPokemon.name);
+    console.log(attackPokemon.log.damage1);
+    console.log(attackPokemon.log.damage2);
   }
 
   return Math.floor(damage);

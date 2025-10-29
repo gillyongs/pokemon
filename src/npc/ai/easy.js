@@ -27,8 +27,8 @@ export function npcAiEasy(choices, battle) {
   choices.forEach((c) => {
     if (skMap[c]) skObj[c] = skMap[c];
   });
-  console.log("skObj");
-  console.log(skObj);
+  // console.log("skObj");
+  // console.log(skObj);
 
   let result;
   result = getKillableSkill(skObj, hp, base);

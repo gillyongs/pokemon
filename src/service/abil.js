@@ -106,6 +106,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
 
   Object.entries(weatherAbilities).forEach(([abil, { type, value, text, head }]) => {
     if (atkAbil === abil && bt.field[type] !== value) {
+      // bt.field.weather.setWeatherRain(bt, enqueue, `[특성 ${abil}] ${atk[head]} ${text}`, atk);
       weatherChange(bt, atk, enqueue, value, `[특성 ${abil}] ${atk[head]} ${text}`);
     }
   });
