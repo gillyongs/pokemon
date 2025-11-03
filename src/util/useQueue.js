@@ -1,11 +1,12 @@
 import { useRecoilState } from "recoil";
 import { queueState } from "./recoilState";
+import { cloneWithMethods } from "./cloneWithMethods";
 
 export function useQueue() {
   const [queue, setQueue] = useRecoilState(queueState);
 
   const enqueue = (item) => {
-    const deepCopiedItem = structuredClone(item); // 깊은 복사
+    const deepCopiedItem = cloneWithMethods(item); // 메서드까지 깊은 복사하는 함수
     setQueue((prevQueue) => [...prevQueue, deepCopiedItem]);
   };
 

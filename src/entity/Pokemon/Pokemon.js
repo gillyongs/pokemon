@@ -1,4 +1,6 @@
 import BattlePokemonRepository from "./PokemonCustomRepository";
+import { maxStatFinder, getStatName } from "../../function/rankStat";
+
 //실제 배틀에 사용되는 포켓몬 객체
 // 능력치, pp, 상태이상여부, 랭크업, 기절 여부 등 가변 값을 지닌다.
 // 불변 값은 origin에서 관리한다
@@ -80,6 +82,65 @@ class PokemonOnBattle {
       speedCalculate: null,
       speedVS: null,
     };
+  }
+
+  //고대활성 발동
+  handleProtosynthesis(battle, enqueue) {
+    if (this.abil !== "고대활성" || this.tempStatus.protosynthesis !== null) return;
+
+    const maxKey = maxStatFinder(this);
+    if (battle.weatherType === "쾌청") {
+      // 날씨가 쾌청상태이면 부스트에너지보다 먼저 고대활성 발동
+      this.tempStatus.protosynthesis = maxKey;
+      this.tempStatus.protosynthesisBySun = true;
+      enqueue({
+        battle,
+        text: `[특성 고대활성] ${this.names} 쾌청에 의해 고대활성을 발동했다!`,
+      });
+    } else if (this.item === "부스트에너지") {
+      // 그 외의 경우
+      this.tempStatus.protosynthesis = maxKey;
+      this.item = null;
+      enqueue({
+        battle,
+        text: `[특성 고대활성] ${this.names} 부스트에너지에 의해 고대활성을 발동했다!`,
+      });
+    }
+    if (this.tempStatus.protosynthesis) {
+      enqueue({
+        battle,
+        text: `[특성 고대활성] ${this.name}의 ${getStatName(maxKey)} 강화되었다!`,
+      });
+    }
+  }
+
+  // 쾌청 해제로 인한 고대활성 종료
+  handleProtosynthesisEnd(battle, enqueue) {
+    if (this.abil !== "고대활성" || this.tempStatus.protosynthesis === null) return;
+    if (!this.tempStatus.protosynthesisBySun) return;
+
+    // 쾌청 기반 고대활성 해제
+    this.tempStatus.protosynthesis = null;
+    this.tempStatus.protosynthesisBySun = null;
+    enqueue({
+      battle,
+      text: `${this.name}에게서 고대활성의 효과가 사라졌다!`,
+    });
+
+    // 부스트에너지로 재발동
+    if (this.item === "부스트에너지") {
+      this.item = null;
+      enqueue({
+        battle,
+        text: `[특성 고대활성] ${this.names} 부스트에너지에 의해 고대활성을 발동했다!`,
+      });
+      const maxKey = maxStatFinder(this);
+      this.tempStatus.protosynthesis = maxKey;
+      enqueue({
+        battle,
+        text: `[특성 고대활성] ${this.name}의 ${getStatName(maxKey)} 강화되었다!`,
+      });
+    }
   }
 }
 

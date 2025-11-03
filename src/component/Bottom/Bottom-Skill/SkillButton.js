@@ -4,7 +4,7 @@ import { typeCheckConsole } from "../../../util/typeCheck";
 import { battleStart } from "../../../service/battleStart";
 import { npcChoice } from "../../../npc/npc";
 
-const SkillButton = ({ battle, skillNumber, queueObject, setText }) => {
+const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {
   const skill = "sk" + skillNumber;
   const pp = "pp" + skillNumber;
   let sk = battle.player.origin[skill];
@@ -70,7 +70,8 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText }) => {
     }
 
     // 모든 조건 통과 시 전투 시작
-    battleStart(battle, skillIndex, npcChoice(battle, skillIndex), queueObject);
+    battleStartBySkillButton(skillIndex);
+    // battleStart(battle, skillIndex, npcChoice(battle, skillIndex), queueObject);
   };
 
   return (

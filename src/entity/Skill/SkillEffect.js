@@ -111,10 +111,9 @@ function skillEffectSearch(name) {
     아침햇살: (battle, enqueue, skillEffect) => {
       const hp = battle[battle.turn.atk].origin.hp;
       let value = hp / 2;
-      if (battle.field.weather === null) {
+      if (battle.weatherType === null) {
         value = hp / 2;
-      }
-      if (battle.field.weather === "쾌청") {
+      } else if (battle.weatherType === "쾌청") {
         value = (hp * 2) / 3;
       } else {
         value = hp / 4;

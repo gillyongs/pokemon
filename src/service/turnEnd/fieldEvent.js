@@ -1,4 +1,3 @@
-import { weatherChange } from "../../function/weatherField";
 import { recover } from "../../function/recover";
 import { flyingCheck } from "../../util/flyingCheck";
 import { speedCheck } from "../../util/speedCheck";
@@ -11,8 +10,7 @@ export function processFieldEffects(battle, enqueue) {
   // 트릭룸 카운트
   processTrickRoom(battle, enqueue);
 
-  // 날씨 카운트
-  processWeather(battle, enqueue);
+  battle.field.weather.handleWeatherTurnEnd(battle, enqueue);
 
   // 필드 카운트
   processField(battle, enqueue, fastUser, slowUser);
@@ -29,19 +27,6 @@ function processTrickRoom(battle, enqueue) {
       battle.field.trickRoom = null;
       enqueue({ battle, text: "뒤틀린 시공이 원래대로 되돌아왔다!" });
     }
-  }
-}
-
-/* -------------------------------------------------------------------------------------------------
-   2️⃣ 날씨 처리
-------------------------------------------------------------------------------------------------- */
-function processWeather(battle, enqueue) {
-  if (battle.field.weather === null) return;
-
-  battle.field.weatherTurnRemain--;
-  if (battle.field.weatherTurnRemain <= 0) {
-    weatherChange(battle, null, enqueue, null);
-    return;
   }
 }
 

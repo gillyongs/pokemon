@@ -2,20 +2,7 @@ import { josa } from "josa";
 class Pokemon {
   // 포켓몬 원본 객체
   // ReadOnly, 불변값
-  constructor(
-    id,
-    name,
-    total,
-    hp,
-    atk,
-    def,
-    catk,
-    cdef,
-    speed,
-    type1,
-    type2,
-    feature
-  ) {
+  constructor(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2, feature) {
     // prettier-ignore
     this._validateParams(id, name, total, hp, atk, def, catk, cdef, speed, type1, type2);
     this.id = id;

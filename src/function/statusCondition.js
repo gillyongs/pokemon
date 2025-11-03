@@ -88,7 +88,7 @@ export const freeze = (battle, get, enqueue) =>
   applyStatus(battle, get, enqueue, {
     key: "freeze",
     immuneTypes: ["얼음"],
-    condition: (battle) => battle.field.weather !== "쾌청", // 쾌청 시 실패
+    condition: (battle) => battle.weatherType !== "쾌청", // 쾌청 시 실패
     text: (p) => `${p.names} 얼어붙었다!`,
   });
 

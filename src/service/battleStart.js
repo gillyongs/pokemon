@@ -10,48 +10,47 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   queueObject.resetQueue();
   const enqueue = queueObject.enqueue;
 
-  let bt = structuredClone(battle);
-  Object.keys(bt.turn).forEach((key) => {
-    bt.turn[key] = null;
+  Object.keys(battle.turn).forEach((key) => {
+    battle.turn[key] = null;
   });
 
-  bt.turn.playerSN = actNumber;
-  bt.turn.npcSN = npcActNumber;
+  battle.turn.playerSN = actNumber;
+  battle.turn.npcSN = npcActNumber;
   let playerUseSkill = null;
   let npcUseSkill = null;
-  if (typeof actNumber === "number") playerUseSkill = bt.player.origin["sk" + actNumber];
-  if (typeof npcActNumber === "number") npcUseSkill = bt.npc.origin["sk" + npcActNumber];
+  if (typeof actNumber === "number") playerUseSkill = battle.player.origin["sk" + actNumber];
+  if (typeof npcActNumber === "number") npcUseSkill = battle.npc.origin["sk" + npcActNumber];
 
   if (typeof actNumber === "string" && typeof npcActNumber === "string") {
     //맞교체
-    let fastUser = speedCheck(bt); // 우선도 없이 스피드만 체크
-    bt.turn.fastActUser = fastUser; // 기습, 방어 성공여부 떄문에 넣는다
+    let fastUser = speedCheck(battle); // 우선도 없이 스피드만 체크
+    battle.turn.fastActUser = fastUser; // 기습, 방어 성공여부 떄문에 넣는다
     if (fastUser === "player") {
-      switchPlayer(bt, actNumber, enqueue);
-      switchNpc(bt, npcActNumber, enqueue);
+      switchPlayer(battle, actNumber, enqueue);
+      switchNpc(battle, npcActNumber, enqueue);
     } else if (fastUser === "npc") {
-      switchNpc(bt, npcActNumber, enqueue);
-      switchPlayer(bt, actNumber, enqueue);
+      switchNpc(battle, npcActNumber, enqueue);
+      switchPlayer(battle, actNumber, enqueue);
     }
   } else if (
     // 플레이어만 교체
     typeof actNumber === "string" &&
     typeof npcActNumber === "number"
   ) {
-    bt.turn.fastActUser = "player"; // 교체도 먼저 행동한 것으로 간주
-    bt.npc.temp.useSkill = npcUseSkill;
-    switchPlayer(bt, actNumber, enqueue);
-    attackNpc(bt, actNumber, npcActNumber, enqueue);
+    battle.turn.fastActUser = "player"; // 교체도 먼저 행동한 것으로 간주
+    battle.npc.temp.useSkill = npcUseSkill;
+    switchPlayer(battle, actNumber, enqueue);
+    attackNpc(battle, actNumber, npcActNumber, enqueue);
   } else if (
     // npc만 교체
     typeof npcActNumber === "string" &&
     typeof actNumber === "number"
   ) {
-    bt.turn.fastActUser = "npc"; // 교체도 먼저 행동한 것으로 간주
-    bt.player.temp.useSkill = playerUseSkill;
-    switchNpc(bt, npcActNumber, enqueue);
-    attackPlayer(bt, actNumber, npcActNumber, enqueue);
-    if (bt.common.temp.uturn) {
+    battle.turn.fastActUser = "npc"; // 교체도 먼저 행동한 것으로 간주
+    battle.player.temp.useSkill = playerUseSkill;
+    switchNpc(battle, npcActNumber, enqueue);
+    attackPlayer(battle, actNumber, npcActNumber, enqueue);
+    if (battle.common.temp.uturn) {
       return;
     }
   } else if (
@@ -59,30 +58,30 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     typeof actNumber === "number" &&
     typeof npcActNumber === "number"
   ) {
-    let fastUser = skillSpeedCheck(bt);
-    bt.player.temp.useSkill = playerUseSkill;
-    bt.npc.temp.useSkill = npcUseSkill;
-    bt.turn.fastActUser = fastUser; //기습 사용조건때문에 넣는다
+    let fastUser = skillSpeedCheck(battle);
+    battle.player.temp.useSkill = playerUseSkill;
+    battle.npc.temp.useSkill = npcUseSkill;
+    battle.turn.fastActUser = fastUser; //기습 사용조건때문에 넣는다
 
     if (fastUser === "player") {
       // 플레이어 선공
-      attackPlayer(bt, actNumber, npcActNumber, enqueue);
-      if (bt.common.temp.uturn) return;
+      attackPlayer(battle, actNumber, npcActNumber, enqueue);
+      if (battle.common.temp.uturn) return;
       // 유턴으로 교체시 교체화면을 띄우고 거기서 남은 함수 (attackNpc, turnEnd)를 실행한다
-      if (bt[bt.turn.def].faint !== true) {
-        attackNpc(bt, actNumber, npcActNumber, enqueue);
+      if (battle[battle.turn.def].faint !== true) {
+        attackNpc(battle, actNumber, npcActNumber, enqueue);
       }
     } else {
-      attackNpc(bt, actNumber, npcActNumber, enqueue);
-      if (bt[bt.turn.def].faint !== true) {
-        attackPlayer(bt, actNumber, npcActNumber, enqueue);
-        if (bt.common.temp.uturn) return;
+      attackNpc(battle, actNumber, npcActNumber, enqueue);
+      if (battle[battle.turn.def].faint !== true) {
+        attackPlayer(battle, actNumber, npcActNumber, enqueue);
+        if (battle.common.temp.uturn) return;
         // 유턴으로 교체시 교체화면을 띄우고 거기서 남은 함수 (turnEnd)를 실행한다
       }
     }
   }
 
-  turnEnd(bt, enqueue);
+  turnEnd(battle, enqueue);
 };
 
 const npcAi = (battle, a) => {

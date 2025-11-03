@@ -36,42 +36,7 @@ class Battle {
       //
     };
     //turnEnd 같은 변수때문에 턴이 시작될때 = battleStart.js에서 초기화된다
-    // this.field = new Field();
-    this.field = {
-      field: null,
-      fieldTurnRemain: null,
-      weather: null,
-      weatherTurnRemain: null,
-      trickRoom: null,
-      //공간변화는 중첩가능
-      player: {
-        sRock: null, //스텔스록
-        spikes: null, // 압정뿌리기
-        poisonSpikes: null, // 독압정 (1 = 독, 2 = 맹독)
-      },
-      npc: {
-        sRock: null, //스텔스록
-        spikes: null, // 압정뿌리기
-        poisonSpikes: null, // 독압정 (1 = 독, 2 = 맹독)
-      },
-      noClean: {
-        // 고속스핀 등으로 인해 없어지지 않는 필드 요소
-        player: {
-          healingWish: null, // 치유소원 -> 필드에 적용 후 교체해 나올떄 = field.js에서 처리
-          lunarDance: null, // 초승달춤
-          wish: null, //희망사항 -> 다음턴 종료시 필드에 있는 포켓몬 = turnEnd.js에서 처리
-          reflect: null, // 리플렉터
-          lightScreen: null, // 빛의장막
-        },
-        npc: {
-          healingWish: null, // 치유소원
-          lunarDance: null, // 초승달춤
-          wish: null, // { name: "맘복치", amount: 시전자체력절반, turnRemain: 1 };
-          reflect: null, // 리플렉터
-          lightScreen: null, // 빛의장막
-        },
-      },
-    };
+    this.field = new Field();
 
     this.common = {
       player: {
@@ -96,6 +61,9 @@ class Battle {
     // this.npc.status.poison = true;
     // this.npcBench1.status.poison = true;
     // this.npcBench2.status.poison = true;
+  }
+  get weatherType() {
+    return this.field?.weather?.type ?? null;
   }
 }
 

@@ -42,7 +42,7 @@ export function npcAiEasy(choices, battle) {
 
 // 공통 스킬 정보 생성 함수
 function createSkObj(baseBattle, sn, hp) {
-  const bt = structuredClone(baseBattle);
+  const bt = baseBattle;
   const skill = bt.npc.origin[`sk${sn}`];
 
   const skObj = {
@@ -506,7 +506,7 @@ function statusTypeCheck(status, pokemon) {
 }
 
 function createPkObj(baseBattle, sn, hp) {
-  const bt = structuredClone(baseBattle);
+  const bt = baseBattle;
   const index = "npcBench" + sn;
   const pokemon = bt[index];
 

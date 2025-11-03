@@ -1,6 +1,5 @@
 import { noTraceAbil } from "../entity/Abillity";
 import { rank, getStatName, maxStatFinder } from "../function/rankStat";
-import { weatherChange } from "../function/weatherField";
 // ======================================================
 // applyAbilityEffects
 // ======================================================
@@ -70,7 +69,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // -------------------------------
   if (atkAbil === "고대활성" && atk.tempStatus.protosynthesis === null) {
     const maxKey = maxStatFinder(atk);
-    if (bt.field.weather === "쾌청") {
+    if (bt.weatherType === "쾌청") {
       // 날씨가 쾌청상태일때 교체로 나온 경우
       // 부스트에너지 사용보다 먼저 발생
       atk.tempStatus.protosynthesis = maxKey;
@@ -100,14 +99,13 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // ⑤ 날씨 / 필드 전개형 특성
   // -------------------------------
   const weatherAbilities = {
-    잔비: { type: "weather", value: "비", text: "주변에 비가 내리기 시작했다!", head: "name" },
-    가뭄: { type: "weather", value: "쾌청", text: "주변의 햇살이 강해졌다!", head: "name" },
+    잔비: { weatherType: "비", text: "주변에 비가 내리기 시작했다!" },
+    가뭄: { weatherType: "쾌청", text: "주변의 햇살이 강해졌다!" },
   };
-
-  Object.entries(weatherAbilities).forEach(([abil, { type, value, text, head }]) => {
-    if (atkAbil === abil && bt.field[type] !== value) {
-      // bt.field.weather.setWeatherRain(bt, enqueue, `[특성 ${abil}] ${atk[head]} ${text}`, atk);
-      weatherChange(bt, atk, enqueue, value, `[특성 ${abil}] ${atk[head]} ${text}`);
+  Object.entries(weatherAbilities).forEach(([abil, { weatherType, text }]) => {
+    if (atkAbil === abil && bt.weatherType !== weatherType) {
+      let weatherAbiltext = `[특성 ${abil}] ${atk.name} ${text}`;
+      bt.field.weather.setWeatherOnBattle(bt, enqueue, atk, weatherType, weatherAbiltext);
     }
   });
 
@@ -131,13 +129,14 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // ⑥ 진홍빛고동 (날씨 조정형)
   // -------------------------------
   if (atkAbil === "진홍빛고동") {
-    if (bt.field.weather === "쾌청") {
+    if (bt.weatherType === "쾌청") {
       enqueue({
         battle: bt,
         text: `[특성 진홍빛고동] ${atk.names} 햇살을 받아 고대의 고동을 폭발시켰다!`,
       });
     } else {
-      weatherChange(bt, atk, enqueue, "쾌청", `[특성 진홍빛고동] ${atk.names} 햇살을 강하게 하여 고대의 고동을 폭발시켰다!`);
+      let text = `[특성 진홍빛고동] ${atk.names} 햇살을 강하게 하여 고대의 고동을 폭발시켰다!`;
+      bt.field.weather.setWeatherOnBattle(bt, enqueue, atk, "쾌청", text);
     }
   }
 

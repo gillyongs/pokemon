@@ -15,10 +15,13 @@ import { speedCheck } from "../util/speedCheck";
 import { useLocation } from "react-router-dom";
 import { battleStart } from "../service/battleStart";
 import { npcChoice } from "../npc/npc";
+import { cloneWithMethods } from "../util/cloneWithMethods";
 
 const Battle = () => {
   const location = useLocation();
-  const [battle, setBattle] = useState(createBattle(["아고용", "어써러셔", "어써러셔"], ["썬더", "어써러셔", "어써러셔"]));
+  const battleOrigin = createBattle(["아고용", "어써러셔", "어써러셔"], ["썬더", "어써러셔", "어써러셔"]);
+  const battleObj = useRef(battleOrigin);
+  const [battle, setBattle] = useState(battleOrigin);
   //개발용 배틀 객체.
   const [text, setText] = useState("");
   //화면에 보여질 텍스트 전역변수
@@ -41,25 +44,25 @@ const Battle = () => {
     queueObject.resetQueue();
     const testMode = true;
     if (!testMode && battleObject) {
+      battleObj.current = battleObject;
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObject = createBattle(["어써러셔", "미라이돈", "미라이돈"], ["가이오가", "고릴타", "어써러셔"]);
+      battleObj.current = createBattle(["가이오가", "코터스", "미라이돈"], ["날개치는머리", "고릴타", "어써러셔"]);
     }
-    queueObject.enqueue({ battle: battleObject, text: "배틀시작!" });
-    const fastUser = speedCheck(battleObject);
+    queueObject.enqueue({ battle: battleObj.current, text: "배틀시작!" });
+    const fastUser = speedCheck(battleObj.current);
     const slowUser = fastUser === "player" ? "npc" : "player";
-    let bt = structuredClone(battleObject);
-    applyAbilityEffects(bt, fastUser, queueObject.enqueue);
-    applyAbilityEffects(bt, slowUser, queueObject.enqueue);
-
+    applyAbilityEffects(battleObj.current, fastUser, queueObject.enqueue);
+    applyAbilityEffects(battleObj.current, slowUser, queueObject.enqueue);
     if (queueObject.queue.length === 0) {
-      setText(battleObject.player.origin.names + " 무엇을 할까?");
+      setText(battleObj.current.player.origin.names + " 무엇을 할까?");
     }
   }, [location.state]); // location.state가 변경될 때 실행
 
   useEffect(() => {
     const queue = queueObject.queue;
     if (queue[0]) {
+      battleObj.current = cloneWithMethods(queue[0].battle);
       setBattle(queue[0].battle);
       setText(queue[0].text);
       console.log(queue);
@@ -109,6 +112,10 @@ const Battle = () => {
     }
   };
 
+  const battleStartBySkillButton = (skillIndex) => {
+    battleStart(battleObj.current, skillIndex, npcChoice(battle, skillIndex), queueObject);
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -123,8 +130,8 @@ const Battle = () => {
           <PokemonInfo battle={battle} type="plr" />
         </TOP>
         <BOTTOM>
-          {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} />}
-          {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} />}
+          {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} battleStartBySkillButton={battleStartBySkillButton} />}
+          {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
           {bottom === "info" && <BottomSectionInfo battle={battle} text={text} setText={setText} setBottom={setBottom} bench={bench} />}
         </BOTTOM>
       </BATTLE>

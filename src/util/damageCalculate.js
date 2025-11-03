@@ -186,7 +186,7 @@ export const damageCalculate = (battle, obj, ai) => {
         atkStr += " * 0.75 (재앙의목간)";
       }
     }
-    if (attackPokemon.abil === "진홍빛고동" && battle.field.weather === "쾌청") {
+    if (attackPokemon.abil === "진홍빛고동" && battle.weatherType === "쾌청") {
       atkStat *= 1.3;
       atkStr += " * 1.3 (진홍빛고동)";
     }
@@ -271,7 +271,7 @@ export const damageCalculate = (battle, obj, ai) => {
   attackPokemon.log.damage1 = "22 * " + power + "(위력) * [" + atkStr + "] / 50 / [" + defStr + "]";
 
   // 날씨 ==========================================================
-  const weather = battle.field.weather; // 날씨 보정
+  const weather = battle.weatherType; // 날씨 보정
   if (weather === "비") {
     if (sk.type === "물") {
       damage *= 1.5;
