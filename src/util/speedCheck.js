@@ -33,14 +33,13 @@ export const speedCheck = (battle) => {
 
   // 스피드 스탯은 오직 speedCheck에서만 사용한다
   // 원본 스탯에 랭크업과 아이템을 적용한다
-  const trickRoom = battle.field.trickRoom;
   if (playerSpeed === npcSpeed) {
     battle.player.log.speedVS += " (동점)";
     return Math.random() < 0.5 ? "player" : "npc";
   }
 
   let faster = playerSpeed > npcSpeed ? "player" : "npc";
-  if (trickRoom) {
+  if (battle.field.isTrickRoom) {
     battle.player.log.speedVS += " (트릭룸)";
     faster = faster === "player" ? "npc" : "player";
   }

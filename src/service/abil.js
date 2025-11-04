@@ -1,5 +1,4 @@
 import { noTraceAbil } from "../entity/Abillity";
-import { rank, getStatName, maxStatFinder } from "../function/rankStat";
 // ======================================================
 // applyAbilityEffects
 // ======================================================
@@ -35,18 +34,18 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // ② 능력치 상승 / 하락형 특성
   // -------------------------------
   const rankUpAbilities = {
-    불요의검: { cond: atk.item === "녹슨검", stat: "atk", change: 1 },
-    불굴의방패: { cond: atk.item === "녹슨방패", stat: "def", change: 1 },
-    위협: { cond: !def.tempStatus.substitute, target: defs, stat: "atk", change: -1 },
+    불요의검: { cond: atk.item === "녹슨검", target: "atk", stat: "atk", value: 1 },
+    불굴의방패: { cond: atk.item === "녹슨방패", target: "atk", stat: "def", value: 1 },
+    위협: { cond: !def.tempStatus.substitute, target: "def", stat: "atk", value: -1 },
   };
 
   Object.entries(rankUpAbilities).forEach(([abil, cfg]) => {
-    const text = `[특성 ${abil}]`;
+    const abilText = `[특성 ${abil}]`;
     if (atkAbil === abil && cfg.cond) {
-      const target = cfg.target || atks;
-      rank(bt, enqueue, target, cfg.stat, cfg.change, text);
+      const target = cfg.target === "atk" ? atk : def;
+      target.rankUp(bt, enqueue, cfg.stat, cfg.value, abilText);
     } else if (atkAbil === abil && !cfg.cond && abil === "위협") {
-      enqueue({ battle: bt, text: text + " " + def.name + "에겐 효과가 없는 것 같다..." });
+      enqueue({ battle: bt, text: abilText + " " + def.name + "에겐 효과가 없는 것 같다..." });
     }
   });
 

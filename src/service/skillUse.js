@@ -50,8 +50,9 @@ export const skillUse = (bt, enqueue) => {
       const chargeObj = sk.feature.charge;
       enqueue({ battle: bt, text: atk[chargeObj.head] + sk.feature.charge.text });
       // 충전 텍스트 (ex:"제르네아스는 파워를 모으고 있다!", "텅비드에게서 우주의 힘이 넘쳐난다!")
+
       if (chargeObj.rankUpStat) {
-        rank(bt, enqueue, bt.turn.atk, chargeObj.rankUpStat, 1);
+        atk.rankUp(bt, enqueue, chargeObj.rankUpStat, 1);
       }
 
       if (atk.item === "파워풀허브") {

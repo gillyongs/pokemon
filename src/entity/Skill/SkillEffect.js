@@ -1,5 +1,4 @@
 import { random } from "../../util/randomCheck";
-import { rank, rankReset } from "../../function/rankStat";
 import { burn, mabi, poison, freeze, sleep, confuse, pokemonNoStatusCheck } from "../../function/statusCondition";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
@@ -38,13 +37,15 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
+
       const target = battle.turn[skillEffect.target];
-      if (battle[target].faint) {
+      const targetPokemon = battle[target];
+      if (targetPokemon.faint) {
         return;
       }
-      // 반대로 랭크업을 주는쪽은
-      // 기절해도 정상적으로 적용된다
-      rank(battle, enqueue, target, skillEffect.abil, skillEffect.value);
+      // 랭크업을 받는쪽이 기절하면 적용되지 않는다
+      // 반대로 랭크업을 주는쪽은 (생구 등으로) 기절해도 정상적으로 적용된다
+      targetPokemon.rankUp(battle, enqueue, skillEffect.stat, skillEffect.value);
     },
 
     화상: (battle, enqueue, skillEffect) => {
@@ -342,18 +343,7 @@ function skillEffectSearch(name) {
       });
     },
     트릭룸: (battle, enqueue, skillEffect) => {
-      const atk = battle[battle.turn.atk];
-      if (battle.field.trickRoom === null) {
-        battle.field.trickRoom = 5;
-        enqueue({
-          battle,
-          text: atk.names + " 시공을 뒤틀었다!",
-        });
-      } else {
-        //트릭룸 두번쓰면 없어진다
-        battle.field.trickRoom = null;
-        enqueue({ battle, text: "뒤틀린 시공이 원래대로 되돌아왔다!" });
-      }
+      battle.field.handleTrickRoom(battle, enqueue);
     },
     자동: (battle, enqueue, skillEffect) => {
       // 역린
@@ -446,42 +436,29 @@ function skillEffectSearch(name) {
     능력치초기화: (battle, enqueue, skillEffect) => {
       // 능력치 변화가 없어도 발동은 된다
       const def = battle[battle.turn.def];
-      rankReset(def);
+      def.resetRank();
       enqueue({
         battle,
         text: def.name + "의 능력치 변화가 원래대로 되돌아갔다!",
       });
     },
     치유소원: (battle, enqueue, skillEffect) => {
-      // 연속 사용해도 실패하지 않는다 (하지만 효과가 중첩되지도 않는다)
-      const skillUser = battle[battle.turn.atk];
-      battle.field.noClean[battle.turn.atk].healingWish = true;
-      skillUser.handleFaint(battle, enqueue);
+      battle.field[battle.turn.atk].handleHealingWish(battle, enqueue);
     },
     초승달춤: (battle, enqueue, skillEffect) => {
-      const skillUser = battle[battle.turn.atk];
-      battle.field.noClean[battle.turn.atk].lunarDance = true;
-      skillUser.handleFaint(battle, enqueue);
+      battle.field[battle.turn.atk].handleLunarDance(battle, enqueue);
     },
 
     희망사항: (battle, enqueue, skillEffect) => {
-      if (battle.field.noClean[battle.turn.atk].wish !== null) {
-        //연속사용 안됨
-        enqueue({
-          battle,
-          text: "하지만 실패했다!",
-        });
-        return;
-      }
       const skillUser = battle[battle.turn.atk];
-      battle.field.noClean[battle.turn.atk].wish = { name: skillUser.name, amount: Math.floor(skillUser.origin.hp / 2), turnRemain: 1 };
-      // 희망사항의 회복량은 시전자 체력의 절반
+      const wishObj = { name: skillUser.name, amount: Math.floor(skillUser.origin.hp / 2), turnRemain: 1 };
+      battle.field[battle.turn.atk].handleWish(battle, enqueue, wishObj);
     },
 
     리플렉터: (battle, enqueue, skillEffect) => {
       const user = battle.turn.atk;
       const skillUser = battle[user];
-      const field = battle.field.noClean[user];
+      const field = battle.field[user].noClean;
       if (field.reflect !== null) {
         enqueue({
           battle,
@@ -491,7 +468,7 @@ function skillEffectSearch(name) {
       }
       let num = 5;
       if (skillUser.item === "빛의점토") num = 8;
-      battle.field.noClean[user].reflect = num;
+      battle.field[user].noClean.reflect = num;
       enqueue({
         battle,
         text: battle.common[user].teamKr + " 편은 리플렉터로 물리공격에 강해졌다!",
@@ -501,7 +478,7 @@ function skillEffectSearch(name) {
     빛의장막: (battle, enqueue, skillEffect) => {
       const user = battle.turn.atk;
       const skillUser = battle[user];
-      const field = battle.field.noClean[user];
+      const field = battle.field[user].noClean;
       if (field.lightScreen !== null) {
         enqueue({
           battle,
@@ -511,7 +488,7 @@ function skillEffectSearch(name) {
       }
       let num = 5;
       if (skillUser.item === "빛의점토") num = 8;
-      battle.field.noClean[user].lightScreen = num;
+      battle.field[user].noClean.lightScreen = num;
       enqueue({
         battle,
         text: battle.common[user].teamKr + " 편은 빛의장막으로 특수공격에 강해졌다!",
@@ -520,18 +497,19 @@ function skillEffectSearch(name) {
 
     벽부수기: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
-      if (battle.field.noClean[def].reflect === null && battle.field.noClean[def].lightScreen === null) {
+      const field = battle.field[def].noClean;
+      if (field.reflect === null && field.lightScreen === null) {
         return;
       }
-      if (battle.field.noClean[def].reflect !== null) {
-        battle.field.noClean[def].reflect = null;
+      if (field.reflect !== null) {
+        field.reflect = null;
         enqueue({
           battle,
           text: battle.common[battle.turn.def].teamKr + " 편의 리플렉터가 깨졌다!",
         });
       }
-      if (battle.field.noClean[def].lightScreen !== null) {
-        battle.field.noClean[def].lightScreen = null;
+      if (field.lightScreen !== null) {
+        field.lightScreen = null;
         enqueue({
           battle,
           text: battle.common[battle.turn.def].teamKr + " 편의 빛의장막이 깨졌다!",

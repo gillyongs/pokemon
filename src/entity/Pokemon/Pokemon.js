@@ -1,7 +1,9 @@
 import BattlePokemonRepository from "./PokemonCustomRepository";
-import { maxStatFinder, getStatName } from "../../function/rankStat";
 import { PokemonRecover } from "./Methods/PokemonRecover";
 import { PokemonAbil } from "./Methods/PokemonAbil.js";
+import { PokemonGetDamage } from "./Methods/PokemonGetDamage.js";
+import { PokemonRank } from "./Methods/PokemonRank.js";
+
 //실제 배틀에 사용되는 포켓몬 객체
 // 능력치, pp, 상태이상여부, 랭크업, 기절 여부 등 가변 값을 지닌다.
 // 불변 값은 origin에서 관리한다
@@ -115,54 +117,6 @@ class PokemonOnBattle {
     });
   }
 
-  getDamage(battle, enqueue, damageValue, text) {
-    // 기준 = 급소 없음, 탈 안 까임, 멀스 적용 안됨
-    // field: 스텔스록
-    // onHit: 특성(철가시), 울멧
-    // turnEnd: 상태이상(독, 화상), 씨뿌리기, 마그마스톰
-    // skillEffect: 생구, 무릎차기 빗나감, 반동, 대다출동
-    const actualDamage = this.#applyDamage(Math.floor(damageValue));
-    if (text) enqueue({ battle, text });
-    if (this.hp <= 0) {
-      this.handleFaint(battle, enqueue);
-    } else {
-      this.tryBerry(battle, enqueue);
-    }
-    return actualDamage;
-  }
-
-  #applyDamage(damage) {
-    const prevHp = this.hp;
-    this.hp = Math.max(this.hp - damage, 0);
-    return prevHp - this.hp; // 실제 입은 데미지 (씨뿌리기 흡혈뎀 계산에 사용)
-  }
-
-  handleFaint(battle, enqueue) {
-    // attackDmage, 초승달춤에서도 사용
-    this.hp = 0;
-    this.faint = true;
-    this.resetStatus();
-    this.resetTemp();
-    this.resetTempStatus();
-    enqueue({ battle, text: this.names + " 쓰러졌다!" });
-  }
-
-  tryBerry(battle, enqueue) {
-    // attackDmage에서도 사용
-    const atkTeam = this.team === "npc" ? "player" : "npc";
-    const atkPokemon = battle[atkTeam];
-    const atkAbil = atkPokemon.abil;
-    let noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
-    if (noBerryAbil.includes(atkAbil)) {
-      return;
-    }
-
-    if (this.item === "자뭉열매" && this.hp <= this.origin.hp / 2) {
-      this.item = null;
-      this.recover(battle, Math.floor(this.origin.hp / 4), enqueue, this.names + " 자뭉열매로 체력을 회복했다!");
-    }
-  }
-
   isFlying(battle) {
     const pokemon = this;
     const enemy = pokemon.team === "player" ? battle.npc : battle.player;
@@ -188,9 +142,17 @@ class PokemonOnBattle {
     // 그 외에는 지상
     return false;
   }
+
+  leftOver(battle, enqueue) {
+    if (this.faint || this.item !== "먹다남은음식") return;
+
+    if (this.hp < this.origin.hp) {
+      this.recover(battle, Math.floor(this.origin.hp / 16), enqueue, `${this.names} 먹다남은음식으로 인해 조금 회복했다.`);
+    }
+  }
 }
 
-Object.assign(PokemonOnBattle.prototype, PokemonRecover, PokemonAbil);
+Object.assign(PokemonOnBattle.prototype, PokemonRecover, PokemonAbil, PokemonGetDamage, PokemonRank);
 
 export function generate(id) {
   return new PokemonOnBattle(id);

@@ -169,7 +169,7 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStr += " * 0.5 (화상)";
     }
 
-    if (battle.field.noClean[battle.turn.def].reflect) {
+    if (battle.field[battle.turn.def].noClean.reflect) {
       if (sk.feature?.wallBreaker) {
       } else {
         atkStat *= 0.5;
@@ -204,7 +204,7 @@ export const damageCalculate = (battle, obj, ai) => {
       }
     }
 
-    if (battle.field.noClean[battle.turn.def].lightScreen) {
+    if (battle.field[battle.turn.def].noClean.lightScreen) {
       // 사이코쇼크도 빛장 영향 받는다
       if (sk.feature?.wallBreaker) {
       } else {

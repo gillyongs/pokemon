@@ -123,7 +123,7 @@ class SkillList {
         120, 70, 5, 0, 
         "catk", null, 
         "10%의 확률로 상대의 특수방어를 떨어뜨린다.", 
-        [{ name: "능력치증감", probability: 10, abil: "cdef", target: "def", value: -1 }], {}),
+        [{ name: "능력치증감", probability: 10, stat: "cdef", target: "def", value: -1 }], {}),
 
       new Skill("무릎차기", "격투", 
         130, 90, 10, 0, 
@@ -148,7 +148,7 @@ class SkillList {
         85, 100, 10, 0,
         "atk", null, 
         "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.",
-        [{ name: "능력치증감", probability: 20, abil: "def", target: "def", value: -1 }], {touch:true}),
+        [{ name: "능력치증감", probability: 20, stat: "def", target: "def", value: -1 }], {touch:true}),
 
       new Skill("아이언헤드", "강철",
         80, 100, 15, 0, 
@@ -180,7 +180,7 @@ class SkillList {
         80, 100, 15, 0, 
         "catk", null, 
         "20% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.",
-        [{ name: "능력치증감", probability: 20, abil: "cdef", target: "def", value: -1 }], {}),
+        [{ name: "능력치증감", probability: 20, stat: "cdef", target: "def", value: -1 }], {}),
 
       new Skill("다이맥스포", "드래곤", 
         100, 100, 5, 0, 
@@ -255,7 +255,7 @@ class SkillList {
         90, 100, 10, 0,  
         "catk", null, 
         "10%의 확률로 상대의 특수방어를 1랭크 떨어뜨린다.",
-        [{ name: "능력치증감", probability: 10, abil: "cdef", target: "def", value: -1 }], ),
+        [{ name: "능력치증감", probability: 10, stat: "cdef", target: "def", value: -1 }], ),
 
       new Skill("진공파", "격투", 
         40, 100, 30, 1,  
@@ -285,32 +285,32 @@ class SkillList {
         "-", "-", 20, 0,  
         "buf", null, 
         "자신의 공격을 2랭크 올린다.",
-        [{ name: "능력치증감", probability: 100, abil: "atk", target: "atk", value: 2 }],),
+        [{ name: "능력치증감", probability: 100, stat: "atk", target: "atk", value: 2 }],),
 
       new Skill("껍질깨기", "노말", 
         "-", "-", 15, 0,  
         "buf", null, 
         "자신의 방어와 특수방어를 1랭크 떨어뜨리고 공격과 특수공격, 스피드를 2랭크 올린다.",
-        [{ name: "능력치증감", probability: 100, abil: "def", target: "atk", value: -1 },
-          { name: "능력치증감", probability: 100, abil: "cdef", target: "atk", value: -1 },
-          { name: "능력치증감", probability: 100, abil: "atk", target: "atk", value: 2 },
-          { name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: 2 },
-          { name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 2 }
+        [{ name: "능력치증감", probability: 100, stat: "def", target: "atk", value: -1 },
+          { name: "능력치증감", probability: 100, stat: "cdef", target: "atk", value: -1 },
+          { name: "능력치증감", probability: 100, stat: "atk", target: "atk", value: 2 },
+          { name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: 2 },
+          { name: "능력치증감", probability: 100, stat: "speed", target: "atk", value: 2 }
         ], {}),
 
       new Skill("용의춤", "드래곤", 
         "-", "-", 20, 0,  
         "buf", null, 
         "자신의 공격과 스피드를 1랭크 올린다.",
-        [{ name: "능력치증감", probability: 100, abil: "atk", target: "atk", value: 1 },
-          { name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 }],),
+        [{ name: "능력치증감", probability: 100, stat: "atk", target: "atk", value: 1 },
+          { name: "능력치증감", probability: 100, stat: "speed", target: "atk", value: 1 }],),
 
       new Skill("명상", "에스퍼", 
         "-", "-", 20, 0,  
         "buf", null, 
         "자신의 특수공격과 특수방어를 1랭크 올린다.",
-        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: 1 },
-          { name: "능력치증감", probability: 100, abil: "cdef", target: "atk", value: 1 }],),
+        [{ name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: 1 },
+          { name: "능력치증감", probability: 100, stat: "cdef", target: "atk", value: 1 }],),
         
       new Skill("섀도크루", "고스트", 
         70, 100, 15, 0,  
@@ -334,7 +334,7 @@ class SkillList {
         90, 90, 10, 0,  
         "atk", null, 
         "10% 확률로 상대의 공격을 1랭크 떨어뜨린다.",
-        [{ name: "능력치증감", probability: 10, abil: "atk", target: "def", value: -1 }],{touch:true} ),
+        [{ name: "능력치증감", probability: 10, stat: "atk", target: "def", value: -1 }],{touch:true} ),
         
       new Skill("고드름떨구기", "얼음", 
         85, 90, 10, 0,  
@@ -363,15 +363,15 @@ class SkillList {
         120, 100, 5, 0,  
         "atk", null, 
         "사용 후 사용자의 방어와 특수방어가 1랭크 떨어진다.",
-        [{ name: "능력치증감", probability: 100, abil: "def", target: "atk", value: -1 }, 
-          { name: "능력치증감", probability: 100, abil: "cdef", target: "atk", value: -1 }]
+        [{ name: "능력치증감", probability: 100, stat: "def", target: "atk", value: -1 }, 
+          { name: "능력치증감", probability: 100, stat: "cdef", target: "atk", value: -1 }]
         ,{touch:true}),
       
       new Skill("드럼어택", "풀", 
         80, 100, 10, 0,  
         "atk", null, 
         "상대의 스피드를 1랭크 떨어뜨린다.",
-        [{ name: "능력치증감", probability: 100, abil: "speed", target: "def", value: -1 }], ),
+        [{ name: "능력치증감", probability: 100, stat: "speed", target: "def", value: -1 }], ),
 
       new Skill("그래스슬라이더", "풀", 
         55, 100, 20, 'change',  
@@ -443,13 +443,13 @@ class SkillList {
         130, 90, 5, 0,  
         "catk", null, 
         "사용 후 사용자의 특수공격이 2랭크 떨어진다.",
-        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: -2 }]),
+        [{ name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: -2 }]),
       
       new Skill("리프스톰", "풀", 
         130, 90, 5, 0,  
         "catk", null, 
         "사용 후 사용자의 특수공격이 2랭크 떨어진다.",
-        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: -2 }]),
+        [{ name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: -2 }]),
 
       new Skill("라이트닝드라이브", "전기", 
         100, 100, 5, 0,  
@@ -467,7 +467,7 @@ class SkillList {
         "-", "-", 20, 0,  
         "buf", null, 
         "자신의 방어를 2랭크 올린다.",
-        [{ name: "능력치증감", probability: 100, abil: "def", target: "atk", value: 2 }],),
+        [{ name: "능력치증감", probability: 100, stat: "def", target: "atk", value: 2 }],),
 
       new Skill("거수탄", "강철", 
         100, 100, 5, 0,  
@@ -479,7 +479,7 @@ class SkillList {
         80, 100, 15, 0,  
         "atk", null, 
         "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.",
-        [{ name: "능력치증감", probability: 20, abil: "def", target: "def", value: -1 }],
+        [{ name: "능력치증감", probability: 20, stat: "def", target: "def", value: -1 }],
       {touch:true, bite:true} ),
 
       new Skill("사이코팽", "에스퍼", 
@@ -541,13 +541,13 @@ class SkillList {
         50, 100, 20, 0,  
         "atk", null, 
         "자신의 스피드를 1랭크 올린다.",
-        [{ name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 }], {touch:true}),
+        [{ name: "능력치증감", probability: 100, stat: "speed", target: "atk", value: 1 }], {touch:true}),
 
       new Skill("암석봉인", "바위", 
         60, 95, 15, 0,  
         "atk", null, 
         "상대방의 스피드를 1랭크 떨어뜨다.",
-        [{ name: "능력치증감", probability: 100, abil: "speed", target: "def", value: -1 }], {}),
+        [{ name: "능력치증감", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
 
       new Skill("객기", "노말", 
         70, 100, 20, 0,  
@@ -627,7 +627,7 @@ class SkillList {
         130, 90, 5, 0,  
         "catk", null, 
         "사용 후 사용자의 특수공격이 2랭크 떨어진다.",
-        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: -2 }]),
+        [{ name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: -2 }]),
 
         
       new Skill("불대문자", "불꽃", 
@@ -640,13 +640,13 @@ class SkillList {
         95, 100, 15, 0,  
         "catk", null, 
         "30% 확률로 상대의 특수공격을 1랭크 떨어뜨린다.",
-        [{ name: "능력치증감", probability: 30, abil: "catk", target: "def", value: -1 }],{} ),
+        [{ name: "능력치증감", probability: 30, stat: "catk", target: "def", value: -1 }],{} ),
       
       new Skill("에너지볼", "풀", 
         90, 100, 10, 0,  
         "catk", null, 
         "10% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.",
-        [{ name: "능력치증감", probability: 10, abil: "cdef", target: "def", value: -1 }],{} ),
+        [{ name: "능력치증감", probability: 10, stat: "cdef", target: "def", value: -1 }],{} ),
       
 
       new Skill("전기자석파", "전기", 
@@ -708,7 +708,7 @@ class SkillList {
         "-", "-", 20, 0,  
         "buf", null, 
         "자신의 특수공격을 2랭크 올린다.",
-        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: 2 }],),
+        [{ name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: 2 }],),
       
       new Skill("사이코쇼크", "에스퍼", 
         80, 100, 10, 0, 
@@ -768,8 +768,8 @@ class SkillList {
       new Skill("스케일샷", "드래곤", 
         25, 90, 20, 0, 
         "atk", null, "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.",
-        [{ name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 },
-          { name: "능력치증감", probability: 100, abil: "def", target: "atk", value: -1 }
+        [{ name: "능력치증감", probability: 100, stat: "speed", target: "atk", value: 1 },
+          { name: "능력치증감", probability: 100, stat: "def", target: "atk", value: -1 }
         ], {twoFive:true, serial: true}),
 
       new Skill("트리플악셀", "얼음", 
@@ -792,9 +792,9 @@ class SkillList {
         "-", "-", 10, 0,  
         "buf", null, 
         "1턴째에 에너지를 흡수하여 2턴째에 특수공격, 특수방어, 스피드를 2랭크 올린다.",
-        [{ name: "능력치증감", probability: 100, abil: "catk", target: "atk", value: 2 },
-          { name: "능력치증감", probability: 100, abil: "cdef", target: "atk", value: 2 },
-          { name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 2 }],{charge: {text:" 파워를 모으고 있다!", head:"names"}}),
+        [{ name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: 2 },
+          { name: "능력치증감", probability: 100, stat: "cdef", target: "atk", value: 2 },
+          { name: "능력치증감", probability: 100, stat: "speed", target: "atk", value: 2 }],{charge: {text:" 파워를 모으고 있다!", head:"names"}}),
 
       new Skill("메테오빔", "바위", 
         120, 90, 10, 0,  

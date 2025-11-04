@@ -1,4 +1,3 @@
-import { maxStatFinder, rank } from "./rankStat.js";
 import { josa } from "josa";
 import { applyOnHitEvents } from "../service/onHit.js";
 
@@ -174,11 +173,12 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       if (abilName === "혼연일체(흑)" || abilName === "혼연일체(백)") {
         abilName = "혼연일체";
       }
+      let abiltText = `[특성 ${abilName}]`;
       if (swip === "max") {
-        swip = maxStatFinder(atkPokemon);
+        swip = atkPokemon.maxStat();
       }
 
-      rank(battle, enqueue, battle[battle.turn.atk], swip, 1, "[특성 " + abilName + "]");
+      atkPokemon.rankUp(battle, enqueue, swip, 1, abiltText);
     }
   } else {
     // 출력 텍스트가 하나도 없을 때

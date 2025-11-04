@@ -16,13 +16,13 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
   const def = bt[defs];
 
   //초승달춤
-  if (bt.field.noClean[atks].lunarDance) {
+  if (bt.field[atks].noClean.lunarDance) {
     if (atk.hp === atk.origin.hp && pokemonNoStatusCheck(atk) && atk.pp1 === atk.origin.sk1.pp && atk.pp2 === atk.origin.sk2.pp && atk.pp3 === atk.origin.sk3.pp && atk.pp4 === atk.origin.sk4.pp) {
       // 회복할게 없는 경우
       // 기술이 사용되지 않고 필드에 남아있는다
     } else {
       enqueue({ battle: bt, text: atk.names + " 신비한 달빛에 둘러싸였다!" });
-      bt.field.noClean[atks].healingWish = null;
+      bt.field[atks].noClean.lunarDance = null;
       atk.resetStatus(); // 상태이상 회복
       atk.pp1 = atk.origin.sk1.pp;
       atk.pp2 = atk.origin.sk2.pp;
@@ -33,7 +33,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     }
   }
 
-  if (bt.field.noClean[atks].healingWish) {
+  if (bt.field[atks].noClean.healingWish) {
     //치유소원 -> 교체로 나온 포켓몬의 체력과 상태이상을 회복한다
     //교체로 나온 포켓몬한테 치유할게 없으면 필드에 남는다
     //치유소원 발동하고 스텔스록이 터진다
@@ -42,7 +42,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
       // 회복할게 없는 경우
     } else {
       enqueue({ battle: bt, text: "치유소원이 " + atk.name + "에게 전해졌다!" });
-      bt.field.noClean[atks].healingWish = null;
+      bt.field[atks].noClean.healingWish = null;
       atk.resetStatus(); // 상태이상 회복
       atk.recover(bt, atk.origin.hp, enqueue, atk.name + "의 체력과 상태이상이 회복됐다!");
     }

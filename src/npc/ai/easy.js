@@ -179,7 +179,7 @@ const calculateScore = (bt, sn, skObj) => {
         score -= 20;
         log += ` - 20 (${item.name})`;
       }
-      if ((item.name === "벽부수기" && bt.field.noClean.player.reflect !== null) || bt.field.noClean.player.lightScreen !== null) {
+      if ((item.name === "벽부수기" && bt.field.player.noClean.reflect !== null) || bt.field.player.noClean.lightScreen !== null) {
         score += 50;
         log += ` + 50 (${item.name})`;
       }
@@ -277,7 +277,7 @@ const calculateScoreNatk = (bt, sn, skObj) => {
         }
       }
       if (item.name === "리플렉터") {
-        if (bt.field.noClean.npc.reflect === null) {
+        if (bt.field.npc.noClean.reflect === null) {
           let origin = playerAtkType === "atk" ? 20 : 15; // 상대가 물리면 리플렉터를 먼저 치게
           let value = origin * (getReaminPokemon(bt, "npc") + 1);
           score += value;
@@ -285,7 +285,7 @@ const calculateScoreNatk = (bt, sn, skObj) => {
         }
       }
       if (item.name === "빛의장막") {
-        if (bt.field.noClean.npc.lightScreen === null) {
+        if (bt.field.npc.noClean.lightScreen === null) {
           let origin = playerAtkType === "catk" ? 20 : 15;
           let value = origin * (getReaminPokemon(bt, "npc") + 1);
           score += value;

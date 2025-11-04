@@ -1,10 +1,10 @@
-import { maxStatFinder, getStatName } from "../../../function/rankStat.js";
+import { getStatName } from "../../../function/rankStat.js";
 export const PokemonAbil = {
   // 고대활성 발동
   handleProtosynthesis(battle, enqueue) {
     if (this.abil !== "고대활성" || this.tempStatus.protosynthesis !== null) return;
 
-    const maxKey = maxStatFinder(this);
+    const maxKey = this.maxStat();
 
     // 쾌청에 의한 발동
     // 부스트에너지보다 쾌청이 우선 발동됨
@@ -54,7 +54,7 @@ export const PokemonAbil = {
         battle,
         text: `[특성 고대활성] ${this.names} 부스트에너지에 의해 고대활성을 발동했다!`,
       });
-      const maxKey = maxStatFinder(this);
+      const maxKey = this.maxStat();
       this.tempStatus.protosynthesis = maxKey;
       enqueue({
         battle,

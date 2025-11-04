@@ -1,8 +1,5 @@
 import { switchNpc } from "./switch";
 import { speedCheck } from "../util/speedCheck";
-import { processFieldEffects } from "./turnEnd/fieldEvent";
-import { processWish } from "./turnEnd/wishEvent";
-import { processItemEffects } from "./turnEnd/itemEvent";
 import { processSkillEffects } from "./turnEnd/skillEvent";
 import { processStatusCondition } from "./turnEnd/statusConditonEvent";
 export const turnEnd = (battle, enqueue) => {
@@ -14,19 +11,24 @@ export const turnEnd = (battle, enqueue) => {
 
   const fastUser = speedCheck(battle);
   const slowUser = fastUser === "player" ? "npc" : "player";
-  const fast = battle[fastUser];
-  const slow = battle[slowUser];
 
-  //트릭룸 날씨 필드
-  processFieldEffects(battle, enqueue);
+  // 트릭룸 카운트
+  battle.field.handleTrickRoomTurnEnd(battle, enqueue);
+
+  // 날씨 카운트
+  battle.field.weather.handleWeatherTurnEnd(battle, enqueue);
+
+  // 필드 카운트
+  battle.field.terrain.handleTerrainTurnEnd(battle, enqueue);
 
   // 희망사항
+  battle.field[fastUser].handleWishTurnEnd(battle, enqueue);
+  battle.field[slowUser].handleWishTurnEnd(battle, enqueue);
   // 희망사항 -> 먹밥 -> 독뎀 순서, 어지간하면 회복이 먼저
-  processWish(battle, enqueue, fastUser);
-  processWish(battle, enqueue, slowUser);
 
   // 아이템 (먹밥)
-  processItemEffects(battle, enqueue, fastUser, slowUser);
+  battle[fastUser].leftOver(battle, enqueue);
+  battle[slowUser].leftOver(battle, enqueue);
 
   // 기술 (씨뿌리기, 마그마스톰, 도발, 하품, 역린)
   processSkillEffects(battle, enqueue, fastUser, slowUser);

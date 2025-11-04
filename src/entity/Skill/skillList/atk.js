@@ -34,27 +34,27 @@ export const atkSkills = [
   // prettier-ignore
   new Skill("스케일샷", "드래곤", 25, 90, 20, 0, "atk", null,
     "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.",
-    [ { name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 },
-      { name: "능력치증감", probability: 100, abil: "def", target: "atk", value: -1 },
+    [ { name: "능력치증감", probability: 100, stat: "speed", target: "atk", value: 1 },
+      { name: "능력치증감", probability: 100, stat: "def", target: "atk", value: -1 },
     ], { twoFive: true, serial: true }
   ),
 
   // 능력치 증감 (자신) =================================================================================================================
-  new Skill("개척하기", "풀", 50, 100, 20, 0, "atk", null, "자신의 스피드를 1랭크 올린다.", [{ name: "능력치증감", probability: 100, abil: "speed", target: "atk", value: 1 }], { touch: true }),
+  new Skill("개척하기", "풀", 50, 100, 20, 0, "atk", null, "자신의 스피드를 1랭크 올린다.", [{ name: "능력치증감", probability: 100, stat: "speed", target: "atk", value: 1 }], { touch: true }),
   // prettier-ignore
   new Skill("인파이트", "격투", 120, 100, 5, 0, "atk", null,
     "사용 후 사용자의 방어와 특수방어가 1랭크 떨어진다.",
-    [ { name: "능력치증감", probability: 100, abil: "def", target: "atk", value: -1 },
-      { name: "능력치증감", probability: 100, abil: "cdef", target: "atk", value: -1 },
+    [ { name: "능력치증감", probability: 100, stat: "def", target: "atk", value: -1 },
+      { name: "능력치증감", probability: 100, stat: "cdef", target: "atk", value: -1 },
     ],{ touch: true }
   ),
 
   // 능력치 증감 (상대)
-  new Skill("암석봉인", "바위", 60, 95, 15, 0, "atk", null, "상대방의 스피드를 1랭크 떨어뜨다.", [{ name: "능력치증감", probability: 100, abil: "speed", target: "def", value: -1 }], {}),
-  new Skill("드럼어택", "풀", 80, 100, 10, 0, "atk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 100, abil: "speed", target: "def", value: -1 }]),
-  new Skill("깨물어부수기", "악", 80, 100, 15, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 20, abil: "def", target: "def", value: -1 }], { touch: true, bite: true }),
-  new Skill("아쿠아브레이크", "물", 85, 100, 10, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 20, abil: "def", target: "def", value: -1 }], { touch: true }),
-  new Skill("치근거리기", "페어리", 90, 90, 10, 0, "atk", null, "10% 확률로 상대의 공격을 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 10, abil: "atk", target: "def", value: -1 }], { touch: true }),
+  new Skill("암석봉인", "바위", 60, 95, 15, 0, "atk", null, "상대방의 스피드를 1랭크 떨어뜨다.", [{ name: "능력치증감", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
+  new Skill("드럼어택", "풀", 80, 100, 10, 0, "atk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 100, stat: "speed", target: "def", value: -1 }]),
+  new Skill("깨물어부수기", "악", 80, 100, 15, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 20, stat: "def", target: "def", value: -1 }], { touch: true, bite: true }),
+  new Skill("아쿠아브레이크", "물", 85, 100, 10, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 20, stat: "def", target: "def", value: -1 }], { touch: true }),
+  new Skill("치근거리기", "페어리", 90, 90, 10, 0, "atk", null, "10% 확률로 상대의 공격을 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 10, stat: "atk", target: "def", value: -1 }], { touch: true }),
 
   //위력 변화 =================================================================================================================
   new Skill("속임수", "악", 95, 100, 15, 0, "atk", null, "상대방의 공격력으로 데미지를 계산한다.", []),
