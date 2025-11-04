@@ -1,4 +1,3 @@
-import { recover } from "../../function/recover";
 import { speedCheck } from "../../util/speedCheck";
 
 // 🧩 메인 엔트리 포인트

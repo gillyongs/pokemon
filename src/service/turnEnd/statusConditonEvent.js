@@ -1,5 +1,4 @@
-import { damage } from "../../function/damage";
-import { burn, sleep } from "../../function/statusCondition";
+import { burn } from "../../function/statusCondition";
 
 export function processStatusCondition(battle, enqueue, fastUser, slowUser) {
   applyStatusDamage(battle, enqueue, fastUser);
@@ -14,12 +13,12 @@ function applyStatusDamage(battle, enqueue, user) {
   if (p.faint) return;
 
   if (p.status.poison) {
-    damage(battle, Math.floor(p.origin.hp / 8), user, enqueue, `${p.names} 독에 의한 데미지를 입었다!`);
+    p.getDamage(battle, enqueue, Math.floor(p.origin.hp / 8), `${p.names} 독에 의한 데미지를 입었다!`);
   } else if (p.status.mpoison) {
-    damage(battle, Math.floor((p.origin.hp * p.status.mpoison) / 16), user, enqueue, `${p.names} 독에 의한 데미지를 입었다!`);
+    p.getDamage(battle, enqueue, Math.floor((p.origin.hp * p.status.mpoison) / 16), `${p.names} 맹독에 의한 데미지를 입었다!`);
     p.status.mpoison++;
   } else if (p.status.burn) {
-    damage(battle, Math.floor(p.origin.hp / 16), user, enqueue, `${p.names} 화상 데미지를 입었다!`);
+    p.getDamage(battle, enqueue, Math.floor(p.origin.hp / 16), `${p.names} 화상 데미지를 입었다!`);
   }
 
   if (p.item === "화염구슬") {

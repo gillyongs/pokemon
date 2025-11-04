@@ -1,5 +1,3 @@
-import { damage } from "../../function/damage";
-import { recover } from "../../function/recover";
 import { sleep, confuse } from "../../function/statusCondition";
 
 export function processSkillEffects(battle, enqueue, fastUser, slowUser) {
@@ -31,8 +29,8 @@ function seed(battle, enqueue, getter, user) {
 
   // 씨뿌리기
   if (skillGetter.tempStatus.seed) {
-    const dmg = damage(battle, Math.floor(skillGetter.origin.hp / 8), getter, enqueue);
-    recover(battle, Math.floor(dmg), user, enqueue, `씨뿌리기가 ${skillGetter.name}의 체력을 빼앗는다!`);
+    const dmg = skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.origin.hp / 8));
+    skillUser.recover(battle, Math.floor(dmg), enqueue, `씨뿌리기가 ${skillGetter.name}의 체력을 빼앗는다!`);
   }
 }
 
@@ -49,7 +47,7 @@ export function switchLock(battle, enqueue, getter) {
       skillGetter.tempStatus.switchLockTurnRemain = null;
       enqueue({ battle, text: `${skillGetter.names} ${skillName}에게서 벗어났다!` });
     } else {
-      damage(battle, Math.floor(skillGetter.origin.hp / 8), getter, enqueue, `${skillGetter.names} ${skillName}의 데미지를 입고 있다.`);
+      skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.origin.hp / 8), `${skillGetter.names} ${skillName}의 데미지를 입고 있다.`);
     }
   }
 }

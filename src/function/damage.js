@@ -1,63 +1,6 @@
-import { type } from "@testing-library/user-event/dist/type";
-import { recover } from "../function/recover";
 import { maxStatFinder, rank } from "./rankStat.js";
 import { josa } from "josa";
-import { applyOnHitEvents, substituteOnHitEvents } from "../service/onHit.js";
-
-// ====================== 공통 유틸 함수 ======================
-
-// HP 감소 적용
-function applyDamage(defPokemon, damage) {
-  const prevHp = defPokemon.hp;
-  defPokemon.hp = Math.max(defPokemon.hp - damage, 0);
-  return prevHp - defPokemon.hp; // 실제 입은 데미지
-}
-
-// 기절 처리
-export function handleFaint(defPokemon, enqueue, battle, atkAbil) {
-  defPokemon.hp = 0;
-  defPokemon.faint = true;
-  Object.keys(defPokemon.status).forEach((k) => (defPokemon.status[k] = null));
-  enqueue({ battle, text: defPokemon.names + " 쓰러졌다!" });
-}
-
-// 자뭉열매 처리
-function tryBerry(defPokemon, battle, enqueue, atkAbil, noBerrySkill) {
-  let noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
-
-  if (noBerryAbil.includes(atkAbil)) {
-    return;
-  }
-
-  if (noBerrySkill) {
-    return;
-  }
-  if (defPokemon.item === "자뭉열매" && defPokemon.hp <= defPokemon.origin.hp / 2) {
-    defPokemon.item = null;
-    recover(battle, Math.floor(defPokemon.origin.hp / 4), defPokemon, enqueue, defPokemon.names + " 자뭉열매로 체력을 회복했다!");
-  }
-}
-
-// ====================== 공격 외 데미지 ======================
-// 기준 = 급소 없음, 탈 안 까임, 멀스 적용 안됨(일단 생구는 확실히 적용 안됨)
-// abil : 스텔스록
-// turnEnd: 독, 화상, 씨뿌리기
-// skillEffect: 생구, 무릎차기 빗나감, 반동, 울퉁불퉁멧
-
-export function damage(battle, damageValue, getDamagePokemon, enqueue, text) {
-  const defPokemon = battle[getDamagePokemon];
-  const actualDamage = applyDamage(defPokemon, Math.floor(damageValue));
-  const atkPokemon = battle[getDamagePokemon === "npc" ? "player" : "npc"];
-  const atkAbil = atkPokemon.abil;
-  if (text) enqueue({ battle, text });
-
-  if (defPokemon.hp <= 0) {
-    handleFaint(defPokemon, enqueue, battle);
-  } else {
-    tryBerry(defPokemon, battle, enqueue, atkAbil);
-  }
-  return actualDamage;
-}
+import { applyOnHitEvents } from "../service/onHit.js";
 
 // ====================== 공격 데미지 ======================
 
@@ -115,7 +58,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       }
       atkPokemon.temp.recentDamageGive = actualGiveDamage;
       defPokemon.temp.recentDamageGet = actualGiveDamage;
-      substituteOnHitEvents(battle, enqueue);
+      applyOnHitEvents(battle, enqueue, true);
       // 대타출동 상태일땐 대부분의 피격 이벤트 (ex:울멧)가 발동하지 않음
       // 대타출동 상태일때에도 발생하는 이벤트 처리 (풍선)
       return;
@@ -222,7 +165,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       }
     }
 
-    handleFaint(defPokemon, enqueue, battle, atkAbil);
+    defPokemon.handleFaint(battle, enqueue);
 
     // 자기과신
     if (atkAbilObj.feature?.swip) {
@@ -245,7 +188,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
     const noBerrySkill = useSkill.name === "탁쳐서떨구기";
     // 탁떨을 맞고 반피 이하가 되면 열매를 먹기 전에 떨군다
-    tryBerry(defPokemon, battle, enqueue, atkAbil, noBerrySkill);
+    if (!noBerrySkill) {
+      defPokemon.tryBerry(battle, enqueue);
+    }
   }
 
   applyOnHitEvents(battle, enqueue);

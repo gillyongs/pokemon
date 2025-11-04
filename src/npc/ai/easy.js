@@ -28,8 +28,8 @@ export function npcAiEasy(choices, battle) {
   choices.forEach((c) => {
     if (skMap[c]) skObj[c] = skMap[c];
   });
-  // console.log("skObj");
-  // console.log(skObj);
+  console.log("skObj");
+  console.log(skObj);
 
   let result;
   result = getKillableSkill(skObj, hp, base);
@@ -373,8 +373,13 @@ const calculateScoreNatk = (bt, sn, skObj) => {
         let value = (50 * item.probability) / 100;
         if (skill.name === "전기자석파" && (player.type1 === "땅" || player.type2 === "땅")) {
         } else {
+          const hasPsychoCut = ["sk1", "sk2", "sk3", "sk4"].some((key) => npc.origin[key]?.name === "병상첨병");
+          if (hasPsychoCut) value *= 1.3;
+
           score += value;
-          log += ` + ${value} (${item.name})`;
+          let text = ` + ${value} (${item.name})`;
+          if (hasPsychoCut) text += "(병상첨병)";
+          log += text;
         }
       }
       if (item.name === "화상" && playerAtkType === "atk" && pokemonNoStatusCheck(player) && statusTypeCheck(item.name, player)) {

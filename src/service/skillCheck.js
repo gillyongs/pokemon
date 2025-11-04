@@ -1,7 +1,7 @@
 import skillRequirementSearch from "../entity/Skill/SkillRequirement";
 import { random } from "../util/randomCheck";
 import { confuseDamageCalculate } from "../util/damageCalculate";
-import { attackDamage, damage } from "../function/damage";
+import { attackDamage } from "../function/damage";
 import { josa } from "josa";
 
 export const beforeSkillCheck = (bt, enqueue) => {

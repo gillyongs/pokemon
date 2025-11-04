@@ -1,7 +1,5 @@
-import { damage, handleFaint } from "../../function/damage";
 import { random } from "../../util/randomCheck";
 import { rank, rankReset } from "../../function/rankStat";
-import { recover, recoverNoText } from "../../function/recover";
 import { burn, mabi, poison, freeze, sleep, confuse, pokemonNoStatusCheck } from "../../function/statusCondition";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
@@ -10,15 +8,15 @@ import { switchNpc, switchPlayer, switchPlayerForce } from "../../service/switch
 function skillEffectSearch(name) {
   const functions = {
     공통: (battle, enqueue, skillEffect) => {
-      let atk = battle[battle.turn.atk];
+      let atkPokemon = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
-      let sk = atk.origin["sk" + battle.turn.atkSN];
-      if (sk.feature?.protect !== true) atk.tempStatus.protectUse = null;
+      let sk = atkPokemon.origin["sk" + battle.turn.atkSN];
+      if (sk.feature?.protect !== true) atkPokemon.tempStatus.protectUse = null;
       // 방어 외에 다른 스킬을 사용하였을때 방어 스택 초기화
-      if (atk.item === "생명의구슬" && !atk.faint) {
+      if (atkPokemon.item === "생명의구슬" && !atkPokemon.faint) {
         if (sk.stype === "atk" || sk.stype === "catk") {
-          const text = atk.name + "의 생명이 조금 깎였다!";
-          damage(battle, atk.origin.hp / 10, battle.turn.atk, enqueue, text);
+          const text = atkPokemon.name + "의 생명이 조금 깎였다!";
+          atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 10, text);
         }
       }
       if (def.status.freeze && !def.faint) {
@@ -98,18 +96,20 @@ function skillEffectSearch(name) {
       def.temp.fullDeath = true;
     },
     빗나감패널티: (battle, enqueue, skillEffect) => {
-      let atk = battle[battle.turn.atk];
-      if (atk.temp.jumpKickFail) {
-        const text = atk.names + " 의욕이 넘쳐 땅에 부딪쳤다!";
-        damage(battle, atk.origin.hp / 2, battle.turn.atk, enqueue, text);
+      let atkPokemon = battle[battle.turn.atk];
+      if (atkPokemon.temp.jumpKickFail) {
+        const text = atkPokemon.names + " 의욕이 넘쳐 땅에 부딪쳤다!";
+        atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 2, text);
       }
     },
     회복: (battle, enqueue, skillEffect) => {
-      const hp = battle[battle.turn.atk].origin.hp;
-      recover(battle, Math.floor(hp / 2), battle.turn.atk, enqueue);
+      const skillUser = battle[battle.turn.atk];
+      const hp = skillUser.origin.hp;
+      skillUser.recover(battle, Math.floor(hp / 2), enqueue);
     },
     아침햇살: (battle, enqueue, skillEffect) => {
-      const hp = battle[battle.turn.atk].origin.hp;
+      const skillUser = battle[battle.turn.atk];
+      const hp = skillUser.origin.hp;
       let value = hp / 2;
       if (battle.field.weather.get() === null) {
         value = hp / 2;
@@ -118,7 +118,7 @@ function skillEffectSearch(name) {
       } else {
         value = hp / 4;
       }
-      recover(battle, Math.floor(value), battle.turn.atk, enqueue);
+      skillUser.recover(battle, Math.floor(value), enqueue);
     },
     날개쉬기: (battle, enqueue, skillEffect) => {
       const pokemon = battle[battle.turn.atk];
@@ -198,9 +198,9 @@ function skillEffectSearch(name) {
       }
     },
     반동: (battle, enqueue, skillEffect) => {
-      let atk = battle[battle.turn.atk];
-      const text = atk.names + " 반동으로 데미지를 입었다!";
-      damage(battle, atk.temp.recentDamageGive / 3, battle.turn.atk, enqueue, text);
+      let atkPokemon = battle[battle.turn.atk];
+      const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
+      atkPokemon.getDamage(battle, enqueue, atkPokemon.temp.recentDamageGive / 3, text);
     },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
@@ -394,7 +394,7 @@ function skillEffectSearch(name) {
       } else {
         atkPokemon.tempStatus.substitute = true;
         atkPokemon.tempStatus.substituteHp = needHp;
-        damage(battle, needHp, battle.turn.atk, enqueue, atkPokemon.name + "의 대타가 나타났다!");
+        atkPokemon.getDamage(battle, enqueue, needHp, atkPokemon.name + "의 대타가 나타났다!");
       }
     },
 
@@ -429,11 +429,7 @@ function skillEffectSearch(name) {
       const text = josa(`${def.name}#{으로}`) + "부터 체력을 흡수했다!";
 
       if (atk.hp !== atk.origin.hp) {
-        recoverNoText(battle, (atk.temp.recentDamageGive * 3) / 4, battle.turn.atk);
-        enqueue({
-          battle,
-          text: text,
-        });
+        atk.recover(battle, (atk.temp.recentDamageGive * 3) / 4, enqueue, text);
       }
     },
 
@@ -460,12 +456,12 @@ function skillEffectSearch(name) {
       // 연속 사용해도 실패하지 않는다 (하지만 효과가 중첩되지도 않는다)
       const skillUser = battle[battle.turn.atk];
       battle.field.noClean[battle.turn.atk].healingWish = true;
-      handleFaint(skillUser, enqueue, battle);
+      skillUser.handleFaint(battle, enqueue);
     },
     초승달춤: (battle, enqueue, skillEffect) => {
       const skillUser = battle[battle.turn.atk];
       battle.field.noClean[battle.turn.atk].lunarDance = true;
-      handleFaint(skillUser, enqueue, battle);
+      skillUser.handleFaint(battle, enqueue);
     },
 
     희망사항: (battle, enqueue, skillEffect) => {

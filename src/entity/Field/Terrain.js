@@ -1,5 +1,4 @@
 import { speedCheck } from "../../util/speedCheck";
-import { recover } from "../../function/recover";
 
 export class Terrain {
   #type = null; // 그래스필드, 일렉트릭필드
@@ -51,7 +50,7 @@ export class Terrain {
       for (const user of [fastUser, slowUser]) {
         const p = battle[user];
         if (!p.faint && p.hp < p.origin.hp && !p.isFlying(battle)) {
-          recover(battle, Math.floor(p.origin.hp / 16), user, enqueue, `[그래스필드] ${p.name}의 체력이 회복되었다!`);
+          p.recover(battle, Math.floor(p.origin.hp / 16), enqueue, `[그래스필드] ${p.name}의 체력이 회복되었다!`);
         }
       }
     }

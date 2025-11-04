@@ -1,6 +1,6 @@
 import { damageCalculate } from "../util/damageCalculate";
 import { typeCheckText, typeCheckAbil } from "../util/typeCheck";
-import { damage, attackDamage } from "../function/damage";
+import { attackDamage } from "../function/damage";
 import { applySkillEffects, applySkillEffectSerial } from "./skiiEffect";
 import { beforeSkillCheck, afterSkillCheck, beforeTurnPass } from "./skillCheck";
 import { rank } from "../function/rankStat";

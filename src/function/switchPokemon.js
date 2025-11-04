@@ -1,5 +1,4 @@
 // swapBattleEntities.js
-import { recoverNoText } from "../function/recover";
 export const switchPokemon = (battle, IN, OUT) => {
   // 교체 함수.
   // 실제 객체의 값을 바꾸고
@@ -17,7 +16,7 @@ export const switchPokemon = (battle, IN, OUT) => {
   if (pokemonIn.abil === "재생력") {
     // 재생력 특성을 지닌 포켓몬은 교체시 체력이 회복
     const hp = pokemonIn.origin.hp;
-    recoverNoText(battle, Math.floor(hp / 3), pokemonIn);
+    pokemonIn.recoverNoText(battle, Math.floor(hp / 3), pokemonIn);
   }
   if (pokemonIn.abil === "자연회복") {
     // 자연회복 특성을 지닌 포켓몬은 교체시 상태이상을 회복

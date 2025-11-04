@@ -1,6 +1,7 @@
 import BattlePokemonRepository from "./PokemonCustomRepository";
 import { maxStatFinder, getStatName } from "../../function/rankStat";
-
+import { PokemonRecover } from "./Methods/PokemonRecover";
+import { PokemonAbil } from "./Methods/PokemonAbil.js";
 //실제 배틀에 사용되는 포켓몬 객체
 // 능력치, pp, 상태이상여부, 랭크업, 기절 여부 등 가변 값을 지닌다.
 // 불변 값은 origin에서 관리한다
@@ -84,62 +85,81 @@ class PokemonOnBattle {
     };
   }
 
-  //고대활성 발동
-  handleProtosynthesis(battle, enqueue) {
-    if (this.abil !== "고대활성" || this.tempStatus.protosynthesis !== null) return;
-
-    const maxKey = maxStatFinder(this);
-    if (battle.field.weather.isSunny) {
-      // 날씨가 쾌청상태이면 부스트에너지를 사용하지 않고 고대활성 발동
-      this.tempStatus.protosynthesis = maxKey;
-      this.tempStatus.protosynthesisBySun = true;
-      enqueue({
-        battle,
-        text: `[특성 고대활성] ${this.names} 쾌청에 의해 고대활성을 발동했다!`,
-      });
-    } else if (this.item === "부스트에너지") {
-      // 그 외의 경우
-      this.tempStatus.protosynthesis = maxKey;
-      this.item = null;
-      enqueue({
-        battle,
-        text: `[특성 고대활성] ${this.names} 부스트에너지에 의해 고대활성을 발동했다!`,
-      });
-    }
-    if (this.tempStatus.protosynthesis) {
-      enqueue({
-        battle,
-        text: `[특성 고대활성] ${this.name}의 ${getStatName(maxKey)} 강화되었다!`,
-      });
-    }
+  // 기절시 상태이상 초기화
+  resetStatus() {
+    // 초승달춤에서도 사용
+    Object.keys(this.status).forEach((key) => {
+      this.status[key] = null;
+    });
   }
 
-  // 쾌청 해제로 인한 고대활성 종료
-  handleProtosynthesisEnd(battle, enqueue) {
-    if (this.abil !== "고대활성" || this.tempStatus.protosynthesis === null) return;
-    if (!this.tempStatus.protosynthesisBySun) return;
-
-    // 쾌청 기반 고대활성 해제
-    this.tempStatus.protosynthesis = null;
-    this.tempStatus.protosynthesisBySun = null;
-    enqueue({
-      battle,
-      text: `${this.name}에게서 고대활성의 효과가 사라졌다!`,
+  // 턴 종료시 temp 초기화
+  resetTemp() {
+    const t = this.temp;
+    Object.keys(t).forEach((key) => {
+      t[key] = null;
     });
+  }
 
-    // 부스트에너지로 재발동
-    if (this.item === "부스트에너지") {
+  // 교체시 tempStatus 초기화
+  resetTempStatus() {
+    const ts = this.tempStatus;
+    Object.keys(ts).forEach((key) => {
+      if (key !== "rank") {
+        ts[key] = null;
+      } else {
+        Object.keys(ts.rank).forEach((rk) => {
+          ts.rank[rk] = 0;
+        });
+      }
+    });
+  }
+
+  getDamage(battle, enqueue, damageValue, text) {
+    // 기준 = 급소 없음, 탈 안 까임, 멀스 적용 안됨
+    // field: 스텔스록
+    // onHit: 특성(철가시), 울멧
+    // turnEnd: 상태이상(독, 화상), 씨뿌리기, 마그마스톰
+    // skillEffect: 생구, 무릎차기 빗나감, 반동, 대다출동
+    const actualDamage = this.#applyDamage(Math.floor(damageValue));
+    if (text) enqueue({ battle, text });
+    if (this.hp <= 0) {
+      this.handleFaint(battle, enqueue);
+    } else {
+      this.tryBerry(battle, enqueue);
+    }
+    return actualDamage;
+  }
+
+  #applyDamage(damage) {
+    const prevHp = this.hp;
+    this.hp = Math.max(this.hp - damage, 0);
+    return prevHp - this.hp; // 실제 입은 데미지 (씨뿌리기 흡혈뎀 계산에 사용)
+  }
+
+  handleFaint(battle, enqueue) {
+    // attackDmage, 초승달춤에서도 사용
+    this.hp = 0;
+    this.faint = true;
+    this.resetStatus();
+    this.resetTemp();
+    this.resetTempStatus();
+    enqueue({ battle, text: this.names + " 쓰러졌다!" });
+  }
+
+  tryBerry(battle, enqueue) {
+    // attackDmage에서도 사용
+    const atkTeam = this.team === "npc" ? "player" : "npc";
+    const atkPokemon = battle[atkTeam];
+    const atkAbil = atkPokemon.abil;
+    let noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
+    if (noBerryAbil.includes(atkAbil)) {
+      return;
+    }
+
+    if (this.item === "자뭉열매" && this.hp <= this.origin.hp / 2) {
       this.item = null;
-      enqueue({
-        battle,
-        text: `[특성 고대활성] ${this.names} 부스트에너지에 의해 고대활성을 발동했다!`,
-      });
-      const maxKey = maxStatFinder(this);
-      this.tempStatus.protosynthesis = maxKey;
-      enqueue({
-        battle,
-        text: `[특성 고대활성] ${this.name}의 ${getStatName(maxKey)} 강화되었다!`,
-      });
+      this.recover(battle, Math.floor(this.origin.hp / 4), enqueue, this.names + " 자뭉열매로 체력을 회복했다!");
     }
   }
 
@@ -169,6 +189,8 @@ class PokemonOnBattle {
     return false;
   }
 }
+
+Object.assign(PokemonOnBattle.prototype, PokemonRecover, PokemonAbil);
 
 export function generate(id) {
   return new PokemonOnBattle(id);
