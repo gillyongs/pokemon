@@ -29,8 +29,8 @@ const applyStatus = (battle, get, enqueue, options) => {
     return;
   }
 
-  // 추가 조건  (쾌청 상태면 얼지 않는다)
-  if (condition && !condition(battle, pokemon)) {
+  // 추가 조건  (쾌청 상태면 얼지 않는다, 일렉트릭필드면 잠들지 않는다)
+  if (condition && condition(battle, pokemon)) {
     if (failText) enqueue({ battle, text: "하지만 실패했다!" });
     return;
   }
@@ -84,18 +84,20 @@ export const mPoison = (battle, get, enqueue, failText) =>
     failText,
   });
 
-export const freeze = (battle, get, enqueue) =>
+export const freeze = (battle, get, enqueue) => {
   applyStatus(battle, get, enqueue, {
     key: "freeze",
     immuneTypes: ["얼음"],
-    condition: (battle) => battle.weatherType !== "쾌청", // 쾌청 시 실패
+    condition: (battle) => battle.field.weather.isSunny, // 쾌청 시 실패
     text: (p) => `${p.names} 얼어붙었다!`,
   });
+};
 
 export const sleep = (battle, get, enqueue) =>
   applyStatus(battle, get, enqueue, {
     key: "sleep",
     extra: (p) => (p.status.sleep = Math.floor(Math.random() * 3) + 2),
+    condition: (battle) => battle.field.terrain.isElectricField, // 일레트릭필드시 실패
     text: (p) => `${p.names} 잠들어 버렸다!`,
   });
 

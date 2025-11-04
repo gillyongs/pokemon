@@ -169,7 +169,6 @@ export const skillUse = (bt, enqueue) => {
       enqueue({ battle: bt, text: "하지만 실패했다!" });
       return;
     }
-
     applySkillEffects(bt, enqueue, sk.skillEffectList);
   } else if (skillType === "buf") {
     // 자기 자신 대상 변화기 (ex: 칼춤, 방어)

@@ -3,13 +3,14 @@ import { pokemonNoStatusCheck } from "../../function/statusCondition";
 import { damageCalculate } from "../../util/damageCalculate";
 import { priCalculate } from "../../util/speedCheck";
 import { typeCheck } from "../../util/typeCheck";
+import { cloneWithMethods } from "../../util/cloneWithMethods";
 
 export function npcAiEasy(choices, battle) {
   // 상대 HP
   const hp = battle.player.hp;
 
   // 배틀 객체 복사 및 세팅
-  const base = structuredClone(battle);
+  const base = cloneWithMethods(battle);
   base.turn.atk = "npc";
   base.turn.def = "player";
 
@@ -92,9 +93,9 @@ const calculateScore = (bt, sn, skObj) => {
 
   let log = score;
   skObj.log.scoreOirign = `${avrDmg} * ${accur} / ${hp}`;
-  if (Array.isArray(skill.skillEffectList)) {
+  if (skill.skillEffectList && typeof skill.skillEffectList[Symbol.iterator] === "function") {
     for (const item of skill.skillEffectList) {
-      if (item.name === "능력치증감") {
+      if (item?.name === "능력치증감") {
         const iValue = npc.abil === "심술꾸러기" && item.target === "atk" ? -item.value : item.value;
         // 심술꾸러기는 자신에게 적용되는 랭크변화를 반대로 적용
 
@@ -238,7 +239,7 @@ const calculateScoreNatk = (bt, sn, skObj) => {
   let ovoSum = 0;
 
   const playerAtkType = player.origin.stat.atk > player.origin.stat.catk ? "atk" : "catk"; // 상대가 물리형인지 특수형인지
-  if (Array.isArray(skill.skillEffectList)) {
+  if (skill.skillEffectList && typeof skill.skillEffectList[Symbol.iterator] === "function") {
     for (const item of skill.skillEffectList) {
       if (item.name === "능력치증감" && npcRank[item.abil] < 4 && item.target === "atk" && player.abil !== "천진" && !npc.item?.startsWith("구애")) {
         let value = item.abil === "speed" ? 70 : item.abil === "atk" || item.abil === "catk" ? 50 : 20;
@@ -527,13 +528,47 @@ function createPkObj(baseBattle, sn, hp) {
 
 function calculatePkScore(bt, sn, skObj) {
   const index = "npcBench" + sn;
-  const npc = bt.npc;
-  const pokemon = bt[index];
-  const player = bt.player;
+  const indexA = index + "+a";
   const log = {};
+  const benchPokemon = bt[index];
   let benchScore = calculateTypeScore(bt, index, log);
   let npcScore = calculateTypeScore(bt, "npc", log);
-  log.score = benchScore - npcScore;
+  let score = benchScore - npcScore;
+  log[indexA] = score;
+  if (bt.field.npc.sRock) {
+    score -= 25;
+    log[indexA] += ` - 25 (교체-스락)`;
+  }
+  if (bt.field.npc.spikes) {
+    score -= 20;
+    log[indexA] += ` - 20 (교체-압정)`;
+  }
+  if (bt.field.npc.poisonSpikes) {
+    if (benchPokemon.type1 === "독" || benchPokemon.type2 === "독") {
+      score += 10;
+      log[indexA] += ` + 10 (교체(독)-독압정)`;
+    } else if (benchPokemon.type1 === "강철" || benchPokemon.type2 === "강철" || pokemonNoStatusCheck(benchPokemon)) {
+    } else {
+      score -= 10;
+      log[indexA] += ` - 10 (교체-독압정)`;
+    }
+  }
+
+  const playerSkills = [bt.player.origin.sk1, bt.player.origin.sk2, bt.player.origin.sk3, bt.player.origin.sk4];
+  for (const sk of playerSkills) {
+    const list = sk?.skillEffectList;
+    if (list && typeof list[Symbol.iterator] === "function") {
+      for (const item of list) {
+        if (item?.name === "강제교체") {
+          //상대에게 강제교체 기술이 존재하면 교체를 하지 않는다
+          log[indexA] = "0 (강제교체)";
+          score = 0;
+        }
+      }
+    }
+  }
+  log[indexA] += ` = ${score}`;
+  log.score = score;
   return log;
 }
 

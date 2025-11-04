@@ -80,7 +80,7 @@ export const priCalculate = (battle, pokemon, skill) => {
   }
 
   if (sk.name === "그래스슬라이더") {
-    if (battle.field.field === "그래스필드") {
+    if (battle.field.terrain.isGrassField) {
       return 1;
     } else return 0;
   }

@@ -1,5 +1,4 @@
 import { recover } from "../../function/recover";
-import { flyingCheck } from "../../util/flyingCheck";
 import { speedCheck } from "../../util/speedCheck";
 
 // 🧩 메인 엔트리 포인트
@@ -13,7 +12,7 @@ export function processFieldEffects(battle, enqueue) {
   battle.field.weather.handleWeatherTurnEnd(battle, enqueue);
 
   // 필드 카운트
-  processField(battle, enqueue, fastUser, slowUser);
+  battle.field.terrain.handleTerrainTurnEnd(battle, enqueue);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -27,43 +26,5 @@ function processTrickRoom(battle, enqueue) {
       battle.field.trickRoom = null;
       enqueue({ battle, text: "뒤틀린 시공이 원래대로 되돌아왔다!" });
     }
-  }
-}
-
-/* -------------------------------------------------------------------------------------------------
-   3️⃣ 필드(그래스필드, 일렉트릭필드 등)
-------------------------------------------------------------------------------------------------- */
-function processField(battle, enqueue, fastUser, slowUser) {
-  const bf = battle.field;
-  const field = bf.field;
-  if (field === null) return;
-
-  let fieldEndText = "";
-
-  // 그래스필드 효과
-  if (field === "그래스필드") {
-    fieldEndText = "발밑의 풀이 사라졌다!";
-    const healText = "의 체력이 회복되었다!";
-
-    // ✅ 빠른 쪽 먼저 회복 → 느린 쪽 순서
-    for (const user of [fastUser, slowUser]) {
-      const p = battle[user];
-      if (!p.faint && p.hp < p.origin.hp && !flyingCheck(battle, p)) {
-        recover(battle, Math.floor(p.origin.hp / 16), user, enqueue, `[그래스필드] ${p.name}${healText}`);
-      }
-    }
-  }
-
-  // 일렉트릭필드 효과 (회복 없음)
-  else if (field === "일렉트릭필드") {
-    fieldEndText = "발밑의 전기가 사라졌다!";
-  }
-
-  // 턴 종료 시 지속 시간 차감
-  bf.fieldTurnRemain--;
-  if (bf.fieldTurnRemain === 0) {
-    bf.fieldTurnRemain = null;
-    bf.field = null;
-    enqueue({ battle, text: fieldEndText });
   }
 }

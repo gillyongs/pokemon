@@ -1,7 +1,6 @@
 import { damage } from "../function/damage";
 import { typeCheck } from "../util/typeCheck";
 import { poison, mPoison, pokemonNoStatusCheck } from "../function/statusCondition";
-import { flyingCheck } from "../util/flyingCheck";
 export const applyFieldEffects = (bt, atks, enqueue) => {
   //교체해서 나올때 장판(스텔스록, 독압정) 체크
   //switch.js에서 호출
@@ -67,7 +66,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     damage(bt, Math.floor((atk.origin.hp * typeDamage) / 8), atks, enqueue, text);
   }
 
-  if (flyingCheck(bt, atk)) {
+  if (atk.isFlying(bt)) {
     return;
   }
   // 독압정

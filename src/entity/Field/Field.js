@@ -1,14 +1,12 @@
 import { Weather } from "./Weather";
-
+import { Terrain } from "./Terrain";
 export class Field {
   constructor() {
     this.reset();
   }
 
   reset() {
-    this.field = null; // 일렉트릭필드, 그래스필드
-    this.fieldTurnRemain = 0;
-
+    this.terrain = new Terrain();
     this.weather = new Weather();
     this.trickRoom = null;
     //공간변화는 중첩가능

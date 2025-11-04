@@ -68,31 +68,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // ④ 고대활성
   // -------------------------------
   if (atkAbil === "고대활성" && atk.tempStatus.protosynthesis === null) {
-    const maxKey = maxStatFinder(atk);
-    if (bt.weatherType === "쾌청") {
-      // 날씨가 쾌청상태일때 교체로 나온 경우
-      // 부스트에너지 사용보다 먼저 발생
-      atk.tempStatus.protosynthesis = maxKey;
-      atk.tempStatus.protosynthesisBySun = true;
-      enqueue({
-        battle: bt,
-        text: `[특성 고대활성] ${atk.names} 쾌청에 의해 고대활성을 발동했다!`,
-      });
-    } else if (atk.item === "부스트에너지") {
-      // 그 외의 경우
-      atk.tempStatus.protosynthesis = maxKey;
-      atk.item = null;
-      enqueue({
-        battle: bt,
-        text: `[특성 고대활성] ${atk.names} 부스트에너지에 의해 고대활성을 발동했다!`,
-      });
-    }
-    if (atk.tempStatus.protosynthesis) {
-      enqueue({
-        battle: bt,
-        text: `[특성 고대활성] ${atk.name}의 ${getStatName(maxKey)} 강화되었다!`,
-      });
-    }
+    atk.handleProtosynthesis(bt, enqueue);
   }
 
   // -------------------------------
@@ -103,25 +79,20 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     가뭄: { weatherType: "쾌청", text: "주변의 햇살이 강해졌다!" },
   };
   Object.entries(weatherAbilities).forEach(([abil, { weatherType, text }]) => {
-    if (atkAbil === abil && bt.weatherType !== weatherType) {
+    if (atkAbil === abil) {
       let weatherAbiltext = `[특성 ${abil}] ${atk.name} ${text}`;
       bt.field.weather.setWeatherOnBattle(bt, enqueue, atk, weatherType, weatherAbiltext);
     }
   });
 
-  const fieldAbilities = {
-    그래스메이커: { type: "field", value: "그래스필드", text: "발밑에 풀이 무성해졌다!", head: "name" },
-    일렉트릭메이커: { type: "field", value: "일렉트릭필드", text: "발밑에 전기가 떠돌기 시작했다!", head: "name" },
+  const terrainAbilities = {
+    그래스메이커: { terrainType: "그래스필드", text: "발밑에 풀이 무성해졌다!" },
+    일렉트릭메이커: { terrainType: "일렉트릭필드", text: "발밑에 전기가 떠돌기 시작했다!" },
   };
-
-  Object.entries(fieldAbilities).forEach(([abil, { type, value, text, head }]) => {
-    if (atkAbil === abil && bt.field[type] !== value) {
-      bt.field[type] = value;
-      bt.field[type + "TurnRemain"] = 5;
-      enqueue({
-        battle: bt,
-        text: `[특성 ${abil}] ${atk[head]} ${text}`,
-      });
+  Object.entries(terrainAbilities).forEach(([abil, { terrainType, text }]) => {
+    if (atkAbil === abil) {
+      let terrainAbiltext = `[특성 ${abil}] ${atk.name} ${text}`;
+      bt.field.terrain.setTerrainOnBattle(bt, enqueue, atk, terrainType, terrainAbiltext);
     }
   });
 
@@ -129,7 +100,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // ⑥ 진홍빛고동 (날씨 조정형)
   // -------------------------------
   if (atkAbil === "진홍빛고동") {
-    if (bt.weatherType === "쾌청") {
+    if (bt.field.weather.isSunny) {
       enqueue({
         battle: bt,
         text: `[특성 진홍빛고동] ${atk.names} 햇살을 받아 고대의 고동을 폭발시켰다!`,
@@ -141,18 +112,14 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   }
 
   if (atkAbil === "하드론엔진") {
-    if (bt.field.field === "일렉트릭필드") {
+    if (bt.field.terrain.isElectricField) {
       enqueue({
         battle: bt,
         text: `[특성 하드론엔진] ${atk.names} 일렉트릭필드의 힘으로 미래 기관을 가동했다!`,
       });
     } else {
-      bt.field.field = "일렉트릭필드";
-      bt.field.fieldTurnRemain = 5;
-      enqueue({
-        battle: bt,
-        text: `[특성 하드론엔진] ${atk.names} 일렉트릭필드를 전개하여 미래 기관을 가동했다!`,
-      });
+      const text = `[특성 하드론엔진] ${atk.names} 일렉트릭필드를 전개하여 미래 기관을 가동했다!`;
+      bt.field.terrain.setTerrainOnBattle(bt, enqueue, atk, "일렉트릭필드", text);
     }
   }
 

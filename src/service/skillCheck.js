@@ -215,14 +215,14 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 리베로가 발동된다
   const weatherSkill = ["번개", "폭풍"];
   let accurPercent = atk.origin[skKey].accur;
-  if (weatherSkill.includes(sk.name) && bt.weatherType === "쾌청") {
+  if (weatherSkill.includes(sk.name) && bt.field.weather.isSunny) {
     accurPercent = 50;
   }
 
   let accurCheck = random(accurPercent, true);
   //필중기는 random 안에서 처리
 
-  if (weatherSkill.includes(sk.name) && bt.weatherType === "비") {
+  if (weatherSkill.includes(sk.name) && bt.field.weather.isRainy) {
     accurCheck = true;
   }
 

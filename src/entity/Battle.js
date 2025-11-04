@@ -62,9 +62,6 @@ class Battle {
     // this.npcBench1.status.poison = true;
     // this.npcBench2.status.poison = true;
   }
-  get weatherType() {
-    return this.field?.weather?.type ?? null;
-  }
 }
 
 export function createBattle(plyayerArray, npcArray) {

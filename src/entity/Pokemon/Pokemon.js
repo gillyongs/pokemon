@@ -89,8 +89,8 @@ class PokemonOnBattle {
     if (this.abil !== "고대활성" || this.tempStatus.protosynthesis !== null) return;
 
     const maxKey = maxStatFinder(this);
-    if (battle.weatherType === "쾌청") {
-      // 날씨가 쾌청상태이면 부스트에너지보다 먼저 고대활성 발동
+    if (battle.field.weather.isSunny) {
+      // 날씨가 쾌청상태이면 부스트에너지를 사용하지 않고 고대활성 발동
       this.tempStatus.protosynthesis = maxKey;
       this.tempStatus.protosynthesisBySun = true;
       enqueue({
@@ -141,6 +141,32 @@ class PokemonOnBattle {
         text: `[특성 고대활성] ${this.name}의 ${getStatName(maxKey)} 강화되었다!`,
       });
     }
+  }
+
+  isFlying(battle) {
+    const pokemon = this;
+    const enemy = pokemon.team === "player" ? battle.npc : battle.player;
+
+    // 부유 특성 (상대가 틀깨기면 무시)
+    if (pokemon.abil === "부유" && enemy?.abilObj?.feature?.tgg !== true) {
+      return true;
+    }
+
+    // 풍선
+    if (pokemon.item === "풍선") {
+      return true;
+    }
+
+    // 비행 타입
+    if (pokemon.type1 === "비행" || pokemon.type2 === "비행") {
+      if (pokemon.temp.roost) {
+        return false; // 날개쉬기 사용 중이면 지상으로 간주 ==========================================================
+      }
+      return true;
+    }
+
+    // 그 외에는 지상
+    return false;
   }
 }
 

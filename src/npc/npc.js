@@ -3,7 +3,7 @@ import { npcAiRandom } from "./ai/random";
 import { npcCommon } from "./npcCommon";
 let before = null;
 export const npcChoice = (battle, actNumber) => {
-  return 1;
+  // return 1;
   const choices = npcCommon(battle);
   if (choices.length === 1) return choices[0];
   else if (choices.length < 1) return null;

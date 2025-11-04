@@ -2,19 +2,32 @@
 import { speedCheck } from "../../util/speedCheck";
 
 export class Weather {
-  constructor() {
-    this.type = null; // 현재 날씨: "쾌청", "비", null
-    this.turnRemain = null;
+  #type = null; // 현재 날씨: "쾌청", "비", null
+  #turnRemain = null; // 남은 턴 수
+
+  get() {
+    return this.#type;
+  }
+
+  get isSunny() {
+    return this.#type === "쾌청";
+    // 고대활성, 아침햇살, 진홍빛고동, 번개/폭풍 명중률, 얼음 상태이상 실패
+  }
+
+  get isRainy() {
+    return this.#type === "비";
+    // 번개/폭풍 필중
   }
 
   #setWeather(weatherType, turnRemain, enqueue, battle, weatherText) {
-    this.type = weatherType;
-    this.turnRemain = turnRemain;
+    this.#type = weatherType;
+    this.#turnRemain = turnRemain;
     if (weatherText) enqueue({ battle, text: weatherText });
   }
 
   setWeatherOnBattle(battle, enqueue, pokemon, weatherType, weatherText) {
-    if (this.type === weatherType) return; // 이미 같은 날씨면 무시
+    if (this.#type === weatherType) return; // 이미 같은 날씨면 무시
+    const endedType = this.#type;
 
     const itemExtendMap = {
       비: "축축한바위",
@@ -27,31 +40,31 @@ export class Weather {
     this.#setWeather(weatherType, turnRemain, enqueue, battle, weatherText);
 
     this.#handleWeatherStartEffect(battle, enqueue, weatherType);
+    this.#handleWeatherEndEffect(battle, enqueue, endedType);
   }
 
   // 턴 종료시 날씨 처리
   handleWeatherTurnEnd(battle, enqueue) {
-    if (this.type === null) return;
+    if (this.#type === null) return;
 
-    this.turnRemain--;
-    if (this.turnRemain <= 0) {
+    this.#turnRemain--;
+    if (this.#turnRemain <= 0) {
       this.#handleWeatherEnd(battle, enqueue);
     }
   }
 
   #handleWeatherEnd(battle, enqueue) {
-    const endedType = this.type;
-    this.type = null;
-    this.turnRemain = null;
+    const endedType = this.#type;
+    this.#type = null;
+    this.#turnRemain = null;
 
-    // 공통 종료 텍스트
     const endTextMap = {
       비: "비가 그쳤다!",
       쾌청: "햇살이 원래대로 되돌아왔다!",
     };
     enqueue({ battle, text: endTextMap[endedType] });
 
-    // 날씨별 부가 종료 효과
+    // 날씨별 종료 효과
     this.#handleWeatherEndEffect(battle, enqueue, endedType);
   }
 
@@ -60,6 +73,7 @@ export class Weather {
     if (weatherType === "쾌청") {
       const fastUser = speedCheck(battle);
       const slowUser = fastUser === "npc" ? "player" : "npc";
+      // 쾌청으로 인한 고대활성 발동
       battle[fastUser].handleProtosynthesis(battle, enqueue);
       battle[slowUser].handleProtosynthesis(battle, enqueue);
     }
@@ -70,6 +84,7 @@ export class Weather {
     if (weatherType === "쾌청") {
       const fastUser = speedCheck(battle);
       const slowUser = fastUser === "npc" ? "player" : "npc";
+      // 쾌청으로 인한 고대활성 종료
       battle[fastUser].handleProtosynthesisEnd(battle, enqueue);
       battle[slowUser].handleProtosynthesisEnd(battle, enqueue);
     }

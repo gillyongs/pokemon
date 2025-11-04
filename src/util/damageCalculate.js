@@ -1,7 +1,6 @@
 import { typeCheckAbil } from "./typeCheck";
 import { getMultiplier } from "../function/rankStat";
 import { noNullItem } from "../entity/Item";
-import { flyingCheck } from "./flyingCheck";
 import { pokemonNoStatusCheck } from "../function/statusCondition";
 import { speedCheck } from "./speedCheck";
 
@@ -186,7 +185,7 @@ export const damageCalculate = (battle, obj, ai) => {
         atkStr += " * 0.75 (재앙의목간)";
       }
     }
-    if (attackPokemon.abil === "진홍빛고동" && battle.weatherType === "쾌청") {
+    if (attackPokemon.abil === "진홍빛고동" && battle.field.weather.isSunny) {
       atkStat *= 1.3;
       atkStr += " * 1.3 (진홍빛고동)";
     }
@@ -217,7 +216,7 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStat *= 1.3;
       atkStr += " * 1.3 (고대활성)";
     }
-    if (attackPokemon.abil === "하드론엔진" && battle.field.field === "일렉트릭필드") {
+    if (attackPokemon.abil === "하드론엔진" && battle.field.terrain.isElectricField) {
       atkStat *= 1.3;
       atkStr += " * 1.3 (하드론엔진)";
     }
@@ -271,7 +270,7 @@ export const damageCalculate = (battle, obj, ai) => {
   attackPokemon.log.damage1 = "22 * " + power + "(위력) * [" + atkStr + "] / 50 / [" + defStr + "]";
 
   // 날씨 ==========================================================
-  const weather = battle.weatherType; // 날씨 보정
+  const weather = battle.field.weather.get(); // 날씨 보정
   if (weather === "비") {
     if (sk.type === "물") {
       damage *= 1.5;
@@ -295,9 +294,9 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 필드 ==========================================================
 
-  const field = battle.field.field;
+  const field = battle.field.terrain.get();
   if (field !== null) {
-    if (!flyingCheck(battle, attackPokemon)) {
+    if (!attackPokemon.isFlying(battle)) {
       if (field === "그래스필드" && sk.type === "풀") {
         damage *= 1.3;
         attackPokemon.log.damage1 += " * 1.3 (그래스필드+풀)";

@@ -19,7 +19,7 @@ import { cloneWithMethods } from "../util/cloneWithMethods";
 
 const Battle = () => {
   const location = useLocation();
-  const battleOrigin = createBattle(["아고용", "어써러셔", "어써러셔"], ["썬더", "어써러셔", "어써러셔"]);
+  const battleOrigin = createBattle(["갸라도스", "어써러셔", "어써러셔"], ["코터스", "어써러셔", "어써러셔"]);
   const battleObj = useRef(battleOrigin);
   const [battle, setBattle] = useState(battleOrigin);
   //개발용 배틀 객체.
@@ -47,7 +47,7 @@ const Battle = () => {
       battleObj.current = battleObject;
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObj.current = createBattle(["가이오가", "코터스", "미라이돈"], ["날개치는머리", "고릴타", "어써러셔"]);
+      battleObj.current = createBattle(["폴리곤2", "가이오가", "미라이돈"], ["고릴타", "고릴타", "해피너스"]);
     }
     queueObject.enqueue({ battle: battleObj.current, text: "배틀시작!" });
     const fastUser = speedCheck(battleObj.current);

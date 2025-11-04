@@ -2,7 +2,7 @@ import { damage, handleFaint } from "../../function/damage";
 import { random } from "../../util/randomCheck";
 import { rank, rankReset } from "../../function/rankStat";
 import { recover, recoverNoText } from "../../function/recover";
-import { burn, mabi, poison, freeze, confuse, pokemonNoStatusCheck } from "../../function/statusCondition";
+import { burn, mabi, poison, freeze, sleep, confuse, pokemonNoStatusCheck } from "../../function/statusCondition";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchPlayer, switchPlayerForce } from "../../service/switch";
@@ -111,9 +111,9 @@ function skillEffectSearch(name) {
     아침햇살: (battle, enqueue, skillEffect) => {
       const hp = battle[battle.turn.atk].origin.hp;
       let value = hp / 2;
-      if (battle.weatherType === null) {
+      if (battle.field.weather.get() === null) {
         value = hp / 2;
-      } else if (battle.weatherType === "쾌청") {
+      } else if (battle.field.weather.isSunny) {
         value = (hp * 2) / 3;
       } else {
         value = hp / 4;
