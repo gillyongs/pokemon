@@ -36,8 +36,8 @@ export const turnEnd = (battle, enqueue) => {
   // 상태이상 처리
   processStatusCondition(battle, enqueue, fastUser, slowUser);
 
-  let tempPlayer = battle.player.temp;
-  let tempNpc = battle.npc.temp;
+  let tempPlayer = battle.player.turn;
+  let tempNpc = battle.npc.turn;
 
   if (tempPlayer.roost) {
     tempPlayer.roost = null;

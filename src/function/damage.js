@@ -10,8 +10,7 @@ import { applyOnHitEvents } from "../service/onHit.js";
 export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typeText, serialAttackObject) {
   const atkPokemon = battle[getDamagePokemon === "npc" ? "player" : "npc"];
   const defPokemon = battle[getDamagePokemon];
-  const useSkill = atkPokemon.temp.useSkill;
-
+  const useSkill = atkPokemon.turn.useSkill;
   atkPokemon.tempStatus.recentSkillUse = useSkill;
   defPokemon.tempStatus.recentSkillGet = useSkill;
 
@@ -42,7 +41,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
           // 효과가 굉장했다!
           enqueue({ battle, text: (commonText || "") + typeText });
         }
-        if (atkPokemon.temp.critical) {
+        if (atkPokemon.turn.critical) {
           enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
         }
       }
@@ -55,8 +54,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       } else {
         defPokemon.tempStatus.substituteHp -= skDamage;
       }
-      atkPokemon.temp.recentDamageGive = actualGiveDamage;
-      defPokemon.temp.recentDamageGet = actualGiveDamage;
+      atkPokemon.turn.recentDamageGive = actualGiveDamage;
+      defPokemon.turn.recentDamageGet = actualGiveDamage;
       applyOnHitEvents(battle, enqueue, true);
       // 대타출동 상태일땐 대부분의 피격 이벤트 (ex:울멧)가 발동하지 않음
       // 대타출동 상태일때에도 발생하는 이벤트 처리 (풍선)
@@ -111,8 +110,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
 
   // 최근 기록
-  atkPokemon.temp.recentDamageGive = actualGiveDamage;
-  defPokemon.temp.recentDamageGet = actualGiveDamage;
+  atkPokemon.turn.recentDamageGive = actualGiveDamage;
+  defPokemon.turn.recentDamageGet = actualGiveDamage;
 
   // ================= 텍스트 처리 =================
   let defaultText = true;
@@ -130,7 +129,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       enqueue({ battle, text: (commonText || "") + typeText });
       defaultText = false;
     }
-    if (atkPokemon.temp.critical) {
+    if (atkPokemon.turn.critical) {
       enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
       defaultText = false;
     }

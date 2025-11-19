@@ -1,4 +1,4 @@
-import { typeCheckAbil } from "./typeCheck";
+import { typeCheckOnBattle } from "./typeEffectCalculate";
 import { getMultiplier } from "../function/rankStat";
 import { noNullItem } from "../entity/Item";
 import { pokemonNoStatusCheck } from "../function/statusCondition";
@@ -13,8 +13,7 @@ export const damageCalculate = (battle, obj, ai) => {
   const defensePokemon = battle[battle.turn.def];
 
   const skillNumber = battle.turn.atkSN;
-  const skillKey = `sk${skillNumber}`;
-  const sk = attackPokemon.origin[skillKey]; // 시전 스킬
+  const skill = attackPokemon.origin.skill[skillNumber]; // 시전 스킬
 
   const atkAbil = attackPokemon.abil;
   const defAbil = defensePokemon.abil;
@@ -22,30 +21,29 @@ export const damageCalculate = (battle, obj, ai) => {
   const noTggAtk = !attackPokemon.abilObj.feature?.tgg;
 
   if (ai) {
-    const typeDamege = typeCheckAbil(battle, sk.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
+    const typeDamege = typeCheckOnBattle(battle, skill.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
     if (typeDamege === 0) return 0; // 고스트포켓몬에게 지구던지기를 쓰는 경우
-    if (sk.feature.oneShot && defAbil === "옹골참") return 0; // 특성이 옹골참인 상대에게 일격기를 쓰는 경우
-    if (sk.type === "땅" && (defAbil === "부유" || defensePokemon.item === "풍선")) return 0;
-    if (sk.type === "땅" && defAbil === "타오르는불꽃") return 0;
+    if (skill.feature.oneShot && defAbil === "옹골참") return 0; // 특성이 옹골참인 상대에게 일격기를 쓰는 경우
+    if (skill.type === "불꽃" && defAbil === "타오르는불꽃") return 0;
   }
 
   // 데미지가 고정인 스킬들 ===============================================================================================
 
-  if (sk.feature.oneShot) {
+  if (skill.feature.oneShot) {
     //일격기
     return defensePokemon.origin.hp;
   }
-  if (sk.name === "카타스트로피") {
+  if (skill.name === "카타스트로피") {
     // 현재 체력의 절반을 깎는 스킬
     return defensePokemon.hp / 2;
   }
-  if (sk.name === "지구던지기") {
+  if (skill.name === "지구던지기") {
     if (ai && (battle.player.type1 === "고스트" || battle.player.type2 === "고스트")) return 0;
     return 50;
   }
-  if (sk.feature.reflect) {
+  if (skill.feature.reflect) {
     // 성공 실패 조건은 skillRequurement에서 관리
-    return Math.floor(attackPokemon.temp.recentDamageGet) * 2;
+    return Math.floor(attackPokemon.turn.recentDamageGet) * 2;
   }
 
   // 스탯 ================================================================================================================
@@ -54,7 +52,7 @@ export const damageCalculate = (battle, obj, ai) => {
   // 공격과 특공, 방어와 특방중 사용할 능력치를 결정한다
   // 사이코쇼크는 특수기이지만 방어력을, 바디프레스는 공격력 대신 방어력을, 속임수는 자신 대신 상대방의 공격력을 사용한다
 
-  let attackStat = sk.stype;
+  let attackStat = skill.stype;
   let defenseStat = "";
   if (attackStat === "atk") {
     // 물리 공격이면 상대 방어력과 계산
@@ -62,12 +60,12 @@ export const damageCalculate = (battle, obj, ai) => {
   } else if (attackStat === "catk") {
     // 특수 공격이면 상대 특방과 계산
     defenseStat = "cdef";
-    if (sk.name === "사이코쇼크") {
+    if (skill.name === "사이코쇼크") {
       defenseStat = "def";
     }
   }
 
-  if (sk.name === "바디프레스") {
+  if (skill.name === "바디프레스") {
     // 바디프레스는 공격력 대신 방어력을 사용
     attackStat = "def";
   }
@@ -90,7 +88,7 @@ export const damageCalculate = (battle, obj, ai) => {
     // 상대방의 능력치 변화를 무시한다
     // 맞는쪽이 천진이면 공격쪽의 랭크변화가 무시된다 (ex: 무한 용성군)
   }
-  if (attackPokemon.temp.critical && rankNumAtk < 0) {
+  if (attackPokemon.turn.critical && rankNumAtk < 0) {
     atkStat = noRankAtkStat;
     // 급소에 맞았을 경우 공격측에게 불리한 랭크다운이 무시된다
     // 랭크업은 적용된다
@@ -99,11 +97,11 @@ export const damageCalculate = (battle, obj, ai) => {
   // 방어포켓몬의 방어/특방 능력치
   let noRankDefStat = defensePokemon.origin.stat[defenseStat];
   let rankNumDef = defensePokemon.tempStatus.rank[defenseStat];
-  let rankUpDef = Math.floor(getMultiplier(rankNumDef));
+  let rankUpDef = getMultiplier(rankNumDef);
   let defStat = noRankDefStat * rankUpDef;
   // 성스러운칼 부가효과
   // 상대방의 능력치 변화를 무시한다
-  for (const effect of sk.skillEffectList) {
+  for (const effect of skill.skillEffectList) {
     if (effect.name === "천진") {
       defStat = noRankDefStat;
     }
@@ -116,7 +114,7 @@ export const damageCalculate = (battle, obj, ai) => {
     defStat = noRankDefStat;
   }
   // 급소에 맞았을 경우 방어측에게 유리한 랭크업이 무시된다
-  if (attackPokemon.temp.critical && defensePokemon.tempStatus.rank[defenseStat] > 0) {
+  if (attackPokemon.turn.critical && defensePokemon.tempStatus.rank[defenseStat] > 0) {
     defStat = noRankDefStat;
   }
 
@@ -124,7 +122,7 @@ export const damageCalculate = (battle, obj, ai) => {
   defStat = Math.floor(defStat);
   // 속임수 ================================================================================================================
 
-  if (sk.name === "속임수") {
+  if (skill.name === "속임수") {
     atkStat = defensePokemon.origin.stat.atk * getMultiplier(defensePokemon.tempStatus.rank.atk);
     if (defensePokemon.abil === "천진") {
       atkStat = defensePokemon.origin.stat.atk;
@@ -141,7 +139,7 @@ export const damageCalculate = (battle, obj, ai) => {
   let defStr = defStat + "(" + defenseStat + ")";
 
   // 공격 (atk) ===================================
-  if (sk.stype === "atk") {
+  if (skill.stype === "atk") {
     // 바디프레스나 속임수는 '물리기'면 구애머리띠나 화상이 적용된다.
     if (attackPokemon.item === "구애머리띠") {
       atkStat *= 1.5;
@@ -170,7 +168,7 @@ export const damageCalculate = (battle, obj, ai) => {
     }
 
     if (battle.field[battle.turn.def].noClean.reflect) {
-      if (sk.feature?.wallBreaker) {
+      if (skill.feature?.wallBreaker) {
       } else {
         atkStat *= 0.5;
         atkStr += " * 0.5 (리플렉터)";
@@ -192,7 +190,7 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 특공 (catk) ===================================
-  if (sk.stype === "catk") {
+  if (skill.stype === "catk") {
     if (attackPokemon.item === "구애안경") {
       atkStat *= 1.5;
       atkStr += " * 1.5 (구애안경)";
@@ -206,7 +204,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
     if (battle.field[battle.turn.def].noClean.lightScreen) {
       // 사이코쇼크도 빛장 영향 받는다
-      if (sk.feature?.wallBreaker) {
+      if (skill.feature?.wallBreaker) {
       } else {
         atkStat *= 0.5;
         atkStr += " * 0.5 (빛의장막)";
@@ -260,7 +258,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 위력 ======================================================================================================
 
-  let power = powerCalculate(battle, sk, obj, ai);
+  let power = powerCalculate(battle, skill, obj, ai);
   // 위력이 바뀌는 기술은 여기서 처리
   // ex) 해수스파우팅, 탁쳐서 떨구기
 
@@ -272,21 +270,21 @@ export const damageCalculate = (battle, obj, ai) => {
   // 날씨 ==========================================================
   const weather = battle.field.weather.get(); // 날씨 보정
   if (weather === "비") {
-    if (sk.type === "물") {
+    if (skill.type === "물") {
       damage *= 1.5;
       attackPokemon.log.damage1 += " * 1.5 (비+물)";
     }
-    if (sk.type === "불꽃") {
+    if (skill.type === "불꽃") {
       damage *= 0.5;
       attackPokemon.log.damage1 += " * 0.5 (비+불꽃)";
     }
   }
   if (weather === "쾌청") {
-    if (sk.type === "불꽃") {
+    if (skill.type === "불꽃") {
       damage *= 1.5;
       attackPokemon.log.damage1 += " * 1.5 (쾌청+불)";
     }
-    if (sk.type === "물") {
+    if (skill.type === "물") {
       damage *= 0.5;
       attackPokemon.log.damage1 += " * 0.5 (쾌청+물)";
     }
@@ -297,17 +295,17 @@ export const damageCalculate = (battle, obj, ai) => {
   const field = battle.field.terrain.get();
   if (field !== null) {
     if (!attackPokemon.isFlying(battle)) {
-      if (field === "그래스필드" && sk.type === "풀") {
+      if (field === "그래스필드" && skill.type === "풀") {
         damage *= 1.3;
         attackPokemon.log.damage1 += " * 1.3 (그래스필드+풀)";
       }
-      if (field === "일렉트릭필드" && sk.type === "전기") {
+      if (field === "일렉트릭필드" && skill.type === "전기") {
         damage *= 1.3;
         attackPokemon.log.damage1 += " * 1.3 (일렉트릭필드+전기)";
       }
     }
 
-    if (field === "그래스필드" && sk.name === "지진") {
+    if (field === "그래스필드" && skill.name === "지진") {
       damage *= 0.5; //비행여부 상관없이 적용됨
       attackPokemon.log.damage1 += " * 0.5 (그래스필드+지진)";
     }
@@ -315,7 +313,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 아이템 ==========================================================
 
-  if (sk.feature?.punch && attackPokemon.item === "펀치글러브") {
+  if (skill.feature?.punch && attackPokemon.item === "펀치글러브") {
     damage *= 1.1;
     attackPokemon.log.damage1 += " * 1.1 (펀치글러브)";
   }
@@ -333,28 +331,28 @@ export const damageCalculate = (battle, obj, ai) => {
     // 고정 데미지 기술(일격기, 카운터, 지구던지기, 카타스트로피)도 적용 안 됨
   }
 
-  if ((atkAbil === "페어리오라" || defAbil === "페어리오라") && sk.type === "페어리") {
+  if ((atkAbil === "페어리오라" || defAbil === "페어리오라") && skill.type === "페어리") {
     // 틀깨기 적용 안됨
     damage = (damage * 4) / 3;
     attackPokemon.log.damage1 += " * 4/3 (페어리오라)";
   }
 
-  if ((atkAbil === "다크오라" || defAbil === "다크오라") && sk.type === "악") {
+  if ((atkAbil === "다크오라" || defAbil === "다크오라") && skill.type === "악") {
     damage = (damage * 4) / 3;
     attackPokemon.log.damage1 += " * 4/3 (다크오라)";
   }
 
-  if (atkAbil === "이판사판" && sk.feature?.rebound) {
+  if (atkAbil === "이판사판" && skill.feature?.rebound) {
     damage *= 1.2;
     attackPokemon.log.damage1 += " * 1.2 (이판사판)";
   }
 
-  if (atkAbil === "옹골찬턱" && sk.feature?.bite) {
+  if (atkAbil === "옹골찬턱" && skill.feature?.bite) {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (옹골찬턱)";
   }
 
-  if (sk.type === "불꽃" && attackPokemon.tempStatus.flashFire) {
+  if (skill.type === "불꽃" && attackPokemon.tempStatus.flashFire) {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (타오르는불꽃)";
   }
@@ -369,7 +367,7 @@ export const damageCalculate = (battle, obj, ai) => {
   attackPokemon.log.damage2 = damage;
 
   // 자속보정 ===============================================================
-  if (sk.type === attackPokemon.type1 || sk.type === attackPokemon.type2) {
+  if (skill.type === attackPokemon.type1 || skill.type === attackPokemon.type2) {
     if (atkAbil === "적응력") {
       damage *= 2;
       attackPokemon.log.damage2 += " * 2 (자속보정+적응력)";
@@ -380,11 +378,11 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 상성보정 ================================================================
-  const typeDamege = typeCheckAbil(battle, sk.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
+  const typeDamege = typeCheckOnBattle(battle, skill.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
   damage *= typeDamege;
   attackPokemon.log.damage2 += " * " + typeDamege + "(상성보정)";
 
-  if (sk.name === "라이트닝드라이브") {
+  if (skill.name === "라이트닝드라이브") {
     // 약점인 기술이 추가 데미지를 준다
     if (typeDamege > 1) {
       damage = (damage * 4) / 3;
@@ -400,7 +398,7 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 급소 =============================================================================
-  if (attackPokemon.temp.critical) {
+  if (attackPokemon.turn.critical) {
     damage *= 1.5;
     attackPokemon.log.damage2 += " * 1.5 (급소)";
   }
@@ -430,22 +428,22 @@ export const confuseDamageCalculate = (battle) => {
   let originDef = pokemon.origin.stat.def;
   let rankNumAtk = pokemon.tempStatus.rank.atk;
   let rankNumDef = pokemon.tempStatus.rank.def;
-  let rankUpAtk = Math.floor(getMultiplier(rankNumAtk));
-  let rankUpDef = Math.floor(getMultiplier(rankNumDef));
-  let atk = originAtk * rankUpAtk;
-  let def = originDef * rankUpDef;
-  if (pokemon.temp.critical && pokemon.tempStatus.rank.def > 0) {
+  let rankUpAtk = getMultiplier(rankNumAtk);
+  let rankUpDef = getMultiplier(rankNumDef);
+  let atk = Math.floor(originAtk * rankUpAtk);
+  let def = Math.floor(originDef * rankUpDef);
+  if (pokemon.turn.critical && pokemon.tempStatus.rank.def > 0) {
     def = originDef;
     // 급소에 맞았을 경우 방어측에게 유리한 랭크업이 무시된다
   }
-  if (pokemon.temp.critical && pokemon.tempStatus.rank.atk < 0) {
+  if (pokemon.turn.critical && pokemon.tempStatus.rank.atk < 0) {
     atk = originAtk;
     // 급소에 맞았을 경우 공격측에게 불리한 랭크다운이 무시된다
     // 랭크업은 적용된다
   }
   let damage = (22 * 40 * atk) / 50 / def;
   damage += 2;
-  if (pokemon.temp.critical) {
+  if (pokemon.turn.critical) {
     damage *= 1.5;
   }
   const randomNum = getRandomNumber();
@@ -519,7 +517,7 @@ const powerCalculate = (battle, skill, obj, ai) => {
   }
   if (skill.name === "아가미물기") {
     // 먼저 공격하면 위력 2배
-    if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].temp.useSkill) power *= 2;
+    if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].turn.useSkill) power *= 2;
     // 유턴이나 교체로 나온 포켓몬은 본인이 스킬을 시전한게 아니므로 2배 적용됨
   }
   if (skill.name === "해수스파우팅") {

@@ -1,4 +1,4 @@
-import { typeCheck } from "../util/typeCheck";
+import { typeCheck } from "../util/typeEffectCalculate";
 import { poison, mPoison, pokemonNoStatusCheck } from "../function/statusCondition";
 export const applyFieldEffects = (bt, atks, enqueue) => {
   //교체해서 나올때 장판(스텔스록, 독압정) 체크
@@ -17,17 +17,21 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
 
   //초승달춤
   if (bt.field[atks].noClean.lunarDance) {
-    if (atk.hp === atk.origin.hp && pokemonNoStatusCheck(atk) && atk.pp1 === atk.origin.sk1.pp && atk.pp2 === atk.origin.sk2.pp && atk.pp3 === atk.origin.sk3.pp && atk.pp4 === atk.origin.sk4.pp) {
+    const isFullHP = atk.hp === atk.origin.hp;
+    const noStatus = pokemonNoStatusCheck(atk);
+
+    const isFullPP = [1, 2, 3, 4].every((n) => atk.pp[n] === atk.origin.skill[n].pp);
+    if (isFullHP && noStatus && isFullPP) {
       // 회복할게 없는 경우
       // 기술이 사용되지 않고 필드에 남아있는다
     } else {
       enqueue({ battle: bt, text: atk.names + " 신비한 달빛에 둘러싸였다!" });
       bt.field[atks].noClean.lunarDance = null;
       atk.resetStatus(); // 상태이상 회복
-      atk.pp1 = atk.origin.sk1.pp;
-      atk.pp2 = atk.origin.sk2.pp;
-      atk.pp3 = atk.origin.sk3.pp;
-      atk.pp4 = atk.origin.sk4.pp;
+      atk.pp[1] = atk.origin.skill[1].pp;
+      atk.pp[2] = atk.origin.skill[2].pp;
+      atk.pp[3] = atk.origin.skill[3].pp;
+      atk.pp[4] = atk.origin.skill[4].pp;
       // 메타몽 나오면 로직 고려해봐야겠는데
       atk.recover(bt, atk.origin.hp, enqueue, atk.name + "의 체력과 상태이상과 PP가 회복됐다!");
     }

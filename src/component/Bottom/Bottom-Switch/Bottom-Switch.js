@@ -50,7 +50,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
       } else if (btObj.turn.fastActUser === "player") {
         //플레이어가 더 빠른 경우
         // 교체 하고 npc 행동 재개
-        attackNpc(btObj, btObj.turn.playerSN, btObj.turn.npcSN, queueObject.enqueue);
+        attackNpc(btObj, btObj.player.turn.choice, btObj.npc.turn.choice, queueObject.enqueue);
         turnEnd(btObj, queueObject.enqueue);
       }
     };

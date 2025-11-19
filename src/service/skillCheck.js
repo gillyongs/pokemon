@@ -16,7 +16,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
   // 선도발, 마비, 얼음으로 행동 불가시 혼란 카운트 세지 않음
 
   const atk = bt[bt.turn.atk];
-  const useSkill = atk.temp.useSkill;
+  const useSkill = atk.turn.useSkill;
 
   // 수면
   if (atk.status.sleep > 0) {
@@ -49,7 +49,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
   }
 
   // 풀죽음
-  if (atk.temp.fullDeath !== null) {
+  if (atk.turn.fullDeath !== null) {
     let fullDeathText = atk.names + " 풀이 죽어 기술을 쓸 수 없다!";
     enqueue({ battle: bt, text: fullDeathText });
     return false;
@@ -101,21 +101,19 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 사용조건체크(ex 기습), 상대방 기절 여부, 명중
   // 리베로는 실패해도 발동되기에 타이밍상 여기
 
-  const skillNumber = bt.turn.atkSN;
-  const skKey = `sk${skillNumber}`;
   const atk = bt[bt.turn.atk];
   const def = bt[bt.turn.def];
-  const sk = atk.origin[skKey];
-  const skillType = bt[bt.turn.atk].origin["sk" + bt.turn.atkSN].stype;
+  const skill = atk.turn.useSkill;
+  const skillType = skill.stype;
 
-  if (sk.skillRequirement) {
+  if (skill.requirement) {
     // 기습, 방어 사용조건 체크
     // 상대가 먼저 행동할경우, 추가로 기습은 상대방이 공격기를 쓰지 않았을 경우 실패한다. (행동엔 교체가 포함된다)
     // 스텔스록, 도발, 대타출동 등 대부분의 기술이 실패할 경우 리베로가 발동되지만
     // 기습과 방어는 실패할 경우 리베로가 발동되지 않는다
-    const skillFunction = skillRequirementSearch(sk.skillRequirement.name);
+    const skillFunction = skillRequirementSearch(skill.requirement.name);
     if (typeof skillFunction === "function") {
-      const skillCheck = skillFunction(bt, enqueue, sk.skillRequirement);
+      const skillCheck = skillFunction(bt, enqueue, skill.requirement);
       if (!skillCheck) {
         enqueue({ battle: bt, text: "하지만 실패했다!" });
         return false;
@@ -133,14 +131,14 @@ export const afterSkillCheck = (bt, enqueue) => {
   // ==================================================================================================================
 
   if (atk.abil === "리베로") {
-    if (sk.type === atk.type1 && atk.type2 === null) {
+    if (skill.type === atk.type1 && atk.type2 === null) {
       //사용자 타입이랑 스킬 타입 같으면 리베로 발동 안함
     } else {
-      atk.type1 = sk.type;
+      atk.type1 = skill.type;
       atk.type2 = null;
       enqueue({
         battle: bt,
-        text: "[리베로] " + atk.names + " " + sk.type + " 타입이 됐다!",
+        text: "[리베로] " + atk.names + " " + skill.type + " 타입이 됐다!",
       });
     }
   }
@@ -150,10 +148,10 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 방어에 공격이 막힌경우
   // 리베로가 발동된다
 
-  if (def.temp.protect === true && skillType !== "buf") {
+  if (def.turn.protect === true && skillType !== "buf") {
     let protectSuccess = true;
 
-    if (atk.abil === "보이지않는주먹" && sk.feature?.touch && atk.item !== "펀치글러브") {
+    if (atk.abil === "보이지않는주먹" && skill.feature?.touch && atk.item !== "펀치글러브") {
       //특성 보이지않는 주먹 : 접촉기가 방어를 무시한다
       //펀치글러브를 끼면 접촉판정이 사라지므로 해당 특성 적용 안됨
       enqueue({ battle: bt, text: "[특성 보이지않는주먹] " + atk.name + "의 공격은 막을 수 없다!" });
@@ -161,13 +159,13 @@ export const afterSkillCheck = (bt, enqueue) => {
     }
 
     const noProtectSkills = ["날려버리기"]; // 방어로 막을 수 없는 스킬
-    if (noProtectSkills.includes(sk.name)) {
+    if (noProtectSkills.includes(skill.name)) {
       protectSuccess = false;
     }
 
     if (protectSuccess) {
       //방어로 막은 경우
-      atk.temp.jumpKickFail = true;
+      atk.turn.jumpKickFail = true;
       enqueue({ battle: bt, text: def.names + " 공격으로부터 몸을 지켰다!" });
       return false;
     }
@@ -176,7 +174,7 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 특성 타오르는불꽃에 불꽃 기술이 막힌 경우 리베로가 발동한다
   // 방어로 막으면 특성 발동하지 않음
   // 대타출동 상태일때 불꽃기술 맞으면 특성 발동함
-  if (sk.type === "불꽃" && sk.type !== "buf" && def.abil === "타오르는불꽃" && atk.abilObj.feature?.tgg !== true) {
+  if (skill.type === "불꽃" && skill.type !== "buf" && def.abil === "타오르는불꽃" && atk.abilObj.feature?.tgg !== true) {
     if (def.tempStatus.flashFire) {
       // 이미 발동된 경우
       enqueue({ battle: bt, text: "[특성 타오르는불꽃] " + def.name + "에겐 효과가 없는 것 같다..." });
@@ -187,26 +185,9 @@ export const afterSkillCheck = (bt, enqueue) => {
     return false;
   }
 
-  // 풍선 아이템을 지니고 있으면 땅타입 기술을 맞지 않는다
-  // 대타출동 상태여도 적용된다
-  // 그래서인지 대타출동상태일때 다른기술 맞아도 풍선이 터진다
-  if (sk.type === "땅" && sk.type !== "buf") {
-    let text = def.name + "에겐 효과가 없는 것 같다...";
-    if (def.abil === "부유" && atk.abilObj.feature?.tgg !== true) {
-      text = "[특성 부유] " + text;
-      enqueue({ battle: bt, text: text });
-      return false;
-    }
-
-    if (def.item === "풍선") {
-      enqueue({ battle: bt, text: text });
-      return false;
-    }
-  }
-
   // 특성 옹골참에 일격기가 막힌 경우
   // 리베로가 발동된다
-  if (sk.feature?.oneShot && def.abil === "옹골참") {
+  if (skill.feature?.oneShot && def.abil === "옹골참") {
     enqueue({ battle: bt, text: "[특성 옹골참] " + def.name + "에겐 효과가 없는 것 같다..." });
     return false;
   }
@@ -214,21 +195,21 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 스킬이 빗나간 경우
   // 리베로가 발동된다
   const weatherSkill = ["번개", "폭풍"];
-  let accurPercent = atk.origin[skKey].accur;
-  if (weatherSkill.includes(sk.name) && bt.field.weather.isSunny) {
+  let accurPercent = skill.accur;
+  if (weatherSkill.includes(skill.name) && bt.field.weather.isSunny) {
     accurPercent = 50;
   }
 
   let accurCheck = random(accurPercent, true);
   //필중기는 random 안에서 처리
 
-  if (weatherSkill.includes(sk.name) && bt.field.weather.isRainy) {
+  if (weatherSkill.includes(skill.name) && bt.field.weather.isRainy) {
     accurCheck = true;
   }
 
   if (!accurCheck && skillType !== "buf") {
     // 상대방이 대타출동 상태일때 씨뿌리기가 빗나갈 수 있다 (명중해도 실패한다)
-    atk.temp.jumpKickFail = true;
+    atk.turn.jumpKickFail = true;
     enqueue({ battle: bt, text: "하지만 빗나갔다!" });
     return false;
   }

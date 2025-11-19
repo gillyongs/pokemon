@@ -3,15 +3,13 @@ import { random } from "../util/randomCheck";
 
 export const applyOnHitEvents = (battle, enqueue, substitute) => {
   // 피격시 발동되는 특성, 아이템 모음
+  // 연속기면 여러번 터진다
   // 독치장(킬라플로르), 울퉁불퉁멧, 철가시(까칠한피부), 정전기, 풍선 터짐
 
   const atk = battle.turn.atk;
-  const def = battle.turn.def;
   const atkPokemon = battle[battle.turn.atk];
   const defPokemon = battle[battle.turn.def];
-  const skillNumber = battle.turn.atkSN;
-  const skKey = `sk${skillNumber}`;
-  const useSkill = atkPokemon.origin[skKey];
+  const useSkill = atkPokemon.turn.useSkill;
 
   if (defPokemon.item === "풍선") {
     //기절하거나 탁떨, 대타출동에 맞아도 풍선은 무조건 터진다

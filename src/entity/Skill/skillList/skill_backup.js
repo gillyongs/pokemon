@@ -1,7 +1,7 @@
 // prettier-ignore
 class Skill { 
-  constructor(name, type, power, accur, pp, prior, stype, skillRequirement, text, skillEffectList, feature){
-    this._validateParams(name, type, power, accur, pp, prior, stype, skillEffectList, skillRequirement, text);
+  constructor(name, type, power, accur, pp, prior, stype, requirement, text, skillEffectList, feature){
+    this._validateParams(name, type, power, accur, pp, prior, stype, skillEffectList, requirement, text);
 
     this.name = name;
     this.power = power;
@@ -21,7 +21,7 @@ class Skill {
     this.skillEffectList.push(...moveItems);
     // 생구 반동을 받고 유턴으로 들어가야함
     
-    this.skillRequirement = skillRequirement;
+    this.requirement = requirement;
     this.feature = feature
     if(!feature){
       this.feature = {}
@@ -47,7 +47,7 @@ class Skill {
       this.text = text;
     }
   }
-  _validateParams(name, type, power, accur, pp, prior, stype, skillEffectList, skillRequirement, text){
+  _validateParams(name, type, power, accur, pp, prior, stype, skillEffectList, requirement, text){
     if(name === '임시스킬'){return}
     if (typeof name !== "string") console.error("name must be a string", name);
     if (typeof type !== "string") console.error("type must be a string", type);
@@ -89,10 +89,10 @@ class Skill {
     }
       
     if (
-      typeof skillRequirement !== "object" &&
-      (skillRequirement !== undefined) & (skillRequirement !== null)
+      typeof requirement !== "object" &&
+      (requirement !== undefined) & (requirement !== null)
     ){
-      console.error("skillRequirement must be a object", skillRequirement);
+      console.error("requirement must be a object", requirement);
       console.error(name)
     }
       

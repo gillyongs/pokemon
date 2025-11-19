@@ -22,6 +22,7 @@ const speedCalculate = (pokemon) => {
   pokemon.log.speedCalculate += " = " + speed;
   return speed;
 };
+
 export const speedCheck = (battle) => {
   // 스피드가 더 빠른쪽 리턴
   // battleScreen(맞특성)
@@ -50,8 +51,8 @@ export const speedCheck = (battle) => {
 export const skillSpeedCheck = (battle) => {
   // 스킬의 우선도까지 고려하여 빠른쪽 리턴
   // battleStart.js에서 사용
-  const playerPri = priCalculate(battle, "player");
-  const npcPri = priCalculate(battle, "npc");
+  const playerPri = priCalculate(battle, "player", battle.player.turn.useSkill);
+  const npcPri = priCalculate(battle, "npc", battle.npc.turn.useSkill);
   if (playerPri === "change") {
     console.error("플레이어 우선도 확인 필요");
   }
@@ -70,22 +71,15 @@ export const skillSpeedCheck = (battle) => {
 
 export const priCalculate = (battle, pokemon, skill) => {
   // 상황에 따라 우선도가 변하는 스킬
-  let sk;
-  if (skill) {
-    sk = skill;
-  } else {
-    const sn = pokemon + "SN";
-    sk = battle[pokemon].origin["sk" + battle.turn[sn]];
-  }
 
-  if (sk.name === "그래스슬라이더") {
+  if (skill.name === "그래스슬라이더") {
     if (battle.field.terrain.isGrassField) {
       return 1;
     } else return 0;
   }
 
-  if (battle[pokemon].abil === "질풍날개" && sk.type === "비행") {
-    return sk.prior + 1;
+  if (battle[pokemon].abil === "질풍날개" && skill.type === "비행") {
+    return skill.prior + 1;
   }
-  return sk.prior;
+  return skill.prior;
 };

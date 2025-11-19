@@ -4,11 +4,6 @@ export const npcCommon = (battle, actNumber) => {
     return [battle.npc.autoSN];
   }
 
-  const sk1 = battle.npc.origin.sk1;
-  const sk2 = battle.npc.origin.sk2;
-  const sk3 = battle.npc.origin.sk3;
-  const sk4 = battle.npc.origin.sk4;
-
   let arr = [1, 2, 3, 4, "npcBench1", "npcBench2"];
 
   // 기절한 포켓몬으로 교체 막기
@@ -23,8 +18,8 @@ export const npcCommon = (battle, actNumber) => {
 
   // 연속 사용 불가 스킬 체크 (블러드문 등)
   const recentSkill = battle.npc?.tempStatus?.recentSkillUse?.name;
-  const skills = [sk1, sk2, sk3, sk4];
 
+  const skills = [1, 2, 3, 4].map((num) => battle.npc.origin.skill[num]);
   skills.forEach((sk, i) => {
     const num = i + 1;
     if (recentSkill === sk?.name && sk?.feature?.noDouble) {
@@ -45,12 +40,12 @@ export const npcCommon = (battle, actNumber) => {
   }
 
   // PP 0 이하 스킬 제외
-  skills.forEach((sk, i) => {
+  const npcPP = [1, 2, 3, 4].map((num) => battle.npc.pp[num]);
+  npcPP.forEach((pp, i) => {
     const num = i + 1;
-    if (sk?.pp <= 0) {
+    if (pp <= 0) {
       arr = arr.filter((v) => v !== num);
     }
   });
-
   return arr;
 };

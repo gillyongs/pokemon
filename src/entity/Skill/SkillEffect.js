@@ -5,15 +5,16 @@ import { noNullItem } from "../Item";
 import { switchNpc, switchPlayer, switchPlayerForce } from "../../service/switch";
 
 function skillEffectSearch(name) {
+  // 연속기에서 여러번 발동하는 효과의 경우 onHit에서 처리
   const functions = {
     공통: (battle, enqueue, skillEffect) => {
       let atkPokemon = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
-      let sk = atkPokemon.origin["sk" + battle.turn.atkSN];
-      if (sk.feature?.protect !== true) atkPokemon.tempStatus.protectUse = null;
+      let skill = atkPokemon.turn.useSkill;
+      if (!atkPokemon.faint && skill.feature?.protect !== true) atkPokemon.tempStatus.protectUse = null;
       // 방어 외에 다른 스킬을 사용하였을때 방어 스택 초기화
       if (atkPokemon.item === "생명의구슬" && !atkPokemon.faint) {
-        if (sk.stype === "atk" || sk.stype === "catk") {
+        if (skill.stype === "atk" || skill.stype === "catk") {
           const text = atkPokemon.name + "의 생명이 조금 깎였다!";
           atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 10, text);
         }
@@ -22,7 +23,7 @@ function skillEffectSearch(name) {
         // 얼음치료와 상태이상 부여 이벤트가 동시에 있으면 상태이상 부여가 먼저 발생한다
         // => 상태이상 부여가 실패하고 얼음이 녹아 상태이상이 없는 상태가 된다
         const meltSkills = ["열탕", "스팀버스트", "열사의대지", "휘적휘적포"]; //불꽃 타입이 아니지만 얼음을 녹이는 기술들
-        if (sk.type === "불꽃" || meltSkills.includes(sk.name)) {
+        if (skill.type === "불꽃" || meltSkills.includes(skill.name)) {
           let freezeCureText = def.name + "의 얼음이 녹았다!";
           def.status.freeze = null;
           enqueue({
@@ -94,11 +95,11 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      def.temp.fullDeath = true;
+      def.turn.fullDeath = true;
     },
     빗나감패널티: (battle, enqueue, skillEffect) => {
       let atkPokemon = battle[battle.turn.atk];
-      if (atkPokemon.temp.jumpKickFail) {
+      if (atkPokemon.turn.jumpKickFail) {
         const text = atkPokemon.names + " 의욕이 넘쳐 땅에 부딪쳤다!";
         atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 2, text);
       }
@@ -126,7 +127,7 @@ function skillEffectSearch(name) {
       if (pokemon.type1 !== "비행" && pokemon.type2 !== "비행") {
         return;
       }
-      pokemon.temp.roost = true;
+      pokemon.turn.roost = true;
       if (pokemon.type1 === "비행") {
         if (pokemon.type2 !== null) {
           pokemon.type1 = null;
@@ -201,7 +202,7 @@ function skillEffectSearch(name) {
     반동: (battle, enqueue, skillEffect) => {
       let atkPokemon = battle[battle.turn.atk];
       const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
-      atkPokemon.getDamage(battle, enqueue, atkPokemon.temp.recentDamageGive / 3, text);
+      atkPokemon.getDamage(battle, enqueue, atkPokemon.turn.recentDamageGive / 3, text);
     },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
@@ -221,7 +222,7 @@ function skillEffectSearch(name) {
     방어: (battle, enqueue, skillEffect) => {
       // 방어 성공 여부는 skillRequirement에서 처리
       const skillUser = battle[battle.turn.atk];
-      skillUser.temp.protect = true;
+      skillUser.turn.protect = true;
       enqueue({
         battle,
         text: skillUser.names + " 방어 태세에 들어갔다!",
@@ -306,7 +307,7 @@ function skillEffectSearch(name) {
         });
       } else {
         let num = 4;
-        if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].temp.useSkill) {
+        if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].turn.useSkill) {
           // 선도발을 썼거나                                   교체해서 나온 상대방이 도발을 맞은 경우
           num = 3;
           // 그 턴 포함 3턴
@@ -352,7 +353,7 @@ function skillEffectSearch(name) {
         return;
       }
       atk.auto = Math.random() < 0.5 ? 2 : 3;
-      atk.autoSN = battle.turn[battle.turn.atk + "SN"];
+      atk.autoSN = battle[battle.turn.atk].turn.choice;
     },
 
     씨뿌리기: (battle, enqueue, skillEffect) => {
@@ -419,7 +420,7 @@ function skillEffectSearch(name) {
       const text = josa(`${def.name}#{으로}`) + "부터 체력을 흡수했다!";
 
       if (atk.hp !== atk.origin.hp) {
-        atk.recover(battle, (atk.temp.recentDamageGive * 3) / 4, enqueue, text);
+        atk.recover(battle, (atk.turn.recentDamageGive * 3) / 4, enqueue, text);
       }
     },
 

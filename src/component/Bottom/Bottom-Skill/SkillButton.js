@@ -1,13 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { typeCheckConsole } from "../../../util/typeCheck";
+import { getTypeEffectText } from "../../../util/typeEffectCalculate";
 import { battleStart } from "../../../service/battleStart";
 import { npcChoice } from "../../../npc/npc";
 
 const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {
-  const skill = "sk" + skillNumber;
-  const pp = "pp" + skillNumber;
-  let sk = battle.player.origin[skill];
+  let pp = battle.player.pp[skillNumber];
+  let skill = battle.player.origin.skill[skillNumber];
 
   const sn = getNumberText(skillNumber);
 
@@ -27,10 +26,8 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     //stopPropagation 해놓고 dequeue를 추가로 앞에 넣음
 
     const player = battle.player;
-    const skill = "sk" + skillIndex;
-    const sk = player.origin[skill]; // 실제 스킬 정보
-    const pp = player["pp" + skillIndex];
-
+    const skill = player.origin.skill[skillIndex]; // 실제 스킬 정보
+    let pp = battle.player.pp[skillIndex];
     if (!queueObject.queueCheck()) return;
 
     const reject = (message) => {
@@ -47,25 +44,25 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
 
     // 구애 시리즈로 인해 사용 가능한 스킬이 고정된 경우
     const { onlySkill } = player.tempStatus;
-    if (onlySkill && player.item?.startsWith("구애") && onlySkill !== sk.name) {
+    if (onlySkill && player.item?.startsWith("구애") && onlySkill !== skill.name) {
       return reject(player.item + " 효과로 인해 해당 스킬은 사용할 수 없다!");
     }
 
     // 연속 사용 불가 스킬 (ex: 블러드문)
     const recentSkill = player.tempStatus.recentSkillUse?.name;
-    if (recentSkill === sk.name && sk.feature?.noDouble) {
+    if (recentSkill === skill.name && skill.feature?.noDouble) {
       return reject("해당 스킬은 연속으로 사용할 수 없다!");
     }
 
     // 도발 상태에서 변화기 사용
     const tauntActive = player.tempStatus.taunt !== null;
-    if (tauntActive && (sk.stype === "natk" || sk.stype === "buf")) {
+    if (tauntActive && (skill.stype === "natk" || skill.stype === "buf")) {
       return reject("도발 때문에 해당 스킬은 사용할 수 없다!");
     }
 
     // 돌조 입고 변화기 사용
     const dolJo = player.item === "돌격조끼";
-    if (dolJo && (sk.stype === "natk" || sk.stype === "buf")) {
+    if (dolJo && (skill.stype === "natk" || skill.stype === "buf")) {
       return reject("돌격조끼 때문에 해당 스킬은 사용할 수 없다!");
     }
 
@@ -81,11 +78,11 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
         e.stopPropagation(); // ✅ 상위 onClick(handleDequeue)으로 이벤트 전파 방지
         handleSkillClick(skillNumber);
       }}>
-      <ICON src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
-      <NAME skname={sk.name}>{sk.name}</NAME>
-      <EFFECT>{typeCheckConsole(battle.player, sk.type, battle.npc.type1, battle.npc.type2, sk.stype)}</EFFECT>
+      <ICON src={`/pokemon/img/type/${skill.type}.svg`} alt={skill.name} />
+      <NAME skname={skill.name}>{skill.name}</NAME>
+      <EFFECT>{getTypeEffectText(battle.player, skill.type, battle.npc.type1, battle.npc.type2, skill.stype)}</EFFECT>
       <PP>
-        {battle.player[pp]}/{sk.pp}
+        {pp}/{skill.pp}
       </PP>
     </SKILL>
   );

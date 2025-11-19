@@ -1,24 +1,19 @@
 import styled from "styled-components";
-import { typeCheckConsole } from "../../../util/typeCheck";
+import { getTypeEffectText } from "../../../util/typeEffectCalculate";
 
 const InfoSkillButton = ({ battle, skillNumber, pokemon, setText }) => {
-  const skill = "sk" + skillNumber;
-  const pp = "pp" + skillNumber;
-  let sk;
-  if (!pokemon) {
-    pokemon = battle.player;
-  }
-  sk = pokemon.origin[skill];
-
+  if (!pokemon) pokemon = battle.player;
+  let skill = pokemon.origin.skill[skillNumber];
+  let pp = pokemon.pp[skillNumber];
   const sn = getNumberText(skillNumber);
 
   return (
-    <ButtonContainer className={sn} onClick={() => setText(sk.text)}>
-      <SkillTypeIcon src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.name} />
-      <SkillName>{sk.name}</SkillName>
-      <SkillEffect>{typeCheckConsole(pokemon, sk.type, battle.npc.type1, battle.npc.type2, sk.stype)}</SkillEffect>
+    <ButtonContainer className={sn} onClick={() => setText(skill.text)}>
+      <SkillTypeIcon src={`/pokemon/img/type/${skill.type}.svg`} alt={skill.name} />
+      <SkillName>{skill.name}</SkillName>
+      <SkillEffect>{getTypeEffectText(pokemon, skill.type, battle.npc.type1, battle.npc.type2, skill.stype)}</SkillEffect>
       <SkillPP>
-        {pokemon[pp]}/{sk.pp}
+        {pp}/{skill.pp}
       </SkillPP>
     </ButtonContainer>
   );

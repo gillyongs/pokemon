@@ -1,18 +1,17 @@
 import { damageCalculate } from "../util/damageCalculate";
-import { typeCheckText, typeCheckAbil } from "../util/typeCheck";
+import { getTypeText, typeCheckOnBattle } from "../util/typeEffectCalculate";
 import { attackDamage } from "../function/damage";
-import { applySkillEffects, applySkillEffectSerial } from "./skiiEffect";
-import { beforeSkillCheck, afterSkillCheck, beforeTurnPass } from "./skillCheck";
+import { applySkillEffects } from "./skiiEffect";
+import { beforeSkillCheck, afterSkillCheck } from "./skillCheck";
 import { rank } from "../function/rankStat";
 import { random } from "../util/randomCheck";
 
 export const skillUse = (bt, enqueue) => {
   const skillNumber = bt.turn.atkSN;
-  const skKey = `sk${skillNumber}`;
   const atk = bt[bt.turn.atk];
   const def = bt[bt.turn.def];
-  const sk = atk.origin[skKey];
-  const skillType = sk.stype;
+  const skill = atk.turn.useSkill;
+  const skillType = skill.stype;
 
   if (beforeSkillCheck(bt, enqueue) === false) {
     // 스킬명이 뜨기 전에 처리하는 트리거
@@ -23,32 +22,31 @@ export const skillUse = (bt, enqueue) => {
   }
 
   // pp 처리
-  const ppKey = `pp${skillNumber}`;
-  atk[ppKey] -= 1;
-  if (def.origin.abil === "프레셔" && atk[ppKey] > 0) {
-    atk[ppKey] -= 1;
+  atk.pp[skillNumber] -= 1;
+  if (def.origin.abil === "프레셔" && atk.pp[skillNumber] > 0) {
+    atk.pp[skillNumber] -= 1;
   }
 
   // 구애 스킬 고정 처리
   if (atk.item === "구애스카프" || atk.item === "구애머리띠" || atk.item === "구애안경") {
-    atk.tempStatus.onlySkill = sk.name;
+    atk.tempStatus.onlySkill = skill.name;
     // 상대방이 기절해서 스킬 실패해도 고정됨
   }
 
   // 스킬 사용 텍스트
-  const skillUseText = atk.name + "의 " + sk.name + "!";
+  const skillUseText = atk.name + "의 " + skill.name + "!";
   enqueue({ battle: bt, text: skillUseText });
 
   //충전 기술
   // 충전 후 리베로가 발동된다
-  if (sk.feature.charge) {
+  if (skill.feature.charge) {
     if (atk.charge) {
       //이미 충전을 한 경우 그냥 지나간다
       atk.charge = null;
       atk.autoSN = null;
     } else {
-      const chargeObj = sk.feature.charge;
-      enqueue({ battle: bt, text: atk[chargeObj.head] + sk.feature.charge.text });
+      const chargeObj = skill.feature.charge;
+      enqueue({ battle: bt, text: atk[chargeObj.head] + skill.feature.charge.text });
       // 충전 텍스트 (ex:"제르네아스는 파워를 모으고 있다!", "텅비드에게서 우주의 힘이 넘쳐난다!")
 
       if (chargeObj.rankUpStat) {
@@ -82,7 +80,7 @@ export const skillUse = (bt, enqueue) => {
     //공격기 (물리 or 특수)
 
     let cri = atk.tempStatus.rank.critical;
-    for (const effect of sk.skillEffectList) {
+    for (const effect of skill.skillEffectList) {
       if (effect.name === "급소") {
         //급소에 맞기쉽다 보정 처리
         cri += 1;
@@ -90,23 +88,23 @@ export const skillUse = (bt, enqueue) => {
     }
     // 급소 여부 계산
     if (criticalRate(cri)) {
-      atk.temp.critical = true;
+      atk.turn.critical = true;
     }
     // 급소확정
-    if (sk.feature?.mustCritical) {
-      atk.temp.critical = true;
+    if (skill.feature?.mustCritical) {
+      atk.turn.critical = true;
     }
     // 크리티컬은 데미지 계산 전에만 처리하면 되긴 한데
     // 공격기에만 터지므로 일단 여기 넣음
 
     let skillDamage = damageCalculate(bt);
-    let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);
+    let typeDamage = typeCheckOnBattle(bt, skill.type, def.type1, def.type2);
     // 0배 여부 체크, "효과가 굉장했다!"" 텍스트 처리에만 사용
     // 상성 관련 데미지 계산은 damageCalculate 안에서 처리
-    let typeText = typeCheckText(typeDamage);
+    let typeText = getTypeText(typeDamage);
 
     if (typeDamage === 0) {
-      atk.temp.jumpKickFail = true;
+      atk.turn.jumpKickFail = true;
       const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
       enqueue({ battle: bt, text: typeText });
       handleSkillFail(bt);
@@ -116,17 +114,17 @@ export const skillUse = (bt, enqueue) => {
     // 리베로는 발동된다
 
     //연속기
-    if (sk.feature?.serial) {
+    if (skill.feature?.serial) {
       let num = 9999999;
-      if (sk.feature?.twoFive) {
+      if (skill.feature?.twoFive) {
         //2~5회 공격. 확률은 35 35 15 15
         num = randomTwoFive(bt, atk.item);
-      } else if (sk.feature?.suru) {
+      } else if (skill.feature?.suru) {
         //수류연타는 3회 고정
         num = 3;
-      } else if (sk.feature?.triple) {
+      } else if (skill.feature?.triple) {
         //최대 3회 공격. 본인 명중률에 따라 결정
-        num = randomTripple(bt, atk.item, sk.accur);
+        num = randomTripple(bt, atk.item, skill.accur);
       }
       for (let i = 1; i <= num; i++) {
         skillDamage = damageCalculate(bt, { serial: i }); // 트리플악셀 위력 재계산
@@ -140,8 +138,8 @@ export const skillUse = (bt, enqueue) => {
       attackDamage(bt, skillDamage, bt.turn.def, enqueue, typeText);
     }
 
-    applySkillEffects(bt, enqueue, sk.skillEffectList);
-    if (sk.feature?.twoFive || sk.feature?.suru) {
+    applySkillEffects(bt, enqueue, skill.skillEffectList);
+    if (skill.feature?.twoFive || skill.feature?.suru) {
       if (typeText) {
         // 연속기의 경우 상성 텍스트는 맨 마지막에
         enqueue({ battle: bt, text: typeText });
@@ -152,28 +150,27 @@ export const skillUse = (bt, enqueue) => {
     // ex: 전기자석파, 트릭, 하품
     // 변화기 중 방어에 막히는거, 상대방 기절했을때 안써지는거
 
-    const natkTypeCheckSkills = ["전기자석파"];
-    // 변화기는 타입 상성의 영향을 받지 않는다
-    // 근데 전기자석파는 제외
-    // 뱀눈초리는 고소트한테 들어가는게 맞음
-    let typeDamage = typeCheckAbil(bt, sk.type, def.type1, def.type2);
-    if (typeDamage === 0 && natkTypeCheckSkills.includes(sk.name)) {
+    if (skill.name === "전기자석파" && (def.type1 === "땅" || def.type2 === "땅")) {
+      // 변화기는 타입 상성의 영향을 받지 않는다
+      // 근데 전기자석파는 제외
+      // 뱀눈초리는 고소트 타입한테 정상적으로 들어감
       const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
       enqueue({ battle: bt, text: typeText });
       return;
     }
+
     const noSubstitueSkills = ["앵콜", "도발", "저주", "흑안개", "날려버리기"];
     // 대타출동으로 막을 수 없는 상대방 대상 변화기 (natk)
     // 트릭, 하품, 뽐내기, 전기자석파, 씨뿌리기 등은 실패한다
 
-    if (!noSubstitueSkills.includes(sk.name) && bt[bt.turn.def].tempStatus.substitute) {
+    if (!noSubstitueSkills.includes(skill.name) && bt[bt.turn.def].tempStatus.substitute) {
       enqueue({ battle: bt, text: "하지만 실패했다!" });
       return;
     }
-    applySkillEffects(bt, enqueue, sk.skillEffectList);
+    applySkillEffects(bt, enqueue, skill.skillEffectList);
   } else if (skillType === "buf") {
     // 자기 자신 대상 변화기 (ex: 칼춤, 방어)
-    applySkillEffects(bt, enqueue, sk.skillEffectList);
+    applySkillEffects(bt, enqueue, skill.skillEffectList);
   } else {
     console.error("스킬타입오류");
   }

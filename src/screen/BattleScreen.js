@@ -3,7 +3,6 @@ import styled, { createGlobalStyle } from "styled-components";
 import "./Main.css";
 import { createBattle } from "../entity/Battle";
 import { useQueue } from "../util/useQueue";
-import { applyAbilityEffects } from "../service/abil";
 
 import PokemonInfo from "../component/Top/PokemonInfo";
 import PokemonImage from "../component/Top/PokemonImage";
@@ -16,6 +15,7 @@ import { useLocation } from "react-router-dom";
 import { battleStart } from "../service/battleStart";
 import { npcChoice } from "../npc/npc";
 import { cloneWithMethods } from "../util/cloneWithMethods";
+import { applyAbilityEffects } from "../entity/Abillity";
 
 const Battle = () => {
   const location = useLocation();
@@ -47,7 +47,7 @@ const Battle = () => {
       battleObj.current = battleObject;
       setBattle(battleObject); // 상태 업데이트
     } else {
-      battleObj.current = createBattle(["고릴타", "가이오가", "미라이돈"], ["미라이돈", "고릴타", "고릴타"]);
+      battleObj.current = createBattle(["달투곰", "가이오가", "미라이돈"], ["흑마렉스", "고릴타", "고릴타"]);
     }
     queueObject.enqueue({ battle: battleObj.current, text: "배틀시작!" });
     const fastUser = speedCheck(battleObj.current);
@@ -95,7 +95,7 @@ const Battle = () => {
     }
     if (queue.length === 0) {
       if (battle.player.auto || battle.player.charge) {
-        battleStart(battle, battle.player.autoSN, npcChoice(battle, battle.player.autoSN), queueObject);
+        battleStart(battleObj.current, battle.player.autoSN, npcChoice(battle, battle.player.autoSN), queueObject);
       } else {
         setText(battle.player.origin.names + " 무엇을 할까?");
       }

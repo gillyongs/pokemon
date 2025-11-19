@@ -27,8 +27,6 @@ class Battle {
       def: null,
       atkSN: null,
       defSN: null,
-      playerSN: null, // 유턴으로 battleStart 함수가 끊겼을때 Bottom-swirch.js에서 남은 행동을 계속 진행하기 위해 사용
-      npcSN: null, // attackNpc(bt, bt.turn.playerSN, bt.turn.npcSN, queueObject.enqueue);
       turnEnd: null,
       // 플레이어가 쓰러졌을때 남은 이벤트(turnend) 마친 다음에 교체 화면이 나오게 하기위해 쓰는 변수
       //if (player.faint && turnEnd) { setBottom("mustSwitch");}

@@ -32,7 +32,7 @@ export const PokemonGetDamage = {
     this.hp = 0;
     this.faint = true;
     this.resetStatus();
-    this.resetTemp();
+    this.resetTurn();
     this.resetTempStatus();
     enqueue({
       battle,

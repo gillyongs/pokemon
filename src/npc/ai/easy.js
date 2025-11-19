@@ -2,7 +2,7 @@ import { aiItemScore } from "../../entity/Item";
 import { pokemonNoStatusCheck } from "../../function/statusCondition";
 import { damageCalculate } from "../../util/damageCalculate";
 import { priCalculate } from "../../util/speedCheck";
-import { typeCheck } from "../../util/typeCheck";
+import { typeCheck } from "../../util/typeEffectCalculate";
 import { cloneWithMethods } from "../../util/cloneWithMethods";
 
 export function npcAiEasy(choices, battle) {
@@ -28,8 +28,8 @@ export function npcAiEasy(choices, battle) {
   choices.forEach((c) => {
     if (skMap[c]) skObj[c] = skMap[c];
   });
-  console.log("skObj");
-  console.log(skObj);
+  // console.log("skObj");
+  // console.log(skObj);
 
   let result;
   result = getKillableSkill(skObj, hp, base);
@@ -44,7 +44,7 @@ export function npcAiEasy(choices, battle) {
 // 공통 스킬 정보 생성 함수
 function createSkObj(baseBattle, sn, hp) {
   const bt = baseBattle;
-  const skill = bt.npc.origin[`sk${sn}`];
+  const skill = bt.npc.origin.skill[sn];
 
   const skObj = {
     name: skill.name,
@@ -81,7 +81,7 @@ const calculateScore = (bt, sn, skObj) => {
   const player = bt.player;
   const stat = bt.player.origin.stat;
   const playerAtkType = stat.atk > stat.catk ? "atk" : "catk"; // 상대가 물리형인지 특수형인지
-  const skill = npc.origin[`sk${sn}`];
+  const skill = bt.npc.origin.skill[sn];
   const hp = bt.player.origin.hp;
 
   let avrDmg = damageCalculate(bt, null, { atkSN: sn, randNum: 92 });
@@ -232,7 +232,7 @@ const calculateScoreNatk = (bt, sn, skObj) => {
   const npc = bt.npc;
   const npcRank = npc.tempStatus.rank;
   const player = bt.player;
-  const skill = npc.origin[`sk${sn}`];
+  const skill = bt.npc.origin.skill[sn];
   const hp = bt.player.origin.hp;
   let score = 0;
   let log = "0";
@@ -248,8 +248,8 @@ const calculateScoreNatk = (bt, sn, skObj) => {
         if (item.value < 0) {
           ovoSum += value * item.value;
         } else {
-          const bodyPress = npc.origin.sk1.name === "바디프레스" || npc.origin.sk2.name === "바디프레스" || npc.origin.sk3.name === "바디프레스" || npc.origin.sk4.name === "바디프레스";
-          if (item.abil === "def" && bodyPress) value = 70;
+          const isBodyPress = [1, 2, 3, 4].some((num) => npc.origin.skill[num]?.name === "바디프레스");
+          if (item.abil === "def" && isBodyPress) value = 70;
           if (item.abil === "def" && playerAtkType === "atk") value *= 2;
           if (item.abil === "cdef" && playerAtkType === "catk") value *= 2;
           const n = npcRank[item.abil];
@@ -373,7 +373,7 @@ const calculateScoreNatk = (bt, sn, skObj) => {
         let value = (50 * item.probability) / 100;
         if (skill.name === "전기자석파" && (player.type1 === "땅" || player.type2 === "땅")) {
         } else {
-          const hasPsychoCut = ["sk1", "sk2", "sk3", "sk4"].some((key) => npc.origin[key]?.name === "병상첨병");
+          const hasPsychoCut = ["1", "2", "3", "4"].some((key) => npc.origin.skill[key]?.name === "병상첨병");
           if (hasPsychoCut) value *= 1.3;
 
           score += value;
@@ -558,8 +558,7 @@ function calculatePkScore(bt, sn, skObj) {
       log[indexA] += ` - 10 (교체-독압정)`;
     }
   }
-
-  const playerSkills = [bt.player.origin.sk1, bt.player.origin.sk2, bt.player.origin.sk3, bt.player.origin.sk4];
+  const playerSkills = [1, 2, 3, 4].map((num) => bt.player.origin.skill[num]);
   for (const sk of playerSkills) {
     const list = sk?.skillEffectList;
     if (list && typeof list[Symbol.iterator] === "function") {

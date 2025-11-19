@@ -12,10 +12,12 @@ class BattlePokemon {
 
     this.id = id;
     pokemonList.push(id)
-    this.sk1 = skillList.search(sk1);
-    this.sk2 = skillList.search(sk2);
-    this.sk3 = skillList.search(sk3);
-    this.sk4 = skillList.search(sk4);
+    this.skill = {
+      1: { ...skillList.search(sk1), skillNumber: 1 },
+      2: { ...skillList.search(sk2), skillNumber: 2 },
+      3: { ...skillList.search(sk3), skillNumber: 3 },
+      4: { ...skillList.search(sk4), skillNumber: 4 },
+    };
     this.item = item;
     this.itemText = itemText[item];
     this.abil = abil;

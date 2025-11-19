@@ -1,5 +1,5 @@
 import { switchPokemon } from "../function/switchPokemon";
-import { applyAbilityEffects } from "./abil";
+import { applyAbilityEffects } from "../entity/Abillity";
 import { applyFieldEffects } from "./field";
 
 export const switchPlayer = (battle, actNumber, enqueue) => {

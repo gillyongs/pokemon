@@ -22,10 +22,12 @@ class PokemonOnBattle {
     this.itemText = pokemon.itemText;
     this.abil = pokemon.abil;
     this.abilObj = pokemon.abilObj;
-    this.pp1 = pokemon.sk1.pp;
-    this.pp2 = pokemon.sk2.pp;
-    this.pp3 = pokemon.sk3.pp;
-    this.pp4 = pokemon.sk4.pp;
+    this.pp = {
+      1: pokemon.skill[1].pp,
+      2: pokemon.skill[2].pp,
+      3: pokemon.skill[3].pp,
+      4: pokemon.skill[4].pp,
+    };
     this.status = {
       // 기절시 damage.js에서만 초기화된다
       burn: null,
@@ -35,10 +37,11 @@ class PokemonOnBattle {
       mabi: null,
       sleep: null,
     };
-    this.temp = {
+    this.turn = {
       // 매 턴 초기화
       // turnEnd.js에서 초기화된다
-      fullDeath: null, //풀죽음
+      choice: null, // 이번턴 행동 선택 ('1','2','3','4','playerBench1', ...)
+      fullDeath: null, // 풀죽음
       jumpKickFail: null, // 무릎차기 실패 여부 -> 1.빗나감 2.방어 3.상성(고스트)
       roost: null, //날개쉬기
       critical: null, //이번 턴 급소 여부 아 근데 이거 다단히트 생기면 바꿔야하는데
@@ -95,9 +98,9 @@ class PokemonOnBattle {
     });
   }
 
-  // 턴 종료시 temp 초기화
-  resetTemp() {
-    const t = this.temp;
+  // 턴 종료시 turn 초기화
+  resetTurn() {
+    const t = this.turn;
     Object.keys(t).forEach((key) => {
       t[key] = null;
     });
@@ -133,7 +136,7 @@ class PokemonOnBattle {
 
     // 비행 타입
     if (pokemon.type1 === "비행" || pokemon.type2 === "비행") {
-      if (pokemon.temp.roost) {
+      if (pokemon.turn.roost) {
         return false; // 날개쉬기 사용 중이면 지상으로 간주 ==========================================================
       }
       return true;

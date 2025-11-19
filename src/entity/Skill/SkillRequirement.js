@@ -6,7 +6,7 @@ function skillRequirementSearch(name) {
       if (battle.turn.atk !== battle.turn.fastActUser) {
         return false;
       }
-      const stype = battle[battle.turn.def].temp.useSkill.stype;
+      const stype = battle[battle.turn.def].turn.useSkill.stype;
       if (stype !== "atk" && stype !== "catk") {
         return false;
       }
@@ -15,12 +15,12 @@ function skillRequirementSearch(name) {
     반사: (battle, enqueue, obj) => {
       // 사이코쇼크는 아무튼 특수기이므로 미러코트에 반사됨
       const pokemon = battle[battle.turn.atk];
-      const reflectSkill = battle[battle.turn.def].temp.useSkill;
+      const reflectSkill = battle[battle.turn.def].turn.useSkill;
 
       if (reflectSkill === null || reflectSkill.stype !== obj.stat) {
         return false;
       }
-      if (pokemon.temp.recentDamageGet === null) {
+      if (pokemon.turn.recentDamageGet === null) {
         return false;
       }
       return true;

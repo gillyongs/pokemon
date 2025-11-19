@@ -11,14 +11,13 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   const enqueue = queueObject.enqueue;
 
   battle.resetTurn();
-  battle.turn.playerSN = actNumber;
-  battle.turn.npcSN = npcActNumber;
-  let playerUseSkill = null;
-  let npcUseSkill = null;
-  if (typeof actNumber === "number") playerUseSkill = battle.player.origin["sk" + actNumber];
-  if (typeof npcActNumber === "number") npcUseSkill = battle.npc.origin["sk" + npcActNumber];
+  battle.player.turn.choice = actNumber;
+  battle.npc.turn.choice = npcActNumber;
 
-  if (typeof actNumber === "string" && typeof npcActNumber === "string") {
+  if (isAttack(actNumber)) battle.player.turn.useSkill = battle.player.origin.skill[actNumber];
+  if (isAttack(npcActNumber)) battle.npc.turn.useSkill = battle.npc.origin.skill[npcActNumber];
+
+  if (isSwitch(actNumber) && isSwitch(npcActNumber)) {
     //맞교체
     let fastUser = speedCheck(battle); // 우선도 없이 스피드만 체크
     battle.turn.fastActUser = fastUser; // 기습, 방어 성공여부 떄문에 넣는다
@@ -31,20 +30,18 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     }
   } else if (
     // 플레이어만 교체
-    typeof actNumber === "string" &&
-    typeof npcActNumber === "number"
+    isSwitch(actNumber) &&
+    isAttack(npcActNumber)
   ) {
     battle.turn.fastActUser = "player"; // 교체도 먼저 행동한 것으로 간주
-    battle.npc.temp.useSkill = npcUseSkill;
     switchPlayer(battle, actNumber, enqueue);
     attackNpc(battle, actNumber, npcActNumber, enqueue);
   } else if (
     // npc만 교체
-    typeof npcActNumber === "string" &&
-    typeof actNumber === "number"
+    isSwitch(npcActNumber) &&
+    isAttack(actNumber)
   ) {
     battle.turn.fastActUser = "npc"; // 교체도 먼저 행동한 것으로 간주
-    battle.player.temp.useSkill = playerUseSkill;
     switchNpc(battle, npcActNumber, enqueue);
     attackPlayer(battle, actNumber, npcActNumber, enqueue);
     if (battle.turn.uturn) {
@@ -52,12 +49,10 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     }
   } else if (
     //맞공격
-    typeof actNumber === "number" &&
-    typeof npcActNumber === "number"
+    isAttack(actNumber) &&
+    isAttack(npcActNumber)
   ) {
-    let fastUser = skillSpeedCheck(battle);
-    battle.player.temp.useSkill = playerUseSkill;
-    battle.npc.temp.useSkill = npcUseSkill;
+    let fastUser = skillSpeedCheck(battle); // 우선도까지 고려한 스피드 체크
     battle.turn.fastActUser = fastUser; //기습 사용조건때문에 넣는다
 
     if (fastUser === "player") {
@@ -81,22 +76,30 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   turnEnd(battle, enqueue);
 };
 
-const npcAi = (battle, a) => {
-  if (a === "playerBench1") {
-    return "npcBench1";
+function getActionType(act) {
+  // 공격 (1~4)
+  if (typeof act === "number" && act >= 1 && act <= 4) {
+    return "attack";
   }
-  if (a === "playerBench2") {
-    return "npcBench2";
+
+  // 교체
+  const switchList = ["npcBench1", "npcBench2", "playerBench1", "playerBench2"];
+  if (typeof act === "string" && switchList.includes(act)) {
+    return "switch";
   }
-  return a;
-};
-const npcAi2 = (battle) => {
-  return 4;
-  let choices = [1, 2, 3, 4];
-  if (!battle.npcBench1.faint) choices.push("npcBench1");
-  if (!battle.npcBench2.faint) choices.push("npcBench2");
 
-  return choices[Math.floor(Math.random() * choices.length)];
-};
+  // 그 외
+  console.error("행동타입오류");
+}
 
-export default npcAi2;
+function isAttack(act) {
+  let string = getActionType(act);
+  if (string === "attack") return true;
+  return false;
+}
+
+function isSwitch(act) {
+  let string = getActionType(act);
+  if (string === "switch") return true;
+  return false;
+}
