@@ -10,10 +10,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   queueObject.resetQueue();
   const enqueue = queueObject.enqueue;
 
-  Object.keys(battle.turn).forEach((key) => {
-    battle.turn[key] = null;
-  });
-
+  battle.resetTurn();
   battle.turn.playerSN = actNumber;
   battle.turn.npcSN = npcActNumber;
   let playerUseSkill = null;

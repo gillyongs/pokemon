@@ -58,6 +58,14 @@ class Battle {
     // this.npcBench1.status.poison = true;
     // this.npcBench2.status.poison = true;
   }
+
+  // 턴 시작시 turn 초기화
+  resetTurn() {
+    const t = this.turn;
+    Object.keys(t).forEach((key) => {
+      t[key] = null;
+    });
+  }
 }
 
 export function createBattle(plyayerArray, npcArray) {
