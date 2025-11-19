@@ -178,7 +178,7 @@ function skillEffectSearch(name) {
           switchPlayer(battle, "playerBench2", enqueue);
         } else {
           // 둘다 기절하지 않았으면 교체 화면을 보여준다
-          battle.common.temp.uturn = true;
+          battle.turn.uturn = true;
           // battlStart.js에서 이를 기준으로 함수를 끊고
           // battleScrren.js에서 useEffect(setBottom("uturn"))으로 교체화면을 띄운다
 
@@ -343,7 +343,7 @@ function skillEffectSearch(name) {
       });
     },
     트릭룸: (battle, enqueue, skillEffect) => {
-      battle.field.handleTrickRoom(battle, enqueue);
+      battle.field.room.handleTrickRoom(battle, enqueue);
     },
     자동: (battle, enqueue, skillEffect) => {
       // 역린

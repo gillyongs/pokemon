@@ -13,7 +13,7 @@ export const turnEnd = (battle, enqueue) => {
   const slowUser = fastUser === "player" ? "npc" : "player";
 
   // 트릭룸 카운트
-  battle.field.handleTrickRoomTurnEnd(battle, enqueue);
+  battle.field.room.handleTrickRoomTurnEnd(battle, enqueue);
 
   // 날씨 카운트
   battle.field.weather.handleWeatherTurnEnd(battle, enqueue);
@@ -38,7 +38,6 @@ export const turnEnd = (battle, enqueue) => {
 
   let tempPlayer = battle.player.temp;
   let tempNpc = battle.npc.temp;
-  let temp = battle.common.temp;
 
   if (tempPlayer.roost) {
     tempPlayer.roost = null;
@@ -56,9 +55,6 @@ export const turnEnd = (battle, enqueue) => {
   });
   Object.keys(tempNpc).forEach((key) => {
     tempNpc[key] = null;
-  });
-  Object.keys(temp).forEach((key) => {
-    temp[key] = null;
   });
 
   battle.turn.turnEnd = true;

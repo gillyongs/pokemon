@@ -39,7 +39,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
     // 유턴 사용시 교체 화면
     handleSwitch = (index) => {
       setBottom("skill");
-      btObj.common.temp.uturn = null;
+      btObj.turn.uturn = null;
       switchPlayer(btObj, index, queueObject.enqueue);
       queueObject.dequeue(); // "누구로 교체할까?"를 dequque를 막아놨기에 직접 해줘야함
       if (

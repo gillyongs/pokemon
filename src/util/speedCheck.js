@@ -39,7 +39,7 @@ export const speedCheck = (battle) => {
   }
 
   let faster = playerSpeed > npcSpeed ? "player" : "npc";
-  if (battle.field.isTrickRoom) {
+  if (battle.field.room.isTrickRoom) {
     battle.player.log.speedVS += " (트릭룸)";
     faster = faster === "player" ? "npc" : "player";
   }

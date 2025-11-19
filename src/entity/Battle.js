@@ -33,25 +33,21 @@ class Battle {
       // 플레이어가 쓰러졌을때 남은 이벤트(turnend) 마친 다음에 교체 화면이 나오게 하기위해 쓰는 변수
       //if (player.faint && turnEnd) { setBottom("mustSwitch");}
       textFreeze: null, // 텍스트가 넘어가지 않게 막음. "누구로 교체할까?"나 "무엇을 할까?" 텍스트 고정
-      //
+      uturn: null, // 플레이어 유턴 사용 여부
+      //battleStart.js에서 해당 값이 true면 진행을 끊고 교체화면을 띄운다.
+      //선 유턴이면 attackNpc를 실행하고 그 외엔 turnEnd를 실행한다
     };
     //turnEnd 같은 변수때문에 턴이 시작될때 = battleStart.js에서 초기화된다
     this.field = new Field();
 
     this.common = {
       player: {
-        teamKr: "우리",
+        teamKr: "우리", // 리플렉터 및 및의장막, 긴장감(상대편은 긴장해서 열매를 먹을 수 없다!)
         teamKrReverse: "상대",
       },
       npc: {
         teamKr: "상대",
         teamKrReverse: "우리",
-      },
-      temp: {
-        // 매 턴 초기화 필요
-        uturn: null, // 플레이어 유턴 사용 여부
-        //battleStart.js에서 해당 값이 true면 진행을 끊고 교체화면을 띄운다.
-        //선 유턴이면 attackNpc를 실행하고 그 외엔 turnEnd를 실행한다
       },
     };
 

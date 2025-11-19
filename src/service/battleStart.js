@@ -50,7 +50,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     battle.player.temp.useSkill = playerUseSkill;
     switchNpc(battle, npcActNumber, enqueue);
     attackPlayer(battle, actNumber, npcActNumber, enqueue);
-    if (battle.common.temp.uturn) {
+    if (battle.turn.uturn) {
       return;
     }
   } else if (
@@ -66,7 +66,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
     if (fastUser === "player") {
       // 플레이어 선공
       attackPlayer(battle, actNumber, npcActNumber, enqueue);
-      if (battle.common.temp.uturn) return;
+      if (battle.turn.uturn) return;
       // 유턴으로 교체시 교체화면을 띄우고 거기서 남은 함수 (attackNpc, turnEnd)를 실행한다
       if (battle[battle.turn.def].faint !== true) {
         attackNpc(battle, actNumber, npcActNumber, enqueue);
@@ -75,7 +75,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
       attackNpc(battle, actNumber, npcActNumber, enqueue);
       if (battle[battle.turn.def].faint !== true) {
         attackPlayer(battle, actNumber, npcActNumber, enqueue);
-        if (battle.common.temp.uturn) return;
+        if (battle.turn.uturn) return;
         // 유턴으로 교체시 교체화면을 띄우고 거기서 남은 함수 (turnEnd)를 실행한다
       }
     }
