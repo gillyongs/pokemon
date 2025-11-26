@@ -10,6 +10,7 @@ import ItemImage from "../component/Top/ItemImage";
 import BottomSectionSkill from "../component/Bottom/Bottom-Skill/Bottom-Skill";
 import BottomSectionSwitch from "../component/Bottom/Bottom-Switch/Bottom-Switch";
 import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
+import BottomSectionField from "../component/Bottom/Bottom-field/Bottom-Field";
 import { speedCheck } from "../util/speedCheck";
 import { useLocation } from "react-router-dom";
 import { battleStart } from "../service/battleStart";
@@ -39,13 +40,14 @@ const Battle = () => {
 
   let screenFix = false;
   useEffect(() => {
-    let { battleObject } = location.state || {}; // 랜덤 battleObject 가져오기
+    let { team1, team2 } = location.state || {}; // 랜덤 battleObject 가져오기
     screenFix = true;
-    queueObject.resetQueue();
-    const testMode = true;
-    if (!testMode && battleObject) {
-      battleObj.current = battleObject;
-      setBattle(battleObject); // 상태 업데이트
+    queueObject.initQueue();
+    const testMode = false;
+    if (!testMode && team1 && team2) {
+      // battleObj.current = battleObject;
+      // setBattle(battleObject); // 상태 업데이트
+      battleObj.current = createBattle(team1, team2);
     } else {
       battleObj.current = createBattle(["달투곰", "가이오가", "미라이돈"], ["흑마렉스", "고릴타", "고릴타"]);
     }
@@ -116,6 +118,61 @@ const Battle = () => {
     battleStart(battleObj.current, skillIndex, npcChoice(battle, skillIndex), queueObject);
   };
 
+  const textSkip = () => {
+    const q = [...queueObject.queue]; // 원본 보존
+    let found = null; // 조건이 만족된 queue 요소
+
+    while (q.length > 0) {
+      const cur = q.shift(); // 앞에서부터 하나씩 제거
+      queueObject.dequeue();
+      const b = cur.battle;
+
+      // ----- 조건 체크 -----
+      const playerFaint = b.player.faint;
+      const playerFaint1 = b.playerBench1.faint;
+      const playerFaint2 = b.playerBench2.faint;
+
+      const npcFaint = b.npc.faint;
+      const npcFaint1 = b.npcBench1.faint;
+      const npcFaint2 = b.npcBench2.faint;
+
+      const turnEnd = b.turn.turnEnd;
+
+      const condition1 = playerFaint && turnEnd && !screenFix;
+      const condition2 = b.turn.uturn;
+      const condition3 = npcFaint && npcFaint1 && npcFaint2;
+      const condition4 = playerFaint && playerFaint1 && playerFaint2;
+
+      if (condition1 || condition2 || condition3 || condition4 || q.length === 0) {
+        // 조건 만족 or 마지막 queue 도달
+        found = cur;
+        break;
+      }
+    }
+
+    const last = found;
+
+    // battle/text 반영
+    battleObj.current = cloneWithMethods(last.battle);
+    setBattle(last.battle);
+    setText(last.text);
+    // ----- 이후 UI 처리 -----
+    if (last.battle.player.faint && last.battle.turn.turnEnd && !screenFix) {
+      setBottom("mustSwitch");
+    }
+    if (last.battle.turn.uturn) {
+      setBottom("uturn");
+    }
+
+    // 승/패 체크
+    const b = last.battle;
+    const npcFaint = b.npc.faint && b.npcBench1.faint && b.npcBench2.faint;
+    const playerFaint = b.player.faint && b.playerBench1.faint && b.playerBench2.faint;
+
+    if (npcFaint) alert("승리!");
+    if (playerFaint) alert("패배!");
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -130,9 +187,10 @@ const Battle = () => {
           <PokemonInfo battle={battle} type="plr" />
         </TOP>
         <BOTTOM>
-          {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} battleStartBySkillButton={battleStartBySkillButton} />}
+          {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} battleStartBySkillButton={battleStartBySkillButton} textSkip={textSkip} />}
           {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
           {bottom === "info" && <BottomSectionInfo battle={battle} text={text} setText={setText} setBottom={setBottom} bench={bench} />}
+          {bottom === "field" && <BottomSectionField battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
         </BOTTOM>
       </BATTLE>
     </>

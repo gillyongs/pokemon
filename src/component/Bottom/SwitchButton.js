@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const ChangeButtonContainer = styled.div`
+const SwitchButtonContainer = styled.div`
   position: absolute;
   top: 12vh;
   right: 1vw;
@@ -17,10 +17,8 @@ const ChangeButtonContainer = styled.div`
   align-items: center;
 `;
 
-const ChangeButton = ({ onClick, innerText }) => {
-  return (
-    <ChangeButtonContainer onClick={onClick}>{innerText}</ChangeButtonContainer>
-  );
+const SwitchButton = ({ onClick, innerText }) => {
+  return <SwitchButtonContainer onClick={onClick}>{innerText}</SwitchButtonContainer>;
 };
 
-export default ChangeButton;
+export default SwitchButton;

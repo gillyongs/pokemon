@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import TextBox from "../TextBox";
-import ChangeButton from "../ChangeButton";
+import SwitchButton from "../SwitchButton";
+import TextButton from "../TextButton";
 import BenchPokemon from "./BenchPokemon";
+import LogModal from "../../LogModal";
 import { battleStart } from "../../../service/battleStart";
 import { switchPlayer, switchNpc } from "../../../service/switch";
 import { turnEnd } from "../../../service/turnEnd";
@@ -9,6 +11,7 @@ import { attackNpc } from "../../../service/attack";
 import { npcChoice } from "../../../npc/npc";
 const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueObject, setText, btObj }) => {
   const [selected, setSelected] = useState(null);
+  const [logOpen, setLogOpen] = useState(false);
   const handleSelected = (bench) => {
     setSelected((prev) => (prev === bench ? null : bench));
   };
@@ -75,7 +78,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
       <BenchPokemon battle={battle} index={"playerBench1"} selected={selected} handleSelected={handleSelected} setBench={setBench} setBottom={setBottom} handleSwitch={handleSwitch} />
       <BenchPokemon battle={battle} index={"playerBench2"} selected={selected} handleSelected={handleSelected} setBench={setBench} setBottom={setBottom} handleSwitch={handleSwitch} />
       {bottom === "switch" && (
-        <ChangeButton
+        <SwitchButton
           onClick={() => {
             setText(battle.player.origin.names + " 무엇을 할까?");
             setBottom("skill");
@@ -83,6 +86,20 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
           innerText={"뒤로가기"}
         />
       )}
+
+      <TextButton
+        onClick={(e) => {
+          if (queueObject.queueCheck()) {
+            setLogOpen(true);
+          } else {
+            // e.stopPropagation();
+            // textSkip();
+          }
+        }}
+        innerText={queueObject.queueCheck() ? "로그" : "스킵"}
+      />
+
+      {logOpen && <LogModal log={queueObject.log} onClose={() => setLogOpen(false)} />}
     </>
   );
 };

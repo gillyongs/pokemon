@@ -24,7 +24,7 @@ const PokemonInfo = ({ battle, type }) => {
 const INFO = styled.div`
   position: absolute;
   width: 20vh;
-  height: 13.5vh;
+  height: 14vh;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 15px;
   ${({ type }) => (type === "npc" ? "top: 3vh; left: 3vw;" : "bottom: 3vh; right: 3vw;")}
@@ -36,6 +36,14 @@ const NAME = styled.div`
   top: 14px;
   left: 10px;
   font-size: 17px;
+`;
+
+const RANK = styled.div`
+  position: absolute;
+  color: white;
+  top: 38px; /* NAME 아래에 자연스럽게 위치 */
+  left: 10px;
+  font-size: 10px;
 `;
 
 const STATUS = styled.div`

@@ -71,13 +71,13 @@ const SkillTypeIcon = styled.img`
 
 const SkillName = styled.div`
   position: absolute;
-  top: 6px;
+  top: 10px;
   left: 55px;
 `;
 
 const SkillEffect = styled.div`
   position: absolute;
-  top: 25px;
+  top: 33px;
   left: 54px;
   font-size: 10px;
 `;

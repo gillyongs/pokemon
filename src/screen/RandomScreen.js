@@ -33,10 +33,9 @@ const RandomBattle = () => {
     // Set the selected teams to the state
     setSelectedTeam1(team1);
     setSelectedTeam2(team2);
-    const battleObject = createBattle(team1, team2);
 
     // Call the createBattle function with the selected teams
-    navigate("/battle", { state: { battleObject, isNew: true } });
+    navigate("/battle", { state: { team1, team2, isNew: true } });
   };
 
   return (

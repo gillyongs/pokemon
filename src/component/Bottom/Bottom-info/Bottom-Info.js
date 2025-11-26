@@ -3,7 +3,7 @@ import InfoArea from "./InfoArea";
 import InfoSkillButton from "./InfoSkillButton";
 import InfoButton from "./InfoButton";
 import TextBox from "../TextBox";
-import ChangeButton from "../ChangeButton";
+import SwitchButton from "../SwitchButton";
 
 const BottomSectionInfo = ({ battle, text, setBottom, bench, setText }) => {
   const pokemon = battle[bench];
@@ -11,7 +11,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setText }) => {
   return (
     <>
       <TextBox text={text} />
-      <ChangeButton
+      <SwitchButton
         // 상태창 들어갔다가 다시 나올때 뜨는 텍스트
         onClick={() => {
           setText(" 누구로 교체할까?");

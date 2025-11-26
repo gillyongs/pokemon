@@ -25,14 +25,14 @@ const InfoIcon = styled.img`
 
 const InfoText = styled.div`
   position: absolute;
-  top: 6px;
+  top: 10px;
   left: 55px;
   font-size: 12px;
 `;
 
 const InfoTextName = styled.div`
   position: absolute;
-  top: 22px;
+  top: 27px;
   left: 55px;
 `;
 
