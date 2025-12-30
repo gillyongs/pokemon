@@ -187,6 +187,7 @@ function skillEffectSearch(name) {
           enqueue({
             battle,
             text: "누구로 교체할까?",
+            skip: true, // queueObject.queueCheck 때문에 추가
           });
         }
       } else if (battle.turn.atk === "npc") {

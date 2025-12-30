@@ -7,7 +7,6 @@ import SwitchButton from "../SwitchButton";
 
 const BottomSectionInfo = ({ battle, text, setBottom, bench, setText }) => {
   const pokemon = battle[bench];
-
   return (
     <>
       <TextBox text={text} />
@@ -15,7 +14,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setText }) => {
         // 상태창 들어갔다가 다시 나올때 뜨는 텍스트
         onClick={() => {
           setText(" 누구로 교체할까?");
-          setBottom("switch");
+          setBottom(battle.player.faint ? "mustSwitch" : "switch");
         }}
         innerText={"뒤로가기"}
       />
