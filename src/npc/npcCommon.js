@@ -1,10 +1,12 @@
 export const npcCommon = (battle, actNumber) => {
+  console.log("a");
   // 자동기술(역린)이나 충전기술(메테오빔) 사용
   if (battle.npc?.auto !== null || battle.npc?.charge !== null) {
     return [battle.npc.autoSN];
   }
 
   let arr = [1, 2, 3, 4, "npcBench1", "npcBench2"];
+  const skills = [1, 2, 3, 4].map((num) => battle.npc.origin.skill[num]);
 
   // 기절한 포켓몬으로 교체 막기
   if (battle.npcBench1?.faint) arr = arr.filter((v) => v !== "npcBench1");
@@ -12,14 +14,18 @@ export const npcCommon = (battle, actNumber) => {
 
   // 구애시리즈 스킬 고정 처리
   const onlySkill = battle.npc?.tempStatus?.onlySkill;
-  if ([1, 2, 3, 4].includes(onlySkill)) {
-    arr = arr.filter((v) => v === onlySkill || typeof v === "string");
+  if (onlySkill) {
+    skills.forEach((sk, i) => {
+      const num = i + 1;
+      if (onlySkill === sk?.name) {
+        arr = arr.filter((v) => v === num || typeof v === "string");
+      }
+    });
   }
 
   // 연속 사용 불가 스킬 체크 (블러드문 등)
   const recentSkill = battle.npc?.tempStatus?.recentSkillUse?.name;
 
-  const skills = [1, 2, 3, 4].map((num) => battle.npc.origin.skill[num]);
   skills.forEach((sk, i) => {
     const num = i + 1;
     if (recentSkill === sk?.name && sk?.feature?.noDouble) {

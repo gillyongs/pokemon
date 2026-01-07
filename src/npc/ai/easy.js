@@ -28,8 +28,8 @@ export function npcAiEasy(choices, battle) {
   choices.forEach((c) => {
     if (skMap[c]) skObj[c] = skMap[c];
   });
-  // console.log("skObj");
-  // console.log(skObj);
+  console.log("skObj");
+  console.log(skObj);
 
   let result;
   result = getKillableSkill(skObj, hp, base);
@@ -474,7 +474,7 @@ export function getHighestScoreKey(skObj) {
 
   for (const [key, value] of Object.entries(skObj)) {
     const score = value?.score ?? 0; // score 없으면 0
-    if (score > maxScore) {
+    if (score !== 0 && score > maxScore) {
       maxScore = score;
       bestKey = key;
     }
