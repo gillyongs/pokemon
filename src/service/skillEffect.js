@@ -1,7 +1,7 @@
 import skillEffectSearch from "../entity/Skill/SkillEffect";
 
 export const applySkillEffects = (bt, enqueue) => {
-  // skillUser 끝부분에서 호출되는 함수
+  // skillUse 끝부분에서 호출되는 함수
   const skillEffectList = bt[bt.turn.atk].turn.useSkill?.skillEffectList;
 
   if (skillEffectList && typeof skillEffectList[Symbol.iterator] === "function") {

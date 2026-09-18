@@ -1,7 +1,7 @@
 import { damageCalculate } from "../util/damageCalculate";
 import { getTypeText, typeCheckOnBattle } from "../util/typeEffectCalculate";
 import { attackDamage } from "../function/damage";
-import { applySkillEffects } from "./skiiEffect";
+import { applySkillEffects } from "./skillEffect";
 import { beforeSkillCheck, afterSkillCheck } from "./skillCheck";
 import { rank } from "../function/rankStat";
 import { random } from "../util/randomCheck";
@@ -124,7 +124,7 @@ export const skillUse = (bt, enqueue) => {
         num = 3;
       } else if (skill.feature?.triple) {
         //최대 3회 공격. 본인 명중률에 따라 결정
-        num = randomTripple(bt, atk.item, skill.accur);
+        num = randomTriple(bt, atk.item, skill.accur);
       }
       for (let i = 1; i <= num; i++) {
         skillDamage = damageCalculate(bt, { serial: i }); // 트리플악셀 위력 재계산
@@ -153,17 +153,17 @@ export const skillUse = (bt, enqueue) => {
     if (skill.name === "전기자석파" && (def.type1 === "땅" || def.type2 === "땅")) {
       // 변화기는 타입 상성의 영향을 받지 않는다
       // 근데 전기자석파는 제외
-      // 뱀눈초리는 고소트 타입한테 정상적으로 들어감
+      // 뱀눈초리는 고스트 타입한테 정상적으로 들어감
       const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
       enqueue({ battle: bt, text: typeText });
       return;
     }
 
-    const noSubstitueSkills = ["앵콜", "도발", "저주", "흑안개", "날려버리기"];
+    const noSubstituteSkills = ["앵콜", "도발", "저주", "흑안개", "날려버리기"];
     // 대타출동으로 막을 수 없는 상대방 대상 변화기 (natk)
     // 트릭, 하품, 뽐내기, 전기자석파, 씨뿌리기 등은 실패한다
 
-    if (!noSubstitueSkills.includes(skill.name) && bt[bt.turn.def].tempStatus.substitute) {
+    if (!noSubstituteSkills.includes(skill.name) && bt[bt.turn.def].tempStatus.substitute) {
       enqueue({ battle: bt, text: "하지만 실패했다!" });
       return;
     }
@@ -234,7 +234,7 @@ const randomTwoFive = (battle, item) => {
   else return 5; // 85 ~ 99.999 (15%)
 };
 
-const randomTripple = (battle, item, accur) => {
+const randomTriple = (battle, item, accur) => {
   if (!random(accur)) return 1; // 이미 앞에서 명중 한번 체크 했으므로 최소 1 리턴
   if (!random(accur)) return 2;
   return 3;

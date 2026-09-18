@@ -21,8 +21,8 @@ export const damageCalculate = (battle, obj, ai) => {
   const noTggAtk = !attackPokemon.abilObj.feature?.tgg;
 
   if (ai) {
-    const typeDamege = typeCheckOnBattle(battle, skill.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
-    if (typeDamege === 0) return 0; // 고스트포켓몬에게 지구던지기를 쓰는 경우
+    const typeDamage = typeCheckOnBattle(battle, skill.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
+    if (typeDamage === 0) return 0; // 고스트포켓몬에게 지구던지기를 쓰는 경우
     if (skill.feature.oneShot && defAbil === "옹골참") return 0; // 특성이 옹골참인 상대에게 일격기를 쓰는 경우
     if (skill.type === "불꽃" && defAbil === "타오르는불꽃") return 0;
   }
@@ -42,7 +42,7 @@ export const damageCalculate = (battle, obj, ai) => {
     return 50;
   }
   if (skill.feature.reflect) {
-    // 성공 실패 조건은 skillRequurement에서 관리
+    // 성공 실패 조건은 skillRequirement에서 관리
     return Math.floor(attackPokemon.turn.recentDamageGet) * 2;
   }
 
@@ -378,13 +378,13 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 상성보정 ================================================================
-  const typeDamege = typeCheckOnBattle(battle, skill.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
-  damage *= typeDamege;
-  attackPokemon.log.damage2 += " * " + typeDamege + "(상성보정)";
+  const typeDamage = typeCheckOnBattle(battle, skill.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
+  damage *= typeDamage;
+  attackPokemon.log.damage2 += " * " + typeDamage + "(상성보정)";
 
   if (skill.name === "라이트닝드라이브") {
     // 약점인 기술이 추가 데미지를 준다
-    if (typeDamege > 1) {
+    if (typeDamage > 1) {
       damage = (damage * 4) / 3;
       attackPokemon.log.damage2 += " * 4/3 (라이트닝드라이브 약점추가보정)";
     }

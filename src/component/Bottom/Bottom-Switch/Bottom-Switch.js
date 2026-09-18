@@ -22,7 +22,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
     handleSwitch = (index) => {
       setBottom("skill");
       switchPlayer(btObj, index, queueObject.enqueue);
-      queueObject.dequeue(); // "누구로 교체할까?"를 dequque를 막아놨기에 직접 해줘야함
+      queueObject.dequeue(); // "누구로 교체할까?"를 dequeue를 막아놨기에 직접 해줘야함
 
       if (btObj.npc.faint) {
         // npc만 쓰러졌을 경우 turnEnd.js에서 교체하지만
@@ -44,7 +44,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
       setBottom("skill");
       btObj.turn.uturn = null;
       switchPlayer(btObj, index, queueObject.enqueue);
-      queueObject.dequeue(); // "누구로 교체할까?"를 dequque를 막아놨기에 직접 해줘야함
+      queueObject.dequeue(); // "누구로 교체할까?"를 dequeue를 막아놨기에 직접 해줘야함
       if (
         btObj.turn.fastActUser === "npc" || // npc가 더 빠른 경우 = 이미 행동을 한 경우
         btObj.npc.faint // npc가 유턴을 맞고 기절한 경우

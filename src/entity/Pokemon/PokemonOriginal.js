@@ -39,8 +39,8 @@ class Pokemon {
       console.error("type1 must be a string", type1);
     if (type2 !== null && typeof type2 !== "string")
       console.error("type2 must be a string or null", type2);
-    if (feature !== undefined && typeof type2 !== "object")
-      console.error("feature must be a object or undefined", feature);
+    if (feature !== undefined && typeof feature !== "object")
+      console.error("feature must be an object or undefined", feature);
   }
 }
 // prettier-ignore

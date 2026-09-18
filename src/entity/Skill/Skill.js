@@ -53,20 +53,20 @@ export class Skill {
     if (typeof name !== "string") console.error("name must be a string", name);
     if (typeof type !== "string") console.error("type must be a string", type);
     if ((stype === "atk" || stype === "catk") && typeof power !== "number" && power !== '-'){
-      console.error("atack skill power must be a number", power);
+      console.error("attack skill power must be a number", power);
       console.error(name)
     }
     if (stype !== "buf" && typeof accur !== "number" && accur !== '-'){
-      console.error("atack skill accur must be a number", accur);
+      console.error("attack skill accur must be a number", accur);
       console.error(name)
     }
     if (stype === "buf" && typeof power !== "string"){
-      console.error("buf skill power must be a NaN", power);
+      console.error("buf skill power must be NaN", power);
       console.error(name)
     }
 
     if (stype === "buf" && typeof accur !== "string"){
-      console.error("buf skill accur must be a NaN", accur);
+      console.error("buf skill accur must be NaN", accur);
       console.error(name)
     }
 
@@ -91,9 +91,9 @@ export class Skill {
       
     if (
       typeof requirement !== "object" &&
-      (requirement !== undefined) & (requirement !== null)
+      (requirement !== undefined) && (requirement !== null)
     ){
-      console.error("requirement must be a object", requirement);
+      console.error("requirement must be an object", requirement);
       console.error(name)
     }
       

@@ -20,7 +20,7 @@ class Battle {
       fastActUser: null, // 먼저 '행동'한 쪽. 교체도 포함한다.
       // battleStart.js 에서 값을 넣고
       // SkillRequirements.js 에서 기습과 방어 성공여부 체크,
-      // SkillEfect.js 에서 도발 턴 계산 (교체로 나온 상대에겐 해당 턴 포함 3턴이 적용된다)
+      // SkillEffect.js 에서 도발 턴 계산 (교체로 나온 상대에겐 해당 턴 포함 3턴이 적용된다)
       // Bottom-Switch.js 에서 유턴 교체 후 남은 행동 파악 (선 교체면 npc가 공격을 하고 그 외엔 turnEnd만 호출)
       // damageCalculate.js 에서 아가미물기 데미지 보정 계산
       atk: null, //battle[battle.turn.atk] = player or npc
@@ -40,7 +40,7 @@ class Battle {
 
     this.common = {
       player: {
-        teamKr: "우리", // 리플렉터 및 및의장막, 긴장감(상대편은 긴장해서 열매를 먹을 수 없다!)
+        teamKr: "우리", // 리플렉터 및 빛의장막, 긴장감(상대편은 긴장해서 열매를 먹을 수 없다!)
         teamKrReverse: "상대",
       },
       npc: {
@@ -66,18 +66,18 @@ class Battle {
   }
 }
 
-export function createBattle(plyayerArray, npcArray) {
-  const player = generate(plyayerArray[0]);
+export function createBattle(playerArray, npcArray) {
+  const player = generate(playerArray[0]);
   const npc = generate(npcArray[0]);
   npc.name = "상대 " + npc.name;
   npc.names = "상대 " + npc.names;
 
-  const playerBench1 = generate(plyayerArray[1]);
+  const playerBench1 = generate(playerArray[1]);
   const npcBench1 = generate(npcArray[1]);
   npcBench1.name = "상대 " + npcBench1.name;
   npcBench1.names = "상대 " + npcBench1.names;
 
-  const playerBench2 = generate(plyayerArray[2]);
+  const playerBench2 = generate(playerArray[2]);
   const npcBench2 = generate(npcArray[2]);
   npcBench2.name = "상대 " + npcBench2.name;
   npcBench2.names = "상대 " + npcBench2.names;

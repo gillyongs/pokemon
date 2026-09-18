@@ -1,9 +1,9 @@
 import { skillUse } from "./skillUse";
-import { skillEffectsAfter } from "./skiiEffect";
+import { skillEffectsAfter } from "./skillEffect";
 
 export const attackPlayer = (bt, actNumber, npcActNumber, enqueue) => {
   // skillUse로 들어가기 전에 넣어야 할 변수를 처리하고
-  // afterEffct를 호출한다
+  // afterEffect를 호출한다
   bt.turn.atk = "player";
   bt.turn.def = "npc";
   bt.turn.atkSN = actNumber;

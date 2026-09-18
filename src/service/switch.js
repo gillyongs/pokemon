@@ -1,10 +1,10 @@
 import { switchPokemon } from "../function/switchPokemon";
-import { applyAbilityEffects } from "../entity/Abillity";
+import { applyAbilityEffects } from "../entity/Ability";
 import { applyFieldEffects } from "./field";
 
 export const switchPlayer = (battle, actNumber, enqueue) => {
   // 플레이어 교체
-  // 사용자가 교체를 골랐을떄 (BattleStart.js)
+  // 사용자가 교체를 골랐을 때 (BattleStart.js)
   // 포켓몬이 쓰러져서 교체할때, 유턴 썼을때 (Bottom-Switch.js) 호출됨
 
   battle.turn.textFreeze = null;

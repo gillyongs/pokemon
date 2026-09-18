@@ -39,7 +39,7 @@ export class Terrain {
     this.#setTerrain(terrainType, baseTurn, enqueue, battle, terrainText);
   }
 
-  // 턴 종료시 날씨 처리
+  // 턴 종료시 필드(지형) 처리
   handleTerrainTurnEnd(battle, enqueue) {
     if (this.#type === null) return;
 

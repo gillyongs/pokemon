@@ -6,7 +6,7 @@ export class userField {
     this.poisonSpikes = null; // 독압정 (1 = 독, 2 = 맹독)
     this.noClean = {
       // 고속스핀 등으로 인해 없어지지 않는 필드 요소
-      healingWish: null, // 치유소원 -> 필드에 적용 후 교체해 나올떄 = field.js에서 처리
+      healingWish: null, // 치유소원 -> 필드에 적용 후 교체해 나올 때 = field.js에서 처리
       lunarDance: null, // 초승달춤
       wish: null, //희망사항 -> 다음턴 종료시 필드에 있는 포켓몬 = turnEnd.js에서 처리
       reflect: null, // 리플렉터

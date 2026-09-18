@@ -1,7 +1,7 @@
 import PokemonOriginal from "./PokemonOriginal";
 import skillList from "../Skill/skillList";
 import { itemText } from "../Item";
-import { abilObject } from "../Abillity";
+import { abilObject } from "../Ability";
 //배틀용 포켓몬 객체
 //원본(PokemonOriginal)에서 노력치, 스킬, 지닌 도구를 설정한다
 //ReadOnly, 불변값으로 Pokemon 객체가 origin으로 지니고있는다
@@ -123,7 +123,7 @@ class BattlePokemon {
       );
     if (!["atk", "def", "catk", "cdef", "speed"].includes(down))
       console.error(
-        "up must be one of 'atk', 'def', 'catk', 'cdef', 'speed'",
+        "down must be one of 'atk', 'def', 'catk', 'cdef', 'speed'",
         down
       );
     if (typeof sk1 !== "string") console.error("sk1 must be a string", sk1);
@@ -142,9 +142,9 @@ class BattlePokemon {
     if (typeof item !== "string") console.error("item must be a string", item);
     if (typeof abil !== "string") console.error("abil must be a string", abil);
     if (abilObject[abil] === null || abilObject[abil] === undefined)
-      console.error("abilText not find", abil);
+      console.error("abilText not found", abil);
     if (itemText[item] === null || itemText[item] === undefined)
-      console.error("itemText not find", item);
+      console.error("itemText not found", item);
   }
 }
 

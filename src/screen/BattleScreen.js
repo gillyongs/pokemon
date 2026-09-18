@@ -16,7 +16,7 @@ import { useLocation } from "react-router-dom";
 import { battleStart } from "../service/battleStart";
 import { npcChoice } from "../npc/npc";
 import { cloneWithMethods } from "../util/cloneWithMethods";
-import { applyAbilityEffects } from "../entity/Abillity";
+import { applyAbilityEffects } from "../entity/Ability";
 
 const Battle = () => {
   const location = useLocation();

@@ -89,10 +89,10 @@ const calculateScore = (bt, sn, skObj) => {
 
   const accur = skill.accur === "-" ? 100 : skill.accur;
 
-  let score = Math.floor((avrDmg * accur) / hp); // 평균 데미지 * 명중률 / 상대망 체력
+  let score = Math.floor((avrDmg * accur) / hp); // 평균 데미지 * 명중률 / 상대방 체력
 
   let log = score;
-  skObj.log.scoreOirign = `${avrDmg} * ${accur} / ${hp}`;
+  skObj.log.scoreOrigin = `${avrDmg} * ${accur} / ${hp}`;
   if (skill.skillEffectList && typeof skill.skillEffectList[Symbol.iterator] === "function") {
     for (const item of skill.skillEffectList) {
       if (item?.name === "능력치증감") {
