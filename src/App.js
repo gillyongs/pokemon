@@ -8,8 +8,10 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import Battle from "./screen/BattleScreen"; //대회
-import Random from "./screen/RandomScreen"; //대회
+import Battle from "./screen/BattleScreen";
+import MainScreen from "./screen/MainScreen";
+import CustomScreen from "./screen/CustomScreen";
+import CustomCreateScreen from "./screen/CustomCreateScreen";
 
 function App() {
   return (
@@ -18,7 +20,9 @@ function App() {
         <Router basename="pokemon">
           <Routes>
             <Route path="/battle" element={<Battle />} />
-            <Route path="/" element={<Random />} />
+            <Route path="/custom" element={<CustomScreen />} />
+            <Route path="/custom/create" element={<CustomCreateScreen />} />
+            <Route path="/" element={<MainScreen />} />
           </Routes>
         </Router>
       </div>
