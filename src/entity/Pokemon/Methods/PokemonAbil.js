@@ -2,15 +2,17 @@ import { getStatName } from "../../../function/rankStat.js";
 export const PokemonAbil = {
   // 고대활성 발동
   handleProtosynthesis(battle, enqueue) {
+    // 특성이 고대활성이 아니거나 이미 고대활성이 적용된 경우 발동하지 않음
     if (this.abil !== "고대활성" || this.tempStatus.protosynthesis !== null) return;
 
+    // 고대활성: 가장 높은 능력치가 1랭크 업
     const maxKey = this.maxStat();
 
     // 쾌청에 의한 발동
     // 부스트에너지보다 쾌청이 우선 발동됨
     if (battle.field.weather.isSunny) {
       this.tempStatus.protosynthesis = maxKey;
-      this.tempStatus.protosynthesisBySun = true;
+      this.tempStatus.protosynthesisBySun = true; // 쾌청으로 발동한 경우 쾌청 끝나면 고대활성 종료됨
       enqueue({
         battle,
         text: `[특성 고대활성] ${this.names} 쾌청에 의해 고대활성을 발동했다!`,
