@@ -1,5 +1,5 @@
 import { random } from "../../util/randomCheck";
-import { burn, mabi, poison, freeze, sleep, confuse, pokemonNoStatusCheck } from "../../function/statusCondition";
+import { burn, mabi, poison, mPoison, freeze, sleep, confuse, pokemonNoStatusCheck } from "../../function/statusCondition";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchPlayer, switchPlayerForce } from "../../service/switch";
@@ -59,8 +59,15 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      poison(battle, battle.turn.def, enqueue);
+      poison(battle, battle.turn.def, enqueue, skillEffect.failText);
     },
+    맹독: (battle, enqueue, skillEffect) => {
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      mPoison(battle, battle.turn.def, enqueue, skillEffect.failText);
+    },
+
     마비: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
@@ -102,6 +109,9 @@ function skillEffectSearch(name) {
     },
     풀죽음: (battle, enqueue, skillEffect) => {
       let def = battle[battle.turn.def];
+      if (def.abil === "정신력") {
+        return;
+      }
       if (random(100 - skillEffect.probability)) {
         return;
       }

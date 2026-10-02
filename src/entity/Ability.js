@@ -45,6 +45,7 @@ export const abilObject = {
   적응력: { text: "자신과 같은 타입인 기술의 위력이 올라간다." },
   급류: { text: "HP가 1/3 이하일 때 물타입 기술의 위력이 1.5배 강해진다." },
   수포: { text: "물타입 기술의 위력이 2배가 되고, 불꽃타입 기술의 데미지를 반감하며 화상 상태가 되지 않는다." },
+  정신력: { text: "상대의 공격에 풀죽지 않으며, 위협의 효과를 받지 않는다." },
   트레이스: { text: "상대의 특성을 트레이스해서 같은 특성이 된다." },
   재앙의검: {
     text: "이 특성을 가진 포켓몬을 제외한 모든 포켓몬의 방어를 약하게 만든다.",
@@ -157,7 +158,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   const rankUpAbilities = {
     불요의검: { cond: atk.item === "녹슨검", target: "atk", stat: "atk", value: 1 },
     불굴의방패: { cond: atk.item === "녹슨방패", target: "atk", stat: "def", value: 1 },
-    위협: { cond: !def.tempStatus.substitute, target: "def", stat: "atk", value: -1 },
+    위협: { cond: !def.tempStatus.substitute && def.abil !== "정신력", target: "def", stat: "atk", value: -1 },
   };
 
   Object.entries(rankUpAbilities).forEach(([abil, cfg]) => {
@@ -166,7 +167,9 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
       const target = cfg.target === "atk" ? atk : def;
       target.rankUp(bt, enqueue, cfg.stat, cfg.value, abilText);
     } else if (atkAbil === abil && !cfg.cond && abil === "위협") {
-      enqueue({ battle: bt, text: abilText + " " + def.name + "에겐 효과가 없는 것 같다..." });
+      let failMessage = abilText + " " + def.name + "에겐 효과가 없는 것 같다...";
+      if (def.abil === "정신력") failMessage = `[특성 정신력] ${def.names} 위협에 위축되지 않는다!`;
+      enqueue({ battle: bt, text: failMessage });
     }
   });
 
