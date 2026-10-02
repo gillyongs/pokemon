@@ -64,6 +64,7 @@ export const burn = (battle, get, enqueue, ball, failText) =>
   applyStatus(battle, get, enqueue, {
     key: "burn",
     immuneTypes: ["불꽃"],
+    condition: (battle, pokemon) => pokemon.abil === "수포",
     text: (p) => (ball ? `${p.names} 화염구슬 때문에 화상을 입었다!` : `${p.names} 화상을 입었다!`),
     failText,
   });

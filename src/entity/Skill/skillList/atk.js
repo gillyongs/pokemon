@@ -55,6 +55,8 @@ export const atkSkills = [
   new Skill("깨물어부수기", "악", 80, 100, 15, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 20, stat: "def", target: "def", value: -1 }], { touch: true, bite: true }),
   new Skill("아쿠아브레이크", "물", 85, 100, 10, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 20, stat: "def", target: "def", value: -1 }], { touch: true }),
   new Skill("치근거리기", "페어리", 90, 90, 10, 0, "atk", null, "10% 확률로 상대의 공격을 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 10, stat: "atk", target: "def", value: -1 }], { touch: true }),
+  new Skill("흡혈", "벌레", 80, 100, 10, 0, "atk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], { touch: true }),
+  new Skill("덤벼들기", "벌레", 80, 100, 15, 0, "atk", null, "100% 확률로 상대의 공격을 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 100, stat: "atk", target: "def", value: -1 }], { touch: true }),
 
   //위력 변화 =================================================================================================================
   new Skill("속임수", "악", 95, 100, 15, 0, "atk", null, "상대방의 공격력으로 데미지를 계산한다.", []),

@@ -448,13 +448,13 @@ function skillEffectSearch(name) {
 
     흡수: (battle, enqueue, skillEffect) => {
       //풀피면 체력 회복 안되고 -> 생구 터짐
-
       let atk = battle[battle.turn.atk];
       const def = battle[battle.turn.def];
       const text = josa(`${def.name}#{으로}`) + "부터 체력을 흡수했다!";
 
       if (atk.hp !== atk.origin.hp) {
-        atk.recover(battle, (atk.turn.recentDamageGive * 3) / 4, enqueue, text);
+        const ratio = skillEffect.ratio || 0.75;
+        atk.recover(battle, Math.floor(atk.turn.recentDamageGive * ratio), enqueue, text);
       }
     },
 
