@@ -73,6 +73,16 @@ function skillEffectSearch(name) {
       }
       freeze(battle, battle.turn.def, enqueue);
     },
+    화상치료: (battle, enqueue, skillEffect) => {
+      const def = battle[battle.turn.def];
+      if (def.status.burn && !def.faint) {
+        def.status.burn = null;
+        enqueue({
+          battle: battle,
+          text: def.name + "의 화상이 나았다!",
+        });
+      }
+    },
     트라이어택: (battle, enqueue, skillEffect) => {
       // 20% 확률로 상태이상을 걸고,
       // 상태이상이 걸릴때 각각 33% 확률로 화상 마비 얼음중 하나가 결정
