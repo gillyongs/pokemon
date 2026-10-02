@@ -288,6 +288,29 @@ function skillEffectSearch(name) {
       }
     },
 
+    끈적끈적네트: (battle, enqueue, skillEffect) => {
+      const def = battle.turn.def;
+      const field = battle.field[def];
+      if (!field.stickyWeb) {
+        field.stickyWeb = true;
+        let text;
+        if (def === "npc") {
+          text = "상대의 발밑에 끈적끈적한 네트가 흩뿌려졌다!";
+        } else {
+          text = "아군의 발밑에 끈적끈적한 네트가 흩뿌려졌다!";
+        }
+        enqueue({
+          battle,
+          text: text,
+        });
+      } else {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+      }
+    },
+
     강제교체: (battle, enqueue, skillEffect) => {
       if (battle.turn.atk === "player") {
         // 플레이어가 강제교체 시 NPC가 교체됨

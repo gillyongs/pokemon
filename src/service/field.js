@@ -82,4 +82,10 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
       console.error("독압정 에러");
     }
   }
+
+  // 끈적끈적네트
+  if (bt.field[atks].stickyWeb) {
+    enqueue({ battle: bt, text: atk.names + " 끈적끈적네트에 걸렸다!" });
+    atk.rankUp(bt, enqueue, "speed", -1);
+  }
 };

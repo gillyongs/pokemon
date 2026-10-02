@@ -24,6 +24,7 @@ export const catkSkills = [
   new Skill("대지의힘", "땅", 90, 100, 10, 0, "catk", null, "10%의 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 10, stat: "cdef", target: "def", value: -1 }]),
   new Skill("문포스", "페어리", 95, 100, 15, 0, "catk", null, "30% 확률로 상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 30, stat: "catk", target: "def", value: -1 }], {}),
   new Skill("에너지볼", "풀", 90, 100, 10, 0, "catk", null, "10% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 10, stat: "cdef", target: "def", value: -1 }], {}),
+  new Skill("벌레의야단법석", "벌레", 90, 100, 10, 0, "catk", null, "10% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "능력치증감", probability: 10, stat: "cdef", target: "def", value: -1 }], { sound: true }),
   // 능력치 증감 (자신)
   new Skill("오버히트", "불꽃", 130, 90, 5, 0, "catk", null, "사용 후 사용자의 특수공격이 2랭크 떨어진다.", [{ name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: -2 }]),
   new Skill("용성군", "드래곤", 130, 90, 5, 0, "catk", null, "사용 후 사용자의 특수공격이 2랭크 떨어진다.", [{ name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: -2 }]),

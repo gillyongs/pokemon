@@ -4,6 +4,7 @@ export class userField {
     this.sRock = null; // 스텔스록
     this.spikes = null; // 압정뿌리기
     this.poisonSpikes = null; // 독압정 (1 = 독, 2 = 맹독)
+    this.stickyWeb = null; // 끈적끈적네트
     this.noClean = {
       // 고속스핀 등으로 인해 없어지지 않는 필드 요소
       healingWish: null, // 치유소원 -> 필드에 적용 후 교체해 나올 때 = field.js에서 처리
