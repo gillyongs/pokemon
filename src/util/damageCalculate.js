@@ -550,7 +550,7 @@ const powerCalculate = (battle, skill, obj, ai) => {
     if (!pokemonNoStatusCheck(battle[battle.turn.def])) power *= 2;
   }
   if (skill.name === "성묘") {
-    // 상대가 상태이상이면 위력 2배
+    // 쓰러진 아군 수만큼 위력 +50
     if (battle[battle.turn.atk + "Bench1"].faint) power += 50;
     if (battle[battle.turn.atk + "Bench2"].faint) power += 50;
   }
