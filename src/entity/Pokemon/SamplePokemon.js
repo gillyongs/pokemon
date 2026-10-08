@@ -1,9 +1,9 @@
 import BattlePokemon from "./PokemonCustom";
 //배틀용 포켓몬 객체
-//원본(PokemonOriginal)에서 노력치, 스킬, 지닌 도구를 설정한다
+//원본(PokemonData)에서 노력치, 스킬, 지닌 도구를 설정한다
 //ReadOnly, 불변값으로 Pokemon 객체가 origin으로 지니고있는다
 // prettier-ignore
-class BattlePokemonRepository {
+class SamplePokemonList {
   constructor() {
     this.items = [
 
@@ -192,5 +192,5 @@ new BattlePokemon("미라이돈", "1008", "5V1A", 44, 0, 4, 244, 12, 204, "catk"
 }
 
 // 싱글턴 객체 생성 (전역에서 사용 가능)
-const bpr = new BattlePokemonRepository();
-export default bpr;
+const sampleList = new SamplePokemonList();
+export default sampleList;

@@ -1,17 +1,17 @@
-import BattlePokemonRepository from "./SamplePokemon";
+import sampleList from "./SamplePokemon";
 import { PokemonRecover } from "./Methods/PokemonRecover";
 import { PokemonAbil } from "./Methods/PokemonAbil.js";
 import { PokemonGetDamage } from "./Methods/PokemonGetDamage.js";
 import { PokemonRank } from "./Methods/PokemonRank.js";
 
-//실제 배틀에 사용되는 포켓몬 객체
+// 실제 배틀에 사용되는 포켓몬 객체
 // 능력치, pp, 상태이상여부, 랭크업, 기절 여부 등 가변 값을 지닌다.
 // 불변 값은 origin에서 관리한다
 class PokemonOnBattle {
   constructor(id) {
     this.team = ""; // player or npc
     this.id = id;
-    const pokemon = BattlePokemonRepository.getItemById(id);
+    const pokemon = sampleList.getItemById(id);
     this.origin = pokemon;
     this.name = pokemon.name; // 메타몽때문에 이름도 가변값이 필요
     this.names = pokemon.names;

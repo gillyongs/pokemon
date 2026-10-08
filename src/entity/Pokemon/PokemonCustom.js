@@ -1,9 +1,9 @@
-import PokemonOriginal from "./PokemonOriginal";
+import PokemonData from "./PokemonData";
 import skillList from "../Skill/skillList";
 import { itemText } from "../Item";
 import { abilObject } from "../Ability";
 //배틀용 포켓몬 객체
-//원본(PokemonOriginal)에서 노력치, 스킬, 지닌 도구를 설정한다
+//원본(PokemonData)에서 노력치, 스킬, 지닌 도구를 설정한다
 //ReadOnly, 불변값으로 Pokemon 객체가 origin으로 지니고있는다
 class BattlePokemon {
   // prettier-ignore
@@ -24,7 +24,7 @@ class BattlePokemon {
     this.abilObj = abilObject[abil] ? abilObject[abil] : {}
     this.abilObj.name = abil
 
-    const pokemon = PokemonOriginal.getItemById(pokemon_id);
+    const pokemon = PokemonData.getItemById(pokemon_id);
     this.pokemon_id = pokemon.id; //ex) 0815
     this.name = pokemon.name;
     this.names = pokemon.names;

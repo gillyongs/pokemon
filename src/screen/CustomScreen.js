@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import bpr from "../entity/Pokemon/SamplePokemon";
+import sampleList from "../entity/Pokemon/SamplePokemon";
 import { pokemonList } from "../entity/Pokemon/PokemonCustom";
 
 const CustomScreen = () => {
@@ -111,7 +111,7 @@ const CustomScreen = () => {
         <TeamSlots>
           {[0, 1, 2].map((index) => {
             const pokemonId = selectedTeam[index];
-            const pokemonData = pokemonId ? bpr.getItemById(pokemonId) : null;
+            const pokemonData = pokemonId ? sampleList.getItemById(pokemonId) : null;
             return (
               <Slot 
                 key={index}
@@ -154,9 +154,9 @@ const CustomScreen = () => {
       </TeamArea>
 
       <ListArea>
-        <SectionTitle>포켓몬 샘플 ({bpr.items.length}종)</SectionTitle>
+        <SectionTitle>포켓몬 샘플 ({sampleList.items.length}종)</SectionTitle>
         <Grid>
-          {bpr.items.map((pokemon) => {
+          {sampleList.items.map((pokemon) => {
             const isSelected = selectedTeam.includes(pokemon.id);
             return (
               <ListItem 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import pokemonRepository from "../entity/Pokemon/PokemonOriginal";
+import pokemonRepository from "../entity/Pokemon/PokemonData";
 
 const RadarChart = ({ stats }) => {
   const maxStat = 255;
