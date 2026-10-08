@@ -7,27 +7,37 @@ import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
 const CustomScreen = () => {
   const navigate = useNavigate();
   const [selectedTeam, setSelectedTeam] = useState([null, null, null]);
+  const [npcTeam, setNpcTeam] = useState([null, null, null]);
+  const [activeTab, setActiveTab] = useState("player");
   const [draggedIndex, setDraggedIndex] = useState(null);
+
+  const getActiveTeam = () => (activeTab === "player" ? selectedTeam : npcTeam);
+  const setActiveTeam = (newTeam) => {
+    if (activeTab === "player") setSelectedTeam(newTeam);
+    else setNpcTeam(newTeam);
+  };
   
   const handleSelect = (pokemonId) => {
-    if (selectedTeam.includes(pokemonId)) {
-      handleRemove(selectedTeam.indexOf(pokemonId));
+    const currentTeam = getActiveTeam();
+    if (currentTeam.includes(pokemonId)) {
+      handleRemove(currentTeam.indexOf(pokemonId));
       return;
     }
-    const emptyIndex = selectedTeam.indexOf(null);
+    const emptyIndex = currentTeam.indexOf(null);
     if (emptyIndex === -1) {
       alert("최대 3마리까지 선택 가능합니다.");
       return;
     }
-    const newTeam = [...selectedTeam];
+    const newTeam = [...currentTeam];
     newTeam[emptyIndex] = pokemonId;
-    setSelectedTeam(newTeam);
+    setActiveTeam(newTeam);
   };
 
   const handleRemove = (index) => {
-    const newTeam = [...selectedTeam];
+    const currentTeam = getActiveTeam();
+    const newTeam = [...currentTeam];
     newTeam[index] = null;
-    setSelectedTeam(newTeam);
+    setActiveTeam(newTeam);
   };
 
   const handleDragStart = (e, index) => {
@@ -37,11 +47,12 @@ const CustomScreen = () => {
   const handleDrop = (e, targetIndex) => {
     const sourceIndex = parseInt(e.dataTransfer.getData("index"));
     if (sourceIndex === targetIndex || isNaN(sourceIndex)) return;
-    const newTeam = [...selectedTeam];
+    const currentTeam = getActiveTeam();
+    const newTeam = [...currentTeam];
     const temp = newTeam[sourceIndex];
     newTeam[sourceIndex] = newTeam[targetIndex];
     newTeam[targetIndex] = temp;
-    setSelectedTeam(newTeam);
+    setActiveTeam(newTeam);
   };
 
   const handleDragOver = (e) => {
@@ -49,7 +60,8 @@ const CustomScreen = () => {
   };
 
   const handleTouchStart = (e, index) => {
-    if (!selectedTeam[index]) return;
+    const currentTeam = getActiveTeam();
+    if (!currentTeam[index]) return;
     setDraggedIndex(index);
     // document.body.style.overflow = "hidden"; // Prevent scrolling while dragging
   };
@@ -70,22 +82,24 @@ const CustomScreen = () => {
     if (targetSlot) {
       const targetIndex = parseInt(targetSlot.getAttribute('data-index'));
       if (!isNaN(targetIndex) && targetIndex !== draggedIndex) {
-        const newTeam = [...selectedTeam];
+        const currentTeam = getActiveTeam();
+        const newTeam = [...currentTeam];
         const temp = newTeam[draggedIndex];
         newTeam[draggedIndex] = newTeam[targetIndex];
         newTeam[targetIndex] = temp;
-        setSelectedTeam(newTeam);
+        setActiveTeam(newTeam);
       }
     }
     setDraggedIndex(null);
   };
 
-  const getRandomTeam = (teamSize = 3) => {
-    let team = [];
+  const getRandomTeamWithExisting = (existingTeam, teamSize = 3) => {
+    const teamIds = existingTeam.filter(id => id !== null);
+    let team = teamIds.map(id => sampleList.getItemById(id));
     while (team.length < teamSize) {
       const randomIndex = Math.floor(Math.random() * pokemonList.length);
       const selectedPokemon = pokemonList[randomIndex];
-      if (!team.includes(selectedPokemon)) {
+      if (!team.some(p => p.id === selectedPokemon.id)) {
         team.push(selectedPokemon);
       }
     }
@@ -95,22 +109,34 @@ const CustomScreen = () => {
   const startBattle = () => {
     const actualTeam = selectedTeam.filter(id => id !== null);
     if (actualTeam.length !== 3) {
-      alert("3마리를 선택해주세요.");
+      alert("내 엔트리에 3마리를 선택해주세요.");
       return;
     }
-    const npcTeam = getRandomTeam(3);
-    navigate("/battle", { state: { team1: actualTeam, team2: npcTeam, isNew: true } });
+    const team2 = getRandomTeamWithExisting(npcTeam, 3);
+    navigate("/battle", { state: { team1: actualTeam, team2: team2, isNew: true } });
   };
+
+  const currentTeam = getActiveTeam();
 
   return (
     <Container>
       <Header>커스텀 팀 구성</Header>
+      <TabContainer>
+        <Tab $active={activeTab === "player"} onClick={() => setActiveTab("player")}>
+          내 엔트리
+        </Tab>
+        <Tab $active={activeTab === "npc"} onClick={() => setActiveTab("npc")}>
+          상대 엔트리
+        </Tab>
+      </TabContainer>
       
       <TeamArea>
-        <SectionTitle>내 엔트리 (드래그로 순서 변경)</SectionTitle>
+        <SectionTitle>
+          {activeTab === "player" ? "내 엔트리 (드래그로 순서 변경)" : "상대 엔트리 (빈 자리는 랜덤 배정)"}
+        </SectionTitle>
         <TeamSlots>
           {[0, 1, 2].map((index) => {
-            const pokemonId = selectedTeam[index];
+            const pokemonId = currentTeam[index];
             const pokemonData = pokemonId ? sampleList.getItemById(pokemonId) : null;
             return (
               <Slot 
@@ -157,7 +183,7 @@ const CustomScreen = () => {
         <SectionTitle>포켓몬 샘플 ({sampleList.items.length}종)</SectionTitle>
         <Grid>
           {sampleList.items.map((pokemon) => {
-            const isSelected = selectedTeam.includes(pokemon.id);
+            const isSelected = currentTeam.includes(pokemon.id);
             return (
               <ListItem 
                 key={pokemon.id} 
@@ -201,6 +227,29 @@ const Header = styled.h2`
   color: white;
   margin: 0;
   padding: 15px 0;
+`;
+
+const TabContainer = styled.div`
+  display: flex;
+  background-color: white;
+  border-bottom: 2px solid #ddd;
+  width: 100%;
+`;
+
+const Tab = styled.div`
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: ${props => props.$active ? "#4caf50" : "#888"};
+  border-bottom: ${props => props.$active ? "3px solid #4caf50" : "3px solid transparent"};
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f9f9f9;
+  }
 `;
 
 const TeamArea = styled.div`
@@ -314,24 +363,6 @@ const PokemonName = styled.div`
   
   @media (max-width: 500px) {
     font-size: 0.75rem;
-  }
-`;
-
-const ItemText = styled.div`
-  font-size: 0.65rem;
-  color: #666;
-  margin-top: 3px;
-  text-align: center;
-  padding: 0 5px;
-  line-height: 1.2;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  
-  @media (max-width: 500px) {
-    font-size: 0.6rem;
   }
 `;
 
