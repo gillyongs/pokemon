@@ -1,5 +1,4 @@
 import { aiItemScore } from "../../entity/Item";
-import { pokemonNoStatusCheck } from "../../function/statusCondition";
 import { damageCalculate } from "../../util/damageCalculate";
 import { priCalculate } from "../../util/speedCheck";
 import { typeCheck } from "../../util/typeEffectCalculate";
@@ -59,6 +58,7 @@ function createSkObj(baseBattle, sn, hp) {
     minDmg: 0,
     maxDmg: 0,
     log: {
+      atkScoreOrigin: null,
       score: null,
     },
   };
@@ -67,73 +67,191 @@ function createSkObj(baseBattle, sn, hp) {
     return ["atk", "catk"].includes(stype);
   };
 
-  let score = 0;
   if (isAttack(skill.stype)) {
     bt.turn.atkSN = sn;
     skObj.minDmg = damageCalculate(bt, null, { atkSN: sn, randNum: 85 });
     skObj.maxDmg = damageCalculate(bt, null, { atkSN: sn, randNum: 100 });
-    score = calculateScoreAtk(bt, sn, skObj);
-    if (score !== 0) {
-      // 무효 스킬, 옹골참에 일격기, 타오르는 불꽃
-      // 애초에 공격 판정이 안들어가니 부가효과 계산을 하면 안됨
-      skObj.score = Math.floor(calculateScoreCommon(bt, sn, skObj, score));
-    }
-  } else {
-    score = calculateScoreNatk(bt, sn, skObj);
-    skObj.score = Math.floor(calculateScoreCommon(bt, sn, skObj, score));
   }
-
+  skObj.score = calculateSkillScore(bt, sn, skObj, isAttack(skill.stype));
   return skObj;
 }
 
-const calculateScoreAtk = (bt, sn, skObj) => {
+// 기술 가중치 계산 함수
+const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   const npc = bt.npc;
   const player = bt.player;
   const skill = bt.npc.origin.skill[sn];
-  const hp = bt.player.origin.hp;
 
-  let avrDmg = damageCalculate(bt, null, { atkSN: sn, randNum: 92 });
-  if (avrDmg === 0) {
-    skObj.log.score = "불발";
-    return 0;
+  // 리턴값
+  let score = 0; // 가중치
+  let log; // 가중치 계산 로그 문자열
+
+  // 공격기일 경우 (데미지 * 명중률) 값으로 가중치 정산을 시작한다
+  // 변화기, 버프기는 0으로 시작
+  if (isAttack) {
+    let avrDmg = damageCalculate(bt, null, { atkSN: sn, randNum: 92 }); // 평균 데미지 계산
+    if (avrDmg === 0) {
+      // 무효 스킬, 옹골참에 일격기, 타오르는 불꽃
+      // 애초에 공격 판정이 안들어가니 부가효과 계산을 하면 안됨
+      skObj.log.score = "불발";
+      return -999;
+    }
+
+    // 명중률
+    let accurRaw = getAccuracy(bt, skill, npc);
+    let accur = accurRaw === "-" ? 100 : Number(accurRaw) || 0;
+    if (accur !== 100 && accurRaw !== "-") accur = Math.min(100, accur);
+
+    const playerHp = bt.player.origin.hp;
+    score = Math.floor((avrDmg * accur) / playerHp); // 평균 데미지 * 명중률 / 상대방 체력
+    log = score;
+    skObj.log.atkScoreOrigin = `${avrDmg} * ${accur} / ${playerHp} = ${score}`;
+
+    // 위력과 연관된 부가효과 (합적용이 아닌 곱적용이므로 여기서 따로 계산한다)
+    if (skill.skillEffectList && typeof skill.skillEffectList[Symbol.iterator] === "function") {
+      for (const skillEffect of skill.skillEffectList) {
+        if (skillEffect.name === "급소") {
+          score *= 1.05;
+          log += ` * 1.05 (급소보정)`;
+        }
+
+        if (skillEffect.name === "반동") {
+          score *= 0.97;
+          log += ` * 0.97 (반동)`; // 같은 위력이면 반동이 없는거 고르는 수준이면 될듯
+        }
+
+        if (skillEffect.name === "흡수") {
+          const recoverValue = Math.min(playerHp, avrDmg) * skillEffect.ratio; // 평균 회복 수치
+          score += recoverValue * 1; // 가중치 어느정도일지 조절 필요
+          log += ` + ${recoverValue} (흡수)`;
+        }
+      }
+    }
   }
 
-  let accurRaw = getAccuracy(skill, npc);
-  let accur = accurRaw === "-" ? 100 : Number(accurRaw) || 0;
-  if (accur !== 100 && accurRaw !== "-") accur = Math.min(100, accur);
-
-  let score = Math.floor((avrDmg * accur) / hp); // 평균 데미지 * 명중률 / 상대방 체력
-
-  let log = score;
-  skObj.log.scoreOrigin = `${avrDmg} * ${accur} / ${hp} = ${score}`;
-
+  // 부가효과 가중치 계산
   if (skill.skillEffectList && typeof skill.skillEffectList[Symbol.iterator] === "function") {
     for (const skillEffect of skill.skillEffectList) {
-      if (skillEffect.name === "화상" && player.origin.role === "물리어태커" && pokemonNoStatusCheck(player) && statusTypeCheck("화상", player)) {
-        //상대가 물리형일때 화상 보정
+      // 1) 능력치 증감 ============================================================================
+      if (skillEffect?.name === "능력치증감") {
+        const npcRole = npc.origin.role || "";
+        const playerRole = player.origin.role || "";
+
+        let rankUpValue = skillEffect.value;
+        if ((npc.abil === "심술꾸러기" && skillEffect.target === "atk") || (player.abil === "심술꾸러기" && skillEffect.target === "def")) {
+          // 특성 심술꾸러기는 랭크업이 반대로 적용
+          rankUpValue = -skillEffect.value;
+        }
+
+        let value = 0; // 상황별 랭크업 가중치
+
+        // 1. 자기자신에게 이로운 효과
+        if (skillEffect.target === "atk" && typeof rankUpValue === "number" && rankUpValue > 0) {
+          // 이미 랭크업이 되어있으면 제외 (랭크업만 하다 죽는거 방지)
+          if (npc.tempStatus.rank[skillEffect.stat] < 2) {
+            if (skillEffect.stat === "speed") {
+              value = npcRole.includes("어태커") ? 50 : 30;
+            } else if (skillEffect.stat === "atk") {
+              value = npcRole === "물리어태커" ? 30 : 3;
+            } else if (skillEffect.stat === "catk") {
+              value = npcRole === "특수어태커" ? 30 : 3;
+            } else if (skillEffect.stat === "def") {
+              value = playerRole === "물리어태커" ? (npcRole.includes("막이") ? 50 : 30) : 8;
+            } else if (skillEffect.stat === "cdef") {
+              value = playerRole === "특수어태커" ? (npcRole.includes("막이") ? 50 : 30) : 8;
+            }
+
+            // 바디프레스 스킬이 있으면 방어력 증가에 추가 보정
+            const isBodyPress = [1, 2, 3, 4].some((num) => npc.origin.skill[num]?.name === "바디프레스");
+            if (skillEffect.stat === "def" && isBodyPress) {
+              value += 15;
+            }
+          }
+
+          let plus = (value * rankUpValue * skillEffect.probability) / 100; // 랭크업 확률과 수치 적용
+          if (player.abil === "천진") plus = Math.floor(plus * 0.1);
+          score += plus;
+          log += ` + ${plus}(자벞 ${skillEffect.stat}(${value})*${rankUpValue})`;
+        }
+
+        // 2. 자기자신에게 해로운 효과 (ex: 용성군 디메리트)
+        else if (skillEffect.target === "atk" && typeof rankUpValue === "number" && rankUpValue < 0) {
+          if (skillEffect.stat === "speed") {
+            value = npcRole.includes("어태커") ? 40 : 5;
+          } else if (skillEffect.stat === "atk") {
+            value = npcRole === "물리어태커" ? 20 : 1;
+          } else if (skillEffect.stat === "catk") {
+            value = npcRole === "특수어태커" ? 20 : 1;
+          } else if (skillEffect.stat === "def") {
+            value = playerRole === "물리어태커" ? 10 : 5;
+          } else if (skillEffect.stat === "cdef") {
+            value = playerRole === "특수어태커" ? 10 : 5;
+          }
+
+          let plus = (-1 * value * rankUpValue * skillEffect.probability) / 100;
+          if (player.abil === "천진") plus = Math.floor(plus * 0.1); // ex) 천진 상대로 용성군 난사
+          score -= plus;
+          log += ` - ${plus}(디메리트 ${skillEffect.stat}(${value})*${rankUpValue})`;
+        }
+
+        // 3. 상대방에게 해로운 효과
+        else if (skillEffect.target === "def" && typeof rankUpValue === "number" && rankUpValue < 0) {
+          if (skillEffect.stat === "speed") {
+            value = playerRole.includes("어태커") ? 50 : 25;
+          } else if (skillEffect.stat === "atk") {
+            value = playerRole === "물리어태커" ? 35 : 2;
+          } else if (skillEffect.stat === "catk") {
+            value = playerRole === "특수어태커" ? 35 : 2;
+          } else if (skillEffect.stat === "def") {
+            value = npcRole === "물리어태커" ? 15 : 5;
+          } else if (skillEffect.stat === "cdef") {
+            value = npcRole === "특수어태커" ? 15 : 5;
+          }
+
+          let plus = (-1 * value * rankUpValue * skillEffect.probability) / 100;
+          score += plus;
+          log += ` + ${plus}(상대디버프 ${skillEffect.stat}(${value})*${rankUpValue})`;
+        }
+
+        // 4. 상대에게 이로운 효과를 주는 경우
+        // 뽐내기, 부추기기 추가시 추가 필요
+      }
+
+      // 2) 상태이상 ===============================================================================
+      if (["마비", "얼음", "트라이어택"].includes(skillEffect.name) && statusAbleCheck(skillEffect.name, player)) {
         let plus = (50 * skillEffect.probability) / 100;
         score += plus;
         log += ` + ${plus} (${skillEffect.name})`;
       }
-      if ((skillEffect.name === "마비" || skillEffect.name === "얼음" || skillEffect.name === "트라이어택") && pokemonNoStatusCheck(player) && statusTypeCheck(skillEffect.name, player)) {
+
+      //상대가 물리형일때 화상 보정
+      if (skillEffect.name === "화상" && player.origin.role === "물리어태커" && statusAbleCheck("화상", player)) {
         let plus = (50 * skillEffect.probability) / 100;
         score += plus;
-        log += ` + ${plus} (${skillEffect.name})`;
+        log += ` + ${plus} (화상 물리 보정)`;
       }
+
+      // 화상 독 추가 필요
+
+      // 상대가 물리 어태커면 약간 추가 보정 필요
       if (skillEffect.name === "혼란" && player.tempStatus.confuse === null) {
         let plus = (20 * skillEffect.probability) / 100;
         score += plus;
         log += ` + ${plus} (${skillEffect.name})`;
       }
+
+      // 내가 상대보다 빠른지 체크 필요
       if (skillEffect.name === "풀죽음") {
         let plus = (50 * skillEffect.probability) / 100;
         score += plus;
         log += ` + ${plus} (${skillEffect.name})`;
       }
-      if (skillEffect.name === "급소") {
-        score *= 1.04;
-        log += ` * 1.04 (급소보정)`;
-      }
+
+      // 기타 ==================================================================================================================
+
+      // 공격기 =======================================================================
+
+      // 탁쳐서떨구기 상대 아이템 중요도 보정
       if (skillEffect.name === "탁떨" && player.item !== null) {
         const value = aiItemScore[player.item];
         if (value === 0) {
@@ -144,27 +262,30 @@ const calculateScoreAtk = (bt, sn, skObj) => {
           log += ` + ${value} (${skillEffect.name})`;
         }
       }
-      if (skillEffect.name === "반동" || skillEffect.name === "빗나감패널티") {
+
+      // 스킬 명중률에 비례하게 보정 필요
+      if (skillEffect.name === "빗나감패널티") {
         score -= 10;
         log += ` - 10 (${skillEffect.name})`;
       }
-      if (skillEffect.name === "흡수") {
-        const plus = Math.floor(20 * skillEffect.ratio);
-        score += plus;
-        log += ` + ${plus} (${skillEffect.name})`;
-      }
+
+      // 역린
       if (skillEffect.name === "자동") {
         score -= 20;
-        log += ` - 20 (${skillEffect.name})`;
+        log += ` - 20 (자동)`;
       }
+
+      // 물거품아리아
       if (skillEffect.name === "화상치료" && player.status.burn !== null) {
         score -= 10;
         log += ` - 10 (${skillEffect.name})`;
       }
+
       if ((skillEffect.name === "벽부수기" && bt.field.player.noClean.reflect !== null) || bt.field.player.noClean.lightScreen !== null) {
         score += 50;
         log += ` + 50 (${skillEffect.name})`;
       }
+
       if (skillEffect.name === "스핀") {
         const count = Object.values(bt.field.npc).reduce((acc, v) => {
           if (v === null) return acc; // null이면 무시
@@ -177,6 +298,7 @@ const calculateScoreAtk = (bt, sn, skObj) => {
         score += value;
         log += ` + ${value} (${skillEffect.name})`;
       }
+
       if (skillEffect.name === "능력치초기화") {
         const count = Object.values(bt.player.tempStatus.rank).reduce((acc, v) => {
           if (typeof v === "number") return acc + v;
@@ -188,39 +310,12 @@ const calculateScoreAtk = (bt, sn, skObj) => {
           log += ` + ${value} (${skillEffect.name})`;
         }
       }
+
       if (skillEffect.name === "구속" && player.tempStatus.switchLock !== null) {
         score += 30;
         log += ` + 30 (구속)`;
       }
-    }
-  }
-  if (skill.feature) {
-    const f = skill.feature;
-    if (f.sound && player.tempStatus.substitute !== null) {
-      score += 50;
-      log += ` + 50 (대타 소리 기술 보정)`;
-    }
-    if (f.charge && npc.item !== "파워풀허브") {
-      score /= 2;
-      log += ` /2 (충전)`;
-    }
-  }
 
-  log += ` = ${score}`;
-  skObj.log.score = log;
-  return score;
-};
-
-const calculateScoreNatk = (bt, sn, skObj) => {
-  const npc = bt.npc;
-  const player = bt.player;
-  const skill = bt.npc.origin.skill[sn];
-  let score = 0;
-  let log = "0";
-  let ovoSum = 0;
-
-  if (skill.skillEffectList && typeof skill.skillEffectList[Symbol.iterator] === "function") {
-    for (const skillEffect of skill.skillEffectList) {
       if (skillEffect.name === "스텔스록") {
         if (bt.field.player.sRock === null) {
           let value = 25 * remainPokemonCount(bt, "player"); // 남은 상대방 포켓몬 수에 비례
@@ -274,7 +369,7 @@ const calculateScoreNatk = (bt, sn, skObj) => {
         return acc;
       }, 0);
       if (skillEffect.name === "하품") {
-        if (player.tempStatus.hapum === null && pokemonNoStatusCheck(player)) {
+        if (player.tempStatus.hapum === null) {
           let value = 0;
           if (playerRankCount > 0) {
             value = playerRankCount * 30;
@@ -349,7 +444,7 @@ const calculateScoreNatk = (bt, sn, skObj) => {
           log += ` + ${value} (${skillEffect.name})`;
         }
       }
-      if (skillEffect.name === "마비" && pokemonNoStatusCheck(player) && statusTypeCheck(skillEffect.name, player)) {
+      if (skillEffect.name === "마비" && statusAbleCheck(skillEffect.name, player)) {
         let value = (50 * skillEffect.probability) / 100;
         if (skill.name === "전기자석파" && (player.type1 === "땅" || player.type2 === "땅")) {
         } else {
@@ -362,7 +457,7 @@ const calculateScoreNatk = (bt, sn, skObj) => {
           log += text;
         }
       }
-      if (skillEffect.name === "화상" && player.origin.role === "물리어태커" && pokemonNoStatusCheck(player) && statusTypeCheck(skillEffect.name, player)) {
+      if (skillEffect.name === "화상" && player.origin.role === "물리어태커" && statusAbleCheck(skillEffect.name, player)) {
         let value = (50 * skillEffect.probability) / 100;
 
         score += value;
@@ -370,14 +465,12 @@ const calculateScoreNatk = (bt, sn, skObj) => {
       }
     }
   }
-
-  if (ovoSum !== 0) {
-    score += ovoSum;
-    log += ` + ${ovoSum} (능력치 증감)`;
-  }
-
   if (skill.feature) {
     const f = skill.feature;
+    if (f.sound && player.tempStatus.substitute !== null) {
+      score += 50;
+      log += ` + 50 (대타 소리 기술 보정)`;
+    }
     if (f.charge && npc.item !== "파워풀허브") {
       score /= 2;
       log += ` /2 (충전)`;
@@ -389,122 +482,21 @@ const calculateScoreNatk = (bt, sn, skObj) => {
   return score;
 };
 
-const calculateScoreCommon = (bt, sn, skObj, score) => {
-  const npc = bt.npc;
-  const player = bt.player;
-  const skill = bt.npc.origin.skill[sn];
-
-  let result = score;
-  let logText = "";
-
-  if (skill.skillEffectList && typeof skill.skillEffectList[Symbol.iterator] === "function") {
-    for (const skillEffect of skill.skillEffectList) {
-      if (skillEffect?.name === "능력치증감") {
-        const npcRole = npc.origin.role || "";
-        const playerRole = player.origin.role || "";
-
-        let iValue = skillEffect.value;
-        if ((npc.abil === "심술꾸러기" && skillEffect.target === "atk") || (player.abil === "심술꾸러기" && skillEffect.target === "def")) {
-          iValue = -skillEffect.value;
-        }
-
-        let value = 0;
-
-        // 1. 자기자신에게 이로운 효과
-        if (skillEffect.target === "atk" && typeof iValue === "number" && iValue > 0) {
-          // 이미 랭크업이 되어있으면 제외
-          if (npc.tempStatus.rank[skillEffect.abil] < 2) {
-            if (skillEffect.abil === "speed") {
-              value = npcRole.includes("어태커") ? 50 : 30;
-            } else if (skillEffect.abil === "atk") {
-              value = npcRole === "물리어태커" ? 30 : 3;
-            } else if (skillEffect.abil === "catk") {
-              value = npcRole === "특수어태커" ? 30 : 3;
-            } else if (skillEffect.abil === "def") {
-              value = playerRole === "물리어태커" ? (npcRole.includes("막이") ? 50 : 30) : 8;
-            } else if (skillEffect.abil === "cdef") {
-              value = playerRole === "특수어태커" ? (npcRole.includes("막이") ? 50 : 30) : 8;
-            }
-
-            // 바디프레스 스킬이 있으면 방어력 증가에 추가 보정
-            const isBodyPress = [1, 2, 3, 4].some((num) => npc.origin.skill[num]?.name === "바디프레스");
-            if (skillEffect.abil === "def" && isBodyPress) {
-              value += 15;
-            }
-          }
-
-          let plus = (value * iValue * skillEffect.probability) / 100; // 화률과 수치 적용
-          if (player.abil === "천진") plus = Math.floor(plus * 0.1);
-          result += plus;
-          logText += ` + ${plus} (${skillEffect.abil} 자벞)`;
-        }
-
-        // 2. 자기자신에게 해로운 효과
-        else if (skillEffect.target === "atk" && typeof iValue === "number" && iValue < 0) {
-          if (skillEffect.abil === "speed") {
-            value = npcRole.includes("어태커") ? 40 : 5;
-          } else if (skillEffect.abil === "atk") {
-            value = npcRole === "물리어태커" ? 20 : 1;
-          } else if (skillEffect.abil === "catk") {
-            value = npcRole === "특수어태커" ? 20 : 1;
-          } else if (skillEffect.abil === "def") {
-            value = playerRole === "물리어태커" ? 10 : 5;
-          } else if (skillEffect.abil === "cdef") {
-            value = playerRole === "특수어태커" ? 10 : 5;
-          }
-
-          let plus = (-1 * value * iValue * skillEffect.probability) / 100;
-          if (player.abil === "천진") plus = Math.floor(plus * 0.1);
-          result -= plus;
-          logText += ` - ${plus} (${skillEffect.abil} 자기디버프)`;
-        }
-
-        // 3. 상대방에게 해로운 효과
-        else if (skillEffect.target === "def" && typeof iValue === "number" && iValue < 0) {
-          if (skillEffect.abil === "speed") {
-            value = playerRole.includes("어태커") ? 50 : 25;
-          } else if (skillEffect.abil === "atk") {
-            value = playerRole === "물리어태커" ? 35 : 5;
-          } else if (skillEffect.abil === "catk") {
-            value = playerRole === "특수어태커" ? 35 : 5;
-          } else if (skillEffect.abil === "def") {
-            value = npcRole === "물리어태커" ? 15 : 5;
-          } else if (skillEffect.abil === "cdef") {
-            value = npcRole === "특수어태커" ? 15 : 5;
-          }
-
-          let plus = (-1 * value * iValue * skillEffect.probability) / 100;
-          result += plus;
-          logText += ` + ${plus} (${skillEffect.abil} 상대디버프)`;
-        }
-
-        // 4. 상대에게 이로운 효과를 주는 경우
-        // 뽐내기, 부추기기 추가시 추가 필요
-
-        return result;
-      }
-    }
-  }
-
-  skObj.log.score += logText;
-  return score;
-};
-
 // 기술의 우선도 -> 명중률 -> 데미지를 고려하여 최적의 기술 리턴
-const findBestSkill = (candidates, bt) => {
-  if (candidates.length === 0) return null;
+const findBestSkill = (skillList, bt) => {
+  if (skillList.length === 0) return null;
 
   // 우선도 체크
   let maxPrior = -Infinity;
   let topPriorSkills = [];
-  for (const s of candidates) {
-    const pri = priCalculate(bt, "npc", s.sk) || 0;
+  for (const skill of skillList) {
+    const pri = priCalculate(bt, "npc", skill.sk) || 0;
 
     if (pri > maxPrior) {
       maxPrior = pri;
-      topPriorSkills = [s];
+      topPriorSkills = [skill];
     } else if (pri === maxPrior) {
-      topPriorSkills.push(s);
+      topPriorSkills.push(skill);
     }
   }
 
@@ -513,7 +505,7 @@ const findBestSkill = (candidates, bt) => {
 
   // 우선도가 같은 기술이 여러개면 명중률이 제일 높은 기술을 리턴
   const getAccur = (s) => {
-    let accRaw = getAccuracy(s.sk, bt.npc);
+    let accRaw = getAccuracy(bt, s.sk, bt.npc);
     if (accRaw === "-") return 9999;
     return Math.min(100, Number(accRaw) || 0);
   };
@@ -561,10 +553,18 @@ export function getHighestScoreKey(skObj) {
   return bestKey;
 }
 
-function statusTypeCheck(status, pokemon) {
+// 상태이상 가능 여부 체크
+function statusAbleCheck(status, pokemon) {
+  if (Object.values(pokemon.status).some((v) => v !== null)) {
+    // null이 아닌 값이 하나라도 있으면 (상태이상이 이미 걸려있으면) false 반환
+    return false;
+  }
+
   let t1 = pokemon.type1;
   let t2 = pokemon.type2;
+
   if (status === "화상") {
+    // 물타입한테 화상 걸리는거 맞음
     if (t1 === "불꽃" || t2 === "불꽃") {
       return false;
     }
@@ -573,6 +573,7 @@ function statusTypeCheck(status, pokemon) {
     }
   }
   if (status === "마비") {
+    // 땅타입한테 마비 걸리는거 맞음 (전기자석파가 무효)
     if (t1 === "전기" || t2 === "전기") {
       return false;
     }
@@ -634,7 +635,7 @@ function calculatePkScore(bt, sn, skObj) {
     if (benchPokemon.type1 === "독" || benchPokemon.type2 === "독") {
       score += 10;
       log[indexA] += ` + 10 (교체(독)-독압정)`;
-    } else if (benchPokemon.type1 === "강철" || benchPokemon.type2 === "강철" || pokemonNoStatusCheck(benchPokemon)) {
+    } else if (statusAbleCheck("독", benchPokemon)) {
     } else {
       score -= 10;
       log[indexA] += ` - 10 (교체-독압정)`;
@@ -669,7 +670,6 @@ function calculateTypeScore(bt, index, log) {
   const stat = bt.player.origin.stat;
   const playerAtkType = stat.atk > stat.catk ? "atk" : "catk"; // 상대가 물리형인지 특수형인지
   const defStat = playerAtkType === "atk" ? "def" : "cdef";
-  // console.log(pokemon.origin.name);
   const player = bt.player;
   let result = 1;
   let value;

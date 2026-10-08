@@ -125,7 +125,7 @@ export const skillUse = (bt, enqueue) => {
         num = 3;
       } else if (skill.feature?.triple) {
         //최대 3회 공격. 본인 명중률에 따라 결정
-        num = randomTriple(bt, atk.item, getAccuracy(skill, atk));
+        num = randomTriple(bt, atk.item, getAccuracy(bt, skill, atk));
       }
       for (let i = 1; i <= num; i++) {
         skillDamage = damageCalculate(bt, { serial: i }); // 트리플악셀 위력 재계산
@@ -245,7 +245,8 @@ export const randomTwoFive = (battle, item) => {
 };
 
 export const randomTriple = (battle, item, accur) => {
-  let finalAccur = accur;  if (!random(finalAccur)) return 1; // 이미 앞에서 명중 한번 체크 했으므로 최소 1 리턴
+  let finalAccur = accur;
+  if (!random(finalAccur)) return 1; // 이미 앞에서 명중 한번 체크 했으므로 최소 1 리턴
   if (!random(finalAccur)) return 2;
   return 3;
 };

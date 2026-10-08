@@ -1,6 +1,6 @@
 export const pokemonNoStatusCheck = (pokemon) => {
   const status = pokemon.status;
-  // 모든 프로퍼티의 값이 null이면 true 반환
+  // 모든 프로퍼티의 값이 null이면 (상태이상 없으면) true 반환
   return Object.values(status).every((v) => v === null);
 };
 

@@ -195,18 +195,10 @@ export const afterSkillCheck = (bt, enqueue) => {
 
   // 스킬이 빗나간 경우
   // 리베로가 발동된다
-  const weatherSkill = ["번개", "폭풍"];
-  let accurPercent = getAccuracy(skill, atk);
-  if (weatherSkill.includes(skill.name) && bt.field.weather.isSunny) {
-    accurPercent = 50;
-  }
+  let accurPercent = getAccuracy(bt, skill, atk);
 
   let accurCheck = random(accurPercent, true);
   //필중기는 random 안에서 처리
-
-  if (weatherSkill.includes(skill.name) && bt.field.weather.isRainy) {
-    accurCheck = true;
-  }
 
   if (!accurCheck && skillType !== "buf") {
     // 상대방이 대타출동 상태일때 씨뿌리기가 빗나갈 수 있다 (명중해도 실패한다)
