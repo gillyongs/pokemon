@@ -7,10 +7,10 @@ import { josa } from "josa";
 
 export const beforeSkillCheck = (bt, enqueue) => {
   //스킬명이 뜨기 전에 처리하는 트리거
-  // 수면, 마비, 얼음, 풀죽음, 도발, 혼란
-  // 수면, 얼음 -> 풀죽음,도발 -> 마비 -> 혼란
-  // 수면 상태면 풀죽음, 도발 메시지 안 뜸
-  // 수면 깨면 풀죽음, 도발 텍스트 뜸
+  // 잠듦, 마비, 얼음, 풀죽음, 도발, 혼란
+  // 잠듦, 얼음 -> 풀죽음,도발 -> 마비 -> 혼란
+  // 잠듦 상태면 풀죽음, 도발 메시지 안 뜸
+  // 잠듦 깨면 풀죽음, 도발 텍스트 뜸
   // 얼음도 이와 동일한 판정일 것으로 추정
   // 풀죽음 도발 동시에 불가
   // 풀죽거나 도발이면 마비 텍스트 안 뜸
@@ -19,11 +19,11 @@ export const beforeSkillCheck = (bt, enqueue) => {
   const atk = bt[bt.turn.atk];
   const useSkill = atk.turn.useSkill;
 
-  // 수면
+  // 잠듦
   if (atk.status.sleep > 0) {
-    // 후 수면 맞으면 그 다음턴은 확정 수면 = 사용자 행동마다 카운트
+    // 후 잠듦 맞으면 그 다음턴은 확정 잠듦 = 사용자 행동마다 카운트
     // 교체 직후 도발 맞으면 그 턴 포함 3턴이지만
-    // 교체 직후 수면 걸리면 그 다음 턴부터 센다
+    // 교체 직후 잠듦 걸리면 그 다음 턴부터 센다
     atk.status.sleep -= 1;
     if (atk.status.sleep === 0) {
       let wakeUpText = atk.names + " 눈을 떴다!";

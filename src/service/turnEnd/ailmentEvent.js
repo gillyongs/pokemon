@@ -1,6 +1,6 @@
-import { burn } from "../../function/statusCondition";
+import { applyAilment } from "../../function/ailment";
 
-export function processStatusCondition(battle, enqueue, fastUser, slowUser) {
+export function processAilment(battle, enqueue, fastUser, slowUser) {
   applyStatusDamage(battle, enqueue, fastUser);
   applyStatusDamage(battle, enqueue, slowUser);
   flameOrb(battle, enqueue, fastUser);
@@ -29,8 +29,7 @@ function applyStatusDamage(battle, enqueue, user) {
   }
 
   if (p.item === "화염구슬") {
-    //화염구슬로 화상을 입은 턴엔 화상 데미지를 입지 않는다
-    burn(battle, p.team, enqueue, true);
+    applyAilment("화상", battle, p.team, enqueue, false, `${p.names} 화염구슬로 화상을 입었다!`);
   }
 }
 
@@ -39,7 +38,6 @@ function flameOrb(battle, enqueue, user) {
   if (p.faint) return;
 
   if (p.item === "화염구슬") {
-    //화염구슬로 화상을 입은 턴엔 화상 데미지를 입지 않는다
-    burn(battle, p.team, enqueue, true);
+    applyAilment("화상", battle, p.team, enqueue, true);
   }
 }

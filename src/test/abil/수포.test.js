@@ -1,6 +1,6 @@
 // npm test -- src/test/abil/수포.test.js
 import { damageCalculate } from "../../util/damageCalculate";
-import { burn } from "../../function/statusCondition";
+import { applyAilment } from "../../function/ailment";
 
 describe("수포(Water Bubble) 특성 테스트", () => {
   let mockBattle;
@@ -96,13 +96,13 @@ describe("수포(Water Bubble) 특성 테스트", () => {
 
   it("4. 수포 특성인 포켓몬은 화상 상태이상에 걸리지 않으며, 실패 텍스트가 출력된다 (도깨비불)", () => {
     mockBattle.npc = createMockPokemon("깨비물거미", "수포", "물");
-    
-    // NPC에게 화상을 걸어봄 (도깨비불처럼 failText: true 속성을 넘김)
-    burn(mockBattle, "npc", mockEnqueue, false, true);
+
+    // NPC에게 화상을 걸어봄 (도깨비불처럼 printTextIfFail: true 속성을 넘김)
+    applyAilment("화상", mockBattle, "npc", mockEnqueue, true);
 
     // 상태이상이 null로 유지되어야 함
     expect(mockBattle.npc.status.burn).toBeNull();
-    
+
     // 도깨비불 실패 시 "하지만 실패했다!"가 출력되는지 검증
     expect(mockEnqueue).toHaveBeenCalledWith({
       battle: mockBattle,
@@ -116,7 +116,7 @@ describe("수포(Water Bubble) 특성 테스트", () => {
     // 틀깨기 특성자가 기술을 사용하는 상황 시뮬레이션
     mockBattle.player.tempStatus.recentSkillUse = true;
 
-    burn(mockBattle, "npc", mockEnqueue, false, true);
+    applyAilment("화상", mockBattle, "npc", mockEnqueue, true);
 
     // 수포라도 틀깨기에 의해 화상에 걸림
     expect(mockBattle.npc.status.burn).toBe(true);
@@ -131,14 +131,14 @@ describe("수포(Water Bubble) 특성 테스트", () => {
   it("6. 수포인 포켓몬이 화상에 걸려있어도 턴 종료 시 치료된다", () => {
     mockBattle.npc = createMockPokemon("깨비물거미", "수포", "물");
     mockBattle.player = createMockPokemon("상대몬", "없음", "노말");
-    
+
     // 강제로 화상 부여
     mockBattle.npc.status.burn = true;
 
-    // turnEnd에서 호출되는 processStatusCondition 직접 실행
-    const { processStatusCondition } = require("../../service/turnEnd/statusConditionEvent");
-    
-    processStatusCondition(mockBattle, mockEnqueue, "player", "npc");
+    // turnEnd에서 호출되는 processAilment 직접 실행
+    const { processAilment } = require("../../service/turnEnd/ailmentEvent");
+
+    processAilment(mockBattle, mockEnqueue, "player", "npc");
 
     // 화상이 지워졌는지 확인
     expect(mockBattle.npc.status.burn).toBeNull();

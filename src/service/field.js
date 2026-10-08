@@ -1,5 +1,5 @@
 import { typeCheck } from "../util/typeEffectCalculate";
-import { poison, mPoison, pokemonNoStatusCheck } from "../function/statusCondition";
+import { applyAilment, isAilmentCheck } from "../function/ailment";
 export const applyFieldEffects = (bt, atks, enqueue) => {
   //교체해서 나올때 장판(스텔스록, 독압정) 체크
   //switch.js에서 호출
@@ -18,7 +18,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
   //초승달춤
   if (bt.field[atks].noClean.lunarDance) {
     const isFullHP = atk.hp === atk.origin.hp;
-    const noStatus = pokemonNoStatusCheck(atk);
+    const noStatus = !isAilmentCheck(atk);
 
     const isFullPP = [1, 2, 3, 4].every((n) => atk.pp[n] === atk.origin.skill[n].pp);
     if (isFullHP && noStatus && isFullPP) {
@@ -42,7 +42,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     //교체로 나온 포켓몬한테 치유할게 없으면 필드에 남는다
     //치유소원 발동하고 스텔스록이 터진다
     //공중판정 없음
-    if (atk.hp === atk.origin.hp && pokemonNoStatusCheck(atk)) {
+    if (atk.hp === atk.origin.hp && !isAilmentCheck(atk)) {
       // 회복할게 없는 경우
     } else {
       enqueue({ battle: bt, text: "치유소원이 " + atk.name + "에게 전해졌다!" });
@@ -76,9 +76,9 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
       enqueue({ battle: bt, text: "바닥의 독압정이 제거되었다!" });
     }
     if (poisonSpikes === 1) {
-      poison(bt, atks, enqueue);
+      applyAilment("독", bt, atks, enqueue, false, `${atk.names} 독압정을 밟고 독에 걸렸다!`);
     } else if (poisonSpikes === 2) {
-      mPoison(bt, atks, enqueue);
+      applyAilment("맹독", bt, atks, enqueue, false, `${atk.names} 독압정을 밟고 맹독에 걸렸다!`);
     } else {
       console.error("독압정 에러");
     }

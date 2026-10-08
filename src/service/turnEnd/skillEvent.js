@@ -1,4 +1,4 @@
-import { sleep, confuse } from "../../function/statusCondition";
+import { applyAilment } from "../../function/ailment";
 
 export function processSkillEffects(battle, enqueue, fastUser, slowUser) {
   // 씨뿌리기
@@ -74,7 +74,7 @@ function hapum(battle, enqueue, user) {
 
   if (p.tempStatus.hapum === 0) {
     p.tempStatus.hapum = null;
-    sleep(battle, p.team, enqueue, true);
+    applyAilment("잠듦", battle, p.team, enqueue, true);
   }
   if (p.tempStatus.hapum === 1) {
     p.tempStatus.hapum = 0;
@@ -93,6 +93,6 @@ function autoEnd(battle, enqueue, user) {
   if (p.auto === 0) {
     p.auto = null;
     p.autoSN = null;
-    confuse(battle, user, enqueue, autoConfuseText);
+    applyAilment("혼란", battle, user, enqueue, null, autoConfuseText);
   }
 }

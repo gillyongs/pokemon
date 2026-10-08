@@ -1,4 +1,4 @@
-import { mabi } from "../function/statusCondition";
+import { applyAilment } from "../function/ailment";
 import { random } from "../util/randomCheck";
 
 export const applyOnHitEvents = (battle, enqueue, substitute) => {
@@ -61,7 +61,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   }
   if (defPokemon.abil === "정전기" && touch && !atkPokemon.faint) {
     if (random(30)) {
-      mabi(battle, battle.turn.atk, enqueue, null, true);
+      applyAilment("마비", battle, battle.turn.atk, enqueue, false, `[특성 정전기] ${atkPokemon.names} 마비되어 기술을 쓰기 어려워졌다!`);
     }
   }
   if (defPokemon.abilObj.feature?.hanka && touch && !atkPokemon.faint) {

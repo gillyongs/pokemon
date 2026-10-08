@@ -1,7 +1,7 @@
 import { switchNpc } from "./switch";
 import { speedCheck } from "../util/speedCheck";
 import { processSkillEffects } from "./turnEnd/skillEvent";
-import { processStatusCondition } from "./turnEnd/statusConditionEvent";
+import { processAilment } from "./turnEnd/ailmentEvent";
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
   // 화상딜, 독딜, 날개쉬기 타입복구, NPC 기절시 교체
@@ -34,7 +34,7 @@ export const turnEnd = (battle, enqueue) => {
   processSkillEffects(battle, enqueue, fastUser, slowUser);
 
   // 상태이상 처리
-  processStatusCondition(battle, enqueue, fastUser, slowUser);
+  processAilment(battle, enqueue, fastUser, slowUser);
 
   let tempPlayer = battle.player.turn;
   let tempNpc = battle.npc.turn;

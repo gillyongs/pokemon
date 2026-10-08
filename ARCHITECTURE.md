@@ -38,9 +38,10 @@
 ```
 
 ### 주요 컴포넌트 역할
+
 1. **`PokemonInfo` (`src/component/Top/PokemonInfo.js`)**
    - 포켓몬 이름, 레벨, 남은 체력 수치 및 `HpBar` 렌더링
-   - 화상, 마비, 독, 수면, 동빙 등 상태이상 아이콘 표기
+   - 화상, 마비, 독, 잠듦, 동빙 등 상태이상 아이콘 표기
    - 랭크업/랭크다운(+1~+6, -1~-6) 상태 실시간 뱃지 출력
 2. **`BottomSectionSkill` (`src/component/Bottom/Bottom-Skill/Bottom-Skill.js`)**
    - 4개 기술 버튼(`SkillButton`) 렌더링
@@ -72,7 +73,7 @@ sequenceDiagram
     Svc->>Q: enqueue({ battle: clone(bt), text: "피카츄의 10만볼트!" })
     Svc->>Q: enqueue({ battle: clone(bt), text: "효과가 굉장했다! (체력 감소)" })
     Svc->>Q: enqueue({ battle: clone(bt), text: "상대 갸라도스는 쓰러졌다!" })
-    
+
     loop 큐 소진 시까지 (한 턴 연출)
         User->>UI: 화면 클릭 (handleDequeue) 또는 textSkip
         UI->>Q: dequeue()
@@ -95,31 +96,31 @@ sequenceDiagram
 flowchart TD
     A["플레이어 행동 선택 (스킬 1~4 or 교체)"] --> B["NPC AI 판단 (npcChoice)"]
     B --> C["battleStart(battle, actNumber, npcActNumber, queueObject)"]
-    
+
     C --> D{"행동 조합 판정"}
-    
+
     %% 분기 1: 맞교체
     D -- "둘 다 교체" --> E["스피드 판정 (speedCheck)"]
     E --> E1["선 교체 (switchPlayer / switchNpc)"]
     E1 --> E2["후 교체"]
-    
+
     %% 분기 2: 한쪽만 교체
     D -- "한쪽만 교체" --> F["교체 우선 처리 (fastActUser 설정)"]
     F --> F1["교체 실행 -> 상대 공격 (attackPlayer / attackNpc)"]
-    
+
     %% 분기 3: 맞공격
     D -- "둘 다 공격" --> G["스피드/우선도 판정 (skillSpeedCheck)"]
     G --> G1["선공자 공격 (attackPlayer / attackNpc)"]
     G1 --> G2{"피격자 생존 여부?"}
     G2 -- "생존" --> G3["후공자 공격"]
     G2 -- "기절" --> H["공격 중단"]
-    
+
     %% 공통 종료
     E2 --> T["턴 종료 처리 (turnEnd)"]
     F1 --> T
     G3 --> T
     H --> T
-    
+
     subgraph S_Skill ["기술 실행 세부 파이프라인 (skillUse)"]
         S1["beforeSkillCheck (풀죽음, 마비, 혼란, 잠듦, 도발 체크)"] --> S2["PP 차감 & 구애아이템 고정"]
         S2 --> S3["시전 메시지 enqueue & 충전기(파워풀허브) 체크"]
@@ -130,10 +131,10 @@ flowchart TD
         S7 --> S8["applySkillEffects (랭크 변화, 상태이상 등 부가효과)"]
         S8 --> S9["skillEffectsAfter (반동 데미지, 흡혈, 유턴 교체 플래그)"]
     end
-    
+
     G1 -.-> S_Skill
     G3 -.-> S_Skill
-    
+
     subgraph S_TurnEnd ["턴 종료 세부 파이프라인 (turnEnd)"]
         T1["필드/룸/날씨 턴 카운트 감소"] --> T2["희망사항 & 먹다남은음식 회복"]
         T2 --> T3["씨뿌리기, 바인드(마그마스톰) 지속 데미지"]
@@ -143,7 +144,7 @@ flowchart TD
         T6 -- "NPC 기절" --> T7["NPC 자동 후속 교체 (switchNpc)"]
         T6 -- "플레이어 기절" --> T8["mustSwitch 트리거 -> 교체창 팝업"]
     end
-    
+
     T -.-> S_TurnEnd
 ```
 
@@ -183,7 +184,7 @@ src/
 ├── function/               # 순수 연산 보조 함수
 │   ├── damage.js           # attackDamage (실제 HP 감소 및 탈/대타출동 처리)
 │   ├── rankStat.js         # 랭크 배율 계산 및 랭크 변동 로직
-│   ├── statusCondition.js  # 상태이상 판정 함수
+│   ├── ailment.js          # 상태이상 판정 함수
 │   └── switchPokemon.js    # Battle 객체 내 포켓몬 교체 스왑 로직
 │
 ├── npc/                    # 인공지능 (NPC 의사결정)
@@ -206,16 +207,16 @@ src/
 
 ## 6. 📊 핵심 함수 및 데이터 상관관계 매트릭스
 
-| 함수명 | 위치 | 호출 주체 | 핵심 역할 및 영향받는 상태 |
-| :--- | :--- | :--- | :--- |
-| `battleStart` | `src/service/battleStart.js` | `BattleScreen`, `Bottom-Switch` | 턴 시작 시 행동 우선순위를 정하고 `attackPlayer`, `attackNpc`, `switchPlayer`, `switchNpc` 분기 호출 후 `turnEnd` 호출 |
-| `skillUse` | `src/service/skillUse.js` | `attack.js` | 기술 시전의 전 과정(PP 소모, 명중 체크, 데미지 처리, 부가효과)을 순차적으로 수행하고 큐에 스냅샷 저장 |
-| `damageCalculate` | `src/util/damageCalculate.js` | `skillUse.js`, `npc/ai/easy.js` | 공격/방어 스탯, 랭크, 아이템, 특성, 날씨, 필드, 자속, 타입상성, 급소, 난수를 반영하여 최종 데미지 산출 |
-| `typeCheckOnBattle` | `src/util/typeEffectCalculate.js` | `damageCalculate.js`, `skillUse.js` | 순수 타입 상성에 부유, 풍선, 심안 특성 등을 조합하여 실제 배틀 배율(0배, 0.5배, 1배, 2배, 4배) 계산 |
-| `attackDamage` | `src/function/damage.js` | `skillUse.js` | 계산된 데미지를 포켓몬에 입히며, '탈(Disguise)', '대타출동', '기합의띠' 등 방어 메커니즘 처리 |
-| `applyAbilityEffects`| `src/entity/Ability.js` | `BattleScreen`(시작시), `switch.js` | 포켓몬 등장 시 발동하는 특성(위협, 불요의검, 가뭄, 잔비, 트레이스 등)을 실행하고 큐에 텍스트 등록 |
-| `turnEnd` | `src/service/turnEnd.js` | `battleStart.js`, `Bottom-Switch.js` | 날씨/지형 감소, 먹밥/희망사항 회복, 화상/독 데미지, 기절 판정 후 NPC 후속 교체 또는 `mustSwitch` 트리거 |
-| `npcChoice` | `src/npc/npc.js` | `BattleScreen`, `Bottom-Switch` | NPC가 현재 배틀 상태에서 가장 적절한 기술 또는 교체 행동을 결정 |
+| 함수명                | 위치                              | 호출 주체                            | 핵심 역할 및 영향받는 상태                                                                                             |
+| :-------------------- | :-------------------------------- | :----------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `battleStart`         | `src/service/battleStart.js`      | `BattleScreen`, `Bottom-Switch`      | 턴 시작 시 행동 우선순위를 정하고 `attackPlayer`, `attackNpc`, `switchPlayer`, `switchNpc` 분기 호출 후 `turnEnd` 호출 |
+| `skillUse`            | `src/service/skillUse.js`         | `attack.js`                          | 기술 시전의 전 과정(PP 소모, 명중 체크, 데미지 처리, 부가효과)을 순차적으로 수행하고 큐에 스냅샷 저장                  |
+| `damageCalculate`     | `src/util/damageCalculate.js`     | `skillUse.js`, `npc/ai/easy.js`      | 공격/방어 스탯, 랭크, 아이템, 특성, 날씨, 필드, 자속, 타입상성, 급소, 난수를 반영하여 최종 데미지 산출                 |
+| `typeCheckOnBattle`   | `src/util/typeEffectCalculate.js` | `damageCalculate.js`, `skillUse.js`  | 순수 타입 상성에 부유, 풍선, 심안 특성 등을 조합하여 실제 배틀 배율(0배, 0.5배, 1배, 2배, 4배) 계산                    |
+| `attackDamage`        | `src/function/damage.js`          | `skillUse.js`                        | 계산된 데미지를 포켓몬에 입히며, '탈(Disguise)', '대타출동', '기합의띠' 등 방어 메커니즘 처리                          |
+| `applyAbilityEffects` | `src/entity/Ability.js`           | `BattleScreen`(시작시), `switch.js`  | 포켓몬 등장 시 발동하는 특성(위협, 불요의검, 가뭄, 잔비, 트레이스 등)을 실행하고 큐에 텍스트 등록                      |
+| `turnEnd`             | `src/service/turnEnd.js`          | `battleStart.js`, `Bottom-Switch.js` | 날씨/지형 감소, 먹밥/희망사항 회복, 화상/독 데미지, 기절 판정 후 NPC 후속 교체 또는 `mustSwitch` 트리거                |
+| `npcChoice`           | `src/npc/npc.js`                  | `BattleScreen`, `Bottom-Switch`      | NPC가 현재 배틀 상태에서 가장 적절한 기술 또는 교체 행동을 결정                                                        |
 
 ---
 

@@ -15,7 +15,7 @@ export class Terrain {
 
   get isElectricField() {
     return this.#type === "일렉트릭필드";
-    // 하드론엔진, 수면 방지
+    // 하드론엔진, 잠듦 방지
   }
 
   #setTerrain(terrainType, turnRemain, enqueue, battle, terrainText) {

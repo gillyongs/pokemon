@@ -1,7 +1,7 @@
 import { typeCheckOnBattle } from "./typeEffectCalculate";
 import { getMultiplier } from "../function/rankStat";
 import { noNullItem } from "../entity/Item";
-import { pokemonNoStatusCheck } from "../function/statusCondition";
+import { isAilmentCheck } from "../function/ailment";
 import { speedCheck } from "./speedCheck";
 
 export const damageCalculate = (battle, obj, ai) => {
@@ -555,7 +555,8 @@ const powerCalculate = (battle, skill, obj, ai) => {
   }
   if (skill.name === "병상첨병") {
     // 상대가 상태이상이면 위력 2배
-    if (!pokemonNoStatusCheck(battle[battle.turn.def])) power *= 2;
+    // 혼란에 적용 안되는거 맞음
+    if (isAilmentCheck(battle[battle.turn.def])) power *= 2;
   }
   if (skill.name === "성묘") {
     // 쓰러진 아군 수만큼 위력 +50
@@ -576,8 +577,4 @@ const powerCalculate = (battle, skill, obj, ai) => {
     power += 20 * total;
   }
   return Math.floor(power);
-};
-
-const statusCheck = (status) => {
-  return Object.values(status).some((value) => value !== null);
 };

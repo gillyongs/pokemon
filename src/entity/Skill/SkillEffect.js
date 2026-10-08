@@ -1,5 +1,5 @@
 import { random } from "../../util/randomCheck";
-import { burn, mabi, poison, mPoison, freeze, sleep, confuse, pokemonNoStatusCheck } from "../../function/statusCondition";
+import { applyAilment, isAilmentCheck } from "../../function/ailment";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchPlayer, switchPlayerForce } from "../../service/switch";
@@ -53,32 +53,32 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      burn(battle, battle.turn.def, enqueue, null, skillEffect.failText);
+      applyAilment("화상", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
     독: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      poison(battle, battle.turn.def, enqueue, skillEffect.failText);
+      applyAilment("독", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
     맹독: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      mPoison(battle, battle.turn.def, enqueue, skillEffect.failText);
+      applyAilment("맹독", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
 
     마비: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      mabi(battle, battle.turn.def, enqueue, skillEffect.failText);
+      applyAilment("마비", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
     얼음: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      freeze(battle, battle.turn.def, enqueue);
+      applyAilment("얼음", battle, battle.turn.def, enqueue);
     },
     화상치료: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
@@ -97,15 +97,15 @@ function skillEffectSearch(name) {
         return;
       }
       const r = Math.random();
-      if (r < 1 / 3) freeze(battle, battle.turn.def, enqueue);
-      else if (r < 2 / 3) mabi(battle, battle.turn.def, enqueue);
-      else return burn(battle, battle.turn.def, enqueue);
+      if (r < 1 / 3) applyAilment("얼음", battle, battle.turn.def, enqueue);
+      else if (r < 2 / 3) applyAilment("마비", battle, battle.turn.def, enqueue);
+      else return applyAilment("화상", battle, battle.turn.def, enqueue);
     },
     혼란: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      confuse(battle, battle.turn.def, enqueue);
+      applyAilment("혼란", battle, battle.turn.def, enqueue);
     },
     풀죽음: (battle, enqueue, skillEffect) => {
       let atk = battle[battle.turn.atk];
@@ -229,7 +229,7 @@ function skillEffectSearch(name) {
     },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
-      if (pokemonNoStatusCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0) {
+      if (!isAilmentCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0) {
         def.tempStatus.hapum = 1;
         enqueue({
           battle,
