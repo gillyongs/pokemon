@@ -5,7 +5,7 @@ import { abilObject } from "../Ability";
 //배틀용 포켓몬 객체
 //원본(PokemonData)에서 노력치, 스킬, 지닌 도구를 설정한다
 //ReadOnly, 불변값으로 Pokemon 객체가 origin으로 지니고있는다
-class BattlePokemon {
+class PokemonTemplate {
   // prettier-ignore
   constructor(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil){
     this._validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil);
@@ -150,4 +150,4 @@ class BattlePokemon {
 
 export const pokemonList = [];
 
-export default BattlePokemon;
+export default PokemonTemplate;

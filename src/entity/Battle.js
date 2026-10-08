@@ -1,4 +1,4 @@
-import { generate } from "./Pokemon/Pokemon";
+import { generate } from "./Pokemon/PokemonInstance";
 import { Field } from "./Field/Field";
 class Battle {
   constructor(player, npc, playerBench1, playerBench2, npcBench1, npcBench2) {

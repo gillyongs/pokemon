@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import sampleList from "../entity/Pokemon/SamplePokemon";
-import { pokemonList } from "../entity/Pokemon/PokemonCustom";
+import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
 
 const CustomScreen = () => {
   const navigate = useNavigate();

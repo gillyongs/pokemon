@@ -7,7 +7,7 @@ import { PokemonRank } from "./Methods/PokemonRank.js";
 // 실제 배틀에 사용되는 포켓몬 객체
 // 능력치, pp, 상태이상여부, 랭크업, 기절 여부 등 가변 값을 지닌다.
 // 불변 값은 origin에서 관리한다
-class PokemonOnBattle {
+class PokemonInstance {
   constructor(id) {
     this.team = ""; // player or npc
     this.id = id;
@@ -157,8 +157,8 @@ class PokemonOnBattle {
   }
 }
 
-Object.assign(PokemonOnBattle.prototype, PokemonRecover, PokemonAbil, PokemonGetDamage, PokemonRank);
+Object.assign(PokemonInstance.prototype, PokemonRecover, PokemonAbil, PokemonGetDamage, PokemonRank);
 
 export function generate(id) {
-  return new PokemonOnBattle(id);
+  return new PokemonInstance(id);
 }
