@@ -28,7 +28,7 @@ export const noNullItem = ["녹슨검", "녹슨방패"]; //탁떨, 트릭 적용
 
 export const aiItemScore = {
   // 탁떨로 딸궜을때 유용한 정도 가중치
-  // npc ai 가중치 계산에 사용
+  // npc ai 가중치 계산에 사용 (calculateSkillScore.js)
   진화의휘석: 999,
 
   먹다남은음식: 70,

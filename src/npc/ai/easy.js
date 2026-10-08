@@ -1,4 +1,3 @@
-import { aiItemScore } from "../../entity/Item";
 import { damageCalculate } from "../../util/damageCalculate";
 import { priCalculate } from "../../util/speedCheck";
 import { typeCheck } from "../../util/typeEffectCalculate";
