@@ -318,6 +318,11 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.1 (펀치글러브)";
   }
 
+  if (skill.type === "물" && attackPokemon.item === "신비의물방울") {
+    damage *= 1.2;
+    attackPokemon.log.damage1 += " * 1.2 (신비의물방울)";
+  }
+
   // 특성 ===========================================================================================
 
   if (defAbil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {

@@ -64,7 +64,18 @@ export const burn = (battle, get, enqueue, ball, failText) =>
   applyStatus(battle, get, enqueue, {
     key: "burn",
     immuneTypes: ["불꽃"],
-    condition: (battle, pokemon) => pokemon.abil === "수포",
+    condition: (battle, pokemon) => {
+      let isTgg = false;
+      const atkStr = battle.turn?.atk;
+      if (atkStr && battle[atkStr] && battle[atkStr].tempStatus?.recentSkillUse) {
+        if (battle[atkStr].abilObj?.feature?.tgg) {
+          isTgg = true;
+        }
+      }
+      return pokemon.abil === "수포" && !isTgg;
+      // 특성이 수포면 화상에 걸리지 않는다
+      // 공격자의 특성이 틀깨기면 화상에 걸리긴 한다 (턴 종료시 치료됨)
+    },
     text: (p) => (ball ? `${p.names} 화염구슬 때문에 화상을 입었다!` : `${p.names} 화상을 입었다!`),
     failText,
   });

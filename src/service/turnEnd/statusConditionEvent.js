@@ -14,11 +14,18 @@ function applyStatusDamage(battle, enqueue, user) {
 
   if (p.status.poison) {
     p.getDamage(battle, enqueue, Math.floor(p.origin.hp / 8), `${p.names} 독에 의한 데미지를 입었다!`);
-  } else if (p.status.mpoison) {
+  }
+  if (p.status.mpoison) {
     p.getDamage(battle, enqueue, Math.floor((p.origin.hp * p.status.mpoison) / 16), `${p.names} 맹독에 의한 데미지를 입었다!`);
     p.status.mpoison++;
-  } else if (p.status.burn) {
-    p.getDamage(battle, enqueue, Math.floor(p.origin.hp / 16), `${p.names} 화상 데미지를 입었다!`);
+  }
+  if (p.status.burn) {
+    if (p.abil === "수포") {
+      p.status.burn = null;
+      enqueue({ battle, text: `[특성 수포] ${p.name}의 화상이 나았다!` });
+    } else {
+      p.getDamage(battle, enqueue, Math.floor(p.origin.hp / 16), `${p.names} 화상 데미지를 입었다!`);
+    }
   }
 
   if (p.item === "화염구슬") {

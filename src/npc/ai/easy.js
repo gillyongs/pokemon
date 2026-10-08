@@ -171,7 +171,7 @@ const calculateScore = (bt, sn, skObj) => {
         score -= 10;
         log += ` - 10 (${item.name})`;
       }
-      if (item.name === "흡수" || item.name === "빗나감패널티") {
+      if (item.name === "흡수") {
         score += 15;
         log += ` + 15 (${item.name})`;
       }
@@ -436,7 +436,7 @@ const findBestSkill = (candidates, bt) => {
     ...candidates.map((s) => {
       const accur = s.sk.accur;
       return accur === "-" ? 9999 : Number(accur) || 0;
-    })
+    }),
   );
 
   const topAccurSkills = candidates.filter((s) => {
