@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import bpr from "../entity/Pokemon/PokemonCustomRepository";
+import bpr from "../entity/Pokemon/SamplePokemon";
 import { pokemonList } from "../entity/Pokemon/PokemonCustom";
 
 const CustomScreen = () => {

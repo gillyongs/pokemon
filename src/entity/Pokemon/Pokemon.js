@@ -1,4 +1,4 @@
-import BattlePokemonRepository from "./PokemonCustomRepository";
+import BattlePokemonRepository from "./SamplePokemon";
 import { PokemonRecover } from "./Methods/PokemonRecover";
 import { PokemonAbil } from "./Methods/PokemonAbil.js";
 import { PokemonGetDamage } from "./Methods/PokemonGetDamage.js";
