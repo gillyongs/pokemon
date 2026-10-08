@@ -1,5 +1,4 @@
 export const npcCommon = (battle, actNumber) => {
-  console.log("a");
   // 자동기술(역린)이나 충전기술(메테오빔) 사용
   if (battle.npc?.auto !== null || battle.npc?.charge !== null) {
     return [battle.npc.autoSN];

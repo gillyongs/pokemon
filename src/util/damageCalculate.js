@@ -432,7 +432,10 @@ export const damageCalculate = (battle, obj, ai) => {
   damage = (damage * randomNum) / 100;
   attackPokemon.log.damage2 += " * " + randomNum + "(랜덤값) / 100 = " + Math.floor(damage);
   if (!ai) {
-    console.log(attackPokemon.name);
+    let text = attackPokemon.name + "의 공격";
+    if (obj) text += ` (${obj.serial + 1}타)`;
+
+    console.log(text);
     console.log(attackPokemon.log.damage1);
     console.log(attackPokemon.log.damage2);
   }
