@@ -7,8 +7,9 @@ import { abilObject } from "../Ability";
 //ReadOnly, 불변값으로 Pokemon 객체가 origin으로 지니고있는다
 class PokemonTemplate {
   // prettier-ignore
-  constructor(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil){
-    this._validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil);
+  constructor(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role){
+    this._validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role);
+    this.role = role;
 
     this.id = id;
     pokemonList.push(id)
@@ -96,7 +97,8 @@ class PokemonTemplate {
 
   }
   // prettier-ignore
-  _validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil){
+  _validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role){
+    if (!["물리막이", "특수막이", "물리어태커", "특수어태커", "서포터"].includes(role)) console.error("role must be one of 물리막이, 특수막이, 물리어태커, 특수어태커", role);
     if (typeof id !== "string") console.error("id must be a string", id);
     if (typeof pokemon_id !== "string")
       console.error("pokemon_id must be a string", pokemon_id);
