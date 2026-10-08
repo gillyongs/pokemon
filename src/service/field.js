@@ -67,6 +67,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
   if (atk.isFlying(bt)) {
     return;
   }
+  // 이 밑에서부터는 비행타입, 부유, 풍선 포켓몬한테 발동되지 않음 ====================================
   // 독압정
   let poisonSpikes = bt.field[atks].poisonSpikes;
   if (poisonSpikes !== null) {

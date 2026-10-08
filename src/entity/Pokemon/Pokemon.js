@@ -125,6 +125,8 @@ class PokemonOnBattle {
     const enemy = pokemon.team === "player" ? battle.npc : battle.player;
 
     // 부유 특성 (상대가 틀깨기면 무시)
+    // 나무위키 피셜 적용됨.
+    // 압정을 깐 포켓몬이 틀깨기여야하는지, 압정을 밟았을때 상대 포켓몬이 틀깨기인지는 불확실. 일단 후자로 가정
     if (pokemon.abil === "부유" && enemy?.abilObj?.feature?.tgg !== true) {
       return true;
     }

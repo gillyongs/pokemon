@@ -315,9 +315,9 @@ function skillEffectSearch(name) {
         field.stickyWeb = true;
         let text;
         if (def === "npc") {
-          text = "상대의 발밑에 끈적끈적한 네트가 흩뿌려졌다!";
+          text = "상대의 발밑에 끈적끈적네트가 펼쳐졌다!";
         } else {
-          text = "아군의 발밑에 끈적끈적한 네트가 흩뿌려졌다!";
+          text = "아군의 발밑에 끈적끈적네트가 펼쳐졌다!";
         }
         enqueue({
           battle,
@@ -438,7 +438,8 @@ function skillEffectSearch(name) {
       const def = battle[battle.turn.def];
       const atk = battle[battle.turn.atk];
       const field = battle.field[battle.turn.atk];
-      Object.keys(field).forEach((key) => {
+      const hazards = ["sRock", "spikes", "poisonSpikes", "stickyWeb"];
+      hazards.forEach((key) => {
         //장판 제거
         field[key] = null;
       });

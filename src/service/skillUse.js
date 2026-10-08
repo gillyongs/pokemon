@@ -214,7 +214,12 @@ const handleSkillFail = (bt) => {
   }
 };
 
-const randomTwoFive = (battle, item) => {
+export const randomTwoFive = (battle, item) => {
+  // 2~5회 연속기
+  // 기술의 명중여부, 반감열매에 대한 데미지 감소량 계산은 첫 타격에만 계산
+  // 참기나 카운터의 반사 데미지 계산은 마지막 타격에만 계산
+  // 급소 명중 여부, 부가효과 발생 여부 (왕의징표석, 예리한이빨에 의한 효과 포함)는 매 타격 전부 계산
+  // 부가효과는 attackDamage 안에 applyOnHitEvents에서 처리
   const r = Math.random() * 100; // 0 ~ 99.999...
 
   if (battle[battle.turn.atk].abil === "스킬링크") {
@@ -224,18 +229,28 @@ const randomTwoFive = (battle, item) => {
   if (item === "속임수주사위") {
     // 최소 4타 보정
     // 첫 공격은 빗나갈 수 있음
-    if (r < 85) return 4; // 70 ~ 84.999 (85%)
+    if (r < 85)
+      return 4; // 70 ~ 84.999 (85%)
     else return 5; // 85 ~ 99.999 (15%) -> 5회 확률은 정확히 모르겠음
   }
 
-  if (r < 35) return 2; // 0 ~ 34.999 (35%)
-  else if (r < 70) return 3; // 35 ~ 69.999 (35%)
-  else if (r < 85) return 4; // 70 ~ 84.999 (15%)
+  if (r < 35)
+    return 2; // 0 ~ 34.999 (35%)
+  else if (r < 70)
+    return 3; // 35 ~ 69.999 (35%)
+  else if (r < 85)
+    return 4; // 70 ~ 84.999 (15%)
   else return 5; // 85 ~ 99.999 (15%)
 };
 
-const randomTriple = (battle, item, accur) => {
-  if (!random(accur)) return 1; // 이미 앞에서 명중 한번 체크 했으므로 최소 1 리턴
-  if (!random(accur)) return 2;
+export const randomTriple = (battle, item, accur) => {
+  const atk = battle[battle.turn.atk];
+  let finalAccur = accur;
+  if (atk.abil === "복안" && typeof finalAccur === "number") {
+    finalAccur = Math.floor(finalAccur * 1.3);
+  }
+
+  if (!random(finalAccur)) return 1; // 이미 앞에서 명중 한번 체크 했으므로 최소 1 리턴
+  if (!random(finalAccur)) return 2;
   return 3;
 };

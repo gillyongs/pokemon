@@ -200,6 +200,10 @@ export const afterSkillCheck = (bt, enqueue) => {
     accurPercent = 50;
   }
 
+  if (atk.abil === "복안" && typeof accurPercent === "number" && !skill.feature?.oneShot) {
+    accurPercent = Math.floor(accurPercent * 1.3);
+  }
+
   let accurCheck = random(accurPercent, true);
   //필중기는 random 안에서 처리
 
