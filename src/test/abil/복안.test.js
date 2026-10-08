@@ -111,7 +111,7 @@ describe("복안 특성 및 명중률/연속기 테스트", () => {
     for (let i = 0; i < 10000; i++) {
       // 명중률 70인 3회 연속기. 
       // (1타 명중은 이미 afterSkillCheck에서 통과했다고 가정하므로 randomTriple은 2타부터 체크)
-      const numHits = randomTriple(mockBattle, null, 70);
+      const numHits = randomTriple(mockBattle, null, 91);
       totalHits[numHits]++;
     }
 

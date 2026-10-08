@@ -1,6 +1,7 @@
 import skillRequirementSearch from "../entity/Skill/SkillRequirement";
 import { random } from "../util/randomCheck";
 import { confuseDamageCalculate } from "../util/damageCalculate";
+import { getAccuracy } from "../function/accuracyCalculate";
 import { attackDamage } from "../function/damage";
 import { josa } from "josa";
 
@@ -195,13 +196,9 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 스킬이 빗나간 경우
   // 리베로가 발동된다
   const weatherSkill = ["번개", "폭풍"];
-  let accurPercent = skill.accur;
+  let accurPercent = getAccuracy(skill, atk);
   if (weatherSkill.includes(skill.name) && bt.field.weather.isSunny) {
     accurPercent = 50;
-  }
-
-  if (atk.abil === "복안" && typeof accurPercent === "number" && !skill.feature?.oneShot) {
-    accurPercent = Math.floor(accurPercent * 1.3);
   }
 
   let accurCheck = random(accurPercent, true);
