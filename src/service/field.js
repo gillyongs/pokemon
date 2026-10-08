@@ -27,7 +27,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     } else {
       enqueue({ battle: bt, text: atk.names + " 신비한 달빛에 둘러싸였다!" });
       bt.field[atks].noClean.lunarDance = null;
-      atk.resetStatus(); // 상태이상 회복
+      atk.resetAilment(); // 상태이상 회복
       atk.pp[1] = atk.origin.skill[1].pp;
       atk.pp[2] = atk.origin.skill[2].pp;
       atk.pp[3] = atk.origin.skill[3].pp;
@@ -47,7 +47,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     } else {
       enqueue({ battle: bt, text: "치유소원이 " + atk.name + "에게 전해졌다!" });
       bt.field[atks].noClean.healingWish = null;
-      atk.resetStatus(); // 상태이상 회복
+      atk.resetAilment(); // 상태이상 회복
       atk.recover(bt, atk.origin.hp, enqueue, atk.name + "의 체력과 상태이상이 회복됐다!");
     }
   }

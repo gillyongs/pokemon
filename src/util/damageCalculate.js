@@ -146,7 +146,7 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStr += " * 1.5 (구애머리띠)";
     }
 
-    const isStatus = Object.values(attackPokemon.status).some((v) => v !== null);
+    const isStatus = Object.values(attackPokemon.ailment).some((v) => v !== null);
     if (atkAbil === "근성" && isStatus) {
       atkStat *= 1.5;
       atkStr += " * 1.5 (근성)";
@@ -161,7 +161,7 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStr += " * 1.3 (고대활성)";
     }
 
-    if (attackPokemon.status.burn !== null && attackStat === "atk" && attackPokemon.abil !== "근성") {
+    if (attackPokemon.ailment.burn !== null && attackStat === "atk" && attackPokemon.abil !== "근성") {
       // 화상 상태이면 공격력 절반
       atkStat *= 0.5;
       atkStr += " * 0.5 (화상)";
@@ -549,7 +549,7 @@ const powerCalculate = (battle, skill, obj, ai) => {
     // 체력비례 데미지
     power = (power * atk.hp) / atk.origin.hp;
   }
-  if (skill.name === "객기" && (atk.status.burn || atk.status.mabi || atk.status.poison || atk.status.mpoison)) {
+  if (skill.name === "객기" && (atk.ailment.burn || atk.ailment.mabi || atk.ailment.poison || atk.ailment.mpoison)) {
     //화상, 독, 마비일때 위력 2배
     power *= 2;
   }

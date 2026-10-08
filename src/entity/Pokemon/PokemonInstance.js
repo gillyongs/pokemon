@@ -28,7 +28,7 @@ class PokemonInstance {
       3: pokemon.skill[3].pp,
       4: pokemon.skill[4].pp,
     };
-    this.status = {
+    this.ailment = {
       // 기절시 damage.js에서만 초기화된다
       burn: null,
       freeze: null,
@@ -91,10 +91,10 @@ class PokemonInstance {
   }
 
   // 기절시 상태이상 초기화
-  resetStatus() {
+  resetAilment() {
     // 초승달춤에서도 사용
-    Object.keys(this.status).forEach((key) => {
-      this.status[key] = null;
+    Object.keys(this.ailment).forEach((key) => {
+      this.ailment[key] = null;
     });
   }
 

@@ -20,12 +20,12 @@ export const switchPokemon = (battle, IN, OUT) => {
   }
   if (pokemonIn.abil === "자연회복") {
     // 자연회복 특성을 지닌 포켓몬은 교체시 상태이상을 회복
-    Object.keys(pokemonIn.status).forEach((key) => {
-      pokemonIn.status[key] = null;
+    Object.keys(pokemonIn.ailment).forEach((key) => {
+      pokemonIn.ailment[key] = null;
     });
   }
-  if (pokemonIn.status.mpoison && pokemonIn.status.mpoison > 1) {
-    pokemonIn.status.mpoison = 1;
+  if (pokemonIn.ailment.mpoison && pokemonIn.ailment.mpoison > 1) {
+    pokemonIn.ailment.mpoison = 1;
     //맹독 스탯 초기화
   }
 

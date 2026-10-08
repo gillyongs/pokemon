@@ -31,7 +31,7 @@ export const PokemonGetDamage = {
     // attackDmage, 초승달춤에서도 사용
     this.hp = 0;
     this.faint = true;
-    this.resetStatus();
+    this.resetAilment();
     this.resetTurn();
     this.resetTempStatus();
     enqueue({

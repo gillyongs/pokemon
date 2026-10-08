@@ -81,17 +81,17 @@ const InfoButton = ({ pokemon, type, setText }) => {
     if (pokemon.faint) {
       statusText = "기절";
     } else {
-      if (pokemon.status.burn) {
+      if (pokemon.ailment.burn) {
         statusText = "화상";
-      } else if (pokemon.status.freeze) {
+      } else if (pokemon.ailment.freeze) {
         statusText = "얼음";
-      } else if (pokemon.status.mabi) {
+      } else if (pokemon.ailment.mabi) {
         statusText = "마비";
-      } else if (pokemon.status.poison) {
+      } else if (pokemon.ailment.poison) {
         statusText = "독";
-      } else if (pokemon.status.mpoison) {
+      } else if (pokemon.ailment.mpoison) {
         statusText = "맹독";
-      } else if (pokemon.status.sleep) {
+      } else if (pokemon.ailment.sleep) {
         statusText = "잠듦";
       }
     }

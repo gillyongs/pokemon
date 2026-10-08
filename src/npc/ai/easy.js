@@ -150,7 +150,7 @@ export function getHighestScoreKey(skObj) {
 
 // 상태이상 가능 여부 체크
 export function statusAbleCheck(status, pokemon) {
-  if (Object.values(pokemon.status).some((v) => v !== null)) {
+  if (Object.values(pokemon.ailment).some((v) => v !== null)) {
     // null이 아닌 값이 하나라도 있으면 (상태이상이 이미 걸려있으면) false 반환
     return false;
   }

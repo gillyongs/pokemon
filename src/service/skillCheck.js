@@ -20,30 +20,30 @@ export const beforeSkillCheck = (bt, enqueue) => {
   const useSkill = atk.turn.useSkill;
 
   // 잠듦
-  if (atk.status.sleep > 0) {
+  if (atk.ailment.sleep > 0) {
     // 후 잠듦 맞으면 그 다음턴은 확정 잠듦 = 사용자 행동마다 카운트
     // 교체 직후 도발 맞으면 그 턴 포함 3턴이지만
     // 교체 직후 잠듦 걸리면 그 다음 턴부터 센다
-    atk.status.sleep -= 1;
-    if (atk.status.sleep === 0) {
+    atk.ailment.sleep -= 1;
+    if (atk.ailment.sleep === 0) {
       let wakeUpText = atk.names + " 눈을 떴다!";
-      atk.status.sleep = null;
+      atk.ailment.sleep = null;
       enqueue({ battle: bt, text: wakeUpText });
     }
   }
-  if (atk.status.sleep !== null) {
+  if (atk.ailment.sleep !== null) {
     enqueue({ battle: bt, text: atk.names + " 쿨쿨 잠들어 있다" });
     return false;
   }
 
   // 얼음
-  if (atk.status.freeze !== null) {
+  if (atk.ailment.freeze !== null) {
     if (random(80) && useSkill.type !== "불꽃") {
       let freezeText = atk.names + " 얼어버려서 움직일 수 없다!";
       enqueue({ battle: bt, text: freezeText });
       return false;
     } else {
-      atk.status.freeze = null;
+      atk.ailment.freeze = null;
       let freezeText = atk.name + "의 얼음이 녹았다!";
       enqueue({ battle: bt, text: freezeText });
     }
@@ -64,7 +64,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
     }
   }
 
-  if (atk.status.mabi !== null) {
+  if (atk.ailment.mabi !== null) {
     if (random(25)) {
       let mabiText = atk.names + " 몸이 저려서 움직일 수 없다!";
       enqueue({ battle: bt, text: mabiText });

@@ -19,13 +19,13 @@ function skillEffectSearch(name) {
           atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 10, text);
         }
       }
-      if (def.status.freeze && !def.faint) {
+      if (def.ailment.freeze && !def.faint) {
         // 얼음치료와 상태이상 부여 이벤트가 동시에 있으면 상태이상 부여가 먼저 발생한다
         // => 상태이상 부여가 실패하고 얼음이 녹아 상태이상이 없는 상태가 된다
         const meltSkills = ["열탕", "스팀버스트", "열사의대지", "휘적휘적포"]; //불꽃 타입이 아니지만 얼음을 녹이는 기술들
         if (skill.type === "불꽃" || meltSkills.includes(skill.name)) {
           let freezeCureText = def.name + "의 얼음이 녹았다!";
-          def.status.freeze = null;
+          def.ailment.freeze = null;
           enqueue({
             battle: battle,
             text: freezeCureText,
@@ -82,8 +82,8 @@ function skillEffectSearch(name) {
     },
     화상치료: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
-      if (def.status.burn && !def.faint) {
-        def.status.burn = null;
+      if (def.ailment.burn && !def.faint) {
+        def.ailment.burn = null;
         enqueue({
           battle: battle,
           text: def.name + "의 화상이 나았다!",

@@ -202,7 +202,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
 
       // 물거품아리아
-      if (skillEffect.name === "화상치료" && player.status.burn !== null) {
+      if (skillEffect.name === "화상치료" && player.ailment.burn !== null) {
         score -= 10;
         log += ` - 10 (${skillEffect.name})`;
       }

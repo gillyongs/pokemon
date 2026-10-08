@@ -32,7 +32,7 @@ describe("수포(Water Bubble) 특성 테스트", () => {
       rank: { atk: 0, def: 0, catk: 0, cdef: 0 },
       charge: false,
     },
-    status: { burn: null, poison: null, paralysis: null, sleep: null, freeze: null },
+    ailment: { burn: null, poison: null, paralysis: null, sleep: null, freeze: null },
     turn: {
       useSkill: { name: "테스트기술", type: skillType, stype: "atk", power: 40, feature: {}, skillEffectList: [] },
       critical: false,
@@ -101,7 +101,7 @@ describe("수포(Water Bubble) 특성 테스트", () => {
     applyAilment("화상", mockBattle, "npc", mockEnqueue, true);
 
     // 상태이상이 null로 유지되어야 함
-    expect(mockBattle.npc.status.burn).toBeNull();
+    expect(mockBattle.npc.ailment.burn).toBeNull();
 
     // 도깨비불 실패 시 "하지만 실패했다!"가 출력되는지 검증
     expect(mockEnqueue).toHaveBeenCalledWith({
@@ -119,7 +119,7 @@ describe("수포(Water Bubble) 특성 테스트", () => {
     applyAilment("화상", mockBattle, "npc", mockEnqueue, true);
 
     // 수포라도 틀깨기에 의해 화상에 걸림
-    expect(mockBattle.npc.status.burn).toBe(true);
+    expect(mockBattle.npc.ailment.burn).toBe(true);
     // 화상에 걸렸다는 문구가 뜨는지 확인 (josa 패키지 적용 안된 문자열 직접 비교 대신 정규식 등을 사용할 수도 있음)
     // 여기서는 mock의 names 속성이 제대로 들어갔는지 확인
     expect(mockEnqueue).toHaveBeenCalledWith({
@@ -133,7 +133,7 @@ describe("수포(Water Bubble) 특성 테스트", () => {
     mockBattle.player = createMockPokemon("상대몬", "없음", "노말");
 
     // 강제로 화상 부여
-    mockBattle.npc.status.burn = true;
+    mockBattle.npc.ailment.burn = true;
 
     // turnEnd에서 호출되는 processAilment 직접 실행
     const { processAilment } = require("../../service/turnEnd/ailmentEvent");
@@ -141,7 +141,7 @@ describe("수포(Water Bubble) 특성 테스트", () => {
     processAilment(mockBattle, mockEnqueue, "player", "npc");
 
     // 화상이 지워졌는지 확인
-    expect(mockBattle.npc.status.burn).toBeNull();
+    expect(mockBattle.npc.ailment.burn).toBeNull();
     // 텍스트 출력 검증
     expect(mockEnqueue).toHaveBeenCalledWith({
       battle: mockBattle,

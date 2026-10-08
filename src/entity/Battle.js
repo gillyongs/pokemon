@@ -49,12 +49,12 @@ class Battle {
       },
     };
 
-    // this.player.status.poison = true;
-    // this.playerBench1.status.poison = true;
-    // this.playerBench2.status.poison = true;
-    // this.npc.status.poison = true;
-    // this.npcBench1.status.poison = true;
-    // this.npcBench2.status.poison = true;
+    // this.player.ailment.poison = true;
+    // this.playerBench1.ailment.poison = true;
+    // this.playerBench2.ailment.poison = true;
+    // this.npc.ailment.poison = true;
+    // this.npcBench1.ailment.poison = true;
+    // this.npcBench2.ailment.poison = true;
   }
 
   // 턴 시작시 turn 초기화

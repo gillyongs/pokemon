@@ -1,4 +1,6 @@
-export const isAilmentCheck = (pokemon) => {
+const fs = require('fs');
+
+const content = `export const isAilmentCheck = (pokemon) => {
   const ailmentObj = pokemon.ailment;
   // 상태이상이 하나라도 걸려있으면 true 반환
   return Object.values(ailmentObj).some((v) => v !== null);
@@ -84,7 +86,7 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
     
     // 1 ~ 3턴
     pokemon.tempStatus.confuse = Math.floor(Math.random() * 3) + 1;
-    const confuseText = textOption || `${pokemon.names} 혼란에 빠졌다!`;
+    const confuseText = textOption || \`\${pokemon.names} 혼란에 빠졌다!\`;
     enqueue({ battle, text: confuseText });
     return;
   }
@@ -105,24 +107,27 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
   let text = "";
   if (ailment === "마비" || ailment === "mabi") {
     pokemon.ailment.mabi = true;
-    text = (textOption === "특성" ? "[특성 효과] " : "") + `${pokemon.names} 마비되어 기술을 쓰기 어려워졌다!`;
+    text = (textOption === "특성" ? "[특성 효과] " : "") + \`\${pokemon.names} 마비되어 기술을 쓰기 어려워졌다!\`;
   } else if (ailment === "화상" || ailment === "burn") {
     pokemon.ailment.burn = true;
-    text = textOption === "화염구슬" ? `${pokemon.names} 화염구슬로 화상을 입었다!` : `${pokemon.names} 화상을 입었다!`;
+    text = textOption === "화염구슬" ? \`\${pokemon.names} 화염구슬로 화상을 입었다!\` : \`\${pokemon.names} 화상을 입었다!\`;
   } else if (ailment === "독" || ailment === "poison") {
     pokemon.ailment.poison = true;
-    text = `${pokemon.name}은(는) 독에 걸렸다!`;
+    text = \`\${pokemon.name}은(는) 독에 걸렸다!\`;
   } else if (ailment === "맹독" || ailment === "mpoison") {
     pokemon.ailment.mpoison = 1; // 맹독 카운터 시작
-    text = `${pokemon.name}은(는) 맹독에 걸렸다!`;
+    text = \`\${pokemon.name}은(는) 맹독에 걸렸다!\`;
   } else if (ailment === "얼음" || ailment === "freeze") {
     pokemon.ailment.freeze = true;
-    text = `${pokemon.names} 얼어붙었다!`;
+    text = \`\${pokemon.names} 얼어붙었다!\`;
   } else if (ailment === "수면" || ailment === "sleep") {
     pokemon.ailment.sleep = Math.floor(Math.random() * 3) + 2; // 2 ~ 4턴 잠듦
-    text = `${pokemon.names} 잠들어버렸다!`;
+    text = \`\${pokemon.names} 잠들어버렸다!\`;
   }
 
   // 출력 텍스트
   enqueue({ battle, text });
 };
+`;
+
+fs.writeFileSync('src/function/ailment.js', content);

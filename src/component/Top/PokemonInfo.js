@@ -8,7 +8,7 @@ const PokemonInfo = ({ battle, type }) => {
   return (
     <INFO type={type}>
       <NAME>{pokemon.origin.name}</NAME>
-      {Object.entries(pokemon.status).map(([key, value]) =>
+      {Object.entries(pokemon.ailment).map(([key, value]) =>
         value != null ? (
           <STATUS key={key} status={statusMap[key]}>
             {statusKor[key]}

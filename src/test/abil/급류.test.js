@@ -29,7 +29,7 @@ describe("급류 특성 테스트", () => {
       rank: { atk: 0, def: 0, catk: 0, cdef: 0 },
       charge: false,
     },
-    status: { burn: null },
+    ailment: { burn: null },
     turn: {
       useSkill: { name: "테스트기술", type: skillType, stype: "atk", power: 40, feature: {}, skillEffectList: [] },
       critical: false,
@@ -58,7 +58,7 @@ describe("급류 특성 테스트", () => {
     tempStatus: {
       rank: { atk: 0, def: 0, catk: 0, cdef: 0 },
     },
-    status: { burn: null },
+    ailment: { burn: null },
     turn: { protect: false },
     log: {},
   });

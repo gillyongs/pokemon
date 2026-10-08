@@ -7,7 +7,7 @@ const BenchPokemon = ({ battle, index, selected, handleSelected, setBench, setBo
       <PokemonName className={`${index}`}>{pokemon.origin.name}</PokemonName>
       <PokemonImage className={`${index}`} src={`/pokemon/img/pokemon/${pokemon.origin.pokemon_id}.webp`} alt={`bench2`} />
 
-      {Object.entries(pokemon.status).map(([key, value]) =>
+      {Object.entries(pokemon.ailment).map(([key, value]) =>
         value != null ? (
           <STATUS key={key} status={statusMap[key]}>
             {statusKor[key]}
