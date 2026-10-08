@@ -108,8 +108,10 @@ function skillEffectSearch(name) {
       confuse(battle, battle.turn.def, enqueue);
     },
     풀죽음: (battle, enqueue, skillEffect) => {
+      let atk = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
-      if (def.abil === "정신력") {
+      const noTggAtk = !atk.abilObj.feature?.tgg;
+      if (def.abil === "정신력" && noTggAtk) {
         return;
       }
       if (random(100 - skillEffect.probability)) {

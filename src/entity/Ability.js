@@ -168,7 +168,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
       target.rankUp(bt, enqueue, cfg.stat, cfg.value, abilText);
     } else if (atkAbil === abil && !cfg.cond && abil === "위협") {
       let failMessage = abilText + " " + def.name + "에겐 효과가 없는 것 같다...";
-      if (def.abil === "정신력") failMessage = `[특성 정신력] ${def.names} 위협에 위축되지 않는다!`;
+      if (def.abil === "정신력") failMessage = `[특성 정신력] ${def.name}의 공격은 떨어지지 않는다!`;
       enqueue({ battle: bt, text: failMessage });
     }
   });
