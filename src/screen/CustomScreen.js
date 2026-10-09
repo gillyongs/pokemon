@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import sampleList from "../entity/Pokemon/SamplePokemon";
-import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
+import { pokemonList, POKEMON_ROLES } from "../entity/Pokemon/PokemonTemplate";
 
 const CustomScreen = () => {
   const navigate = useNavigate();
@@ -11,13 +11,78 @@ const CustomScreen = () => {
   const [activeTab, setActiveTab] = useState("player");
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTypes, setActiveTypes] = useState([]);
+  const [activeLogic, setActiveLogic] = useState("OR");
+  const [activeRoles, setActiveRoles] = useState([]);
+  const [tempSelectedTypes, setTempSelectedTypes] = useState([]);
+  const [tempSelectedRoles, setTempSelectedRoles] = useState([]);
+  const [tempLogic, setTempLogic] = useState("OR");
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
+  const [difficulty, setDifficulty] = useState("노말");
+  const [teamOption, setTeamOption] = useState("고정");
+  const [typeColors, setTypeColors] = useState({});
+
+  const listAreaRef = useRef(null);
+  const [showTopBtn, setShowTopBtn] = useState(false);
+
+  useEffect(() => {
+    fetch("/pokemon/img/type/typeColor.json")
+      .then((res) => res.json())
+      .then((data) => setTypeColors(data))
+      .catch((err) => console.error("Failed to load type colors", err));
+  }, []);
+
+  const handleScroll = (e) => {
+    if (e.target.scrollTop > 100) {
+      setShowTopBtn(true);
+    } else {
+      setShowTopBtn(false);
+    }
+  };
+
+  const scrollToTop = () => {
+    if (listAreaRef.current) {
+      listAreaRef.current.scrollTo({ top: 0, behavior: "auto" });
+    }
+  };
+
+  const openFilterModal = () => {
+    setTempSelectedTypes(activeTypes);
+    setTempSelectedRoles(activeRoles);
+    setTempLogic(activeLogic);
+    setIsFilterModalOpen(true);
+  };
+
+  const handleGlobalReset = () => {
+    setSearchTerm("");
+    setActiveTypes([]);
+    setActiveRoles([]);
+    setActiveLogic("OR");
+  };
+
+  const toggleRole = (role) => {
+    if (tempSelectedRoles.includes(role)) {
+      setTempSelectedRoles(tempSelectedRoles.filter((r) => r !== role));
+    } else {
+      setTempSelectedRoles([...tempSelectedRoles, role]);
+    }
+  };
+
+  const toggleType = (type) => {
+    if (tempSelectedTypes.includes(type)) {
+      setTempSelectedTypes(tempSelectedTypes.filter((t) => t !== type));
+    } else {
+      setTempSelectedTypes([...tempSelectedTypes, type]);
+    }
+  };
 
   const isNameMatch = (searchStr, pokemonName) => {
     if (!searchStr) return true;
-    
+
     const s = searchStr.trim().toLowerCase();
     const t = pokemonName.toLowerCase();
-    
+
     if (t.includes(s)) return true;
 
     if (s === "다투곰" && t.includes("달투곰")) return true;
@@ -27,7 +92,25 @@ const CustomScreen = () => {
     return false;
   };
 
-  const filteredSamples = sampleList.items.filter((pokemon) => isNameMatch(searchTerm, pokemon.id));
+  const filteredSamples = sampleList.items.filter((pokemon) => {
+    const nameMatch = isNameMatch(searchTerm, pokemon.id);
+
+    let typeMatch = true;
+    if (activeTypes.length > 0) {
+      if (activeLogic === "OR") {
+        typeMatch = activeTypes.includes(pokemon.type1) || activeTypes.includes(pokemon.type2);
+      } else {
+        typeMatch = activeTypes.every((t) => pokemon.type1 === t || pokemon.type2 === t);
+      }
+    }
+
+    let roleMatch = true;
+    if (activeRoles.length > 0) {
+      roleMatch = activeRoles.includes(pokemon.role);
+    }
+
+    return nameMatch && typeMatch && roleMatch;
+  });
 
   const getActiveTeam = () => (activeTab === "player" ? selectedTeam : npcTeam);
   const setActiveTeam = (newTeam) => {
@@ -43,7 +126,6 @@ const CustomScreen = () => {
     }
     const emptyIndex = currentTeam.indexOf(null);
     if (emptyIndex === -1) {
-      alert("최대 3마리까지 선택 가능합니다.");
       return;
     }
     const newTeam = [...currentTeam];
@@ -147,7 +229,7 @@ const CustomScreen = () => {
   const startBattle = () => {
     const team1 = getRandomTeamWithExisting(selectedTeam, 3);
     const team2 = getRandomTeamWithExisting(npcTeam, 3);
-    navigate("/battle", { state: { team1, team2, isNew: true } });
+    navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption } });
   };
 
   const handleTestSetup = () => {
@@ -227,18 +309,39 @@ const CustomScreen = () => {
             );
           })}
         </TeamSlots>
-        <StartButton onClick={startBattle}>배틀 시작!</StartButton>
+        <ActionArea>
+          <StartButton onClick={startBattle}>배틀 시작!</StartButton>
+          <OptionButton onClick={() => setIsOptionModalOpen(true)}>게임 옵션</OptionButton>
+        </ActionArea>
       </TeamArea>
 
-      <ListArea>
+      <ListArea ref={listAreaRef} onScroll={handleScroll}>
+        {showTopBtn && (
+          <TopButton onClick={scrollToTop}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+          </TopButton>
+        )}
         <SectionHeader>
           <SectionTitle>포켓몬 샘플 ({filteredSamples.length}종)</SectionTitle>
-          <SearchInput
-            type="text"
-            placeholder="이름 검색..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <SearchWrapper>
+            <InputContainer>
+              <SearchInput type="text" placeholder="이름 검색" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              {searchTerm && <ClearInputButton onClick={() => setSearchTerm("")}>✕</ClearInputButton>}
+            </InputContainer>
+            <FilterButton onClick={openFilterModal}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+              </svg>
+            </FilterButton>
+            <FilterButton onClick={handleGlobalReset}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+            </FilterButton>
+          </SearchWrapper>
         </SectionHeader>
         <Grid>
           {filteredSamples.map((pokemon) => {
@@ -281,11 +384,304 @@ const CustomScreen = () => {
           })}
         </Grid>
       </ListArea>
+      {isFilterModalOpen && (
+        <ModalOverlay onClick={() => setIsFilterModalOpen(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <ModalTitle>포켓몬 검색</ModalTitle>
+              <LogicSwitch onClick={() => setTempLogic(tempLogic === "OR" ? "AND" : "OR")}>
+                <LogicOption $active={tempLogic === "OR"}>OR</LogicOption>
+                <LogicOption $active={tempLogic === "AND"}>AND</LogicOption>
+              </LogicSwitch>
+              <CloseIcon onClick={() => setIsFilterModalOpen(false)}>✕</CloseIcon>
+            </ModalHeader>
+            <SectionTitleRow>
+              <ModalSubTitle>타입</ModalSubTitle>
+              <SectionResetButton onClick={() => setTempSelectedTypes([])}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                </svg>
+              </SectionResetButton>
+            </SectionTitleRow>
+            <TypeGrid>
+              <TypeButton $active={tempSelectedTypes.length === 0} onClick={() => setTempSelectedTypes([])}>
+                전체
+              </TypeButton>
+              {POKEMON_TYPES.map((type) => (
+                <TypeButton key={type} $active={tempSelectedTypes.includes(type)} $color={typeColors[type]} onClick={() => toggleType(type)}>
+                  {type}
+                </TypeButton>
+              ))}
+            </TypeGrid>
+
+            <SectionTitleRow>
+              <ModalSubTitle>역할군</ModalSubTitle>
+              <SectionResetButton onClick={() => setTempSelectedRoles([])}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                </svg>
+              </SectionResetButton>
+            </SectionTitleRow>
+            <RoleGrid>
+              <TypeButton $active={tempSelectedRoles.length === 0} onClick={() => setTempSelectedRoles([])}>
+                전체
+              </TypeButton>
+              {POKEMON_ROLES.map((role) => (
+                <TypeButton key={role} $active={tempSelectedRoles.includes(role)} onClick={() => toggleRole(role)}>
+                  {role}
+                </TypeButton>
+              ))}
+            </RoleGrid>
+
+            <ModalFooter>
+              <SearchButton
+                onClick={() => {
+                  setActiveTypes(tempSelectedTypes);
+                  setActiveRoles(tempSelectedRoles);
+                  setActiveLogic(tempLogic);
+                  setIsFilterModalOpen(false);
+                }}>
+                검색
+              </SearchButton>
+            </ModalFooter>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+      {isOptionModalOpen && (
+        <ModalOverlay onClick={() => setIsOptionModalOpen(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <ModalTitle>게임 옵션</ModalTitle>
+              <CloseIcon onClick={() => setIsOptionModalOpen(false)}>✕</CloseIcon>
+            </ModalHeader>
+            <ModalSubTitle>난이도</ModalSubTitle>
+            <DifficultyContainer>
+              {["이지", "노말", "하드"].map((level) => (
+                <DifficultyButton key={level} $active={difficulty === level} onClick={() => setDifficulty(level)}>
+                  {level}
+                </DifficultyButton>
+              ))}
+            </DifficultyContainer>
+            <DifficultyDescription>
+              {difficulty === "이지" && "기초적인 포켓몬배틀이다."}
+              {difficulty === "노말" && "매 라운드마다 적의 체력이 0.1배 증가합니다."}
+              {difficulty === "하드" && "매 라운드마다 적의 모든 능력치가 0.1배 증가합니다."}
+            </DifficultyDescription>
+            <ModalSubTitle style={{ marginTop: '20px' }}>팀 옵션</ModalSubTitle>
+            <DifficultyContainer>
+              {["고정", "랜덤", "트레이드"].map((opt) => (
+                <DifficultyButton 
+                  key={opt} 
+                  $active={teamOption === opt}
+                  onClick={() => setTeamOption(opt)}
+                >
+                  {opt}
+                </DifficultyButton>
+              ))}
+            </DifficultyContainer>
+            <DifficultyDescription>
+              {teamOption === "고정" && "팀 엔트리가 바뀌지 않습니다."}
+              {teamOption === "랜덤" && "매 라운드마다 팀 엔트리가 랜덤하게 바뀝니다."}
+              {teamOption === "트레이드" && "매 라운드마다 상대 팀 엔트리에서 한명을 교환할 수 있습니다."}
+            </DifficultyDescription>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </Container>
   );
 };
 
 export default CustomScreen;
+
+const POKEMON_TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투", "독", "땅", "비행", "에스퍼", "벌레", "바위", "고스트", "드래곤", "악", "강철", "페어리"];
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 320px;
+  max-width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+`;
+
+const ModalTitle = styled.h3`
+  margin: 0;
+  font-size: 1.1rem;
+  margin-right: auto;
+`;
+
+const SectionTitleRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+
+const ModalSubTitle = styled.div`
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #555;
+`;
+
+const DifficultyContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+`;
+
+const DifficultyButton = styled.div`
+  flex: 1;
+  text-align: center;
+  padding: 10px 0;
+  border: 1px solid ${(props) => (props.$active ? "#4caf50" : "#ccc")};
+  background-color: ${(props) => (props.$active ? "#4caf50" : "#fff")};
+  color: ${(props) => (props.$active ? "#fff" : "#333")};
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: ${(props) => (props.$active ? "bold" : "normal")};
+
+  &:hover {
+    background-color: ${(props) => (props.$active ? "#4caf50" : "#f5f5f5")};
+  }
+`;
+
+const DifficultyDescription = styled.div`
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 6px;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+`;
+
+const SectionResetButton = styled.button`
+  background-color: #4caf50;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+
+  &:hover {
+    background-color: #43a047;
+  }
+`;
+
+const LogicSwitch = styled.div`
+  display: flex;
+  background-color: #f0f0f0;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-right: 15px;
+  cursor: pointer;
+`;
+
+const LogicOption = styled.div`
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  background-color: ${(props) => (props.$active ? "#4caf50" : "transparent")};
+  color: ${(props) => (props.$active ? "white" : "#666")};
+  transition: all 0.2s;
+`;
+
+const CloseIcon = styled.div`
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #666;
+  }
+`;
+
+const TypeGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+`;
+
+const RoleGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+`;
+
+const TypeButton = styled.button`
+  padding: 8px 0;
+  border: 1px solid ${(props) => (props.$active ? props.$color || "#4caf50" : "#ccc")};
+  background-color: ${(props) => (props.$active ? props.$color || "#4caf50" : "#fff")};
+  color: ${(props) => (props.$active ? "#fff" : "#333")};
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: ${(props) => (props.$active ? "bold" : "normal")};
+  font-size: 0.85rem;
+  transition: all 0.2s;
+
+  &:hover {
+    filter: ${(props) => (props.$active ? "brightness(0.9)" : "none")};
+    background-color: ${(props) => (props.$active ? props.$color || "#4caf50" : "#f5f5f5")};
+  }
+`;
+
+const ModalFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+`;
+
+const SearchButton = styled.button`
+  width: 100%;
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+
+  &:hover {
+    background-color: #43a047;
+  }
+`;
 
 const Container = styled.div`
   display: flex;
@@ -293,6 +689,7 @@ const Container = styled.div`
   height: 100vh;
   background-color: #f0f0f0;
   font-family: "CustomFont", sans-serif;
+  overflow: hidden;
 `;
 
 const Header = styled.h2`
@@ -385,27 +782,85 @@ const SectionTitle = styled.div`
   font-size: 1.2rem;
   font-weight: bold;
   color: #333;
+  line-height: 36px;
 
   @media (max-width: 500px) {
     font-size: 1rem;
+    line-height: 32px;
+  }
+`;
+
+const SearchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const FilterButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  color: #555;
+  padding: 0;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  @media (max-width: 500px) {
+    width: 32px;
+    height: 32px;
+  }
+`;
+
+const InputContainer = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const ClearInputButton = styled.button`
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #666;
   }
 `;
 
 const SearchInput = styled.input`
-  padding: 8px 12px;
+  padding: 0 28px 0 12px;
+  height: 36px;
+  box-sizing: border-box;
   font-size: 0.95rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   outline: none;
-  width: 180px;
+  width: 120px;
 
   &:focus {
     border-color: #4caf50;
   }
 
   @media (max-width: 500px) {
-    width: 130px;
-    padding: 6px 10px;
+    width: 90px;
+    height: 32px;
+    padding: 0 24px 0 8px;
     font-size: 0.85rem;
   }
 `;
@@ -563,6 +1018,30 @@ const EmptySlotText = styled.div`
   }
 `;
 
+const ActionArea = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+`;
+
+const OptionButton = styled.button`
+  position: absolute;
+  right: 0;
+  padding: 6px 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #333;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+`;
+
 const StartButton = styled.button`
   padding: 8px 32px;
   font-size: 1rem;
@@ -586,11 +1065,40 @@ const StartButton = styled.button`
 const ListArea = styled.div`
   flex: 1;
   padding: 20px;
+  padding-bottom: 80px;
   overflow-y: auto;
   background-color: #f5f5f5;
 
   @media (max-width: 500px) {
     padding: 10px;
+    padding-bottom: 80px;
+  }
+`;
+
+const TopButton = styled.button`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 50;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  &:hover {
+    background-color: #43a047;
   }
 `;
 
