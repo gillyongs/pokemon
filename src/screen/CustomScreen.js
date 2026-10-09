@@ -10,13 +10,31 @@ const CustomScreen = () => {
   const [npcTeam, setNpcTeam] = useState([null, null, null]);
   const [activeTab, setActiveTab] = useState("player");
   const [draggedIndex, setDraggedIndex] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const isNameMatch = (searchStr, pokemonName) => {
+    if (!searchStr) return true;
+    
+    const s = searchStr.trim().toLowerCase();
+    const t = pokemonName.toLowerCase();
+    
+    if (t.includes(s)) return true;
+
+    if (s === "다투곰" && t.includes("달투곰")) return true;
+    if (s === "우라오스" && t.includes("물라오스")) return true;
+    if (s === "버드렉스" && (t.includes("백마렉스") || t.includes("흑마렉스"))) return true;
+
+    return false;
+  };
+
+  const filteredSamples = sampleList.items.filter((pokemon) => isNameMatch(searchTerm, pokemon.id));
 
   const getActiveTeam = () => (activeTab === "player" ? selectedTeam : npcTeam);
   const setActiveTeam = (newTeam) => {
     if (activeTab === "player") setSelectedTeam(newTeam);
     else setNpcTeam(newTeam);
   };
-  
+
   const handleSelect = (pokemonId) => {
     const currentTeam = getActiveTeam();
     if (currentTeam.includes(pokemonId)) {
@@ -77,10 +95,10 @@ const CustomScreen = () => {
     if (draggedIndex === null) return;
     const touch = e.changedTouches[0];
     const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-    const targetSlot = dropTarget?.closest('.team-slot');
-    
+    const targetSlot = dropTarget?.closest(".team-slot");
+
     if (targetSlot) {
-      const targetIndex = parseInt(targetSlot.getAttribute('data-index'));
+      const targetIndex = parseInt(targetSlot.getAttribute("data-index"));
       if (!isNaN(targetIndex) && targetIndex !== draggedIndex) {
         const currentTeam = getActiveTeam();
         const newTeam = [...currentTeam];
@@ -95,12 +113,12 @@ const CustomScreen = () => {
 
   const getRandomTeamWithExisting = (existingTeam, teamSize = 3) => {
     // 기존에 선택된 팀의 ID들 (문자열 배열)
-    const team = existingTeam.filter(id => id !== null);
-    
+    const team = existingTeam.filter((id) => id !== null);
+
     while (team.length < teamSize) {
       const randomIndex = Math.floor(Math.random() * pokemonList.length);
       const selectedPokemonId = pokemonList[randomIndex]; // 문자열 ID
-      
+
       // 이미 포함되어 있지 않으면 추가
       if (!team.includes(selectedPokemonId)) {
         team.push(selectedPokemonId);
@@ -111,13 +129,13 @@ const CustomScreen = () => {
 
   const handleRandomPick = (index) => {
     const currentArr = activeTab === "player" ? selectedTeam : npcTeam;
-    const available = pokemonList.filter(id => !currentArr.includes(id));
-    
+    const available = pokemonList.filter((id) => !currentArr.includes(id));
+
     if (available.length > 0) {
       const randomId = available[Math.floor(Math.random() * available.length)];
       const newTeam = [...currentArr];
       newTeam[index] = randomId;
-      
+
       if (activeTab === "player") {
         setSelectedTeam(newTeam);
       } else {
@@ -132,13 +150,24 @@ const CustomScreen = () => {
     navigate("/battle", { state: { team1, team2, isNew: true } });
   };
 
+  const handleTestSetup = () => {
+    if (selectedTeam[0] === "가이오가") {
+      setSelectedTeam(["윈디", "에이스번", "다투곰"]);
+      setNpcTeam(["가이오가", npcTeam[1], npcTeam[2]]);
+    } else {
+      setSelectedTeam(["가이오가", selectedTeam[1], selectedTeam[2]]);
+      setNpcTeam(["윈디", "에이스번", "다투곰"]);
+    }
+    setActiveTab("player");
+  };
+
   const currentTeam = getActiveTeam();
 
   return (
     <Container>
       <Header>
-        <BackButtonIcon onClick={() => navigate("/")}>&#8592;</BackButtonIcon>
-        커스텀 팀 구성
+        <BackButtonIcon onClick={() => navigate("/")}>&#8592;</BackButtonIcon>팀 구성
+        <TestButton onClick={handleTestSetup}>테스트</TestButton>
       </Header>
       <TabContainer>
         <Tab $active={activeTab === "player"} onClick={() => setActiveTab("player")}>
@@ -148,33 +177,42 @@ const CustomScreen = () => {
           상대 엔트리
         </Tab>
       </TabContainer>
-      
+
       <TeamArea>
         <TeamSlots>
           {[0, 1, 2].map((index) => {
             const pokemonId = currentTeam[index];
             const pokemonData = pokemonId ? sampleList.getItemById(pokemonId) : null;
             return (
-              <Slot 
-                key={index}
-                className="team-slot"
-                data-index={index}
-                draggable={!!pokemonId}
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDrop={(e) => handleDrop(e, index)}
-                onDragOver={handleDragOver}
-                onTouchStart={(e) => handleTouchStart(e, index)}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-                $hasData={!!pokemonId}
-              >
+              <Slot key={index} className="team-slot" data-index={index} draggable={!!pokemonId} onDragStart={(e) => handleDragStart(e, index)} onDrop={(e) => handleDrop(e, index)} onDragOver={handleDragOver} onTouchStart={(e) => handleTouchStart(e, index)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} $hasData={!!pokemonId}>
                 {pokemonData ? (
                   <PokemonCard onClick={() => handleRemove(index)}>
-                    <RemoveBtn onClick={(e) => { e.stopPropagation(); handleRemove(index); }}>X</RemoveBtn>
+                    <RemoveBtn
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemove(index);
+                      }}>
+                      X
+                    </RemoveBtn>
                     <ImageWrapper>
-                      <img src={`/pokemon/img/pokemon/${pokemonData.pokemon_id}.webp`} alt={pokemonData.name} style={{height: "60px"}} onError={(e) => { e.target.src = "/pokemon/img/pokemon/0000.webp" }} draggable="false" />
+                      <img
+                        src={`/pokemon/img/pokemon/${pokemonData.pokemon_id}.webp`}
+                        alt={pokemonData.name}
+                        style={{ height: "60px" }}
+                        onError={(e) => {
+                          e.target.src = "/pokemon/img/pokemon/0000.webp";
+                        }}
+                        draggable="false"
+                      />
                       {pokemonData.item && (
-                        <SmallItemImage src={`/pokemon/img/item/${pokemonData.item}.webp`} alt={pokemonData.item} onError={(e) => { e.target.style.display = 'none'; }} draggable="false" />
+                        <SmallItemImage
+                          src={`/pokemon/img/item/${pokemonData.item}.webp`}
+                          alt={pokemonData.item}
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                          draggable="false"
+                        />
                       )}
                     </ImageWrapper>
                     <PokemonName>{pokemonData.name}</PokemonName>
@@ -189,36 +227,57 @@ const CustomScreen = () => {
             );
           })}
         </TeamSlots>
-        <StartButton onClick={startBattle}>
-          배틀 시작!
-        </StartButton>
+        <StartButton onClick={startBattle}>배틀 시작!</StartButton>
       </TeamArea>
 
       <ListArea>
-        <SectionTitle>포켓몬 샘플 ({sampleList.items.length}종)</SectionTitle>
+        <SectionHeader>
+          <SectionTitle>포켓몬 샘플 ({filteredSamples.length}종)</SectionTitle>
+          <SearchInput
+            type="text"
+            placeholder="이름 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </SectionHeader>
         <Grid>
-          {sampleList.items.map((pokemon) => {
+          {filteredSamples.map((pokemon) => {
             const isSelected = currentTeam.includes(pokemon.id);
             return (
-              <ListItem 
-                key={pokemon.id} 
-                $isSelected={isSelected}
-                onClick={() => handleSelect(pokemon.id)}
-              >
-                <ImageWrapper style={{flexShrink: 0}}>
-                  <img src={`/pokemon/img/pokemon/${pokemon.pokemon_id}.webp`} alt={pokemon.name} style={{height: "60px", width: "60px", objectFit: "contain"}} onError={(e) => { e.target.src = "/pokemon/img/pokemon/0000.webp" }}/>
+              <ListItem key={pokemon.id} $isSelected={isSelected} onClick={() => handleSelect(pokemon.id)}>
+                <ImageWrapper style={{ flexShrink: 0 }}>
+                  <img
+                    src={`/pokemon/img/pokemon/${pokemon.pokemon_id}.webp`}
+                    alt={pokemon.name}
+                    style={{ height: "60px", width: "60px", objectFit: "contain" }}
+                    onError={(e) => {
+                      e.target.src = "/pokemon/img/pokemon/0000.webp";
+                    }}
+                  />
                   {pokemon.item && (
-                    <SmallItemImage src={`/pokemon/img/item/${pokemon.item}.webp`} alt={pokemon.item} onError={(e) => { e.target.style.display = 'none'; }} />
+                    <SmallItemImage
+                      src={`/pokemon/img/item/${pokemon.item}.webp`}
+                      alt={pokemon.item}
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
                   )}
                 </ImageWrapper>
                 <InfoCol>
                   <PokemonNameList>{pokemon.id}</PokemonNameList>
-                  <AbilText>[기술배치] {pokemon.skill[1].name}, {pokemon.skill[2].name}, {pokemon.skill[3].name}, {pokemon.skill[4].name}</AbilText>
-                  <AbilText>[특성] {pokemon.abil} : {pokemon.abilObj?.text || "설명 없음"}</AbilText>
-                  <AbilText>[아이템] {pokemon.item || "없음"} : {pokemon.itemText || "설명 없음"}</AbilText>
+                  <AbilText>
+                    [기술배치] {pokemon.skill[1].name}, {pokemon.skill[2].name}, {pokemon.skill[3].name}, {pokemon.skill[4].name}
+                  </AbilText>
+                  <AbilText>
+                    [특성] {pokemon.abil} : {pokemon.abilObj?.text || "설명 없음"}
+                  </AbilText>
+                  <AbilText>
+                    [아이템] {pokemon.item || "없음"} : {pokemon.itemText || "설명 없음"}
+                  </AbilText>
                 </InfoCol>
               </ListItem>
-            )
+            );
           })}
         </Grid>
       </ListArea>
@@ -253,9 +312,24 @@ const BackButtonIcon = styled.div`
   cursor: pointer;
   font-size: 1.5rem;
   font-weight: bold;
-  
+
   &:hover {
     color: #e0e0e0;
+  }
+`;
+
+const TestButton = styled.div`
+  position: absolute;
+  right: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: normal;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 5px 10px;
+  border-radius: 4px;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.4);
   }
 `;
 
@@ -269,12 +343,12 @@ const TabContainer = styled.div`
 const Tab = styled.div`
   flex: 1;
   text-align: center;
-  padding: 12px 0;
+  padding: 10px 0;
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: bold;
-  color: ${props => props.$active ? "#4caf50" : "#888"};
-  border-bottom: ${props => props.$active ? "3px solid #4caf50" : "3px solid transparent"};
+  color: ${(props) => (props.$active ? "#4caf50" : "#888")};
+  border-bottom: ${(props) => (props.$active ? "3px solid #4caf50" : "3px solid transparent")};
   transition: all 0.2s ease;
 
   &:hover {
@@ -284,68 +358,98 @@ const Tab = styled.div`
 
 const TeamArea = styled.div`
   background-color: white;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 10;
-  
+
   @media (max-width: 500px) {
-    padding: 10px;
+    padding: 8px;
+  }
+`;
+
+const SectionHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  @media (max-width: 500px) {
+    margin-bottom: 16px;
   }
 `;
 
 const SectionTitle = styled.div`
   font-size: 1.2rem;
   font-weight: bold;
-  margin-bottom: 15px;
   color: #333;
-  
+
   @media (max-width: 500px) {
     font-size: 1rem;
-    margin-bottom: 10px;
+  }
+`;
+
+const SearchInput = styled.input`
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  width: 180px;
+
+  &:focus {
+    border-color: #4caf50;
+  }
+
+  @media (max-width: 500px) {
+    width: 130px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
   }
 `;
 
 const TeamSlots = styled.div`
   display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
-  
+  gap: 10px;
+  margin-bottom: 15px;
+
   @media (max-width: 500px) {
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 6px;
+    margin-bottom: 8px;
   }
 `;
 
 const Slot = styled.div`
-  width: 120px;
-  height: 140px;
-  border: 2px dashed ${props => props.$hasData ? "transparent" : "#ccc"};
+  width: 105px;
+  height: 95px;
+  border: 2px dashed ${(props) => (props.$hasData ? "transparent" : "#ccc")};
   border-radius: 10px;
-  background-color: ${props => props.$hasData ? "#e8f5e9" : "#fafafa"};
+  background-color: ${(props) => (props.$hasData ? "#e8f5e9" : "#fafafa")};
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  cursor: ${props => props.$hasData ? "grab" : "default"};
-  box-shadow: ${props => props.$hasData ? "0 4px 8px rgba(0,0,0,0.1)" : "none"};
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  
+  cursor: ${(props) => (props.$hasData ? "grab" : "default")};
+  box-shadow: ${(props) => (props.$hasData ? "0 4px 8px rgba(0,0,0,0.1)" : "none")};
+  transition:
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+
   &:hover {
-    transform: ${props => props.$hasData ? "translateY(-4px)" : "none"};
-    box-shadow: ${props => props.$hasData ? "0 8px 16px rgba(0,0,0,0.15)" : "none"};
+    transform: ${(props) => (props.$hasData ? "translateY(-4px)" : "none")};
+    box-shadow: ${(props) => (props.$hasData ? "0 8px 16px rgba(0,0,0,0.15)" : "none")};
   }
 
   &:active {
-    cursor: ${props => props.$hasData ? "grabbing" : "default"};
-    transform: ${props => props.$hasData ? "scale(0.95)" : "none"};
+    cursor: ${(props) => (props.$hasData ? "grabbing" : "default")};
+    transform: ${(props) => (props.$hasData ? "scale(0.95)" : "none")};
   }
-  
+
   @media (max-width: 500px) {
-    width: 30vw;
-    height: 35vw;
+    width: 29vw;
+    height: 25vw;
   }
 `;
 
@@ -355,7 +459,7 @@ const PokemonCard = styled.div`
   align-items: center;
   width: 100%;
   cursor: pointer;
-  
+
   &:hover {
     opacity: 0.8;
   }
@@ -366,11 +470,12 @@ const ImageWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  
+  margin-top: -5px;
+
   > img:first-child {
-    height: 60px;
+    height: 64px;
     @media (max-width: 500px) {
-      height: 45px !important;
+      height: 48px !important;
     }
   }
 `;
@@ -383,7 +488,7 @@ const SmallItemImage = styled.img`
   height: 20px !important;
   object-fit: contain;
   filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
-  
+
   @media (max-width: 500px) {
     width: 15px !important;
     height: 15px !important;
@@ -393,9 +498,9 @@ const SmallItemImage = styled.img`
 
 const PokemonName = styled.div`
   font-weight: bold;
-  margin-top: 5px;
+  margin-top: 2px;
   font-size: 0.9rem;
-  
+
   @media (max-width: 500px) {
     font-size: 0.75rem;
   }
@@ -403,19 +508,19 @@ const PokemonName = styled.div`
 
 const RemoveBtn = styled.button`
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -4px;
+  right: -4px;
   background-color: #ff5252;
   color: white;
   border: none;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: bold;
   z-index: 5;
 `;
@@ -428,7 +533,7 @@ const EmptySlot = styled.div`
   width: 100%;
   height: 100%;
   cursor: pointer;
-  
+
   &:hover {
     color: #4caf50;
   }
@@ -439,7 +544,7 @@ const PlusIcon = styled.div`
   font-weight: bold;
   color: #ccc;
   margin-bottom: 5px;
-  
+
   ${EmptySlot}:hover & {
     color: #4caf50;
   }
@@ -448,33 +553,33 @@ const PlusIcon = styled.div`
 const EmptySlotText = styled.div`
   color: #aaa;
   font-size: 0.9rem;
-  
+
   ${EmptySlot}:hover & {
     color: #4caf50;
   }
-  
+
   @media (max-width: 500px) {
     font-size: 0.7rem;
   }
 `;
 
 const StartButton = styled.button`
-  padding: 10px 40px;
-  font-size: 1.2rem;
-  background-color: ${props => props.disabled ? "#ccc" : "#2196f3"};
+  padding: 8px 32px;
+  font-size: 1rem;
+  background-color: ${(props) => (props.disabled ? "#ccc" : "#2196f3")};
   color: white;
   border: none;
   border-radius: 8px;
-  cursor: ${props => props.disabled ? "not-allowed" : "pointer"};
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   font-family: inherit;
-  
+
   &:hover {
-    background-color: ${props => props.disabled ? "#ccc" : "#1976d2"};
+    background-color: ${(props) => (props.disabled ? "#ccc" : "#1976d2")};
   }
-  
+
   @media (max-width: 500px) {
-    padding: 8px 30px;
-    font-size: 1rem;
+    padding: 6px 24px;
+    font-size: 0.85rem;
   }
 `;
 
@@ -483,7 +588,7 @@ const ListArea = styled.div`
   padding: 20px;
   overflow-y: auto;
   background-color: #f5f5f5;
-  
+
   @media (max-width: 500px) {
     padding: 10px;
   }
@@ -493,7 +598,7 @@ const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 15px;
-  
+
   @media (max-width: 500px) {
     grid-template-columns: 1fr;
     gap: 10px;
@@ -502,19 +607,19 @@ const Grid = styled.div`
 
 const ListItem = styled.div`
   background-color: white;
-  border: 2px solid ${props => props.$isSelected ? "#4caf50" : "transparent"};
+  border: 2px solid ${(props) => (props.$isSelected ? "#4caf50" : "transparent")};
   border-radius: 8px;
   padding: 10px;
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  opacity: ${props => props.$isSelected ? 0.6 : 1};
-  
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  opacity: ${(props) => (props.$isSelected ? 0.6 : 1)};
+
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 `;
 

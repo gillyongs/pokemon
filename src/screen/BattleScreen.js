@@ -12,14 +12,16 @@ import BottomSectionSwitch from "../component/Bottom/Bottom-Switch/Bottom-Switch
 import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
 import BottomSectionField from "../component/Bottom/Bottom-field/Bottom-Field";
 import { speedCheck } from "../util/speedCheck";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { battleStart } from "../service/battleStart";
 import { npcChoice } from "../npc/npc";
 import { cloneWithMethods } from "../util/cloneWithMethods";
 import { applyAbilityEffects } from "../entity/Ability";
+import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
 
 const Battle = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const battleOrigin = createBattle(["갸라도스", "어써러셔", "어써러셔"], ["코터스", "어써러셔", "어써러셔"]);
   const battleObj = useRef(battleOrigin);
   const [battle, setBattle] = useState(battleOrigin);
@@ -29,6 +31,31 @@ const Battle = () => {
   const { queueObject } = useQueue();
   //게임 진행용 큐 전역변수
   const [bottom, setBottom] = useState("skill");
+
+  const [gameResult, setGameResult] = useState(null); // "win" | "lose" | null
+
+  const getRandomTeam = (size = 3) => {
+    let team = [];
+    while (team.length < size) {
+      const randomId = pokemonList[Math.floor(Math.random() * pokemonList.length)];
+      if (!team.includes(randomId)) {
+        team.push(randomId);
+      }
+    }
+    return team;
+  };
+
+  const handleRestart = () => {
+    setGameResult(null);
+    queueObject.initQueue();
+    navigate("/battle", { state: { team1: getRandomTeam(3), team2: getRandomTeam(3), isNew: true }, replace: true });
+  };
+
+  useEffect(() => {
+    return () => {
+      queueObject.initQueue(); // unmount 시 큐 비우기
+    };
+  }, []);
 
   // 밑 화면 상태. 스킬, 교체, 정보
   const [bench, setBench] = useState(null);
@@ -43,6 +70,8 @@ const Battle = () => {
     let { team1, team2 } = location.state || {}; // 랜덤 battleObject 가져오기
     screenFix = true;
     queueObject.initQueue();
+    setBottom("skill");
+    setBench(null);
     const testMode = false;
     if (!testMode && team1 && team2) {
       // battleObj.current = battleObject;
@@ -80,18 +109,19 @@ const Battle = () => {
         setBottom("uturn");
       }
 
-      const npcFaint = battle.npc.faint;
-      const npcFaint1 = battle.npcBench1.faint;
-      const npcFaint2 = battle.npcBench2.faint;
-      const playerFaint = battle.player.faint;
-      const playerFaint1 = battle.playerBench1.faint;
-      const playerFaint2 = battle.playerBench2.faint;
+      const qBattle = queue[0].battle;
+      const npcFaint = qBattle.npc.faint;
+      const npcFaint1 = qBattle.npcBench1.faint;
+      const npcFaint2 = qBattle.npcBench2.faint;
+      const playerFaint = qBattle.player.faint;
+      const playerFaint1 = qBattle.playerBench1.faint;
+      const playerFaint2 = qBattle.playerBench2.faint;
       if (npcFaint && npcFaint1 && npcFaint2 && queue.length === 1) {
-        alert("승리!");
+        setGameResult("win");
         gameEnd = true;
       }
       if (playerFaint && playerFaint1 && playerFaint2 && queue.length === 1) {
-        alert("패배!");
+        setGameResult("lose");
         gameEnd = true;
       }
     }
@@ -192,6 +222,31 @@ const Battle = () => {
           {bottom === "info" && <BottomSectionInfo battle={battle} text={text} setText={setText} setBottom={setBottom} bench={bench} />}
           {bottom === "field" && <BottomSectionField battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
         </BOTTOM>
+        {gameResult && (
+          <ModalOverlay>
+            <ModalBox onClick={(e) => e.stopPropagation()}>
+              <ModalTitle $isWin={gameResult === "win"}>{gameResult === "win" ? "승리!" : "패배..."}</ModalTitle>
+              <ModalButtonContainer>
+                <ModalButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate("/");
+                  }}>
+                  메인으로
+                </ModalButton>
+                <ModalButton
+                  $primary
+                  $isWin={gameResult === "win"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRestart();
+                  }}>
+                  다시하기
+                </ModalButton>
+              </ModalButtonContainer>
+            </ModalBox>
+          </ModalOverlay>
+        )}
       </BATTLE>
     </>
   );
@@ -248,6 +303,86 @@ const BOTTOM = styled.div`
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+`;
+
+const ModalBox = styled.div`
+  background: rgba(15, 20, 28, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 45px 40px;
+  text-align: center;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
+  animation: fadeInScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  min-width: 320px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  @keyframes fadeInScale {
+    0% {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+`;
+
+const ModalTitle = styled.h2`
+  font-size: 3.2rem;
+  color: ${(props) => (props.$isWin ? "#64ffda" : "#ff5252")};
+  margin-top: 0;
+  margin-bottom: 35px;
+  font-family: "CustomFont", sans-serif;
+  text-shadow: 0 0 15px ${(props) => (props.$isWin ? "rgba(100, 255, 218, 0.5)" : "rgba(255, 82, 82, 0.5)")};
+  letter-spacing: 2px;
+`;
+
+const ModalButtonContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+`;
+
+const ModalButton = styled.button`
+  flex: 1;
+  padding: 16px 0;
+  font-size: 1.1rem;
+  font-family: "CustomFont", sans-serif;
+  border: 1px solid ${(props) => (props.$primary ? (props.$isWin ? "rgba(100, 255, 218, 0.5)" : "rgba(255, 82, 82, 0.5)") : "rgba(255, 255, 255, 0.2)")};
+  border-radius: 12px;
+  cursor: pointer;
+  background: ${(props) => (props.$primary ? (props.$isWin ? "rgba(100, 255, 218, 0.1)" : "rgba(255, 82, 82, 0.1)") : "rgba(255, 255, 255, 0.05)")};
+  color: ${(props) => (props.$primary ? (props.$isWin ? "#64ffda" : "#ff5252") : "#e0e0e0")};
+  font-weight: bold;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: ${(props) => (props.$primary ? (props.$isWin ? "rgba(100, 255, 218, 0.25)" : "rgba(255, 82, 82, 0.25)") : "rgba(255, 255, 255, 0.15)")};
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px ${(props) => (props.$primary ? (props.$isWin ? "rgba(100, 255, 218, 0.2)" : "rgba(255, 82, 82, 0.2)") : "rgba(0, 0, 0, 0.3)")};
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 `;
 
 export default Battle;

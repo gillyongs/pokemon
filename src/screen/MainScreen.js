@@ -31,7 +31,10 @@ const MainScreen = () => {
         <PokeballBackground />
         <Container>
           <TitleWrapper>
-            <Title>포켓몬 배틀<br className="mobile-break" /> 시뮬레이터</Title>
+            <Title>
+              포켓몬 배틀
+              <br className="mobile-break" /> 시뮬레이터
+            </Title>
           </TitleWrapper>
           <MenuContainer>
             <MenuButton onClick={handleQuickStart}>
@@ -47,7 +50,6 @@ const MainScreen = () => {
               커스텀 배틀
             </MenuButton>
           </MenuContainer>
-          <Footer>Powered by React & Antigravity</Footer>
         </Container>
       </BackgroundWrapper>
     </>
@@ -107,8 +109,10 @@ const BackgroundWrapper = styled.div`
   padding: 2rem 0; /* 상하 여백 보장 */
 
   @media (max-width: 768px) {
-    /* 모바일 브라우저 하단 배너에 가려지지 않도록 하단 스크롤 여백 추가 */
-    padding-bottom: 8rem;
+    /* 모바일 브라우저 하단 배너를 스크롤해서 숨길 수 있도록 최소 높이를 살짝 키움 */
+    min-height: calc(100vh + 20px);
+    min-height: calc(100dvh + 20px);
+    padding-bottom: 0;
   }
 
   /* main.png를 반투명하게 깔아주는 가상 요소 */
@@ -177,7 +181,7 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
   padding: 4rem 6rem;
   border-radius: 20px;
@@ -191,13 +195,12 @@ const Container = styled.div`
     max-width: 700px;
   }
   @media (max-width: 768px) {
-    width: 100%;
-    max-width: 100vw;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    padding: 3rem 2rem;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 3.5rem 1.5rem;\n    transform: translateY(-4vh);
     box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.18);
   }
 `;
 
@@ -206,6 +209,10 @@ const TitleWrapper = styled.div`
   margin-bottom: 3rem;
   width: 100%;
   animation: ${float} 4s ease-in-out infinite;
+
+  @media (max-width: 768px) {
+    margin-bottom: 2.7rem;
+  }
 `;
 
 const Title = styled.h1`
@@ -238,7 +245,9 @@ const Title = styled.h1`
   @media (max-width: 480px) {
     font-size: 2.64rem;
     -webkit-text-stroke: 1.5px #3b4cca;
-    text-shadow: 3px 3px 0 #3b4cca, 6px 6px 10px rgba(0, 0, 0, 0.6);
+    text-shadow:
+      3px 3px 0 #3b4cca,
+      6px 6px 10px rgba(0, 0, 0, 0.6);
   }
 `;
 
@@ -257,6 +266,10 @@ const MenuContainer = styled.div`
   gap: 1.5rem;
   width: 100%;
   max-width: 400px;
+
+  @media (max-width: 768px) {
+    gap: 1.08rem;
+  }
 `;
 
 const IconWrapper = styled.div`
@@ -265,6 +278,10 @@ const IconWrapper = styled.div`
   align-items: center;
   margin-right: 15px;
   transition: transform 0.3s ease;
+
+  @media (max-width: 768px) {
+    margin-right: 11px;
+  }
 `;
 
 const PokeballIcon = styled.div`
@@ -298,6 +315,16 @@ const PokeballIcon = styled.div`
     background: white; /* inside is always solid */
     transform: translate(-50%, -50%);
   }
+
+  @media (max-width: 768px) {
+    width: 17px;
+    height: 17px;
+
+    &::after {
+      width: 4.3px;
+      height: 4.3px;
+    }
+  }
 `;
 
 const MenuButton = styled.button`
@@ -317,6 +344,11 @@ const MenuButton = styled.button`
     0 4px 6px rgba(0, 0, 0, 0.2),
     inset 0 -4px 0 rgba(0, 0, 0, 0.1);
   font-weight: bold;
+
+  @media (max-width: 768px) {
+    padding: 0.86rem 1.44rem;
+    font-size: 1.08rem;
+  }
 
   &:hover:not(:disabled) {
     background: #ffcb05;
@@ -356,13 +388,4 @@ const MenuButton = styled.button`
       background: rgba(255, 255, 255, 0.2);
     }
   }
-`;
-
-const Footer = styled.div`
-  position: absolute;
-  bottom: -60px;
-  font-size: 1rem;
-  opacity: 0.8;
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 `;
