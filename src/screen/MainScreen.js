@@ -83,7 +83,8 @@ const GlobalStyle = createGlobalStyle`
   body {
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     font-family: "CustomFont", sans-serif;
   }
 `;
@@ -92,15 +93,23 @@ const GlobalStyle = createGlobalStyle`
 const BackgroundWrapper = styled.div`
   position: relative;
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh;
   /* 기존 그라데이션 배경을 유지하면서 */
   background: linear-gradient(-45deg, #2b5876, #4e4376, #141e30, #243b55);
   background-size: 400% 400%;
   animation: ${bgMove} 15s ease infinite;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 2rem 0; /* 상하 여백 보장 */
+
+  @media (max-width: 768px) {
+    /* 모바일 브라우저 하단 배너에 가려지지 않도록 하단 스크롤 여백 추가 */
+    padding-bottom: 8rem;
+  }
 
   /* main.png를 반투명하게 깔아주는 가상 요소 */
   &::before {
@@ -116,6 +125,7 @@ const BackgroundWrapper = styled.div`
     background-repeat: no-repeat;
     opacity: 0.4; /* 반투명 조절 */
     z-index: 0;
+    pointer-events: none;
   }
 `;
 
@@ -132,6 +142,7 @@ const PokeballBackground = styled.div`
   border: 40px solid rgba(255, 255, 255, 0.05);
   background: transparent;
   z-index: 0;
+  pointer-events: none;
 
   &::before {
     content: "";
@@ -161,6 +172,7 @@ const PokeballBackground = styled.div`
 const Container = styled.div`
   position: relative;
   z-index: 1;
+  margin: auto; /* 내용이 적을 때는 정중앙 배치, 길어지면 위에서부터 스크롤되도록 보장 */
   display: flex;
   flex-direction: column;
   justify-content: center;

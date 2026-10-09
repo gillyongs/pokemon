@@ -94,33 +94,52 @@ const CustomScreen = () => {
   };
 
   const getRandomTeamWithExisting = (existingTeam, teamSize = 3) => {
-    const teamIds = existingTeam.filter(id => id !== null);
-    let team = teamIds.map(id => sampleList.getItemById(id));
+    // 기존에 선택된 팀의 ID들 (문자열 배열)
+    const team = existingTeam.filter(id => id !== null);
+    
     while (team.length < teamSize) {
       const randomIndex = Math.floor(Math.random() * pokemonList.length);
-      const selectedPokemon = pokemonList[randomIndex];
-      if (!team.some(p => p.id === selectedPokemon.id)) {
-        team.push(selectedPokemon);
+      const selectedPokemonId = pokemonList[randomIndex]; // 문자열 ID
+      
+      // 이미 포함되어 있지 않으면 추가
+      if (!team.includes(selectedPokemonId)) {
+        team.push(selectedPokemonId);
       }
     }
     return team;
   };
 
-  const startBattle = () => {
-    const actualTeam = selectedTeam.filter(id => id !== null);
-    if (actualTeam.length !== 3) {
-      alert("내 엔트리에 3마리를 선택해주세요.");
-      return;
+  const handleRandomPick = (index) => {
+    const currentArr = activeTab === "player" ? selectedTeam : npcTeam;
+    const available = pokemonList.filter(id => !currentArr.includes(id));
+    
+    if (available.length > 0) {
+      const randomId = available[Math.floor(Math.random() * available.length)];
+      const newTeam = [...currentArr];
+      newTeam[index] = randomId;
+      
+      if (activeTab === "player") {
+        setSelectedTeam(newTeam);
+      } else {
+        setNpcTeam(newTeam);
+      }
     }
+  };
+
+  const startBattle = () => {
+    const team1 = getRandomTeamWithExisting(selectedTeam, 3);
     const team2 = getRandomTeamWithExisting(npcTeam, 3);
-    navigate("/battle", { state: { team1: actualTeam, team2: team2, isNew: true } });
+    navigate("/battle", { state: { team1, team2, isNew: true } });
   };
 
   const currentTeam = getActiveTeam();
 
   return (
     <Container>
-      <Header>커스텀 팀 구성</Header>
+      <Header>
+        <BackButtonIcon onClick={() => navigate("/")}>&#8592;</BackButtonIcon>
+        커스텀 팀 구성
+      </Header>
       <TabContainer>
         <Tab $active={activeTab === "player"} onClick={() => setActiveTab("player")}>
           내 엔트리
@@ -131,9 +150,6 @@ const CustomScreen = () => {
       </TabContainer>
       
       <TeamArea>
-        <SectionTitle>
-          {activeTab === "player" ? "내 엔트리 (드래그로 순서 변경)" : "상대 엔트리 (빈 자리는 랜덤 배정)"}
-        </SectionTitle>
         <TeamSlots>
           {[0, 1, 2].map((index) => {
             const pokemonId = currentTeam[index];
@@ -153,7 +169,7 @@ const CustomScreen = () => {
                 $hasData={!!pokemonId}
               >
                 {pokemonData ? (
-                  <PokemonCard>
+                  <PokemonCard onClick={() => handleRemove(index)}>
                     <RemoveBtn onClick={(e) => { e.stopPropagation(); handleRemove(index); }}>X</RemoveBtn>
                     <ImageWrapper>
                       <img src={`/pokemon/img/pokemon/${pokemonData.pokemon_id}.webp`} alt={pokemonData.name} style={{height: "60px"}} onError={(e) => { e.target.src = "/pokemon/img/pokemon/0000.webp" }} draggable="false" />
@@ -164,19 +180,18 @@ const CustomScreen = () => {
                     <PokemonName>{pokemonData.name}</PokemonName>
                   </PokemonCard>
                 ) : (
-                  <EmptySlot onClick={() => navigate("/custom/create")}>
-                    <PlusIcon>+</PlusIcon>
-                    <EmptySlotText>포켓몬 추가</EmptySlotText>
+                  <EmptySlot onClick={() => handleRandomPick(index)}>
+                    <PlusIcon>?</PlusIcon>
+                    <EmptySlotText>랜덤</EmptySlotText>
                   </EmptySlot>
                 )}
               </Slot>
             );
           })}
         </TeamSlots>
-        <StartButton disabled={selectedTeam.filter(id => id !== null).length < 3} onClick={startBattle}>
+        <StartButton onClick={startBattle}>
           배틀 시작!
         </StartButton>
-        <BackButton onClick={() => navigate("/")}>메인으로</BackButton>
       </TeamArea>
 
       <ListArea>
@@ -222,11 +237,26 @@ const Container = styled.div`
 `;
 
 const Header = styled.h2`
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: #4caf50;
   color: white;
   margin: 0;
   padding: 15px 0;
+  position: relative;
+`;
+
+const BackButtonIcon = styled.div`
+  position: absolute;
+  left: 20px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  font-weight: bold;
+  
+  &:hover {
+    color: #e0e0e0;
+  }
 `;
 
 const TabContainer = styled.div`
@@ -324,6 +354,11 @@ const PokemonCard = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
+  cursor: pointer;
+  
+  &:hover {
+    opacity: 0.8;
+  }
 `;
 
 const ImageWrapper = styled.div`
@@ -440,20 +475,6 @@ const StartButton = styled.button`
   @media (max-width: 500px) {
     padding: 8px 30px;
     font-size: 1rem;
-  }
-`;
-
-const BackButton = styled.button`
-  margin-top: 10px;
-  background: none;
-  border: none;
-  color: #666;
-  text-decoration: underline;
-  cursor: pointer;
-  font-family: inherit;
-  
-  @media (max-width: 500px) {
-    font-size: 0.8rem;
   }
 `;
 
