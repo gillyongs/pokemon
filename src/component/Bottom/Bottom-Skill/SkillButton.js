@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
 import { getTypeEffectText } from "../../../util/typeEffectCalculate";
 import { battleStart } from "../../../service/battleStart";
@@ -71,11 +71,44 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     // battleStart(battle, skillIndex, npcChoice(battle, skillIndex), queueObject);
   };
 
+  // 꾹 누르기: "~는 무엇을 할까?" 상태(큐가 비어있음)에서만 기술 설명을 보여준다. (로그에는 남지 않음)
+  const pressTimer = useRef(null);
+  const longPressed = useRef(false);
+
+  const clearPress = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+  };
+
+  const handlePressStart = () => {
+    longPressed.current = false;
+    clearPress();
+    pressTimer.current = setTimeout(() => {
+      if (queueObject.queue.length === 0) {
+        longPressed.current = true;
+        setText?.(skill.text);
+      }
+    }, 500);
+  };
+
   return (
     <SKILL
       className={sn}
+      $disabled={!queueObject.queueCheck()}
+      onPointerDown={handlePressStart}
+      onPointerUp={clearPress}
+      onPointerLeave={clearPress}
+      onPointerCancel={clearPress}
+      onContextMenu={(e) => e.preventDefault()}
       onClick={(e) => {
         e.stopPropagation(); // ✅ 상위 onClick(handleDequeue)으로 이벤트 전파 방지
+        if (longPressed.current) {
+          // 꾹 눌러서 설명을 본 경우에는 기술을 사용하지 않는다
+          longPressed.current = false;
+          return;
+        }
         handleSkillClick(skillNumber);
       }}>
       <ICON src={`/pokemon/img/type/${skill.type}.svg`} alt={skill.name} />
@@ -111,6 +144,16 @@ const SKILL = styled.div`
   height: 13vh;
   border-radius: 5px;
   background-color: rgba(0, 0, 0, 0.7);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
+
+  ${({ $disabled }) => !$disabled && `
+    &:active {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  `}
 
   &.one {
     top: 20vh;

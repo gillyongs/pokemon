@@ -18,7 +18,7 @@ const BenchPokemon = ({ battle, index, selected, handleSelected, setBench, setBo
       {selected === index && (
         <div>
           {index !== "player" && !pokemon.faint && (
-            <PokemonButton className="switch" onClick={() => handleSwitch(index)}>
+            <PokemonButton className="switch" onClick={() => setTimeout(() => handleSwitch(index), 50)}>
               교체
             </PokemonButton>
           )}
@@ -27,8 +27,10 @@ const BenchPokemon = ({ battle, index, selected, handleSelected, setBench, setBo
             className={`info ${index} ${pokemon.faint}`}
             onClick={(e) => {
               e.stopPropagation();
-              setBench(index);
-              setBottom("info");
+              setTimeout(() => {
+                setBench(index);
+                setBottom("info");
+              }, 50);
             }}>
             상세정보
           </PokemonButton>
@@ -95,11 +97,24 @@ const PokemonButton = styled.div`
   height: 8vh;
   width: 15vh;
   top: 2vh;
-  background-color: rgba(0, 0, 0, 0.7);
+  background: linear-gradient(135deg, rgba(20, 30, 40, 0.85), rgba(0, 0, 0, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease;
   border-radius: 6px;
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &:hover {
+    border-color: rgba(100, 255, 218, 0.6);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
 
   &.switch {
     left: 6vh;

@@ -87,16 +87,13 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
         />
       )}
 
+      {/* 교체 화면에서는 스킵할 텍스트가 없으므로(큐에 "누구로 교체 할까?"가 남아있어도) 항상 로그 버튼을 보여준다 */}
       <TextButton
-        onClick={(e) => {
-          if (queueObject.queueCheck()) {
-            setLogOpen(true);
-          } else {
-            // e.stopPropagation();
-            // textSkip();
-          }
+        isLog={true}
+        onClick={() => {
+          setLogOpen(true);
         }}
-        innerText={queueObject.queueCheck() ? "로그" : "스킵"}
+        innerText={"로그"}
       />
 
       {logOpen && <LogModal log={queueObject.log} onClose={() => setLogOpen(false)} />}

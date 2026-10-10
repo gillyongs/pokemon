@@ -8,25 +8,37 @@ import { PokemonRank } from "./Methods/PokemonRank.js";
 // 능력치, pp, 상태이상여부, 랭크업, 기절 여부 등 가변 값을 지닌다.
 // 불변 값은 origin에서 관리한다
 class PokemonInstance {
-  constructor(id) {
+  constructor(id, options = { isNpc: false, difficulty: "이지", round: 1 }) {
     this.team = ""; // player or npc
     this.id = id;
     const pokemon = sampleList.getItemById(id);
-    this.origin = pokemon;
-    this.name = pokemon.name; // 메타몽때문에 이름도 가변값이 필요
-    this.names = pokemon.names;
-    this.hp = pokemon.hp; // 현재 체력
-    this.type1 = pokemon.type1;
-    this.type2 = pokemon.type2;
-    this.item = pokemon.item;
-    this.itemText = pokemon.itemText;
-    this.abil = pokemon.abil;
-    this.abilObj = pokemon.abilObj;
+    this.origin = structuredClone(pokemon);
+    if (options.isNpc && options.difficulty !== "이지") {
+      const multiplier = 1.0 + (options.round - 1) * 0.1;
+      this.origin.hp = Math.floor(this.origin.hp * multiplier);
+      if (options.difficulty === "하드") {
+        this.origin.stat.atk = Math.floor(this.origin.stat.atk * multiplier);
+        this.origin.stat.def = Math.floor(this.origin.stat.def * multiplier);
+        this.origin.stat.catk = Math.floor(this.origin.stat.catk * multiplier);
+        this.origin.stat.cdef = Math.floor(this.origin.stat.cdef * multiplier);
+        this.origin.stat.speed = Math.floor(this.origin.stat.speed * multiplier);
+      }
+    }
+
+    this.name = this.origin.name; // 메타몽때문에 이름도 가변값이 필요
+    this.names = this.origin.names;
+    this.hp = this.origin.hp; // 현재 체력
+    this.type1 = this.origin.type1;
+    this.type2 = this.origin.type2;
+    this.item = this.origin.item;
+    this.itemText = this.origin.itemText;
+    this.abil = this.origin.abil;
+    this.abilObj = this.origin.abilObj;
     this.pp = {
-      1: pokemon.skill[1].pp,
-      2: pokemon.skill[2].pp,
-      3: pokemon.skill[3].pp,
-      4: pokemon.skill[4].pp,
+      1: this.origin.skill[1].pp,
+      2: this.origin.skill[2].pp,
+      3: this.origin.skill[3].pp,
+      4: this.origin.skill[4].pp,
     };
     this.ailment = {
       // 기절시 damage.js에서만 초기화된다
@@ -159,6 +171,6 @@ class PokemonInstance {
 
 Object.assign(PokemonInstance.prototype, PokemonRecover, PokemonAbil, PokemonGetDamage, PokemonRank);
 
-export function generate(id) {
-  return new PokemonInstance(id);
+export function generate(id, options = { isNpc: false, difficulty: "노말", round: 1 }) {
+  return new PokemonInstance(id, options);
 }

@@ -10,6 +10,14 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
   queueObject.resetQueue();
   const enqueue = queueObject.enqueue;
 
+  enqueue({
+    battle: battle,
+    text: `${battle.turnCount}번째 턴`,
+    isTurnLog: true,
+    skip: true
+  });
+  battle.turnCount += 1;
+
   battle.resetTurn();
   battle.player.turn.choice = actNumber;
   battle.npc.turn.choice = npcActNumber;

@@ -22,6 +22,7 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
       <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} setText = {setText} battleStartBySkillButton = {battleStartBySkillButton} />
 
       <SwitchButton
+        disabled={!queueObject.queueCheck()}
         onClick={() => {
           if (queueObject.queueCheck()) {
             setText(" 누구로 교체할까?");
@@ -40,6 +41,7 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
       />
 
       <TextButton
+        isLog={queueObject.queueCheck()}
         onClick={(e) => {
           if (queueObject.queueCheck()) {
             setLogOpen(true);

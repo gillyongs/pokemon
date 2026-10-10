@@ -1,16 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 const InfoContainer = styled.div`
   position: absolute;
   width: 48vw;
   height: 7vh;
-  border-radius: 5px;
-  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(20, 30, 40, 0.85), rgba(0, 0, 0, 0.7));
+  border: 1px solid rgba(100, 255, 218, 0.18);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  cursor: ${({ type }) => (type === "type" ? "default" : "pointer")};
+  transition: all 0.2s ease;
   font-size: 15px;
   top: ${({ type }) => (type === "type" || type === "status" ? "24vh" : "32vh")};
   left: ${({ type }) => (type === "item" || type === "status" ? "auto" : "1vw")};
   right: ${({ type }) => (type === "item" || type === "status" ? "1vw" : "auto")};
+
+  ${({ type }) =>
+    type !== "type" &&
+    `
+    &:hover {
+      border-color: rgba(100, 255, 218, 0.6);
+      background: linear-gradient(135deg, rgba(30, 50, 60, 0.9), rgba(0, 0, 0, 0.75));
+    }
+    &:active {
+      transform: scale(0.97);
+    }
+  `}
 `;
 
 const InfoIcon = styled.img`
@@ -23,20 +40,36 @@ const InfoIcon = styled.img`
   border-radius: 5px;
 `;
 
+const InfoTextWrapper = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 55px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.2;
+`;
+
 const InfoText = styled.div`
-  position: absolute;
-  top: 10px;
-  left: 55px;
   font-size: 12px;
+  color: #fff;
+  opacity: 0.85;
 `;
 
-const InfoTextName = styled.div`
-  position: absolute;
-  top: 27px;
-  left: 55px;
-`;
+const InfoTextName = styled.div``;
 
-const InfoButton = ({ pokemon, type, setText }) => {
+let consecutiveClickCount = 0;
+
+const InfoButton = ({ pokemon, type, setText, bench }) => {
+  useEffect(() => {
+    const handleGlobalClick = () => {
+      consecutiveClickCount = 0;
+    };
+    window.addEventListener("click", handleGlobalClick);
+    return () => window.removeEventListener("click", handleGlobalClick);
+  }, []);
+
   let imgSrc;
   let innerText;
   let innerContent;
@@ -51,7 +84,9 @@ const InfoButton = ({ pokemon, type, setText }) => {
       innerContent = "없음";
       itemText = "지닌 아이템 없음";
     }
-    handleClick = () => {
+    handleClick = (e) => {
+      e.stopPropagation();
+      consecutiveClickCount = 0;
       setText(itemText);
     };
   } else if (type === "type") {
@@ -62,12 +97,17 @@ const InfoButton = ({ pokemon, type, setText }) => {
       pokemonTypeText += ", " + pokemon.type2;
     }
     innerContent = pokemonTypeText;
-    handleClick = () => {};
+    handleClick = (e) => {
+      e.stopPropagation();
+      consecutiveClickCount = 0;
+    };
   } else if (type === "abil") {
     imgSrc = `/pokemon/img/background/abil.webp`;
     innerText = "특성";
     innerContent = pokemon.origin.abil;
-    handleClick = () => {
+    handleClick = (e) => {
+      e.stopPropagation();
+      consecutiveClickCount = 0;
       setText(pokemon.abilObj.text);
     };
   } else if (type === "status") {
@@ -96,8 +136,17 @@ const InfoButton = ({ pokemon, type, setText }) => {
       }
     }
     innerContent = statusText;
-    handleClick = () => {
-      if (statusText !== "정상") {
+    handleClick = (e) => {
+      e.stopPropagation();
+      if (statusText === "정상") {
+        consecutiveClickCount++;
+        if (consecutiveClickCount === 5) {
+          setText("나는 정점이다.");
+        } else {
+          setText("정상이다.");
+        }
+      } else {
+        consecutiveClickCount = 0;
         setText(statusTexts[statusText]);
       }
     };
@@ -106,8 +155,10 @@ const InfoButton = ({ pokemon, type, setText }) => {
   return (
     <InfoContainer type={type} onClick={handleClick}>
       <InfoIcon src={imgSrc} alt={type} />
-      <InfoText>{innerText}</InfoText>
-      <InfoTextName>{innerContent}</InfoTextName>
+      <InfoTextWrapper>
+        <InfoText>{innerText}</InfoText>
+        <InfoTextName>{innerContent}</InfoTextName>
+      </InfoTextWrapper>
     </InfoContainer>
   );
 };

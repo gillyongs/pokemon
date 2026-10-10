@@ -55,6 +55,7 @@ class Battle {
     // this.npc.ailment.poison = true;
     // this.npcBench1.ailment.poison = true;
     // this.npcBench2.ailment.poison = true;
+    this.turnCount = 1;
   }
 
   // 턴 시작시 turn 초기화
@@ -64,23 +65,30 @@ class Battle {
       t[key] = null;
     });
   }
+
 }
 
-export function createBattle(playerArray, npcArray) {
+export function createBattle(playerArray, npcArray, options = { difficulty: "이지", round: 1 }) {
   const player = generate(playerArray[0]);
-  const npc = generate(npcArray[0]);
+  player.originalIndex = 0;
+  const npc = generate(npcArray[0], { isNpc: true, ...options });
   npc.name = "상대 " + npc.name;
   npc.names = "상대 " + npc.names;
+  npc.originalIndex = 0;
 
   const playerBench1 = generate(playerArray[1]);
-  const npcBench1 = generate(npcArray[1]);
+  playerBench1.originalIndex = 1;
+  const npcBench1 = generate(npcArray[1], { isNpc: true, ...options });
   npcBench1.name = "상대 " + npcBench1.name;
   npcBench1.names = "상대 " + npcBench1.names;
+  npcBench1.originalIndex = 1;
 
   const playerBench2 = generate(playerArray[2]);
-  const npcBench2 = generate(npcArray[2]);
+  playerBench2.originalIndex = 2;
+  const npcBench2 = generate(npcArray[2], { isNpc: true, ...options });
   npcBench2.name = "상대 " + npcBench2.name;
   npcBench2.names = "상대 " + npcBench2.names;
+  npcBench2.originalIndex = 2;
 
   return new Battle(player, npc, playerBench1, playerBench2, npcBench1, npcBench2);
 }

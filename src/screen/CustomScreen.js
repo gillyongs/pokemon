@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import sampleList from "../entity/Pokemon/SamplePokemon";
 import { pokemonList, POKEMON_ROLES } from "../entity/Pokemon/PokemonTemplate";
+import { defaultOption } from "../config/defaultOption";
+import SampleInfoModal from "../component/SampleInfoModal";
 
 const CustomScreen = () => {
   const navigate = useNavigate();
@@ -19,12 +21,16 @@ const CustomScreen = () => {
   const [tempLogic, setTempLogic] = useState("OR");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
-  const [difficulty, setDifficulty] = useState("노말");
-  const [teamOption, setTeamOption] = useState("고정");
+  const [difficulty, setDifficulty] = useState(defaultOption.difficulty);
+  const [teamOption, setTeamOption] = useState(defaultOption.teamOption);
   const [typeColors, setTypeColors] = useState({});
 
   const listAreaRef = useRef(null);
   const [showTopBtn, setShowTopBtn] = useState(false);
+
+  const [infoModalPokemon, setInfoModalPokemon] = useState(null);
+  const pressTimer = useRef(null);
+  const isLongPress = useRef(false);
 
   useEffect(() => {
     fetch("/pokemon/img/type/typeColor.json")
@@ -119,6 +125,7 @@ const CustomScreen = () => {
   };
 
   const handleSelect = (pokemonId) => {
+    if (isLongPress.current) return;
     const currentTeam = getActiveTeam();
     if (currentTeam.includes(pokemonId)) {
       handleRemove(currentTeam.indexOf(pokemonId));
@@ -131,6 +138,22 @@ const CustomScreen = () => {
     const newTeam = [...currentTeam];
     newTeam[emptyIndex] = pokemonId;
     setActiveTeam(newTeam);
+  };
+
+  const handlePointerDown = (pokemon) => {
+    isLongPress.current = false;
+    pressTimer.current = setTimeout(() => {
+      isLongPress.current = true;
+      setInfoModalPokemon(pokemon);
+      pressTimer.current = null;
+    }, 450);
+  };
+
+  const handlePointerUpOrLeave = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
   };
 
   const handleRemove = (index) => {
@@ -229,7 +252,7 @@ const CustomScreen = () => {
   const startBattle = () => {
     const team1 = getRandomTeamWithExisting(selectedTeam, 3);
     const team2 = getRandomTeamWithExisting(npcTeam, 3);
-    navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption } });
+    navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, round: defaultOption.round } });
   };
 
   const handleTestSetup = () => {
@@ -327,7 +350,17 @@ const CustomScreen = () => {
           <SectionTitle>포켓몬 샘플 ({filteredSamples.length}종)</SectionTitle>
           <SearchWrapper>
             <InputContainer>
-              <SearchInput type="text" placeholder="이름 검색" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              <SearchInput
+                type="search"
+                enterKeyHint="search"
+                placeholder="이름 검색"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  // 모바일 키보드의 '이동'(Enter) 버튼을 누르면 키보드 닫기
+                  if (e.key === "Enter") e.target.blur();
+                }}
+              />
               {searchTerm && <ClearInputButton onClick={() => setSearchTerm("")}>✕</ClearInputButton>}
             </InputContainer>
             <FilterButton onClick={openFilterModal}>
@@ -347,7 +380,15 @@ const CustomScreen = () => {
           {filteredSamples.map((pokemon) => {
             const isSelected = currentTeam.includes(pokemon.id);
             return (
-              <ListItem key={pokemon.id} $isSelected={isSelected} onClick={() => handleSelect(pokemon.id)}>
+              <ListItem 
+                key={pokemon.id} 
+                $isSelected={isSelected} 
+                onClick={() => handleSelect(pokemon.id)}
+                onPointerDown={() => handlePointerDown(pokemon)}
+                onPointerUp={handlePointerUpOrLeave}
+                onPointerLeave={handlePointerUpOrLeave}
+                onPointerCancel={handlePointerUpOrLeave}
+              >
                 <ImageWrapper style={{ flexShrink: 0 }}>
                   <img
                     src={`/pokemon/img/pokemon/${pokemon.pokemon_id}.webp`}
@@ -489,6 +530,7 @@ const CustomScreen = () => {
           </ModalContent>
         </ModalOverlay>
       )}
+      {infoModalPokemon && <SampleInfoModal pokemon={infoModalPokemon} onClose={() => setInfoModalPokemon(null)} />}
     </Container>
   );
 };
@@ -771,10 +813,16 @@ const SectionHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin: 0;
+  padding: 20px 20px 10px 20px;
+  position: sticky;
+  top: 0;
+  background-color: #f5f5f5;
+  z-index: 10;
+  border-bottom: 1px solid #ddd;
 
   @media (max-width: 500px) {
-    margin-bottom: 16px;
+    padding: 10px 10px 8px 10px;
   }
 `;
 
@@ -858,10 +906,15 @@ const SearchInput = styled.input`
   }
 
   @media (max-width: 500px) {
-    width: 90px;
+    width: 110px;
     height: 32px;
     padding: 0 24px 0 8px;
     font-size: 0.85rem;
+  }
+
+  &::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    display: none;
   }
 `;
 
@@ -1064,13 +1117,13 @@ const StartButton = styled.button`
 
 const ListArea = styled.div`
   flex: 1;
-  padding: 20px;
+  padding: 0;
   padding-bottom: 80px;
   overflow-y: auto;
   background-color: #f5f5f5;
 
   @media (max-width: 500px) {
-    padding: 10px;
+    padding: 0;
     padding-bottom: 80px;
   }
 `;
@@ -1106,10 +1159,12 @@ const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 15px;
+  padding: 15px 20px;
 
   @media (max-width: 500px) {
     grid-template-columns: 1fr;
     gap: 10px;
+    padding: 10px;
   }
 `;
 

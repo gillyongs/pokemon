@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { createGlobalStyle, keyframes } from "styled-components";
 import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
+import { defaultOption } from "../config/defaultOption";
 
 const MainScreen = () => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const MainScreen = () => {
   const handleQuickStart = () => {
     const team1 = selectPokemon();
     const team2 = selectPokemon();
-    navigate("/battle", { state: { team1, team2, isNew: true } });
+    navigate("/battle", { state: { team1, team2, isNew: true, ...defaultOption } });
   };
 
   return (

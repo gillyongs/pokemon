@@ -23,22 +23,20 @@ export function useQueue() {
 
     if (removedItem) {
       // ⭐️ setQueue 밖에서 log 추가 → 순수성 문제 없음
-      setLog((prevLog) => [...prevLog, removedItem]);
+      if (!(removedItem.text && (removedItem.text.includes("무엇을 할까?") || removedItem.text.includes("누구로 교체")))) {
+        setLog((prevLog) => [...prevLog, removedItem]);
+      }
     }
 
     return removedItem;
   };
 
   const resetQueue = () => {
-    if (queue.length > 0) {
-      setQueue([]);
-    }
+    setQueue((prev) => (prev.length > 0 ? [] : prev));
   };
 
   const initQueue = () => {
-    if (queue.length > 0) {
-      setQueue([]);
-    }
+    setQueue((prev) => (prev.length > 0 ? [] : prev));
     setLog([]);
   };
 

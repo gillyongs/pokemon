@@ -21,13 +21,13 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setText }) => {
 
       <InfoArea pokemon={pokemon} />
 
-      <InfoButton pokemon={pokemon} type={"type"} setText={setText} />
+      <InfoButton pokemon={pokemon} type={"type"} setText={setText} bench={bench} />
 
-      <InfoButton pokemon={pokemon} type={"abil"} setText={setText} />
+      <InfoButton pokemon={pokemon} type={"abil"} setText={setText} bench={bench} />
 
-      <InfoButton pokemon={pokemon} type={"item"} setText={setText} />
+      <InfoButton pokemon={pokemon} type={"item"} setText={setText} bench={bench} />
 
-      <InfoButton pokemon={pokemon} type={"status"} setText={setText} />
+      <InfoButton pokemon={pokemon} type={"status"} setText={setText} bench={bench} />
 
       <InfoSkillButton battle={battle} skillNumber={1} pokemon={pokemon} setText={setText} />
       <InfoSkillButton battle={battle} skillNumber={2} pokemon={pokemon} setText={setText} />
