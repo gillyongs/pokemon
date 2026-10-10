@@ -33,7 +33,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     const reject = (message) => {
       if (!player.auto && !player.charge) {
         //enqueue하기떄문에 역린중에 다른 스킬 누르면 끊김
-        queueObject.enqueue({ battle, text: message, skip: true });
+        queueObject.enqueue({ battle, text: message, skip: true, noLog: true });
         setText?.(message);
       }
       return true;
@@ -51,19 +51,22 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     // 연속 사용 불가 스킬 (ex: 블러드문)
     const recentSkill = player.tempStatus.recentSkillUse?.name;
     if (recentSkill === skill.name && skill.feature?.noDouble) {
-      return reject("해당 스킬은 연속으로 사용할 수 없다!");
-    }
-
-    // 도발 상태에서 변화기 사용
-    const tauntActive = player.tempStatus.taunt !== null;
-    if (tauntActive && (skill.stype === "natk" || skill.stype === "buf")) {
-      return reject("도발 때문에 해당 스킬은 사용할 수 없다!");
+      return reject("해당 기술은 연속으로 사용할 수 없다!");
     }
 
     // 돌조 입고 변화기 사용
-    const dolJo = player.item === "돌격조끼";
-    if (dolJo && (skill.stype === "natk" || skill.stype === "buf")) {
-      return reject("돌격조끼 때문에 해당 스킬은 사용할 수 없다!");
+    if (player.item === "돌격조끼" && (skill.stype === "natk" || skill.stype === "buf")) {
+      return reject(player.names + " 돌격조끼 때문에 변화기를 사용할 수 없다!");
+    }
+
+    // 도발 상태에서 변화기 사용
+    if (player.tempStatus.taunt !== null && (skill.stype === "natk" || skill.stype === "buf")) {
+      return reject(player.names + " 도발 때문에 변화기를 사용할 수 없다!");
+    }
+
+    // 소리기술금지 상태에서 소리 기술 사용
+    if (player.tempStatus.noSound !== null && skill.feature?.sound) {
+      return reject(player.names + " 한동안 소리 기술을 사용할 수 없다!");
     }
 
     // 모든 조건 통과 시 전투 시작
@@ -149,7 +152,9 @@ const SKILL = styled.div`
   -webkit-touch-callout: none;
   cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
 
-  ${({ $disabled }) => !$disabled && `
+  ${({ $disabled }) =>
+    !$disabled &&
+    `
     &:active {
       background-color: rgba(255, 255, 255, 0.2);
     }

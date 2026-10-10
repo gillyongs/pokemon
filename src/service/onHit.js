@@ -12,7 +12,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   const useSkill = atkPokemon.turn.useSkill;
 
   if (defPokemon.item === "풍선") {
-    //기절하거나 탁떨, 대타출동에 맞아도 풍선은 무조건 터진다
+    //기절하거나 탁떨, 대타출동 상태중에 맞아도 풍선은 무조건 터진다
     const text = defPokemon.name + "의 풍선이 터졌다!";
     defPokemon.item = null;
     enqueue({ battle, text: text });
@@ -20,6 +20,11 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
 
   if (substitute) return;
   // 대타출동 상태로 맞을땐 대부분의 피격 이벤트가 발생하지 않음
+
+  if (defPokemon.abil === "지구력" && !defPokemon.faint && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
+    // 공격 기술에 맞을 때마다 방어 1랭크 상승 (연속기면 여러번)
+    defPokemon.rankUp(battle, enqueue, "def", 1, "[특성 지구력]");
+  }
 
   if (defPokemon.abil === "독치장") {
     if (useSkill.stype === "atk") {

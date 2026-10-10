@@ -49,6 +49,6 @@ export const getMultiplier = (rank) => {
   } else if (rank === 0) {
     return 1;
   }
-  console.error("능력치 증감 범위 벗어남");
+  console.error("랭크 변화 범위 벗어남");
   return 1;
 };

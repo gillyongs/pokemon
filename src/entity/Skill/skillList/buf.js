@@ -3,6 +3,7 @@ import { Skill } from "../Skill.js";
 // buf = 자신 대상 변화기
 // natk = 상대방이 기절하면 실패, buf = 상대방이 기절해도 성공
 // 방어 가능 여부와 판정이 비슷하나 날려버리기는 방어를 뚫는다
+// prettier-ignore
 export const bufSkills = [
   new Skill("방어", "노말", "-", "-", 10, 4, "buf", { name: "방어" }, "상대의 공격을 전혀 받지 않는다. 연속으로 쓰면 실패하기 쉽다. (우선도 +4)", [{ name: "방어" }], { protect: true }),
 
@@ -35,34 +36,16 @@ export const bufSkills = [
 
   // 랭크업 =================================================
 
-  new Skill("칼춤", "노말", "-", "-", 20, 0, "buf", null, "자신의 공격을 2랭크 올린다.", [{ name: "능력치증감", probability: 100, stat: "atk", target: "atk", value: 2 }]),
-  new Skill("철벽", "강철", "-", "-", 20, 0, "buf", null, "자신의 방어를 2랭크 올린다.", [{ name: "능력치증감", probability: 100, stat: "def", target: "atk", value: 2 }]),
-  new Skill("나쁜음모", "악", "-", "-", 20, 0, "buf", null, "자신의 특수공격을 2랭크 올린다.", [{ name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: 2 }]),
-  new Skill("용의춤", "드래곤", "-", "-", 20, 0, "buf", null, "자신의 공격과 스피드를 1랭크 올린다.", [
-    { name: "능력치증감", probability: 100, stat: "atk", target: "atk", value: 1 },
-    { name: "능력치증감", probability: 100, stat: "speed", target: "atk", value: 1 },
-  ]),
-  new Skill("명상", "에스퍼", "-", "-", 20, 0, "buf", null, "자신의 특수공격과 특수방어를 1랭크 올린다.", [
-    { name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: 1 },
-    { name: "능력치증감", probability: 100, stat: "cdef", target: "atk", value: 1 },
-  ]),
+  new Skill("칼춤", "노말", "-", "-", 20, 0, "buf", null, "자신의 공격을 2랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "atk", target: "atk", value: 2 }]),
+  new Skill("철벽", "강철", "-", "-", 20, 0, "buf", null, "자신의 방어를 2랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "def", target: "atk", value: 2 }]),
+  new Skill("나쁜음모", "악", "-", "-", 20, 0, "buf", null, "자신의 특수공격을 2랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "atk", value: 2 }]),
   // prettier-ignore
-  new Skill("껍질깨기", "노말", "-", "-", 15, 0, "buf", null,
-    "자신의 방어와 특수방어를 1랭크 떨어뜨리고 공격과 특수공격, 스피드를 2랭크 올린다.",
-    [ { name: "능력치증감", probability: 100, stat: "def", target: "atk", value: -1 },
-      { name: "능력치증감", probability: 100, stat: "cdef", target: "atk", value: -1 },
-      { name: "능력치증감", probability: 100, stat: "atk", target: "atk", value: 2 },
-      { name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: 2 },
-      { name: "능력치증감", probability: 100, stat: "speed", target: "atk", value: 2 },
-    ], {}
-  ),
+  new Skill("용의춤", "드래곤", "-", "-", 20, 0, "buf", null, "자신의 공격과 스피드를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "atk", value: 1 }, { stat: "speed", value: 1 }] }]),
+  // prettier-ignore
+  new Skill("명상", "에스퍼", "-", "-", 20, 0, "buf", null, "자신의 특수공격과 특수방어를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "catk", value: 1 }, { stat: "cdef", value: 1 }] }]),
+  // prettier-ignore
+  new Skill("껍질깨기", "노말", "-", "-", 15, 0, "buf", null, "자신의 방어와 특수방어를 1랭크 떨어뜨리고 공격과 특수공격, 스피드를 2랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "def", value: -1}, {stat: "cdef", value: -1}, {stat: "atk", value: 2}, {stat: "catk", value: 2}, {stat: "speed", value: 2}] }], {}),
 
   // prettier-ignore
-  new Skill("지오컨트롤", "페어리", "-", "-", 10, 0, "buf", null,
-    "1턴째에 에너지를 흡수하여 2턴째에 특수공격, 특수방어, 스피드를 2랭크 올린다.",
-    [{ name: "능력치증감", probability: 100, stat: "catk", target: "atk", value: 2 },
-      { name: "능력치증감", probability: 100, stat: "cdef", target: "atk", value: 2 },
-      { name: "능력치증감", probability: 100, stat: "speed", target: "atk", value: 2 },
-    ], { charge: { text: " 파워를 모으고 있다!", head: "names" } }
-  ),
+  new Skill("지오컨트롤", "페어리", "-", "-", 10, 0, "buf", null, "1턴째에 에너지를 흡수하여 2턴째에 특수공격, 특수방어, 스피드를 2랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "catk", value: 2}, {stat: "cdef", value: 2}, {stat: "speed", value: 2}] }], { charge: { text: " 파워를 모으고 있다!", head: "names" } }),
 ];

@@ -13,7 +13,6 @@ export class Skill {
     this.stype = stype; 
     //atk = 물리공격, catk = 특수공격, natk = 상대방 대상 변화기, buf = 자신 대상 변화기
     // natk = 상대방이 기절하면 실패, buf = 상대방이 기절해도 성공
-    // 방어 가능 여부와 판정이 비슷하나 날려버리기는 방어를 뚫는다
     this.skillEffectList = skillEffectList;
     this.skillEffectList.push({ name: "공통" });
     const lateAct = ["유턴"];  //공통(생명의구슬)보다 늦게 터지는거

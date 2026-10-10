@@ -79,6 +79,7 @@ class PokemonInstance {
       recentSkillUse: null, // 최근 사용 스킬 -> 연속사용불가스킬 (블러드문) 체크에 사용.
       recentSkillGet: null,
       hapum: null, //하품
+      noSound: null, // 지옥찌르기 -> 소리 기술 사용 금지
       protectUse: null, //방어 연속 사용 횟수 -> 방어 성공률 계산에 사용
       taunt: null, //도발
       protosynthesis: null, //고대활성
@@ -132,16 +133,27 @@ class PokemonInstance {
     });
   }
 
-  isFlying(battle) {
+  // 떠있음 여부 체크
+  // 그래스필드 회복(terrian.js), 필드 데미지 보정 (damageCalculate.js)
+  // 일렉트릭필드 잠듦 가능여부(ailment.js), 일렉트릭필드 하품 가능 여부(skillEffect.js),
+  // 압정, 독압정, 끈적끈적네트(field.js)에서 사용
+  isFlying(battle, isSkill) {
     const pokemon = this;
     const enemy = pokemon.team === "player" ? battle.npc : battle.player;
 
-    // 부유 특성 (상대가 틀깨기면 무시)
-    // 나무위키 피셜 적용됨.
-    // 압정을 깐 포켓몬이 틀깨기여야하는지, 압정을 밟았을때 상대 포켓몬이 틀깨기인지는 불확실. 일단 후자로 가정
-    if (pokemon.abil === "부유" && enemy?.abilObj?.feature?.tgg !== true) {
-      return true;
+    // 부유 특성
+    if (pokemon.abil === "부유") {
+      if (isSkill && enemy?.abilObj?.feature?.tgg === true) {
+        // 상대 특성이 틀깨기이면 압정, 독압정, 끈적끈적네트에 맞는다. (압정을 깐 포켓몬이 아니라, 압정을 밟았을때 상대 포켓몬이 틀깨기여야한다.)
+        // 일렉트릭필드일때 상대(틀깨기)가 하품/최면술을 쓴다 = 부유 판정 못받음 = 필드 효과 받음 = 잠들지 않음
+      } else {
+        // 필드 데미지 보정, 그래스필드 회복은 틀깨기 적용 안됨 = 부유 판정 받음 = 필드 효과 못받음
+        return true;
+      }
     }
+
+    // 틀깨기 적용: 압정, 독압정, 끈적끈적네트
+    // 틀깨기 미적용: 그래스필드 회복,
 
     // 풍선
     if (pokemon.item === "풍선") {

@@ -1,34 +1,17 @@
 const hasType = (type, t1, t2) => t1 === type || t2 === type;
 const isOneOf = (value, list) => list.includes(value);
 
-// 0배 상성 여부 (순수 타입)
-const isNoEffectType = (skillType, t1, t2) => {
-  return typeChart[skillType][t1] === 0 || typeChart[skillType][t2] === 0;
-};
-
 // 심안(고스트 면역 무시)
 const isMindEye = (pokemon, skillType, t1, t2) => {
   return pokemon.abil === "심안" && isOneOf(skillType, ["격투", "노말"]) && hasType("고스트", t1, t2);
-};
-
-// 순수 상성 보정 계산
-const typeEffectCalculate = (skillType, t1, t2) => {
-  let mult = 1;
-  const chart = typeChart[skillType];
-  if (!chart) return 1;
-
-  if (chart[t1]) mult *= chart[t1];
-  if (chart[t2]) mult *= chart[t2];
-
-  return mult;
 };
 
 export const typeCheck = (skillType, t1, t2) => {
   // 특성, 아이템등을 반영하지 않고 오직 상성만을 체크
   // field.js: 스텔스록 데미지 계산
   // npc 교체 판단에 사용
-  if (isNoEffectType(skillType, t1, t2)) return 0;
-  return typeEffectCalculate(skillType, t1, t2);
+  if (isNoEffect(skillType, t1, t2)) return 0;
+  return onlyTypeEffectCalculate(skillType, t1, t2);
 };
 
 export const typeCheckOnBattle = (battle, skillType, t1, t2) => {
@@ -38,19 +21,15 @@ export const typeCheckOnBattle = (battle, skillType, t1, t2) => {
   const atk = battle[battle.turn.atk];
   const def = battle[battle.turn.def];
 
-  if (isNoEffectType(skillType, t1, t2) && !isMindEye(atk, skillType, t1, t2)) {
+  if (isNoEffect(skillType, t1, t2) && !isMindEye(atk, skillType, t1, t2)) {
     return 0;
   }
 
-  // 풍선 아이템을 지니고 있으면 땅타입 기술을 맞지 않는다
-  // 대타출동 상태여도 적용된다
-  // 그래서인지 대타출동상태일때 다른기술 맞아도 풍선이 터진다
-  if (skillType === "땅") {
-    if (def.item === "풍선") return 0;
-    if (def.abil === "부유" && atk.abilObj.feature?.tgg !== true) return 0;
+  if (skillType === "땅" && def.isFlying(battle, true)) {
+    return 0;
   }
 
-  return typeEffectCalculate(skillType, t1, t2);
+  return onlyTypeEffectCalculate(skillType, t1, t2);
 };
 
 export const getTypeText = (typeDamage) => {
@@ -72,24 +51,44 @@ export const getTypeText = (typeDamage) => {
 
 export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass) => {
   // 스킬창 밑에 뜨는 상성 텍스트
-  // 이 스킬이 상대방에게 맞았을때 상성이 뜬다
-  // 부유, 건조피부, 저수 등 상대방의 특성은 반영하면 안되지만
-  // 심안 등 본인의 특성은 반영해서 보여준다
-  // skillButton(메인화면), InfoSkillButton(교체화면)에서 호출해서 사용한다
+  // 부유, 건조피부, 저수 등 상대방의 특성은 반영하지 않고
+  // 심안 등 본인의 특성은 반영해서 보여준다.
+  // skillButton(메인화면), InfoSkillButton(교체화면)에서 사용
 
   if (skillClass === "natk" || skillClass === "buf") {
     return;
   }
-  if (isNoEffectType(skillType, t1, t2) && !isMindEye(pokemon, skillType, t1, t2)) {
+  if (isNoEffect(skillType, t1, t2) && !isMindEye(pokemon, skillType, t1, t2)) {
     return "✕ 효과가 없음";
   }
 
-  const mult = typeEffectCalculate(skillType, t1, t2);
+  const mult = onlyTypeEffectCalculate(skillType, t1, t2);
 
   if (mult === 1) return "○ 효과가 있음";
   if (mult > 1) return "◎ 효과가 굉장함";
   if (mult === 0) return "✕ 효과가 없음";
   return "△ 효과가 별로";
+};
+
+// 순수 상성 보정 계산
+const onlyTypeEffectCalculate = (skillType, t1, t2) => {
+  let result = 1;
+  const chart = typeChart[skillType];
+  if (!chart) {
+    console.error("존재하지 않는 타입");
+    return 1;
+  }
+
+  // 1배는 계산 생략됨
+  if (chart[t1]) result *= chart[t1];
+  if (chart[t2]) result *= chart[t2];
+
+  return result;
+};
+
+// 0배 상성 여부 (순수 타입)
+const isNoEffect = (skillType, t1, t2) => {
+  return typeChart[skillType][t1] === 0 || typeChart[skillType][t2] === 0;
 };
 
 const typeChart = {

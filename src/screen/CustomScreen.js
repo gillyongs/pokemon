@@ -92,8 +92,9 @@ const CustomScreen = () => {
     if (t.includes(s)) return true;
 
     if (s === "다투곰" && t.includes("달투곰")) return true;
-    if (s === "우라오스" && t.includes("물라오스")) return true;
+    if (s === "우라오스" && (t.includes("물라오스") || t.includes("악라오스"))) return true;
     if (s === "버드렉스" && (t.includes("백마렉스") || t.includes("흑마렉스"))) return true;
+    if (s === "대검귀" && t.includes("히검귀")) return true;
 
     return false;
   };

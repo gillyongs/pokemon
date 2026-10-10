@@ -44,6 +44,17 @@ export const npcCommon = (battle, actNumber) => {
     });
   }
 
+  // 소리기술 금지 시 소리 기술 제외
+  const noSound = battle.npc.tempStatus.noSound !== null;
+  if (noSound) {
+    skills.forEach((sk, i) => {
+      const num = i + 1;
+      if (sk?.feature?.sound) {
+        arr = arr.filter((v) => v !== num);
+      }
+    });
+  }
+
   // PP 0 이하 스킬 제외
   const npcPP = [1, 2, 3, 4].map((num) => battle.npc.pp[num]);
   npcPP.forEach((pp, i) => {

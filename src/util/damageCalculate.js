@@ -323,6 +323,11 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.2 (신비의물방울)";
   }
 
+  if (skill.type === "악" && attackPokemon.item === "검은안경") {
+    damage *= 1.2;
+    attackPokemon.log.damage1 += " * 1.2 (검은안경)";
+  }
+
   // 특성 ===========================================================================================
 
   if (defAbil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
@@ -355,6 +360,31 @@ export const damageCalculate = (battle, obj, ai) => {
   if (atkAbil === "옹골찬턱" && skill.feature?.bite) {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (옹골찬턱)";
+  }
+
+  if (atkAbil === "예리함" && skill.feature?.slice) {
+    damage *= 1.5;
+    attackPokemon.log.damage1 += " * 1.5 (예리함)";
+  }
+
+  if (atkAbil === "총대장") {
+    // 총대장은 설명과 달리 기술 데미지를 올려주는게 맞음
+    // 대도각참이 속임수 쓰면 상대방 공격력에 자신 총대장 보정을 적용 공격
+    // 반대로 상대가 속임수를 쓸땐 대도각참의 총대장으로 올라간 능력치가 반영되지 않음
+    let faintedCount = 0;
+    const isPlayer = battle.turn.atk.includes("player");
+    if (isPlayer) {
+      if (battle.playerBench1.hp <= 0) faintedCount++;
+      if (battle.playerBench2.hp <= 0) faintedCount++;
+    } else {
+      if (battle.npcBench1.hp <= 0) faintedCount++;
+      if (battle.npcBench2.hp <= 0) faintedCount++;
+    }
+    if (faintedCount > 0) {
+      const multiplier = 1 + faintedCount * 0.1;
+      damage *= multiplier;
+      attackPokemon.log.damage1 += ` * ${multiplier} (총대장)`;
+    }
   }
 
   if (skill.type === "불꽃" && attackPokemon.tempStatus.flashFire) {

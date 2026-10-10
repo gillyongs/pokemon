@@ -1,10 +1,9 @@
 import { getStatName, getStatName2, getMultiplier } from "../../../function/rankStat";
 export const PokemonRank = {
-  rankUp(battle, enqueue, rankType, rankValue, text) {
-    // skillEffect: 능력치 증감
-    // damage: 자기과신
-    // abil: 위협
-    // skillUse: 메테오빔
+  applyRankChange(battle, enqueue, rankType, rankValue, text) {
+    // 부가효과(skillEffect.js), 끈적끈적네트(field.js), 메테오빔(skillUse.js)
+    // 위협/불굴의검/방패(ability.js), 자기과신(damage.js), 지구력(onHit.js) 에서 사용
+
     const rank = this.tempStatus.rank;
 
     if (this.abil === "심술꾸러기") {
@@ -38,6 +37,35 @@ export const PokemonRank = {
     if (text) rankText = `${text} ${rankText}`;
 
     enqueue({ battle, text: rankText });
+  },
+
+  rankUp(battle, enqueue, rankType, rankValue, text) {
+    this.applyRankChange(battle, enqueue, rankType, rankValue, text);
+    this.checkWhiteHerb(battle, enqueue);
+  },
+
+  // 인파이트로 방,특방 떨군거 하양허브로 한번에 회복되게 하려고 함수 따로 팜
+  rankUpMulti(battle, enqueue, rankArr, text) {
+    rankArr.forEach(({ stat, value }) => {
+      this.applyRankChange(battle, enqueue, stat, value, text);
+    });
+
+    this.checkWhiteHerb(battle, enqueue);
+  },
+
+  checkWhiteHerb(battle, enqueue) {
+    // 하양허브: 마이너스가 된 능력치를 0으로 되돌린다 (발동 후 소모)
+    // 인파이트처럼 여러 능력치가 동시에 떨어지는 경우 전부 되돌림
+    if (this.item !== "하양허브" || this.faint) return;
+    const rank = this.tempStatus.rank;
+    const dropped = Object.keys(rank).filter((key) => rank[key] < 0);
+    if (dropped.length === 0) return;
+    dropped.forEach((key) => {
+      rank[key] = 0;
+    });
+    this.item = null;
+    enqueue({ battle, text: `${this.names} 하양허브로 떨어진 능력을 원래대로 되돌렸다!` });
+    // 디버프를 받기 전 상태로 되돌리는게 아니라, 랭크다운된 능력치를 제로로 만드는게 맞음
   },
 
   maxStat() {

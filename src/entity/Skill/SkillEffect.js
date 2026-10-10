@@ -34,7 +34,7 @@ function skillEffectSearch(name) {
       }
     },
 
-    능력치증감: (battle, enqueue, skillEffect) => {
+    랭크변화: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
@@ -44,9 +44,22 @@ function skillEffectSearch(name) {
       if (targetPokemon.faint) {
         return;
       }
-      // 랭크업을 받는쪽이 기절하면 적용되지 않는다
-      // 반대로 랭크업을 주는쪽은 (생구 등으로) 기절해도 정상적으로 적용된다
+
       targetPokemon.rankUp(battle, enqueue, skillEffect.stat, skillEffect.value);
+    },
+
+    랭크다수변화: (battle, enqueue, skillEffect) => {
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+
+      const target = battle.turn[skillEffect.target];
+      const targetPokemon = battle[target];
+      if (targetPokemon.faint) {
+        return;
+      }
+
+      targetPokemon.rankUpMulti(battle, enqueue, skillEffect.stats);
     },
 
     화상: (battle, enqueue, skillEffect) => {
@@ -100,6 +113,17 @@ function skillEffectSearch(name) {
       if (r < 1 / 3) applyAilment("얼음", battle, battle.turn.def, enqueue);
       else if (r < 2 / 3) applyAilment("마비", battle, battle.turn.def, enqueue);
       else return applyAilment("화상", battle, battle.turn.def, enqueue);
+    },
+    페이탈클로: (battle, enqueue, skillEffect) => {
+      // 50% 확률로 상태이상을 걸고,
+      // 상태이상이 걸릴때 각각 33% 확률로 독 마비 잠듦 중 하나가 결정
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      const r = Math.random();
+      if (r < 1 / 3) applyAilment("독", battle, battle.turn.def, enqueue);
+      else if (r < 2 / 3) applyAilment("마비", battle, battle.turn.def, enqueue);
+      else return applyAilment("잠듦", battle, battle.turn.def, enqueue);
     },
     혼란: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
@@ -230,6 +254,15 @@ function skillEffectSearch(name) {
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
       if (!isAilmentCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0) {
+        // 상대가 상태이상에 걸려있지 않음 + 하품 맞은 상태 아님
+        if (battle.field?.terrian?.isElectircField && !def.isFlying(battle, true)) {
+          // 일렉트릭 필드가 깔려있고 상대가 떠있지 않으면 실패함
+          // 잠들때 판정 보는거 아님 그냥 일레트릭필드 적용받는 상태면 하품 실패함
+          enqueue({
+            battle,
+            text: "하지만 실패했다!",
+          });
+        }
         def.tempStatus.hapum = 1;
         enqueue({
           battle,
@@ -241,6 +274,14 @@ function skillEffectSearch(name) {
           text: "하지만 실패했다!",
         });
       }
+    },
+    소리기술금지: (battle, enqueue, skillEffect) => {
+      const def = battle[battle.turn.def];
+      def.tempStatus.noSound = 2;
+      enqueue({
+        battle,
+        text: def.names + " 한동안 소리 기술을 사용할 수 없게 됐다!",
+      });
     },
     방어: (battle, enqueue, skillEffect) => {
       // 방어 성공 여부는 skillRequirement에서 처리
@@ -308,6 +349,16 @@ function skillEffectSearch(name) {
           text: "하지만 실패했다!",
         });
       }
+    },
+
+    압정뿌리기: (battle, enqueue, skillEffect) => {
+      // 최대 3번까지 쌓인다
+      const def = battle.turn.def;
+      const field = battle.field[def];
+      if ((field.spikes || 0) >= 3) return;
+      field.spikes = (field.spikes || 0) + 1;
+      const text = def === "npc" ? "상대의 발밑에 압정이 뿌려졌다!" : "아군의 발밑에 압정이 뿌려졌다!";
+      enqueue({ battle, text });
     },
 
     끈적끈적네트: (battle, enqueue, skillEffect) => {
@@ -436,15 +487,20 @@ function skillEffectSearch(name) {
     },
 
     스핀: (battle, enqueue, skillEffect) => {
-      //방어로 막히면 안되는게 맞음
-      const def = battle[battle.turn.def];
       const atk = battle[battle.turn.atk];
       const field = battle.field[battle.turn.atk];
       const hazards = ["sRock", "spikes", "poisonSpikes", "stickyWeb"];
+      let hazardRemoved = false;
       hazards.forEach((key) => {
-        //장판 제거
-        field[key] = null;
+        if (field[key]) {
+          //장판 제거
+          field[key] = null;
+          hazardRemoved = true;
+        }
       });
+      if (hazardRemoved) {
+        enqueue({ battle, text: atk.names + " 자신의 필드를 정리했다!" });
+      }
       if (atk.tempStatus.seed) {
         //씨뿌리기 제거
         atk.tempStatus.seed = null;

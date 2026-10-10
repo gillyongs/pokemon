@@ -2,8 +2,10 @@ import { Skill } from "../Skill.js";
 
 // natk = 상대방 대상 변화기
 // natk = 상대방이 기절하면 실패, buf = 상대방이 기절해도 성공
-// 방어 가능 여부와 판정이 비슷하나 날려버리기는 방어를 뚫는다
+// prettier-ignore
 export const natkSkills = [
+  new Skill("막말내뱉기", "악", "-", 100, 20, 0, "natk", null, "상대의 공격과 특수공격을 1랭크씩 떨어뜨리고 교체한다.", [{ name: "랭크다수변화", probability: 100, target: "def", stats: [{stat: "atk", value: -1}, {stat: "catk", value: -1}] }, { name: "유턴" }], { sound: true, uturn: true }),
+  new Skill("울부짖기", "노말", "-", "-", 20, -6, "natk", null, "상대를 도망치게 하여 교대할 포켓몬을 끌어낸다. (우선도 -6)", [{ name: "강제교체" }], { sound: true }),
   new Skill("날려버리기", "노말", "-", "-", 20, -6, "natk", null, "상대를 날려버려서 교대할 포켓몬을 끌어낸다. (우선도 -6)", [{ name: "강제교체" }], {}),
   new Skill("씨뿌리기", "풀", "-", 90, 10, 0, "natk", null, "상대에게 씨를 뿌려 매 턴 상대 최대 HP의 ⅛만큼 빼앗아 회복한다.", [{ name: "씨뿌리기" }], {}),
   new Skill("도발", "악", "-", 100, 20, 0, "natk", null, "상대를 화나게 하여 3턴 동안 데미지를 주는 기술밖에 쓸 수 없게 한다.", [{ name: "도발" }], {}),

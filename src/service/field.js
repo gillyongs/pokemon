@@ -64,16 +64,24 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     atk.getDamage(bt, enqueue, Math.floor((atk.origin.hp / 8) * typeDamage), text);
   }
 
-  if (atk.isFlying(bt)) {
+  if (atk.isFlying(bt, true)) {
     return;
   }
   // 이 밑에서부터는 비행타입, 부유, 풍선 포켓몬한테 발동되지 않음 ====================================
+  // 압정뿌리기 (1스택 1/8, 2스택 1/6, 3스택 1/4)
+  const spikes = bt.field[atks].spikes;
+  if (spikes) {
+    const ratio = spikes >= 3 ? 1 / 4 : spikes === 2 ? 1 / 6 : 1 / 8;
+    atk.getDamage(bt, enqueue, Math.floor(atk.origin.hp * ratio), atk.name + "에게 뾰족한 가시가 박혔다!");
+  }
+
   // 독압정
   let poisonSpikes = bt.field[atks].poisonSpikes;
   if (poisonSpikes !== null) {
     if (atk.type1 === "독" || atk.type2 === "독") {
       bt.field[atks].poisonSpikes = null;
       enqueue({ battle: bt, text: "바닥의 독압정이 제거되었다!" });
+      // 독타입 포켓몬이 풍선을 달고 나온뒤, 풍선이 터져서 땅에 닿아도 제거되지 않음. 무조건 교체해서 나올때만 제거됨
     }
     if (poisonSpikes === 1) {
       applyAilment("독", bt, atks, enqueue, false, `${atk.names} 독압정을 밟고 독에 걸렸다!`);

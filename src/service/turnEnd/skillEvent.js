@@ -17,9 +17,13 @@ export function processSkillEffects(battle, enqueue, fastUser, slowUser) {
   hapum(battle, enqueue, fastUser);
   hapum(battle, enqueue, slowUser);
 
-  //역린 등 자동행동
+  // 역린 등 자동행동
   autoEnd(battle, enqueue, fastUser);
   autoEnd(battle, enqueue, slowUser);
+
+  // 지옥찌르기 소리 기술 금지
+  noSound(battle, enqueue, fastUser);
+  noSound(battle, enqueue, slowUser);
 }
 
 function seed(battle, enqueue, getter, user) {
@@ -68,13 +72,29 @@ function taunt(battle, enqueue, getter) {
   }
 }
 
+function noSound(battle, enqueue, getter) {
+  const skillGetter = battle[getter]; // 도발 맞은놈
+  if (skillGetter.faint) return;
+  // 도발 해제는 턴이 종료될때 실행된다 (연속 도발을 막기 위해서일듯 함)
+
+  if (skillGetter.tempStatus.noSound > 0) {
+    skillGetter.tempStatus.noSound--;
+  }
+
+  if (skillGetter.tempStatus.noSound === 0) {
+    let wakeUpText = skillGetter.names + " 다시 소리 기술을 사용할 수 있게 됐다!";
+    skillGetter.tempStatus.noSound = null;
+    enqueue({ battle: battle, text: wakeUpText });
+  }
+}
+
 function hapum(battle, enqueue, user) {
   const p = battle[user];
   if (p.faint) return;
 
   if (p.tempStatus.hapum === 0) {
     p.tempStatus.hapum = null;
-    applyAilment("잠듦", battle, p.team, enqueue, true);
+    applyAilment("잠듦", battle, p.team, enqueue, false);
   }
   if (p.tempStatus.hapum === 1) {
     p.tempStatus.hapum = 0;

@@ -217,30 +217,36 @@ function calculatePkScore(bt, sn, skObj) {
   let npcScore = calculateTypeScore(bt, "npc", log);
   let score = benchScore - npcScore;
   log[indexA] = score;
+
+  // 필드 장애물 존재시 교체 디메리트 보정
   if (bt.field.npc.sRock) {
     score -= 25;
     log[indexA] += ` - 25 (교체-스락)`;
   }
-  if (bt.field.npc.spikes) {
+
+  const isFly = benchPokemon.isFlying(bt);
+  if (bt.field.npc.spikes && !isFly) {
     score -= 20;
     log[indexA] += ` - 20 (교체-압정)`;
   }
-  if (bt.field.npc.poisonSpikes) {
+  if (bt.field.npc.stickyWeb && !isFly) {
+    // 역할군에 따른 보정 추가필요
+    score -= 20;
+    log[indexA] += ` - 20 (교체-끈적끈적네트)`;
+  }
+
+  if (bt.field.npc.poisonSpikes && !isFly) {
     if (benchPokemon.type1 === "독" || benchPokemon.type2 === "독") {
-      score += 10;
-      log[indexA] += ` + 10 (교체(독)-독압정)`;
+      score += 20;
+      log[indexA] += ` + 10 (교체-독압정 제거)`;
     } else if (statusAbleCheck("독", benchPokemon)) {
-    } else {
-      score -= 10;
+      // 탱커의 맹독 추가보정 필요
+      let value = 10 * bt.field.npc.poisonSpikes; // 맹독압정 고려
+      score -= value;
       log[indexA] += ` - 10 (교체-독압정)`;
     }
   }
-  if (bt.field.npc.stickyWeb) {
-    if (benchPokemon.type1 !== "비행" && benchPokemon.type2 !== "비행" && benchPokemon.item !== "풍선" && benchPokemon.abil !== "부유") {
-      score -= 20;
-      log[indexA] += ` - 20 (교체-끈적끈적네트)`;
-    }
-  }
+
   const playerSkills = [1, 2, 3, 4].map((num) => bt.player.origin.skill[num]);
   for (const sk of playerSkills) {
     const list = sk?.skillEffectList;

@@ -19,6 +19,11 @@ const speedCalculate = (pokemon) => {
     speed *= 1.5;
     pokemon.log.speedCalculate += " * 1.5 (고대활성)";
   }
+  // 곡예: 원래 도구를 지니고 있었는데 잃은 경우 스피드 2배
+  if (pokemon.abil === "곡예" && pokemon.origin?.item && !pokemon.item) {
+    speed *= 2;
+    pokemon.log.speedCalculate += " * 2 (곡예)";
+  }
   pokemon.log.speedCalculate += " = " + speed;
   return speed;
 };
@@ -79,6 +84,11 @@ export const priCalculate = (battle, pokemon, skill) => {
   }
 
   if (battle[pokemon].abil === "질풍날개" && skill.type === "비행") {
+    return skill.prior + 1;
+  }
+
+  // 짓궂은마음: 변화 기술 우선도 +1
+  if (battle[pokemon].abil === "짓궂은마음" && (skill.stype === "natk" || skill.stype === "buf")) {
     return skill.prior + 1;
   }
   return skill.prior;

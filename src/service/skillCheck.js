@@ -129,17 +129,28 @@ export const afterSkillCheck = (bt, enqueue) => {
     return false;
   }
 
+  if (skill.feature?.sound && atk.tempStatus.noSound) {
+    enqueue({ battle: bt, text: atk.names + " 소리 기술을 사용할 수 없다!" });
+    return false;
+  }
+
+  // 짓궂은마음으로 우선도가 오른 상대 대상 변화기는 악타입에게 통하지 않는다
+  if (atk.abil === "짓궂은마음" && skillType === "natk" && (def.type1 === "악" || def.type2 === "악")) {
+    enqueue({ battle: bt, text: def.name + "에겐 효과가 없는 것 같다..." });
+    return false;
+  }
+
   // ==================================================================================================================
 
-  if (atk.abil === "리베로") {
+  if (atk.abil === "리베로" || atk.abil === "변환자재") {
     if (skill.type === atk.type1 && atk.type2 === null) {
-      //사용자 타입이랑 스킬 타입 같으면 리베로 발동 안함
+      //사용자 타입이랑 스킬 타입 같으면 발동 안함
     } else {
       atk.type1 = skill.type;
       atk.type2 = null;
       enqueue({
         battle: bt,
-        text: "[리베로] " + atk.names + " " + skill.type + " 타입이 됐다!",
+        text: `[${atk.abil}] ` + atk.names + " " + skill.type + " 타입이 됐다!",
       });
     }
   }

@@ -58,8 +58,8 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   // 부가효과 가중치 계산
   if (skill.skillEffectList && typeof skill.skillEffectList[Symbol.iterator] === "function") {
     for (const skillEffect of skill.skillEffectList) {
-      // 1) 능력치 증감 ============================================================================
-      if (skillEffect?.name === "능력치증감") {
+      // 1) 랭크 변화 ============================================================================
+      if (skillEffect?.name === "랭크변화") {
         const npcRole = npc.origin.role || "";
         const playerRole = player.origin.role || "";
 
@@ -144,7 +144,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
 
       // 2) 상태이상 ===============================================================================
-      if (["마비", "얼음", "트라이어택"].includes(skillEffect.name) && statusAbleCheck(skillEffect.name, player)) {
+      if (["마비", "얼음", "트라이어택", "페이탈클로"].includes(skillEffect.name) && statusAbleCheck(skillEffect.name, player)) {
         let plus = (50 * skillEffect.probability) / 100;
         score += plus;
         log += ` + ${plus} (${skillEffect.name})`;
@@ -245,6 +245,13 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       if (skillEffect.name === "스텔스록") {
         if (bt.field.player.sRock === null) {
           let value = 25 * remainPokemonCount(bt, "player"); // 남은 상대방 포켓몬 수에 비례
+          score += value;
+          log += ` + ${value} (${skillEffect.name})`;
+        }
+      }
+      if (skillEffect.name === "압정뿌리기") {
+        if (bt.field.player.spikes === null || bt.field.player.spikes < 3) {
+          let value = 8 * remainPokemonCount(bt, "player"); // 남은 상대방 포켓몬 수에 비례
           score += value;
           log += ` + ${value} (${skillEffect.name})`;
         }
@@ -410,7 +417,6 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
 
 // 기술의 우선도 -> 명중률 -> 데미지를 고려하여 최적의 기술 리턴
 
-
 function remainPokemonCount(battle, user) {
   // 남은 포켓몬 수 계산
   // 남은 포켓몬 수가 많을수록 스텔스록, 독압정 등에 가중치가 증가한다
@@ -422,4 +428,3 @@ function remainPokemonCount(battle, user) {
   if (!battle[index2].faint) result += 1;
   return result;
 }
-

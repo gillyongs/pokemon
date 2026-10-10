@@ -20,32 +20,32 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
   const isMabi = ailment === "마비" || ailment === "mabi";
   const isFreeze = ailment === "얼음" || ailment === "freeze";
   const isPoison = ailment === "독" || ailment === "맹독" || ailment === "poison" || ailment === "mpoison";
-  const isSleep = ailment === "수면" || ailment === "sleep";
+  const isSleep = ailment === "수면" || ailment === "sleep" || ailment === "잠듦";
 
   const atkStr = battle?.turn?.atk;
   const atkPokemon = atkStr ? battle[atkStr] : null;
 
   if (isBurn) {
     if (t1 === "불꽃" || t2 === "불꽃") {
-      // 불꽃 타입은 화상에 걸리지 않는다
+      // 물,얼음 타입 화상 걸리는거 맞음
       return false;
     }
     const isTgg = atkPokemon?.abilObj?.feature?.tgg || false;
     if (pokemon.abil === "수포" && !isTgg) {
       // 특성 수포는 화상에 걸리지 않는다 (틀깨기 무시 여부 반영)
+
       return false;
     }
   }
 
   if (isMabi) {
-    // 전기 타입은 마비에 걸리지 않는다
+    // 땅 타입 마비 걸리는거 맞음. "전기자석파"가 무효인거임
     if (t1 === "전기" || t2 === "전기") {
       return false;
     }
   }
 
   if (isFreeze) {
-    // 얼음 타입은 얼지 않는다
     if (t1 === "얼음" || t2 === "얼음") {
       return false;
     }
@@ -64,7 +64,8 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
 
   if (isSleep) {
     // 추가 조건: 일렉트릭필드면 자지 않는다
-    if (battle?.field?.terrain?.isElectricField) {
+    // 지금 잠듦 하품밖에 없어서 isFlying의 isSkill에 true 해놓음[부유-틀깨기 적용여부]
+    if (battle?.field?.terrain?.isElectricField && !pokemon.isFlying(battle, true)) {
       return false;
     }
   }
@@ -76,12 +77,13 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
 export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, textOption) => {
   const pokemon = get === "player" ? battle.player : battle.npc;
 
+  // 혼란: 부가효과(skillEffect.js), 역린종료(turnEnd/skillEvent.js)
   if (ailment === "혼란" || ailment === "confuse") {
     // 이미 혼란에 걸려있는지 체크
     if (pokemon.tempStatus.confuse !== null) return;
     // 기절 체크
     if (faintCheck(pokemon)) return;
-    
+
     // 1 ~ 3턴
     pokemon.tempStatus.confuse = Math.floor(Math.random() * 3) + 1;
     const confuseText = textOption || `${pokemon.names} 혼란에 빠졌다!`;
@@ -106,19 +108,34 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
   if (ailment === "마비" || ailment === "mabi") {
     pokemon.ailment.mabi = true;
     text = (textOption === "특성" ? "[특성 효과] " : "") + `${pokemon.names} 마비되어 기술을 쓰기 어려워졌다!`;
-  } else if (ailment === "화상" || ailment === "burn") {
+  }
+
+  // 화상: 부가효과(skillEffect.js), 화염구슬(turnEnd/ailmentEvent.js)
+  if (ailment === "화상" || ailment === "burn") {
     pokemon.ailment.burn = true;
     text = textOption === "화염구슬" ? `${pokemon.names} 화염구슬로 화상을 입었다!` : `${pokemon.names} 화상을 입었다!`;
-  } else if (ailment === "독" || ailment === "poison") {
+  }
+
+  // 독: 부가효과(skillEffect.js), 독압정(field.js)
+  if (ailment === "독" || ailment === "poison") {
     pokemon.ailment.poison = true;
     text = `${pokemon.name}은(는) 독에 걸렸다!`;
-  } else if (ailment === "맹독" || ailment === "mpoison") {
+  }
+  // 맹독: 부가효과(skillEffect.js), 맹독압정(field.js)
+  if (ailment === "맹독" || ailment === "mpoison") {
     pokemon.ailment.mpoison = 1; // 맹독 카운터 시작
     text = `${pokemon.name}은(는) 맹독에 걸렸다!`;
-  } else if (ailment === "얼음" || ailment === "freeze") {
+  }
+
+  // 맹독: 부가효과(skillEffect.js)
+  if (ailment === "얼음" || ailment === "freeze") {
     pokemon.ailment.freeze = true;
     text = `${pokemon.names} 얼어붙었다!`;
-  } else if (ailment === "수면" || ailment === "sleep") {
+  }
+
+  // 잠듦: 하품(trunEnd/skillEvent.js)
+  if (ailment === "잠듦" || ailment === "수면" || ailment === "sleep") {
+    //잠듦이 맞는데 수면이랑 헷갈릴까봐...
     pokemon.ailment.sleep = Math.floor(Math.random() * 3) + 2; // 2 ~ 4턴 잠듦
     text = `${pokemon.names} 잠들어버렸다!`;
   }

@@ -24,7 +24,9 @@ export function useQueue() {
     if (removedItem) {
       // ⭐️ setQueue 밖에서 log 추가 → 순수성 문제 없음
       if (!(removedItem.text && (removedItem.text.includes("무엇을 할까?") || removedItem.text.includes("누구로 교체")))) {
-        setLog((prevLog) => [...prevLog, removedItem]);
+        if (!removedItem.noLog) {
+          setLog((prevLog) => [...prevLog, removedItem]);
+        }
       }
     }
 
