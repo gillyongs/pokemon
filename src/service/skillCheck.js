@@ -170,6 +170,13 @@ export const afterSkillCheck = (bt, enqueue) => {
       protectSuccess = false;
     }
 
+    if (skill.feature?.feint) {
+      // 페인트: 방어를 뚫고 공격한다
+      def.turn.protect = null;
+      enqueue({ battle: bt, text: `${def.name}의 방어가 해제되었다!` });
+      protectSuccess = false;
+    }
+
     const noProtectSkills = ["날려버리기"]; // 방어로 막을 수 없는 스킬
     if (noProtectSkills.includes(skill.name)) {
       protectSuccess = false;

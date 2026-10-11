@@ -322,6 +322,16 @@ function skillEffectSearch(name) {
       }
     },
 
+    암석액스: (battle, enqueue, skillEffect) => {
+      const def = battle.turn.def;
+      const field = battle.field[def];
+      if (!field.sRock) {
+        field.sRock = true;
+        const text = def === "npc" ? "상대의 주변에 뾰족한 바위가 떠다니기 시작했다!" : "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!";
+        enqueue({ battle, text });
+      }
+    },
+
     독압정: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const field = battle.field[def];

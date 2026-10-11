@@ -19,13 +19,16 @@ export const atkSkills = [
 
   new Skill("비검천중파", "악", 65, 90, 15, 0, "atk", null, "데미지를 준 후 상대의 발밑에 압정을 뿌린다.", [{ name: "압정뿌리기" }], { slice: true }),
 
-    new Skill("아이스스피너", "얼음", 80, 100, 15, 0, "atk", null, "얼음을 두르고 회전하며 부딪친다. 회전 운동에 의해 필드가 파괴된다.", [{ name: "필드파괴" }], { touch: true }),
+  new Skill("아이스스피너", "얼음", 80, 100, 15, 0, "atk", null, "얼음을 두르고 회전하며 부딪친다. 회전 운동에 의해 필드가 파괴된다.", [{ name: "필드파괴" }], { touch: true }),
+
+  new Skill("암석액스", "바위", 65, 90, 15, 0, "atk", null, "바위의 도끼로 베어가른다. 흩어진 돌조각이 상대 주위에 떠다닌다.", [{ name: "암석액스" }], { touch: true, slice: true }),
 
   new Skill("기습", "악", 70, 100, 5, 2, "atk", { name: "기습" }, "상대가 쓴 기술이 공격기술이 아니면 실패한다. (우선도 +1)", [], { touch: true }),
 
   // 선공기 =================================================================================================================
   new Skill("그래스슬라이더", "풀", 55, 100, 20, "change", "atk", null, "그래스필드일 때 우선도 +1", [], { touch: true }),
   new Skill("신속", "노말", 80, 100, 5, 2, "atk", null, "우선도 +2", [], { touch: true }),
+  new Skill("페인트", "노말", 30, 100, 10, 2, "atk", null, "상대의 방어를 뚫고 공격하며 방어 상태를 해제한다. (우선도 +2)", [], { touch: true, feint: true }),
   new Skill("얼음뭉치", "얼음", 40, 100, 30, 1, "atk", null, "우선도 +1", []),
   new Skill("야습", "고스트", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true }),
   new Skill("아쿠아제트", "물", 40, 100, 20, 1, "atk", null, "우선도 +1", [], { touch: true }),
@@ -99,6 +102,7 @@ export const atkSkills = [
 
   // 급소
   new Skill("섀도크루", "고스트", 70, 100, 15, 0, "atk", null, "급소에 맞을 확률이 높다.", [{ name: "급소" }], { touch: true }),
+  new Skill("깜짝베기", "악", 70, 100, 15, 0, "atk", null, "틈을 노려 베어가른다. 급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true, slice: true }),
   new Skill("암흑강타", "악", 75, 100, 5, 0, "atk", null, "반드시 급소에 맞는다.", [], { touch: true, punch: true, mustCritical: true }),
   new Skill("트릭플라워", "풀", 70, "-", 10, 0, "atk", null, "반드시 명중하며 항상 급소에 맞는다.", [], { mustCritical: true }),
 
@@ -114,4 +118,5 @@ export const atkSkills = [
   new Skill("거수참", "강철", 100, 100, 5, 0, "atk", null, "다이맥스한 상대에게 2배 데미지를 준다", [], { touch: true, slice: true }),
   new Skill("거수탄", "강철", 100, 100, 5, 0, "atk", null, "온몸을 강하고 튼튼한 방패로 바꾼 다음 기세 좋게 부딪혀서 공격한다.", [], { touch: true }),
   new Skill("드래곤클로", "드래곤", 80, 100, 15, 0, "atk", null, "날카로운 거대한 발톱으로 상대를 베어가른다.", [], { touch: true, slice: true }),
+  new Skill("시저크로스", "벌레", 80, 100, 15, 0, "atk", null, "날카로운 낫이나 발톱을 엇갈리게 교차하며 상대를 베어가른다.", [], { touch: true, slice: true }),
 ];
