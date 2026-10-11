@@ -42,10 +42,10 @@ describe("입치트 및 메가입치트 구현 테스트", () => {
     const icePunch = mawile.origin.skill[4];
     expect(icePunch.type).toBe("얼음");
     expect(icePunch.power).toBe(75);
-    expect(icePunch.accuracy).toBe(100);
-    expect(icePunch.options?.punch).toBe(true);
-    expect(icePunch.options?.touch).toBe(true);
-    expect(icePunch.effect).toEqual([{ name: "얼음", probability: 10 }]);
+    expect(icePunch.accur).toBe(100);
+    expect(icePunch.feature?.punch).toBe(true);
+    expect(icePunch.feature?.touch).toBe(true);
+    expect(icePunch.skillEffectList[0]).toEqual({ name: "얼음", probability: 10 });
 
     // '입치트'로 조회 시에도 정상 생성되는지 확인 (하위 호환)
     const mawileByBaseName = generate("입치트");

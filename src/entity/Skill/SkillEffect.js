@@ -34,6 +34,12 @@ function skillEffectSearch(name) {
       }
     },
 
+    필드파괴: (battle, enqueue, skillEffect) => {
+      if (battle.field?.terrain) {
+        battle.field.terrain.destroyTerrain(battle, enqueue);
+      }
+    },
+
     랭크변화: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;

@@ -61,15 +61,27 @@ export class Terrain {
     }
   }
 
-  #handleTerrainEnd(battle, enqueue) {
+  destroyTerrain(battle, enqueue) {
+    if (this.#type === null) return;
+    this.#handleTerrainEnd(battle, enqueue, true);
+  }
+
+  #handleTerrainEnd(battle, enqueue, destroy) {
     const endedType = this.#type;
     this.#type = null;
     this.#turnRemain = null;
 
-    const endTextMap = {
-      그래스필드: "발밑의 풀이 사라졌다!",
-      일렉트릭필드: "발밑의 전기가 사라졌다!",
-    };
-    enqueue({ battle, text: endTextMap[endedType] });
+    let text = "";
+    if (destroy) {
+      text = "필드가 원래대로 돌아갔다!";
+    } else {
+      const endTextMap = {
+        그래스필드: "발밑의 풀이 사라졌다!",
+        일렉트릭필드: "발밑의 전기가 사라졌다!",
+      };
+      text = endTextMap[endedType];
+    }
+
+    enqueue({ battle, text });
   }
 }
