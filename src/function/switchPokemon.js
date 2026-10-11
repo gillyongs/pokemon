@@ -48,9 +48,14 @@ export const switchPokemon = (battle, IN, OUT) => {
       });
     }
   });
-  // 리베로 타입 초기화
-  pokemonIn.type1 = pokemonIn.origin.type1;
-  pokemonIn.type2 = pokemonIn.origin.type2;
+  // 리베로 타입 초기화 (메가진화 포켓몬은 메가진화 타입 유지)
+  if (pokemonIn.isMega && pokemonIn.origin?.megaData) {
+    pokemonIn.type1 = pokemonIn.origin.megaData.type1;
+    pokemonIn.type2 = pokemonIn.origin.megaData.type2;
+  } else {
+    pokemonIn.type1 = pokemonIn.origin.type1;
+    pokemonIn.type2 = pokemonIn.origin.type2;
+  }
 
   // 트레이스 특성 초기화
   pokemonIn.abil = pokemonIn.origin.abil;

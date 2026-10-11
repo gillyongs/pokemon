@@ -87,7 +87,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     longPressed.current = false;
     clearPress();
     pressTimer.current = setTimeout(() => {
-      if (queueObject.queue.length === 0) {
+      if (queueObject.queueCheck()) {
         longPressed.current = true;
         setText?.(skill.text);
       }

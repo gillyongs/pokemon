@@ -32,6 +32,8 @@ export const PokemonMega = {
     this.isMega = true;
     this.type1 = mega.type1;
     this.type2 = mega.type2;
+    this.origin.type1 = mega.type1;
+    this.origin.type2 = mega.type2;
     this.origin.pokemon_id = mega.pokemon_id;
 
     // 체력은 변하지 않는다

@@ -6,6 +6,7 @@ import { pokemonList, POKEMON_ROLES } from "../entity/Pokemon/PokemonTemplate";
 import { abilObject } from "../entity/Ability";
 import { defaultOption } from "../config/defaultOption";
 import SampleInfoModal from "../component/SampleInfoModal";
+import { fillRandomTeam, getRandomPokemonForSlot } from "../util/randomTeam";
 
 const CustomScreen = () => {
   const navigate = useNavigate();
@@ -262,27 +263,14 @@ const CustomScreen = () => {
   };
 
   const getRandomTeamWithExisting = (existingTeam, teamSize = 3) => {
-    // 기존에 선택된 팀의 ID들 (문자열 배열)
-    const team = existingTeam.filter((id) => id !== null);
-
-    while (team.length < teamSize) {
-      const randomIndex = Math.floor(Math.random() * pokemonList.length);
-      const selectedPokemonId = pokemonList[randomIndex]; // 문자열 ID
-
-      // 이미 포함되어 있지 않으면 추가
-      if (!team.includes(selectedPokemonId)) {
-        team.push(selectedPokemonId);
-      }
-    }
-    return team;
+    return fillRandomTeam(existingTeam, teamSize);
   };
 
   const handleRandomPick = (index) => {
     const currentArr = activeTab === "player" ? selectedTeam : npcTeam;
-    const available = pokemonList.filter((id) => !currentArr.includes(id));
+    const randomId = getRandomPokemonForSlot(currentArr, index);
 
-    if (available.length > 0) {
-      const randomId = available[Math.floor(Math.random() * available.length)];
+    if (randomId) {
       const newTeam = [...currentArr];
       newTeam[index] = randomId;
 
@@ -365,7 +353,7 @@ const CustomScreen = () => {
                         />
                       )}
                     </ImageWrapper>
-                    <PokemonName>{pokemonData.name}</PokemonName>
+                    <PokemonName>{pokemonData.id}</PokemonName>
                   </PokemonCard>
                 ) : (
                   <EmptySlot onClick={() => handleRandomPick(index)}>
@@ -425,15 +413,7 @@ const CustomScreen = () => {
           {filteredSamples.map((pokemon) => {
             const isSelected = currentTeam.includes(pokemon.id);
             return (
-              <ListItem 
-                key={pokemon.id} 
-                $isSelected={isSelected} 
-                onClick={() => handleSelect(pokemon.id)}
-                onPointerDown={() => handlePointerDown(pokemon)}
-                onPointerUp={handlePointerUpOrLeave}
-                onPointerLeave={handlePointerUpOrLeave}
-                onPointerCancel={handlePointerUpOrLeave}
-              >
+              <ListItem key={pokemon.id} $isSelected={isSelected} onClick={() => handleSelect(pokemon.id)} onPointerDown={() => handlePointerDown(pokemon)} onPointerUp={handlePointerUpOrLeave} onPointerLeave={handlePointerUpOrLeave} onPointerCancel={handlePointerUpOrLeave}>
                 <ImageWrapper style={{ flexShrink: 0 }}>
                   <img
                     src={`/pokemon/img/pokemon/${pokemon.megaData?.pokemon_id || pokemon.pokemon_id}.webp`}
@@ -543,35 +523,19 @@ const CustomScreen = () => {
             </SectionTitleRow>
             <EtcRow>
               <CheckboxLabel>
-                <CheckboxInput
-                  type="checkbox"
-                  checked={tempIsMegaFilter}
-                  onChange={(e) => setTempIsMegaFilter(e.target.checked)}
-                />
+                <CheckboxInput type="checkbox" checked={tempIsMegaFilter} onChange={(e) => setTempIsMegaFilter(e.target.checked)} />
                 메가진화
               </CheckboxLabel>
               <CheckboxLabel>
-                <CheckboxInput
-                  type="checkbox"
-                  checked={tempIsLegendaryFilter}
-                  onChange={(e) => setTempIsLegendaryFilter(e.target.checked)}
-                />
+                <CheckboxInput type="checkbox" checked={tempIsLegendaryFilter} onChange={(e) => setTempIsLegendaryFilter(e.target.checked)} />
                 초전설
               </CheckboxLabel>
               <CheckboxLabel>
-                <CheckboxInput
-                  type="checkbox"
-                  checked={tempIsIntimidateFilter}
-                  onChange={(e) => setTempIsIntimidateFilter(e.target.checked)}
-                />
+                <CheckboxInput type="checkbox" checked={tempIsIntimidateFilter} onChange={(e) => setTempIsIntimidateFilter(e.target.checked)} />
                 위협
               </CheckboxLabel>
               <CheckboxLabel>
-                <CheckboxInput
-                  type="checkbox"
-                  checked={tempIsWeatherFilter}
-                  onChange={(e) => setTempIsWeatherFilter(e.target.checked)}
-                />
+                <CheckboxInput type="checkbox" checked={tempIsWeatherFilter} onChange={(e) => setTempIsWeatherFilter(e.target.checked)} />
                 날씨
               </CheckboxLabel>
             </EtcRow>
@@ -614,14 +578,10 @@ const CustomScreen = () => {
               {difficulty === "노말" && "매 라운드마다 적의 체력이 0.1배 증가합니다."}
               {difficulty === "하드" && "매 라운드마다 적의 모든 능력치가 0.1배 증가합니다."}
             </DifficultyDescription>
-            <ModalSubTitle style={{ marginTop: '20px' }}>팀 옵션</ModalSubTitle>
+            <ModalSubTitle style={{ marginTop: "20px" }}>팀 옵션</ModalSubTitle>
             <DifficultyContainer>
               {["고정", "랜덤", "트레이드"].map((opt) => (
-                <DifficultyButton 
-                  key={opt} 
-                  $active={teamOption === opt}
-                  onClick={() => setTeamOption(opt)}
-                >
+                <DifficultyButton key={opt} $active={teamOption === opt} onClick={() => setTeamOption(opt)}>
                   {opt}
                 </DifficultyButton>
               ))}

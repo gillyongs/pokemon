@@ -3,6 +3,8 @@ import { applyAilment } from "../../function/ailment";
 export function processAilment(battle, enqueue, fastUser, slowUser) {
   applyStatusDamage(battle, enqueue, fastUser);
   applyStatusDamage(battle, enqueue, slowUser);
+
+  // 화염구슬로 화상을 입은 턴엔 화상 데미지가 들어가지 않음
   flameOrb(battle, enqueue, fastUser);
   flameOrb(battle, enqueue, slowUser);
 }
@@ -27,10 +29,6 @@ function applyStatusDamage(battle, enqueue, user) {
       p.getDamage(battle, enqueue, Math.floor(p.origin.hp / 16), `${p.names} 화상 데미지를 입었다!`);
     }
   }
-
-  if (p.item === "화염구슬") {
-    applyAilment("화상", battle, p.team, enqueue, false, `${p.names} 화염구슬로 화상을 입었다!`);
-  }
 }
 
 function flameOrb(battle, enqueue, user) {
@@ -38,6 +36,6 @@ function flameOrb(battle, enqueue, user) {
   if (p.faint) return;
 
   if (p.item === "화염구슬") {
-    applyAilment("화상", battle, p.team, enqueue, true);
+    applyAilment("화상", battle, p.team, enqueue, false, `${p.names} 화염구슬로 화상을 입었다!`);
   }
 }

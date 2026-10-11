@@ -107,13 +107,13 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
   let text = "";
   if (ailment === "마비" || ailment === "mabi") {
     pokemon.ailment.mabi = true;
-    text = (textOption === "특성" ? "[특성 효과] " : "") + `${pokemon.names} 마비되어 기술을 쓰기 어려워졌다!`;
+    text = textOption || `${pokemon.names} 마비되어 기술을 쓰기 어려워졌다!`;
   }
 
   // 화상: 부가효과(skillEffect.js), 화염구슬(turnEnd/ailmentEvent.js)
   if (ailment === "화상" || ailment === "burn") {
     pokemon.ailment.burn = true;
-    text = textOption === "화염구슬" ? `${pokemon.names} 화염구슬로 화상을 입었다!` : `${pokemon.names} 화상을 입었다!`;
+    text = textOption || `${pokemon.names} 화상을 입었다!`;
   }
 
   // 독: 부가효과(skillEffect.js), 독압정(field.js)

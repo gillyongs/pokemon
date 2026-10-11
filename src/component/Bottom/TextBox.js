@@ -2,9 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import FadeInComponent from "./FadeInComponent";
 
-const TextBox = ({ text }) => {
+const TextBox = ({ text, onClick }) => {
   return (
-    <StyledTextBox textLength={getEffectiveTextLength(text)}>
+    <StyledTextBox textLength={getEffectiveTextLength(text)} onClick={onClick}>
       <StyledTextLayer>
         <FadeInComponent className="text" text={text} />
       </StyledTextLayer>
@@ -25,6 +25,7 @@ const StyledTextBox = styled.div`
   background-position: center;
   background-repeat: no-repeat;
   background-color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
   font-size: ${(props) => (props.textLength >= 35 ? "4vw" : "4.8vw")};
 
   @media (min-width: 500px) {

@@ -1,6 +1,7 @@
 // npm test -- src/test/abil/리베로_변환자재.test.js
 import { afterSkillCheck } from "../../service/skillCheck";
 import { damageCalculate } from "../../util/damageCalculate";
+import { switchPokemon } from "../../function/switchPokemon";
 
 describe("리베로 및 변환자재 특성 테스트", () => {
   let mockBattle;
@@ -22,6 +23,8 @@ describe("리베로 및 변환자재 특성 테스트", () => {
       },
       stat: { atk: 100, def: 100, catk: 100, cdef: 100 },
       abil: abil,
+      type1: "노말",
+      type2: null,
     },
     atk: 100,
     def: 100,
@@ -75,7 +78,7 @@ describe("리베로 및 변환자재 특성 테스트", () => {
 
     // 3) 자속 보정(STAB) 데미지 확인
     const damage = damageCalculate(mockBattle, null, { randNum: 100 });
-    expect(mockBattle.player.log.damage1).toContain("* 1.5 (자속보정)");
+    expect(mockBattle.player.log.damage2).toContain("* 1.5 (자속보정)");
   });
 
   it("2. 변환자재 특성인 경우 사용한 기술의 타입(불꽃)으로 타입이 변한다", () => {
@@ -91,7 +94,7 @@ describe("리베로 및 변환자재 특성 테스트", () => {
     
     // 자속 보정 적용 확인
     const damage = damageCalculate(mockBattle, null, { randNum: 100 });
-    expect(mockBattle.player.log.damage1).toContain("* 1.5 (자속보정)");
+    expect(mockBattle.player.log.damage2).toContain("* 1.5 (자속보정)");
   });
 
   it("3. 이미 기술과 같은 타입이라면 발동하지 않는다", () => {
@@ -102,5 +105,15 @@ describe("리베로 및 변환자재 특성 테스트", () => {
     // 로그가 찍히지 않아야 함
     const hasLog = enqueuedLogs.some(log => log.includes("[리베로]"));
     expect(hasLog).toBe(false);
+  });
+
+  it("4. 교체 시 리베로/변환자재로 변경된 타입이 원본 타입으로 되돌아온다", () => {
+    mockBattle.playerBench1 = createMockPokemon("없음");
+    afterSkillCheck(mockBattle, mockEnqueue);
+    expect(mockBattle.player.type1).toBe("불꽃");
+
+    switchPokemon(mockBattle, "player", "playerBench1");
+    // 벤치로 들어간 플레이어 포켓몬의 타입이 원래 타입(노말)으로 복구되어야 함
+    expect(mockBattle.playerBench1.type1).toBe("노말");
   });
 });

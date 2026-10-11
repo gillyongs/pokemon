@@ -17,7 +17,15 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
   return (
     // prettier-ignore
     <div className="bottom-section">
-      <TextBox text={text} />
+      <TextBox
+        text={text}
+        onClick={(e) => {
+          if (queueObject.queue.length > 0 && queueObject.queue[0]?.skip) {
+            queueObject.dequeue();
+          }
+          setText?.(battle.player.origin.names + " 무엇을 할까?");
+        }}
+      />
 
       <SkillButton battle={battle} skillNumber={1} queueObject={queueObject} setText={setText} battleStartBySkillButton={battleStartBySkillButton} />
       

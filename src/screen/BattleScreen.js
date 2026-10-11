@@ -19,7 +19,7 @@ import { battleStart } from "../service/battleStart";
 import { npcChoice } from "../npc/npc";
 import { cloneWithMethods } from "../util/cloneWithMethods";
 import { applyAbilityEffects } from "../entity/Ability";
-import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
+import { getRandomTeam, isLegendary } from "../util/randomTeam";
 
 const Battle = () => {
   const location = useLocation();
@@ -40,17 +40,6 @@ const Battle = () => {
   const [bottom, setBottom] = useState("skill");
 
   const [gameResult, setGameResult] = useState(null); // "win" | "lose" | null
-
-  const getRandomTeam = (size = 3) => {
-    let team = [];
-    while (team.length < size) {
-      const randomId = pokemonList[Math.floor(Math.random() * pokemonList.length)];
-      if (!team.includes(randomId)) {
-        team.push(randomId);
-      }
-    }
-    return team;
-  };
 
   const handleRestart = () => {
     setGameResult(null);
@@ -85,9 +74,19 @@ const Battle = () => {
 
   const submitTrade = () => {
     if (tradePlayerIdx === null || tradeNpcIdx === null) return;
+    const playerTeamFixed = [battle.player, battle.playerBench1, battle.playerBench2].sort((a, b) => a.originalIndex - b.originalIndex);
+    const npcTeamFixed = [battle.npc, battle.npcBench1, battle.npcBench2].sort((a, b) => a.originalIndex - b.originalIndex);
+
+    const playerPoke = playerTeamFixed[tradePlayerIdx];
+    const npcPoke = npcTeamFixed[tradeNpcIdx];
+
+    if (isLegendary(playerPoke?.origin) !== isLegendary(npcPoke?.origin)) {
+      alert("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
+      return;
+    }
+
     const { team1 } = location.state || {};
     let nextTeam1 = [...team1];
-    const npcTeamFixed = [battle.npc, battle.npcBench1, battle.npcBench2].sort((a, b) => a.originalIndex - b.originalIndex);
     const npcIds = npcTeamFixed.map(p => p.id);
     nextTeam1[tradePlayerIdx] = npcIds[tradeNpcIdx];
     proceedNextRound(nextTeam1);
@@ -184,6 +183,10 @@ const Battle = () => {
       }
       screenFix = false;
       queueObject.dequeue();
+    } else {
+      if (bottom === "skill") {
+        setText(battle.player.origin.names + " 무엇을 할까?");
+      }
     }
   };
 
@@ -343,69 +346,133 @@ const Battle = () => {
           </ModalOverlay>
         )}
 
-        {isTradeModalOpen && (
-          <ModalOverlay>
-            <ModalBox onClick={(e) => e.stopPropagation()} style={{ width: "95vw", maxWidth: "600px", maxHeight: "95vh", padding: "15px", display: "flex", flexDirection: "column", gap: "15px", justifyContent: "center", boxSizing: "border-box" }}>
-              <ModalTitle $isWin={true} style={{ fontSize: "2.4rem", margin: "10px 0", wordBreak: "keep-all" }}>
-                포켓몬 트레이드
-              </ModalTitle>
-              <TradeContainer>
-                <TradeColumn>
-                  <h3 style={{ textAlign: "center", color: "#64ffda", margin: "5px 0" }}>내 엔트리</h3>
-                  {[battle.player, battle.playerBench1, battle.playerBench2].sort((a, b) => a.originalIndex - b.originalIndex).map((p, idx) => (
-                    <TradeCard key={idx} $selected={tradePlayerIdx === idx} onClick={() => setTradePlayerIdx(tradePlayerIdx === idx ? null : idx)}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "7vh", overflow: "hidden" }}>
-                        <TradeCardImage src={`/pokemon/img/pokemon/${p.origin.pokemon_id}.webp`} />
-                        <TradeCardName>{p.origin.name}</TradeCardName>
-                      </div>
-                      <TradeInfoButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setTradeInfoPokemon(p);
-                        }}>
-                        상세정보
-                      </TradeInfoButton>
-                    </TradeCard>
-                  ))}
-                </TradeColumn>
-                <TradeColumn>
-                  <h3 style={{ textAlign: "center", color: "#ff5252", margin: "5px 0" }}>상대 엔트리</h3>
-                  {[battle.npc, battle.npcBench1, battle.npcBench2].sort((a, b) => a.originalIndex - b.originalIndex).map((p, idx) => (
-                    <TradeCard key={idx} $selected={tradeNpcIdx === idx} onClick={() => setTradeNpcIdx(tradeNpcIdx === idx ? null : idx)}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "7vh", overflow: "hidden" }}>
-                        <TradeCardImage src={`/pokemon/img/pokemon/${p.origin.pokemon_id}.webp`} />
-                        <TradeCardName>{p.origin.name}</TradeCardName>
-                      </div>
-                      <TradeInfoButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setTradeInfoPokemon(p);
-                        }}>
-                        상세정보
-                      </TradeInfoButton>
-                    </TradeCard>
-                  ))}
-                </TradeColumn>
-              </TradeContainer>
-              <ModalButtonContainer>
-                <ModalButton onClick={() => proceedNextRound()}>건너뛰기</ModalButton>
-                <ModalButton
-                  $primary
-                  $isWin={true}
-                  onClick={tradePlayerIdx !== null && tradeNpcIdx !== null ? submitTrade : undefined}
-                  style={{
-                    backgroundColor: tradePlayerIdx !== null && tradeNpcIdx !== null ? "rgba(100, 255, 218, 0.1)" : "rgba(128, 128, 128, 0.1)",
-                    color: tradePlayerIdx !== null && tradeNpcIdx !== null ? "#64ffda" : "#888",
-                    borderColor: tradePlayerIdx !== null && tradeNpcIdx !== null ? "rgba(100, 255, 218, 0.5)" : "rgba(128, 128, 128, 0.5)",
-                    cursor: tradePlayerIdx !== null && tradeNpcIdx !== null ? "pointer" : "not-allowed",
-                  }}>
-                  교환 및 진행
-                </ModalButton>
-              </ModalButtonContainer>
-            </ModalBox>
-            {tradeInfoPokemon && <TradeInfoModal pokemon={tradeInfoPokemon} onClose={() => setTradeInfoPokemon(null)} />}
-          </ModalOverlay>
-        )}
+        {isTradeModalOpen && (() => {
+          const playerTeamFixed = [battle.player, battle.playerBench1, battle.playerBench2].sort((a, b) => a.originalIndex - b.originalIndex);
+          const npcTeamFixed = [battle.npc, battle.npcBench1, battle.npcBench2].sort((a, b) => a.originalIndex - b.originalIndex);
+
+          const selectedPlayerPoke = tradePlayerIdx !== null ? playerTeamFixed[tradePlayerIdx] : null;
+          const selectedNpcPoke = tradeNpcIdx !== null ? npcTeamFixed[tradeNpcIdx] : null;
+
+          const isTradeValid =
+            tradePlayerIdx !== null &&
+            tradeNpcIdx !== null &&
+            isLegendary(playerTeamFixed[tradePlayerIdx]?.origin) === isLegendary(npcTeamFixed[tradeNpcIdx]?.origin);
+
+          const handlePlayerCardClick = (idx, p) => {
+            if (tradePlayerIdx === idx) {
+              setTradePlayerIdx(null);
+              return;
+            }
+            if (selectedNpcPoke && isLegendary(p?.origin) !== isLegendary(selectedNpcPoke?.origin)) {
+              alert("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
+              return;
+            }
+            setTradePlayerIdx(idx);
+          };
+
+          const handleNpcCardClick = (idx, p) => {
+            if (tradeNpcIdx === idx) {
+              setTradeNpcIdx(null);
+              return;
+            }
+            if (selectedPlayerPoke && isLegendary(p?.origin) !== isLegendary(selectedPlayerPoke?.origin)) {
+              alert("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
+              return;
+            }
+            setTradeNpcIdx(idx);
+          };
+
+          return (
+            <ModalOverlay>
+              <ModalBox onClick={(e) => e.stopPropagation()} style={{ width: "95vw", maxWidth: "600px", maxHeight: "95vh", padding: "15px", display: "flex", flexDirection: "column", gap: "15px", justifyContent: "center", boxSizing: "border-box" }}>
+                <div>
+                  <ModalTitle $isWin={true} style={{ fontSize: "2.4rem", margin: "10px 0 5px", wordBreak: "keep-all" }}>
+                    포켓몬 트레이드
+                  </ModalTitle>
+                  <div style={{ textAlign: "center", color: "#aaa", fontSize: "0.85rem" }}>
+                    * 초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.
+                  </div>
+                </div>
+                <TradeContainer>
+                  <TradeColumn>
+                    <h3 style={{ textAlign: "center", color: "#64ffda", margin: "5px 0" }}>내 엔트리</h3>
+                    {playerTeamFixed.map((p, idx) => {
+                      const isLeg = isLegendary(p?.origin);
+                      const isDisabled = selectedNpcPoke ? isLeg !== isLegendary(selectedNpcPoke?.origin) : false;
+                      return (
+                        <TradeCard
+                          key={idx}
+                          $selected={tradePlayerIdx === idx}
+                          $disabled={isDisabled}
+                          onClick={() => handlePlayerCardClick(idx, p)}>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "7vh", overflow: "hidden" }}>
+                            <TradeCardImage src={`/pokemon/img/pokemon/${p.origin.pokemon_id}.webp`} />
+                            <TradeCardName>
+                              {p.origin.name}
+                              {isLeg && <span style={{ fontSize: "1vh", color: "#ffd700", marginLeft: "2px" }}>[초전설]</span>}
+                            </TradeCardName>
+                          </div>
+                          <TradeInfoButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setTradeInfoPokemon(p);
+                            }}>
+                            상세정보
+                          </TradeInfoButton>
+                        </TradeCard>
+                      );
+                    })}
+                  </TradeColumn>
+                  <TradeColumn>
+                    <h3 style={{ textAlign: "center", color: "#ff5252", margin: "5px 0" }}>상대 엔트리</h3>
+                    {npcTeamFixed.map((p, idx) => {
+                      const isLeg = isLegendary(p?.origin);
+                      const isDisabled = selectedPlayerPoke ? isLeg !== isLegendary(selectedPlayerPoke?.origin) : false;
+                      return (
+                        <TradeCard
+                          key={idx}
+                          $selected={tradeNpcIdx === idx}
+                          $disabled={isDisabled}
+                          onClick={() => handleNpcCardClick(idx, p)}>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "7vh", overflow: "hidden" }}>
+                            <TradeCardImage src={`/pokemon/img/pokemon/${p.origin.pokemon_id}.webp`} />
+                            <TradeCardName>
+                              {p.origin.name}
+                              {isLeg && <span style={{ fontSize: "1vh", color: "#ffd700", marginLeft: "2px" }}>[초전설]</span>}
+                            </TradeCardName>
+                          </div>
+                          <TradeInfoButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setTradeInfoPokemon(p);
+                            }}>
+                            상세정보
+                          </TradeInfoButton>
+                        </TradeCard>
+                      );
+                    })}
+                  </TradeColumn>
+                </TradeContainer>
+                <ModalButtonContainer>
+                  <ModalButton onClick={() => proceedNextRound()}>건너뛰기</ModalButton>
+                  <ModalButton
+                    $primary
+                    $isWin={true}
+                    onClick={isTradeValid ? submitTrade : undefined}
+                    style={{
+                      backgroundColor: isTradeValid ? "rgba(100, 255, 218, 0.1)" : "rgba(128, 128, 128, 0.1)",
+                      color: isTradeValid ? "#64ffda" : "#888",
+                      borderColor: isTradeValid ? "rgba(100, 255, 218, 0.5)" : "rgba(128, 128, 128, 0.5)",
+                      cursor: isTradeValid ? "pointer" : "not-allowed",
+                    }}>
+                    교환 및 진행
+                  </ModalButton>
+                </ModalButtonContainer>
+              </ModalBox>
+              {tradeInfoPokemon && <TradeInfoModal pokemon={tradeInfoPokemon} onClose={() => setTradeInfoPokemon(null)} />}
+            </ModalOverlay>
+          );
+        })()}
       </BATTLE>
     </>
   );
@@ -551,7 +618,9 @@ const TradeCard = styled.div`
   border-radius: 5px;
   background-color: ${(props) => (props.$selected ? "rgba(100, 255, 218, 0.15)" : "rgba(0, 0, 0, 0.7)")};
   overflow: hidden;
-  cursor: pointer;
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.$disabled ? 0.35 : 1)};
+  filter: ${(props) => (props.$disabled ? "grayscale(0.7)" : "none")};
   border: ${(props) => (props.$selected ? "2px solid #64ffda" : "2px solid transparent")};
   transition: all 0.2s ease;
   display: flex;

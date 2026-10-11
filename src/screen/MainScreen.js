@@ -3,25 +3,14 @@ import { useNavigate } from "react-router-dom";
 import styled, { createGlobalStyle, keyframes } from "styled-components";
 import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
 import { defaultOption } from "../config/defaultOption";
+import { getRandomTeam } from "../util/randomTeam";
 
 const MainScreen = () => {
   const navigate = useNavigate();
 
-  const selectPokemon = (teamSize = 3) => {
-    let team = [];
-    while (team.length < teamSize) {
-      const randomIndex = Math.floor(Math.random() * pokemonList.length);
-      const selectedPokemon = pokemonList[randomIndex];
-      if (!team.includes(selectedPokemon)) {
-        team.push(selectedPokemon);
-      }
-    }
-    return team;
-  };
-
   const handleQuickStart = () => {
-    const team1 = selectPokemon();
-    const team2 = selectPokemon();
+    const team1 = getRandomTeam(3);
+    const team2 = getRandomTeam(3);
     navigate("/battle", { state: { team1, team2, isNew: true, ...defaultOption } });
   };
 
