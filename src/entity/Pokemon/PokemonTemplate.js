@@ -27,6 +27,7 @@ class PokemonTemplate {
     this.abilObj.name = abil
 
     const pokemon = PokemonData.getDataById(pokemon_id);
+    this.no = pokemon.no;
     this.pokemon_id = pokemon.id; //ex) 0815
     this.name = pokemon.name;
     this.names = pokemon.names;

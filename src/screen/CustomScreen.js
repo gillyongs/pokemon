@@ -17,8 +17,16 @@ const CustomScreen = () => {
   const [activeTypes, setActiveTypes] = useState([]);
   const [activeLogic, setActiveLogic] = useState("OR");
   const [activeRoles, setActiveRoles] = useState([]);
+  const [isMegaFilter, setIsMegaFilter] = useState(false);
+  const [isLegendaryFilter, setIsLegendaryFilter] = useState(false);
+  const [isIntimidateFilter, setIsIntimidateFilter] = useState(false);
+  const [isWeatherFilter, setIsWeatherFilter] = useState(false);
   const [tempSelectedTypes, setTempSelectedTypes] = useState([]);
   const [tempSelectedRoles, setTempSelectedRoles] = useState([]);
+  const [tempIsMegaFilter, setTempIsMegaFilter] = useState(false);
+  const [tempIsLegendaryFilter, setTempIsLegendaryFilter] = useState(false);
+  const [tempIsIntimidateFilter, setTempIsIntimidateFilter] = useState(false);
+  const [tempIsWeatherFilter, setTempIsWeatherFilter] = useState(false);
   const [tempLogic, setTempLogic] = useState("OR");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
@@ -57,6 +65,10 @@ const CustomScreen = () => {
   const openFilterModal = () => {
     setTempSelectedTypes(activeTypes);
     setTempSelectedRoles(activeRoles);
+    setTempIsMegaFilter(isMegaFilter);
+    setTempIsLegendaryFilter(isLegendaryFilter);
+    setTempIsIntimidateFilter(isIntimidateFilter);
+    setTempIsWeatherFilter(isWeatherFilter);
     setTempLogic(activeLogic);
     setIsFilterModalOpen(true);
   };
@@ -65,6 +77,10 @@ const CustomScreen = () => {
     setSearchTerm("");
     setActiveTypes([]);
     setActiveRoles([]);
+    setIsMegaFilter(false);
+    setIsLegendaryFilter(false);
+    setIsIntimidateFilter(false);
+    setIsWeatherFilter(false);
     setActiveLogic("OR");
   };
 
@@ -84,11 +100,18 @@ const CustomScreen = () => {
     }
   };
 
-  const isNameMatch = (searchStr, pokemonName) => {
+  const WEATHER_ABILITIES = ["잔비", "가뭄", "진홍빛고동"];
+
+  const isNameMatch = (searchStr, pokemon) => {
     if (!searchStr) return true;
 
     const s = searchStr.trim().toLowerCase();
-    const t = pokemonName.toLowerCase();
+    const t = pokemon.id.toLowerCase();
+
+    if (s === "위협" && (pokemon.abil === "위협" || pokemon.megaData?.abil === "위협")) return true;
+    if (s === "날씨" && (WEATHER_ABILITIES.includes(pokemon.abil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil)))) return true;
+    if (s === "초전설" && pokemon.feature?.legendary) return true;
+    if ((s === "메가진화" || s === "메가") && pokemon.megaData) return true;
 
     if (t.includes(s)) return true;
 
@@ -101,7 +124,7 @@ const CustomScreen = () => {
   };
 
   const filteredSamples = sampleList.items.filter((pokemon) => {
-    const nameMatch = isNameMatch(searchTerm, pokemon.id);
+    const nameMatch = isNameMatch(searchTerm, pokemon);
 
     let typeMatch = true;
     if (activeTypes.length > 0) {
@@ -117,7 +140,27 @@ const CustomScreen = () => {
       roleMatch = activeRoles.includes(pokemon.role);
     }
 
-    return nameMatch && typeMatch && roleMatch;
+    let megaMatch = true;
+    if (isMegaFilter) {
+      megaMatch = !!pokemon.megaData;
+    }
+
+    let legendaryMatch = true;
+    if (isLegendaryFilter) {
+      legendaryMatch = !!pokemon.feature?.legendary;
+    }
+
+    let intimidateMatch = true;
+    if (isIntimidateFilter) {
+      intimidateMatch = pokemon.abil === "위협" || pokemon.megaData?.abil === "위협";
+    }
+
+    let weatherMatch = true;
+    if (isWeatherFilter) {
+      weatherMatch = WEATHER_ABILITIES.includes(pokemon.abil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil));
+    }
+
+    return nameMatch && typeMatch && roleMatch && megaMatch && legendaryMatch && intimidateMatch && weatherMatch;
   });
 
   const getActiveTeam = () => (activeTab === "player" ? selectedTeam : npcTeam);
@@ -483,11 +526,65 @@ const CustomScreen = () => {
               ))}
             </RoleGrid>
 
+            <SectionTitleRow>
+              <ModalSubTitle>기타</ModalSubTitle>
+              <SectionResetButton
+                onClick={() => {
+                  setTempIsMegaFilter(false);
+                  setTempIsLegendaryFilter(false);
+                  setTempIsIntimidateFilter(false);
+                  setTempIsWeatherFilter(false);
+                }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                </svg>
+              </SectionResetButton>
+            </SectionTitleRow>
+            <EtcRow>
+              <CheckboxLabel>
+                <CheckboxInput
+                  type="checkbox"
+                  checked={tempIsMegaFilter}
+                  onChange={(e) => setTempIsMegaFilter(e.target.checked)}
+                />
+                메가진화
+              </CheckboxLabel>
+              <CheckboxLabel>
+                <CheckboxInput
+                  type="checkbox"
+                  checked={tempIsLegendaryFilter}
+                  onChange={(e) => setTempIsLegendaryFilter(e.target.checked)}
+                />
+                초전설
+              </CheckboxLabel>
+              <CheckboxLabel>
+                <CheckboxInput
+                  type="checkbox"
+                  checked={tempIsIntimidateFilter}
+                  onChange={(e) => setTempIsIntimidateFilter(e.target.checked)}
+                />
+                위협
+              </CheckboxLabel>
+              <CheckboxLabel>
+                <CheckboxInput
+                  type="checkbox"
+                  checked={tempIsWeatherFilter}
+                  onChange={(e) => setTempIsWeatherFilter(e.target.checked)}
+                />
+                날씨
+              </CheckboxLabel>
+            </EtcRow>
+
             <ModalFooter>
               <SearchButton
                 onClick={() => {
                   setActiveTypes(tempSelectedTypes);
                   setActiveRoles(tempSelectedRoles);
+                  setIsMegaFilter(tempIsMegaFilter);
+                  setIsLegendaryFilter(tempIsLegendaryFilter);
+                  setIsIntimidateFilter(tempIsIntimidateFilter);
+                  setIsWeatherFilter(tempIsWeatherFilter);
                   setActiveLogic(tempLogic);
                   setIsFilterModalOpen(false);
                 }}>
@@ -690,6 +787,32 @@ const RoleGrid = styled.div`
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-bottom: 20px;
+`;
+
+const EtcRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 4px 2px;
+`;
+
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+`;
+
+const CheckboxInput = styled.input`
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4caf50;
 `;
 
 const TypeButton = styled.button`
