@@ -259,6 +259,10 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 1.5;
       defStr += " * 1.5 (진화의휘석)";
     }
+    if (battle.field.weather.get() === "모래바람" && (defensePokemon.type1 === "바위" || defensePokemon.type2 === "바위")) {
+      defStat *= 1.5;
+      defStr += " * 1.5 (모래바람+바위)";
+    }
   }
 
   // 위력 ======================================================================================================

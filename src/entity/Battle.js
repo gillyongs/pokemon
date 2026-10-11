@@ -75,6 +75,7 @@ export function createBattle(playerArray, npcArray, options = { difficulty: "이
   const npc = generate(npcArray[0], { isNpc: true, ...options });
   npc.name = "상대 " + npc.name;
   npc.names = "상대 " + npc.names;
+  npc.namess = "상대 " + npc.namess;
   npc.originalIndex = 0;
 
   const playerBench1 = generate(playerArray[1]);

@@ -95,6 +95,7 @@ export const atkSkills = [
   new Skill("사념의박치기", "에스퍼", 80, 90, 15, 0, "atk", null, "20%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 20 }], { touch: true }),
   new Skill("고드름떨구기", "얼음", 85, 90, 10, 0, "atk", null, "30%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 30 }]),
   new Skill("폭포오르기", "물", 80, 100, 15, 0, "atk", null, "20%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 20 }], { touch: true }),
+  new Skill("스톤샤워", "바위", 75, 90, 10, 0, "atk", null, "30%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 30 }], {}),
 
   // 소리 기술 금지
   new Skill("지옥찌르기", "악", 500, 100, 15, 0, "atk", null, "2턴 동안 상대가 소리 기술을 쓰지 못하게 한다.", [{ name: "소리기술금지" }], { touch: true }),

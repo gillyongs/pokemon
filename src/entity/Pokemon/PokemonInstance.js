@@ -29,6 +29,7 @@ class PokemonInstance {
 
     this.name = this.origin.name; // 메타몽때문에 이름도 가변값이 필요
     this.names = this.origin.names;
+    this.namess = this.origin.namess;
     this.hp = this.origin.hp; // 현재 체력
     this.type1 = this.origin.type1;
     this.type2 = this.origin.type2;

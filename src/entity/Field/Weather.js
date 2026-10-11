@@ -19,6 +19,10 @@ export class Weather {
     // 번개/폭풍 필중
   }
 
+  get isSandstorm() {
+    return this.#type === "모래바람";
+  }
+
   #setWeather(weatherType, turnRemain, enqueue, battle, weatherText) {
     this.#type = weatherType;
     this.#turnRemain = turnRemain;
@@ -32,6 +36,7 @@ export class Weather {
     const itemExtendMap = {
       비: "축축한바위",
       쾌청: "뜨거운바위",
+      모래바람: "매끄러운바위",
     };
 
     const baseTurn = 5;
@@ -61,11 +66,24 @@ export class Weather {
     const endTextMap = {
       비: "비가 그쳤다!",
       쾌청: "햇살이 원래대로 되돌아왔다!",
+      모래바람: "모래바람이 가라앉았다!",
     };
     enqueue({ battle, text: endTextMap[endedType] });
 
     // 날씨별 종료 효과
     this.#handleWeatherEndEffect(battle, enqueue, endedType);
+  }
+
+  // 날씨 데미지 처리 (턴 종료 시 1개체 대상)
+  handleWeatherDamageTurnEnd(battle, enqueue, user) {
+    if (battle.field.weather.get() === "모래바람") {
+      const p = battle[user];
+      if (p.faint) return;
+      const immune = p.type1 === "바위" || p.type2 === "바위" || p.type1 === "땅" || p.type2 === "땅" || p.type1 === "강철" || p.type2 === "강철";
+      if (!immune) {
+        p.getDamage(battle, enqueue, Math.floor(p.origin.hp / 16), `모래바람이 ${p.namess} 덮쳤다!`);
+      }
+    }
   }
 
   // 날씨 부가 효과 (시작 시)
