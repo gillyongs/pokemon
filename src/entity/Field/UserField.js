@@ -12,6 +12,7 @@ export class userField {
       wish: null, //희망사항 -> 다음턴 종료시 필드에 있는 포켓몬 = turnEnd.js에서 처리
       reflect: null, // 리플렉터
       lightScreen: null, // 빛의장막
+      tailwind: null, // 순풍 (남은 턴 수)
     };
   }
 
@@ -55,5 +56,15 @@ export class userField {
   handleLunarDance(battle, enqueue) {
     this.noClean.lunarDance = true;
     battle[this.team].handleFaint(battle, enqueue);
+  }
+
+  handleTailwindTurnEnd(battle, enqueue) {
+    if (this.noClean.tailwind === null) return;
+    this.noClean.tailwind--;
+    if (this.noClean.tailwind <= 0) {
+      this.noClean.tailwind = null;
+      const teamText = battle.common[this.team].teamKr;
+      enqueue({ battle, text: `${teamText} 편의 순풍이 멎었다!` });
+    }
   }
 }

@@ -620,6 +620,23 @@ function skillEffectSearch(name) {
       });
     },
 
+    순풍: (battle, enqueue, skillEffect) => {
+      const user = battle.turn.atk;
+      const field = battle.field[user].noClean;
+      if (field.tailwind !== null) {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+        return;
+      }
+      field.tailwind = 4;
+      enqueue({
+        battle,
+        text: battle.common[user].teamKr + " 편의 뒤에서 순풍이 불기 시작했다!",
+      });
+    },
+
     벽부수기: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const field = battle.field[def].noClean;

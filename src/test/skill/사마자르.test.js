@@ -138,7 +138,7 @@ describe("사마자르 구현 및 기술/특성 테스트", () => {
     expect(breakText).toBeDefined();
   });
 
-  it("상대가 방어를 쓰지 않았을 때 페인트를 사용하면 실패해야 한다", () => {
+  it("상대가 방어를 쓰지 않았을 때도 페인트는 정상적으로 명중해야 한다", () => {
     const kleavor = generate("사마자르");
     const enemy = generate("한카리아스");
     const b1 = generate("윈디");
@@ -156,10 +156,7 @@ describe("사마자르 구현 및 기술/특성 테스트", () => {
     // skillCheck 실행
     const checkResult = afterSkillCheck(battle, queueObject.enqueue);
 
-    // 방어를 쓰지 않았으므로 실패해야 함
-    expect(checkResult).toBe(false);
-
-    const failText = mockQueue.find((item) => item.text && item.text.includes("하지만 실패했다"));
-    expect(failText).toBeDefined();
+    // 5세대 이후 사양: 방어를 쓰지 않았어도 공격 성공
+    expect(checkResult).toBe(true);
   });
 });

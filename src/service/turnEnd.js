@@ -26,6 +26,10 @@ export const turnEnd = (battle, enqueue) => {
   battle.field[slowUser].handleWishTurnEnd(battle, enqueue);
   // 희망사항 -> 먹밥 -> 독뎀 순서, 어지간하면 회복이 먼저
 
+  // 순풍
+  battle.field[fastUser].handleTailwindTurnEnd(battle, enqueue);
+  battle.field[slowUser].handleTailwindTurnEnd(battle, enqueue);
+
   // 아이템 (먹밥)
   battle[fastUser].leftOver(battle, enqueue);
   battle[slowUser].leftOver(battle, enqueue);

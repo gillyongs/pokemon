@@ -1,5 +1,7 @@
 import { getMultiplier } from "../function/rankStat";
-export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed) => {
+
+// 스피드 실 수치 계산 함수
+export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, battle = null) => {
   let speed = baseSpeed;
   pokemon.log = pokemon.log || {};
   pokemon.log.speedCalculate = speed;
@@ -25,18 +27,23 @@ export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed) =
     speed *= 2;
     pokemon.log.speedCalculate += " * 2 (곡예)";
   }
+  // 순풍: 아군 필드에 순풍이 활성화되어 있는 경우 스피드 2배
+  if (battle?.field?.[pokemon.team]?.noClean?.tailwind) {
+    speed *= 2;
+    pokemon.log.speedCalculate += " * 2 (순풍)";
+  }
   pokemon.log.speedCalculate += " = " + speed;
   return speed;
 };
 
-export const getExpectedMegaSpeed = (pokemon) => {
+export const getExpectedMegaSpeed = (pokemon, battle = null) => {
   const megaBaseSpeed = pokemon.origin?.megaData?.stat?.speed ?? pokemon.origin.stat.speed;
-  return speedCalculate(pokemon, megaBaseSpeed);
+  return speedCalculate(pokemon, megaBaseSpeed, battle);
 };
 
 export const megaSpeedCheck = (battle) => {
-  const playerSpeed = getExpectedMegaSpeed(battle.player);
-  const npcSpeed = getExpectedMegaSpeed(battle.npc);
+  const playerSpeed = getExpectedMegaSpeed(battle.player, battle);
+  const npcSpeed = getExpectedMegaSpeed(battle.npc, battle);
   battle.player.log = battle.player.log || {};
   battle.player.log.megaSpeedVS = "Player Mega: " + playerSpeed + " vs NPC Mega: " + npcSpeed;
 
@@ -59,8 +66,8 @@ export const speedCheck = (battle) => {
   // battleScreen(맞특성)
   // battleStart(맞교체)
   // turnEnd(필드효과, 상태이상 etc)
-  const playerSpeed = speedCalculate(battle.player);
-  const npcSpeed = speedCalculate(battle.npc);
+  const playerSpeed = speedCalculate(battle.player, battle.player.origin.stat.speed, battle);
+  const npcSpeed = speedCalculate(battle.npc, battle.npc.origin.stat.speed, battle);
   battle.player.log.speedVS = "Player: " + playerSpeed + " vs NPC: " + npcSpeed;
 
   // 스피드 스탯은 오직 speedCheck에서만 사용한다
@@ -100,9 +107,8 @@ export const skillSpeedCheck = (battle) => {
   }
 };
 
+// 상황에 따라 우선도가 변하는 스킬
 export const priCalculate = (battle, pokemon, skill) => {
-  // 상황에 따라 우선도가 변하는 스킬
-
   if (skill.name === "그래스슬라이더") {
     if (battle.field.terrain.isGrassField) {
       return 1;
