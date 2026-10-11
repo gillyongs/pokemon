@@ -402,6 +402,11 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.5 (급류)";
   }
 
+  if (atkAbil === "맹화" && attackPokemon.hp <= attackPokemon.origin.hp / 3 && skill.type === "불꽃") {
+    damage *= 1.5;
+    attackPokemon.log.damage1 += " * 1.5 (맹화)";
+  }
+
   if (atkAbil === "수포" && skill.type === "물") {
     damage *= 2;
     attackPokemon.log.damage1 += " * 2 (수포)";

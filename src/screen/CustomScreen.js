@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import sampleList from "../entity/Pokemon/SamplePokemon";
 import { pokemonList, POKEMON_ROLES } from "../entity/Pokemon/PokemonTemplate";
+import { abilObject } from "../entity/Ability";
 import { defaultOption } from "../config/defaultOption";
 import SampleInfoModal from "../component/SampleInfoModal";
 
@@ -302,7 +303,7 @@ const CustomScreen = () => {
                     </RemoveBtn>
                     <ImageWrapper>
                       <img
-                        src={`/pokemon/img/pokemon/${pokemonData.pokemon_id}.webp`}
+                        src={`/pokemon/img/pokemon/${pokemonData.megaData?.pokemon_id || pokemonData.pokemon_id}.webp`}
                         alt={pokemonData.name}
                         style={{ height: "60px" }}
                         onError={(e) => {
@@ -392,7 +393,7 @@ const CustomScreen = () => {
               >
                 <ImageWrapper style={{ flexShrink: 0 }}>
                   <img
-                    src={`/pokemon/img/pokemon/${pokemon.pokemon_id}.webp`}
+                    src={`/pokemon/img/pokemon/${pokemon.megaData?.pokemon_id || pokemon.pokemon_id}.webp`}
                     alt={pokemon.name}
                     style={{ height: "60px", width: "60px", objectFit: "contain" }}
                     onError={(e) => {
@@ -417,6 +418,11 @@ const CustomScreen = () => {
                   <AbilText>
                     [특성] {pokemon.abil} : {pokemon.abilObj?.text || "설명 없음"}
                   </AbilText>
+                  {pokemon.megaData && (
+                    <AbilText>
+                      [메가진화 특성] {pokemon.megaData.abil} : {abilObject[pokemon.megaData.abil]?.text || "설명 없음"}
+                    </AbilText>
+                  )}
                   <AbilText>
                     [아이템] {pokemon.item || "없음"} : {pokemon.itemText || "설명 없음"}
                   </AbilText>

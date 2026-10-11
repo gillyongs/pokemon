@@ -1,5 +1,5 @@
 import { josa } from "josa";
-import { abilObject } from "../../Ability";
+import { abilObject, applyAbilityEffects } from "../../Ability";
 
 export const PokemonMega = {
   isMegaEvolveAble(battle) {
@@ -51,5 +51,8 @@ export const PokemonMega = {
       battle,
       text: `${this.names} ${mega.name}로 메가진화했다!`,
     });
+
+    // 4. 메가진화 후 특성 발동 (가뭄 등 등장 특성)
+    applyAbilityEffects(battle, this.team, enqueue);
   },
 };

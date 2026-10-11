@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { abilObject } from '../entity/Ability';
 
 const HexagonGraph = ({ origin }) => {
   const MAX_STAT = 250;
@@ -64,6 +65,11 @@ const SampleInfoModal = ({ pokemon, onClose }) => {
     setInfoText(`[${p.abil}] ${desc}`);
   };
 
+  const handleMegaAbilClick = () => {
+    const desc = (p.megaData?.abil && abilObject[p.megaData.abil]?.text) || "설명이 없습니다.";
+    setInfoText(`[${p.megaData?.abil}] ${desc}`);
+  };
+
   const handleItemClick = () => {
     const desc = p.itemText || "설명이 없습니다.";
     setInfoText(`[${p.item}] ${desc}`);
@@ -80,7 +86,7 @@ const SampleInfoModal = ({ pokemon, onClose }) => {
         
         <div style={{ display: "flex", alignItems: "stretch", marginBottom: "15px" }}>
           <div style={{ flex: "0 0 100px", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#f5f5f5", borderRadius: "10px", padding: "10px", border: "1px solid #eee" }}>
-            <img src={`/pokemon/img/pokemon/${p.pokemon_id}.webp`} alt={p.name} style={{ width: "95%", height: "95%", objectFit: "contain" }} />
+            <img src={`/pokemon/img/pokemon/${p.megaData?.pokemon_id || p.pokemon_id}.webp`} alt={p.name} style={{ width: "95%", height: "95%", objectFit: "contain" }} />
           </div>
           <div style={{ flex: "1", paddingLeft: "15px", lineHeight: "1.6", textAlign: "left", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <h2 style={{ color: "#333", margin: "0", fontSize: "1.5rem", whiteSpace: "nowrap" }}>{p.name}</h2>
@@ -93,6 +99,12 @@ const SampleInfoModal = ({ pokemon, onClose }) => {
               <span style={{ color: "#777", width: "65px" }}>특성:</span>
               <ClickableBadge onClick={handleAbilClick}>{p.abil}</ClickableBadge>
             </div>
+            {p.megaData && (
+              <div style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "0.95rem", whiteSpace: "nowrap" }}>
+                <span style={{ color: "#777", width: "65px" }}>메가특성:</span>
+                <ClickableBadge onClick={handleMegaAbilClick}>{p.megaData.abil}</ClickableBadge>
+              </div>
+            )}
             <div style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "0.95rem", whiteSpace: "nowrap" }}>
               <span style={{ color: "#777", width: "65px" }}>아이템:</span>
               <ClickableBadge onClick={handleItemClick}>{p.item}</ClickableBadge>

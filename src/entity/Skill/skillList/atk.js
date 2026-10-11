@@ -108,4 +108,5 @@ export const atkSkills = [
   new Skill("헤비봄버", "강철", 120, 100, 10, 0, "atk", null, "무거운 몸으로 상대에게 부딪쳐 공격한다. ", [], { touch: true }),
   new Skill("거수참", "강철", 100, 100, 5, 0, "atk", null, "다이맥스한 상대에게 2배 데미지를 준다", [], { touch: true, slice: true }),
   new Skill("거수탄", "강철", 100, 100, 5, 0, "atk", null, "온몸을 강하고 튼튼한 방패로 바꾼 다음 기세 좋게 부딪혀서 공격한다.", [], { touch: true }),
+  new Skill("드래곤클로", "드래곤", 80, 100, 15, 0, "atk", null, "날카로운 거대한 발톱으로 상대를 베어가른다.", [], { touch: true, slice: true }),
 ];
