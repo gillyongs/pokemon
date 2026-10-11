@@ -95,6 +95,6 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
   // 끈적끈적네트
   if (bt.field[atks].stickyWeb) {
     enqueue({ battle: bt, text: atk.names + " 끈적끈적네트에 걸렸다!" });
-    atk.rankUp(bt, enqueue, "speed", -1);
+    atk.rankUp(bt, enqueue, "speed", -1, null, true);
   }
 };

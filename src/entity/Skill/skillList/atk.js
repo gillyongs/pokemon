@@ -1,6 +1,7 @@
 import { Skill } from "../Skill.js";
 
 // 물리 공격기
+// prettier-ignore
 export const atkSkills = [
   new Skill("임시스킬", "노말", 80 + "위력", 100 + "명중률", 15 + "pp", 0 + "우선도", "atk" + "물리특수", null, "임시스킬", [], {}),
 
@@ -27,6 +28,7 @@ export const atkSkills = [
   new Skill("야습", "고스트", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true }),
   new Skill("아쿠아제트", "물", 40, 100, 20, 1, "atk", null, "우선도 +1", [], { touch: true }),
   new Skill("전광석화", "노말", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true }),
+  new Skill("불릿펀치", "강철", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true, punch: true }),
 
   // 연속기 =================================================================================================================
   new Skill("트리플악셀", "얼음", 20, 90, 10, 0, "atk", null, "최대 3회 연속으로 공격한다. 기술이 명중할 때마다 위력이 올라간다.", [], { triple: true, serial: true, touch: true }),
@@ -34,20 +36,12 @@ export const atkSkills = [
   new Skill("고드름침", "얼음", 25, 100, 30, 0, "atk", null, "2-5회 동안 연속으로 쓴다", [], { twoFive: true, serial: true }),
   new Skill("록블라스트", "바위", 25, 90, 10, 0, "atk", null, "2-5회 동안 연속으로 쓴다", [], { twoFive: true, serial: true }),
   // prettier-ignore
-  new Skill("스케일샷", "드래곤", 25, 90, 20, 0, "atk", null,
-    "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.",
-    [ { name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "speed", value: 1}, {stat: "def", value: -1}] }
-    ], { twoFive: true, serial: true }
-  ),
+  new Skill("스케일샷", "드래곤", 25, 90, 20, 0, "atk", null, "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.", [ { name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "speed", value: 1}, {stat: "def", value: -1}] }], { twoFive: true, serial: true }),
 
   // 랭크 변화 (자신) =================================================================================================================
   new Skill("개척하기", "풀", 50, 100, 20, 0, "atk", null, "자신의 스피드를 1랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: 1 }], { touch: true }),
-  // prettier-ignore
-  new Skill("인파이트", "격투", 120, 100, 5, 0, "atk", null,
-    "사용 후 사용자의 방어와 특수방어가 1랭크 떨어진다.",
-    [ { name: "랭크다수변화", probability: 100, target: "atk", stats: [ {stat: "def", value: -1}, {stat: "cdef", value: -1} ] }
-    ],{ touch: true }
-  ),
+  new Skill("코멧펀치", "강철", 90, 90, 10, 0, "atk", null, "20% 확률로 자신의 공격을 1랭크 올린다.", [{ name: "랭크변화", probability: 20, stat: "atk", target: "atk", value: 1 }], { touch: true, punch: true }),
+  new Skill("인파이트", "격투", 120, 100, 5, 0, "atk", null, "사용 후 사용자의 방어와 특수방어가 1랭크 떨어진다.", [ { name: "랭크다수변화", probability: 100, target: "atk", stats: [ {stat: "def", value: -1}, {stat: "cdef", value: -1} ] }],{ touch: true }),
 
   // 랭크 변화 (상대)
   new Skill("암석봉인", "바위", 60, 95, 15, 0, "atk", null, "상대방의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
@@ -89,6 +83,7 @@ export const atkSkills = [
 
   // 풀죽음
   new Skill("아이언헤드", "강철", 80, 100, 15, 0, "atk", null, "30%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 30 }], { touch: true }),
+  new Skill("사념의박치기", "에스퍼", 80, 90, 15, 0, "atk", null, "20%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 20 }], { touch: true }),
   new Skill("고드름떨구기", "얼음", 85, 90, 10, 0, "atk", null, "30%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 30 }]),
   new Skill("폭포오르기", "물", 80, 100, 15, 0, "atk", null, "20%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 20 }], { touch: true }),
 

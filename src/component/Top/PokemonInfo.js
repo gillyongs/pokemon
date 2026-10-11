@@ -7,7 +7,10 @@ const PokemonInfo = ({ battle, type }) => {
 
   return (
     <INFO type={type}>
-      <NAME>{pokemon.origin.name}</NAME>
+      <NAME>
+        <span>{pokemon.origin.name}</span>
+        {pokemon.isMega && <MegaIcon src="/pokemon/img/background/mega.webp" alt="mega" />}
+      </NAME>
       {Object.entries(pokemon.ailment).map(([key, value]) =>
         value != null ? (
           <STATUS key={key} status={statusMap[key]}>
@@ -36,6 +39,15 @@ const NAME = styled.div`
   top: 14px;
   left: 10px;
   font-size: 17px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const MegaIcon = styled.img`
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
 `;
 
 const RANK = styled.div`

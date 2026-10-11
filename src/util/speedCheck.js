@@ -1,6 +1,7 @@
 import { getMultiplier } from "../function/rankStat";
-const speedCalculate = (pokemon) => {
-  let speed = pokemon.origin.stat.speed;
+export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed) => {
+  let speed = baseSpeed;
+  pokemon.log = pokemon.log || {};
   pokemon.log.speedCalculate = speed;
   speed *= getMultiplier(pokemon.tempStatus.rank.speed); // 랭크업
   if (pokemon.tempStatus.rank.speed !== 0) {
@@ -26,6 +27,31 @@ const speedCalculate = (pokemon) => {
   }
   pokemon.log.speedCalculate += " = " + speed;
   return speed;
+};
+
+export const getExpectedMegaSpeed = (pokemon) => {
+  const megaBaseSpeed = pokemon.origin?.megaData?.stat?.speed ?? pokemon.origin.stat.speed;
+  return speedCalculate(pokemon, megaBaseSpeed);
+};
+
+export const megaSpeedCheck = (battle) => {
+  const playerSpeed = getExpectedMegaSpeed(battle.player);
+  const npcSpeed = getExpectedMegaSpeed(battle.npc);
+  battle.player.log = battle.player.log || {};
+  battle.player.log.megaSpeedVS = "Player Mega: " + playerSpeed + " vs NPC Mega: " + npcSpeed;
+
+  if (playerSpeed === npcSpeed) {
+    battle.player.log.megaSpeedVS += " (동점)";
+    return Math.random() < 0.5 ? "player" : "npc";
+  }
+
+  let faster = playerSpeed > npcSpeed ? "player" : "npc";
+  if (battle.field?.room?.isTrickRoom) {
+    battle.player.log.megaSpeedVS += " (트릭룸)";
+    faster = faster === "player" ? "npc" : "player";
+  }
+  battle.player.log.megaSpeedVS += " => " + faster;
+  return faster;
 };
 
 export const speedCheck = (battle) => {

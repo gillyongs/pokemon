@@ -1,9 +1,9 @@
-import { speedCheck, skillSpeedCheck } from "../util/speedCheck";
+import { speedCheck, skillSpeedCheck, megaSpeedCheck } from "../util/speedCheck";
 import { turnEnd } from "./turnEnd";
 import { switchNpc, switchPlayer } from "./switch";
 import { attackNpc, attackPlayer } from "./attack";
 
-export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
+export const battleStart = (battle, actNumber, npcActNumber, queueObject, options = {}) => {
   // 턴을 시작하는 함수
   // 선택지와 스피드에 맞게 '교체'나 '공격' 함수를 호출한다
 
@@ -24,6 +24,32 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject) => {
 
   if (isAttack(actNumber)) battle.player.turn.useSkill = battle.player.origin.skill[actNumber];
   if (isAttack(npcActNumber)) battle.npc.turn.useSkill = battle.npc.origin.skill[npcActNumber];
+
+  // 메가진화 판정 (기술 사용 시 스피드 판정 전 발동)
+  const playerMegaTrigger = battle.megaTrigger?.player || options.useMega;
+  const playerCanMega = Boolean(playerMegaTrigger && isAttack(actNumber) && battle.player.isMegaEvolveAble?.(battle));
+  const npcCanMega = Boolean(isAttack(npcActNumber) && battle.npc.isMegaEvolveAble?.(battle));
+
+  if (playerCanMega && npcCanMega) {
+    const faster = megaSpeedCheck(battle);
+    if (faster === "player") {
+      battle.player.megaEvolve(battle, enqueue);
+      battle.npc.megaEvolve(battle, enqueue);
+    } else {
+      battle.npc.megaEvolve(battle, enqueue);
+      battle.player.megaEvolve(battle, enqueue);
+    }
+    if (battle.megaTrigger) {
+      battle.megaTrigger.player = false;
+      battle.megaTrigger.npc = false;
+    }
+  } else if (playerCanMega) {
+    battle.player.megaEvolve(battle, enqueue);
+    if (battle.megaTrigger) battle.megaTrigger.player = false;
+  } else if (npcCanMega) {
+    battle.npc.megaEvolve(battle, enqueue);
+    if (battle.megaTrigger) battle.megaTrigger.npc = false;
+  }
 
   if (isSwitch(actNumber) && isSwitch(npcActNumber)) {
     //맞교체

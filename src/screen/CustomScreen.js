@@ -288,7 +288,7 @@ const CustomScreen = () => {
         <TeamSlots>
           {[0, 1, 2].map((index) => {
             const pokemonId = currentTeam[index];
-            const pokemonData = pokemonId ? sampleList.getItemById(pokemonId) : null;
+            const pokemonData = pokemonId ? sampleList.getDataById(pokemonId) : null;
             return (
               <Slot key={index} className="team-slot" data-index={index} draggable={!!pokemonId} onDragStart={(e) => handleDragStart(e, index)} onDrop={(e) => handleDrop(e, index)} onDragOver={handleDragOver} onTouchStart={(e) => handleTouchStart(e, index)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} $hasData={!!pokemonId}>
                 {pokemonData ? (

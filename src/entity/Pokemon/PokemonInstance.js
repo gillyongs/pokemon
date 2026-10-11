@@ -3,6 +3,8 @@ import { PokemonRecover } from "./Methods/PokemonRecover";
 import { PokemonAbil } from "./Methods/PokemonAbil.js";
 import { PokemonGetDamage } from "./Methods/PokemonGetDamage.js";
 import { PokemonRank } from "./Methods/PokemonRank.js";
+import { PokemonMega } from "./Methods/PokemonMega.js";
+import { cloneWithMethods } from "../../util/cloneWithMethods";
 
 // 실제 배틀에 사용되는 포켓몬 객체
 // 능력치, pp, 상태이상여부, 랭크업, 기절 여부 등 가변 값을 지닌다.
@@ -11,8 +13,8 @@ class PokemonInstance {
   constructor(id, options = { isNpc: false, difficulty: "이지", round: 1 }) {
     this.team = ""; // player or npc
     this.id = id;
-    const pokemon = sampleList.getItemById(id);
-    this.origin = structuredClone(pokemon);
+    const pokemon = sampleList.getDataById(id);
+    this.origin = cloneWithMethods(pokemon);
     if (options.isNpc && options.difficulty !== "이지") {
       const multiplier = 1.0 + (options.round - 1) * 0.1;
       this.origin.hp = Math.floor(this.origin.hp * multiplier);
@@ -181,7 +183,7 @@ class PokemonInstance {
   }
 }
 
-Object.assign(PokemonInstance.prototype, PokemonRecover, PokemonAbil, PokemonGetDamage, PokemonRank);
+Object.assign(PokemonInstance.prototype, PokemonRecover, PokemonAbil, PokemonGetDamage, PokemonRank, PokemonMega);
 
 export function generate(id, options = { isNpc: false, difficulty: "노말", round: 1 }) {
   return new PokemonInstance(id, options);

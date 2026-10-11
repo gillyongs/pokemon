@@ -7,6 +7,8 @@ export const abilObject = {
   곡예: { text: "장착한 도구가 없어지면 스피드가 2배가 된다." },
   지구력: { text: "공격을 받으면 방어가 1랭크 올라간다." },
   예리함: { text: "베는 기술의 위력이 1.5배가 된다." },
+  단단한발톱: { text: "직접 접촉하는 기술의 위력이 1.3배 상승한다." },
+  클리어바디: { text: "상대에 의해 능력치가 떨어지지 않는다." },
   정전기: { text: "자신에게 접촉한 상대를 30% 확률로 마비시킨다." },
   프레셔: { text: "상대의 PP 소모량이 2배가 된다." },
   불요의검: { text: "등장했을 때 공격이 1랭크 올라간다." },
@@ -165,22 +167,30 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // ==================================================================================
   // 랭크 관련
   const rankUpAbilities = {
-    불요의검: { cond: atk.item === "녹슨검", target: "atk", stat: "atk", value: 1 },
-    불굴의방패: { cond: atk.item === "녹슨방패", target: "atk", stat: "def", value: 1 },
-    위협: { cond: !def.tempStatus.substitute && def.abil !== "정신력", target: "def", stat: "atk", value: -1 },
+    불요의검: { cond: atk.item === "녹슨검", stat: "atk", value: 1 },
+    불굴의방패: { cond: atk.item === "녹슨방패", stat: "def", value: 1 },
   };
 
   Object.entries(rankUpAbilities).forEach(([abil, cfg]) => {
     const abilText = `[특성 ${abil}]`;
     if (atkAbil === abil && cfg.cond) {
-      const target = cfg.target === "atk" ? atk : def;
-      target.rankUp(bt, enqueue, cfg.stat, cfg.value, abilText);
-    } else if (atkAbil === abil && !cfg.cond && abil === "위협") {
-      let failMessage = abilText + " " + def.name + "에겐 효과가 없는 것 같다...";
-      if (def.abil === "정신력") failMessage = `[특성 정신력] ${def.name}의 공격은 떨어지지 않는다!`;
-      enqueue({ battle: bt, text: failMessage });
+      atk.rankUp(bt, enqueue, cfg.stat, cfg.value, abilText, false);
     }
   });
+
+  // 위협
+  if (atkAbil === "위협") {
+    const abilText = "[특성 위협]";
+    enqueue({ battle: bt, text: `${abilText} ${atk.names} 적을 위협했다!` });
+    if (def.tempStatus.substitute) {
+      // 위협은 대타에 막힘
+      enqueue({ battle: bt, text: `${abilText} ${def.name}에겐 효과가 없는 것 같다...` });
+    } else if (def.abil === "정신력") {
+      enqueue({ battle: bt, text: `[특성 정신력] ${def.name}의 공격은 떨어지지 않는다!` });
+    } else {
+      def.rankUp(bt, enqueue, "atk", -1, abilText, true);
+    }
+  }
 
   // ==================================================================================
   // 날씨, 필드 관련

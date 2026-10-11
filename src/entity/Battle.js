@@ -56,6 +56,8 @@ class Battle {
     // this.npcBench1.ailment.poison = true;
     // this.npcBench2.ailment.poison = true;
     this.turnCount = 1;
+    this.megaUsed = { player: false, npc: false }; // 해당 배틀 메가진화 사용 여부
+    this.megaTrigger = { player: false, npc: false }; // 해당 턴 메가진화 선택 여부
   }
 
   // 턴 시작시 turn 초기화
@@ -65,7 +67,6 @@ class Battle {
       t[key] = null;
     });
   }
-
 }
 
 export function createBattle(playerArray, npcArray, options = { difficulty: "이지", round: 1 }) {

@@ -5,7 +5,10 @@ const BenchPokemon = ({ battle, index, selected, handleSelected, setBench, setBo
   const pokemon = battle[index];
   return (
     <BenchWrapper className={`${index} ${selected === index ? "selected" : ""}`} onClick={() => handleSelected(index)}>
-      <PokemonName className={`${index}`}>{pokemon.origin.name}</PokemonName>
+      <PokemonName className={`${index}`}>
+        {pokemon.origin.name}
+        {pokemon.isMega && <BenchMegaBadge src="/pokemon/img/background/mega.webp" alt="mega" />}
+      </PokemonName>
       <PokemonImage className={`${index}`} src={`/pokemon/img/pokemon/${pokemon.origin.pokemon_id}.webp`} alt={`bench2`} />
       <SwitchHpBar>
         <HpBar hp={pokemon.hp} maxHp={pokemon.origin.hp} />
@@ -78,6 +81,13 @@ const PokemonName = styled.div`
   width: 300px;
   left: 21vh;
   top: 1.5vh;
+`;
+
+const BenchMegaBadge = styled.img`
+  width: 14px;
+  height: 14px;
+  margin-left: 5px;
+  vertical-align: middle;
 `;
 
 const PokemonImage = styled.img`

@@ -1,13 +1,19 @@
 import { getStatName, getStatName2, getMultiplier } from "../../../function/rankStat";
 export const PokemonRank = {
-  applyRankChange(battle, enqueue, rankType, rankValue, text) {
+  applyRankChange(battle, enqueue, rankType, rankValue, abilText, isOpponent = false) {
     // 부가효과(skillEffect.js), 끈적끈적네트(field.js), 메테오빔(skillUse.js)
     // 위협/불굴의검/방패(ability.js), 자기과신(damage.js), 지구력(onHit.js) 에서 사용
-
     const rank = this.tempStatus.rank;
 
     if (this.abil === "심술꾸러기") {
       rankValue = -rankValue;
+    }
+
+    // 클리어바디: 상대방에 의한 랭크 감소를 막음
+    // 부가효과, 위협, 끈끈넷
+    if (isOpponent && rankValue < 0 && this.abil === "클리어바디") {
+      enqueue({ battle, text: `[특성 클리어바디] ${this.name}의 ${getStatName2(rankType)} 떨어지지 않았다!` });
+      return;
     }
 
     // 상한/하한 검사
@@ -34,20 +40,20 @@ export const PokemonRank = {
     if (rankValue > 0) rankText += " 올라갔다!";
     if (rankValue < 0) rankText += " 떨어졌다!";
 
-    if (text) rankText = `${text} ${rankText}`;
+    if (abilText) rankText = `${abilText} ${rankText}`;
 
     enqueue({ battle, text: rankText });
   },
 
-  rankUp(battle, enqueue, rankType, rankValue, text) {
-    this.applyRankChange(battle, enqueue, rankType, rankValue, text);
+  rankUp(battle, enqueue, rankType, rankValue, abilText, isOpponent) {
+    this.applyRankChange(battle, enqueue, rankType, rankValue, abilText, isOpponent);
     this.checkWhiteHerb(battle, enqueue);
   },
 
   // 인파이트로 방,특방 떨군거 하양허브로 한번에 회복되게 하려고 함수 따로 팜
-  rankUpMulti(battle, enqueue, rankArr, text) {
+  rankUpMulti(battle, enqueue, rankArr, abilText, isOpponent) {
     rankArr.forEach(({ stat, value }) => {
-      this.applyRankChange(battle, enqueue, stat, value, text);
+      this.applyRankChange(battle, enqueue, stat, value, abilText, isOpponent);
     });
 
     this.checkWhiteHerb(battle, enqueue);

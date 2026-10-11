@@ -2,6 +2,7 @@ import PokemonData from "./PokemonData";
 import skillList from "../Skill/skillList";
 import { itemText } from "../Item";
 import { abilObject } from "../Ability";
+import { getMegaData } from "./MegaData";
 //배틀용 포켓몬 객체
 //원본(PokemonData)에서 노력치, 스킬, 지닌 도구를 설정한다
 //ReadOnly, 불변값으로 Pokemon 객체가 origin으로 지니고있는다
@@ -25,7 +26,7 @@ class PokemonTemplate {
     this.abilObj = abilObject[abil] ? abilObject[abil] : {}
     this.abilObj.name = abil
 
-    const pokemon = PokemonData.getItemById(pokemon_id);
+    const pokemon = PokemonData.getDataById(pokemon_id);
     this.pokemon_id = pokemon.id; //ex) 0815
     this.name = pokemon.name;
     this.names = pokemon.names;
@@ -95,6 +96,31 @@ class PokemonTemplate {
       console.error(this.id + " 성격처리오류");
     }
 
+    const targetMega = getMegaData(this.pokemon_id, this.item);
+    if (targetMega) {
+      const megaPokemon = PokemonData.getDataById(targetMega.megaFormId);
+      if (megaPokemon) {
+        let mAtk = Math.floor((megaPokemon.atk * 2 + Math.floor(atks / 4) + (gachaStats[gacha]?.includes("atk") ? 31 : 0)) / 2) + 5;
+        let mDef = Math.floor((megaPokemon.def * 2 + Math.floor(defs / 4) + (gachaStats[gacha]?.includes("def") ? 31 : 0)) / 2) + 5;
+        let mCatk = Math.floor((megaPokemon.catk * 2 + Math.floor(catks / 4) + (gachaStats[gacha]?.includes("catk") ? 31 : 0)) / 2) + 5;
+        let mCdef = Math.floor((megaPokemon.cdef * 2 + Math.floor(cdefs / 4) + (gachaStats[gacha]?.includes("cdef") ? 31 : 0)) / 2) + 5;
+        let mSpeed = Math.floor((megaPokemon.speed * 2 + Math.floor(speeds / 4) + (gachaStats[gacha]?.includes("speed") ? 31 : 0)) / 2) + 5;
+
+        const mStat = { atk: mAtk, def: mDef, catk: mCatk, cdef: mCdef, speed: mSpeed };
+        if (mStat[up]) mStat[up] = Math.floor(mStat[up] * 1.1);
+        if (mStat[down]) mStat[down] = Math.floor(mStat[down] * 0.9);
+
+        this.megaData = {
+          name: megaPokemon.name,
+          pokemon_id: megaPokemon.id,
+          type1: megaPokemon.type1,
+          type2: megaPokemon.type2,
+          abil: targetMega.abil,
+          stone: targetMega.stone,
+          stat: mStat,
+        };
+      }
+    }
   }
   // prettier-ignore
   _validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role){

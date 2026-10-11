@@ -1,8 +1,6 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import styled from "styled-components";
 import { getTypeEffectText } from "../../../util/typeEffectCalculate";
-import { battleStart } from "../../../service/battleStart";
-import { npcChoice } from "../../../npc/npc";
 
 const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {
   let pp = battle.player.pp[skillNumber];

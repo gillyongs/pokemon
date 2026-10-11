@@ -367,6 +367,11 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.5 (예리함)";
   }
 
+  if (atkAbil === "단단한발톱" && skill.feature?.touch) {
+    damage *= 1.3;
+    attackPokemon.log.damage1 += " * 1.3 (단단한발톱)";
+  }
+
   if (atkAbil === "총대장") {
     // 총대장은 설명과 달리 기술 데미지를 올려주는게 맞음
     // 대도각참이 속임수 쓰면 상대방 공격력에 자신 총대장 보정을 적용 공격

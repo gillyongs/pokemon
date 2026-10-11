@@ -45,7 +45,7 @@ function skillEffectSearch(name) {
         return;
       }
 
-      targetPokemon.rankUp(battle, enqueue, skillEffect.stat, skillEffect.value);
+      targetPokemon.rankUp(battle, enqueue, skillEffect.stat, skillEffect.value, null, skillEffect.target === "def");
     },
 
     랭크다수변화: (battle, enqueue, skillEffect) => {
@@ -59,7 +59,7 @@ function skillEffectSearch(name) {
         return;
       }
 
-      targetPokemon.rankUpMulti(battle, enqueue, skillEffect.stats);
+      targetPokemon.rankUpMulti(battle, enqueue, skillEffect.stats, null, skillEffect.target === "def");
     },
 
     화상: (battle, enqueue, skillEffect) => {
