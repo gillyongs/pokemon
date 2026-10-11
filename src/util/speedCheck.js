@@ -1,7 +1,7 @@
 import { getMultiplier } from "../function/rankStat";
 
 // 스피드 실 수치 계산 함수
-export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, battle = null) => {
+export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, battle = null, abil = pokemon.abil) => {
   let speed = baseSpeed;
   pokemon.log = pokemon.log || {};
   pokemon.log.speedCalculate = speed;
@@ -23,7 +23,7 @@ export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, b
     pokemon.log.speedCalculate += " * 1.5 (고대활성)";
   }
   // 곡예: 원래 도구를 지니고 있었는데 잃은 경우 스피드 2배
-  if (pokemon.abil === "곡예" && pokemon.origin?.item && !pokemon.item) {
+  if (abil === "곡예" && pokemon.origin?.item && !pokemon.item) {
     speed *= 2;
     pokemon.log.speedCalculate += " * 2 (곡예)";
   }
@@ -32,13 +32,19 @@ export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, b
     speed *= 2;
     pokemon.log.speedCalculate += " * 2 (순풍)";
   }
+  // 쓱쓱: 비가 내릴 때 스피드 2배
+  if (abil === "쓱쓱" && battle?.field?.weather?.isRainy) {
+    speed *= 2;
+    pokemon.log.speedCalculate += " * 2 (쓱쓱)";
+  }
   pokemon.log.speedCalculate += " = " + speed;
   return speed;
 };
 
 export const getExpectedMegaSpeed = (pokemon, battle = null) => {
   const megaBaseSpeed = pokemon.origin?.megaData?.stat?.speed ?? pokemon.origin.stat.speed;
-  return speedCalculate(pokemon, megaBaseSpeed, battle);
+  const megaAbil = pokemon.origin?.megaData?.abil ?? pokemon.abil;
+  return speedCalculate(pokemon, megaBaseSpeed, battle, megaAbil);
 };
 
 export const megaSpeedCheck = (battle) => {
