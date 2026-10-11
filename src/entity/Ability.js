@@ -121,6 +121,7 @@ export const abilObject = {
     text: "상대를 긴장시켜 나무열매를 먹지 못하게 한다. 상대를 쓰러뜨리면 공격이 올라간다.",
     feature: { swip: "atk" },
   },
+  스카이스킨: { text: "노말타입 기술이 비행타입이 되고 위력이 1.2배가 된다.", feature: { skin: true, type: "비행" } },
 };
 
 // 트레이스로 베낄 수 없는 특성

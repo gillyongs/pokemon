@@ -18,7 +18,9 @@ const BottomSectionField = ({ battle, text, bottom, setBottom, setBench, queueOb
       {bottom === "field" && (
         <SwitchButton
           onClick={() => {
-            setText(battle.player.origin.names + " 무엇을 할까?");
+            if (!battle.player.auto && !battle.player.charge) {
+              setText(battle.player.origin.names + " 무엇을 할까?");
+            }
             setBottom("skill");
           }}
           innerText={"뒤로가기"}

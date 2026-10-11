@@ -23,7 +23,9 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
           if (queueObject.queue.length > 0 && queueObject.queue[0]?.skip) {
             queueObject.dequeue();
           }
-          setText?.(battle.player.origin.names + " 무엇을 할까?");
+          if (!battle.player.auto && !battle.player.charge) {
+            setText?.(battle.player.origin.names + " 무엇을 할까?");
+          }
         }}
       />
 

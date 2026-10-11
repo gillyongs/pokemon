@@ -11,6 +11,12 @@ export const npcCommon = (battle, actNumber) => {
   if (battle.npcBench1?.faint) arr = arr.filter((v) => v !== "npcBench1");
   if (battle.npcBench2?.faint) arr = arr.filter((v) => v !== "npcBench2");
 
+  if (battle.npc.tempStatus.switchLock !== null) {
+    // 교체불가 상태 (마그마스톰)
+    arr = arr.filter((v) => v !== "npcBench1");
+    arr = arr.filter((v) => v !== "npcBench2");
+  }
+
   // 구애시리즈 스킬 고정 처리
   const onlySkill = battle.npc?.tempStatus?.onlySkill;
   if (onlySkill) {

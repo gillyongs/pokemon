@@ -409,7 +409,8 @@ function skillEffectSearch(name) {
           num = 3;
           // 그 턴 포함 3턴
         }
-        //후도발의 경우 그 다음턴 부터 3턴
+        // 후도발의 경우 그 다음턴 부터 3턴
+        // 도발은 3'턴'이 아닌 3'회' 적의 변화기를 막는다.
         defPokemon.tempStatus.taunt = num;
         enqueue({
           battle,

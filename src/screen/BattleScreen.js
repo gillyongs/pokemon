@@ -137,6 +137,10 @@ const Battle = () => {
       }
       battleObj.current = cloneWithMethods(queue[0].battle);
       setBattle(queue[0].battle);
+      if (queue[0].autoTurn) {
+        queueObject.dequeue();
+        return;
+      }
       setText(queue[0].text);
       console.log(queue);
       const player = queue[0].battle.player;
@@ -185,7 +189,9 @@ const Battle = () => {
       queueObject.dequeue();
     } else {
       if (bottom === "skill") {
-        setText(battle.player.origin.names + " 무엇을 할까?");
+        if (!battle.player.auto && !battle.player.charge) {
+          setText(battle.player.origin.names + " 무엇을 할까?");
+        }
       }
     }
   };
@@ -235,7 +241,9 @@ const Battle = () => {
     // battle/text 반영
     battleObj.current = cloneWithMethods(last.battle);
     setBattle(last.battle);
-    setText(last.text);
+    if (!last.autoTurn) {
+      setText(last.text);
+    }
     // ----- 이후 UI 처리 -----
     if (last.battle.player.faint && last.battle.turn.turnEnd && !screenFix) {
       setBottom("mustSwitch");

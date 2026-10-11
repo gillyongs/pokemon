@@ -4,15 +4,6 @@
  * 값: 메가진화 정보 배열 (리자몽, 뮤츠 등 여러 메가진화가 존재하는 포켓몬 지원)
  */
 export const megaDataList = {
-  // 메타그로스
-  "0376": [
-    {
-      stone: "메타그로스나이트",
-      megaFormId: "0376-m",
-      name: "메가메타그로스",
-      abil: "단단한발톱",
-    },
-  ],
   // 리자몽 (X / Y)
   "0006": [
     {
@@ -26,6 +17,24 @@ export const megaDataList = {
       megaFormId: "0006-y",
       name: "메가리자몽Y",
       abil: "가뭄",
+    },
+  ],
+  // 보만다
+  "0373": [
+    {
+      stone: "보만다나이트",
+      megaFormId: "0373-m",
+      name: "메가보만다",
+      abil: "스카이스킨",
+    },
+  ],
+  // 메타그로스
+  "0376": [
+    {
+      stone: "메타그로스나이트",
+      megaFormId: "0376-m",
+      name: "메가메타그로스",
+      abil: "단단한발톱",
     },
   ],
   // 뮤츠 (X / Y)

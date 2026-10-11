@@ -73,6 +73,13 @@ export const turnEnd = (battle, enqueue) => {
       battle: battle,
       text: "누구로 교체 할까?",
     });
+  } else if (battle.player.auto || battle.player.charge) {
+    enqueue({
+      battle: battle,
+      text: "",
+      autoTurn: true,
+      skip: true,
+    });
   } else {
     enqueue({
       battle: battle,
