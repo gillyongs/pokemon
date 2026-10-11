@@ -58,6 +58,14 @@ function skillRequirementSearch(name) {
         return false;
       }
     },
+    죽기살기: (battle, enqueue) => {
+      const atk = battle[battle.turn.atk];
+      const def = battle[battle.turn.def];
+      if (atk.hp >= def.hp) {
+        return false;
+      }
+      return true;
+    },
   };
 
   return functions[name] || null;

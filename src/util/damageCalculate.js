@@ -41,6 +41,11 @@ export const damageCalculate = (battle, obj, ai) => {
     if (ai && (battle.player.type1 === "고스트" || battle.player.type2 === "고스트")) return 0;
     return 50;
   }
+  if (skill.name === "죽기살기") {
+    if (ai && (defensePokemon.type1 === "고스트" || defensePokemon.type2 === "고스트")) return 0;
+    const diff = defensePokemon.hp - attackPokemon.hp;
+    return diff > 0 ? diff : 0;
+  }
   if (skill.feature.reflect) {
     // 성공 실패 조건은 skillRequirement에서 관리
     return Math.floor(attackPokemon.turn.recentDamageGet) * 2;

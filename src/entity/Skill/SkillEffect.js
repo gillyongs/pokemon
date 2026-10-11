@@ -413,6 +413,14 @@ function skillEffectSearch(name) {
     도발: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const defPokemon = battle[def];
+      const atkPokemon = battle[battle.turn.atk];
+      if (defPokemon.abil === "둔감" && !atkPokemon?.abilObj?.feature?.tgg) {
+        enqueue({
+          battle,
+          text: `[특성 둔감] ${defPokemon.names} 도발에 넘어가지 않는다!`,
+        });
+        return;
+      }
       if (defPokemon.tempStatus.taunt !== null) {
         enqueue({
           battle,

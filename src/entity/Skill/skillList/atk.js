@@ -68,6 +68,7 @@ export const atkSkills = [
   // 데미지 고정
   new Skill("땅가르기", "땅", "-", 30, 5, 0, "atk", null, "땅이 갈라진 곳에 상대를 떨어뜨려 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true }),
   new Skill("지구던지기", "격투", "-", 100, 20, 0, "atk", null, "자신의 레벨과 똑같은 데미지를 상대에게 준다.", [], { noText: true, touch: true }),
+  new Skill("죽기살기", "노말", "-", 100, 5, 0, "atk", { name: "죽기살기" }, "자신의 HP와 같은 수치가 되도록 상대의 HP를 줄인다.", [], { noText: true, touch: true }),
 
   // 반동
   new Skill("브레이브버드", "비행", 120, 100, 15, 0, "atk", null, "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.", [{ name: "반동" }], { touch: true, rebound: true }),

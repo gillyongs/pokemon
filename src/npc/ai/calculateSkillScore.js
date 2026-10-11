@@ -12,6 +12,12 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   let score = 0; // 가중치
   let log; // 가중치 계산 로그 문자열
 
+  if (skill.name === "전기자석파" && (player.type1 === "땅" || player.type2 === "땅")) {
+    // 타입상을 받는 변화기
+    skObj.log.score = "불발";
+    return -999;
+  }
+
   // 공격기일 경우 (데미지 * 명중률) 값으로 가중치 정산을 시작한다
   // 변화기, 버프기는 0으로 시작
   if (isAttack) {
@@ -379,17 +385,16 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
       if (skillEffect.name === "마비" && statusAbleCheck(skillEffect.name, player)) {
         let value = (50 * skillEffect.probability) / 100;
-        if (skill.name === "전기자석파" && (player.type1 === "땅" || player.type2 === "땅")) {
-        } else {
-          const hasPsychoCut = ["1", "2", "3", "4"].some((key) => npc.origin.skill[key]?.name === "병상첨병");
-          if (hasPsychoCut) value *= 1.3;
 
-          score += value;
-          let text = ` + ${value} (${skillEffect.name})`;
-          if (hasPsychoCut) text += "(병상첨병)";
-          log += text;
-        }
+        const hasPsychoCut = ["1", "2", "3", "4"].some((key) => npc.origin.skill[key]?.name === "병상첨병");
+        if (hasPsychoCut) value *= 1.3;
+
+        score += value;
+        let text = ` + ${value} (${skillEffect.name})`;
+        if (hasPsychoCut) text += "(병상첨병)";
+        log += text;
       }
+
       if (skillEffect.name === "화상" && player.origin.role === "물리어태커" && statusAbleCheck(skillEffect.name, player)) {
         let value = (50 * skillEffect.probability) / 100;
 

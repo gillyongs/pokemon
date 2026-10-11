@@ -64,6 +64,7 @@ export const abilObject = {
   },
   천하장사: { text: "물리 기술의 위력이 2배가 된다." },
   쓱쓱: { text: "비가 올 때 스피드가 2배가 된다." },
+  둔감: { text: "헤롱헤롱이나 도발 상태가 되지 않고 위협의 효과를 받지 않는다." },
 
   // 틀깨기 반영
   재앙의그릇: {
@@ -190,8 +191,8 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     if (def.tempStatus.substitute) {
       // 위협은 대타에 막힘
       enqueue({ battle: bt, text: `${abilText} ${def.name}에겐 효과가 없는 것 같다...` });
-    } else if (def.abil === "정신력") {
-      enqueue({ battle: bt, text: `[특성 정신력] ${def.name}의 공격은 떨어지지 않는다!` });
+    } else if (def.abil === "정신력" || def.abil === "둔감") {
+      enqueue({ battle: bt, text: `[특성 ${def.abil}] ${def.name}의 공격은 떨어지지 않는다!` });
     } else {
       def.rankUp(bt, enqueue, "atk", -1, abilText, true);
     }
