@@ -105,6 +105,7 @@ export const atkSkills = [
   // 급소
   new Skill("섀도크루", "고스트", 70, 100, 15, 0, "atk", null, "급소에 맞을 확률이 높다.", [{ name: "급소" }], { touch: true }),
   new Skill("깜짝베기", "악", 70, 100, 15, 0, "atk", null, "틈을 노려 베어가른다. 급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true, slice: true }),
+  new Skill("스톤에지", "바위", 100, 80, 5, 0, "atk", null, "뾰족한 바위를 아래에서 찔러 올려 공격한다. 급소에 맞기 쉽다.", [{ name: "급소" }], {}),
   new Skill("암흑강타", "악", 75, 100, 5, 0, "atk", null, "반드시 급소에 맞는다.", [], { touch: true, punch: true, mustCritical: true }),
   new Skill("트릭플라워", "풀", 70, "-", 10, 0, "atk", null, "반드시 명중하며 항상 급소에 맞는다.", [], { mustCritical: true }),
 

@@ -28,6 +28,15 @@ export const megaDataList = {
       abil: "천하장사",
     },
   ],
+  // 마기라스
+  "0248": [
+    {
+      stone: "마기라스나이트",
+      megaFormId: "0248-m",
+      name: "메가마기라스",
+      abil: "모래날림",
+    },
+  ],
   // 대짱이
   "0260": [
     {
