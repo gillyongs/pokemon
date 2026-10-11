@@ -77,6 +77,9 @@ export const atkSkills = [
   new Skill("성스러운불꽃", "불꽃", 100, 95, 5, 0, "atk", null, "50%의 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 50 }]),
   new Skill("플레어드라이브", "불꽃", 120, 100, 15, 0, "atk", null, "대상에게 준 피해의 ⅓만큼 반동 피해를 받는다. 10% 확률로 상대를 화상 상태로 만든다", [{ name: "반동" }, { name: "화상", probability: 10 }], { touch: true, rebound: true }),
 
+  // 얼음
+  new Skill("냉동펀치", "얼음", 75, 100, 15, 0, "atk", null, "10% 확률로 상대를 얼음 상태로 만든다.", [{ name: "얼음", probability: 10 }], { touch: true, punch: true }),
+
   // 독
   new Skill("페이탈클로", "독", 80, 100, 15, 0, "atk", null, "50% 확률로 상대를 독, 마비 또는 잠듦 상태로 만든다.", [{ name: "페이탈클로", probability: 50 }], { touch: true }),
   new Skill("독찌르기", "독", 80, 100, 20, 0, "atk", null, "30% 확률로 상대를 독 상태로 만든다.", [{ name: "독", probability: 30 }], { touch: true }),

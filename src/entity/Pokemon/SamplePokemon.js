@@ -51,6 +51,9 @@ new PokemonTemplate("칠색조", "0250", "6V", 252, 36, 76, 0, 92, 52, "atk", "c
 
 new PokemonTemplate("코터스", "0324", "5V1S", 252, 0, 252, 0, 4, 0, "def", "speed",
   "화염방사", "스텔스록", "클리어스모그", "하품", "뜨거운바위", "가뭄", "서포터"),
+
+new PokemonTemplate("메가입치트", "0303", "6V", 252, 252, 4, 0, 0, 0, "atk", "catk",
+  "치근거리기", "칼춤", "기습", "냉동펀치", "입치트나이트", "위협", "물리어태커"),
   
 new PokemonTemplate("메가보만다", "0373", "6V", 4, 252, 0, 0, 0, 252, "speed", "catk",
   "이판사판태클", "용의춤", "역린", "날개쉬기", "보만다나이트", "위협", "물리어태커"),
@@ -222,7 +225,13 @@ new PokemonTemplate("브리두라스", "1018", "5V1A", 252, 0, 0, 252, 4, 0, "ca
   }
   // ID로 객체 찾기
   getDataById(id) {
-    return this.items.find((item) => item.id === id) || null;
+    return (
+      this.items.find(
+        (item) =>
+          item.id === id ||
+          (item.id.startsWith("메가") && item.id.replace(/^메가/, "") === id)
+      ) || null
+    );
   }
   getItemById(id) {
     return this.getDataById(id);

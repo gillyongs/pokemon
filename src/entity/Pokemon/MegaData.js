@@ -19,6 +19,15 @@ export const megaDataList = {
       abil: "가뭄",
     },
   ],
+  // 입치트
+  "0303": [
+    {
+      stone: "입치트나이트",
+      megaFormId: "0303-m",
+      name: "메가입치트",
+      abil: "천하장사",
+    },
+  ],
   // 보만다
   "0373": [
     {
