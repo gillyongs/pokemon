@@ -306,7 +306,7 @@ const CustomScreen = () => {
     <Container>
       <Header>
         <BackButtonIcon onClick={() => navigate("/")}>&#8592;</BackButtonIcon>팀 구성
-        <TestButton onClick={handleTestSetup}>테스트</TestButton>
+        {/* <TestButton onClick={handleTestSetup}>테스트</TestButton> */}
       </Header>
       <TabContainer>
         <Tab $active={activeTab === "player"} onClick={() => setActiveTab("player")}>

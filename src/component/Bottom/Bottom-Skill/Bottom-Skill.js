@@ -68,13 +68,13 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         innerText={"교체"}
       />
 
-      <FieldButton
+      {/* <FieldButton
         onClick={() => {
           if (queueObject.queueCheck()) {
             setBottom("field");
           }
         }}
-      />
+      /> */}
 
       <TextButton
         isLog={queueObject.queueCheck()}
