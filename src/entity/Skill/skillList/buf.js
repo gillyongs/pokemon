@@ -2,7 +2,7 @@ import { Skill } from "../Skill.js";
 
 // buf = 자신 대상 변화기
 // natk = 상대방이 기절하면 실패, buf = 상대방이 기절해도 성공
-// 방어 가능 여부와 판정이 비슷하나 날려버리기는 방어를 뚫는다
+
 // prettier-ignore
 export const bufSkills = [
   new Skill("방어", "노말", "-", "-", 10, 4, "buf", { name: "방어" }, "상대의 공격을 전혀 받지 않는다. 연속으로 쓰면 실패하기 쉽다. (우선도 +4)", [{ name: "방어" }], { protect: true }),

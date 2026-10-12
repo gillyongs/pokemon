@@ -14,25 +14,67 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setText }) => {
         // 상태창 들어갔다가 다시 나올때 뜨는 텍스트
         onClick={() => {
           setText(" 누구로 교체할까?");
-          setBottom(battle.player.faint ? "mustSwitch" : "switch");
+          setBottom(
+            battle.player.faint || battle.turn.uturn ? "mustSwitch" : "switch",
+          );
         }}
         innerText={"뒤로가기"}
       />
 
       <InfoArea pokemon={pokemon} />
 
-      <InfoButton pokemon={pokemon} type={"type"} setText={setText} bench={bench} />
+      <InfoButton
+        pokemon={pokemon}
+        type={"type"}
+        setText={setText}
+        bench={bench}
+      />
 
-      <InfoButton pokemon={pokemon} type={"abil"} setText={setText} bench={bench} />
+      <InfoButton
+        pokemon={pokemon}
+        type={"abil"}
+        setText={setText}
+        bench={bench}
+      />
 
-      <InfoButton pokemon={pokemon} type={"item"} setText={setText} bench={bench} />
+      <InfoButton
+        pokemon={pokemon}
+        type={"item"}
+        setText={setText}
+        bench={bench}
+      />
 
-      <InfoButton pokemon={pokemon} type={"status"} setText={setText} bench={bench} />
+      <InfoButton
+        pokemon={pokemon}
+        type={"status"}
+        setText={setText}
+        bench={bench}
+      />
 
-      <InfoSkillButton battle={battle} skillNumber={1} pokemon={pokemon} setText={setText} />
-      <InfoSkillButton battle={battle} skillNumber={2} pokemon={pokemon} setText={setText} />
-      <InfoSkillButton battle={battle} skillNumber={3} pokemon={pokemon} setText={setText} />
-      <InfoSkillButton battle={battle} skillNumber={4} pokemon={pokemon} setText={setText} />
+      <InfoSkillButton
+        battle={battle}
+        skillNumber={1}
+        pokemon={pokemon}
+        setText={setText}
+      />
+      <InfoSkillButton
+        battle={battle}
+        skillNumber={2}
+        pokemon={pokemon}
+        setText={setText}
+      />
+      <InfoSkillButton
+        battle={battle}
+        skillNumber={3}
+        pokemon={pokemon}
+        setText={setText}
+      />
+      <InfoSkillButton
+        battle={battle}
+        skillNumber={4}
+        pokemon={pokemon}
+        setText={setText}
+      />
     </>
   );
 };
