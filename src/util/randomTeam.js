@@ -1,6 +1,6 @@
 import sampleList from "../entity/Pokemon/SamplePokemon";
 
-export const isSupporter = (pokemon) => pokemon?.role === "서포터";
+export const isSupporter = (pokemon) => pokemon?.role === "선봉장";
 export const isTanker = (pokemon) => pokemon?.role === "물리막이" || pokemon?.role === "특수막이";
 export const isAttacker = (pokemon) => pokemon?.role === "물리어태커" || pokemon?.role === "특수어태커";
 export const isLegendary = (pokemon) => !!pokemon?.feature?.legendary;
@@ -24,9 +24,7 @@ export const filterByMinTypeOverlap = (candidateList, otherPokemonList) => {
     return candidateList;
   }
 
-  const existingTypes = new Set(
-    otherPokemonList.flatMap((p) => [p.type1, p.type2].filter(Boolean))
-  );
+  const existingTypes = new Set(otherPokemonList.flatMap((p) => [p.type1, p.type2].filter(Boolean)));
 
   if (existingTypes.size === 0) return candidateList;
 
@@ -43,36 +41,23 @@ export const filterByMinTypeOverlap = (candidateList, otherPokemonList) => {
 
 /**
  * 특정 슬롯(targetIndex)에 들어갈 랜덤 포켓몬 ID를 규칙에 따라 선택합니다.
- * 
+ *
  * 규칙:
  * 1. 초전설 포켓몬 및 메가진화 포켓몬은 각각 최대 한마리까지만 가능, 도감번호(no) 중복 불가
- * 2. 서포터 역할군은 첫번째 칸(index 0)에만 가능
- * 3. 서포터와 탱커는 합쳐서 2마리 이하 (어태커 최소 1마리)
+ * 2. 선봉장 역할군은 첫번째 칸(index 0)에만 가능
+ * 3. 선봉장와 탱커는 합쳐서 2마리 이하 (어태커 최소 1마리)
  * 4. 조건에 부합하는 캐릭터가 없다면 1번 규칙만 유지하고 그 외 포켓몬 중 아무거나 추가
  * 5. 확률 규칙:
- *    - 첫 열(index 0)에 서포터가 올 확률 30%
+ *    - 첫 열(index 0)에 선봉장가 올 확률 30%
  *    - 팀에 초전설이 있을 확률 10%
  *    - 팀에 메가진화가 있을 확률 20%
- *    - 탱커와 서포터가 합쳐서 둘일 확률 15%
+ *    - 탱커와 선봉장가 합쳐서 둘일 확률 15%
  * 6. 가능하면 기존 포켓몬과 타입이 겹치지 않게 선택
  */
 export const getRandomPokemonForSlot = (currentTeam, targetIndex, options = {}) => {
-  const {
-    forceSupporter,
-    allowSupporter,
-    forceTanker,
-    allowTanker,
-    forceAttacker,
-    allowAttacker,
-    forceLegendary,
-    allowLegendary,
-    forceMega,
-    allowMega,
-  } = options;
+  const { forceSupporter, allowSupporter, forceTanker, allowTanker, forceAttacker, allowAttacker, forceLegendary, allowLegendary, forceMega, allowMega } = options;
 
-  const otherPokemon = currentTeam
-    .map((id, i) => (i !== targetIndex && id ? sampleList.getDataById(id) : null))
-    .filter(Boolean);
+  const otherPokemon = currentTeam.map((id, i) => (i !== targetIndex && id ? sampleList.getDataById(id) : null)).filter(Boolean);
 
   const existingNos = otherPokemon.map((p) => p.no).filter(Boolean);
   const hasLegendary = otherPokemon.some(isLegendary);
@@ -101,13 +86,13 @@ export const getRandomPokemonForSlot = (currentTeam, targetIndex, options = {}) 
   const remainingEmptySlots = [0, 1, 2].filter((i) => i !== targetIndex && currentTeam[i] === null).length;
 
   const validCandidates = rule1Candidates.filter((p) => {
-    // 규칙 2: 서포터는 첫번째 칸(index 0)에만 가능
+    // 규칙 2: 선봉장는 첫번째 칸(index 0)에만 가능
     if (targetIndex !== 0 && isSupporter(p)) {
       return false;
     }
 
-    // 규칙 3: 서포터 + 탱커는 합쳐서 2마리 이하 (어태커 최소 1마리 보장)
-    // 3-1) 이미 서포터+탱커가 2마리 이상이면 더 이상 서포터/탱커 불가
+    // 규칙 3: 선봉장 + 탱커는 합쳐서 2마리 이하 (어태커 최소 1마리 보장)
+    // 3-1) 이미 선봉장+탱커가 2마리 이상이면 더 이상 선봉장/탱커 불가
     if (supporterOrTankerCount >= 2 && (isSupporter(p) || isTanker(p))) {
       return false;
     }
@@ -123,13 +108,13 @@ export const getRandomPokemonForSlot = (currentTeam, targetIndex, options = {}) 
   const baseCandidates = validCandidates.length > 0 ? validCandidates : rule1Candidates;
 
   // 3. 확률 및 세부 옵션 제어 (단일 슬롯 호출 시 기본 확률 적용)
-  // 3-1. 서포터: 첫 열 30% 확률
+  // 3-1. 선봉장: 첫 열 30% 확률
   let effectiveForceSupporter = forceSupporter;
   let effectiveAllowSupporter = allowSupporter;
 
   if (effectiveForceSupporter === undefined && effectiveAllowSupporter === undefined) {
     if (targetIndex === 0) {
-      const rollSupporter = Math.random() < 0.30;
+      const rollSupporter = Math.random() < 0.3;
       effectiveForceSupporter = rollSupporter;
       effectiveAllowSupporter = rollSupporter;
     } else {
@@ -138,19 +123,14 @@ export const getRandomPokemonForSlot = (currentTeam, targetIndex, options = {}) 
     }
   }
 
-  // 3-2. 탱커 & 서포터 합 2마리 확률 15% 제어
+  // 3-2. 탱커 & 선봉장 합 2마리 확률 15% 제어
   let effectiveForceTanker = forceTanker;
   let effectiveAllowTanker = allowTanker;
   let effectiveForceAttacker = forceAttacker;
   let effectiveAllowAttacker = allowAttacker;
 
-  if (
-    effectiveForceTanker === undefined &&
-    effectiveAllowTanker === undefined &&
-    effectiveForceAttacker === undefined &&
-    effectiveAllowAttacker === undefined
-  ) {
-    // 이미 다른 슬롯에 서포터/탱커가 1마리 있는 상태에서 추가로 탱커를 뽑아 2마리를 채울 확률은 15%
+  if (effectiveForceTanker === undefined && effectiveAllowTanker === undefined && effectiveForceAttacker === undefined && effectiveAllowAttacker === undefined) {
+    // 이미 다른 슬롯에 선봉장/탱커가 1마리 있는 상태에서 추가로 탱커를 뽑아 2마리를 채울 확률은 15%
     if (supporterOrTankerCount === 1) {
       const rollSecondSupTank = Math.random() < 0.15;
       if (!rollSecondSupTank) {
@@ -168,7 +148,7 @@ export const getRandomPokemonForSlot = (currentTeam, targetIndex, options = {}) 
   if (effectiveForceLegendary === undefined && effectiveAllowLegendary === undefined) {
     if (!hasLegendary) {
       const emptyCount = remainingEmptySlots + 1;
-      const rate = 1 - Math.pow(1 - 0.10, 1 / emptyCount);
+      const rate = 1 - Math.pow(1 - 0.1, 1 / emptyCount);
       const rollLegendary = Math.random() < rate;
       effectiveForceLegendary = rollLegendary;
       effectiveAllowLegendary = rollLegendary;
@@ -185,7 +165,7 @@ export const getRandomPokemonForSlot = (currentTeam, targetIndex, options = {}) 
   if (effectiveForceMega === undefined && effectiveAllowMega === undefined) {
     if (!hasMega) {
       const emptyCount = remainingEmptySlots + 1;
-      const rate = 1 - Math.pow(1 - 0.20, 1 / emptyCount);
+      const rate = 1 - Math.pow(1 - 0.2, 1 / emptyCount);
       const rollMega = Math.random() < rate;
       effectiveForceMega = rollMega;
       effectiveAllowMega = rollMega;
@@ -241,10 +221,10 @@ export const getRandomPokemonForSlot = (currentTeam, targetIndex, options = {}) 
 
 /**
  * 기존 팀(배열)에서 빈 슬롯(null)을 규칙에 맞는 랜덤 포켓몬으로 채웁니다.
- * - 첫 열에 서포터가 올 확률: 30%
+ * - 첫 열에 선봉장가 올 확률: 30%
  * - 팀에 초전설이 있을 확률: 10%
  * - 팀에 메가진화가 있을 확률: 20%
- * - 탱커와 서포터가 합쳐서 둘일 확률: 15%
+ * - 탱커와 선봉장가 합쳐서 둘일 확률: 15%
  */
 export const fillRandomTeam = (existingTeam = [null, null, null], teamSize = 3) => {
   const team = [...existingTeam];
@@ -266,20 +246,20 @@ export const fillRandomTeam = (existingTeam = [null, null, null], teamSize = 3) 
   const existingTankers = existingPokemons.filter(isTanker).length;
   const existingSupTank = existingSupporters + existingTankers;
 
-  const shouldAddLegendary = !hasExistingLegendary && Math.random() < 0.10;
-  const shouldAddMega = !hasExistingMega && Math.random() < 0.20;
-  const shouldSlot0BeSupporter = emptyIndices.includes(0) && existingSupporters === 0 && Math.random() < 0.30;
+  const shouldAddLegendary = !hasExistingLegendary && Math.random() < 0.1;
+  const shouldAddMega = !hasExistingMega && Math.random() < 0.2;
+  const shouldSlot0BeSupporter = emptyIndices.includes(0) && existingSupporters === 0 && Math.random() < 0.3;
   const shouldTotalSupTankBeTwo = Math.random() < 0.15;
 
   // 슬롯별 역할 계획
-  const plannedRoles = {}; // slotIndex => "서포터" | "탱커" | "어태커"
+  const plannedRoles = {}; // slotIndex => "선봉장" | "탱커" | "어태커"
 
   if (emptyIndices.includes(0)) {
-    plannedRoles[0] = shouldSlot0BeSupporter ? "서포터" : null;
+    plannedRoles[0] = shouldSlot0BeSupporter ? "선봉장" : null;
   }
 
-  // 탱커 및 서포터 수 결정
-  const totalSupTankTarget = shouldTotalSupTankBeTwo ? 2 : (shouldSlot0BeSupporter || existingSupTank >= 1 ? 1 : (Math.random() < 0.4 ? 1 : 0));
+  // 탱커 및 선봉장 수 결정
+  const totalSupTankTarget = shouldTotalSupTankBeTwo ? 2 : shouldSlot0BeSupporter || existingSupTank >= 1 ? 1 : Math.random() < 0.4 ? 1 : 0;
   let remainingTankersToPlace = Math.max(0, totalSupTankTarget - existingSupTank - (shouldSlot0BeSupporter ? 1 : 0));
 
   const slotsNeedingRole = emptyIndices.filter((idx) => plannedRoles[idx] === null || plannedRoles[idx] === undefined);
@@ -307,10 +287,8 @@ export const fillRandomTeam = (existingTeam = [null, null, null], teamSize = 3) 
     megaSlot = shuffledAttackerSlots.pop();
   }
 
-  // 초전설은 남은 어태커 또는 탱커 슬롯에 배정 (서포터 제외)
-  const remainingSlotsForLegendary = emptyIndices.filter(
-    (idx) => plannedRoles[idx] !== "서포터" && idx !== megaSlot
-  ).sort(() => Math.random() - 0.5);
+  // 초전설은 남은 어태커 또는 탱커 슬롯에 배정 (선봉장 제외)
+  const remainingSlotsForLegendary = emptyIndices.filter((idx) => plannedRoles[idx] !== "선봉장" && idx !== megaSlot).sort(() => Math.random() - 0.5);
 
   if (shouldAddLegendary && remainingSlotsForLegendary.length > 0) {
     legendarySlot = remainingSlotsForLegendary.pop();
@@ -320,8 +298,8 @@ export const fillRandomTeam = (existingTeam = [null, null, null], teamSize = 3) 
     if (team[i] === null) {
       const role = plannedRoles[i];
       const options = {
-        forceSupporter: role === "서포터",
-        allowSupporter: role === "서포터",
+        forceSupporter: role === "선봉장",
+        allowSupporter: role === "선봉장",
         forceTanker: role === "탱커",
         allowTanker: role === "탱커",
         forceAttacker: role === "어태커",

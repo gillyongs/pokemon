@@ -125,7 +125,7 @@ class PokemonTemplate {
   }
   // prettier-ignore
   _validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role){
-    if (!["물리막이", "특수막이", "물리어태커", "특수어태커", "서포터"].includes(role)) console.error("role must be one of 물리막이, 특수막이, 물리어태커, 특수어태커", role);
+    if (!["물리막이", "특수막이", "물리어태커", "특수어태커", "선봉장"].includes(role)) console.error("role must be one of 물리막이, 특수막이, 물리어태커, 특수어태커", role);
     if (typeof id !== "string") console.error("id must be a string", id);
     if (typeof pokemon_id !== "string")
       console.error("pokemon_id must be a string", pokemon_id);
@@ -178,6 +178,6 @@ class PokemonTemplate {
 }
 
 export const pokemonList = [];
-export const POKEMON_ROLES = ["물리어태커", "특수어태커", "물리막이", "특수막이", "서포터"];
+export const POKEMON_ROLES = ["물리어태커", "특수어태커", "물리막이", "특수막이", "선봉장"];
 
 export default PokemonTemplate;

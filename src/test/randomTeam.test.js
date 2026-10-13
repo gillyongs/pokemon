@@ -21,18 +21,18 @@ describe("랜덤 포켓몬 팀 생성 규칙 테스트", () => {
     }
   });
 
-  it("규칙 2: 서포터 역할군 포켓몬은 첫번째 칸(index 0)에만 가능해야 한다", () => {
+  it("규칙 2: 선봉장 역할군 포켓몬은 첫번째 칸(index 0)에만 가능해야 한다", () => {
     for (let iter = 0; iter < 100; iter++) {
       const team = getRandomTeam(3);
       const pokemons = team.map((id) => sampleList.getDataById(id));
 
-      // 2번째, 3번째 포켓몬은 서포터가 아니어야 함
+      // 2번째, 3번째 포켓몬은 선봉장가 아니어야 함
       expect(isSupporter(pokemons[1])).toBe(false);
       expect(isSupporter(pokemons[2])).toBe(false);
     }
   });
 
-  it("규칙 3: 서포터와 탱커는 합쳐서 2마리 이하가 되어야 하며 어태커는 최소 1마리 이상이어야 한다", () => {
+  it("규칙 3: 선봉장와 탱커는 합쳐서 2마리 이하가 되어야 하며 어태커는 최소 1마리 이상이어야 한다", () => {
     for (let iter = 0; iter < 100; iter++) {
       const team = getRandomTeam(3);
       const pokemons = team.map((id) => sampleList.getDataById(id));
@@ -46,7 +46,7 @@ describe("랜덤 포켓몬 팀 생성 규칙 테스트", () => {
   });
 
   it("CustomScreen 빈 슬롯 채우기(fillRandomTeam): 기존 팀원이 있어도 규칙이 적용되어야 한다", () => {
-    // 1) 0번에 서포터가 있는 경우
+    // 1) 0번에 선봉장가 있는 경우
     const supporterSample = sampleList.items.find(isSupporter);
     expect(supporterSample).toBeDefined();
 
@@ -91,9 +91,9 @@ describe("랜덤 포켓몬 팀 생성 규칙 테스트", () => {
     }
   });
 
-  it("CustomScreen 특정 슬롯 랜덤 뽑기(getRandomPokemonForSlot): 슬롯 인덱스에 따라 서포터 배치가 제어되어야 한다", () => {
+  it("CustomScreen 특정 슬롯 랜덤 뽑기(getRandomPokemonForSlot): 슬롯 인덱스에 따라 선봉장 배치가 제어되어야 한다", () => {
     for (let iter = 0; iter < 50; iter++) {
-      // 1번이나 2번 슬롯을 뽑을 때는 절대 서포터가 나오면 안 됨
+      // 1번이나 2번 슬롯을 뽑을 때는 절대 선봉장가 나오면 안 됨
       const slot1Pick = getRandomPokemonForSlot([null, null, null], 1);
       expect(isSupporter(sampleList.getDataById(slot1Pick))).toBe(false);
 
@@ -102,7 +102,7 @@ describe("랜덤 포켓몬 팀 생성 규칙 테스트", () => {
     }
   });
 
-  it("확률 규칙 테스트: 첫 열 서포터 30%, 팀 내 초전설 10%, 팀 내 메가진화 20%, 서포터+탱커 2마리 15%", () => {
+  it("확률 규칙 테스트: 첫 열 선봉장 30%, 팀 내 초전설 10%, 팀 내 메가진화 20%, 선봉장+탱커 2마리 15%", () => {
     const iterations = 1000;
     let slot0SupporterCount = 0;
     let teamWithLegendaryCount = 0;
@@ -134,7 +134,7 @@ describe("랜덤 포켓몬 팀 생성 규칙 테스트", () => {
     const megaRate = teamWithMegaCount / iterations;
     const twoSupTankRate = teamWithTwoSupTankCount / iterations;
 
-    // 기대값: 서포터 0.30, 초전설 0.10, 메가 0.20, 서포터+탱커 2마리 0.15
+    // 기대값: 선봉장 0.30, 초전설 0.10, 메가 0.20, 선봉장+탱커 2마리 0.15
     expect(slot0SupporterRate).toBeGreaterThanOrEqual(0.23);
     expect(slot0SupporterRate).toBeLessThanOrEqual(0.37);
 
