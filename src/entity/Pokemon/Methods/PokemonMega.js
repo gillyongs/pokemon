@@ -25,7 +25,7 @@ export const PokemonMega = {
     // 1. 도구 반응 텍스트 (진화 전 원본 상태)
     enqueue({
       battle,
-      text: `${this.name}의 ${this.item}이(가) 반응했다!`,
+      text: `${this.name}의 ${this.item}가 반응했다!`,
     });
 
     // 2. 메가진화 데이터 반영 (상태, 이미지, 스탯, 특성 등 변경 - 이름은 원래 이름 유지)

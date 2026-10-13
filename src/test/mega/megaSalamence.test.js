@@ -172,7 +172,7 @@ describe("보만다 메가진화 테스트", () => {
 
     salamence.megaEvolve(battle, queueObject.enqueue);
 
-    // 1) "보만다의 보만다나이트이(가) 반응했다!" 시점의 큐 아이템
+    // 1) "보만다의 보만다나이트가 반응했다!" 시점의 큐 아이템
     const reactItem = mockQueue.find((item) => item.text && item.text.includes("반응했다!"));
     expect(reactItem).toBeDefined();
     const isAerilateAtReact = reactItem.battle.player.abil === "스카이스킨";

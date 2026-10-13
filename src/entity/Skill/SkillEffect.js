@@ -283,11 +283,13 @@ function skillEffectSearch(name) {
     },
     소리기술금지: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
-      def.tempStatus.noSound = 2;
-      enqueue({
-        battle,
-        text: def.names + " 한동안 소리 기술을 사용할 수 없게 됐다!",
-      });
+      if (!def.faint) {
+        def.tempStatus.noSound = 2;
+        enqueue({
+          battle,
+          text: def.names + " 한동안 소리 기술을 사용할 수 없게 됐다!",
+        });
+      }
     },
     방어: (battle, enqueue, skillEffect) => {
       // 방어 성공 여부는 skillRequirement에서 처리

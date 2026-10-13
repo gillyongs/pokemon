@@ -177,7 +177,7 @@ export const afterSkillCheck = (bt, enqueue) => {
       protectSuccess = false;
     }
 
-    const noProtectSkills = ["날려버리기"]; // 방어로 막을 수 없는 스킬
+    const noProtectSkills = ["날려버리기", "울부짖기"]; // 방어로 막을 수 없는 스킬
     if (noProtectSkills.includes(skill.name)) {
       protectSuccess = false;
     }

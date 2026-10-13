@@ -160,14 +160,19 @@ export const skillUse = (bt, enqueue) => {
       return;
     }
 
-    const noSubstituteSkills = ["앵콜", "도발", "저주", "흑안개", "날려버리기"];
+    const noSubstituteSkills = ["가드스왑", "길동무", "날려버리기", "냄새구별", "도발", "멸망의노래", "미라클아이", "봉인", "사슬묶기", "스킬스왑", "앙코르", "역할", "울부짖기", "원념", "원한", "자기암시", "저주", "트집", "하트스왑", "헤롱헤롱", "흑안개"];
     // 대타출동으로 막을 수 없는 상대방 대상 변화기 (natk)
     // 트릭, 하품, 뽐내기, 전기자석파, 씨뿌리기 등은 실패한다
 
-    if (!noSubstituteSkills.includes(skill.name) && bt[bt.turn.def].tempStatus.substitute) {
-      enqueue({ battle: bt, text: "하지만 실패했다!" });
-      return;
+    if (bt[bt.turn.def].tempStatus.substitute) {
+      if (noSubstituteSkills.includes(skill.name) || skill.feature.sound) {
+        // 소리 변화기는 대타 뚫는다 ex) 막말내뱉기
+      } else {
+        enqueue({ battle: bt, text: "하지만 실패했다!" });
+        return;
+      }
     }
+
     applySkillEffects(bt, enqueue, skill.skillEffectList);
   } else if (skillType === "buf") {
     // 자기 자신 대상 변화기 (ex: 칼춤, 방어)

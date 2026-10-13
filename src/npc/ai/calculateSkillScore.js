@@ -11,9 +11,15 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   // 리턴값
   let score = 0; // 가중치
   let log; // 가중치 계산 로그 문자열
+  log = score;
 
+  // 무효 변화기 처리
   if (skill.name === "전기자석파" && (player.type1 === "땅" || player.type2 === "땅")) {
-    // 타입상을 받는 변화기
+    skObj.log.score = "불발";
+    return -999;
+  }
+
+  if (skill.stype === "natk" && npc.abil === "짓궂은마음" && (player.type1 === "악" || player.type2 === "악")) {
     skObj.log.score = "불발";
     return -999;
   }
@@ -66,87 +72,19 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
     for (const skillEffect of skill.skillEffectList) {
       // 1) 랭크 변화 ============================================================================
       if (skillEffect?.name === "랭크변화") {
-        const npcRole = npc.origin.role || "";
-        const playerRole = player.origin.role || "";
-
-        let rankUpValue = skillEffect.value;
-        if ((npc.abil === "심술꾸러기" && skillEffect.target === "atk") || (player.abil === "심술꾸러기" && skillEffect.target === "def")) {
-          // 특성 심술꾸러기는 랭크업이 반대로 적용
-          rankUpValue = -skillEffect.value;
+        let { rankScore, logText } = rankScoreCalculate(bt, sn, skillEffect);
+        score += rankScore;
+        log += logText;
+      }
+      if (skillEffect?.name === "랭크다수변화") {
+        for (const info of skillEffect.stats) {
+          let se = structuredClone(skillEffect);
+          se.stat = info.stat;
+          se.value = info.value;
+          let { rankScore, logText } = rankScoreCalculate(bt, sn, se);
+          score += rankScore;
+          log += logText;
         }
-
-        let value = 0; // 상황별 랭크업 가중치
-
-        // 1. 자기자신에게 이로운 효과
-        if (skillEffect.target === "atk" && typeof rankUpValue === "number" && rankUpValue > 0) {
-          // 이미 랭크업이 되어있으면 제외 (랭크업만 하다 죽는거 방지)
-          if (npc.tempStatus.rank[skillEffect.stat] < 2) {
-            if (skillEffect.stat === "speed") {
-              value = npcRole.includes("어태커") ? 50 : 30;
-            } else if (skillEffect.stat === "atk") {
-              value = npcRole === "물리어태커" ? 30 : 3;
-            } else if (skillEffect.stat === "catk") {
-              value = npcRole === "특수어태커" ? 30 : 3;
-            } else if (skillEffect.stat === "def") {
-              value = playerRole === "물리어태커" ? (npcRole.includes("막이") ? 50 : 30) : 8;
-            } else if (skillEffect.stat === "cdef") {
-              value = playerRole === "특수어태커" ? (npcRole.includes("막이") ? 50 : 30) : 8;
-            }
-
-            // 바디프레스 스킬이 있으면 방어력 증가에 추가 보정
-            const isBodyPress = [1, 2, 3, 4].some((num) => npc.origin.skill[num]?.name === "바디프레스");
-            if (skillEffect.stat === "def" && isBodyPress) {
-              value += 15;
-            }
-          }
-
-          let plus = (value * rankUpValue * skillEffect.probability) / 100; // 랭크업 확률과 수치 적용
-          if (player.abil === "천진") plus = Math.floor(plus * 0.1);
-          score += plus;
-          log += ` + ${plus}(자벞 ${skillEffect.stat}(${value})*${rankUpValue})`;
-        }
-
-        // 2. 자기자신에게 해로운 효과 (ex: 용성군 디메리트)
-        else if (skillEffect.target === "atk" && typeof rankUpValue === "number" && rankUpValue < 0) {
-          if (skillEffect.stat === "speed") {
-            value = npcRole.includes("어태커") ? 40 : 5;
-          } else if (skillEffect.stat === "atk") {
-            value = npcRole === "물리어태커" ? 20 : 1;
-          } else if (skillEffect.stat === "catk") {
-            value = npcRole === "특수어태커" ? 20 : 1;
-          } else if (skillEffect.stat === "def") {
-            value = playerRole === "물리어태커" ? 10 : 5;
-          } else if (skillEffect.stat === "cdef") {
-            value = playerRole === "특수어태커" ? 10 : 5;
-          }
-
-          let plus = (-1 * value * rankUpValue * skillEffect.probability) / 100;
-          if (player.abil === "천진") plus = Math.floor(plus * 0.1); // ex) 천진 상대로 용성군 난사
-          score -= plus;
-          log += ` - ${plus}(디메리트 ${skillEffect.stat}(${value})*${rankUpValue})`;
-        }
-
-        // 3. 상대방에게 해로운 효과
-        else if (skillEffect.target === "def" && typeof rankUpValue === "number" && rankUpValue < 0) {
-          if (skillEffect.stat === "speed") {
-            value = playerRole.includes("어태커") ? 50 : 25;
-          } else if (skillEffect.stat === "atk") {
-            value = playerRole === "물리어태커" ? 35 : 2;
-          } else if (skillEffect.stat === "catk") {
-            value = playerRole === "특수어태커" ? 35 : 2;
-          } else if (skillEffect.stat === "def") {
-            value = npcRole === "물리어태커" ? 15 : 5;
-          } else if (skillEffect.stat === "cdef") {
-            value = npcRole === "특수어태커" ? 15 : 5;
-          }
-
-          let plus = (-1 * value * rankUpValue * skillEffect.probability) / 100;
-          score += plus;
-          log += ` + ${plus}(상대디버프 ${skillEffect.stat}(${value})*${rankUpValue})`;
-        }
-
-        // 4. 상대에게 이로운 효과를 주는 경우
-        // 뽐내기, 부추기기 추가시 추가 필요
       }
 
       // 2) 상태이상 ===============================================================================
@@ -405,7 +343,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   }
   if (skill.feature) {
     const f = skill.feature;
-    if (f.sound && player.tempStatus.substitute !== null) {
+    if (f.sound && player.tempStatus.substitute !== null && (skill.stype === "atk" || skill.stype === "catk")) {
       score += 50;
       log += ` + 50 (대타 소리 기술 보정)`;
     }
@@ -424,7 +362,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
 
 function remainPokemonCount(battle, user) {
   // 남은 포켓몬 수 계산
-  // 남은 포켓몬 수가 많을수록 스텔스록, 독압정 등에 가중치가 증가한다
+  // 남은 포켓몬 수가 많을수록 스텔스록, 독압정, 리플렉터 등의 가중치가 증가한다
   // 상대의 남은 포켓몬이 하나일때 날려버리기(강제교체)를 쓰지 않는다 (실패하니까)
   let result = 0;
   let index1 = user + "Bench1";
@@ -433,3 +371,111 @@ function remainPokemonCount(battle, user) {
   if (!battle[index2].faint) result += 1;
   return result;
 }
+
+const rankScoreCalculate = (bt, sn, skillEffect) => {
+  const npc = bt.npc;
+  const player = bt.player;
+  const skill = bt.npc.origin.skill[sn];
+  const npcRole = npc.origin.role || "";
+  const playerRole = player.origin.role || "";
+
+  let rankUpValue = skillEffect.value;
+  if ((npc.abil === "심술꾸러기" && skillEffect.target === "atk") || (player.abil === "심술꾸러기" && skillEffect.target === "def")) {
+    // 특성 심술꾸러기는 랭크업이 반대로 적용
+    rankUpValue = -skillEffect.value;
+  }
+
+  let value = 0; // 상황별 랭크업 가중치
+
+  let rankScore = 0;
+  let logText = "";
+
+  // 1. 자기자신에게 이로운 효과
+  if (skillEffect.target === "atk" && typeof rankUpValue === "number" && rankUpValue > 0) {
+    // 이미 랭크업이 되어있으면 제외 (랭크업만 하다 죽는거 방지)
+    if (npc.tempStatus.rank[skillEffect.stat] < 2) {
+      if (skillEffect.stat === "speed") {
+        value = npcRole.includes("어태커") ? 50 : 30;
+      } else if (skillEffect.stat === "atk") {
+        value = npcRole === "물리어태커" ? 30 : 3;
+      } else if (skillEffect.stat === "catk") {
+        value = npcRole === "특수어태커" ? 30 : 3;
+      } else if (skillEffect.stat === "def") {
+        value = playerRole === "물리어태커" ? (npcRole.includes("막이") ? 50 : 30) : 8;
+      } else if (skillEffect.stat === "cdef") {
+        value = playerRole === "특수어태커" ? (npcRole.includes("막이") ? 50 : 30) : 8;
+      }
+
+      // 바디프레스 스킬이 있으면 방어력 증가에 추가 보정
+      const isBodyPress = [1, 2, 3, 4].some((num) => npc.origin.skill[num]?.name === "바디프레스");
+      if (skillEffect.stat === "def" && isBodyPress) {
+        value += 15;
+      }
+    }
+
+    let plus = (value * rankUpValue * skillEffect.probability) / 100; // 랭크업 확률과 수치 적용
+    if (player.abil === "천진") plus = Math.floor(plus * 0.1);
+    rankScore = plus;
+    logText = ` + ${plus}(자벞 ${skillEffect.stat}(${value})*${rankUpValue})`;
+  }
+
+  // 2. 자기자신에게 해로운 효과 (ex: 용성군 디메리트)
+  else if (skillEffect.target === "atk" && typeof rankUpValue === "number" && rankUpValue < 0) {
+    if (skillEffect.stat === "speed") {
+      value = npcRole.includes("어태커") ? 40 : 5;
+    } else if (skillEffect.stat === "atk") {
+      value = npcRole === "물리어태커" ? 20 : 1;
+    } else if (skillEffect.stat === "catk") {
+      value = npcRole === "특수어태커" ? 20 : 1;
+    } else if (skillEffect.stat === "def") {
+      value = playerRole === "물리어태커" ? 10 : 5;
+    } else if (skillEffect.stat === "cdef") {
+      value = playerRole === "특수어태커" ? 10 : 5;
+    }
+
+    let minus = (value * rankUpValue * skillEffect.probability) / 100;
+    if (player.abil === "천진") minus = Math.floor(minus * 0.1); // ex) 천진 상대로 용성군 난사
+    rankScore = minus;
+    logText = ` - ${-minus}(디메리트 ${skillEffect.stat}(${value})*${rankUpValue})`;
+  }
+
+  // 3. 상대방에게 해로운 효과
+  else if (skillEffect.target === "def" && typeof rankUpValue === "number" && rankUpValue < 0) {
+    if (skillEffect.stat === "speed") {
+      value = playerRole.includes("어태커") ? 50 : 25;
+    } else if (skillEffect.stat === "atk") {
+      value = playerRole === "물리어태커" ? 35 : 2;
+    } else if (skillEffect.stat === "catk") {
+      value = playerRole === "특수어태커" ? 35 : 2;
+    } else if (skillEffect.stat === "def") {
+      value = npcRole === "물리어태커" ? 15 : 5;
+    } else if (skillEffect.stat === "cdef") {
+      value = npcRole === "특수어태커" ? 15 : 5;
+    }
+
+    let plus = (-1 * value * rankUpValue * skillEffect.probability) / 100;
+    rankScore = plus;
+    logText = ` + ${plus}(상대디버프 ${skillEffect.stat}(${value})*${rankUpValue})`;
+  }
+
+  // 4. 상대에게 이로운 효과를 주는 경우
+  // ex) 뽐내기, 심술꾸러기 상대로 막말내뱉기
+  else if (skillEffect.target === "def" && typeof rankUpValue === "number" && rankUpValue > 0) {
+    if (skillEffect.stat === "speed") {
+      value = playerRole.includes("어태커") ? 50 : 25;
+    } else if (skillEffect.stat === "atk") {
+      value = playerRole === "물리어태커" ? 35 : 10;
+    } else if (skillEffect.stat === "catk") {
+      value = playerRole === "특수어태커" ? 35 : 10;
+    } else if (skillEffect.stat === "def") {
+      value = npcRole === "물리어태커" ? 20 : 10;
+    } else if (skillEffect.stat === "cdef") {
+      value = npcRole === "특수어태커" ? 20 : 10;
+    }
+
+    let minus = (-1 * value * rankUpValue * skillEffect.probability) / 100;
+    rankScore = minus;
+    logText = ` - ${-minus}(상대 버프 ${skillEffect.stat}(${value})*${rankUpValue})`;
+  }
+  return { rankScore, logText };
+};
