@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useRecoilState } from "recoil";
 import sampleList from "../entity/Pokemon/SamplePokemon";
 import { pokemonList, POKEMON_ROLES } from "../entity/Pokemon/PokemonTemplate";
 import { abilObject } from "../entity/Ability";
 import { defaultOption } from "../config/defaultOption";
+import { gameOptionState } from "../util/recoilState";
 import SampleInfoModal from "../component/SampleInfoModal";
 import { fillRandomTeam, getRandomPokemonForSlot } from "../util/randomTeam";
 
@@ -31,8 +33,11 @@ const CustomScreen = () => {
   const [tempLogic, setTempLogic] = useState("OR");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
-  const [difficulty, setDifficulty] = useState(defaultOption.difficulty);
-  const [teamOption, setTeamOption] = useState(defaultOption.teamOption);
+  const [gameOption, setGameOption] = useRecoilState(gameOptionState);
+  const difficulty = gameOption.difficulty;
+  const teamOption = gameOption.teamOption;
+  const setDifficulty = (level) => setGameOption((prev) => ({ ...prev, difficulty: level }));
+  const setTeamOption = (opt) => setGameOption((prev) => ({ ...prev, teamOption: opt }));
   const [typeColors, setTypeColors] = useState({});
 
   const listAreaRef = useRef(null);
@@ -581,15 +586,15 @@ const CustomScreen = () => {
             </DifficultyDescription>
             <ModalSubTitle style={{ marginTop: "20px" }}>팀 옵션</ModalSubTitle>
             <DifficultyContainer>
-              {["고정", "랜덤", "트레이드"].map((opt) => (
+              {["랜덤", "고정", "트레이드"].map((opt) => (
                 <DifficultyButton key={opt} $active={teamOption === opt} onClick={() => setTeamOption(opt)}>
                   {opt}
                 </DifficultyButton>
               ))}
             </DifficultyContainer>
             <DifficultyDescription>
-              {teamOption === "고정" && "팀 엔트리가 바뀌지 않습니다."}
               {teamOption === "랜덤" && "매 라운드마다 팀 엔트리가 랜덤하게 바뀝니다."}
+              {teamOption === "고정" && "팀 엔트리가 바뀌지 않습니다."}
               {teamOption === "트레이드" && "매 라운드마다 상대 팀 엔트리에서 한명을 교환할 수 있습니다."}
             </DifficultyDescription>
           </ModalContent>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import "./Main.css";
+import { useRecoilValue } from "recoil";
 import { createBattle } from "../entity/Battle";
 import { defaultOption } from "../config/defaultOption";
+import { gameOptionState } from "../util/recoilState";
 import TradeInfoModal from "../component/TradeInfoModal";
 import { useQueue } from "../util/useQueue";
 
@@ -24,6 +26,7 @@ import { getRandomTeam, isLegendary } from "../util/randomTeam";
 const Battle = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const gameOption = useRecoilValue(gameOptionState);
   const battleOrigin = createBattle(["갸라도스", "어써러셔", "어써러셔"], ["코터스", "어써러셔", "어써러셔"]);
   const battleObj = useRef(battleOrigin);
   const [battle, setBattle] = useState(battleOrigin);
@@ -48,12 +51,12 @@ const Battle = () => {
     setTradeNpcIdx(null);
     setTradeInfoPokemon(null);
     queueObject.initQueue();
-    const { team1, team2, isNew, difficulty, teamOption, round } = location.state || {};
+    const { team1, team2, isNew, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round } = location.state || {};
     navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, round }, replace: true });
   };
 
   const handleNextRound = () => {
-    const { teamOption = defaultOption.teamOption } = location.state || {};
+    const { teamOption = gameOption.teamOption } = location.state || {};
     if (teamOption === "트레이드" && !isTradeModalOpen) {
       setTradePlayerIdx(null);
       setTradeNpcIdx(null);
@@ -71,7 +74,7 @@ const Battle = () => {
     setTradeNpcIdx(null);
     setTradeInfoPokemon(null);
     queueObject.initQueue();
-    const { team1, difficulty = defaultOption.difficulty, teamOption = defaultOption.teamOption, round = defaultOption.round } = location.state || {};
+    const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round } = location.state || {};
 
     let nextTeam1 = customTeam1 ? customTeam1 : [...team1];
     if (!customTeam1 && teamOption === "랜덤") {
@@ -118,7 +121,7 @@ const Battle = () => {
 
   let screenFix = false;
   useEffect(() => {
-    let { team1, team2 } = location.state || {}; // 랜덤 battleObject 가져오기
+    let { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round } = location.state || {}; // 랜덤 battleObject 가져오기
     screenFix = true;
     queueObject.initQueue();
     setBottom("skill");
@@ -131,9 +134,9 @@ const Battle = () => {
     if (!testMode && team1 && team2) {
       // battleObj.current = battleObject;
       // setBattle(battleObject); // 상태 업데이트
-      battleObj.current = createBattle(team1, team2);
+      battleObj.current = createBattle(team1, team2, { difficulty, round });
     } else {
-      battleObj.current = createBattle(["달투곰", "가이오가", "미라이돈"], ["흑마렉스", "고릴타", "고릴타"]);
+      battleObj.current = createBattle(["달투곰", "가이오가", "미라이돈"], ["흑마렉스", "고릴타", "고릴타"], { difficulty, round });
     }
     queueObject.enqueue({ battle: battleObj.current, text: "배틀시작!" });
     const fastUser = speedCheck(battleObj.current);
@@ -298,9 +301,9 @@ const Battle = () => {
                 <h3 style={{ color: "#fff", marginBottom: "20px", marginTop: "0" }}>현재 게임 옵션</h3>
                 <div style={{ color: "#ddd", textAlign: "left", lineHeight: "1.8", fontSize: "1.1rem" }}>
                   <p>
-                    <strong>난이도:</strong> {location.state?.difficulty || defaultOption.difficulty}
+                    <strong>난이도:</strong> {location.state?.difficulty || gameOption.difficulty}
                     {(() => {
-                      const difficulty = location.state?.difficulty || defaultOption.difficulty;
+                      const difficulty = location.state?.difficulty || gameOption.difficulty;
                       const round = location.state?.round || defaultOption.round;
                       const multiplier = (1.0 + (round - 1) * 0.1).toFixed(1); // PokemonInstance의 배율 공식과 동일
                       if (difficulty === "노말") return ` (상대 포켓몬 HP 배율 ${multiplier}배)`;
@@ -309,7 +312,7 @@ const Battle = () => {
                     })()}
                   </p>
                   <p>
-                    <strong>팀 옵션:</strong> {location.state?.teamOption || defaultOption.teamOption}
+                    <strong>팀 옵션:</strong> {location.state?.teamOption || gameOption.teamOption}
                   </p>
                 </div>
                 <ModalButtonContainer style={{ marginTop: "20px" }}>

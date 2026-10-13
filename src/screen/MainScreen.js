@@ -1,17 +1,29 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { createGlobalStyle, keyframes } from "styled-components";
+import { useRecoilValue } from "recoil";
 import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
 import { defaultOption } from "../config/defaultOption";
+import { gameOptionState } from "../util/recoilState";
 import { getRandomTeam } from "../util/randomTeam";
 
 const MainScreen = () => {
   const navigate = useNavigate();
+  const gameOption = useRecoilValue(gameOptionState);
 
   const handleQuickStart = () => {
     const team1 = getRandomTeam(3);
     const team2 = getRandomTeam(3);
-    navigate("/battle", { state: { team1, team2, isNew: true, ...defaultOption } });
+    navigate("/battle", {
+      state: {
+        team1,
+        team2,
+        isNew: true,
+        difficulty: gameOption.difficulty,
+        teamOption: gameOption.teamOption,
+        round: defaultOption.round,
+      },
+    });
   };
 
   return (
