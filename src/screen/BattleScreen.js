@@ -43,6 +43,10 @@ const Battle = () => {
 
   const handleRestart = () => {
     setGameResult(null);
+    setIsTradeModalOpen(false);
+    setTradePlayerIdx(null);
+    setTradeNpcIdx(null);
+    setTradeInfoPokemon(null);
     queueObject.initQueue();
     const { team1, team2, isNew, difficulty, teamOption, round } = location.state || {};
     navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, round }, replace: true });
@@ -51,6 +55,9 @@ const Battle = () => {
   const handleNextRound = () => {
     const { teamOption = defaultOption.teamOption } = location.state || {};
     if (teamOption === "트레이드" && !isTradeModalOpen) {
+      setTradePlayerIdx(null);
+      setTradeNpcIdx(null);
+      setTradeInfoPokemon(null);
       setIsTradeModalOpen(true);
       return;
     }
@@ -60,6 +67,9 @@ const Battle = () => {
   const proceedNextRound = (customTeam1 = null) => {
     setGameResult(null);
     setIsTradeModalOpen(false);
+    setTradePlayerIdx(null);
+    setTradeNpcIdx(null);
+    setTradeInfoPokemon(null);
     queueObject.initQueue();
     const { team1, difficulty = defaultOption.difficulty, teamOption = defaultOption.teamOption, round = defaultOption.round } = location.state || {};
 
@@ -113,6 +123,10 @@ const Battle = () => {
     queueObject.initQueue();
     setBottom("skill");
     setBench(null);
+    setIsTradeModalOpen(false);
+    setTradePlayerIdx(null);
+    setTradeNpcIdx(null);
+    setTradeInfoPokemon(null);
     const testMode = false;
     if (!testMode && team1 && team2) {
       // battleObj.current = battleObject;
