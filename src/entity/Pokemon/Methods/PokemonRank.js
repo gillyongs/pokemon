@@ -16,6 +16,26 @@ export const PokemonRank = {
       return;
     }
 
+    // 미러아머: 상대방에 의한 랭크 감소를 반사함
+    if (isOpponent && rankValue < 0 && this.abil === "미러아머") {
+      enqueue({
+        battle,
+        text: `[특성 미러아머] ${this.name}의 미러아머로 능력 다운 효과를 되받아쳤다!
+`,
+      });
+      const enemy = this.team === "player" ? battle?.npc : battle?.player;
+      if (enemy && !enemy.faint) {
+        if (enemy.abil === "클리어바디") {
+          enqueue({ battle, text: `[특성 클리어바디] ${enemy.name}의 ${getStatName2(rankType)} 떨어지지 않았다!` });
+        } else {
+          // 미러아머로 반사한 랭크다운은 미러아머로 반사되지 않는다 (무한반사 방지)
+          // isOpponent를 false로 호출하기에 무한반사 되지 않음
+          enemy.rankUp(battle, enqueue, rankType, rankValue, null, false);
+        }
+      }
+      return;
+    }
+
     // 상한/하한 검사
     let rankText2 = `${this.name}의 ${getStatName2(rankType)}`; //공격'은' 더 이상 올라갈 수 없다!
     if (rankValue < 0 && rank[rankType] <= -6) {
