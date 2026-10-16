@@ -42,6 +42,7 @@ export const atkSkills = [
   new Skill("록블라스트", "바위", 25, 90, 10, 0, "atk", null, "2-5회 동안 연속으로 쓴다", [], { serial: "twoFive" }),
   new Skill("스케일샷", "드래곤", 25, 90, 20, 0, "atk", null, "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.", [ { name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "speed", value: 1}, {stat: "def", value: -1}] }], { serial: "twoFive" }),
   new Skill("더블윙", "비행", 40, 90, 10, 0, "atk", null, "날개로 상대를 내리쳐 공격한다. 2회 연속으로 데미지를 준다.", [], { serial: "double", touch: true }),
+  new Skill("더블펀처", "강철", 60, 100, 5, 0, "atk", null, "2회 연속으로 공격한다. 30% 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 30 }], { touch: true, punch: true, serial: "double" }),
 
   // 랭크 변화 (자신) =================================================================================================================
   new Skill("개척하기", "풀", 50, 100, 20, 0, "atk", null, "자신의 스피드를 1랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: 1 }], { touch: true }),
@@ -63,6 +64,7 @@ export const atkSkills = [
   new Skill("아가미물기", "물", 85, 100, 10, 0, "atk", null, "상대보다 먼저 기술을 사용하면 위력이 2배가 된다.", [], { bite: true, touch: true }),
   new Skill("바디프레스", "격투", 80, 100, 15, 0, "atk", null, "몸을 부딪쳐서 공격한다. 방어가 높을수록 주는 데미지가 올라간다.", [], { touch: true }),
   new Skill("성스러운칼", "격투", 90, 100, 15, 0, "atk", null, "상대의 능력 변화에 상관없이 데미지를 준다.", [{ name: "천진" }], { touch: true, slice: true }),
+  new Skill("DD래리어트", "악", 85, 100, 10, 0, "atk", null, "상대의 능력 변화에 상관없이 데미지를 준다.", [{ name: "천진" }], { touch: true }),
   new Skill("객기", "노말", 70, 100, 20, 0, "atk", null, "자신이 독, 마비, 화상 상태일 때 기술의 위력이 2배가 된다.", [], { touch: true }),
 
   // 데미지 고정
@@ -84,6 +86,9 @@ export const atkSkills = [
   new Skill("성스러운불꽃", "불꽃", 100, 95, 5, 0, "atk", null, "50%의 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 50 }]),
   new Skill("플레어드라이브", "불꽃", 120, 100, 15, 0, "atk", null, "대상에게 준 피해의 ⅓만큼 반동 피해를 받는다. 10% 확률로 상대를 화상 상태로 만든다", [{ name: "반동" }, { name: "화상", probability: 10 }], { touch: true, rebound: true }),
   new Skill("불꽃엄니", "불꽃", 65, 95, 15, 0, "atk", null, "10% 확률로 상대를 화상 상태로 만들거나 풀죽게 만든다.", [{ name: "화상", probability: 10 }, { name: "풀죽음", probability: 10 }], { touch: true, bite: true }),
+
+  // 마비
+  new Skill("번개펀치", "전기", 75, 100, 15, 0, "atk", null, "10% 확률로 상대를 마비 상태로 만든다.", [{ name: "마비", probability: 10 }], { touch: true, punch: true }),
 
   // 얼음
   new Skill("냉동펀치", "얼음", 75, 100, 15, 0, "atk", null, "10% 확률로 상대를 얼음 상태로 만든다.", [{ name: "얼음", probability: 10 }], { touch: true, punch: true }),

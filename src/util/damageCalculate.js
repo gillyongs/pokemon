@@ -77,8 +77,8 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 랭크업 ================================================================================================================
   // 랭크변화를 적용후 랭크와 관련된 요소 (천진, 급소, 성스러운칼)를 처리한다
-  // 천진: 모든 랭크변화를 무시한다.
-  // 급소: 시전자에게 불리한 랭크변화만 무시한다
+  // 천진: 상대방의 랭크변화를 무시한다.
+  // 급소: 시전자에게 불리한 랭크변화만 무시한다 (공격측 공격 다운, 방어측 방어 업)
   // 성스러운칼: 상대방의 랭크변화를 무시한다
 
   let noRankAtkStat = attackPokemon.origin.stat[attackStat];
@@ -379,6 +379,11 @@ export const damageCalculate = (battle, obj, ai) => {
   if (atkAbil === "단단한발톱" && skill.feature?.touch) {
     damage *= 1.3;
     attackPokemon.log.damage1 += " * 1.3 (단단한발톱)";
+  }
+
+  if (atkAbil === "철주먹" && skill.feature?.punch) {
+    damage *= 1.2;
+    attackPokemon.log.damage1 += " * 1.2 (철주먹)";
   }
 
   if (atkAbil === "총대장") {
