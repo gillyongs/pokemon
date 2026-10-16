@@ -45,7 +45,7 @@ describe("복안 특성 및 명중률/연속기 테스트", () => {
     }
 
     console.log(`일격기(명중 30) 10000번 중 명중 횟수: ${hitCount}`);
-    
+
     // 30% 명중이므로 3000번 근처 (2700 ~ 3300)
     expect(hitCount).toBeGreaterThan(2700);
     expect(hitCount).toBeLessThan(3300);
@@ -55,13 +55,13 @@ describe("복안 특성 및 명중률/연속기 테스트", () => {
     let missCount = 0;
     let hitCount = 0;
     let hits = { 2: 0, 3: 0, 4: 0, 5: 0 };
-    
+
     // 명중률 70인 2~5회 연속기 (복안 적용 시 70 * 1.3 = 91%)
     mockBattle.player.turn.useSkill = {
       name: "락블라스트",
       accur: 70,
       stype: "atk",
-      feature: { serial: true, twoFive: true },
+      feature: { serial: "twoFive" },
     };
 
     for (let i = 0; i < 10000; i++) {
@@ -77,7 +77,7 @@ describe("복안 특성 및 명중률/연속기 테스트", () => {
 
     console.log(`2~5회 연속기(명중 70) 10000번 중 빗나간 횟수: ${missCount}`);
     console.log(`명중 시 타수 분포 (2,3,4,5): ${hits[2]}, ${hits[3]}, ${hits[4]}, ${hits[5]}`);
-    
+
     // 빗나간 횟수는 복안이 적용되어 9% (대략 900번 근처, 여유있게 700~1100)
     expect(missCount).toBeGreaterThan(700);
     expect(missCount).toBeLessThan(1100);
@@ -90,16 +90,16 @@ describe("복안 특성 및 명중률/연속기 테스트", () => {
     const expectedFive = hitCount * 0.15;
 
     // 대략적인 범위 검증 (±3% 오차 허용)
-    const margin = hitCount * 0.03; 
+    const margin = hitCount * 0.03;
     expect(hits[2]).toBeGreaterThan(expectedTwo - margin);
     expect(hits[2]).toBeLessThan(expectedTwo + margin);
-    
+
     expect(hits[3]).toBeGreaterThan(expectedThree - margin);
     expect(hits[3]).toBeLessThan(expectedThree + margin);
-    
+
     expect(hits[4]).toBeGreaterThan(expectedFour - margin);
     expect(hits[4]).toBeLessThan(expectedFour + margin);
-    
+
     expect(hits[5]).toBeGreaterThan(expectedFive - margin);
     expect(hits[5]).toBeLessThan(expectedFive + margin);
   });
@@ -107,21 +107,21 @@ describe("복안 특성 및 명중률/연속기 테스트", () => {
   it("3. 3회 연속기(트리플악셀 등)의 매 타수 명중 판정에 복안(1.3배)이 적용됨", () => {
     // randomTriple 함수가 1, 2, 3회 중 몇 회 명중했는지 리턴함
     let totalHits = { 1: 0, 2: 0, 3: 0 };
-    
+
     for (let i = 0; i < 10000; i++) {
-      // 명중률 70인 3회 연속기. 
+      // 명중률 70인 3회 연속기.
       // (1타 명중은 이미 afterSkillCheck에서 통과했다고 가정하므로 randomTriple은 2타부터 체크)
       const numHits = randomTriple(mockBattle, null, 91);
       totalHits[numHits]++;
     }
 
     console.log(`3회 연속기(명중 70) 10000번 타수 분포 (1,2,3): ${totalHits[1]}, ${totalHits[2]}, ${totalHits[3]}`);
-    
+
     // 복안 적용 시 91% 확률로 명중
     // 2타째에서 빗나갈 확률: 9% (numHits = 1) -> 10000 * 0.09 = 900번
     // 3타째에서 빗나갈 확률: 91% * 9% (numHits = 2) -> 10000 * 0.91 * 0.09 = 819번
     // 끝까지 다 맞을 확률: 91% * 91% (numHits = 3) -> 10000 * 0.91 * 0.91 = 8281번
-    
+
     // 오차 범위 넉넉히 검증 (±250)
     expect(totalHits[1]).toBeGreaterThan(650);
     expect(totalHits[1]).toBeLessThan(1150);

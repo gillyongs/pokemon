@@ -36,12 +36,12 @@ export const atkSkills = [
   new Skill("불릿펀치", "강철", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true, punch: true }),
 
   // 연속기 =================================================================================================================
-  new Skill("트리플악셀", "얼음", 20, 90, 10, 0, "atk", null, "최대 3회 연속으로 공격한다. 기술이 명중할 때마다 위력이 올라간다.", [], { triple: true, serial: true, touch: true }),
-  new Skill("수류연타", "물", 25, 100, 5, 0, "atk", null, "물 흐르듯 3회의 연격을 날린다. 반드시 급소에 맞는다.", [], { touch: true, punch: true, suru: true, mustCritical: true, serial: true }),
-  new Skill("고드름침", "얼음", 25, 100, 30, 0, "atk", null, "2-5회 동안 연속으로 쓴다", [], { twoFive: true, serial: true }),
-  new Skill("록블라스트", "바위", 25, 90, 10, 0, "atk", null, "2-5회 동안 연속으로 쓴다", [], { twoFive: true, serial: true }),
-  // prettier-ignore
-  new Skill("스케일샷", "드래곤", 25, 90, 20, 0, "atk", null, "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.", [ { name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "speed", value: 1}, {stat: "def", value: -1}] }], { twoFive: true, serial: true }),
+  new Skill("트리플악셀", "얼음", 20, 90, 10, 0, "atk", null, "최대 3회 연속으로 공격한다. 기술이 명중할 때마다 위력이 올라간다.", [], { serial: "triple", touch: true }),
+  new Skill("수류연타", "물", 25, 100, 5, 0, "atk", null, "물 흐르듯 3회의 연격을 날린다. 반드시 급소에 맞는다.", [], { touch: true, punch: true, serial: "suru", mustCritical: true }),
+  new Skill("고드름침", "얼음", 25, 100, 30, 0, "atk", null, "2-5회 동안 연속으로 쓴다", [], { serial: "twoFive" }),
+  new Skill("록블라스트", "바위", 25, 90, 10, 0, "atk", null, "2-5회 동안 연속으로 쓴다", [], { serial: "twoFive" }),
+  new Skill("스케일샷", "드래곤", 25, 90, 20, 0, "atk", null, "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.", [ { name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "speed", value: 1}, {stat: "def", value: -1}] }], { serial: "twoFive" }),
+  new Skill("더블윙", "비행", 40, 90, 10, 0, "atk", null, "날개로 상대를 내리쳐 공격한다. 2회 연속으로 데미지를 준다.", [], { serial: "double", touch: true }),
 
   // 랭크 변화 (자신) =================================================================================================================
   new Skill("개척하기", "풀", 50, 100, 20, 0, "atk", null, "자신의 스피드를 1랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: 1 }], { touch: true }),

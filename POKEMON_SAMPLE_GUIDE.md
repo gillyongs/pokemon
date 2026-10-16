@@ -38,6 +38,7 @@
   ```
 * **핵심 플래그 (`feature`)**:
   - `touch: true`: 접촉기 (울퉁불퉁멧, 까칠한피부 발동)
+  - `serial: "twoFive" | "suru" | "double" | "triple"`: 연속 공격기 (2~5회, 수류연타 3회, 더블윙 2회, 트리플악셀 3회)
   - `bite: true`: 물기 기술 (옹골찬턱 1.5배 보정)
   - `rebound: true`: 반동 기술 (이판사판 1.2배 보정)
   - `slice: true`: 베기 기술 (예리함 1.5배 보정)

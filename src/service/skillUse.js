@@ -117,15 +117,21 @@ export const skillUse = (bt, enqueue) => {
     //연속기
     if (skill.feature?.serial) {
       let num = 9999999;
-      if (skill.feature?.twoFive) {
+      const serialType = skill.feature.serial;
+      if (serialType === "twoFive") {
         //2~5회 공격. 확률은 35 35 15 15
         num = randomTwoFive(bt, atk.item);
-      } else if (skill.feature?.suru) {
+      } else if (serialType === "suru") {
         //수류연타는 3회 고정
         num = 3;
-      } else if (skill.feature?.triple) {
+      } else if (serialType === "double") {
+        num = 2;
+      } else if (serialType === "triple") {
         //최대 3회 공격. 본인 명중률에 따라 결정
         num = randomTriple(bt, atk.item, getAccuracy(bt, skill, atk));
+      }
+      if (num === 9999999) {
+        console.error("연속기 횟수 에러");
       }
       for (let i = 1; i <= num; i++) {
         skillDamage = damageCalculate(bt, { serial: i }); // 트리플악셀 위력 재계산
@@ -140,9 +146,9 @@ export const skillUse = (bt, enqueue) => {
     }
 
     applySkillEffects(bt, enqueue, skill.skillEffectList);
-    if (skill.feature?.twoFive || skill.feature?.suru) {
+    if (skill.feature?.serial) {
       if (typeText) {
-        // 연속기의 경우 상성 텍스트는 맨 마지막에
+        // 연속기의 경우 상성 텍스트는 맨 마지막에 한번만 출력
         enqueue({ battle: bt, text: typeText });
       }
     }

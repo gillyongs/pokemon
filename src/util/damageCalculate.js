@@ -573,7 +573,10 @@ const powerCalculate = (battle, skill, obj, ai) => {
   if (ai) {
     if (skill.name === "트리플악셀") return 94;
     if (skill.name === "수류연타") return 75;
-    if (skill.feature?.twoFive) {
+    if (skill.feature?.serial === "double") {
+      power *= 2;
+    }
+    if (skill.feature?.serial === "twoFive") {
       // 2~5회 연속 공격기
       power = skill.power * 3.1;
       if (battle[battle.turn.atk].item === "속임수주사위") {
