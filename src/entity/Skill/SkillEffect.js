@@ -2,11 +2,7 @@ import { random } from "../../util/randomCheck";
 import { applyAilment, isAilmentCheck } from "../../function/ailment";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
-import {
-  switchNpc,
-  switchPlayer,
-  switchPlayerForce,
-} from "../../service/switch";
+import { switchNpc, switchPlayer, switchPlayerForce } from "../../service/switch";
 
 function skillEffectSearch(name) {
   // 연속기에서 여러번 발동하는 효과의 경우 onHit에서 처리
@@ -15,18 +11,12 @@ function skillEffectSearch(name) {
       let atkPokemon = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
       let skill = atkPokemon.turn.useSkill;
-      if (!atkPokemon.faint && skill.feature?.protect !== true)
-        atkPokemon.tempStatus.protectUse = null;
+      if (!atkPokemon.faint && skill.feature?.protect !== true) atkPokemon.tempStatus.protectUse = null;
       // 방어 외에 다른 스킬을 사용하였을때 방어 스택 초기화
       if (atkPokemon.item === "생명의구슬" && !atkPokemon.faint) {
         if (skill.stype === "atk" || skill.stype === "catk") {
           const text = atkPokemon.name + "의 생명이 조금 깎였다!";
-          atkPokemon.getDamage(
-            battle,
-            enqueue,
-            atkPokemon.origin.hp / 10,
-            text,
-          );
+          atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 10, text);
         }
       }
       if (def.ailment.freeze && !def.faint) {
@@ -61,14 +51,7 @@ function skillEffectSearch(name) {
         return;
       }
 
-      targetPokemon.rankUp(
-        battle,
-        enqueue,
-        skillEffect.stat,
-        skillEffect.value,
-        null,
-        skillEffect.target === "def",
-      );
+      targetPokemon.rankUp(battle, enqueue, skillEffect.stat, skillEffect.value, null, skillEffect.target === "def", battle[battle.turn?.atk].abilObj?.feature?.tgg);
     },
 
     랭크다수변화: (battle, enqueue, skillEffect) => {
@@ -82,63 +65,36 @@ function skillEffectSearch(name) {
         return;
       }
 
-      targetPokemon.rankUpMulti(
-        battle,
-        enqueue,
-        skillEffect.stats,
-        null,
-        skillEffect.target === "def",
-      );
+      const atkPokemon = battle[battle.turn?.atk];
+      const isMoldBreaker = skillEffect.target === "def" && Boolean(atkPokemon?.abilObj?.feature?.tgg || atkPokemon?.abil === "틀깨기" || atkPokemon?.abil === "테라볼티지" || atkPokemon?.abil === "터보블레이즈");
+
+      targetPokemon.rankUpMulti(battle, enqueue, skillEffect.stats, null, skillEffect.target === "def", isMoldBreaker);
     },
 
     화상: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      applyAilment(
-        "화상",
-        battle,
-        battle.turn.def,
-        enqueue,
-        skillEffect.printTextIfFail,
-      );
+      applyAilment("화상", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
     독: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      applyAilment(
-        "독",
-        battle,
-        battle.turn.def,
-        enqueue,
-        skillEffect.printTextIfFail,
-      );
+      applyAilment("독", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
     맹독: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      applyAilment(
-        "맹독",
-        battle,
-        battle.turn.def,
-        enqueue,
-        skillEffect.printTextIfFail,
-      );
+      applyAilment("맹독", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
 
     마비: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
-      applyAilment(
-        "마비",
-        battle,
-        battle.turn.def,
-        enqueue,
-        skillEffect.printTextIfFail,
-      );
+      applyAilment("마비", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
     얼음: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
@@ -164,8 +120,7 @@ function skillEffectSearch(name) {
       }
       const r = Math.random();
       if (r < 1 / 3) applyAilment("얼음", battle, battle.turn.def, enqueue);
-      else if (r < 2 / 3)
-        applyAilment("마비", battle, battle.turn.def, enqueue);
+      else if (r < 2 / 3) applyAilment("마비", battle, battle.turn.def, enqueue);
       else return applyAilment("화상", battle, battle.turn.def, enqueue);
     },
     페이탈클로: (battle, enqueue, skillEffect) => {
@@ -176,8 +131,7 @@ function skillEffectSearch(name) {
       }
       const r = Math.random();
       if (r < 1 / 3) applyAilment("독", battle, battle.turn.def, enqueue);
-      else if (r < 2 / 3)
-        applyAilment("마비", battle, battle.turn.def, enqueue);
+      else if (r < 2 / 3) applyAilment("마비", battle, battle.turn.def, enqueue);
       else return applyAilment("잠듦", battle, battle.turn.def, enqueue);
     },
     혼란: (battle, enqueue, skillEffect) => {
@@ -262,8 +216,7 @@ function skillEffectSearch(name) {
         def.tempStatus.onlySkill = null; // 구애 시리즈로 고정된 스킬
         enqueue({
           battle,
-          text:
-            def.name + "의 " + josa(`${itemName}#{를} `) + "탁쳐서 떨구었다!",
+          text: def.name + "의 " + josa(`${itemName}#{를} `) + "탁쳐서 떨구었다!",
         });
       }
     },
@@ -296,10 +249,7 @@ function skillEffectSearch(name) {
         if (battle.npcBench1.faint !== true) {
           // 1번이 기절 안했으면 1번 교체
           switchNpc(battle, "npcBench1", enqueue);
-        } else if (
-          battle.npcBench2.faint !== true &&
-          battle.npcBench1.faint === true
-        ) {
+        } else if (battle.npcBench2.faint !== true && battle.npcBench1.faint === true) {
           //1번 기절했고 2번 기절 안했으면 2번 교체
           switchNpc(battle, "npcBench2", enqueue);
         }
@@ -310,25 +260,13 @@ function skillEffectSearch(name) {
       if (atkPokemon.abil === "돌머리") return;
       const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
       const ratio = skillEffect?.ratio || 3;
-      atkPokemon.getDamage(
-        battle,
-        enqueue,
-        atkPokemon.turn.recentDamageGive / ratio,
-        text,
-      );
+      atkPokemon.getDamage(battle, enqueue, atkPokemon.turn.recentDamageGive / ratio, text);
     },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
-      if (
-        !isAilmentCheck(def) &&
-        def.tempStatus.hapum !== 1 &&
-        def.tempStatus.hapum !== 0
-      ) {
+      if (!isAilmentCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0) {
         // 상대가 상태이상에 걸려있지 않음 + 하품 맞은 상태 아님
-        if (
-          battle.field?.terrian?.isElectircField &&
-          !def.isFlying(battle, true)
-        ) {
+        if (battle.field?.terrian?.isElectircField && !def.isFlying(battle, true)) {
           // 일렉트릭 필드가 깔려있고 상대가 떠있지 않으면 실패함
           // 잠들때 판정 보는거 아님 그냥 일레트릭필드 적용받는 상태면 하품 실패함
           enqueue({
@@ -396,10 +334,7 @@ function skillEffectSearch(name) {
       const field = battle.field[def];
       if (!field.sRock) {
         field.sRock = true;
-        const text =
-          def === "npc"
-            ? "상대의 주변에 뾰족한 바위가 떠다니기 시작했다!"
-            : "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!";
+        const text = def === "npc" ? "상대의 주변에 뾰족한 바위가 떠다니기 시작했다!" : "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!";
         enqueue({ battle, text });
       }
     },
@@ -445,10 +380,7 @@ function skillEffectSearch(name) {
       const field = battle.field[def];
       if ((field.spikes || 0) >= 3) return;
       field.spikes = (field.spikes || 0) + 1;
-      const text =
-        def === "npc"
-          ? "상대의 발밑에 압정이 뿌려졌다!"
-          : "아군의 발밑에 압정이 뿌려졌다!";
+      const text = def === "npc" ? "상대의 발밑에 압정이 뿌려졌다!" : "아군의 발밑에 압정이 뿌려졌다!";
       enqueue({ battle, text });
     },
 
@@ -481,13 +413,7 @@ function skillEffectSearch(name) {
         handleForceSwitch(battle, enqueue, "npcBench1", "npcBench2", switchNpc);
       } else if (battle.turn.atk === "npc") {
         // NPC가 강제교체 시 플레이어가 교체됨
-        handleForceSwitch(
-          battle,
-          enqueue,
-          "playerBench1",
-          "playerBench2",
-          switchPlayerForce,
-        );
+        handleForceSwitch(battle, enqueue, "playerBench1", "playerBench2", switchPlayerForce);
       }
     },
 
@@ -509,10 +435,7 @@ function skillEffectSearch(name) {
         });
       } else {
         let num = 4;
-        if (
-          battle.turn.fastActUser === battle.turn.atk ||
-          !battle[battle.turn.fastActUser].turn.useSkill
-        ) {
+        if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].turn.useSkill) {
           // 선도발을 썼거나                                   교체해서 나온 상대방이 도발을 맞은 경우
           num = 3;
           // 그 턴 포함 3턴
@@ -565,11 +488,7 @@ function skillEffectSearch(name) {
     씨뿌리기: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const defPokemon = battle[def];
-      if (
-        defPokemon.tempStatus.seed !== null ||
-        defPokemon.type1 === "풀" ||
-        defPokemon.type2 === "풀"
-      ) {
+      if (defPokemon.tempStatus.seed !== null || defPokemon.type1 === "풀" || defPokemon.type2 === "풀") {
         enqueue({
           battle,
           text: "하지만 실패했다!",
@@ -587,10 +506,7 @@ function skillEffectSearch(name) {
       const atkPokemon = battle[atk];
       const needHp = Math.floor(atkPokemon.origin.hp / 4);
 
-      if (
-        atkPokemon.tempStatus.substitute !== null ||
-        atkPokemon.hp <= needHp
-      ) {
+      if (atkPokemon.tempStatus.substitute !== null || atkPokemon.hp <= needHp) {
         enqueue({
           battle,
           text: "하지만 실패했다!",
@@ -598,12 +514,7 @@ function skillEffectSearch(name) {
       } else {
         atkPokemon.tempStatus.substitute = true;
         atkPokemon.tempStatus.substituteHp = needHp;
-        atkPokemon.getDamage(
-          battle,
-          enqueue,
-          needHp,
-          atkPokemon.name + "의 대타가 나타났다!",
-        );
+        atkPokemon.getDamage(battle, enqueue, needHp, atkPokemon.name + "의 대타가 나타났다!");
       }
     },
 
@@ -651,12 +562,7 @@ function skillEffectSearch(name) {
 
       if (atk.hp !== atk.origin.hp) {
         const ratio = skillEffect.ratio;
-        atk.recover(
-          battle,
-          Math.floor(atk.turn.recentDamageGive * ratio),
-          enqueue,
-          text,
-        );
+        atk.recover(battle, Math.floor(atk.turn.recentDamageGive * ratio), enqueue, text);
       }
     },
 
@@ -712,8 +618,7 @@ function skillEffectSearch(name) {
       battle.field[user].noClean.reflect = num;
       enqueue({
         battle,
-        text:
-          battle.common[user].teamKr + " 편은 리플렉터로 물리공격에 강해졌다!",
+        text: battle.common[user].teamKr + " 편은 리플렉터로 물리공격에 강해졌다!",
       });
     },
 
@@ -733,9 +638,7 @@ function skillEffectSearch(name) {
       battle.field[user].noClean.lightScreen = num;
       enqueue({
         battle,
-        text:
-          battle.common[user].teamKr +
-          " 편은 빛의장막으로 특수공격에 강해졌다!",
+        text: battle.common[user].teamKr + " 편은 빛의장막으로 특수공격에 강해졌다!",
       });
     },
 
@@ -766,16 +669,14 @@ function skillEffectSearch(name) {
         field.reflect = null;
         enqueue({
           battle,
-          text:
-            battle.common[battle.turn.def].teamKr + " 편의 리플렉터가 깨졌다!",
+          text: battle.common[battle.turn.def].teamKr + " 편의 리플렉터가 깨졌다!",
         });
       }
       if (field.lightScreen !== null) {
         field.lightScreen = null;
         enqueue({
           battle,
-          text:
-            battle.common[battle.turn.def].teamKr + " 편의 빛의장막이 깨졌다!",
+          text: battle.common[battle.turn.def].teamKr + " 편의 빛의장막이 깨졌다!",
         });
       }
     },
