@@ -75,6 +75,7 @@ export const atkSkills = [
   new Skill("이판사판태클", "노말", 120, 100, 15, 0, "atk", null, "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.", [{ name: "반동" }], { touch: true, rebound: true }),
   new Skill("웨이브태클", "물", 120, 100, 10, 0, "atk", null, "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.", [{ name: "반동" }], { touch: true, rebound: true }),
   new Skill("무릎차기", "격투", 130, 90, 10, 0, "atk", null, "빗나가면 자신이 전체 HP의 ½의 데미지를 입는다.", [{ name: "빗나감패널티" }], { touch: true, rebound: true }),
+  new Skill("양날박치기", "바위", 150, 80, 5, 0, "atk", null, "자신도 대상에게 준 피해의 ½만큼 반동 피해를 받는다.", [{ name: "반동", ratio: 2 }], { touch: true, rebound: true }),
 
   // 상태이상 =================================================================================================================
 
@@ -82,6 +83,7 @@ export const atkSkills = [
   new Skill("화염볼", "불꽃", 120, 100, 5, 0, "atk", null, "10%의 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 10 }], {}),
   new Skill("성스러운불꽃", "불꽃", 100, 95, 5, 0, "atk", null, "50%의 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 50 }]),
   new Skill("플레어드라이브", "불꽃", 120, 100, 15, 0, "atk", null, "대상에게 준 피해의 ⅓만큼 반동 피해를 받는다. 10% 확률로 상대를 화상 상태로 만든다", [{ name: "반동" }, { name: "화상", probability: 10 }], { touch: true, rebound: true }),
+  new Skill("불꽃엄니", "불꽃", 65, 95, 15, 0, "atk", null, "10% 확률로 상대를 화상 상태로 만들거나 풀죽게 만든다.", [{ name: "화상", probability: 10 }, { name: "풀죽음", probability: 10 }], { touch: true, bite: true }),
 
   // 얼음
   new Skill("냉동펀치", "얼음", 75, 100, 15, 0, "atk", null, "10% 확률로 상대를 얼음 상태로 만든다.", [{ name: "얼음", probability: 10 }], { touch: true, punch: true }),

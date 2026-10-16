@@ -54,8 +54,10 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
         }
 
         if (skillEffect.name === "반동") {
-          score *= 0.97;
-          log += ` * 0.97 (반동)`; // 같은 위력이면 반동이 없는거 고르는 수준이면 될듯
+          if (npc.abil !== "돌머리") {
+            score *= 0.9;
+            log += ` * 0.9 (반동)`;
+          }
         }
 
         if (skillEffect.name === "흡수") {
