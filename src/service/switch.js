@@ -1,9 +1,10 @@
 import { switchPokemon } from "../function/switchPokemon";
 import { applyAbilityEffects } from "../entity/Ability";
 import { applyFieldEffects } from "./field";
+import { calculatePokemonSwitchScore } from "../npc/ai/easy";
 
 export const switchPlayer = (battle, actNumber, enqueue) => {
-  // 플레이어 교체
+  // 플레이어 교체 함수
   // 사용자가 교체를 골랐을 때 (BattleStart.js)
   // 포켓몬이 쓰러져서 교체할때, 유턴 썼을때 (Bottom-Switch.js) 호출됨
 
@@ -31,12 +32,9 @@ export const switchPlayerForce = (battle, actNumber, enqueue) => {
 };
 
 export const switchNpc = (battle, actNumber, enqueue, force) => {
-  // NPC 교체
-  // NPC가 교체를 골랐을떄 (BattleStart.js)
-  // 포켓몬이 쓰러져서 교체할때 (turnEnd.js)
-  // 양쪽 다 쓰러져서 맞교체할때 (Bottom-Switch.js)  *사용자가 교체한 다음에 호출해야해서
-  // 강제교체 스킬을 맞았을때 (skillEffect.js)
-  // 유턴 사용시 (skillEffect.js) 호출됨
+  // NPC 교체 함수
+  // NPC가 교체를 골랐을떄 (BattleStart.js)만 직접 사용
+  // 그 외의 경우엔 switchNpcAuto를 호출하여 사용
   if (force) {
     switchPokemon(battle, "npc", actNumber);
     enqueue({
@@ -56,4 +54,23 @@ export const switchNpc = (battle, actNumber, enqueue, force) => {
   }
   applyAbilityEffects(battle, "npc", enqueue);
   applyFieldEffects(battle, "npc", enqueue);
+};
+
+export const switchNpcAuto = (battle, enqueue) => {
+  // NPC 포켓몬만 쓰러져서 교체할때 (turnEnd.js)
+  // 양쪽 다 쓰러져서 맞교체할때 (Bottom-Switch.js)  *사용자가 교체한 다음에 호출해야해서
+  // 유턴 사용시 (skillEffect.js) 호출됨
+  if (battle.npcBench1.faint !== true && battle.npcBench2.faint !== true) {
+    // 둘 다 기절하지 않았으면 가중치가 더 높은 포켓몬으로 교체
+    const score1 = calculatePokemonSwitchScore(battle, 1).score;
+    const score2 = calculatePokemonSwitchScore(battle, 2).score;
+    const targetBench = score2 > score1 ? "npcBench2" : "npcBench1";
+    switchNpc(battle, targetBench, enqueue);
+  } else if (battle.npcBench1.faint !== true) {
+    // 1번이 기절 안했으면 1번 교체
+    switchNpc(battle, "npcBench1", enqueue);
+  } else if (battle.npcBench2.faint !== true && battle.npcBench1.faint === true) {
+    //1번 기절했고 2번 기절 안했으면 2번 교체
+    switchNpc(battle, "npcBench2", enqueue);
+  }
 };

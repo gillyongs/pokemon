@@ -1,23 +1,93 @@
 import { npcAiEasy } from "./ai/easy";
 import { npcAiRandom } from "./ai/random";
-import { npcCommon } from "./npcCommon";
+
 let before = null;
 export const npcChoice = (battle, actNumber) => {
-  // return 1;
-  const choices = npcCommon(battle);
+  const choices = makeNpcChoice(battle);
   if (choices.length === 1) return choices[0];
   else if (choices.length < 1) return null;
+
   let result = npcAiEasy(choices, battle);
   return isNaN(Number(result)) ? result : Number(result);
-  // 형태: [1,2,3,4,'npcBench1','npcBench2']
-  // 기절한 포켓몬 제외, 구애나 도발로 사용 불가 스킬 제외 등 공통사항 처리
+
+  // 디버깅용
   return npcAiRandom(choices);
-  if (before === null) {
-    before = true;
-    return 1;
-  }
-  if (before) {
-    return 3;
-  }
   return "npcBench2"; //npcact
+};
+
+const makeNpcChoice = (battle, actNumber) => {
+  // 형태: [1,2,3,4,'npcBench1','npcBench2']
+  // 기절한 포켓몬으로 교체, 구애나 도발로 사용 불가능한 스킬 제외
+
+  // 자동기술(역린)이나 충전기술(메테오빔)으로 인한 선택지 고정
+  if (battle.npc?.auto !== null || battle.npc?.charge !== null) {
+    return [battle.npc.autoSN];
+  }
+
+  let arr = [1, 2, 3, 4, "npcBench1", "npcBench2"];
+  const skills = [1, 2, 3, 4].map((num) => battle.npc.origin.skill[num]);
+
+  // 기절한 포켓몬으로 교체 막기
+  if (battle.npcBench1?.faint) arr = arr.filter((v) => v !== "npcBench1");
+  if (battle.npcBench2?.faint) arr = arr.filter((v) => v !== "npcBench2");
+
+  if (battle.npc.tempStatus.switchLock !== null) {
+    // 교체불가 상태 (마그마스톰)
+    arr = arr.filter((v) => v !== "npcBench1");
+    arr = arr.filter((v) => v !== "npcBench2");
+  }
+
+  // 구애시리즈 스킬 고정 처리
+  const onlySkill = battle.npc?.tempStatus?.onlySkill;
+  if (onlySkill) {
+    skills.forEach((sk, i) => {
+      const num = i + 1;
+      if (onlySkill === sk?.name) {
+        arr = arr.filter((v) => v === num || typeof v === "string");
+      }
+    });
+  }
+
+  // 연속 사용 불가 스킬 체크 (블러드문 등)
+  const recentSkill = battle.npc?.tempStatus?.recentSkillUse?.name;
+
+  skills.forEach((sk, i) => {
+    const num = i + 1;
+    if (recentSkill === sk?.name && sk?.feature?.noDouble) {
+      arr = arr.filter((v) => v !== num);
+    }
+  });
+
+  // 도발 or 돌격조끼 상태 시 변화기(natk/buf) 제외
+  const taunt = battle.npc.tempStatus.taunt !== null;
+  const doljo = battle.npc.item === "돌격조끼";
+  if (taunt || doljo) {
+    skills.forEach((sk, i) => {
+      const num = i + 1;
+      if (sk?.stype === "natk" || sk?.stype === "buf") {
+        arr = arr.filter((v) => v !== num);
+      }
+    });
+  }
+
+  // 소리기술 금지 시 소리 기술 제외
+  const noSound = battle.npc.tempStatus.noSound !== null;
+  if (noSound) {
+    skills.forEach((sk, i) => {
+      const num = i + 1;
+      if (sk?.feature?.sound) {
+        arr = arr.filter((v) => v !== num);
+      }
+    });
+  }
+
+  // PP 0 이하 스킬 제외
+  const npcPP = [1, 2, 3, 4].map((num) => battle.npc.pp[num]);
+  npcPP.forEach((pp, i) => {
+    const num = i + 1;
+    if (pp <= 0) {
+      arr = arr.filter((v) => v !== num);
+    }
+  });
+  return arr;
 };

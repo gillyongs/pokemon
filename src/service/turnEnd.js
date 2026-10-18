@@ -1,4 +1,4 @@
-import { switchNpc } from "./switch";
+import { switchNpcAuto } from "./switch";
 import { speedCheck } from "../util/speedCheck";
 import { processSkillEffects } from "./turnEnd/skillEvent";
 import { processAilment } from "./turnEnd/ailmentEvent";
@@ -68,13 +68,11 @@ export const turnEnd = (battle, enqueue) => {
 
   battle.turn.turnEnd = true;
   if (battle.npc.faint && !battle.player.faint) {
-    if (battle.npcBench1.faint !== true) {
-      // 1번이 기절 안했으면 1번 교체
-      switchNpc(battle, "npcBench1", enqueue);
-    } else if (battle.npcBench2.faint !== true && battle.npcBench1.faint === true) {
-      //1번 기절했고 2번 기절 안했으면 2번 교체
-      switchNpc(battle, "npcBench2", enqueue);
-    }
+    // NPC"만" 기절한 경우
+    // 둘다 기절했을 경우엔 플레이어의 교체 UI를 띄우고
+    // 플레이어가 교체할 포켓몬을 선택한 다음에 NPC 교체를 진행하여야 함
+    // (아니면 NPC가 교체할 포켓몬을 플레이어가 알게 되므로)
+    switchNpcAuto(battle, enqueue);
   }
   if (battle.player.faint) {
     battle.turn.textFreeze = true;

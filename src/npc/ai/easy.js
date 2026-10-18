@@ -16,18 +16,16 @@ export function npcAiEasy(choices, battle) {
 
   // 기술 객체 생성
   // 각 기술의 최소, 최대 데미지, 가중치 계산하여 지니고있는다
-  const skMap = {};
-  for (let i = 1; i <= 4; i++) {
-    skMap[i] = createSkObj(base, i, hp);
-  }
-  for (let i = 1; i <= 2; i++) {
-    skMap["npcBench" + i] = createPkObj(base, i, hp);
-  }
-
-  // choices 중 스킬 번호만 추출하여 객체화
+  // choices에 있는 선택지만 추출하여 객체화
   const skObj = {};
   choices.forEach((c) => {
-    if (skMap[c]) skObj[c] = skMap[c];
+    if (typeof c === "number") {
+      skObj[c] = createSkObj(base, c, hp);
+    } else if (c === "npcBench1") {
+      skObj[c] = createPkObj(base, 1, hp);
+    } else if (c === "npcBench2") {
+      skObj[c] = createPkObj(base, 2, hp);
+    }
   });
   console.log("AI 가중치 계산");
   console.log(skObj);
@@ -201,14 +199,14 @@ function createPkObj(baseBattle, sn, hp) {
       score: null,
     },
   };
-  let result = calculatePkScore(bt, sn, skObj);
+  let result = calculatePokemonSwitchScore(bt, sn, skObj);
   skObj.score = result.score;
   skObj.log = result;
 
   return skObj;
 }
 
-function calculatePkScore(bt, sn, skObj) {
+export function calculatePokemonSwitchScore(bt, sn, skObj) {
   const index = "npcBench" + sn;
   const indexA = index + "+a";
   const log = {};

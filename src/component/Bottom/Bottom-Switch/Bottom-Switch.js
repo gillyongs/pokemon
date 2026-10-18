@@ -5,7 +5,7 @@ import TextButton from "../TextButton";
 import BenchPokemon from "./BenchPokemon";
 import LogModal from "../../LogModal";
 import { battleStart } from "../../../service/battleStart";
-import { switchPlayer, switchNpc } from "../../../service/switch";
+import { switchPlayer, switchNpcAuto } from "../../../service/switch";
 import { turnEnd } from "../../../service/turnEnd";
 import { attackNpc } from "../../../service/attack";
 import { npcChoice } from "../../../npc/npc";
@@ -25,17 +25,14 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
       queueObject.dequeue(); // "누구로 교체할까?"를 dequeue를 막아놨기에 직접 해줘야함
 
       if (btObj.npc.faint) {
-        // npc만 쓰러졌을 경우 turnEnd.js에서 교체하지만
-        // player와 npc 양측 포켓몬이 동시에 쓰러졌을경우
-        // 사용자가 교체할 포켓몬을 정한 이후 교체해야 하기에
+        // npc만 쓰러졌을 경우 turnEnd.js에서 처리하지만
+        // 양측 포켓몬이 동시에 쓰러졌을경우 플레이어 포켓몬 교체 UI를 띄운 다음 NPC 교체가 진행되어야 하기에
         // bottomSwitch에서 교체한다.
-        if (btObj.npcBench1.faint !== true) {
-          // 1번이 기절 안했으면 1번 교체
-          switchNpc(btObj, "npcBench1", queueObject.enqueue);
-        } else if (btObj.npcBench2.faint !== true && btObj.npcBench1.faint === true) {
-          //1번 기절했고 2번 기절 안했으면 2번 교체
-          switchNpc(btObj, "npcBench2", queueObject.enqueue);
-        }
+        switchNpcAuto(btObj, queueObject.enqueue);
+
+        // 맞교체는 필드 위 포켓몬이 '교체' 행동을 한 것이므로 필드 위 스피드의 포켓몬을 따르지만
+        // 양쪽 다 기절하여 교체한 경우 스피드를 비교할 포켓몬이 필드 위에 없기에 그냥 랜덤으로 나온다.
+        // 이후 아이템/특성은 스피드가 빠른쪽이 먼저 발동된다
       }
     };
   } else if (bottom === "uturn") {
@@ -51,8 +48,9 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
       ) {
         turnEnd(btObj, queueObject.enqueue);
       } else if (btObj.turn.fastActUser === "player") {
-        //플레이어가 더 빠른 경우
-        // 교체 하고 npc 행동 재개
+        // 플레이어가 더 빠른 경우
+        // 교체를 진행 하고 npc 행동 재개
+        // battleStart.js에서 플레이어가 유턴을 쓰면 그냥 리턴 떄려버리고 여기서 마저 진행하는 구조
         attackNpc(btObj, btObj.player.turn.choice, btObj.npc.turn.choice, queueObject.enqueue);
         turnEnd(btObj, queueObject.enqueue);
       }

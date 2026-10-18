@@ -2,7 +2,7 @@ import { random } from "../../util/randomCheck";
 import { applyAilment, isAilmentCheck } from "../../function/ailment";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
-import { switchNpc, switchPlayer, switchPlayerForce } from "../../service/switch";
+import { switchNpc, switchNpcAuto, switchPlayer, switchPlayerForce } from "../../service/switch";
 
 function skillEffectSearch(name) {
   // 연속기에서 여러번 발동하는 효과의 경우 onHit에서 처리
@@ -246,13 +246,7 @@ function skillEffectSearch(name) {
           });
         }
       } else if (battle.turn.atk === "npc") {
-        if (battle.npcBench1.faint !== true) {
-          // 1번이 기절 안했으면 1번 교체
-          switchNpc(battle, "npcBench1", enqueue);
-        } else if (battle.npcBench2.faint !== true && battle.npcBench1.faint === true) {
-          //1번 기절했고 2번 기절 안했으면 2번 교체
-          switchNpc(battle, "npcBench2", enqueue);
-        }
+        switchNpcAuto(battle, enqueue);
       }
     },
     반동: (battle, enqueue, skillEffect) => {
