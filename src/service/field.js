@@ -61,7 +61,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     // 공중 판정 안받음 (풍선도)
     const text = atk.name + "에게 뾰족한 바위가 박혔다!";
     const typeDamage = typeCheck("바위", atk.type1, atk.type2);
-    atk.getDamage(bt, enqueue, Math.floor(atk.origin.hp * typeDamage), text);
+    atk.getDamage(bt, enqueue, Math.floor((atk.origin.hp / 8) * typeDamage), text);
     if (atk.faint) {
       return;
     }

@@ -28,10 +28,7 @@ export const switchPlayer = (battle, actNumber, enqueue) => {
     if (isFaintSwitch) {
       // 배틀 중 기절하거나 유턴으로 교체해 나온 포켓몬이 기절했을 경우엔 턴 종료시까지 대기하지만
       // 이전 포켓몬이 기절하여 교체해 나온 포켓몬이 스텔스록을 맞고 바로 다시 기절한 경우 바로 다음 포켓몬 꺼냄
-
-      battle.turn.turnEnd = true;
-      battle.turn.textFreeze = true;
-      enqueue({ battle, text: "누구로 교체할까?" });
+      extraSwitchWhenTurnEnd(battle, "player", enqueue);
     }
   }
 };
@@ -72,11 +69,15 @@ export const switchNpc = (battle, actNumber, enqueue, force) => {
   applyFieldEffects(battle, "npc", enqueue);
   if (!battle.npc.faint) {
     applyAbilityEffects(battle, "npc", enqueue);
+  } else {
+    if (battle.turn.turnEnd) {
+      extraSwitchWhenTurnEnd(battle, "npc", enqueue);
+    }
   }
 };
 
 const getNpcAutoSwitchTarget = (battle) => {
-  // 교체할 포켓몬 리턴
+  // 교체할 포켓몬 계산 함수
   if (battle.npcBench1.faint !== true && battle.npcBench2.faint !== true) {
     // 둘 다 기절하지 않았으면 가중치가 더 높은 포켓몬으로 교체
     const score1 = calculatePokemonSwitchScore(battle, 1).score;
@@ -94,7 +95,6 @@ const getNpcAutoSwitchTarget = (battle) => {
 
 export const switchNpcAuto = (battle, enqueue) => {
   // NPC 포켓몬만 쓰러져서 교체할때 (turnEnd.js)
-  // 양쪽 다 쓰러져서 맞교체할때 (Bottom-Switch.js)  *사용자가 교체한 다음에 호출해야해서
   // 유턴 사용시 (skillEffect.js) 호출됨
   const targetBench = getNpcAutoSwitchTarget(battle);
   if (targetBench) {
@@ -134,11 +134,35 @@ export const switchBothFaint = (battle, actNumber, enqueue) => {
   const fastUser = speedCheck(battle);
   const slowUser = fastUser === "player" ? "npc" : "player";
   applyFieldEffects(battle, fastUser, enqueue);
-  if (!battle.player.faint) {
+  if (!battle[fastUser].faint) {
     applyAbilityEffects(battle, fastUser, enqueue);
   }
   applyFieldEffects(battle, slowUser, enqueue);
-  if (!battle.npc.faint) {
+  if (!battle[slowUser].faint) {
     applyAbilityEffects(battle, slowUser, enqueue);
+  }
+
+  if (battle[fastUser].faint && battle[slowUser].faint) {
+    // 맞교체일경우
+    // player만 처리하면 bottom-switch에서 npc 기절여부 체크하고 switchBothFaint 호출함
+    extraSwitchWhenTurnEnd(battle, "player", enqueue);
+  } else {
+    if (battle[fastUser].faint) {
+      extraSwitchWhenTurnEnd(battle, fastUser, enqueue);
+    }
+    if (battle[slowUser].faint) {
+      extraSwitchWhenTurnEnd(battle, slowUser, enqueue);
+    }
+  }
+};
+
+const extraSwitchWhenTurnEnd = (battle, user, enqueue) => {
+  if (user === "player") {
+    battle.turn.turnEnd = true;
+    battle.turn.textFreeze = true;
+    enqueue({ battle, text: "누구로 교체할까?" });
+  }
+  if (user === "npc") {
+    switchNpcAuto(battle, enqueue);
   }
 };
