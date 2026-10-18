@@ -59,7 +59,7 @@ class PokemonInstance {
       fullDeath: null, // 풀죽음
       jumpKickFail: null, // 무릎차기 실패 여부 -> 1.빗나감 2.방어 3.상성(고스트)
       roost: null, //날개쉬기
-      critical: null, //이번 턴 급소 여부 아 근데 이거 다단히트 생기면 바꿔야하는데
+      critical: null, // 공격의 급소 여부. damageCalculate 호출 직전에 skillUser에서 계산하여 적용. 연속기에선 매 공격 직전마다 계산
       recentDamageGive: null, // 최근 준 데미지 -> 반동, 흡수 계산에 사용
       recentDamageGet: null,
       protect: null, //방어

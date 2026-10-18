@@ -87,18 +87,7 @@ export const skillUse = (bt, enqueue) => {
         cri += 1;
       }
     }
-    // 급소 여부 계산
-    if (criticalRate(cri)) {
-      atk.turn.critical = true;
-    }
-    // 급소확정
-    if (skill.feature?.mustCritical) {
-      atk.turn.critical = true;
-    }
-    // 크리티컬은 데미지 계산 전에만 처리하면 되긴 한데
-    // 공격기에만 터지므로 일단 여기 넣음
 
-    let skillDamage = damageCalculate(bt);
     let typeDamage = typeCheckOnBattle(bt, skill.type, def.type1, def.type2);
     // 0배 여부 체크, "효과가 굉장했다!"" 텍스트 처리에만 사용
     // 상성 관련 데미지 계산은 damageCalculate 안에서 처리
@@ -116,41 +105,65 @@ export const skillUse = (bt, enqueue) => {
 
     //연속기
     if (skill.feature?.serial) {
-      let num = 9999999;
+      let num = 9999999; // 연속기 공격 횟수
       const serialType = skill.feature.serial;
       if (serialType === "twoFive") {
         //2~5회 공격. 확률은 35 35 15 15
         num = randomTwoFive(bt, atk.item);
       } else if (serialType === "suru") {
-        //수류연타는 3회 고정
+        // 수류연타 3회 고정
         num = 3;
       } else if (serialType === "double") {
         num = 2;
       } else if (serialType === "triple") {
-        //최대 3회 공격. 본인 명중률에 따라 결정
+        //최대 3회 공격. 본인 명중률에 따라 결정 (트리플악셀)
         num = randomTriple(bt, atk.item, getAccuracy(bt, skill, atk));
       }
       if (num === 9999999) {
         console.error("연속기 횟수 에러");
       }
+
+      const serialOnHitSkillEffect = ["풀죽음"]; // 연속기의 매 타격마다 부여되는 부가효과
       for (let i = 1; i <= num; i++) {
-        skillDamage = damageCalculate(bt, { serial: i }); // 트리플악셀 위력 재계산
+        atk.turn.critical = null;
+        // 급소 여부 계산 (연속기는 매 타격마다 독립 판정)
+        if (criticalRate(cri)) {
+          atk.turn.critical = true;
+        }
+        // 급소확정
+        if (skill.feature?.mustCritical) {
+          atk.turn.critical = true;
+        }
+        let skillDamage = damageCalculate(bt, { serial: i }); // 트리플악셀 위력 재계산
         attackDamage(bt, skillDamage, bt.turn.def, enqueue, null, { num: i, first: i === 1, last: i === num });
         if (def.faint) {
           break;
           // 상대 기절하면 연속기 종료
         }
+        const onHitEffects = skill.skillEffectList.filter((effect) => serialOnHitSkillEffect.includes(effect.name));
+        applySkillEffects(bt, enqueue, onHitEffects);
       }
-    } else {
-      attackDamage(bt, skillDamage, bt.turn.def, enqueue, typeText);
-    }
-
-    applySkillEffects(bt, enqueue, skill.skillEffectList);
-    if (skill.feature?.serial) {
+      // 그 외에 부가효과 마지막 1회에만 적용
+      const afterSerialEffects = skill.skillEffectList.filter((effect) => !serialOnHitSkillEffect.includes(effect.name));
+      applySkillEffects(bt, enqueue, afterSerialEffects);
       if (typeText) {
         // 연속기의 경우 상성 텍스트는 맨 마지막에 한번만 출력
         enqueue({ battle: bt, text: typeText });
       }
+    } else {
+      // 연속기 아닌 경우
+      atk.turn.critical = null;
+      // 급소 여부 계산
+      if (criticalRate(cri)) {
+        atk.turn.critical = true;
+      }
+      // 급소확정
+      if (skill.feature?.mustCritical) {
+        atk.turn.critical = true;
+      }
+      let skillDamage = damageCalculate(bt);
+      attackDamage(bt, skillDamage, bt.turn.def, enqueue, typeText);
+      applySkillEffects(bt, enqueue, skill.skillEffectList);
     }
   } else if (skillType === "natk") {
     // 상대방 지정 변화기

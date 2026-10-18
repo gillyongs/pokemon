@@ -1,8 +1,9 @@
 import skillEffectSearch from "../entity/Skill/SkillEffect";
 
-export const applySkillEffects = (bt, enqueue) => {
+export const applySkillEffects = (bt, enqueue, skillEffectList = bt[bt.turn.atk].turn.useSkill?.skillEffectList) => {
   // skillUse 끝부분에서 호출되는 함수
-  const skillEffectList = bt[bt.turn.atk].turn.useSkill?.skillEffectList;
+  // 기술 내부에 존재하는 부가효과 함수 배열을 순회하며 부가효과 함수를 실행한다
+  // 연속기의 경우 일부 부가효과만 적용되기에 전용 skillEffectList를 인자로 받는다
 
   if (skillEffectList && typeof skillEffectList[Symbol.iterator] === "function") {
     for (const skillEffect of skillEffectList) {

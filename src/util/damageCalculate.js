@@ -567,7 +567,7 @@ const getRandomNumber = () => {
   const randomValue = Math.random() * 100;
 
   // 랜덤 값이 속하는 숫자 찾기
-  return weightedNumbers.find(({ cumulative }) => randomValue <= cumulative).num;
+  return weightedNumbers.find(({ cumulative }) => randomValue <= cumulative)?.num ?? 100;
 };
 
 const powerCalculate = (battle, skill, obj, ai) => {
