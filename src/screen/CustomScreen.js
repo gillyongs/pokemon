@@ -295,12 +295,13 @@ const CustomScreen = () => {
   };
 
   const handleTestSetup = () => {
+    let testTeam = ["칠색조", "에이스번", "다투곰"];
     if (selectedTeam[0] === "가이오가") {
-      setSelectedTeam(["윈디", "에이스번", "다투곰"]);
+      setSelectedTeam(testTeam);
       setNpcTeam(["가이오가", npcTeam[1], npcTeam[2]]);
     } else {
       setSelectedTeam(["가이오가", selectedTeam[1], selectedTeam[2]]);
-      setNpcTeam(["윈디", "에이스번", "다투곰"]);
+      setNpcTeam(testTeam);
     }
     setActiveTab("player");
   };
@@ -311,7 +312,7 @@ const CustomScreen = () => {
     <Container>
       <Header>
         <BackButtonIcon onClick={() => navigate("/")}>&#8592;</BackButtonIcon>팀 구성
-        {/* <TestButton onClick={handleTestSetup}>테스트</TestButton> */}
+        <TestButton onClick={handleTestSetup}>테스트빠른구성</TestButton>
       </Header>
       <TabContainer>
         <Tab $active={activeTab === "player"} onClick={() => setActiveTab("player")}>
@@ -335,7 +336,8 @@ const CustomScreen = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemove(index);
-                      }}>
+                      }}
+                    >
                       X
                     </RemoveBtn>
                     <ImageWrapper>
@@ -520,7 +522,8 @@ const CustomScreen = () => {
                   setTempIsLegendaryFilter(false);
                   setTempIsIntimidateFilter(false);
                   setTempIsWeatherFilter(false);
-                }}>
+                }}
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
                   <path d="M3 3v5h5"></path>
@@ -557,7 +560,8 @@ const CustomScreen = () => {
                   setIsWeatherFilter(tempIsWeatherFilter);
                   setActiveLogic(tempLogic);
                   setIsFilterModalOpen(false);
-                }}>
+                }}
+              >
                 검색
               </SearchButton>
             </ModalFooter>

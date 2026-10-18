@@ -34,6 +34,7 @@ const Battle = () => {
   const [tradePlayerIdx, setTradePlayerIdx] = useState(null);
   const [tradeNpcIdx, setTradeNpcIdx] = useState(null);
   const [tradeInfoPokemon, setTradeInfoPokemon] = useState(null);
+  const [tradeAlertMessage, setTradeAlertMessage] = useState(null);
   const [isRoundOptionsOpen, setIsRoundOptionsOpen] = useState(false);
   //개발용 배틀 객체.
   const [text, setText] = useState("");
@@ -50,6 +51,7 @@ const Battle = () => {
     setTradePlayerIdx(null);
     setTradeNpcIdx(null);
     setTradeInfoPokemon(null);
+    setTradeAlertMessage(null);
     queueObject.initQueue();
     const { team1, team2, isNew, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round } = location.state || {};
     navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, round }, replace: true });
@@ -61,6 +63,7 @@ const Battle = () => {
       setTradePlayerIdx(null);
       setTradeNpcIdx(null);
       setTradeInfoPokemon(null);
+      setTradeAlertMessage(null);
       setIsTradeModalOpen(true);
       return;
     }
@@ -73,6 +76,7 @@ const Battle = () => {
     setTradePlayerIdx(null);
     setTradeNpcIdx(null);
     setTradeInfoPokemon(null);
+    setTradeAlertMessage(null);
     queueObject.initQueue();
     const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round } = location.state || {};
 
@@ -92,9 +96,10 @@ const Battle = () => {
 
     const playerPoke = playerTeamFixed[tradePlayerIdx];
     const npcPoke = npcTeamFixed[tradeNpcIdx];
+    const hasPlayerLegendary = playerTeamFixed.some((p) => isLegendary(p?.origin));
 
-    if (isLegendary(playerPoke?.origin) !== isLegendary(npcPoke?.origin)) {
-      alert("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
+    if (hasPlayerLegendary && isLegendary(playerPoke?.origin) !== isLegendary(npcPoke?.origin)) {
+      setTradeAlertMessage("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
       return;
     }
 
@@ -130,6 +135,7 @@ const Battle = () => {
     setTradePlayerIdx(null);
     setTradeNpcIdx(null);
     setTradeInfoPokemon(null);
+    setTradeAlertMessage(null);
     const testMode = false;
     if (!testMode && team1 && team2) {
       // battleObj.current = battleObject;
@@ -287,7 +293,8 @@ const Battle = () => {
             onClick={(e) => {
               e.stopPropagation();
               setIsRoundOptionsOpen(true);
-            }}>
+            }}
+          >
             Round {location.state?.round || defaultOption.round}
           </RoundIndicator>
           {isRoundOptionsOpen && (
@@ -296,7 +303,8 @@ const Battle = () => {
                 e.stopPropagation();
                 setIsRoundOptionsOpen(false);
               }}
-              style={{ zIndex: 1100, backgroundColor: "rgba(0,0,0,0.5)" }}>
+              style={{ zIndex: 1100, backgroundColor: "rgba(0,0,0,0.5)" }}
+            >
               <ModalBox onClick={(e) => e.stopPropagation()} style={{ width: "300px", padding: "20px" }}>
                 <h3 style={{ color: "#fff", marginBottom: "20px", marginTop: "0" }}>현재 게임 옵션</h3>
                 <div style={{ color: "#ddd", textAlign: "left", lineHeight: "1.8", fontSize: "1.1rem" }}>
@@ -322,7 +330,8 @@ const Battle = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsRoundOptionsOpen(false);
-                    }}>
+                    }}
+                  >
                     닫기
                   </ModalButton>
                 </ModalButtonContainer>
@@ -352,7 +361,8 @@ const Battle = () => {
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate("/");
-                  }}>
+                  }}
+                >
                   메인으로
                 </ModalButton>
                 {gameResult === "win" && (
@@ -362,7 +372,8 @@ const Battle = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       handleNextRound();
-                    }}>
+                    }}
+                  >
                     다음 라운드
                   </ModalButton>
                 )}
@@ -378,16 +389,18 @@ const Battle = () => {
 
             const selectedPlayerPoke = tradePlayerIdx !== null ? playerTeamFixed[tradePlayerIdx] : null;
             const selectedNpcPoke = tradeNpcIdx !== null ? npcTeamFixed[tradeNpcIdx] : null;
+            const hasPlayerLegendary = playerTeamFixed.some((p) => isLegendary(p?.origin));
+            const canTrade = (playerPoke, npcPoke) => !hasPlayerLegendary || isLegendary(playerPoke?.origin) === isLegendary(npcPoke?.origin);
 
-            const isTradeValid = tradePlayerIdx !== null && tradeNpcIdx !== null && isLegendary(playerTeamFixed[tradePlayerIdx]?.origin) === isLegendary(npcTeamFixed[tradeNpcIdx]?.origin);
+            const isTradeValid = tradePlayerIdx !== null && tradeNpcIdx !== null && canTrade(playerTeamFixed[tradePlayerIdx], npcTeamFixed[tradeNpcIdx]);
 
             const handlePlayerCardClick = (idx, p) => {
               if (tradePlayerIdx === idx) {
                 setTradePlayerIdx(null);
                 return;
               }
-              if (selectedNpcPoke && isLegendary(p?.origin) !== isLegendary(selectedNpcPoke?.origin)) {
-                alert("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
+              if (selectedNpcPoke && !canTrade(p, selectedNpcPoke)) {
+                setTradeAlertMessage("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
                 return;
               }
               setTradePlayerIdx(idx);
@@ -398,8 +411,8 @@ const Battle = () => {
                 setTradeNpcIdx(null);
                 return;
               }
-              if (selectedPlayerPoke && isLegendary(p?.origin) !== isLegendary(selectedPlayerPoke?.origin)) {
-                alert("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
+              if (selectedPlayerPoke && !canTrade(selectedPlayerPoke, p)) {
+                setTradeAlertMessage("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
                 return;
               }
               setTradeNpcIdx(idx);
@@ -412,28 +425,26 @@ const Battle = () => {
                     <ModalTitle $isWin={true} style={{ fontSize: "2.4rem", margin: "10px 0 5px", wordBreak: "keep-all" }}>
                       포켓몬 트레이드
                     </ModalTitle>
-                    <div style={{ textAlign: "center", color: "#aaa", fontSize: "0.85rem" }}>* 초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.</div>
+                    <div style={{ textAlign: "center", color: "#aaa", fontSize: "0.85rem" }}>* 팀 내 초전설 포켓몬은 최대 1마리까지 보유할 수 있습니다.</div>
                   </div>
                   <TradeContainer>
                     <TradeColumn>
                       <h3 style={{ textAlign: "center", color: "#64ffda", margin: "5px 0" }}>내 엔트리</h3>
                       {playerTeamFixed.map((p, idx) => {
                         const isLeg = isLegendary(p?.origin);
-                        const isDisabled = selectedNpcPoke ? isLeg !== isLegendary(selectedNpcPoke?.origin) : false;
+                        const isDisabled = selectedNpcPoke ? !canTrade(p, selectedNpcPoke) : false;
                         return (
                           <TradeCard key={idx} $selected={tradePlayerIdx === idx} $disabled={isDisabled} onClick={() => handlePlayerCardClick(idx, p)}>
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "7vh", overflow: "hidden" }}>
                               <TradeCardImage src={`/pokemon/img/pokemon/${p.origin.pokemon_id}.webp`} />
-                              <TradeCardName>
-                                {p.origin.name}
-                                {isLeg && <span style={{ fontSize: "1vh", color: "#ffd700", marginLeft: "2px" }}>[초전설]</span>}
-                              </TradeCardName>
+                              <TradeCardName>{p.origin.name}</TradeCardName>
                             </div>
                             <TradeInfoButton
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setTradeInfoPokemon(p);
-                              }}>
+                              }}
+                            >
                               상세정보
                             </TradeInfoButton>
                           </TradeCard>
@@ -444,21 +455,19 @@ const Battle = () => {
                       <h3 style={{ textAlign: "center", color: "#ff5252", margin: "5px 0" }}>상대 엔트리</h3>
                       {npcTeamFixed.map((p, idx) => {
                         const isLeg = isLegendary(p?.origin);
-                        const isDisabled = selectedPlayerPoke ? isLeg !== isLegendary(selectedPlayerPoke?.origin) : false;
+                        const isDisabled = selectedPlayerPoke ? !canTrade(selectedPlayerPoke, p) : false;
                         return (
                           <TradeCard key={idx} $selected={tradeNpcIdx === idx} $disabled={isDisabled} onClick={() => handleNpcCardClick(idx, p)}>
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "7vh", overflow: "hidden" }}>
                               <TradeCardImage src={`/pokemon/img/pokemon/${p.origin.pokemon_id}.webp`} />
-                              <TradeCardName>
-                                {p.origin.name}
-                                {isLeg && <span style={{ fontSize: "1vh", color: "#ffd700", marginLeft: "2px" }}>[초전설]</span>}
-                              </TradeCardName>
+                              <TradeCardName>{p.origin.name}</TradeCardName>
                             </div>
                             <TradeInfoButton
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setTradeInfoPokemon(p);
-                              }}>
+                              }}
+                            >
                               상세정보
                             </TradeInfoButton>
                           </TradeCard>
@@ -477,12 +486,53 @@ const Battle = () => {
                         color: isTradeValid ? "#64ffda" : "#888",
                         borderColor: isTradeValid ? "rgba(100, 255, 218, 0.5)" : "rgba(128, 128, 128, 0.5)",
                         cursor: isTradeValid ? "pointer" : "not-allowed",
-                      }}>
+                      }}
+                    >
                       교환 및 진행
                     </ModalButton>
                   </ModalButtonContainer>
                 </ModalBox>
                 {tradeInfoPokemon && <TradeInfoModal pokemon={tradeInfoPokemon} onClose={() => setTradeInfoPokemon(null)} />}
+                {tradeAlertMessage && (
+                  <ModalOverlay
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setTradeAlertMessage(null);
+                    }}
+                    style={{ zIndex: 1200, backgroundColor: "rgba(0, 0, 0, 0.65)" }}
+                  >
+                    <ModalBox
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        width: "85vw",
+                        maxWidth: "380px",
+                        padding: "28px 24px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "20px",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      <ModalTitle $isWin={false} style={{ fontSize: "1.8rem", margin: "0", wordBreak: "keep-all" }}>
+                        교환 불가
+                      </ModalTitle>
+                      <div style={{ color: "#e0e0e0", fontSize: "1rem", lineHeight: "1.6", wordBreak: "keep-all" }}>{tradeAlertMessage}</div>
+                      <ModalButtonContainer>
+                        <ModalButton
+                          $primary
+                          $isWin={true}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTradeAlertMessage(null);
+                          }}
+                          style={{ padding: "12px 0" }}
+                        >
+                          확인
+                        </ModalButton>
+                      </ModalButtonContainer>
+                    </ModalBox>
+                  </ModalOverlay>
+                )}
               </ModalOverlay>
             );
           })()}
