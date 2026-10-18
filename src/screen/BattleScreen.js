@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle, css } from "styled-components";
 import "./Main.css";
 import { useRecoilValue } from "recoil";
 import { createBattle } from "../entity/Battle";
 import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../util/recoilState";
+import { testmode, setSelectedNpcAct } from "../config/testMode";
 import TradeInfoModal from "../component/TradeInfoModal";
 import { useQueue } from "../util/useQueue";
 
@@ -18,7 +19,7 @@ import BottomSectionField from "../component/Bottom/Bottom-field/Bottom-Field";
 import { speedCheck } from "../util/speedCheck";
 import { useLocation, useNavigate } from "react-router-dom";
 import { battleStart } from "../service/battleStart";
-import { npcChoice } from "../npc/npc";
+import { npcChoice, makeNpcChoice } from "../npc/npc";
 import { cloneWithMethods } from "../util/cloneWithMethods";
 import { applyAbilityEffects } from "../entity/Ability";
 import { getRandomTeam, isLegendary } from "../util/randomTeam";
@@ -42,6 +43,14 @@ const Battle = () => {
   const { queueObject } = useQueue();
   //게임 진행용 큐 전역변수
   const [bottom, setBottom] = useState("skill");
+
+  const [selectedNpcChoice, setSelectedNpcChoice] = useState(null);
+
+  const handleNpcActionClick = (act) => {
+    const next = selectedNpcChoice === act ? null : act;
+    setSelectedNpcChoice(next);
+    setSelectedNpcAct(next);
+  };
 
   const [gameResult, setGameResult] = useState(null); // "win" | "lose" | null
 
@@ -221,6 +230,7 @@ const Battle = () => {
 
   const battleStartBySkillButton = (skillIndex) => {
     battleStart(battleObj.current, skillIndex, npcChoice(battle, skillIndex), queueObject);
+    setSelectedNpcChoice(null);
   };
 
   const textSkip = () => {
@@ -338,6 +348,46 @@ const Battle = () => {
               </ModalBox>
             </ModalOverlay>
           )}
+          {testmode && battle?.npc && (() => {
+            const validChoices = makeNpcChoice(battle);
+            return (
+              <NpcActionSelector onClick={(e) => e.stopPropagation()}>
+                {[1, 2, 3, 4].map((num) => {
+                  const skill = battle.npc.origin.skill[num];
+                  const name = skill?.name || `기술${num}`;
+                  const isSelected = selectedNpcChoice === num;
+                  const isAvailable = validChoices.includes(num);
+                  return (
+                    <NpcActionItem
+                      key={num}
+                      $selected={isSelected}
+                      $disabled={!isAvailable}
+                      onClick={() => handleNpcActionClick(num)}
+                    >
+                      {name}
+                    </NpcActionItem>
+                  );
+                })}
+                {[1, 2].map((num) => {
+                  const benchKey = `npcBench${num}`;
+                  const benchPoke = battle[benchKey];
+                  const name = `교체(${benchPoke?.origin?.name || `포켓몬${num}`})`;
+                  const isSelected = selectedNpcChoice === benchKey;
+                  const isAvailable = validChoices.includes(benchKey);
+                  return (
+                    <NpcActionItem
+                      key={benchKey}
+                      $selected={isSelected}
+                      $disabled={!isAvailable}
+                      onClick={() => handleNpcActionClick(benchKey)}
+                    >
+                      {name}
+                    </NpcActionItem>
+                  );
+                })}
+              </NpcActionSelector>
+            );
+          })()}
           <IMAGE>
             <PokemonImage battle={battle} type="npc" />
             <PokemonImage battle={battle} type="plr" />
@@ -763,6 +813,37 @@ const RoundIndicator = styled.div`
   &:hover {
     background-color: rgba(0, 0, 0, 0.8);
     transform: scale(1.05);
+  }
+`;
+
+const NpcActionSelector = styled.div`
+  position: absolute;
+  top: 60px;
+  right: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  z-index: 20;
+`;
+
+const NpcActionItem = styled.div`
+  font-size: 13px;
+  color: ${(props) => (props.$selected ? "#111" : props.$disabled ? "#888888" : "#ffffff")};
+  background-color: ${(props) => (props.$selected ? "#ffe600" : props.$disabled ? "rgba(30, 30, 30, 0.45)" : "rgba(0, 0, 0, 0.5)")};
+  font-weight: ${(props) => (props.$selected ? "bold" : "normal")};
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid ${(props) => (props.$selected ? "#d4af37" : props.$disabled ? "rgba(120, 120, 120, 0.3)" : "rgba(255, 255, 255, 0.25)")};
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  text-shadow: ${(props) => (props.$selected || props.$disabled ? "none" : "1px 1px 2px black")};
+  box-shadow: ${(props) => (props.$selected ? "0 0 8px rgba(255, 230, 0, 0.8)" : "none")};
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: ${(props) => (props.$selected ? "#ffe600" : props.$disabled ? "rgba(60, 60, 60, 0.65)" : "rgba(0, 0, 0, 0.75)")};
   }
 `;
 

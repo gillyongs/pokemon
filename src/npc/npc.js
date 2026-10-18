@@ -1,8 +1,16 @@
 import { npcAiEasy } from "./ai/easy";
 import { npcAiRandom } from "./ai/random";
+import { testmode, selectedNpcAct, setSelectedNpcAct } from "../config/testMode";
 
 let before = null;
 export const npcChoice = (battle, actNumber) => {
+  if (testmode && selectedNpcAct !== null) {
+    // 테스트모드 지정 기술 사용
+    const act = selectedNpcAct;
+    setSelectedNpcAct(null);
+    return isNaN(Number(act)) ? act : Number(act);
+  }
+
   const choices = makeNpcChoice(battle);
   if (choices.length === 1) return choices[0];
   else if (choices.length < 1) return null;
@@ -15,7 +23,7 @@ export const npcChoice = (battle, actNumber) => {
   return "npcBench2"; //npcact
 };
 
-const makeNpcChoice = (battle, actNumber) => {
+export const makeNpcChoice = (battle, actNumber) => {
   // 형태: [1,2,3,4,'npcBench1','npcBench2']
   // 기절한 포켓몬으로 교체, 구애나 도발로 사용 불가능한 스킬 제외
 

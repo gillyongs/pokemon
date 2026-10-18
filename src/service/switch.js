@@ -26,8 +26,9 @@ export const switchPlayer = (battle, actNumber, enqueue) => {
     applyAbilityEffects(battle, "player", enqueue);
   } else {
     if (isFaintSwitch) {
-      // 기절로 인한 교체하여 나온 포켓몬이 스텔스록을 맞고 바로 다시 기절한 경우
-      // 바로 다음 포켓몬 꺼냄
+      // 배틀 중 기절하거나 유턴으로 교체해 나온 포켓몬이 기절했을 경우엔 턴 종료시까지 대기하지만
+      // 이전 포켓몬이 기절하여 교체해 나온 포켓몬이 스텔스록을 맞고 바로 다시 기절한 경우 바로 다음 포켓몬 꺼냄
+
       battle.turn.turnEnd = true;
       battle.turn.textFreeze = true;
       enqueue({ battle, text: "누구로 교체할까?" });
@@ -49,7 +50,7 @@ export const switchPlayerForce = (battle, actNumber, enqueue) => {
 
 export const switchNpc = (battle, actNumber, enqueue, force) => {
   // NPC 교체 함수
-  // NPC가 교체를 골랐을떄 (BattleStart.js)만 직접 사용
+  // NPC가 교체를 골랐을 때(BattleStart.js), 날려버리기 강제교체(skillEffect.js)에서만 직접 사용
   // 그 외의 경우엔 switchNpcAuto를 호출하여 사용
   if (force) {
     switchPokemon(battle, "npc", actNumber);
