@@ -32,8 +32,8 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
 
   // 1. 역할군 (Role)
   const role = pokemon.role;
-  const isAttacker = role === "물리어태커" || role === "특수어태커" || role === "어태커";
-  const isTanker = role === "물리막이" || role === "특수막이" || role === "막이";
+  const isAttacker = role === "물리어태커" || role === "특수어태커" || role === "어태커" || role === "물리딜탱" || role === "특수딜탱";
+  const isTanker = role === "물리막이" || role === "특수막이" || role === "막이" || role === "물리딜탱" || role === "특수딜탱";
 
   // 어태커인 경우 -> 생명의구슬, 구애스카프, 기합의띠
   if (isAttacker) {
@@ -42,18 +42,18 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
     add("기합의띠");
   }
 
-  // 물리 어태커 -> 구애머리띠
-  if (role === "물리어태커") {
+  // 물리 어태커 / 물리 딜탱 -> 구애머리띠
+  if (role === "물리어태커" || role === "물리딜탱") {
     add("구애머리띠");
   }
 
-  // 특수 어태커 -> 구애스카프, 구애안경
-  if (role === "특수어태커") {
+  // 특수 어태커 / 특수 딜탱 -> 구애스카프, 구애안경
+  if (role === "특수어태커" || role === "특수딜탱") {
     add("구애스카프");
     add("구애안경");
   }
 
-  // 막이인 경우 -> 돌격조끼, 먹다남은음식, 자뭉열매, 울퉁불퉁멧
+  // 막이 / 딜탱인 경우 -> 돌격조끼, 먹다남은음식, 자뭉열매, 울퉁불퉁멧
   if (isTanker) {
     add("돌격조끼");
     add("먹다남은음식");

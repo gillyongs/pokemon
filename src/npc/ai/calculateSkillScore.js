@@ -97,7 +97,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
 
       //상대가 물리형일때 화상 보정
-      if (skillEffect.name === "화상" && player.origin.role === "물리어태커" && statusAbleCheck("화상", player)) {
+      if (skillEffect.name === "화상" && (player.origin.role === "물리어태커" || player.origin.role === "물리딜탱") && statusAbleCheck("화상", player)) {
         let plus = (50 * skillEffect.probability) / 100;
         score += plus;
         log += ` + ${plus} (화상 물리 보정)`;
@@ -222,7 +222,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
       if (skillEffect.name === "리플렉터") {
         if (bt.field.npc.noClean.reflect === null) {
-          let origin = player.origin.role === "물리어태커" ? 20 : 15; // 상대가 물리면 리플렉터를 먼저 치게
+          let origin = (player.origin.role === "물리어태커" || player.origin.role === "물리딜탱") ? 20 : 15; // 상대가 물리면 리플렉터를 먼저 치게
           let value = origin * (remainPokemonCount(bt, "npc") + 1);
           score += value;
           log += ` + ${value} (${skillEffect.name})`;
@@ -230,7 +230,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
       if (skillEffect.name === "빛의장막") {
         if (bt.field.npc.noClean.lightScreen === null) {
-          let origin = player.origin.role === "특수어태커" ? 20 : 15;
+          let origin = (player.origin.role === "특수어태커" || player.origin.role === "특수딜탱") ? 20 : 15;
           let value = origin * (remainPokemonCount(bt, "npc") + 1);
           score += value;
           log += ` + ${value} (${skillEffect.name})`;
@@ -335,7 +335,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
         log += text;
       }
 
-      if (skillEffect.name === "화상" && player.origin.role === "물리어태커" && statusAbleCheck(skillEffect.name, player)) {
+      if (skillEffect.name === "화상" && (player.origin.role === "물리어태커" || player.origin.role === "물리딜탱") && statusAbleCheck(skillEffect.name, player)) {
         let value = (50 * skillEffect.probability) / 100;
 
         score += value;

@@ -1,8 +1,13 @@
 import sampleList from "../entity/Pokemon/SamplePokemon";
 
 export const isSupporter = (pokemon) => pokemon?.role === "기점잡이";
-export const isTanker = (pokemon) => pokemon?.role === "물리막이" || pokemon?.role === "특수막이";
-export const isAttacker = (pokemon) => pokemon?.role === "물리어태커" || pokemon?.role === "특수어태커";
+export const isTanker = (pokemon) =>
+  pokemon?.role === "물리막이" || pokemon?.role === "특수막이" || pokemon?.role === "막이";
+export const isAttacker = (pokemon) =>
+  pokemon?.role === "물리어태커" ||
+  pokemon?.role === "특수어태커" ||
+  pokemon?.role === "물리딜탱" ||
+  pokemon?.role === "특수딜탱";
 export const isLegendary = (pokemon) => !!pokemon?.feature?.legendary;
 export const isMega = (pokemon) => !!pokemon?.megaData;
 

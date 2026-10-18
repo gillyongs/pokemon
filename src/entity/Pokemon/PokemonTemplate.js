@@ -8,9 +8,10 @@ import { getMegaData } from "./MegaData";
 //ReadOnly, 불변값으로 Pokemon 객체가 origin으로 지니고있는다
 class PokemonTemplate {
   // prettier-ignore
-  constructor(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role){
-    this._validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role);
+  constructor(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role, desc = ""){
+    this._validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role, desc);
     this.role = role;
+    this.desc = desc;
 
     this.id = id;
     pokemonList.push(id)
@@ -128,8 +129,8 @@ class PokemonTemplate {
     }
   }
   // prettier-ignore
-  _validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role){
-    if (!["물리막이", "특수막이", "물리어태커", "특수어태커", "기점잡이"].includes(role)) console.error("role must be one of 물리막이, 특수막이, 물리어태커, 특수어태커", role);
+  _validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role, desc){
+    if (!["물리막이", "특수막이", "물리어태커", "특수어태커", "기점잡이", "물리딜탱", "특수딜탱", "막이"].includes(role)) console.error("role must be one of 물리막이, 특수막이, 물리어태커, 특수어태커, 기점잡이, 물리딜탱, 특수딜탱, 막이", role);
     if (typeof id !== "string") console.error("id must be a string", id);
     if (typeof pokemon_id !== "string")
       console.error("pokemon_id must be a string", pokemon_id);
@@ -181,6 +182,6 @@ class PokemonTemplate {
 }
 
 export const pokemonList = [];
-export const POKEMON_ROLES = ["물리어태커", "특수어태커", "물리막이", "특수막이", "기점잡이"];
+export const POKEMON_ROLES = ["물리어태커", "특수어태커", "물리딜탱", "특수딜탱", "막이", "물리막이", "특수막이", "기점잡이"];
 
 export default PokemonTemplate;
