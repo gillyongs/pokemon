@@ -5,7 +5,7 @@ import TextButton from "../TextButton";
 import BenchPokemon from "./BenchPokemon";
 import LogModal from "../../LogModal";
 import { battleStart } from "../../../service/battleStart";
-import { switchPlayer, switchNpcAuto } from "../../../service/switch";
+import { switchPlayer, switchBothFaint } from "../../../service/switch";
 import { turnEnd } from "../../../service/turnEnd";
 import { attackNpc } from "../../../service/attack";
 import { npcChoice } from "../../../npc/npc";
@@ -21,19 +21,19 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
     // 포켓몬이 쓰러져서 교체하는 화면
     handleSwitch = (index) => {
       setBottom("skill");
-      switchPlayer(btObj, index, queueObject.enqueue);
-      queueObject.dequeue(); // "누구로 교체할까?"를 dequeue를 막아놨기에 직접 해줘야함
-
       if (btObj.npc.faint) {
         // npc만 쓰러졌을 경우 turnEnd.js에서 처리하지만
         // 양측 포켓몬이 동시에 쓰러졌을경우 플레이어 포켓몬 교체 UI를 띄운 다음 NPC 교체가 진행되어야 하기에
         // bottomSwitch에서 교체한다.
-        switchNpcAuto(btObj, queueObject.enqueue);
 
         // 맞교체는 필드 위 포켓몬이 '교체' 행동을 한 것이므로 필드 위 스피드의 포켓몬을 따르지만
         // 양쪽 다 기절하여 교체한 경우 스피드를 비교할 포켓몬이 필드 위에 없기에 그냥 랜덤으로 나온다.
         // 이후 아이템/특성은 스피드가 빠른쪽이 먼저 발동된다
+        switchBothFaint(btObj, index, queueObject.enqueue);
+      } else {
+        switchPlayer(btObj, index, queueObject.enqueue);
       }
+      queueObject.dequeue(); // "누구로 교체할까?"를 dequeue를 막아놨기에 직접 해줘야함
     };
   } else if (bottom === "uturn") {
     // 유턴 사용시 교체 화면

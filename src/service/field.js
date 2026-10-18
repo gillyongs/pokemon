@@ -61,18 +61,25 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     // 공중 판정 안받음 (풍선도)
     const text = atk.name + "에게 뾰족한 바위가 박혔다!";
     const typeDamage = typeCheck("바위", atk.type1, atk.type2);
-    atk.getDamage(bt, enqueue, Math.floor((atk.origin.hp / 8) * typeDamage), text);
+    atk.getDamage(bt, enqueue, Math.floor(atk.origin.hp * typeDamage), text);
+    if (atk.faint) {
+      return;
+    }
   }
 
   if (atk.isFlying(bt, true)) {
     return;
   }
   // 이 밑에서부터는 비행타입, 부유, 풍선 포켓몬한테 발동되지 않음 ====================================
-  // 압정뿌리기 (1스택 1/8, 2스택 1/6, 3스택 1/4)
+
   const spikes = bt.field[atks].spikes;
   if (spikes) {
+    // 압정뿌리기 (1스택 1/8, 2스택 1/6, 3스택 1/4)
     const ratio = spikes >= 3 ? 1 / 4 : spikes === 2 ? 1 / 6 : 1 / 8;
     atk.getDamage(bt, enqueue, Math.floor(atk.origin.hp * ratio), atk.name + "에게 뾰족한 가시가 박혔다!");
+    if (atk.faint) {
+      return;
+    }
   }
 
   // 독압정
