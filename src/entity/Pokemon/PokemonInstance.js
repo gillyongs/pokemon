@@ -5,6 +5,9 @@ import { PokemonGetDamage } from "./Methods/PokemonGetDamage.js";
 import { PokemonRank } from "./Methods/PokemonRank.js";
 import { PokemonMega } from "./Methods/PokemonMega.js";
 import { cloneWithMethods } from "../../util/cloneWithMethods";
+import { itemText } from "../Item.js";
+import { abilObject } from "../Ability.js";
+import skillList from "../Skill/skillList.js";
 
 // 실제 배틀에 사용되는 포켓몬 객체
 // 능력치, pp, 상태이상여부, 랭크업, 기절 여부 등 가변 값을 지닌다.
@@ -12,9 +15,54 @@ import { cloneWithMethods } from "../../util/cloneWithMethods";
 class PokemonInstance {
   constructor(id, options = { isNpc: false, difficulty: "이지", round: 1 }) {
     this.team = ""; // player or npc
-    this.id = id;
-    const pokemon = sampleList.getDataById(id);
+    this.id = typeof id === "object" && id ? id.id : id;
+    const customItem = typeof id === "object" && id ? id.item : options.item;
+    const customAbil = typeof id === "object" && id ? (id.abil || id.abill) : options.abil;
+    const customSkills = typeof id === "object" && id ? (id.skills || id.skill) : options.skills;
+    const pokemon = sampleList.getDataById(this.id);
     this.origin = cloneWithMethods(pokemon);
+    if (customItem !== undefined && customItem !== null) {
+      this.origin.item = customItem === "없음" ? "" : customItem;
+      this.origin.itemText = itemText[customItem] || "";
+    }
+    if (customAbil) {
+      this.origin.abil = customAbil;
+      const baseObj = abilObject[customAbil] ? { ...abilObject[customAbil] } : { text: "설명이 없습니다." };
+      baseObj.name = customAbil;
+      this.origin.abilObj = baseObj;
+    }
+    if (customSkills) {
+      for (let slot = 1; slot <= 4; slot++) {
+        const sk = typeof customSkills === "object" ? (customSkills[slot] || customSkills[slot - 1]) : null;
+        if (sk) {
+          const skillName = typeof sk === "string" ? sk : sk.name;
+          if (skillName) {
+            this.origin.skill[slot] = { ...skillList.search(skillName), skillNumber: slot };
+          }
+        }
+      }
+    }
+    const customStat = typeof id === "object" && id ? id.stat : options.stat;
+    const customHp = typeof id === "object" && id ? id.hp : options.hp;
+    const customEvs = typeof id === "object" && id ? id.evs : options.evs;
+    const customNature = typeof id === "object" && id ? id.nature : options.nature;
+    const customMegaData = typeof id === "object" && id ? id.megaData : options.megaData;
+
+    if (customHp !== undefined && customHp !== null) {
+      this.origin.hp = customHp;
+    }
+    if (customStat) {
+      this.origin.stat = { ...this.origin.stat, ...customStat };
+    }
+    if (customEvs) {
+      this.origin.evs = customEvs;
+    }
+    if (customNature) {
+      this.origin.nature = customNature;
+    }
+    if (customMegaData && this.origin.megaData) {
+      this.origin.megaData = { ...this.origin.megaData, ...customMegaData };
+    }
     if (options.isNpc && options.difficulty !== "이지") {
       const multiplier = 1.0 + (options.round - 1) * 0.1;
       this.origin.hp = Math.floor(this.origin.hp * multiplier);
@@ -189,3 +237,5 @@ Object.assign(PokemonInstance.prototype, PokemonRecover, PokemonAbil, PokemonGet
 export function generate(id, options = { isNpc: false, difficulty: "노말", round: 1 }) {
   return new PokemonInstance(id, options);
 }
+
+export default PokemonInstance;

@@ -8,6 +8,7 @@ import { abilObject } from "../entity/Ability";
 import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../util/recoilState";
 import SampleInfoModal from "../component/SampleInfoModal";
+import skillList from "../entity/Skill/skillList";
 import { fillRandomTeam, getRandomPokemonForSlot } from "../util/randomTeam";
 
 const CustomScreen = () => {
@@ -44,8 +45,6 @@ const CustomScreen = () => {
   const [showTopBtn, setShowTopBtn] = useState(false);
 
   const [infoModalPokemon, setInfoModalPokemon] = useState(null);
-  const pressTimer = useRef(null);
-  const isLongPress = useRef(false);
 
   useEffect(() => {
     fetch("/pokemon/img/type/typeColor.json")
@@ -177,10 +176,10 @@ const CustomScreen = () => {
   };
 
   const handleSelect = (pokemonId) => {
-    if (isLongPress.current) return;
     const currentTeam = getActiveTeam();
-    if (currentTeam.includes(pokemonId)) {
-      handleRemove(currentTeam.indexOf(pokemonId));
+    const existingIndex = currentTeam.findIndex((entry) => (typeof entry === "object" && entry ? entry.id : entry) === pokemonId);
+    if (existingIndex !== -1) {
+      handleRemove(existingIndex);
       return;
     }
     const emptyIndex = currentTeam.indexOf(null);
@@ -192,20 +191,60 @@ const CustomScreen = () => {
     setActiveTeam(newTeam);
   };
 
-  const handlePointerDown = (pokemon) => {
-    isLongPress.current = false;
-    pressTimer.current = setTimeout(() => {
-      isLongPress.current = true;
-      setInfoModalPokemon(pokemon);
-      pressTimer.current = null;
-    }, 450);
-  };
+  const handleAddToActiveTeam = (pokemon, customItem, customAbil, customSkills, customStats) => {
+    const currentTeam = getActiveTeam();
+    const existingIndex = currentTeam.findIndex((entry) => (typeof entry === "object" && entry ? entry.id : entry) === pokemon.id);
+    if (existingIndex !== -1) return;
+    const emptyIndex = currentTeam.indexOf(null);
+    if (emptyIndex === -1) return;
+    const newTeam = [...currentTeam];
+    const finalItem = customItem !== undefined ? customItem : pokemon.item;
+    const finalAbil = customAbil !== undefined ? customAbil : pokemon.abil;
+    const isItemChanged = finalItem !== pokemon.item;
+    const isAbilChanged = finalAbil !== pokemon.abil;
 
-  const handlePointerUpOrLeave = () => {
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current);
-      pressTimer.current = null;
+    const defaultSkills = {
+      1: pokemon.skill?.[1]?.name,
+      2: pokemon.skill?.[2]?.name,
+      3: pokemon.skill?.[3]?.name,
+      4: pokemon.skill?.[4]?.name,
+    };
+    const finalSkills = customSkills || defaultSkills;
+    const isSkillsChanged = [1, 2, 3, 4].some(
+      (slot) => finalSkills[slot] && finalSkills[slot] !== defaultSkills[slot]
+    );
+
+    const isStatChanged = Boolean(
+      customStats &&
+        (customStats.hp !== pokemon.hp ||
+          customStats.stat?.atk !== pokemon.stat?.atk ||
+          customStats.stat?.def !== pokemon.stat?.def ||
+          customStats.stat?.catk !== pokemon.stat?.catk ||
+          customStats.stat?.cdef !== pokemon.stat?.cdef ||
+          customStats.stat?.speed !== pokemon.stat?.speed)
+    );
+
+    if (isItemChanged || isAbilChanged || isSkillsChanged || isStatChanged) {
+      newTeam[emptyIndex] = {
+        id: pokemon.id,
+        item: finalItem,
+        abil: finalAbil,
+        skills: finalSkills,
+        ...(isStatChanged
+          ? {
+              stat: customStats.stat,
+              hp: customStats.hp,
+              evs: customStats.evs,
+              nature: customStats.nature,
+              gacha: customStats.gacha,
+              megaData: customStats.megaData,
+            }
+          : {}),
+      };
+    } else {
+      newTeam[emptyIndex] = pokemon.id;
     }
+    setActiveTeam(newTeam);
   };
 
   const handleRemove = (index) => {
@@ -326,8 +365,41 @@ const CustomScreen = () => {
       <TeamArea>
         <TeamSlots>
           {[0, 1, 2].map((index) => {
-            const pokemonId = currentTeam[index];
-            const pokemonData = pokemonId ? sampleList.getDataById(pokemonId) : null;
+            const pokemonEntry = currentTeam[index];
+            const pokemonId = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.id : pokemonEntry;
+            const customItem = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.item : null;
+            const customAbil = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.abil : null;
+            const customSkills = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.skills : null;
+            const rawPokemonData = pokemonId ? sampleList.getDataById(pokemonId) : null;
+            let pokemonData = rawPokemonData;
+            if (rawPokemonData) {
+              const itemVal = customItem !== null && customItem !== undefined ? (customItem === "없음" ? "" : customItem) : rawPokemonData.item;
+              const abilVal = customAbil !== null && customAbil !== undefined ? customAbil : rawPokemonData.abil;
+              let skillsVal = rawPokemonData.skill;
+              if (customSkills) {
+                skillsVal = {
+                  1: customSkills[1] ? { ...skillList.search(customSkills[1]), skillNumber: 1 } : rawPokemonData.skill[1],
+                  2: customSkills[2] ? { ...skillList.search(customSkills[2]), skillNumber: 2 } : rawPokemonData.skill[2],
+                  3: customSkills[3] ? { ...skillList.search(customSkills[3]), skillNumber: 3 } : rawPokemonData.skill[3],
+                  4: customSkills[4] ? { ...skillList.search(customSkills[4]), skillNumber: 4 } : rawPokemonData.skill[4],
+                };
+              }
+              const statVal = (typeof pokemonEntry === "object" && pokemonEntry?.stat) ? { ...rawPokemonData.stat, ...pokemonEntry.stat } : rawPokemonData.stat;
+              const hpVal = (typeof pokemonEntry === "object" && pokemonEntry?.hp !== undefined) ? pokemonEntry.hp : rawPokemonData.hp;
+              const evsVal = (typeof pokemonEntry === "object" && pokemonEntry?.evs) ? pokemonEntry.evs : rawPokemonData.evs;
+              const natureVal = (typeof pokemonEntry === "object" && pokemonEntry?.nature) ? pokemonEntry.nature : rawPokemonData.nature;
+
+              pokemonData = {
+                ...rawPokemonData,
+                item: itemVal,
+                abil: abilVal,
+                skill: skillsVal,
+                stat: statVal,
+                hp: hpVal,
+                evs: evsVal,
+                nature: natureVal,
+              };
+            }
             return (
               <Slot key={index} className="team-slot" data-index={index} draggable={!!pokemonId} onDragStart={(e) => handleDragStart(e, index)} onDrop={(e) => handleDrop(e, index)} onDragOver={handleDragOver} onTouchStart={(e) => handleTouchStart(e, index)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} $hasData={!!pokemonId}>
                 {pokemonData ? (
@@ -419,9 +491,9 @@ const CustomScreen = () => {
         </SectionHeader>
         <Grid>
           {filteredSamples.map((pokemon) => {
-            const isSelected = currentTeam.includes(pokemon.id);
+            const isSelected = currentTeam.some((entry) => (typeof entry === "object" && entry ? entry.id : entry) === pokemon.id);
             return (
-              <ListItem key={pokemon.id} $isSelected={isSelected} onClick={() => handleSelect(pokemon.id)} onPointerDown={() => handlePointerDown(pokemon)} onPointerUp={handlePointerUpOrLeave} onPointerLeave={handlePointerUpOrLeave} onPointerCancel={handlePointerUpOrLeave}>
+              <ListItem key={pokemon.id} $isSelected={isSelected} onClick={() => handleSelect(pokemon.id)}>
                 <ImageWrapper style={{ flexShrink: 0 }}>
                   <img
                     src={`/pokemon/img/pokemon/${pokemon.megaData?.pokemon_id || pokemon.pokemon_id}.webp`}
@@ -443,21 +515,33 @@ const CustomScreen = () => {
                 </ImageWrapper>
                 <InfoCol>
                   <PokemonNameList>{pokemon.id}</PokemonNameList>
-                  <AbilText>
-                    [기술배치] {pokemon.skill[1].name}, {pokemon.skill[2].name}, {pokemon.skill[3].name}, {pokemon.skill[4].name}
-                  </AbilText>
-                  <AbilText>
-                    [특성] {pokemon.abil} : {pokemon.abilObj?.text || "설명 없음"}
-                  </AbilText>
-                  {pokemon.megaData && (
-                    <AbilText>
-                      [메가진화 특성] {pokemon.megaData.abil} : {abilObject[pokemon.megaData.abil]?.text || "설명 없음"}
-                    </AbilText>
-                  )}
-                  <AbilText>
-                    [아이템] {pokemon.item || "없음"} : {pokemon.itemText || "설명 없음"}
-                  </AbilText>
+                  <SkillGrid>
+                    {[1, 2, 3, 4].map((num) => {
+                      const skill = pokemon.skill?.[num];
+                      if (!skill) return null;
+                      return (
+                        <SkillBox key={num}>
+                          <SkillTypeIcon
+                            src={`/pokemon/img/type/${skill.type}.svg`}
+                            alt={skill.type}
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
+                          />
+                          <SkillNameText>{skill.name}</SkillNameText>
+                        </SkillBox>
+                      );
+                    })}
+                  </SkillGrid>
                 </InfoCol>
+                <DetailButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setInfoModalPokemon(pokemon);
+                  }}
+                >
+                  샘플 수정
+                </DetailButton>
               </ListItem>
             );
           })}
@@ -604,7 +688,7 @@ const CustomScreen = () => {
           </ModalContent>
         </ModalOverlay>
       )}
-      {infoModalPokemon && <SampleInfoModal pokemon={infoModalPokemon} onClose={() => setInfoModalPokemon(null)} />}
+      {infoModalPokemon && <SampleInfoModal pokemon={infoModalPokemon} onClose={() => setInfoModalPokemon(null)} onAdd={handleAddToActiveTeam} isFull={!getActiveTeam().includes(null) || getActiveTeam().some((entry) => (typeof entry === "object" && entry ? entry.id : entry) === infoModalPokemon.id)} />}
     </Container>
   );
 };
@@ -1272,10 +1356,10 @@ const ListItem = styled.div`
   background-color: white;
   border: 2px solid ${(props) => (props.$isSelected ? "#4caf50" : "transparent")};
   border-radius: 8px;
-  padding: 10px;
+  padding: 8px 10px 8px 6px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   opacity: ${(props) => (props.$isSelected ? 0.6 : 1)};
@@ -1289,11 +1373,105 @@ const ListItem = styled.div`
 const InfoCol = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
 `;
 
 const PokemonNameList = styled.div`
   font-weight: bold;
   font-size: 0.95rem;
+  margin-bottom: 4px;
+`;
+
+const SkillGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  width: 100%;
+
+  @media (max-width: 500px) {
+    gap: 3px;
+  }
+`;
+
+const DetailButton = styled.button`
+  aspect-ratio: 1 / 1;
+  height: 100%;
+  max-height: 82px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f7ff;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 4px;
+  align-self: stretch;
+  white-space: nowrap;
+  transition: all 0.15s ease-in-out;
+
+  &:hover {
+    background-color: #e3f2fd;
+    border-color: #1976d2;
+  }
+
+  @media (max-width: 500px) {
+    font-size: 0.72rem;
+    padding: 0 2px;
+  }
+`;
+
+const SkillBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 6px;
+  height: 28px;
+  background-color: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  @media (max-width: 500px) {
+    gap: 3px;
+    padding: 0 4px;
+    height: 24px;
+  }
+`;
+
+const SkillTypeIcon = styled.img`
+  width: 17px;
+  height: 17px;
+  border-radius: 3px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+
+  @media (max-width: 500px) {
+    width: 14px;
+    height: 14px;
+  }
+`;
+
+const SkillNameText = styled.span`
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #2b2b2b;
+  white-space: nowrap;
+
+  @media (max-width: 500px) {
+    font-size: 0.51rem;
+  }
 `;
 
 const AbilText = styled.div`

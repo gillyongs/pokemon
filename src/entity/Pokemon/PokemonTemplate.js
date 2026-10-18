@@ -34,7 +34,11 @@ class PokemonTemplate {
     this.namess = pokemon.namess;
     this.type1 = pokemon.type1;
     this.type2 = pokemon.type2;
-    this.feature = pokemon.feature
+    this.feature = pokemon.feature;
+    this.abilList = pokemon.abilList || [abil];
+    this.gacha = gacha;
+    this.evs = { hp: hps, atk: atks, def: defs, catk: catks, cdef: cdefs, speed: speeds };
+    this.nature = { up, down };
 
     this.stat = {
       atk: null,
@@ -52,9 +56,9 @@ class PokemonTemplate {
 
     const gachaStats = {
       "6V": ["hp", "atk", "def", "catk", "cdef", "speed"],
-      "5V1S": ["hp", "atk", "def", "catk", "cdef"], // 스피드 제외
-      "5V1A": ["hp", "def", "catk", "cdef", "speed"], // 공격 제외
-      "4V": ["hp", "def", "catk", "cdef"], // 공격 제외
+      "5V0S": ["hp", "atk", "def", "catk", "cdef"], // 스피드 제외
+      "5V0A": ["hp", "def", "catk", "cdef", "speed"], // 공격 제외
+      "4V0A0S": ["hp", "def", "catk", "cdef"], // 공격 스피드 제외
     };
 
     if (gachaStats[gacha]) {
@@ -129,9 +133,8 @@ class PokemonTemplate {
     if (typeof id !== "string") console.error("id must be a string", id);
     if (typeof pokemon_id !== "string")
       console.error("pokemon_id must be a string", pokemon_id);
-    if (!["6V", "5V1A", "5V1S", "4V"].includes(gacha))
-      console.error("gacha must be one of '6V', '5V1A', '5V1S', '4V'", gacha);
-    //                                    물리 특수    트릭룸 물리  특수
+    if (!["6V", "5V0A", "5V0S", "4V0A0S"].includes(gacha))
+      console.error("gacha must be one of '6V', '5V0A', '5V0S', '4V0A0S'", gacha);
     if (typeof hps !== "number") console.error("hps must be a number", hps);
     if (typeof atks !== "number") console.error("atks must be a number", atks);
     if (typeof defs !== "number") console.error("defs must be a number", defs);
