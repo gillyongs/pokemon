@@ -6,12 +6,77 @@ import { getMegaData } from "./MegaData";
 //배틀용 포켓몬 객체
 //원본(PokemonData)에서 노력치, 스킬, 지닌 도구를 설정한다
 //ReadOnly, 불변값으로 Pokemon 객체가 origin으로 지니고있는다
+export function parseEvs(evs) {
+  if (Array.isArray(evs)) {
+    return {
+      hp: evs[0] ?? 0,
+      atk: evs[1] ?? 0,
+      def: evs[2] ?? 0,
+      catk: evs[3] ?? 0,
+      cdef: evs[4] ?? 0,
+      speed: evs[5] ?? 0,
+    };
+  }
+
+  if (typeof evs === "string") {
+    const statKeyMap = {
+      H: "hp",
+      A: "atk",
+      B: "def",
+      C: "catk",
+      D: "cdef",
+      S: "speed",
+    };
+    const cleanStr = evs.trim().toUpperCase();
+
+    // 패턴 1: "HA252", "CS252", "HB252", "AS252", "HD252", "HC252", "BD252" 등 또는 세부 4스탯 포함 형태 ("HA252S4" 등)
+    const match252 = cleanStr.match(/^([HABCDS]{2})252(?:\s*([HABCDS])(\d+))?$/);
+    if (match252) {
+      const s1 = match252[1][0];
+      const s2 = match252[1][1];
+      const result = { hp: 0, atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
+      result[statKeyMap[s1]] = 252;
+      result[statKeyMap[s2]] = 252;
+
+      let extraStat = match252[2];
+      let extraVal = match252[3] ? parseInt(match252[3], 10) : 4;
+
+      if (!extraStat) {
+        if (![s1, s2].includes("H")) extraStat = "H";
+        else if (![s1, s2].includes("B")) extraStat = "B";
+        else extraStat = "D";
+      }
+      result[statKeyMap[extraStat]] = (result[statKeyMap[extraStat]] || 0) + extraVal;
+      return result;
+    }
+
+    // 패턴 2: "H252A252B4", "H252 A252 B4" 등 개별 지정
+    const individualMatches = [...cleanStr.matchAll(/([HABCDS])(\d+)/g)];
+    if (individualMatches.length > 0) {
+      const result = { hp: 0, atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
+      for (const m of individualMatches) {
+        const key = statKeyMap[m[1]];
+        if (key) {
+          result[key] = parseInt(m[2], 10);
+        }
+      }
+      return result;
+    }
+  }
+
+  console.error("유효하지 않은 노력치 포맷입니다:", evs);
+  return { hp: 0, atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
+}
+
 class PokemonTemplate {
   // prettier-ignore
-  constructor(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role, desc = ""){
-    this._validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role, desc);
+  constructor(id, pokemon_id, gacha, evs, up, down, sk1, sk2, sk3, sk4, item, abil, role, tip = ""){
+    const parsedEvs = parseEvs(evs);
+    const { hp: hps, atk: atks, def: defs, catk: catks, cdef: cdefs, speed: speeds } = parsedEvs;
+    this._validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role, tip);
+    this.evsInput = evs;
     this.role = role;
-    this.desc = desc;
+    this.tip = tip;
 
     this.id = id;
     pokemonList.push(id)
@@ -129,7 +194,7 @@ class PokemonTemplate {
     }
   }
   // prettier-ignore
-  _validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role, desc){
+  _validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role, tip){
     if (!["물리막이", "특수막이", "물리어태커", "특수어태커", "기점잡이", "물리딜탱", "특수딜탱", "막이"].includes(role)) console.error("role must be one of 물리막이, 특수막이, 물리어태커, 특수어태커, 기점잡이, 물리딜탱, 특수딜탱, 막이", role);
     if (typeof id !== "string") console.error("id must be a string", id);
     if (typeof pokemon_id !== "string")
