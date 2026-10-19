@@ -145,14 +145,8 @@ const Battle = () => {
     setTradeNpcIdx(null);
     setTradeInfoPokemon(null);
     setTradeAlertMessage(null);
-    const testMode = false;
-    if (!testMode && team1 && team2) {
-      // battleObj.current = battleObject;
-      // setBattle(battleObject); // 상태 업데이트
-      battleObj.current = createBattle(team1, team2, { difficulty, round });
-    } else {
-      battleObj.current = createBattle(["달투곰", "가이오가", "미라이돈"], ["흑마렉스", "고릴타", "고릴타"], { difficulty, round });
-    }
+
+    battleObj.current = createBattle(team1, team2, { difficulty, round });
     queueObject.enqueue({ battle: battleObj.current, text: "배틀시작!" });
     const fastUser = speedCheck(battleObj.current);
     const slowUser = fastUser === "player" ? "npc" : "player";
@@ -348,46 +342,38 @@ const Battle = () => {
               </ModalBox>
             </ModalOverlay>
           )}
-          {testmode && battle?.npc && (() => {
-            const validChoices = makeNpcChoice(battle);
-            return (
-              <NpcActionSelector onClick={(e) => e.stopPropagation()}>
-                {[1, 2, 3, 4].map((num) => {
-                  const skill = battle.npc.origin.skill[num];
-                  const name = skill?.name || `기술${num}`;
-                  const isSelected = selectedNpcChoice === num;
-                  const isAvailable = validChoices.includes(num);
-                  return (
-                    <NpcActionItem
-                      key={num}
-                      $selected={isSelected}
-                      $disabled={!isAvailable}
-                      onClick={() => handleNpcActionClick(num)}
-                    >
-                      {name}
-                    </NpcActionItem>
-                  );
-                })}
-                {[1, 2].map((num) => {
-                  const benchKey = `npcBench${num}`;
-                  const benchPoke = battle[benchKey];
-                  const name = `교체(${benchPoke?.origin?.name || `포켓몬${num}`})`;
-                  const isSelected = selectedNpcChoice === benchKey;
-                  const isAvailable = validChoices.includes(benchKey);
-                  return (
-                    <NpcActionItem
-                      key={benchKey}
-                      $selected={isSelected}
-                      $disabled={!isAvailable}
-                      onClick={() => handleNpcActionClick(benchKey)}
-                    >
-                      {name}
-                    </NpcActionItem>
-                  );
-                })}
-              </NpcActionSelector>
-            );
-          })()}
+          {testmode &&
+            battle?.npc &&
+            (() => {
+              const validChoices = makeNpcChoice(battle);
+              return (
+                <NpcActionSelector onClick={(e) => e.stopPropagation()}>
+                  {[1, 2, 3, 4].map((num) => {
+                    const skill = battle.npc.origin.skill[num];
+                    const name = skill?.name || `기술${num}`;
+                    const isSelected = selectedNpcChoice === num;
+                    const isAvailable = validChoices.includes(num);
+                    return (
+                      <NpcActionItem key={num} $selected={isSelected} $disabled={!isAvailable} onClick={() => handleNpcActionClick(num)}>
+                        {name}
+                      </NpcActionItem>
+                    );
+                  })}
+                  {[1, 2].map((num) => {
+                    const benchKey = `npcBench${num}`;
+                    const benchPoke = battle[benchKey];
+                    const name = `교체(${benchPoke?.origin?.name || `포켓몬${num}`})`;
+                    const isSelected = selectedNpcChoice === benchKey;
+                    const isAvailable = validChoices.includes(benchKey);
+                    return (
+                      <NpcActionItem key={benchKey} $selected={isSelected} $disabled={!isAvailable} onClick={() => handleNpcActionClick(benchKey)}>
+                        {name}
+                      </NpcActionItem>
+                    );
+                  })}
+                </NpcActionSelector>
+              );
+            })()}
           <IMAGE>
             <PokemonImage battle={battle} type="npc" />
             <PokemonImage battle={battle} type="plr" />

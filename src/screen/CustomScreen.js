@@ -10,6 +10,7 @@ import { gameOptionState } from "../util/recoilState";
 import SampleInfoModal from "../component/SampleInfoModal";
 import skillList from "../entity/Skill/skillList";
 import { fillRandomTeam, getRandomPokemonForSlot } from "../util/randomTeam";
+import { testmode } from "../config/testMode";
 
 const CustomScreen = () => {
   const navigate = useNavigate();
@@ -341,7 +342,7 @@ const CustomScreen = () => {
     <Container>
       <Header>
         <BackButtonIcon onClick={() => navigate("/")}>&#8592;</BackButtonIcon>팀 구성
-        <TestButton onClick={handleTestSetup}>테스트빠른구성</TestButton>
+        {testmode && <TestButton onClick={handleTestSetup}>빠른구성</TestButton>}
       </Header>
       <TabContainer>
         <Tab $active={activeTab === "player"} onClick={() => setActiveTab("player")}>
