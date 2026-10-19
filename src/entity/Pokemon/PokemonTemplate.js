@@ -247,6 +247,6 @@ class PokemonTemplate {
 }
 
 export const pokemonList = [];
-export const POKEMON_ROLES = ["물리어태커", "특수어태커", "물리딜탱", "특수딜탱", "막이", "물리막이", "특수막이", "기점잡이"];
+export const POKEMON_ROLES = ["물리어태커", "특수어태커", "기점잡이", "물리딜탱", "특수딜탱", "막이", "물리막이", "특수막이"];
 
 export default PokemonTemplate;

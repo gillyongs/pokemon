@@ -105,7 +105,7 @@ const CustomScreen = () => {
     }
   };
 
-  const WEATHER_ABILITIES = ["잔비", "가뭄", "진홍빛고동"];
+  const WEATHER_ABILITIES = ["잔비", "가뭄", "진홍빛고동", "모래날림"];
 
   const isNameMatch = (searchStr, pokemon) => {
     if (!searchStr) return true;
@@ -210,19 +210,9 @@ const CustomScreen = () => {
       4: pokemon.skill?.[4]?.name,
     };
     const finalSkills = customSkills || defaultSkills;
-    const isSkillsChanged = [1, 2, 3, 4].some(
-      (slot) => finalSkills[slot] && finalSkills[slot] !== defaultSkills[slot]
-    );
+    const isSkillsChanged = [1, 2, 3, 4].some((slot) => finalSkills[slot] && finalSkills[slot] !== defaultSkills[slot]);
 
-    const isStatChanged = Boolean(
-      customStats &&
-        (customStats.hp !== pokemon.hp ||
-          customStats.stat?.atk !== pokemon.stat?.atk ||
-          customStats.stat?.def !== pokemon.stat?.def ||
-          customStats.stat?.catk !== pokemon.stat?.catk ||
-          customStats.stat?.cdef !== pokemon.stat?.cdef ||
-          customStats.stat?.speed !== pokemon.stat?.speed)
-    );
+    const isStatChanged = Boolean(customStats && (customStats.hp !== pokemon.hp || customStats.stat?.atk !== pokemon.stat?.atk || customStats.stat?.def !== pokemon.stat?.def || customStats.stat?.catk !== pokemon.stat?.catk || customStats.stat?.cdef !== pokemon.stat?.cdef || customStats.stat?.speed !== pokemon.stat?.speed));
 
     if (isItemChanged || isAbilChanged || isSkillsChanged || isStatChanged) {
       newTeam[emptyIndex] = {
@@ -384,10 +374,10 @@ const CustomScreen = () => {
                   4: customSkills[4] ? { ...skillList.search(customSkills[4]), skillNumber: 4 } : rawPokemonData.skill[4],
                 };
               }
-              const statVal = (typeof pokemonEntry === "object" && pokemonEntry?.stat) ? { ...rawPokemonData.stat, ...pokemonEntry.stat } : rawPokemonData.stat;
-              const hpVal = (typeof pokemonEntry === "object" && pokemonEntry?.hp !== undefined) ? pokemonEntry.hp : rawPokemonData.hp;
-              const evsVal = (typeof pokemonEntry === "object" && pokemonEntry?.evs) ? pokemonEntry.evs : rawPokemonData.evs;
-              const natureVal = (typeof pokemonEntry === "object" && pokemonEntry?.nature) ? pokemonEntry.nature : rawPokemonData.nature;
+              const statVal = typeof pokemonEntry === "object" && pokemonEntry?.stat ? { ...rawPokemonData.stat, ...pokemonEntry.stat } : rawPokemonData.stat;
+              const hpVal = typeof pokemonEntry === "object" && pokemonEntry?.hp !== undefined ? pokemonEntry.hp : rawPokemonData.hp;
+              const evsVal = typeof pokemonEntry === "object" && pokemonEntry?.evs ? pokemonEntry.evs : rawPokemonData.evs;
+              const natureVal = typeof pokemonEntry === "object" && pokemonEntry?.nature ? pokemonEntry.nature : rawPokemonData.nature;
 
               pokemonData = {
                 ...rawPokemonData,
