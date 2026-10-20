@@ -49,17 +49,23 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
     add("구애안경");
   }
 
+  // 타입
+  const types = [pokemon.type1, pokemon.type2, pokemon.origin?.type1, pokemon.origin?.type2, pokemon.megaData?.type1, pokemon.megaData?.type2].filter(Boolean);
+
   // 막이 / 딜탱인 경우 -> 돌격조끼, 먹다남은음식, 자뭉열매, 울퉁불퉁멧
   if (isTanker) {
     add("돌격조끼");
     add("먹다남은음식");
     add("자뭉열매");
     add("울퉁불퉁멧");
+
+    // 독타입인 경우 -> 검은진흙
+    if (types.includes("독")) {
+      add("검은진흙");
+    }
   }
 
   // 타입별 데미지 증가 아이템
-  const types = [pokemon.type1, pokemon.type2, pokemon.megaData?.type1, pokemon.megaData?.type2].filter(Boolean);
-
   if (isAttacker) {
     // 악타입 -> 검은안경
     if (types.includes("악")) {
