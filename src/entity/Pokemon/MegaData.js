@@ -34,7 +34,7 @@ export const megaDataList = {
       stone: "무장조나이트",
       megaFormId: "0227-m",
       name: "메가무장조",
-      abil: "깨어진갑옷",
+      abil: "굳건한신념",
     },
   ],
   // 마기라스
