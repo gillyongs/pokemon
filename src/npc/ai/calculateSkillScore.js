@@ -358,7 +358,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
     const f = skill.feature;
     if (f.sound && player.tempStatus.substitute !== null && (skill.stype === "atk" || skill.stype === "catk")) {
       score += 50;
-      log += ` + 50 (대타 소리 기술 보정)`;
+      log += ` + 50 (대타 관통 보정)`;
     }
     if (f.charge && npc.item !== "파워풀허브") {
       score /= 2;

@@ -179,7 +179,8 @@ export const damageCalculate = (battle, obj, ai) => {
     }
 
     if (battle.field[battle.turn.def].noClean.reflect) {
-      if (skill.feature?.wallBreaker) {
+      if (skill.feature?.wallBreaker || atkAbil === "틈새포착") {
+        atkStr += " * 1 (리플렉터 무효)";
       } else {
         atkStat *= 0.5;
         atkStr += " * 0.5 (리플렉터)";
@@ -214,8 +215,9 @@ export const damageCalculate = (battle, obj, ai) => {
     }
 
     if (battle.field[battle.turn.def].noClean.lightScreen) {
-      // 사이코쇼크도 빛장 영향 받는다
-      if (skill.feature?.wallBreaker) {
+      // 사이코쇼크는 특수기이므로 빛의장막 영향을 받는다
+      if (skill.feature?.wallBreaker || atkAbil === "틈새포착") {
+        atkStr += " * 1 (빛의장막 무효)";
       } else {
         atkStat *= 0.5;
         atkStr += " * 0.5 (빛의장막)";

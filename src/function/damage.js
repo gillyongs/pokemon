@@ -32,8 +32,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   // 대타출동
   if (defPokemon.tempStatus.substitute) {
-    if (!useSkill.feature?.sound) {
-      // 소리 기술은 대타를 뚫는다
+    if (!useSkill.feature?.sound && atkPokemon.abil !== "틈새포착") {
+      // 소리 기술이나 틈새포착 특성은 대타를 뚫는다
       enqueue({ battle, text: (commonText || "") + josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!" });
 
       if (!isNoTextSkill) {

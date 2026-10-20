@@ -414,8 +414,8 @@ function skillEffectSearch(name) {
       const defPokemon = battle[battle.turn.def];
       const skill = battle[battle.turn.atk]?.turn?.useSkill;
       if (defPokemon.faint) return; // 드래곤테일로 상대를 기절시킨 경우 강제교체 발동하지 않음
-      if ((skill?.stype === "atk" || skill?.stype === "catk") && defPokemon.tempStatus.substitute) return;
-      // 날려버리기, 울부짖기는 대타를 뚫지만 드래곤테일은 뚫지 못한다
+      if ((skill?.stype === "atk" || skill?.stype === "catk") && defPokemon.tempStatus.substitute && battle[battle.turn.atk]?.abil !== "틈새포착") return;
+      // 날려버리기, 울부짖기는 대타를 뚫지만 드래곤테일은 뚫지 못한다 (틈새포착 특성은 드래곤테일도 대타를 뚫음)
 
       if (battle.turn.atk === "player") {
         // 플레이어가 강제교체 기술 사용시 NPC가 교체됨

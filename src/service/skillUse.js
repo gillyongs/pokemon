@@ -184,8 +184,8 @@ export const skillUse = (bt, enqueue) => {
     // 트릭, 하품, 뽐내기, 전기자석파, 씨뿌리기 등은 실패한다
 
     if (bt[bt.turn.def].tempStatus.substitute) {
-      if (noSubstituteSkills.includes(skill.name) || skill.feature.sound) {
-        // 소리 변화기는 대타 뚫는다 ex) 막말내뱉기
+      if (noSubstituteSkills.includes(skill.name) || skill.feature.sound || bt[bt.turn.atk].abil === "틈새포착") {
+        // 소리 변화기 및 틈새포착 사용자의 변화기는 대타를 뚫는다 ex) 막말내뱉기
       } else {
         enqueue({ battle: bt, text: "하지만 실패했다!" });
         return;
