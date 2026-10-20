@@ -135,6 +135,8 @@ class PokemonInstance {
       taunt: null, //도발
       protosynthesis: null, //고대활성
       protosynthesisBySun: null, //고대활성 쾌청 여부 -> 쾌청으로 발동된 고대활성은 날씨 바뀌면 꺼진다
+      quarkDrive: null, //쿼크차지
+      quarkDriveByField: null, //쿼크차지 일렉트릭필드 여부 -> 일렉트릭필드로 발동된 쿼크차지는 필드 바뀌면 꺼진다
       seed: null, //씨뿌리기
       substitute: null, // 대타출동
       substituteHp: null, // 대타출동 인형 남은 체력

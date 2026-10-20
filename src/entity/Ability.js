@@ -32,6 +32,9 @@ export const abilObject = {
   고대활성: {
     text: "부스트에너지를 지니고 있거나 날씨가 맑을 때 가장 높은 능력이 올라간다.",
   },
+  쿼크차지: {
+    text: "부스트에너지를 지니고 있거나 일렉트릭필드일 때 가장 높은 능력이 올라간다.",
+  },
   보이지않는주먹: {
     text: "상대에게 접촉하는 기술을 사용할 경우 방어 등을 무시하고 대미지를 입힐 수 있다.",
   },
@@ -256,6 +259,9 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // 기타 특성
   if (atkAbil === "고대활성" && atk.tempStatus.protosynthesis === null) {
     atk.handleProtosynthesis(bt, enqueue);
+  }
+  if (atkAbil === "쿼크차지" && atk.tempStatus.quarkDrive === null) {
+    atk.handleQuarkDrive(bt, enqueue);
   }
 
   if (trace) return; // 트레이스로 상대 특성을 배껴왔을때 재귀적으로 해당 함수를 한번 더 실행

@@ -13,6 +13,13 @@ class SkillList {
   search(name) {
     return this.items.find((item) => item.name === name) || this.items.find((item) => item.name === "임시스킬");
   }
+  getDataById(name) {
+    if (!name) return null;
+    return this.search(name);
+  }
+  getItemById(name) {
+    return this.getDataById(name);
+  }
 }
 
 const skillList = new SkillList();

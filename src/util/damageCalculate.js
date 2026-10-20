@@ -167,6 +167,11 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStr += " * 1.3 (고대활성)";
     }
 
+    if (attackPokemon.tempStatus.quarkDrive === "atk") {
+      atkStat *= 1.3;
+      atkStr += " * 1.3 (쿼크차지)";
+    }
+
     if (attackPokemon.ailment.burn !== null && attackStat === "atk" && attackPokemon.abil !== "근성") {
       // 화상 상태이면 공격력 절반
       atkStat *= 0.5;
@@ -220,6 +225,10 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStat *= 1.3;
       atkStr += " * 1.3 (고대활성)";
     }
+    if (attackPokemon.tempStatus.quarkDrive === "catk") {
+      atkStat *= 1.3;
+      atkStr += " * 1.3 (쿼크차지)";
+    }
     if (attackPokemon.abil === "하드론엔진" && battle.field.terrain.isElectricField) {
       atkStat *= 1.3;
       atkStr += " * 1.3 (하드론엔진)";
@@ -231,6 +240,10 @@ export const damageCalculate = (battle, obj, ai) => {
     if (defensePokemon.tempStatus.protosynthesis === "def") {
       defStat *= 1.3;
       defStr += " * 1.3 (고대활성)";
+    }
+    if (defensePokemon.tempStatus.quarkDrive === "def") {
+      defStat *= 1.3;
+      defStr += " * 1.3 (쿼크차지)";
     }
     if (atkAbil === "재앙의검" && defAbil !== "재앙의검") {
       defStat *= 0.75;
@@ -251,6 +264,10 @@ export const damageCalculate = (battle, obj, ai) => {
     if (defensePokemon.tempStatus.protosynthesis === "cdef") {
       defStat *= 1.3;
       defStr += " * 1.3 (고대활성)";
+    }
+    if (defensePokemon.tempStatus.quarkDrive === "cdef") {
+      defStat *= 1.3;
+      defStr += " * 1.3 (쿼크차지)";
     }
     if (atkAbil === "재앙의구슬" && defAbil !== "재앙의구슬") {
       defStat *= 0.75;

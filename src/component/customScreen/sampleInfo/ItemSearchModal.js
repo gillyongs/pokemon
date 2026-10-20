@@ -99,8 +99,8 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
   if (abilities.includes("근성")) {
     add("화염구슬");
   }
-  // 특성이 고대활성인 경우 -> 부스트에너지
-  if (abilities.includes("고대활성")) {
+  // 특성이 고대활성 또는 쿼크차지인 경우 -> 부스트에너지
+  if (abilities.includes("고대활성") || abilities.includes("쿼크차지")) {
     add("부스트에너지");
   }
   // 특성이 가뭄인 경우 -> 뜨거운 바위

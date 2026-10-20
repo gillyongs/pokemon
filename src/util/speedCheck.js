@@ -22,6 +22,10 @@ export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, b
     speed *= 1.5;
     pokemon.log.speedCalculate += " * 1.5 (고대활성)";
   }
+  if (pokemon.tempStatus.quarkDrive === "speed") {
+    speed *= 1.5;
+    pokemon.log.speedCalculate += " * 1.5 (쿼크차지)";
+  }
   // 곡예: 원래 도구를 지니고 있었는데 잃은 경우 스피드 2배
   if (abil === "곡예" && pokemon.origin?.item && !pokemon.item) {
     speed *= 2;

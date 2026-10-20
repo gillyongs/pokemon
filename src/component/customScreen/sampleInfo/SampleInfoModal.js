@@ -322,10 +322,10 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
               ...p,
               abil: selectedAbil,
               skill: {
-                1: skillList.getDataById(selectedSkills[1]) || p.skill?.[1],
-                2: skillList.getDataById(selectedSkills[2]) || p.skill?.[2],
-                3: skillList.getDataById(selectedSkills[3]) || p.skill?.[3],
-                4: skillList.getDataById(selectedSkills[4]) || p.skill?.[4],
+                1: (selectedSkills[1] ? skillList.search(selectedSkills[1]) : null) || p.skill?.[1],
+                2: (selectedSkills[2] ? skillList.search(selectedSkills[2]) : null) || p.skill?.[2],
+                3: (selectedSkills[3] ? skillList.search(selectedSkills[3]) : null) || p.skill?.[3],
+                4: (selectedSkills[4] ? skillList.search(selectedSkills[4]) : null) || p.skill?.[4],
               },
             }}
             currentItem={selectedItem}

@@ -37,6 +37,9 @@ export class Terrain {
     // const turnRemain = pokemon.item === itemExtendMap[weatherType] ? 8 : baseTurn;
 
     this.#setTerrain(terrainType, baseTurn, enqueue, battle, terrainText);
+
+    this.#handleTerrainStartEffect(battle, enqueue, terrainType);
+    this.#handleTerrainEndEffect(battle, enqueue, endedType);
   }
 
   // 턴 종료시 필드(지형) 처리
@@ -83,5 +86,29 @@ export class Terrain {
     }
 
     enqueue({ battle, text });
+
+    this.#handleTerrainEndEffect(battle, enqueue, endedType);
+  }
+
+  // 필드 부가 효과 (시작 시)
+  #handleTerrainStartEffect(battle, enqueue, terrainType) {
+    if (terrainType === "일렉트릭필드") {
+      const fastUser = speedCheck(battle);
+      const slowUser = fastUser === "npc" ? "player" : "npc";
+      // 일렉트릭필드로 인한 쿼크차지 발동
+      battle[fastUser].handleQuarkDrive(battle, enqueue);
+      battle[slowUser].handleQuarkDrive(battle, enqueue);
+    }
+  }
+
+  // 필드 부가 효과 (종료 시)
+  #handleTerrainEndEffect(battle, enqueue, terrainType) {
+    if (terrainType === "일렉트릭필드") {
+      const fastUser = speedCheck(battle);
+      const slowUser = fastUser === "npc" ? "player" : "npc";
+      // 일렉트릭필드로 인한 쿼크차지 종료
+      battle[fastUser].handleQuarkDriveEnd(battle, enqueue);
+      battle[slowUser].handleQuarkDriveEnd(battle, enqueue);
+    }
   }
 }
