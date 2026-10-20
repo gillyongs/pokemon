@@ -23,7 +23,21 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
 
   if (defPokemon.abil === "지구력" && !defPokemon.faint && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
     // 공격 기술에 맞을 때마다 방어 1랭크 상승 (연속기면 여러번)
+    // 지구력, 꺠어진갑옷 틀꺠기랑 상관없이 발동됨
     defPokemon.rankUp(battle, enqueue, "def", 1, "[특성 지구력]");
+  }
+
+  if (defPokemon.abil === "깨어진갑옷" && !defPokemon.faint && useSkill.stype === "atk") {
+    // 물리 공격을 맞았을 때 방어 1랭크 하락, 스피드 2랭크 상승
+    defPokemon.rankUpMulti(
+      battle,
+      enqueue,
+      [
+        { stat: "def", value: -1 },
+        { stat: "speed", value: 2 },
+      ],
+      "[특성 깨어진갑옷]"
+    );
   }
 
   if (defPokemon.abil === "독치장") {
