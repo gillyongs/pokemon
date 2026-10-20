@@ -6,20 +6,21 @@ const isMindEye = (pokemon, skillType, t1, t2) => {
   return pokemon.abil === "심안" && isOneOf(skillType, ["격투", "노말"]) && hasType("고스트", t1, t2);
 };
 
-export const typeCheck = (skillType, t1, t2) => {
+export const typeCheck = (skillType, t1, t2, skillName) => {
   // 특성, 아이템등을 반영하지 않고 오직 상성만을 체크
   // field.js: 스텔스록 데미지 계산
   // npc 교체 판단에 사용
   if (isNoEffect(skillType, t1, t2)) return 0;
-  return onlyTypeEffectCalculate(skillType, t1, t2);
+  return onlyTypeEffectCalculate(skillType, t1, t2, skillName);
 };
 
-export const typeCheckOnBattle = (battle, skillType, t1, t2) => {
+export const typeCheckOnBattle = (battle, skillType, t1, t2, skillName) => {
   // 배틀에 적용되는 실제 상성
-  // damageCalculate(상성보정 데미지계산), skillUse(상성 텍스트 및 스킬 실패 처리)에서 호출된다
+  // damageCalculate(상성보정 데미지계산), skillUse("효과가 굉장했다!" 상성 텍스트 및 무효 스킬 실패 처리)에서 호출된다
   // 타오르는불꽃은 버프 효과가 있기에 skillCheck에서 따로 처리
   const atk = battle[battle.turn.atk];
   const def = battle[battle.turn.def];
+  const activeSkillName = skillName || atk?.turn?.useSkill?.name || atk?.origin?.skill?.[battle.turn.atkSN]?.name;
 
   if (isNoEffect(skillType, t1, t2) && !isMindEye(atk, skillType, t1, t2)) {
     return 0;
@@ -29,7 +30,7 @@ export const typeCheckOnBattle = (battle, skillType, t1, t2) => {
     return 0;
   }
 
-  return onlyTypeEffectCalculate(skillType, t1, t2);
+  return onlyTypeEffectCalculate(skillType, t1, t2, activeSkillName);
 };
 
 export const getTypeText = (typeDamage) => {
@@ -49,7 +50,7 @@ export const getTypeText = (typeDamage) => {
   }
 };
 
-export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass) => {
+export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass, skillName) => {
   // 스킬창 밑에 뜨는 상성 텍스트
   // 부유, 건조피부, 저수 등 상대방의 특성은 반영하지 않고
   // 심안 등 본인의 특성은 반영해서 보여준다.
@@ -62,7 +63,7 @@ export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass) => {
     return "✕ 효과가 없음";
   }
 
-  const mult = onlyTypeEffectCalculate(skillType, t1, t2);
+  const mult = onlyTypeEffectCalculate(skillType, t1, t2, skillName);
 
   if (mult === 1) return "○ 효과가 있음";
   if (mult > 1) return "◎ 효과가 굉장함";
@@ -71,7 +72,7 @@ export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass) => {
 };
 
 // 순수 상성 보정 계산
-const onlyTypeEffectCalculate = (skillType, t1, t2) => {
+const onlyTypeEffectCalculate = (skillType, t1, t2, skillName) => {
   let result = 1;
   const chart = typeChart[skillType];
   if (!chart) {
@@ -79,9 +80,12 @@ const onlyTypeEffectCalculate = (skillType, t1, t2) => {
     return 1;
   }
 
-  // 1배는 계산 생략됨
-  if (chart[t1]) result *= chart[t1];
-  if (chart[t2]) result *= chart[t2];
+  // 1배는 chart[t1]이 null이여서 계산 생략됨
+  if (skillName === "프리즈드라이" && t1 === "물") result *= 2;
+  else if (chart[t1]) result *= chart[t1];
+
+  if (skillName === "프리즈드라이" && t2 === "물") result *= 2;
+  else if (chart[t2]) result *= chart[t2];
 
   return result;
 };

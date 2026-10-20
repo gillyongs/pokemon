@@ -207,41 +207,42 @@ function createPkObj(baseBattle, sn, hp) {
 }
 
 export function calculatePokemonSwitchScore(bt, sn, skObj) {
-  const index = "npcBench" + sn;
-  const indexA = index + "+a";
   const log = {};
+  const index = "npcBench" + sn;
   const benchPokemon = bt[index];
   let benchScore = calculateTypeScore(bt, index, log);
   let npcScore = calculateTypeScore(bt, "npc", log);
   let score = benchScore - npcScore;
-  log[indexA] = score;
+
+  const totalResult = "totalResult";
+  log[totalResult] = score;
 
   // 필드 장애물 존재시 교체 디메리트 보정
   if (bt.field.npc.sRock) {
     score -= 25;
-    log[indexA] += ` - 25 (교체-스락)`;
+    log[totalResult] += ` - 25 (교체-스락)`;
   }
 
   const isFly = benchPokemon.isFlying(bt);
   if (bt.field.npc.spikes && !isFly) {
     score -= 20;
-    log[indexA] += ` - 20 (교체-압정)`;
+    log[totalResult] += ` - 20 (교체-압정)`;
   }
   if (bt.field.npc.stickyWeb && !isFly) {
     // 역할군에 따른 보정 추가필요
     score -= 20;
-    log[indexA] += ` - 20 (교체-끈적끈적네트)`;
+    log[totalResult] += ` - 20 (교체-끈적끈적네트)`;
   }
 
   if (bt.field.npc.poisonSpikes && !isFly) {
     if (benchPokemon.type1 === "독" || benchPokemon.type2 === "독") {
       score += 20;
-      log[indexA] += ` + 10 (교체-독압정 제거)`;
+      log[totalResult] += ` + 10 (교체-독압정 제거)`;
     } else if (statusAbleCheck("독", benchPokemon)) {
       // 탱커의 맹독 추가보정 필요
       let value = 10 * bt.field.npc.poisonSpikes; // 맹독압정 고려
       score -= value;
-      log[indexA] += ` - 10 (교체-독압정)`;
+      log[totalResult] += ` - 10 (교체-독압정)`;
     }
   }
 
@@ -252,13 +253,13 @@ export function calculatePokemonSwitchScore(bt, sn, skObj) {
       for (const skillEffect of list) {
         if (skillEffect?.name === "강제교체") {
           //상대에게 강제교체 기술이 존재하면 교체를 하지 않는다
-          log[indexA] = "0 (강제교체)";
+          log[totalResult] = "0 (강제교체)";
           score = 0;
         }
       }
     }
   }
-  log[indexA] += ` = ${score}`;
+  log[totalResult] += ` = ${score}`;
   log.score = score;
   return log;
 }
@@ -285,7 +286,7 @@ function calculateTypeScore(bt, index, log) {
   let sk = player.tempStatus.recentSkillUse;
   if (sk && (sk.stype === "atk" || sk.stype === "catk")) {
     if (sk.type !== player.type1 && sk.type !== player.type2) {
-      value = typeCheck(sk.type, pokemon.type1, pokemon.type2);
+      value = typeCheck(sk.type, pokemon.type1, pokemon.type2, sk.name);
       if (value === 0) value = 0.1;
       result = Math.max(result, value);
     }

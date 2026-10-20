@@ -46,7 +46,8 @@ export const damageCalculate = (battle, obj, ai) => {
     const diff = defensePokemon.hp - attackPokemon.hp;
     return diff > 0 ? diff : 0;
   }
-  if (skill.feature.reflect) {
+  if (skill.feature.counter) {
+    // 미러코트, 카운터
     // 성공 실패 조건은 skillRequirement에서 관리
     return Math.floor(attackPokemon.turn.recentDamageGet) * 2;
   }
@@ -468,11 +469,11 @@ export const damageCalculate = (battle, obj, ai) => {
   damage *= typeDamage;
   attackPokemon.log.damage2 += " * " + typeDamage + "(상성보정)";
 
-  if (skill.name === "라이트닝드라이브") {
+  if (skill.feature?.weakBonus) {
     // 약점인 기술이 추가 데미지를 준다
     if (typeDamage > 1) {
       damage = (damage * 4) / 3;
-      attackPokemon.log.damage2 += " * 4/3 (라이트닝드라이브 약점추가보정)";
+      attackPokemon.log.damage2 += ` * 4/3 (${skill.name} 약점추가보정)`;
     }
   }
 
@@ -612,7 +613,7 @@ const powerCalculate = (battle, skill, obj, ai) => {
     if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].turn.useSkill) power *= 2;
     // 유턴이나 교체로 나온 포켓몬은 본인이 스킬을 시전한게 아니므로 2배 적용됨
   }
-  if (skill.name === "해수스파우팅" || skill.name === "드래곤에너지") {
+  if (skill.feature?.hpScale) {
     // 체력비례 데미지
     power = (power * atk.hp) / atk.origin.hp;
   }

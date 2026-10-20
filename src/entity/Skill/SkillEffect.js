@@ -372,7 +372,16 @@ function skillEffectSearch(name) {
       // 최대 3번까지 쌓인다
       const def = battle.turn.def;
       const field = battle.field[def];
-      if ((field.spikes || 0) >= 3) return;
+      if ((field.spikes || 0) >= 3) {
+        if (battle[battle.turn.atk].turn.useSkill?.stype === "buf") {
+          // 비검천중파는 실패 텍스트가 뜨지 않음
+          enqueue({
+            battle,
+            text: "하지만 실패했다!",
+          });
+        }
+        return;
+      }
       field.spikes = (field.spikes || 0) + 1;
       const text = def === "npc" ? "상대의 발밑에 압정이 뿌려졌다!" : "아군의 발밑에 압정이 뿌려졌다!";
       enqueue({ battle, text });
@@ -402,11 +411,17 @@ function skillEffectSearch(name) {
     },
 
     강제교체: (battle, enqueue, skillEffect) => {
+      const defPokemon = battle[battle.turn.def];
+      const skill = battle[battle.turn.atk]?.turn?.useSkill;
+      if (defPokemon.faint) return; // 드래곤테일로 상대를 기절시킨 경우 강제교체 발동하지 않음
+      if ((skill?.stype === "atk" || skill?.stype === "catk") && defPokemon.tempStatus.substitute) return;
+      // 날려버리기, 울부짖기는 대타를 뚫지만 드래곤테일은 뚫지 못한다
+
       if (battle.turn.atk === "player") {
-        // 플레이어가 강제교체 시 NPC가 교체됨
+        // 플레이어가 강제교체 기술 사용시 NPC가 교체됨
         handleForceSwitch(battle, enqueue, "npcBench1", "npcBench2", switchNpc);
       } else if (battle.turn.atk === "npc") {
-        // NPC가 강제교체 시 플레이어가 교체됨
+        // NPC가 강제교체 기술 사용시 플레이어가 교체됨
         handleForceSwitch(battle, enqueue, "playerBench1", "playerBench2", switchPlayerForce);
       }
     },
@@ -706,7 +721,11 @@ const handleForceSwitch = (battle, enqueue, bench1Key, bench2Key, switchFn) => {
   } else if (bench2Alive) {
     switchFn(battle, bench2Key, enqueue, true);
   } else {
-    //둘다 기절한경우 실패
-    enqueue({ battle, text: "하지만 실패했다!" });
+    // 둘다 기절한경우 울부짖기, 날려버리기 실패 텍스트 출력
+    // 드래곤테일은 텍스트는 뜨지 않는다
+    const skill = battle[battle.turn.atk]?.turn?.useSkill;
+    if (skill?.stype !== "atk" && skill?.stype !== "catk") {
+      enqueue({ battle, text: "하지만 실패했다!" });
+    }
   }
 };

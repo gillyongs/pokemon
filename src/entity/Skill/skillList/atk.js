@@ -5,37 +5,42 @@ import { Skill } from "../Skill.js";
 export const atkSkills = [
   new Skill("임시스킬", "노말", 80 + "위력", 100 + "명중률", 15 + "pp", 0 + "우선도", "atk" + "물리특수", null, "임시스킬", [], {}),
 
-  new Skill("유턴", "벌레", 70, 100, 20, 0, "atk", null, "공격 후 다른 포켓몬과 교체한다.", [{ name: "유턴" }], { touch: true, uturn: true }),
-
-  new Skill("퀵턴", "물", 60, 100, 20, 0, "atk", null, "공격 후 다른 포켓몬과 교체한다.", [{ name: "유턴" }], { touch: true, uturn: true }),
-
   new Skill("탁쳐서떨구기", "악", 65, 100, 20, 0, "atk", null, "상대가 지닌 물건이 있으면 없애고 추가 데미지를 준다.", [{ name: "탁떨" }], { touch: true }),
 
-  new Skill("사이코팽", "에스퍼", 85, 100, 10, 0, "atk", null, "상대 진영에 빛의장막이나 리플렉터가 존재한다면 파괴할 수 있다.", [{ name: "벽부수기" }], { touch: true, bite: true, wallBreaker: true }),
+  new Skill("카운터", "격투", "-", 100, 20, -5, "atk", { name: "반사", stat: "atk" }, "상대로부터 받은 물리 공격의 데미지를 2배로 만들어 돌려준다. (우선도-5)", [], { counter: true, touch: true }),
 
   new Skill("역린", "드래곤", 120, 100, 10, 0, "atk", null, "2~3턴 동안 마구 난동 부려서 공격한다. 난동 부린 뒤에는 혼란에 빠진다.", [{ name: "자동" }], { touch: true }),
 
+  new Skill("기가임팩트", "노말", 150, 90, 5, 0, "atk", null, "전력을 다해 돌격한다. 다음 턴에는 움직일 수 없다.", [{ name: "반동휴식" }], { touch: true }),
+
   new Skill("킬러스핀", "독", 30, 100, 15, 0, "atk", null, "상대를 독 상태로 만들고 아군 필드의 해로운 효과 및 구속, 씨뿌리기 효과를 제거한다", [{ name: "독", probability: 100 }, { name: "스핀" }], {}),
 
-  new Skill("비검천중파", "악", 65, 90, 15, 0, "atk", null, "데미지를 준 후 상대의 발밑에 압정을 뿌린다.", [{ name: "압정뿌리기" }], { slice: true }),
+  new Skill("고속스핀", "노말", 50, 100, 40, 0, "atk", null, "회전하며 공격해 아군 필드의 해로운 효과 및 구속, 씨뿌리기 효과를 제거하고 스피드를 1랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: 1 }, { name: "스핀" }], { touch: true }),
 
-  new Skill("아이스스피너", "얼음", 80, 100, 15, 0, "atk", null, "얼음을 두르고 회전하며 부딪친다. 회전 운동에 의해 필드가 파괴된다.", [{ name: "필드파괴" }], { touch: true }),
+  // 고속스핀 필드정리랑 다름 일렉트릭/그래스 필드 파괴임
+  new Skill("아이스스피너", "얼음", 80, 100, 15, 0, "atk", null, "얼음을 두르고 회전하며 부딪친다. 회전 운동에 의해 필드가 파괴된다.", [{ name: "필드파괴" }], { touch: true }), 
+
+
+  new Skill("비검천중파", "악", 65, 90, 15, 0, "atk", null, "데미지를 준 후 상대의 발밑에 압정을 뿌린다.", [{ name: "압정뿌리기" }], { slice: true }),
 
   new Skill("암석액스", "바위", 65, 90, 15, 0, "atk", null, "바위의 도끼로 베어가른다. 흩어진 돌조각이 상대 주위에 떠다닌다.", [{ name: "암석액스" }], { touch: true, slice: true }),
 
   new Skill("기습", "악", 70, 100, 5, 2, "atk", { name: "기습" }, "상대가 쓴 기술이 공격기술이 아니면 실패한다. (우선도 +1)", [], { touch: true }),
 
-  // 선공기 =================================================================================================================
+  new Skill("페인트", "노말", 30, 100, 10, 2, "atk", null, "상대의 방어를 뚫고 공격하며 방어 상태를 해제한다. (우선도 +2)", [], { touch: true, feint: true }),
+
+  new Skill("드래곤테일", "드래곤", 60, 90, 10, -6, "atk", null, "상대를 튕겨내어 교대할 포켓몬을 끌어낸다. (우선도 -6)", [{ name: "강제교체" }], { touch: true }),
+
+  // 선공기
   new Skill("그래스슬라이더", "풀", 55, 100, 20, "change", "atk", null, "그래스필드일 때 우선도 +1", [], { touch: true }),
   new Skill("신속", "노말", 80, 100, 5, 2, "atk", null, "우선도 +2", [], { touch: true }),
-  new Skill("페인트", "노말", 30, 100, 10, 2, "atk", null, "상대의 방어를 뚫고 공격하며 방어 상태를 해제한다. (우선도 +2)", [], { touch: true, feint: true }),
   new Skill("얼음뭉치", "얼음", 40, 100, 30, 1, "atk", null, "우선도 +1", []),
   new Skill("야습", "고스트", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true }),
   new Skill("아쿠아제트", "물", 40, 100, 20, 1, "atk", null, "우선도 +1", [], { touch: true }),
   new Skill("전광석화", "노말", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true }),
   new Skill("불릿펀치", "강철", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true, punch: true }),
 
-  // 연속기 =================================================================================================================
+  // 연속기 
   new Skill("트리플악셀", "얼음", 20, 90, 10, 0, "atk", null, "최대 3회 연속으로 공격한다. 기술이 명중할 때마다 위력이 올라간다.", [], { serial: "triple", touch: true }),
   new Skill("수류연타", "물", 25, 100, 5, 0, "atk", null, "물 흐르듯 3회의 연격을 날린다. 반드시 급소에 맞는다.", [], { touch: true, punch: true, serial: "suru", mustCritical: true }),
   new Skill("고드름침", "얼음", 25, 100, 30, 0, "atk", null, "2-5회 동안 연속으로 쓴다", [], { serial: "twoFive" }),
@@ -44,21 +49,30 @@ export const atkSkills = [
   new Skill("더블윙", "비행", 40, 90, 10, 0, "atk", null, "날개로 상대를 내리쳐 공격한다. 2회 연속으로 데미지를 준다.", [], { serial: "double", touch: true }),
   new Skill("더블펀처", "강철", 60, 100, 5, 0, "atk", null, "2회 연속으로 공격한다. 30% 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 30 }], { touch: true, punch: true, serial: "double" }),
 
-  // 랭크 변화 (자신) =================================================================================================================
+  // 랭크 변화 (자신) 
   new Skill("개척하기", "풀", 50, 100, 20, 0, "atk", null, "자신의 스피드를 1랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: 1 }], { touch: true }),
+  new Skill("니트로차지", "불꽃", 50, 100, 20, 0, "atk", null, "자신의 스피드를 1랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: 1 }], { touch: true }),
   new Skill("코멧펀치", "강철", 90, 90, 10, 0, "atk", null, "20% 확률로 자신의 공격을 1랭크 올린다.", [{ name: "랭크변화", probability: 20, stat: "atk", target: "atk", value: 1 }], { touch: true, punch: true }),
+  new Skill("강철날개", "강철", 70, 90, 25, 0, "atk", null, "10% 확률로 자신의 방어가 1랭크 올라간다.", [{ name: "랭크변화", probability: 10, stat: "def", target: "atk", value: 1 }], { touch: true }),
+
+  // 디메리트
   new Skill("인파이트", "격투", 120, 100, 5, 0, "atk", null, "사용 후 사용자의 방어와 특수방어가 1랭크 떨어진다.", [ { name: "랭크다수변화", probability: 100, target: "atk", stats: [ {stat: "def", value: -1}, {stat: "cdef", value: -1} ] }],{ touch: true }),
+  new Skill("엄청난힘", "격투", 120, 100, 5, 0, "atk", null, "사용 후 사용자의 공격과 방어가 1랭크 떨어진다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "atk", value: -1 }, { stat: "def", value: -1 }] }], { touch: true }),
+  new Skill("암해머", "격투", 100, 90, 10, 0, "atk", null, "사용 후 사용자의 스피드가 1랭크 떨어진다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: -1 }], { touch: true, punch: true }),
 
   // 랭크 변화 (상대)
+  new Skill("소울크래시", "페어리", 75, 100, 15, 0, "atk", null, "상대의 기를 꺾어 상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "def", value: -1 }], { touch: true }),
+  new Skill("로킥", "격투", 65, 100, 20, 0, "atk", null, "상대의 다리를 노려 공격하여 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], { touch: true }),
   new Skill("암석봉인", "바위", 60, 95, 15, 0, "atk", null, "상대방의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
   new Skill("드럼어택", "풀", 80, 100, 10, 0, "atk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }]),
+
   new Skill("깨물어부수기", "악", 80, 100, 15, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 20, stat: "def", target: "def", value: -1 }], { touch: true, bite: true }),
   new Skill("아쿠아브레이크", "물", 85, 100, 10, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 20, stat: "def", target: "def", value: -1 }], { touch: true }),
   new Skill("치근거리기", "페어리", 90, 90, 10, 0, "atk", null, "10% 확률로 상대의 공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "atk", target: "def", value: -1 }], { touch: true }),
-  new Skill("흡혈", "벌레", 80, 100, 10, 0, "atk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], { touch: true }),
   new Skill("덤벼들기", "벌레", 80, 100, 15, 0, "atk", null, "상대방의 공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "atk", target: "def", value: -1 }], { touch: true }),
 
-  //위력 변화 =================================================================================================================
+  // 위력 변화 
+  new Skill("액셀브레이크", "격투", 100, 100, 5, 0, "atk", null, "약점인 상대에게는 위력이 1.3배 증가한다", [], { touch: true, weakBonus: true }),
   new Skill("속임수", "악", 95, 100, 15, 0, "atk", null, "상대방의 공격력으로 데미지를 계산한다.", []),
   new Skill("성묘", "고스트", 50, 100, 10, 0, "atk", null, "쓰러진 같은 편 포켓몬이 많을수록 기술의 위력이 올라간다.", [{}], {}),
   new Skill("아가미물기", "물", 85, 100, 10, 0, "atk", null, "상대보다 먼저 기술을 사용하면 위력이 2배가 된다.", [], { bite: true, touch: true }),
@@ -67,17 +81,41 @@ export const atkSkills = [
   new Skill("DD래리어트", "악", 85, 100, 10, 0, "atk", null, "상대의 능력 변화에 상관없이 데미지를 준다.", [{ name: "천진" }], { touch: true }),
   new Skill("객기", "노말", 70, 100, 20, 0, "atk", null, "자신이 독, 마비, 화상 상태일 때 기술의 위력이 2배가 된다.", [], { touch: true }),
 
-  // 데미지 고정
+  // 일격기
   new Skill("땅가르기", "땅", "-", 30, 5, 0, "atk", null, "땅이 갈라진 곳에 상대를 떨어뜨려 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true }),
+  new Skill("절대영도", "얼음", "-", 30, 5, 0, "atk", null, "절대영도의 추위로 상대를 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true }),
+  new Skill("가위자르기", "노말", "-", 30, 5, 0, "atk", null, "큰 집게로 상대를 베어 갈라 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true, touch: true }),
+
+  // 데미지 고정
   new Skill("지구던지기", "격투", "-", 100, 20, 0, "atk", null, "자신의 레벨과 똑같은 데미지를 상대에게 준다.", [], { noText: true, touch: true }),
   new Skill("죽기살기", "노말", "-", 100, 5, 0, "atk", { name: "죽기살기" }, "자신의 HP와 같은 수치가 되도록 상대의 HP를 줄인다.", [], { noText: true, touch: true }),
 
   // 반동
+  new Skill("양날박치기", "바위", 150, 80, 5, 0, "atk", null, "자신도 대상에게 준 피해의 ½만큼 반동 피해를 받는다.", [{ name: "반동", ratio: 2 }], { touch: true, rebound: true }),
   new Skill("브레이브버드", "비행", 120, 100, 15, 0, "atk", null, "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.", [{ name: "반동" }], { touch: true, rebound: true }),
   new Skill("이판사판태클", "노말", 120, 100, 15, 0, "atk", null, "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.", [{ name: "반동" }], { touch: true, rebound: true }),
   new Skill("웨이브태클", "물", 120, 100, 10, 0, "atk", null, "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.", [{ name: "반동" }], { touch: true, rebound: true }),
-  new Skill("무릎차기", "격투", 130, 90, 10, 0, "atk", null, "빗나가면 자신이 전체 HP의 ½의 데미지를 입는다.", [{ name: "빗나감패널티" }], { touch: true, rebound: true }),
-  new Skill("양날박치기", "바위", 150, 80, 5, 0, "atk", null, "자신도 대상에게 준 피해의 ½만큼 반동 피해를 받는다.", [{ name: "반동", ratio: 2 }], { touch: true, rebound: true }),
+  new Skill("우드해머", "풀", 120, 100, 15, 0, "atk", null, "자신도 대상에게 준 피해의 ⅓만큼 반동 피해를 받는다.", [{ name: "반동" }], { touch: true, rebound: true }),
+  new Skill("와일드볼트", "전기", 90, 100, 15, 0, "atk", null, "자신도 대상에게 준 피해의 ¼만큼 반동 피해를 받는다.", [{ name: "반동", ratio: 4 }], { touch: true, rebound: true }),
+  
+  // 빗나감 패널티
+  // 이판사판 특성의 데미지 보정은 받지만 돌머리의 반동 무효는 적용되지 않는다
+  new Skill("썬더다이브", "전기", 100, 95, 10, 0, "atk", null, "빗나가면 자신이 전체 HP ½의 데미지를 입는다.", [{ name: "빗나감패널티" }], { touch: true, rebound: true }),
+  new Skill("무릎차기", "격투", 130, 90, 10, 0, "atk", null, "빗나가면 자신이 전체 HP ½의 데미지를 입는다.", [{ name: "빗나감패널티" }], { touch: true, rebound: true }),
+
+  // 흡수
+  new Skill("흡혈", "벌레", 80, 100, 10, 0, "atk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], { touch: true }),
+  new Skill("드레인펀치", "격투", 75, 100, 10, 0, "atk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], { touch: true, punch: true }),
+  new Skill("우드호른", "풀", 75, 100, 10, 0, "atk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], { touch: true }),
+
+  // 유턴
+  new Skill("유턴", "벌레", 70, 100, 20, 0, "atk", null, "공격 후 다른 포켓몬과 교체한다.", [{ name: "유턴" }], { touch: true, uturn: true }),
+  new Skill("퀵턴", "물", 60, 100, 20, 0, "atk", null, "공격 후 다른 포켓몬과 교체한다.", [{ name: "유턴" }], { touch: true, uturn: true }),
+
+  // 벽파괴
+  new Skill("사이코팽", "에스퍼", 85, 100, 10, 0, "atk", null, "상대 진영에 빛의장막이나 리플렉터가 존재한다면 파괴할 수 있다.", [{ name: "벽부수기" }], { touch: true, bite: true, wallBreaker: true }),
+  new Skill("깨트리다", "격투", 75, 100, 15, 0, "atk", null, "상대 진영에 빛의장막이나 리플렉터가 존재한다면 파괴할 수 있다.", [{ name: "벽부수기" }], { touch: true, wallBreaker: true }),
+
 
   // 상태이상 =================================================================================================================
 
@@ -85,17 +123,22 @@ export const atkSkills = [
   new Skill("화염볼", "불꽃", 120, 100, 5, 0, "atk", null, "10%의 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 10 }], {}),
   new Skill("성스러운불꽃", "불꽃", 100, 95, 5, 0, "atk", null, "50%의 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 50 }]),
   new Skill("플레어드라이브", "불꽃", 120, 100, 15, 0, "atk", null, "대상에게 준 피해의 ⅓만큼 반동 피해를 받는다. 10% 확률로 상대를 화상 상태로 만든다", [{ name: "반동" }, { name: "화상", probability: 10 }], { touch: true, rebound: true }),
+  new Skill("불꽃펀치", "불꽃", 75, 100, 15, 0, "atk", null, "10% 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 10 }], { touch: true, punch: true }),
   new Skill("불꽃엄니", "불꽃", 65, 95, 15, 0, "atk", null, "10% 확률로 상대를 화상 상태로 만들거나 풀죽게 만든다.", [{ name: "화상", probability: 10 }, { name: "풀죽음", probability: 10 }], { touch: true, bite: true }),
 
   // 마비
   new Skill("번개펀치", "전기", 75, 100, 15, 0, "atk", null, "10% 확률로 상대를 마비 상태로 만든다.", [{ name: "마비", probability: 10 }], { touch: true, punch: true }),
+  new Skill("번개엄니", "전기", 65, 95, 15, 0, "atk", null, "10% 확률로 상대를 마비 상태로 만들거나 풀죽게 만든다.", [{ name: "마비", probability: 10 }, { name: "풀죽음", probability: 10 }], { touch: true, bite: true }),
 
   // 얼음
   new Skill("냉동펀치", "얼음", 75, 100, 15, 0, "atk", null, "10% 확률로 상대를 얼음 상태로 만든다.", [{ name: "얼음", probability: 10 }], { touch: true, punch: true }),
+  new Skill("얼음엄니", "얼음", 65, 95, 15, 0, "atk", null, "10% 확률로 상대를 얼음 상태로 만들거나 풀죽게 만든다.", [{ name: "얼음", probability: 10 }, { name: "풀죽음", probability: 10 }], { touch: true, bite: true }),
 
   // 독
   new Skill("페이탈클로", "독", 80, 100, 15, 0, "atk", null, "50% 확률로 상대를 독, 마비 또는 잠듦 상태로 만든다.", [{ name: "페이탈클로", probability: 50 }], { touch: true }),
   new Skill("독찌르기", "독", 80, 100, 20, 0, "atk", null, "30% 확률로 상대를 독 상태로 만든다.", [{ name: "독", probability: 30 }], { touch: true }),
+  new Skill("더스트슈트", "독", 120, 80, 5, 0, "atk", null, "30% 확률로 상대를 독 상태로 만든다.", [{ name: "독", probability: 30 }], {}),
+  new Skill("크로스포이즌", "독", 70, 100, 20, 0, "atk", null, "급소에 맞기 쉽다. 10% 확률로 상대를 독 상태로 만든다.", [{ name: "급소" }, { name: "독", probability: 10 }], { touch: true, slice: true }),
 
   // 풀죽음
   new Skill("아이언헤드", "강철", 80, 100, 15, 0, "atk", null, "30%의 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 30 }], { touch: true }),
@@ -111,22 +154,34 @@ export const atkSkills = [
 
   // 급소
   new Skill("섀도크루", "고스트", 70, 100, 15, 0, "atk", null, "급소에 맞을 확률이 높다.", [{ name: "급소" }], { touch: true }),
-  new Skill("깜짝베기", "악", 70, 100, 15, 0, "atk", null, "틈을 노려 베어가른다. 급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true, slice: true }),
-  new Skill("스톤에지", "바위", 100, 80, 5, 0, "atk", null, "뾰족한 바위를 아래에서 찔러 올려 공격한다. 급소에 맞기 쉽다.", [{ name: "급소" }], {}),
+  new Skill("깜짝베기", "악", 70, 100, 15, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true, slice: true }),
+  new Skill("사이코커터", "에스퍼", 70, 100, 20, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { slice: true }),
+  new Skill("드릴라이너", "땅", 80, 95, 10, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true }),
+  new Skill("스톤에지", "바위", 100, 80, 5, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], {}),
+
+  // 확정급소
   new Skill("암흑강타", "악", 75, 100, 5, 0, "atk", null, "반드시 급소에 맞는다.", [], { touch: true, punch: true, mustCritical: true }),
   new Skill("트릭플라워", "풀", 70, "-", 10, 0, "atk", null, "반드시 명중하며 항상 급소에 맞는다.", [], { mustCritical: true }),
 
   // 필중
   new Skill("도각참", "악", 85, "-", 10, 0, "atk", null, "반드시 명중한다.", [], { touch: true, slice: true }),
+  new Skill("스마트호른", "강철", 70, "-", 10, 0, "atk", null, "반드시 명중한다.", [], { touch: true }),
+  new Skill("제비반환", "비행", 60, "-", 20, 0, "atk", null, "반드시 명중한다.", [], { touch: true, slice: true }),
 
   // 기타
+  new Skill("파워윕", "풀", 120, 85, 10, 0, "atk", null, "초목이나 촉수를 세차게 휘둘러 상대를 후려쳐서 공격한다.", [], { touch: true }),
+  new Skill("메가혼", "벌레", 120, 85, 10, 0, "atk", null, "단단하고 훌륭한 뿔로 세차게 찔러서 공격한다.", [], { touch: true }),
+  new Skill("씨폭탄", "풀", 80, 100, 15, 0, "atk", null, "단단한 껍질을 가진 커다란 씨를 머리 위에서 마구 떨어뜨려 공격한다.", [], {}),
+  new Skill("아쿠아테일", "물", 90, 90, 10, 0, "atk", null, "세찬 파도처럼 꼬리를 휘둘러 공격한다.", [], { touch: true }),
   new Skill("지진", "땅", 100, 100, 10, 0, "atk", null, "자신의 주위에 있는 포켓몬을 공격한다.", []),
-  new Skill("크로스썬더", "전기", 100, 100, 5, 0, "atk", null, "크로스플레임과 동시에 사용하면 데미지가 2배가 된다.", [], {}),
   new Skill("블리자드랜스", "얼음", 120, 100, 5, 0, "atk", null, "눈보라를 두른 얼음의 창을 상대에게 던져서 공격한다.", [], {}),
   new Skill("10만마력", "땅", 95, 95, 10, 0, "atk", null, "온몸을 써서 상대를 맹렬히 공격한다.", [], { touch: true }),
   new Skill("헤비봄버", "강철", 120, 100, 10, 0, "atk", null, "무거운 몸으로 상대에게 부딪쳐 공격한다. ", [], { touch: true }),
-  new Skill("거수참", "강철", 100, 100, 5, 0, "atk", null, "다이맥스한 상대에게 2배 데미지를 준다", [], { touch: true, slice: true }),
-  new Skill("거수탄", "강철", 100, 100, 5, 0, "atk", null, "온몸을 강하고 튼튼한 방패로 바꾼 다음 기세 좋게 부딪혀서 공격한다.", [], { touch: true }),
   new Skill("드래곤클로", "드래곤", 80, 100, 15, 0, "atk", null, "날카로운 거대한 발톱으로 상대를 베어가른다.", [], { touch: true, slice: true }),
   new Skill("시저크로스", "벌레", 80, 100, 15, 0, "atk", null, "날카로운 낫이나 발톱을 엇갈리게 교차하며 상대를 베어가른다.", [], { touch: true, slice: true }),
+
+  // 일부 미구현
+  new Skill("크로스썬더", "전기", 100, 100, 5, 0, "atk", null, "크로스플레임과 동시에 사용하면 데미지가 2배가 된다.", [], {}),
+  new Skill("거수참", "강철", 100, 100, 5, 0, "atk", null, "다이맥스한 상대에게 2배 데미지를 준다.", [], { touch: true, slice: true }),
+  new Skill("거수탄", "강철", 100, 100, 5, 0, "atk", null, "다이맥스한 상대에게 2배 데미지를 준다.", [], { touch: true }),
 ];

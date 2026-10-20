@@ -11,7 +11,7 @@ const InfoSkillButton = ({ battle, skillNumber, pokemon, setText }) => {
     <ButtonContainer className={sn} onClick={() => setText(skill.text)}>
       <SkillTypeIcon src={`/pokemon/img/type/${skill.type}.svg`} alt={skill.name} />
       <SkillName>{skill.name}</SkillName>
-      <SkillEffect>{getTypeEffectText(pokemon, skill.type, battle.npc.type1, battle.npc.type2, skill.stype)}</SkillEffect>
+      <SkillEffect>{getTypeEffectText(pokemon, skill.type, battle.npc.type1, battle.npc.type2, skill.stype, skill.name)}</SkillEffect>
       <SkillPP>
         {pp}/{skill.pp}
       </SkillPP>

@@ -116,7 +116,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     >
       <ICON src={`/pokemon/img/type/${skill.type}.svg`} alt={skill.name} />
       <NAME skname={skill.name}>{skill.name}</NAME>
-      <EFFECT>{getTypeEffectText(battle.player, skill.type, battle.npc.type1, battle.npc.type2, skill.stype)}</EFFECT>
+      <EFFECT>{getTypeEffectText(battle.player, skill.type, battle.npc.type1, battle.npc.type2, skill.stype, skill.name)}</EFFECT>
       <PP>
         {pp}/{skill.pp}
       </PP>

@@ -18,12 +18,18 @@ describe("PokemonSkillList and Custom Skill Support", () => {
     expect(flareBlitz.type).toBe("불꽃");
     expect(flareBlitz.category).toBe("물리");
 
-    // 블래스트번 / 솔라빔 are unimplemented
+    // 블래스트번 is now implemented, 솔라빔 is unimplemented
     const blastBurn = skills.find((s) => s.name === "블래스트번");
     expect(blastBurn).toBeDefined();
-    expect(blastBurn.isImplemented).toBe(false);
+    expect(blastBurn.isImplemented).toBe(true);
     expect(blastBurn.type).toBe("불꽃");
     expect(blastBurn.category).toBe("특수");
+
+    const solarBeam = skills.find((s) => s.name === "솔라빔");
+    expect(solarBeam).toBeDefined();
+    expect(solarBeam.isImplemented).toBe(false);
+    expect(solarBeam.type).toBe("풀");
+    expect(solarBeam.category).toBe("특수");
   });
 
   test("UNIMPLEMENTED_SKILLS are marked as isImplemented: false", () => {

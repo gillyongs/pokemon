@@ -12,12 +12,13 @@ export const bufSkills = [
   new Skill("트릭룸", "에스퍼", "-", "-", 5, -7, "buf", null, "이상한 공간을 만든다. 5턴 동안 느린 포켓몬부터 행동할 수 있다. (우선도 -7)", [{ name: "트릭룸" }]),
 
   //pp 서로 다른게 맞음
-  new Skill("리플렉터", "에스퍼", "-", "-", 20, 0, "buf", null, "5턴 동안 이상한 장막을 쳐서 상대로부터 받는 물리공격의 데미지를 약하게 한다.", [{ name: "리플렉터" }]),
-  new Skill("빛의장막", "에스퍼", "-", "-", 30, 0, "buf", null, "5턴 동안 이상한 장막을 쳐서 상대로부터 받는 특수공격의 데미지를 약하게 한다.", [{ name: "빛의장막" }]),
+  new Skill("리플렉터", "에스퍼", "-", "-", 20, 0, "buf", null, "5턴 동안 상대의 물리 공격 데미지를 절반으로 줄여주는 장막을 친다.", [{ name: "리플렉터" }]),
+  new Skill("빛의장막", "에스퍼", "-", "-", 30, 0, "buf", null, "5턴 동안 상대의 특수 공격 데미지를 절반으로 줄여주는 장막을 친다.", [{ name: "빛의장막" }]),
   new Skill("순풍", "비행", "-", "-", 15, 0, "buf", null, "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올린다.", [{ name: "순풍" }]),
 
   // 장판 =================================================
   new Skill("스텔스록", "바위", "-", "-", 20, 0, "buf", null, "상대의 주위에 바위를 띄워 교체되어 나온 상대 포켓몬에게 데미지를 준다.", [{ name: "스텔스록" }], {}),
+  new Skill("압정뿌리기", "땅", "-", "-", 20, 0, "buf", null, "상대의 발밑에 압정을 뿌려 교체로 나오는 상대 포켓몬에게 데미지를 준다. 최대 3번까지 깔 수 있다.", [{ name: "압정뿌리기" }], {}),
   new Skill("독압정", "독", "-", "-", 20, 0, "buf", null, "상대의 발밑에 독 압정을 뿌려 교체로 나온 상대 포켓몬에게 독을 퍼지게 한다. 2번 깔았을 경우 맹독을 퍼지게 한다.", [{ name: "독압정" }], {}),
   new Skill("끈적끈적네트", "벌레", "-", "-", 20, 0, "buf", null, "상대의 주위에 끈적끈적한 네트를 친다. 교체되어 나온 상대 포켓몬의 스피드를 1랭크 떨어뜨린다.", [{ name: "끈적끈적네트" }], {}),
 
@@ -38,16 +39,21 @@ export const bufSkills = [
 
   // 랭크업 =================================================
 
+  // 2랭업
   new Skill("칼춤", "노말", "-", "-", 20, 0, "buf", null, "자신의 공격을 2랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "atk", target: "atk", value: 2 }]),
   new Skill("철벽", "강철", "-", "-", 20, 0, "buf", null, "자신의 방어를 2랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "def", target: "atk", value: 2 }]),
   new Skill("나쁜음모", "악", "-", "-", 20, 0, "buf", null, "자신의 특수공격을 2랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "atk", value: 2 }]),
-  // prettier-ignore
-  new Skill("용의춤", "드래곤", "-", "-", 20, 0, "buf", null, "자신의 공격과 스피드를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "atk", value: 1 }, { stat: "speed", value: 1 }] }]),
-  // prettier-ignore
-  new Skill("명상", "에스퍼", "-", "-", 20, 0, "buf", null, "자신의 특수공격과 특수방어를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "catk", value: 1 }, { stat: "cdef", value: 1 }] }]),
-  // prettier-ignore
-  new Skill("껍질깨기", "노말", "-", "-", 15, 0, "buf", null, "자신의 방어와 특수방어를 1랭크 떨어뜨리고 공격과 특수공격, 스피드를 2랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "def", value: -1}, {stat: "cdef", value: -1}, {stat: "atk", value: 2}, {stat: "catk", value: 2}, {stat: "speed", value: 2}] }], {}),
+  new Skill("고속이동", "에스퍼", "-", "-", 30, 0, "buf", null, "자신의 스피드를 2랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: 2 }]),
+  new Skill("바디퍼지", "강철", "-", "-", 15, 0, "buf", null, "자신의 스피드를 2랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: 2 }]),
 
-  // prettier-ignore
+  // 1+1 랭업
+  new Skill("용의춤", "드래곤", "-", "-", 20, 0, "buf", null, "자신의 공격과 스피드를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "atk", value: 1 }, { stat: "speed", value: 1 }] }]),
+  new Skill("벌크업", "격투", "-", "-", 20, 0, "buf", null, "자신의 공격과 방어를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "atk", value: 1 }, { stat: "def", value: 1 }] }]),
+  new Skill("명상", "에스퍼", "-", "-", 20, 0, "buf", null, "자신의 특수공격과 특수방어를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "catk", value: 1 }, { stat: "cdef", value: 1 }] }]),
+  new Skill("코스믹파워", "에스퍼", "-", "-", 20, 0, "buf", null, "자신의 방어와 특수방어를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "def", value: 1 }, { stat: "cdef", value: 1 }] }]),
+
+  // 3랭업 이상
+  new Skill("나비춤", "벌레", "-", "-", 20, 0, "buf", null, "자신의 특수공격, 특수방어, 스피드를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "catk", value: 1 }, { stat: "cdef", value: 1 }, { stat: "speed", value: 1 }] }]),
+  new Skill("껍질깨기", "노말", "-", "-", 15, 0, "buf", null, "자신의 방어와 특수방어를 1랭크 떨어뜨리고 공격과 특수공격, 스피드를 2랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "def", value: -1}, {stat: "cdef", value: -1}, {stat: "atk", value: 2}, {stat: "catk", value: 2}, {stat: "speed", value: 2}] }], {}),
   new Skill("지오컨트롤", "페어리", "-", "-", 10, 0, "buf", null, "1턴째에 에너지를 흡수하여 2턴째에 특수공격, 특수방어, 스피드를 2랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "catk", value: 2}, {stat: "cdef", value: 2}, {stat: "speed", value: 2}] }], { charge: { text: " 파워를 모으고 있다!", head: "names" } }),
 ];
