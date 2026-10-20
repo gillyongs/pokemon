@@ -3,11 +3,16 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import sampleList from "../entity/Pokemon/SamplePokemon";
+import PokemonData from "../entity/Pokemon/PokemonData";
 import { pokemonList, POKEMON_ROLES } from "../entity/Pokemon/PokemonTemplate";
 import { abilObject } from "../entity/Ability";
 import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../util/recoilState";
 import SampleInfoModal from "../component/SampleInfoModal";
+import { getAbilityListForPokemon } from "../component/AbilSearchModal";
+import { getItemListForPokemon } from "../component/ItemSearchModal";
+import { getSkillListForPokemon } from "../skill/PokemonSkillList";
+import { STAT_KEYS, getNatureInfo, normalizeGacha, calculateStat } from "../component/StatAdjustmentModal";
 import skillList from "../entity/Skill/skillList";
 import { fillRandomTeam, getRandomPokemonForSlot } from "../util/randomTeam";
 import { testmode } from "../config/testMode";
@@ -390,11 +395,124 @@ const CustomScreen = () => {
   const isValidEntrySlot = (slot) => {
     if (slot === null) return true;
     if (typeof slot === "string") return Boolean(sampleList.getDataById(slot));
-    if (typeof slot === "object" && typeof slot.id === "string") return Boolean(sampleList.getDataById(slot.id));
-    return false;
+    if (typeof slot !== "object" || Array.isArray(slot) || typeof slot.id !== "string") return false;
+
+    const rawPokemon = sampleList.getDataById(slot.id);
+    if (!rawPokemon) return false;
+
+    // 1. 특성 검증: 해당 포켓몬이 가질 수 있는 구현된 특성인지 확인
+    if (slot.abil !== undefined && slot.abil !== null) {
+      if (typeof slot.abil !== "string") return false;
+      const validAbils = getAbilityListForPokemon(rawPokemon).filter((a) => a.isImplemented).map((a) => a.name);
+      if (!validAbils.includes(slot.abil) && slot.abil !== rawPokemon.abil) {
+        return false;
+      }
+    }
+
+    // 2. 도구 검증: 존재하는 도구이자 해당 포켓몬이 장착 가능한 도구인지 확인 (전용 도구 제한 포함)
+    if (slot.item !== undefined && slot.item !== null) {
+      if (typeof slot.item !== "string") return false;
+      if (slot.item !== "" && slot.item !== "없음") {
+        const validItems = getItemListForPokemon(rawPokemon).map((i) => i.name);
+        if (!validItems.includes(slot.item) && slot.item !== rawPokemon.item) {
+          return false;
+        }
+      }
+    }
+
+    // 3. 기술 검증: 해당 포켓몬이 배울 수 있는 구현된 기술인지, 중복은 없는지 확인
+    if (slot.skills !== undefined && slot.skills !== null) {
+      if (typeof slot.skills !== "object" || Array.isArray(slot.skills)) return false;
+      const learnableSkills = getSkillListForPokemon(rawPokemon).filter((s) => s.isImplemented).map((s) => s.name);
+      const chosenSkills = [];
+      for (const num of [1, 2, 3, 4]) {
+        const skName = slot.skills[num] ?? slot.skills[String(num)];
+        if (skName !== undefined && skName !== null && skName !== "") {
+          if (typeof skName !== "string") return false;
+          if (!learnableSkills.includes(skName)) return false;
+          if (chosenSkills.includes(skName)) return false;
+          chosenSkills.push(skName);
+        }
+      }
+      if (chosenSkills.length === 0) return false;
+    }
+
+    // 4. 능력치(노력치, 성격, 개체값, 실능치) 범위 및 일치 여부 검증
+    const hasCustomStatFields = slot.evs !== undefined || slot.nature !== undefined || slot.gacha !== undefined || slot.hp !== undefined || slot.stat !== undefined;
+    if (hasCustomStatFields) {
+      const evs = slot.evs || rawPokemon.evs || { hp: 0, atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
+      if (typeof evs !== "object" || Array.isArray(evs)) return false;
+
+      let totalEv = 0;
+      for (const k of STAT_KEYS) {
+        const v = evs[k];
+        if (typeof v !== "number" || !Number.isInteger(v) || v < 0 || v > 252) return false;
+        totalEv += v;
+      }
+      if (totalEv > 508) return false;
+
+      const nature = slot.nature || rawPokemon.nature || { up: null, down: null };
+      if (typeof nature !== "object" || Array.isArray(nature)) return false;
+      const validNatureKeys = [null, undefined, "atk", "def", "catk", "cdef", "speed"];
+      if (!validNatureKeys.includes(nature.up) || !validNatureKeys.includes(nature.down)) return false;
+      const natureInfo = getNatureInfo(nature.up, nature.down);
+      if (!natureInfo.isValid) return false;
+
+      const rawGacha = slot.gacha || rawPokemon.gacha || "6V";
+      if (!["6V", "5V0A", "5V0S", "4V0A0S", "5V1A", "5V1S", "4V"].includes(rawGacha)) return false;
+      const gacha = normalizeGacha(rawGacha);
+
+      const baseData = PokemonData.getDataById(rawPokemon.pokemon_id) || PokemonData.getDataById(rawPokemon.id);
+      if (!baseData) return false;
+
+      const isSpeed0 = gacha === "5V0S" || gacha === "4V0A0S";
+      const isAtk0 = gacha === "5V0A" || gacha === "4V0A0S";
+      const ivs = {
+        hp: 31,
+        atk: isAtk0 ? 0 : 31,
+        def: 31,
+        catk: 31,
+        cdef: 31,
+        speed: isSpeed0 ? 0 : 31,
+      };
+      const isUp = (key) => nature.up === key && nature.down !== key;
+      const isDown = (key) => nature.down === key && nature.up !== key;
+
+      const expectedHp = calculateStat(baseData.hp, ivs.hp, evs.hp, true);
+      const expectedStat = {
+        atk: calculateStat(baseData.atk, ivs.atk, evs.atk, false, isUp("atk"), isDown("atk")),
+        def: calculateStat(baseData.def, ivs.def, evs.def, false, isUp("def"), isDown("def")),
+        catk: calculateStat(baseData.catk, ivs.catk, evs.catk, false, isUp("catk"), isDown("catk")),
+        cdef: calculateStat(baseData.cdef, ivs.cdef, evs.cdef, false, isUp("cdef"), isDown("cdef")),
+        speed: calculateStat(baseData.speed, ivs.speed, evs.speed, false, isUp("speed"), isDown("speed")),
+      };
+
+      if (slot.hp !== undefined && slot.hp !== expectedHp && slot.hp !== rawPokemon.hp) {
+        return false;
+      }
+      if (slot.stat !== undefined) {
+        if (typeof slot.stat !== "object" || Array.isArray(slot.stat)) return false;
+        for (const k of ["atk", "def", "catk", "cdef", "speed"]) {
+          if (slot.stat[k] !== expectedStat[k] && slot.stat[k] !== rawPokemon.stat?.[k]) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
   };
 
-  const isValidTeamArray = (arr) => Array.isArray(arr) && arr.length === 3 && arr.every(isValidEntrySlot);
+  const isValidTeamArray = (arr) => {
+    if (!Array.isArray(arr) || arr.length !== 3) return false;
+    if (!arr.every(isValidEntrySlot)) return false;
+
+    // 팀 내 중복 포켓몬 검증
+    const ids = arr.filter(Boolean).map((entry) => (typeof entry === "object" ? entry.id : entry));
+    if (new Set(ids).size !== ids.length) return false;
+
+    return true;
+  };
 
   const handleExportTeam = (targetType) => {
     let payload;
