@@ -1,5 +1,5 @@
 // npm test -- src/test/customStatAdjustment.test.js
-import { calculateStat, NATURE_LIST } from "../component/customScreen/StatAdjustmentModal";
+import { calculateStat, NATURE_LIST } from "../component/customScreen/sampleInfo/StatAdjustmentModal";
 import PokemonInstance from "../entity/Pokemon/PokemonInstance";
 import sampleList from "../entity/Pokemon/SamplePokemon";
 import { createBattle } from "../entity/Battle";
@@ -103,7 +103,7 @@ describe("포켓몬 능력치 조절(노력치/성격) 시스템 테스트", () 
   });
 
   test("getNatureInfo가 상승 및 하락 능력치를 기반으로 성격 이름을 올바르게 도출해야 한다", () => {
-    const { getNatureInfo } = require("../component/customScreen/StatAdjustmentModal");
+    const { getNatureInfo } = require("../component/customScreen/sampleInfo/StatAdjustmentModal");
     expect(getNatureInfo("atk", "catk").name).toBe("고집");
     expect(getNatureInfo("speed", "catk").name).toBe("명랑");
     expect(getNatureInfo("catk", "atk").name).toBe("조심");
@@ -124,7 +124,7 @@ describe("포켓몬 능력치 조절(노력치/성격) 시스템 테스트", () 
   });
 
   test("GACHA_OPTIONS 및 5V0A, 5V0S, 4V0A0S 개체치 템플릿 생성이 정상 작동해야 한다", () => {
-    const { GACHA_OPTIONS } = require("../component/customScreen/StatAdjustmentModal");
+    const { GACHA_OPTIONS } = require("../component/customScreen/sampleInfo/StatAdjustmentModal");
     const optionIds = GACHA_OPTIONS.map((o) => o.id);
     expect(optionIds).toEqual(["6V", "5V0A", "5V0S", "4V0A0S"]);
 

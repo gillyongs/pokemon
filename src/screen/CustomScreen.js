@@ -1,19 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import sampleList from "../entity/Pokemon/SamplePokemon";
-import PokemonData from "../entity/Pokemon/PokemonData";
-import { pokemonList, POKEMON_ROLES } from "../entity/Pokemon/PokemonTemplate";
-import { abilObject } from "../entity/Ability";
 import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../util/recoilState";
-import SampleInfoModal from "../component/customScreen/SampleInfoModal";
-import { getAbilityListForPokemon } from "../component/customScreen/AbilSearchModal";
-import { getItemListForPokemon } from "../component/customScreen/ItemSearchModal";
-import { getSkillListForPokemon } from "../skill/PokemonSkillList";
-import { STAT_KEYS, getNatureInfo, normalizeGacha, calculateStat } from "../component/customScreen/StatAdjustmentModal";
-import skillList from "../entity/Skill/skillList";
+import SampleInfoModal from "../component/customScreen/sampleInfo/SampleInfoModal";
+import FilterModal from "../component/customScreen/FilterModal";
+import GameOptionModal from "../component/customScreen/GameOptionModal";
+import { EntrySaveModal, EntryLoadModal, CustomAlertModal } from "../component/customScreen/EntryFileModal";
+import {
+  filterSamplePokemons,
+  buildCustomSlotEntry,
+  resolveSlotPokemonData,
+  isValidTeamArray,
+  exportTeamToFile,
+} from "../util/customEntryUtil";
 import { fillRandomTeam, getRandomPokemonForSlot } from "../util/randomTeam";
 import { testmode } from "../config/testMode";
 
@@ -32,13 +34,6 @@ const CustomScreen = () => {
   const [isLegendaryFilter, setIsLegendaryFilter] = useState(false);
   const [isIntimidateFilter, setIsIntimidateFilter] = useState(false);
   const [isWeatherFilter, setIsWeatherFilter] = useState(false);
-  const [tempSelectedTypes, setTempSelectedTypes] = useState([]);
-  const [tempSelectedRoles, setTempSelectedRoles] = useState([]);
-  const [tempIsMegaFilter, setTempIsMegaFilter] = useState(false);
-  const [tempIsLegendaryFilter, setTempIsLegendaryFilter] = useState(false);
-  const [tempIsIntimidateFilter, setTempIsIntimidateFilter] = useState(false);
-  const [tempIsWeatherFilter, setTempIsWeatherFilter] = useState(false);
-  const [tempLogic, setTempLogic] = useState("OR");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
   const [gameOption, setGameOption] = useRecoilState(gameOptionState);
@@ -46,7 +41,6 @@ const CustomScreen = () => {
   const teamOption = gameOption.teamOption;
   const setDifficulty = (level) => setGameOption((prev) => ({ ...prev, difficulty: level }));
   const setTeamOption = (opt) => setGameOption((prev) => ({ ...prev, teamOption: opt }));
-  const [typeColors, setTypeColors] = useState({});
 
   const listAreaRef = useRef(null);
   const [showTopBtn, setShowTopBtn] = useState(false);
@@ -58,13 +52,6 @@ const CustomScreen = () => {
   const [loadTargetType, setLoadTargetType] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
   const fileInputRef = useRef(null);
-
-  useEffect(() => {
-    fetch("/pokemon/img/type/typeColor.json")
-      .then((res) => res.json())
-      .then((data) => setTypeColors(data))
-      .catch((err) => console.error("Failed to load type colors", err));
-  }, []);
 
   const handleScroll = (e) => {
     if (e.target.scrollTop > 100) {
@@ -80,17 +67,6 @@ const CustomScreen = () => {
     }
   };
 
-  const openFilterModal = () => {
-    setTempSelectedTypes(activeTypes);
-    setTempSelectedRoles(activeRoles);
-    setTempIsMegaFilter(isMegaFilter);
-    setTempIsLegendaryFilter(isLegendaryFilter);
-    setTempIsIntimidateFilter(isIntimidateFilter);
-    setTempIsWeatherFilter(isWeatherFilter);
-    setTempLogic(activeLogic);
-    setIsFilterModalOpen(true);
-  };
-
   const handleGlobalReset = () => {
     setSearchTerm("");
     setActiveTypes([]);
@@ -102,84 +78,15 @@ const CustomScreen = () => {
     setActiveLogic("OR");
   };
 
-  const toggleRole = (role) => {
-    if (tempSelectedRoles.includes(role)) {
-      setTempSelectedRoles(tempSelectedRoles.filter((r) => r !== role));
-    } else {
-      setTempSelectedRoles([...tempSelectedRoles, role]);
-    }
-  };
-
-  const toggleType = (type) => {
-    if (tempSelectedTypes.includes(type)) {
-      setTempSelectedTypes(tempSelectedTypes.filter((t) => t !== type));
-    } else {
-      setTempSelectedTypes([...tempSelectedTypes, type]);
-    }
-  };
-
-  const WEATHER_ABILITIES = ["잔비", "가뭄", "진홍빛고동", "모래날림"];
-
-  const isNameMatch = (searchStr, pokemon) => {
-    if (!searchStr) return true;
-
-    const s = searchStr.trim().toLowerCase();
-    const t = pokemon.id.toLowerCase();
-
-    if (s === "위협" && (pokemon.abil === "위협" || pokemon.megaData?.abil === "위협")) return true;
-    if (s === "날씨" && (WEATHER_ABILITIES.includes(pokemon.abil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil)))) return true;
-    if (s === "초전설" && pokemon.feature?.legendary) return true;
-    if ((s === "메가진화" || s === "메가") && pokemon.megaData) return true;
-
-    if (t.includes(s)) return true;
-
-    if (s === "다투" && t.includes("달투곰")) return true;
-    if (s === "우라" && (t.includes("물라오스") || t.includes("악라오스"))) return true;
-    if (s === "버드" && (t.includes("백마렉스") || t.includes("흑마렉스"))) return true;
-    if (s === "대검" && t.includes("히검귀")) return true;
-    if (s === "페" && t.includes("패리퍼")) return true;
-
-    return false;
-  };
-
-  const filteredSamples = sampleList.items.filter((pokemon) => {
-    const nameMatch = isNameMatch(searchTerm, pokemon);
-
-    let typeMatch = true;
-    if (activeTypes.length > 0) {
-      if (activeLogic === "OR") {
-        typeMatch = activeTypes.includes(pokemon.type1) || activeTypes.includes(pokemon.type2);
-      } else {
-        typeMatch = activeTypes.every((t) => pokemon.type1 === t || pokemon.type2 === t);
-      }
-    }
-
-    let roleMatch = true;
-    if (activeRoles.length > 0) {
-      roleMatch = activeRoles.includes(pokemon.role);
-    }
-
-    let megaMatch = true;
-    if (isMegaFilter) {
-      megaMatch = !!pokemon.megaData;
-    }
-
-    let legendaryMatch = true;
-    if (isLegendaryFilter) {
-      legendaryMatch = !!pokemon.feature?.legendary;
-    }
-
-    let intimidateMatch = true;
-    if (isIntimidateFilter) {
-      intimidateMatch = pokemon.abil === "위협" || pokemon.megaData?.abil === "위협";
-    }
-
-    let weatherMatch = true;
-    if (isWeatherFilter) {
-      weatherMatch = WEATHER_ABILITIES.includes(pokemon.abil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil));
-    }
-
-    return nameMatch && typeMatch && roleMatch && megaMatch && legendaryMatch && intimidateMatch && weatherMatch;
+  const filteredSamples = filterSamplePokemons(sampleList.items, {
+    searchTerm,
+    activeTypes,
+    activeLogic,
+    activeRoles,
+    isMegaFilter,
+    isLegendaryFilter,
+    isIntimidateFilter,
+    isWeatherFilter,
   });
 
   const getActiveTeam = () => (activeTab === "player" ? selectedTeam : npcTeam);
@@ -211,42 +118,7 @@ const CustomScreen = () => {
     const emptyIndex = currentTeam.indexOf(null);
     if (emptyIndex === -1) return;
     const newTeam = [...currentTeam];
-    const finalItem = customItem !== undefined ? customItem : pokemon.item;
-    const finalAbil = customAbil !== undefined ? customAbil : pokemon.abil;
-    const isItemChanged = finalItem !== pokemon.item;
-    const isAbilChanged = finalAbil !== pokemon.abil;
-
-    const defaultSkills = {
-      1: pokemon.skill?.[1]?.name,
-      2: pokemon.skill?.[2]?.name,
-      3: pokemon.skill?.[3]?.name,
-      4: pokemon.skill?.[4]?.name,
-    };
-    const finalSkills = customSkills || defaultSkills;
-    const isSkillsChanged = [1, 2, 3, 4].some((slot) => finalSkills[slot] && finalSkills[slot] !== defaultSkills[slot]);
-
-    const isStatChanged = Boolean(customStats && (customStats.hp !== pokemon.hp || customStats.stat?.atk !== pokemon.stat?.atk || customStats.stat?.def !== pokemon.stat?.def || customStats.stat?.catk !== pokemon.stat?.catk || customStats.stat?.cdef !== pokemon.stat?.cdef || customStats.stat?.speed !== pokemon.stat?.speed));
-
-    if (isItemChanged || isAbilChanged || isSkillsChanged || isStatChanged) {
-      newTeam[emptyIndex] = {
-        id: pokemon.id,
-        item: finalItem,
-        abil: finalAbil,
-        skills: finalSkills,
-        ...(isStatChanged
-          ? {
-              stat: customStats.stat,
-              hp: customStats.hp,
-              evs: customStats.evs,
-              nature: customStats.nature,
-              gacha: customStats.gacha,
-              megaData: customStats.megaData,
-            }
-          : {}),
-      };
-    } else {
-      newTeam[emptyIndex] = pokemon.id;
-    }
+    newTeam[emptyIndex] = buildCustomSlotEntry(pokemon, customItem, customAbil, customSkills, customStats);
     setActiveTeam(newTeam);
   };
 
@@ -254,43 +126,7 @@ const CustomScreen = () => {
     if (slotIndex === null || slotIndex === undefined) return;
     const currentTeam = getActiveTeam();
     const newTeam = [...currentTeam];
-    const rawPokemon = sampleList.getDataById(pokemon.id) || pokemon;
-    const finalItem = customItem !== undefined ? customItem : rawPokemon.item;
-    const finalAbil = customAbil !== undefined ? customAbil : rawPokemon.abil;
-    const isItemChanged = finalItem !== rawPokemon.item;
-    const isAbilChanged = finalAbil !== rawPokemon.abil;
-
-    const defaultSkills = {
-      1: rawPokemon.skill?.[1]?.name,
-      2: rawPokemon.skill?.[2]?.name,
-      3: rawPokemon.skill?.[3]?.name,
-      4: rawPokemon.skill?.[4]?.name,
-    };
-    const finalSkills = customSkills || defaultSkills;
-    const isSkillsChanged = [1, 2, 3, 4].some((slot) => finalSkills[slot] && finalSkills[slot] !== defaultSkills[slot]);
-
-    const isStatChanged = Boolean(customStats && (customStats.hp !== rawPokemon.hp || customStats.stat?.atk !== rawPokemon.stat?.atk || customStats.stat?.def !== rawPokemon.stat?.def || customStats.stat?.catk !== rawPokemon.stat?.catk || customStats.stat?.cdef !== rawPokemon.stat?.cdef || customStats.stat?.speed !== rawPokemon.stat?.speed));
-
-    if (isItemChanged || isAbilChanged || isSkillsChanged || isStatChanged) {
-      newTeam[slotIndex] = {
-        id: rawPokemon.id,
-        item: finalItem,
-        abil: finalAbil,
-        skills: finalSkills,
-        ...(isStatChanged
-          ? {
-              stat: customStats.stat,
-              hp: customStats.hp,
-              evs: customStats.evs,
-              nature: customStats.nature,
-              gacha: customStats.gacha,
-              megaData: customStats.megaData,
-            }
-          : {}),
-      };
-    } else {
-      newTeam[slotIndex] = rawPokemon.id;
-    }
+    newTeam[slotIndex] = buildCustomSlotEntry(pokemon, customItem, customAbil, customSkills, customStats);
     setActiveTeam(newTeam);
   };
 
@@ -392,152 +228,8 @@ const CustomScreen = () => {
     setActiveTab("player");
   };
 
-  const isValidEntrySlot = (slot) => {
-    if (slot === null) return true;
-    if (typeof slot === "string") return Boolean(sampleList.getDataById(slot));
-    if (typeof slot !== "object" || Array.isArray(slot) || typeof slot.id !== "string") return false;
-
-    const rawPokemon = sampleList.getDataById(slot.id);
-    if (!rawPokemon) return false;
-
-    // 1. 특성 검증: 해당 포켓몬이 가질 수 있는 구현된 특성인지 확인
-    if (slot.abil !== undefined && slot.abil !== null) {
-      if (typeof slot.abil !== "string") return false;
-      const validAbils = getAbilityListForPokemon(rawPokemon).filter((a) => a.isImplemented).map((a) => a.name);
-      if (!validAbils.includes(slot.abil) && slot.abil !== rawPokemon.abil) {
-        return false;
-      }
-    }
-
-    // 2. 도구 검증: 존재하는 도구이자 해당 포켓몬이 장착 가능한 도구인지 확인 (전용 도구 제한 포함)
-    if (slot.item !== undefined && slot.item !== null) {
-      if (typeof slot.item !== "string") return false;
-      if (slot.item !== "" && slot.item !== "없음") {
-        const validItems = getItemListForPokemon(rawPokemon).map((i) => i.name);
-        if (!validItems.includes(slot.item) && slot.item !== rawPokemon.item) {
-          return false;
-        }
-      }
-    }
-
-    // 3. 기술 검증: 해당 포켓몬이 배울 수 있는 구현된 기술인지, 중복은 없는지 확인
-    if (slot.skills !== undefined && slot.skills !== null) {
-      if (typeof slot.skills !== "object" || Array.isArray(slot.skills)) return false;
-      const learnableSkills = getSkillListForPokemon(rawPokemon).filter((s) => s.isImplemented).map((s) => s.name);
-      const chosenSkills = [];
-      for (const num of [1, 2, 3, 4]) {
-        const skName = slot.skills[num] ?? slot.skills[String(num)];
-        if (skName !== undefined && skName !== null && skName !== "") {
-          if (typeof skName !== "string") return false;
-          if (!learnableSkills.includes(skName)) return false;
-          if (chosenSkills.includes(skName)) return false;
-          chosenSkills.push(skName);
-        }
-      }
-      if (chosenSkills.length === 0) return false;
-    }
-
-    // 4. 능력치(노력치, 성격, 개체값, 실능치) 범위 및 일치 여부 검증
-    const hasCustomStatFields = slot.evs !== undefined || slot.nature !== undefined || slot.gacha !== undefined || slot.hp !== undefined || slot.stat !== undefined;
-    if (hasCustomStatFields) {
-      const evs = slot.evs || rawPokemon.evs || { hp: 0, atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
-      if (typeof evs !== "object" || Array.isArray(evs)) return false;
-
-      let totalEv = 0;
-      for (const k of STAT_KEYS) {
-        const v = evs[k];
-        if (typeof v !== "number" || !Number.isInteger(v) || v < 0 || v > 252) return false;
-        totalEv += v;
-      }
-      if (totalEv > 508) return false;
-
-      const nature = slot.nature || rawPokemon.nature || { up: null, down: null };
-      if (typeof nature !== "object" || Array.isArray(nature)) return false;
-      const validNatureKeys = [null, undefined, "atk", "def", "catk", "cdef", "speed"];
-      if (!validNatureKeys.includes(nature.up) || !validNatureKeys.includes(nature.down)) return false;
-      const natureInfo = getNatureInfo(nature.up, nature.down);
-      if (!natureInfo.isValid) return false;
-
-      const rawGacha = slot.gacha || rawPokemon.gacha || "6V";
-      if (!["6V", "5V0A", "5V0S", "4V0A0S", "5V1A", "5V1S", "4V"].includes(rawGacha)) return false;
-      const gacha = normalizeGacha(rawGacha);
-
-      const baseData = PokemonData.getDataById(rawPokemon.pokemon_id) || PokemonData.getDataById(rawPokemon.id);
-      if (!baseData) return false;
-
-      const isSpeed0 = gacha === "5V0S" || gacha === "4V0A0S";
-      const isAtk0 = gacha === "5V0A" || gacha === "4V0A0S";
-      const ivs = {
-        hp: 31,
-        atk: isAtk0 ? 0 : 31,
-        def: 31,
-        catk: 31,
-        cdef: 31,
-        speed: isSpeed0 ? 0 : 31,
-      };
-      const isUp = (key) => nature.up === key && nature.down !== key;
-      const isDown = (key) => nature.down === key && nature.up !== key;
-
-      const expectedHp = calculateStat(baseData.hp, ivs.hp, evs.hp, true);
-      const expectedStat = {
-        atk: calculateStat(baseData.atk, ivs.atk, evs.atk, false, isUp("atk"), isDown("atk")),
-        def: calculateStat(baseData.def, ivs.def, evs.def, false, isUp("def"), isDown("def")),
-        catk: calculateStat(baseData.catk, ivs.catk, evs.catk, false, isUp("catk"), isDown("catk")),
-        cdef: calculateStat(baseData.cdef, ivs.cdef, evs.cdef, false, isUp("cdef"), isDown("cdef")),
-        speed: calculateStat(baseData.speed, ivs.speed, evs.speed, false, isUp("speed"), isDown("speed")),
-      };
-
-      if (slot.hp !== undefined && slot.hp !== expectedHp && slot.hp !== rawPokemon.hp) {
-        return false;
-      }
-      if (slot.stat !== undefined) {
-        if (typeof slot.stat !== "object" || Array.isArray(slot.stat)) return false;
-        for (const k of ["atk", "def", "catk", "cdef", "speed"]) {
-          if (slot.stat[k] !== expectedStat[k] && slot.stat[k] !== rawPokemon.stat?.[k]) {
-            return false;
-          }
-        }
-      }
-    }
-
-    return true;
-  };
-
-  const isValidTeamArray = (arr) => {
-    if (!Array.isArray(arr) || arr.length !== 3) return false;
-    if (!arr.every(isValidEntrySlot)) return false;
-
-    // 팀 내 중복 포켓몬 검증
-    const ids = arr.filter(Boolean).map((entry) => (typeof entry === "object" ? entry.id : entry));
-    if (new Set(ids).size !== ids.length) return false;
-
-    return true;
-  };
-
   const handleExportTeam = (targetType) => {
-    let payload;
-    let fileName;
-    if (targetType === "player") {
-      payload = { type: "single", team: selectedTeam };
-      fileName = "my_entry.txt";
-    } else if (targetType === "npc") {
-      payload = { type: "single", team: npcTeam };
-      fileName = "npc_entry.txt";
-    } else {
-      payload = { type: "all", playerTeam: selectedTeam, npcTeam };
-      fileName = "all_entry.txt";
-    }
-
-    const content = JSON.stringify(payload, null, 2);
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    exportTeamToFile(targetType, selectedTeam, npcTeam);
     setIsSaveModalOpen(false);
   };
 
@@ -616,45 +308,21 @@ const CustomScreen = () => {
           {[0, 1, 2].map((index) => {
             const pokemonEntry = currentTeam[index];
             const pokemonId = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.id : pokemonEntry;
-            const customItem = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.item : null;
-            const customAbil = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.abil : null;
-            const customSkills = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.skills : null;
-            const rawPokemonData = pokemonId ? sampleList.getDataById(pokemonId) : null;
-            let pokemonData = rawPokemonData;
-            if (rawPokemonData) {
-              const itemVal = customItem !== null && customItem !== undefined ? (customItem === "없음" ? "" : customItem) : rawPokemonData.item;
-              const abilVal = customAbil !== null && customAbil !== undefined ? customAbil : rawPokemonData.abil;
-              let skillsVal = rawPokemonData.skill;
-              if (customSkills) {
-                skillsVal = {
-                  1: customSkills[1] ? { ...skillList.search(customSkills[1]), skillNumber: 1 } : rawPokemonData.skill[1],
-                  2: customSkills[2] ? { ...skillList.search(customSkills[2]), skillNumber: 2 } : rawPokemonData.skill[2],
-                  3: customSkills[3] ? { ...skillList.search(customSkills[3]), skillNumber: 3 } : rawPokemonData.skill[3],
-                  4: customSkills[4] ? { ...skillList.search(customSkills[4]), skillNumber: 4 } : rawPokemonData.skill[4],
-                };
-              }
-              const statVal = typeof pokemonEntry === "object" && pokemonEntry?.stat ? { ...rawPokemonData.stat, ...pokemonEntry.stat } : rawPokemonData.stat;
-              const hpVal = typeof pokemonEntry === "object" && pokemonEntry?.hp !== undefined ? pokemonEntry.hp : rawPokemonData.hp;
-              const evsVal = typeof pokemonEntry === "object" && pokemonEntry?.evs ? pokemonEntry.evs : rawPokemonData.evs;
-              const natureVal = typeof pokemonEntry === "object" && pokemonEntry?.nature ? pokemonEntry.nature : rawPokemonData.nature;
-              const gachaVal = typeof pokemonEntry === "object" && pokemonEntry?.gacha ? pokemonEntry.gacha : rawPokemonData.gacha;
-              const megaDataVal = typeof pokemonEntry === "object" && pokemonEntry?.megaData ? pokemonEntry.megaData : rawPokemonData.megaData;
-
-              pokemonData = {
-                ...rawPokemonData,
-                item: itemVal,
-                abil: abilVal,
-                skill: skillsVal,
-                stat: statVal,
-                hp: hpVal,
-                evs: evsVal,
-                nature: natureVal,
-                gacha: gachaVal,
-                megaData: megaDataVal,
-              };
-            }
+            const pokemonData = resolveSlotPokemonData(pokemonEntry);
             return (
-              <Slot key={index} className="team-slot" data-index={index} draggable={!!pokemonId} onDragStart={(e) => handleDragStart(e, index)} onDrop={(e) => handleDrop(e, index)} onDragOver={handleDragOver} onTouchStart={(e) => handleTouchStart(e, index)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} $hasData={!!pokemonId}>
+              <Slot
+                key={index}
+                className="team-slot"
+                data-index={index}
+                draggable={!!pokemonId}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragOver={handleDragOver}
+                onTouchStart={(e) => handleTouchStart(e, index)}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                $hasData={!!pokemonId}
+              >
                 {pokemonData ? (
                   <PokemonCard
                     onClick={() => {
@@ -751,7 +419,7 @@ const CustomScreen = () => {
               />
               {searchTerm && <ClearInputButton onClick={() => setSearchTerm("")}>✕</ClearInputButton>}
             </InputContainer>
-            <FilterButton onClick={openFilterModal}>
+            <FilterButton onClick={() => setIsFilterModalOpen(true)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
               </svg>
@@ -823,185 +491,45 @@ const CustomScreen = () => {
           })}
         </Grid>
       </ListArea>
+
       {isFilterModalOpen && (
-        <ModalOverlay onClick={() => setIsFilterModalOpen(false)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalHeader>
-              <ModalTitle>포켓몬 검색</ModalTitle>
-              <LogicSwitch onClick={() => setTempLogic(tempLogic === "OR" ? "AND" : "OR")}>
-                <LogicOption $active={tempLogic === "OR"}>OR</LogicOption>
-                <LogicOption $active={tempLogic === "AND"}>AND</LogicOption>
-              </LogicSwitch>
-              <CloseIcon onClick={() => setIsFilterModalOpen(false)}>✕</CloseIcon>
-            </ModalHeader>
-            <SectionTitleRow>
-              <ModalSubTitle>타입</ModalSubTitle>
-              <SectionResetButton onClick={() => setTempSelectedTypes([])}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                  <path d="M3 3v5h5"></path>
-                </svg>
-              </SectionResetButton>
-            </SectionTitleRow>
-            <TypeGrid>
-              <TypeButton $active={tempSelectedTypes.length === 0} onClick={() => setTempSelectedTypes([])}>
-                전체
-              </TypeButton>
-              {POKEMON_TYPES.map((type) => (
-                <TypeButton key={type} $active={tempSelectedTypes.includes(type)} $color={typeColors[type]} onClick={() => toggleType(type)}>
-                  {type}
-                </TypeButton>
-              ))}
-            </TypeGrid>
-
-            <SectionTitleRow>
-              <ModalSubTitle>역할군</ModalSubTitle>
-              <SectionResetButton onClick={() => setTempSelectedRoles([])}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                  <path d="M3 3v5h5"></path>
-                </svg>
-              </SectionResetButton>
-            </SectionTitleRow>
-            <RoleGrid>
-              <TypeButton $active={tempSelectedRoles.length === 0} onClick={() => setTempSelectedRoles([])}>
-                전체
-              </TypeButton>
-              {POKEMON_ROLES.map((role) => (
-                <TypeButton key={role} $active={tempSelectedRoles.includes(role)} onClick={() => toggleRole(role)}>
-                  {role}
-                </TypeButton>
-              ))}
-            </RoleGrid>
-
-            <SectionTitleRow>
-              <ModalSubTitle>기타</ModalSubTitle>
-              <SectionResetButton
-                onClick={() => {
-                  setTempIsMegaFilter(false);
-                  setTempIsLegendaryFilter(false);
-                  setTempIsIntimidateFilter(false);
-                  setTempIsWeatherFilter(false);
-                }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                  <path d="M3 3v5h5"></path>
-                </svg>
-              </SectionResetButton>
-            </SectionTitleRow>
-            <EtcRow>
-              <CheckboxLabel>
-                <CheckboxInput type="checkbox" checked={tempIsMegaFilter} onChange={(e) => setTempIsMegaFilter(e.target.checked)} />
-                메가진화
-              </CheckboxLabel>
-              <CheckboxLabel>
-                <CheckboxInput type="checkbox" checked={tempIsLegendaryFilter} onChange={(e) => setTempIsLegendaryFilter(e.target.checked)} />
-                초전설
-              </CheckboxLabel>
-              <CheckboxLabel>
-                <CheckboxInput type="checkbox" checked={tempIsIntimidateFilter} onChange={(e) => setTempIsIntimidateFilter(e.target.checked)} />
-                위협
-              </CheckboxLabel>
-              <CheckboxLabel>
-                <CheckboxInput type="checkbox" checked={tempIsWeatherFilter} onChange={(e) => setTempIsWeatherFilter(e.target.checked)} />
-                날씨
-              </CheckboxLabel>
-            </EtcRow>
-
-            <ModalFooter>
-              <SearchButton
-                onClick={() => {
-                  setActiveTypes(tempSelectedTypes);
-                  setActiveRoles(tempSelectedRoles);
-                  setIsMegaFilter(tempIsMegaFilter);
-                  setIsLegendaryFilter(tempIsLegendaryFilter);
-                  setIsIntimidateFilter(tempIsIntimidateFilter);
-                  setIsWeatherFilter(tempIsWeatherFilter);
-                  setActiveLogic(tempLogic);
-                  setIsFilterModalOpen(false);
-                }}
-              >
-                검색
-              </SearchButton>
-            </ModalFooter>
-          </ModalContent>
-        </ModalOverlay>
+        <FilterModal
+          activeTypes={activeTypes}
+          activeRoles={activeRoles}
+          isMegaFilter={isMegaFilter}
+          isLegendaryFilter={isLegendaryFilter}
+          isIntimidateFilter={isIntimidateFilter}
+          isWeatherFilter={isWeatherFilter}
+          activeLogic={activeLogic}
+          onApply={({ types, roles, isMega, isLegendary, isIntimidate, isWeather, logic }) => {
+            setActiveTypes(types);
+            setActiveRoles(roles);
+            setIsMegaFilter(isMega);
+            setIsLegendaryFilter(isLegendary);
+            setIsIntimidateFilter(isIntimidate);
+            setIsWeatherFilter(isWeather);
+            setActiveLogic(logic);
+          }}
+          onClose={() => setIsFilterModalOpen(false)}
+        />
       )}
+
       {isOptionModalOpen && (
-        <ModalOverlay onClick={() => setIsOptionModalOpen(false)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalHeader>
-              <ModalTitle>게임 옵션</ModalTitle>
-              <CloseIcon onClick={() => setIsOptionModalOpen(false)}>✕</CloseIcon>
-            </ModalHeader>
-            <ModalSubTitle>난이도</ModalSubTitle>
-            <DifficultyContainer>
-              {["이지", "노말", "하드"].map((level) => (
-                <DifficultyButton key={level} $active={difficulty === level} onClick={() => setDifficulty(level)}>
-                  {level}
-                </DifficultyButton>
-              ))}
-            </DifficultyContainer>
-            <DifficultyDescription>
-              {difficulty === "이지" && "기초적인 포켓몬배틀이다."}
-              {difficulty === "노말" && "매 라운드마다 적의 체력이 0.1배 증가합니다."}
-              {difficulty === "하드" && "매 라운드마다 적의 모든 능력치가 0.1배 증가합니다."}
-            </DifficultyDescription>
-            <ModalSubTitle style={{ marginTop: "20px" }}>팀 옵션</ModalSubTitle>
-            <DifficultyContainer>
-              {["랜덤", "고정", "트레이드"].map((opt) => (
-                <DifficultyButton key={opt} $active={teamOption === opt} onClick={() => setTeamOption(opt)}>
-                  {opt}
-                </DifficultyButton>
-              ))}
-            </DifficultyContainer>
-            <DifficultyDescription>
-              {teamOption === "랜덤" && "매 라운드마다 팀 엔트리가 랜덤하게 바뀝니다."}
-              {teamOption === "고정" && "팀 엔트리가 바뀌지 않습니다."}
-              {teamOption === "트레이드" && "매 라운드마다 상대 팀 엔트리에서 한명을 교환할 수 있습니다."}
-            </DifficultyDescription>
-          </ModalContent>
-        </ModalOverlay>
+        <GameOptionModal
+          difficulty={difficulty}
+          setDifficulty={setDifficulty}
+          teamOption={teamOption}
+          setTeamOption={setTeamOption}
+          onClose={() => setIsOptionModalOpen(false)}
+        />
       )}
-      {isSaveModalOpen && (
-        <ModalOverlay onClick={() => setIsSaveModalOpen(false)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalHeader>
-              <ModalTitle>샘플 저장</ModalTitle>
-              <CloseIcon onClick={() => setIsSaveModalOpen(false)}>✕</CloseIcon>
-            </ModalHeader>
-            <EntryActionList>
-              <EntryActionButton onClick={() => handleExportTeam("player")}>내 엔트리만 저장</EntryActionButton>
-              <EntryActionButton onClick={() => handleExportTeam("npc")}>상대 엔트리만 저장</EntryActionButton>
-              <EntryActionButton onClick={() => handleExportTeam("all")}>전체 엔트리 저장</EntryActionButton>
-            </EntryActionList>
-          </ModalContent>
-        </ModalOverlay>
-      )}
-      {isLoadModalOpen && (
-        <ModalOverlay onClick={() => setIsLoadModalOpen(false)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalHeader>
-              <ModalTitle>샘플 불러오기</ModalTitle>
-              <CloseIcon onClick={() => setIsLoadModalOpen(false)}>✕</CloseIcon>
-            </ModalHeader>
-            <EntryActionList>
-              <EntryActionButton onClick={() => handleImportSelect("player")}>내 엔트리 불러오기</EntryActionButton>
-              <EntryActionButton onClick={() => handleImportSelect("npc")}>상대 엔트리 불러오기</EntryActionButton>
-              <EntryActionButton onClick={() => handleImportSelect("all")}>전체 엔트리 불러오기</EntryActionButton>
-            </EntryActionList>
-          </ModalContent>
-        </ModalOverlay>
-      )}
-      {alertMessage && (
-        <ModalOverlay onClick={() => setAlertMessage(null)}>
-          <ModalContent onClick={(e) => e.stopPropagation()} style={{ width: "280px", textAlign: "center" }}>
-            <div style={{ fontSize: "1rem", fontWeight: "bold", color: "#333", margin: "12px 0 20px 0" }}>{alertMessage}</div>
-            <SearchButton onClick={() => setAlertMessage(null)}>확인</SearchButton>
-          </ModalContent>
-        </ModalOverlay>
-      )}
+
+      {isSaveModalOpen && <EntrySaveModal onExport={handleExportTeam} onClose={() => setIsSaveModalOpen(false)} />}
+
+      {isLoadModalOpen && <EntryLoadModal onImportSelect={handleImportSelect} onClose={() => setIsLoadModalOpen(false)} />}
+
+      {alertMessage && <CustomAlertModal message={alertMessage} onClose={() => setAlertMessage(null)} />}
+
       {infoModalPokemon && (
         <SampleInfoModal
           pokemon={infoModalPokemon}
@@ -1027,220 +555,6 @@ const CustomScreen = () => {
 };
 
 export default CustomScreen;
-
-const POKEMON_TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투", "독", "땅", "비행", "에스퍼", "벌레", "바위", "고스트", "드래곤", "악", "강철", "페어리"];
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-`;
-
-const ModalContent = styled.div`
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  width: 320px;
-  max-width: 90%;
-  max-height: 85vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-`;
-
-const ModalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-`;
-
-const ModalTitle = styled.h3`
-  margin: 0;
-  font-size: 1.1rem;
-  margin-right: auto;
-`;
-
-const SectionTitleRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-`;
-
-const ModalSubTitle = styled.div`
-  font-size: 0.95rem;
-  font-weight: bold;
-  color: #555;
-`;
-
-const DifficultyContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  margin-bottom: 20px;
-`;
-
-const DifficultyButton = styled.div`
-  flex: 1;
-  text-align: center;
-  padding: 10px 0;
-  border: 1px solid ${(props) => (props.$active ? "#4caf50" : "#ccc")};
-  background-color: ${(props) => (props.$active ? "#4caf50" : "#fff")};
-  color: ${(props) => (props.$active ? "#fff" : "#333")};
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: ${(props) => (props.$active ? "bold" : "normal")};
-
-  &:hover {
-    background-color: ${(props) => (props.$active ? "#4caf50" : "#f5f5f5")};
-  }
-`;
-
-const DifficultyDescription = styled.div`
-  background-color: #f9f9f9;
-  padding: 15px;
-  border-radius: 6px;
-  color: #666;
-  font-size: 0.9rem;
-  line-height: 1.5;
-`;
-
-const SectionResetButton = styled.button`
-  background-color: #4caf50;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  width: 28px;
-  height: 28px;
-
-  &:hover {
-    background-color: #43a047;
-  }
-`;
-
-const LogicSwitch = styled.div`
-  display: flex;
-  background-color: #f0f0f0;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-right: 15px;
-  cursor: pointer;
-`;
-
-const LogicOption = styled.div`
-  padding: 4px 12px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  background-color: ${(props) => (props.$active ? "#4caf50" : "transparent")};
-  color: ${(props) => (props.$active ? "white" : "#666")};
-  transition: all 0.2s;
-`;
-
-const CloseIcon = styled.div`
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: #aaa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    color: #666;
-  }
-`;
-
-const TypeGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 20px;
-`;
-
-const RoleGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 20px;
-`;
-
-const EtcRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-  padding: 4px 2px;
-`;
-
-const CheckboxLabel = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.95rem;
-  color: #333;
-  cursor: pointer;
-  user-select: none;
-`;
-
-const CheckboxInput = styled.input`
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: #4caf50;
-`;
-
-const TypeButton = styled.button`
-  padding: 8px 0;
-  border: 1px solid ${(props) => (props.$active ? props.$color || "#4caf50" : "#ccc")};
-  background-color: ${(props) => (props.$active ? props.$color || "#4caf50" : "#fff")};
-  color: ${(props) => (props.$active ? "#fff" : "#333")};
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: ${(props) => (props.$active ? "bold" : "normal")};
-  font-size: 0.85rem;
-  transition: all 0.2s;
-
-  &:hover {
-    filter: ${(props) => (props.$active ? "brightness(0.9)" : "none")};
-    background-color: ${(props) => (props.$active ? props.$color || "#4caf50" : "#f5f5f5")};
-  }
-`;
-
-const ModalFooter = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 10px;
-`;
-
-const SearchButton = styled.button`
-  width: 100%;
-  padding: 10px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-
-  &:hover {
-    background-color: #43a047;
-  }
-`;
 
 const Container = styled.div`
   display: flex;
@@ -1627,33 +941,6 @@ const IconActionButton = styled.button`
   }
 `;
 
-const EntryActionList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 5px;
-`;
-
-const EntryActionButton = styled.button`
-  width: 100%;
-  padding: 12px 0;
-  background-color: #f8f9fa;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: bold;
-  font-family: inherit;
-  color: #333;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background-color: #e8f5e9;
-    border-color: #4caf50;
-    color: #2e7d32;
-  }
-`;
-
 const OptionButton = styled.button`
   position: absolute;
   right: 0;
@@ -1863,10 +1150,4 @@ const SkillNameText = styled.span`
   @media (max-width: 500px) {
     font-size: 0.51rem;
   }
-`;
-
-const AbilText = styled.div`
-  font-size: 0.8rem;
-  color: #666;
-  margin-top: 2px;
 `;

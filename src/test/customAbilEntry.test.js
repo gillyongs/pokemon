@@ -3,7 +3,7 @@ import sampleList from "../entity/Pokemon/SamplePokemon";
 import { generate } from "../entity/Pokemon/PokemonInstance";
 import { createBattle } from "../entity/Battle";
 import { abilObject } from "../entity/Ability";
-import { getAbilityListForPokemon, sortAbilities } from "../component/customScreen/AbilSearchModal";
+import { getAbilityListForPokemon, sortAbilities } from "../component/customScreen/sampleInfo/AbilSearchModal";
 
 describe("커스텀 특성 선택 및 엔트리 적용 테스트", () => {
   it("포켓몬의 변경 가능한 특성 목록을 가져오고 구현 여부(isImplemented)를 올바르게 판별해야 한다", () => {

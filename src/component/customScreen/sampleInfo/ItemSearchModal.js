@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
-import { itemText } from "../../entity/Item";
-import { typeCheck } from "../../util/typeEffectCalculate";
+import { itemText } from "../../../entity/Item";
+import { typeCheck } from "../../../util/typeEffectCalculate";
 
 const EXCLUSIVE_ITEMS = {
   녹슨검: (p) => p?.id === "자시안" || p?.name === "자시안",
