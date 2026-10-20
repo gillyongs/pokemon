@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import sampleList from "../entity/Pokemon/SamplePokemon";
@@ -14,8 +14,9 @@ import { testmode } from "../config/testMode";
 
 const CustomScreen = () => {
   const navigate = useNavigate();
-  const [selectedTeam, setSelectedTeam] = useState([null, null, null]);
-  const [npcTeam, setNpcTeam] = useState([null, null, null]);
+  const location = useLocation();
+  const [selectedTeam, setSelectedTeam] = useState(() => location.state?.team1 || [null, null, null]);
+  const [npcTeam, setNpcTeam] = useState(() => location.state?.team2 || [null, null, null]);
   const [activeTab, setActiveTab] = useState("player");
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,6 +47,12 @@ const CustomScreen = () => {
   const [showTopBtn, setShowTopBtn] = useState(false);
 
   const [infoModalPokemon, setInfoModalPokemon] = useState(null);
+  const [editingSlotIndex, setEditingSlotIndex] = useState(null);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
+  const [loadTargetType, setLoadTargetType] = useState(null);
+  const [alertMessage, setAlertMessage] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetch("/pokemon/img/type/typeColor.json")
@@ -238,6 +245,50 @@ const CustomScreen = () => {
     setActiveTeam(newTeam);
   };
 
+  const handleUpdateTeamSlot = (slotIndex, pokemon, customItem, customAbil, customSkills, customStats) => {
+    if (slotIndex === null || slotIndex === undefined) return;
+    const currentTeam = getActiveTeam();
+    const newTeam = [...currentTeam];
+    const rawPokemon = sampleList.getDataById(pokemon.id) || pokemon;
+    const finalItem = customItem !== undefined ? customItem : rawPokemon.item;
+    const finalAbil = customAbil !== undefined ? customAbil : rawPokemon.abil;
+    const isItemChanged = finalItem !== rawPokemon.item;
+    const isAbilChanged = finalAbil !== rawPokemon.abil;
+
+    const defaultSkills = {
+      1: rawPokemon.skill?.[1]?.name,
+      2: rawPokemon.skill?.[2]?.name,
+      3: rawPokemon.skill?.[3]?.name,
+      4: rawPokemon.skill?.[4]?.name,
+    };
+    const finalSkills = customSkills || defaultSkills;
+    const isSkillsChanged = [1, 2, 3, 4].some((slot) => finalSkills[slot] && finalSkills[slot] !== defaultSkills[slot]);
+
+    const isStatChanged = Boolean(customStats && (customStats.hp !== rawPokemon.hp || customStats.stat?.atk !== rawPokemon.stat?.atk || customStats.stat?.def !== rawPokemon.stat?.def || customStats.stat?.catk !== rawPokemon.stat?.catk || customStats.stat?.cdef !== rawPokemon.stat?.cdef || customStats.stat?.speed !== rawPokemon.stat?.speed));
+
+    if (isItemChanged || isAbilChanged || isSkillsChanged || isStatChanged) {
+      newTeam[slotIndex] = {
+        id: rawPokemon.id,
+        item: finalItem,
+        abil: finalAbil,
+        skills: finalSkills,
+        ...(isStatChanged
+          ? {
+              stat: customStats.stat,
+              hp: customStats.hp,
+              evs: customStats.evs,
+              nature: customStats.nature,
+              gacha: customStats.gacha,
+              megaData: customStats.megaData,
+            }
+          : {}),
+      };
+    } else {
+      newTeam[slotIndex] = rawPokemon.id;
+    }
+    setActiveTeam(newTeam);
+  };
+
   const handleRemove = (index) => {
     const currentTeam = getActiveTeam();
     const newTeam = [...currentTeam];
@@ -321,7 +372,7 @@ const CustomScreen = () => {
   const startBattle = () => {
     const team1 = getRandomTeamWithExisting(selectedTeam, 3);
     const team2 = getRandomTeamWithExisting(npcTeam, 3);
-    navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, round: defaultOption.round } });
+    navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, round: defaultOption.round, fromCustom: true } });
   };
 
   const handleTestSetup = () => {
@@ -334,6 +385,90 @@ const CustomScreen = () => {
       setNpcTeam(testTeam);
     }
     setActiveTab("player");
+  };
+
+  const isValidEntrySlot = (slot) => {
+    if (slot === null) return true;
+    if (typeof slot === "string") return Boolean(sampleList.getDataById(slot));
+    if (typeof slot === "object" && typeof slot.id === "string") return Boolean(sampleList.getDataById(slot.id));
+    return false;
+  };
+
+  const isValidTeamArray = (arr) => Array.isArray(arr) && arr.length === 3 && arr.every(isValidEntrySlot);
+
+  const handleExportTeam = (targetType) => {
+    let payload;
+    let fileName;
+    if (targetType === "player") {
+      payload = { type: "single", team: selectedTeam };
+      fileName = "my_entry.txt";
+    } else if (targetType === "npc") {
+      payload = { type: "single", team: npcTeam };
+      fileName = "npc_entry.txt";
+    } else {
+      payload = { type: "all", playerTeam: selectedTeam, npcTeam };
+      fileName = "all_entry.txt";
+    }
+
+    const content = JSON.stringify(payload, null, 2);
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setIsSaveModalOpen(false);
+  };
+
+  const handleImportSelect = (targetType) => {
+    setLoadTargetType(targetType);
+    setIsLoadModalOpen(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result;
+        const parsed = JSON.parse(text);
+
+        if (loadTargetType === "player") {
+          const teamData = Array.isArray(parsed) ? parsed : parsed?.team || parsed?.playerTeam;
+          if (!isValidTeamArray(teamData)) throw new Error("Invalid player team");
+          setSelectedTeam(teamData);
+          setActiveTab("player");
+        } else if (loadTargetType === "npc") {
+          const teamData = Array.isArray(parsed) ? parsed : parsed?.team || parsed?.npcTeam;
+          if (!isValidTeamArray(teamData)) throw new Error("Invalid npc team");
+          setNpcTeam(teamData);
+          setActiveTab("npc");
+        } else if (loadTargetType === "all") {
+          if (!isValidTeamArray(parsed?.playerTeam) || !isValidTeamArray(parsed?.npcTeam)) {
+            throw new Error("Invalid all team");
+          }
+          setSelectedTeam(parsed.playerTeam);
+          setNpcTeam(parsed.npcTeam);
+        } else {
+          throw new Error("Unknown target type");
+        }
+      } catch (err) {
+        setAlertMessage("파일이 올바르지 않습니다");
+      }
+    };
+    reader.onerror = () => {
+      setAlertMessage("파일이 올바르지 않습니다");
+    };
+    reader.readAsText(file);
   };
 
   const currentTeam = getActiveTeam();
@@ -379,6 +514,8 @@ const CustomScreen = () => {
               const hpVal = typeof pokemonEntry === "object" && pokemonEntry?.hp !== undefined ? pokemonEntry.hp : rawPokemonData.hp;
               const evsVal = typeof pokemonEntry === "object" && pokemonEntry?.evs ? pokemonEntry.evs : rawPokemonData.evs;
               const natureVal = typeof pokemonEntry === "object" && pokemonEntry?.nature ? pokemonEntry.nature : rawPokemonData.nature;
+              const gachaVal = typeof pokemonEntry === "object" && pokemonEntry?.gacha ? pokemonEntry.gacha : rawPokemonData.gacha;
+              const megaDataVal = typeof pokemonEntry === "object" && pokemonEntry?.megaData ? pokemonEntry.megaData : rawPokemonData.megaData;
 
               pokemonData = {
                 ...rawPokemonData,
@@ -389,12 +526,19 @@ const CustomScreen = () => {
                 hp: hpVal,
                 evs: evsVal,
                 nature: natureVal,
+                gacha: gachaVal,
+                megaData: megaDataVal,
               };
             }
             return (
               <Slot key={index} className="team-slot" data-index={index} draggable={!!pokemonId} onDragStart={(e) => handleDragStart(e, index)} onDrop={(e) => handleDrop(e, index)} onDragOver={handleDragOver} onTouchStart={(e) => handleTouchStart(e, index)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} $hasData={!!pokemonId}>
                 {pokemonData ? (
-                  <PokemonCard onClick={() => handleRemove(index)}>
+                  <PokemonCard
+                    onClick={() => {
+                      setEditingSlotIndex(index);
+                      setInfoModalPokemon(pokemonData);
+                    }}
+                  >
                     <RemoveBtn
                       onClick={(e) => {
                         e.stopPropagation();
@@ -437,6 +581,23 @@ const CustomScreen = () => {
           })}
         </TeamSlots>
         <ActionArea>
+          <LeftActionGroup>
+            <IconActionButton onClick={() => setIsSaveModalOpen(true)} title="샘플 저장" aria-label="샘플 저장">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            </IconActionButton>
+            <IconActionButton onClick={() => setIsLoadModalOpen(true)} title="샘플 불러오기" aria-label="샘플 불러오기">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            </IconActionButton>
+            <input ref={fileInputRef} type="file" accept=".txt,.json,text/plain,application/json" style={{ display: "none" }} onChange={handleFileChange} />
+          </LeftActionGroup>
           <StartButton onClick={startBattle}>배틀 시작!</StartButton>
           <OptionButton onClick={() => setIsOptionModalOpen(true)}>게임 옵션</OptionButton>
         </ActionArea>
@@ -528,6 +689,7 @@ const CustomScreen = () => {
                 <DetailButton
                   onClick={(e) => {
                     e.stopPropagation();
+                    setEditingSlotIndex(null);
                     setInfoModalPokemon(pokemon);
                   }}
                 >
@@ -679,7 +841,64 @@ const CustomScreen = () => {
           </ModalContent>
         </ModalOverlay>
       )}
-      {infoModalPokemon && <SampleInfoModal pokemon={infoModalPokemon} onClose={() => setInfoModalPokemon(null)} onAdd={handleAddToActiveTeam} isFull={!getActiveTeam().includes(null) || getActiveTeam().some((entry) => (typeof entry === "object" && entry ? entry.id : entry) === infoModalPokemon.id)} />}
+      {isSaveModalOpen && (
+        <ModalOverlay onClick={() => setIsSaveModalOpen(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <ModalTitle>샘플 저장</ModalTitle>
+              <CloseIcon onClick={() => setIsSaveModalOpen(false)}>✕</CloseIcon>
+            </ModalHeader>
+            <EntryActionList>
+              <EntryActionButton onClick={() => handleExportTeam("player")}>내 엔트리만 저장</EntryActionButton>
+              <EntryActionButton onClick={() => handleExportTeam("npc")}>상대 엔트리만 저장</EntryActionButton>
+              <EntryActionButton onClick={() => handleExportTeam("all")}>전체 엔트리 저장</EntryActionButton>
+            </EntryActionList>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+      {isLoadModalOpen && (
+        <ModalOverlay onClick={() => setIsLoadModalOpen(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <ModalTitle>샘플 불러오기</ModalTitle>
+              <CloseIcon onClick={() => setIsLoadModalOpen(false)}>✕</CloseIcon>
+            </ModalHeader>
+            <EntryActionList>
+              <EntryActionButton onClick={() => handleImportSelect("player")}>내 엔트리 불러오기</EntryActionButton>
+              <EntryActionButton onClick={() => handleImportSelect("npc")}>상대 엔트리 불러오기</EntryActionButton>
+              <EntryActionButton onClick={() => handleImportSelect("all")}>전체 엔트리 불러오기</EntryActionButton>
+            </EntryActionList>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+      {alertMessage && (
+        <ModalOverlay onClick={() => setAlertMessage(null)}>
+          <ModalContent onClick={(e) => e.stopPropagation()} style={{ width: "280px", textAlign: "center" }}>
+            <div style={{ fontSize: "1rem", fontWeight: "bold", color: "#333", margin: "12px 0 20px 0" }}>{alertMessage}</div>
+            <SearchButton onClick={() => setAlertMessage(null)}>확인</SearchButton>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+      {infoModalPokemon && (
+        <SampleInfoModal
+          pokemon={infoModalPokemon}
+          onClose={() => {
+            setInfoModalPokemon(null);
+            setEditingSlotIndex(null);
+          }}
+          onAdd={
+            editingSlotIndex !== null
+              ? (pokemon, customItem, customAbil, customSkills, customStats) => handleUpdateTeamSlot(editingSlotIndex, pokemon, customItem, customAbil, customSkills, customStats)
+              : handleAddToActiveTeam
+          }
+          isFull={
+            editingSlotIndex !== null
+              ? false
+              : !getActiveTeam().includes(null) || getActiveTeam().some((entry) => (typeof entry === "object" && entry ? entry.id : entry) === infoModalPokemon.id)
+          }
+          submitText={editingSlotIndex !== null ? "수정" : "팀에 추가"}
+        />
+      )}
     </Container>
   );
 };
@@ -1191,19 +1410,19 @@ const PokemonName = styled.div`
 
 const RemoveBtn = styled.button`
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -6px;
+  right: -6px;
   background-color: #ff5252;
   color: white;
   border: none;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: bold;
   z-index: 5;
 `;
@@ -1252,6 +1471,64 @@ const ActionArea = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
+`;
+
+const LeftActionGroup = styled.div`
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const IconActionButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 34px;
+  height: 32px;
+  padding: 0;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #333;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+
+  @media (max-width: 500px) {
+    width: 30px;
+    height: 28px;
+  }
+`;
+
+const EntryActionList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 5px;
+`;
+
+const EntryActionButton = styled.button`
+  width: 100%;
+  padding: 12px 0;
+  background-color: #f8f9fa;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  font-family: inherit;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: #e8f5e9;
+    border-color: #4caf50;
+    color: #2e7d32;
+  }
 `;
 
 const OptionButton = styled.button`

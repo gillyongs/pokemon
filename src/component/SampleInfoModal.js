@@ -76,7 +76,7 @@ const HexagonGraph = ({ origin }) => {
   );
 };
 
-const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull }) => {
+const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에 추가" }) => {
   const [infoText, setInfoText] = useState("특성, 아이템, 능력치, 기술배치를 클릭하여 수정할 수 있습니다.");
   const p = pokemon; // CustomScreen에서는 객체 자체가 origin 형태임
   const [selectedItem, setSelectedItem] = useState(p.item || "없음");
@@ -299,7 +299,7 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull }) => {
               onClose();
             }}
           >
-            팀에 추가
+            {submitText}
           </ModalButton>
         </ModalButtonContainer>
 

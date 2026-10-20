@@ -61,8 +61,8 @@ const Battle = () => {
     setTradeInfoPokemon(null);
     setTradeAlertMessage(null);
     queueObject.initQueue();
-    const { team1, team2, isNew, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round } = location.state || {};
-    navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, round }, replace: true });
+    const { team1, team2, isNew, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round, fromCustom } = location.state || {};
+    navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, round, fromCustom }, replace: true });
   };
 
   const handleNextRound = () => {
@@ -86,7 +86,7 @@ const Battle = () => {
     setTradeInfoPokemon(null);
     setTradeAlertMessage(null);
     queueObject.initQueue();
-    const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round } = location.state || {};
+    const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round, fromCustom } = location.state || {};
 
     let nextTeam1 = customTeam1 ? customTeam1 : [...team1];
     if (!customTeam1 && teamOption === "랜덤") {
@@ -94,7 +94,7 @@ const Battle = () => {
     }
 
     const nextTeam2 = getRandomTeam(3);
-    navigate("/battle", { state: { team1: nextTeam1, team2: nextTeam2, isNew: true, difficulty, teamOption, round: round + 1 }, replace: true });
+    navigate("/battle", { state: { team1: nextTeam1, team2: nextTeam2, isNew: true, difficulty, teamOption, round: round + 1, fromCustom }, replace: true });
   };
 
   const submitTrade = () => {
@@ -395,6 +395,18 @@ const Battle = () => {
           {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} battleStartBySkillButton={battleStartBySkillButton} textSkip={textSkip} btObj={battleObj.current} />}
           {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
           {bottom === "info" && <BottomSectionInfo battle={battle} text={text} setText={setText} setBottom={setBottom} bench={bench} />}
+          {testmode && location.state?.fromCustom && (
+            <CustomBackButton
+              onClick={(e) => {
+                e.stopPropagation();
+                queueObject.initQueue();
+                const { team1, team2 } = location.state || {};
+                navigate("/custom", { state: { team1, team2 } });
+              }}
+            >
+              &#8592;
+            </CustomBackButton>
+          )}
         </BOTTOM>
         {gameResult && !isTradeModalOpen && (
           <ModalOverlay>
@@ -838,6 +850,37 @@ const NpcActionItem = styled.div`
 
   &:hover {
     background-color: ${(props) => (props.$selected ? "#ffe600" : props.$disabled ? "rgba(60, 60, 60, 0.65)" : "rgba(0, 0, 0, 0.75)")};
+  }
+`;
+
+const CustomBackButton = styled.div`
+  position: absolute;
+  top: 49.5vh;
+  left: 1vw;
+  width: 14vw;
+  height: 6vh;
+  border-radius: 5px;
+  background: linear-gradient(135deg, rgba(20, 30, 40, 0.85), rgba(0, 0, 0, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(100, 255, 218, 0.6);
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 `;
 
