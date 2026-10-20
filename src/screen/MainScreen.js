@@ -1,15 +1,59 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { createGlobalStyle, keyframes } from "styled-components";
 import { useRecoilValue } from "recoil";
 import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
 import { defaultOption } from "../config/defaultOption";
+import { testmode, subscribeTestMode } from "../config/testMode";
 import { gameOptionState } from "../util/recoilState";
 import { getRandomTeam } from "../util/randomTeam";
 
 const MainScreen = () => {
   const navigate = useNavigate();
   const gameOption = useRecoilValue(gameOptionState);
+  const [isTestMode, setIsTestMode] = useState(testmode);
+  const [hostIp, setHostIp] = useState(() => {
+    if (
+      typeof window !== "undefined" &&
+      window.location.hostname &&
+      window.location.hostname !== "localhost" &&
+      window.location.hostname !== "127.0.0.1"
+    ) {
+      return window.location.hostname;
+    }
+    return "";
+  });
+
+  useEffect(() => {
+    setIsTestMode(testmode);
+    return subscribeTestMode(({ testmode: nextTestMode }) => {
+      setIsTestMode(nextTestMode);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1")
+    ) {
+      fetch("/__local_ip")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.ip) {
+            setHostIp(data.ip);
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
+
+  const port =
+    (typeof window !== "undefined" && window.location.port) || "3000";
+  const qrUrl = hostIp ? `http://${hostIp}:${port}/pokemon` : "";
+  const qrImageUrl = qrUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrUrl)}`
+    : "";
 
   const handleQuickStart = () => {
     const team1 = getRandomTeam(3);
@@ -53,6 +97,13 @@ const MainScreen = () => {
             </MenuButton>
           </MenuContainer>
         </Container>
+        {isTestMode && qrUrl && (
+          <QrContainer data-testid="testmode-qr">
+            <QrImageWrapper href={qrUrl} target="_blank" rel="noopener noreferrer" title={qrUrl}>
+              <QrImage src={qrImageUrl} alt="모바일 접속 QR" />
+            </QrImageWrapper>
+          </QrContainer>
+        )}
       </BackgroundWrapper>
     </>
   );
@@ -389,5 +440,39 @@ const MenuButton = styled.button`
       border-color: rgba(0, 0, 0, 0.4);
       background: rgba(255, 255, 255, 0.2);
     }
+  }
+`;
+
+const QrContainer = styled.div`
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const QrImageWrapper = styled.a`
+  display: inline-flex;
+  padding: 5px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.06);
+  }
+`;
+
+const QrImage = styled.img`
+  width: 56px;
+  height: 56px;
+  display: block;
+
+  @media (max-width: 768px) {
+    width: 48px;
+    height: 48px;
   }
 `;

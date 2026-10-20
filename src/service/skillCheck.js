@@ -130,8 +130,8 @@ export const afterSkillCheck = (bt, enqueue) => {
 
   // 상대 선도발을 맞은 턴에 변화기를 쓴 경우
   if (atk.tempStatus.taunt !== null) {
-    if (useSkill.stype === "buf" || useSkill.stype === "natk") {
-      enqueue({ battle: bt, text: atk.names + " 도발당한 상태라서 " + josa(`${useSkill.name}#{를} `) + "쓸 수 없다!" });
+    if (skill.stype === "buf" || skill.stype === "natk") {
+      enqueue({ battle: bt, text: atk.names + " 도발당한 상태라서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!" });
       return false;
     }
   }
