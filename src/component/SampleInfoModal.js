@@ -318,7 +318,16 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
 
         {isItemSearchOpen && (
           <ItemSearchModal
-            pokemon={p}
+            pokemon={{
+              ...p,
+              abil: selectedAbil,
+              skill: {
+                1: skillList.getDataById(selectedSkills[1]) || p.skill?.[1],
+                2: skillList.getDataById(selectedSkills[2]) || p.skill?.[2],
+                3: skillList.getDataById(selectedSkills[3]) || p.skill?.[3],
+                4: skillList.getDataById(selectedSkills[4]) || p.skill?.[4],
+              },
+            }}
             currentItem={selectedItem}
             onSelect={(newItem) => {
               setSelectedItem(newItem);

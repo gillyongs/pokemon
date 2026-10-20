@@ -6,12 +6,8 @@ import { typeCheck } from "../util/typeEffectCalculate";
 const EXCLUSIVE_ITEMS = {
   녹슨검: (p) => p?.id === "자시안" || p?.name === "자시안",
   녹슨방패: (p) => p?.id === "자마젠타" || p?.name === "자마젠타",
-  리자몽나이트X: (p) =>
-    ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.id) ||
-    ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.name),
-  리자몽나이트Y: (p) =>
-    ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.id) ||
-    ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.name),
+  리자몽나이트X: (p) => ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.id) || ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.name),
+  리자몽나이트Y: (p) => ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.id) || ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.name),
   메타그로스나이트: (p) => p?.id?.includes("메타그로스") || p?.name?.includes("메타그로스"),
   보만다나이트: (p) => p?.id?.includes("보만다") || p?.name?.includes("보만다"),
   입치트나이트: (p) => p?.id?.includes("입치트") || p?.name?.includes("입치트"),
@@ -61,15 +57,19 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
     add("울퉁불퉁멧");
   }
 
-  // 악타입 -> 검은안경
+  // 타입별 데미지 증가 아이템
   const types = [pokemon.type1, pokemon.type2, pokemon.megaData?.type1, pokemon.megaData?.type2].filter(Boolean);
-  if (types.includes("악")) {
-    add("검은안경");
-  }
 
-  // 물타입 -> 신비의물방울
-  if (types.includes("물")) {
-    add("신비의물방울");
+  if (isAttacker) {
+    // 악타입 -> 검은안경
+    if (types.includes("악")) {
+      add("검은안경");
+    }
+
+    // 물타입 -> 신비의물방울
+    if (types.includes("물")) {
+      add("신비의물방울");
+    }
   }
 
   // Pokemon.origin.feature?.evo가 true인 경우 -> 진화의휘석
@@ -78,23 +78,19 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
   }
 
   // 바위 4배 약점 -> 통굽부츠
-  const isRock4x =
-    typeCheck("바위", pokemon.type1, pokemon.type2) === 4 ||
-    (pokemon.megaData && typeCheck("바위", pokemon.megaData.type1, pokemon.megaData.type2) === 4);
+  const isRock4x = typeCheck("바위", pokemon.type1, pokemon.type2) === 4 || (pokemon.megaData && typeCheck("바위", pokemon.megaData.type1, pokemon.megaData.type2) === 4);
   if (isRock4x) {
     add("통굽부츠");
   }
 
-  // 땅 4배 약점 -> 풍선
-  const isGround4x =
-    typeCheck("땅", pokemon.type1, pokemon.type2) === 4 ||
-    (pokemon.megaData && typeCheck("땅", pokemon.megaData.type1, pokemon.megaData.type2) === 4);
-  if (isGround4x) {
+  // 땅 4배 약점 -> 풍선 (단, 특성이 부유인 경우 제외)
+  const abilities = [pokemon.abil, pokemon.megaData?.abil].filter(Boolean);
+  const isGround4x = typeCheck("땅", pokemon.type1, pokemon.type2) === 4 || (pokemon.megaData && typeCheck("땅", pokemon.megaData.type1, pokemon.megaData.type2) === 4);
+  if (isGround4x && !abilities.includes("부유")) {
     add("풍선");
   }
 
   // 특성 관련
-  const abilities = [pokemon.abil, pokemon.megaData?.abil].filter(Boolean);
   // 특성이 곡예인 경우 -> 하양허브
   if (abilities.includes("곡예")) {
     add("하양허브");
@@ -122,15 +118,12 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
     add("빛의점토");
   }
 
-  // 연속기가 있는 경우 -> 속임수주사위
+  // 연속기가 있는 경우 -> 속임수주사위 (단, 특성이 스킬링크인 경우 제외)
   const hasContinuousSkill = [1, 2, 3, 4].some((num) => {
     const sk = pokemon.skill?.[num];
-    return (
-      !!sk?.feature?.serial ||
-      ["고드름침", "록블라스트", "씨기관총", "스케일샷", "트리플다이브", "트리플악셀"].includes(sk?.name)
-    );
+    return !!sk?.feature?.serial || ["고드름침", "록블라스트", "씨기관총", "스케일샷", "트리플다이브", "트리플악셀"].includes(sk?.name);
   });
-  if (hasContinuousSkill) {
+  if (hasContinuousSkill && !abilities.includes("스킬링크")) {
     add("속임수주사위");
   }
 
@@ -155,21 +148,21 @@ export const getItemListForPokemon = (pokemon) => {
     }
   }
 
+  const abilities = [pokemon?.abil, pokemon?.megaData?.abil].filter(Boolean);
+  if (abilities.includes("부유")) {
+    excludedFromAll.add("풍선");
+  }
+  if (abilities.includes("스킬링크")) {
+    excludedFromAll.add("속임수주사위");
+  }
+
   // 2. 즐겨찾기 아이템 (전용 아이템 및 "없음" 제외)
   const rawFavorites = getFavoriteItemsForPokemon(pokemon);
-  const favoriteItems = rawFavorites.filter(
-    (f) => !exclusiveForThis.includes(f) && f !== "없음"
-  );
+  const favoriteItems = rawFavorites.filter((f) => !exclusiveForThis.includes(f) && !excludedFromAll.has(f) && f !== "없음");
 
   // 3. 일반 아이템 (전용 아이템, 추천 아이템, "없음" 제외)
   const allItemNames = Object.keys(itemText);
-  const normalItems = allItemNames.filter(
-    (name) =>
-      !excludedFromAll.has(name) &&
-      !exclusiveForThis.includes(name) &&
-      !favoriteItems.includes(name) &&
-      name !== "없음"
-  );
+  const normalItems = allItemNames.filter((name) => !excludedFromAll.has(name) && !exclusiveForThis.includes(name) && !favoriteItems.includes(name) && name !== "없음");
 
   // 각 그룹 내에서 글자순(가나다순) 정렬
   exclusiveForThis.sort((a, b) => a.localeCompare(b, "ko"));
@@ -177,12 +170,7 @@ export const getItemListForPokemon = (pokemon) => {
   normalItems.sort((a, b) => a.localeCompare(b, "ko"));
 
   // 조합: 전용 -> 추천 -> 그 외 -> "없음" (무조건 맨 마지막)
-  const orderedNames = [
-    ...exclusiveForThis,
-    ...favoriteItems,
-    ...normalItems,
-    "없음",
-  ];
+  const orderedNames = [...exclusiveForThis, ...favoriteItems, ...normalItems, "없음"];
 
   return orderedNames.map((name) => ({
     name,
@@ -211,9 +199,7 @@ const ItemSearchModal = ({ pokemon, currentItem, onSelect, onClose }) => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return baseItems;
     // 검색은 아이템 이름만
-    const matched = baseItems.filter((item) =>
-      item.name.toLowerCase().includes(term)
-    );
+    const matched = baseItems.filter((item) => item.name.toLowerCase().includes(term));
     return sortItems(matched, currentItem);
   }, [searchTerm, baseItems, currentItem]);
 
@@ -228,12 +214,7 @@ const ItemSearchModal = ({ pokemon, currentItem, onSelect, onClose }) => {
           <Title>
             아이템 선택 <CountText>({filteredItems.length}종)</CountText>
           </Title>
-          <SearchInput
-            type="text"
-            placeholder="아이템 이름 검색..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <SearchInput type="text" placeholder="아이템 이름 검색..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
         </HeaderArea>
 
         <ListArea>
@@ -253,11 +234,7 @@ const ItemSearchModal = ({ pokemon, currentItem, onSelect, onClose }) => {
                 >
                   <ItemImageWrapper>
                     <ItemImage
-                      src={
-                        item.name === "없음"
-                          ? "/pokemon/img/item/null.webp"
-                          : `/pokemon/img/item/${item.name}.webp`
-                      }
+                      src={item.name === "없음" ? "/pokemon/img/item/null.webp" : `/pokemon/img/item/${item.name}.webp`}
                       alt={item.name}
                       onError={(e) => {
                         e.target.src = "/pokemon/img/item/null.webp";
@@ -367,7 +344,9 @@ const SearchInput = styled.input`
   border-radius: 8px;
   font-size: 0.95rem;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 
   &:focus {
     border-color: #4caf50;
@@ -396,15 +375,7 @@ const Grid = styled.div`
 
 const ItemCard = styled.div`
   background-color: ${(props) => (props.$isSelected ? "#f2f9f3" : "#ffffff")};
-  border: 2px solid
-    ${(props) =>
-      props.$isSelected
-        ? "#4caf50"
-        : props.$isExclusive
-        ? "#9c27b0"
-        : props.$isFavorite
-        ? "#ff9800"
-        : "#e2e8f0"};
+  border: 2px solid ${(props) => (props.$isSelected ? "#4caf50" : props.$isExclusive ? "#9c27b0" : props.$isFavorite ? "#ff9800" : "#e2e8f0")};
   border-radius: 10px;
   padding: 10px 12px;
   display: flex;
@@ -412,7 +383,10 @@ const ItemCard = styled.div`
   gap: 12px;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s,
+    border-color 0.15s;
 
   &:hover {
     transform: translateY(-2px);
@@ -464,12 +438,9 @@ const Badge = styled.span`
   font-weight: bold;
   padding: 1px 6px;
   border-radius: 4px;
-  background-color: ${(props) =>
-    props.$type === "exclusive" ? "rgba(156, 39, 176, 0.12)" : "rgba(255, 152, 0, 0.15)"};
+  background-color: ${(props) => (props.$type === "exclusive" ? "rgba(156, 39, 176, 0.12)" : "rgba(255, 152, 0, 0.15)")};
   color: ${(props) => (props.$type === "exclusive" ? "#9c27b0" : "#e65100")};
-  border: 1px solid
-    ${(props) =>
-      props.$type === "exclusive" ? "rgba(156, 39, 176, 0.3)" : "rgba(255, 152, 0, 0.3)"};
+  border: 1px solid ${(props) => (props.$type === "exclusive" ? "rgba(156, 39, 176, 0.3)" : "rgba(255, 152, 0, 0.3)")};
 `;
 
 const ItemDesc = styled.div`

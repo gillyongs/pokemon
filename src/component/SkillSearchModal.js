@@ -3,36 +3,16 @@ import styled from "styled-components";
 import { getSkillListForPokemon } from "../skill/PokemonSkillList";
 import skillList from "../entity/Skill/skillList";
 
-const ALL_TYPES = [
-  "노말", "불꽃", "물", "풀", "전기", "얼음",
-  "격투", "독", "땅", "비행", "에스퍼", "벌레",
-  "바위", "고스트", "드래곤", "악", "강철", "페어리",
-];
+const ALL_TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투", "독", "땅", "비행", "에스퍼", "벌레", "바위", "고스트", "드래곤", "악", "강철", "페어리"];
 
 const CATEGORIES = ["전체", "물리", "특수", "변화"];
 
-const SkillSearchModal = ({
-  pokemon,
-  equippedSkills = {},
-  onSave,
-  onSelect,
-  onClose,
-}) => {
+const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onClose }) => {
   const [selectedSkills, setSelectedSkills] = useState(() => {
     if (Array.isArray(equippedSkills)) {
-      return [
-        equippedSkills[0] || null,
-        equippedSkills[1] || null,
-        equippedSkills[2] || null,
-        equippedSkills[3] || null,
-      ];
+      return [equippedSkills[0] || null, equippedSkills[1] || null, equippedSkills[2] || null, equippedSkills[3] || null];
     }
-    return [
-      equippedSkills[1] || null,
-      equippedSkills[2] || null,
-      equippedSkills[3] || null,
-      equippedSkills[4] || null,
-    ];
+    return [equippedSkills[1] || null, equippedSkills[2] || null, equippedSkills[3] || null, equippedSkills[4] || null];
   });
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -135,7 +115,7 @@ const SkillSearchModal = ({
 
         <HeaderArea>
           <TitleRow>
-            <Title>기술 선택 및 변경</Title>
+            <Title>기술 선택</Title>
           </TitleRow>
 
           {/* 상단 선택된 4개 기술 슬롯 영역 */}
@@ -144,15 +124,12 @@ const SkillSearchModal = ({
               <SlotsTitle>
                 선택된 기술 <CountBadge>{selectedCount}/4</CountBadge>
               </SlotsTitle>
-              <SlotsSubText>슬롯을 눌러 제외하거나 아래 목록에서 추가/제외</SlotsSubText>
             </SlotsHeader>
 
             <SlotsRow>
               {[0, 1, 2, 3].map((idx) => {
                 const skillName = selectedSkills[idx];
-                const skillInfo = skillName
-                  ? allSkills.find((s) => s.name === skillName) || skillList.search(skillName)
-                  : null;
+                const skillInfo = skillName ? allSkills.find((s) => s.name === skillName) || skillList.search(skillName) : null;
                 const skillType = skillInfo?.type || "노말";
 
                 return (
@@ -176,10 +153,7 @@ const SkillSearchModal = ({
                         >
                           ✕
                         </RemoveSlotBtn>
-                        <SlotTypeIcon
-                          src={`/pokemon/img/type/${skillType}.svg`}
-                          alt={skillType}
-                        />
+                        <SlotTypeIcon src={`/pokemon/img/type/${skillType}.svg`} alt={skillType} />
                         <SlotSkillName>{skillName}</SlotSkillName>
                       </>
                     ) : (
@@ -197,17 +171,8 @@ const SkillSearchModal = ({
           </SlotsArea>
 
           <SearchFilterRow>
-            <SearchInput
-              type="text"
-              placeholder="기술 이름 검색..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <FilterToggleBtn
-              type="button"
-              $isActive={isFilterOpen || hasActiveFilter}
-              onClick={() => setIsFilterOpen((prev) => !prev)}
-            >
+            <SearchInput type="text" placeholder="기술 이름 검색..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <FilterToggleBtn type="button" $isActive={isFilterOpen || hasActiveFilter} onClick={() => setIsFilterOpen((prev) => !prev)}>
               필터 {hasActiveFilter ? "●" : "▼"}
             </FilterToggleBtn>
           </SearchFilterRow>
@@ -220,13 +185,7 @@ const SkillSearchModal = ({
                 </FilterLabelRow>
                 <ButtonGroup>
                   {CATEGORIES.map((cat) => (
-                    <CategoryChip
-                      key={cat}
-                      type="button"
-                      $isSelected={selectedCategory === cat}
-                      $category={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                    >
+                    <CategoryChip key={cat} type="button" $isSelected={selectedCategory === cat} $category={cat} onClick={() => setSelectedCategory(cat)}>
                       {cat === "전체" ? "전체 분류" : `${cat}기`}
                     </CategoryChip>
                   ))}
@@ -243,25 +202,12 @@ const SkillSearchModal = ({
                   )}
                 </FilterLabelRow>
                 <TypeChipGrid>
-                  <TypeChip
-                    type="button"
-                    $isSelected={selectedType === "전체"}
-                    onClick={() => setSelectedType("전체")}
-                  >
+                  <TypeChip type="button" $isSelected={selectedType === "전체"} onClick={() => setSelectedType("전체")}>
                     전체
                   </TypeChip>
                   {ALL_TYPES.map((type) => (
-                    <TypeChip
-                      key={type}
-                      type="button"
-                      $isSelected={selectedType === type}
-                      onClick={() => setSelectedType(type)}
-                    >
-                      <img
-                        src={`/pokemon/img/type/${type}.svg`}
-                        alt={type}
-                        style={{ width: "14px", height: "14px", marginRight: "3px" }}
-                      />
+                    <TypeChip key={type} type="button" $isSelected={selectedType === type} onClick={() => setSelectedType(type)}>
+                      <img src={`/pokemon/img/type/${type}.svg`} alt={type} style={{ width: "14px", height: "14px", marginRight: "3px" }} />
                       {type}
                     </TypeChip>
                   ))}
@@ -290,55 +236,37 @@ const SkillSearchModal = ({
                 }
 
                 return (
-                  <SkillCard
-                    key={item.name}
-                    $isImplemented={item.isImplemented}
-                    $isSelected={isSelected}
-                    onClick={() => handleToggleSkill(item)}
-                    title={tooltip}
-                  >
+                  <SkillCard key={item.name} $isImplemented={item.isImplemented} $isSelected={isSelected} onClick={() => handleToggleSkill(item)} title={tooltip}>
                     <TypeIconWrapper>
-                      <img
-                        src={`/pokemon/img/type/${item.type}.svg`}
-                        alt={item.type}
-                        style={{ width: "26px", height: "26px", borderRadius: "4px" }}
-                      />
+                      <img src={`/pokemon/img/type/${item.type}.svg`} alt={item.type} style={{ width: "26px", height: "26px", borderRadius: "4px" }} />
                     </TypeIconWrapper>
 
                     <InfoCol>
                       <NameRow>
-                        <SkillName $isImplemented={item.isImplemented}>
-                          {item.name}
-                        </SkillName>
+                        <SkillName $isImplemented={item.isImplemented}>{item.name}</SkillName>
 
                         <TypeBadge>{item.type}</TypeBadge>
 
-                        <CategoryBadge $category={item.category}>
-                          {item.category}
-                        </CategoryBadge>
+                        <CategoryBadge $category={item.category}>{item.category}</CategoryBadge>
 
-                        {item.isImplemented ? (
-                          isSelected ? (
-                            <Badge $type="equipped">선택됨 ✓</Badge>
-                          ) : (
-                            <Badge $type="ready">+ 추가</Badge>
-                          )
-                        ) : (
-                          <Badge $type="unimplemented">미구현</Badge>
-                        )}
+                        {item.isImplemented ? isSelected ? <Badge $type="equipped">선택됨 ✓</Badge> : <Badge $type="ready">+ 추가</Badge> : <Badge $type="unimplemented">미구현</Badge>}
                       </NameRow>
 
                       <StatRow>
-                        <span>위력 <strong>{item.power}</strong></span>
+                        <span>
+                          위력 <strong>{item.power}</strong>
+                        </span>
                         <StatDivider>•</StatDivider>
-                        <span>명중 <strong>{item.accur}</strong></span>
+                        <span>
+                          명중 <strong>{item.accur}</strong>
+                        </span>
                         <StatDivider>•</StatDivider>
-                        <span>PP <strong>{item.pp}</strong></span>
+                        <span>
+                          PP <strong>{item.pp}</strong>
+                        </span>
                       </StatRow>
 
-                      <SkillDesc $isImplemented={item.isImplemented}>
-                        {item.text}
-                      </SkillDesc>
+                      <SkillDesc $isImplemented={item.isImplemented}>{item.text}</SkillDesc>
                     </InfoCol>
                   </SkillCard>
                 );
@@ -348,11 +276,7 @@ const SkillSearchModal = ({
         </ListArea>
 
         <ModalFooter>
-          <ConfirmButton
-            type="button"
-            disabled={selectedCount === 0}
-            onClick={handleSave}
-          >
+          <ConfirmButton type="button" disabled={selectedCount === 0} onClick={handleSave}>
             기술 설정 완료 ({selectedCount}/4)
           </ConfirmButton>
         </ModalFooter>
@@ -498,8 +422,7 @@ const SlotCard = styled.div`
   transition: all 0.2s;
 
   &:hover {
-    ${({ $hasSkill }) =>
-      $hasSkill ? "border-color: #f44336; background: #fff5f5;" : "border-color: #adb5bd;"}
+    ${({ $hasSkill }) => ($hasSkill ? "border-color: #f44336; background: #fff5f5;" : "border-color: #adb5bd;")}
   }
 `;
 

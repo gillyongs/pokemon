@@ -554,6 +554,11 @@ const CustomScreen = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.name.toLowerCase().endsWith(".txt")) {
+      setAlertMessage("파일이 올바르지 않습니다");
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
@@ -714,7 +719,7 @@ const CustomScreen = () => {
                 <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
             </IconActionButton>
-            <input ref={fileInputRef} type="file" accept=".txt,.json,text/plain,application/json" style={{ display: "none" }} onChange={handleFileChange} />
+            <input ref={fileInputRef} type="file" accept="text/plain,.txt" style={{ display: "none" }} onChange={handleFileChange} />
           </LeftActionGroup>
           <StartButton onClick={startBattle}>배틀 시작!</StartButton>
           <OptionButton onClick={() => setIsOptionModalOpen(true)}>게임 옵션</OptionButton>

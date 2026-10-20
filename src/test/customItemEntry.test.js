@@ -86,11 +86,18 @@ describe("커스텀 아이템 선택 및 엔트리 적용 테스트", () => {
       expect(favorites).toContain("진화의휘석"); // feature.evo
     });
 
-    it("연속기를 가진 포켓몬은 속임수주사위가 추천 목록에 포함되어야 한다", () => {
-      const cloyster = sampleList.getDataById("파르셀"); // 고드름침, 록블라스트
-      const favorites = getFavoriteItemsForPokemon(cloyster);
-
+    it("연속기를 가진 포켓몬은 속임수주사위가 추천 목록에 포함되지만, 특성이 스킬링크이면 제외되어야 한다", () => {
+      const kyurem = sampleList.getDataById("블랙큐레무"); // 테라볼티지, 고드름침/스케일샷
+      const favorites = getFavoriteItemsForPokemon(kyurem);
       expect(favorites).toContain("속임수주사위");
+
+      const cloyster = sampleList.getDataById("파르셀"); // 스킬링크
+      const cloysterItems = getItemListForPokemon(cloyster).map((i) => i.name);
+      expect(cloysterItems).not.toContain("속임수주사위");
+
+      const rotom = sampleList.getDataById("히트로토무"); // 부유, 땅 4배
+      const rotomItems = getItemListForPokemon(rotom).map((i) => i.name);
+      expect(rotomItems).not.toContain("풍선");
     });
 
     it("물라오스는 펀치글러브가 추천 목록에 포함되어야 한다", () => {
