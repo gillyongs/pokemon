@@ -139,6 +139,15 @@ function skillEffectSearch(name) {
       }
       applyAilment("얼음", battle, battle.turn.def, enqueue);
     },
+    잠듦: (battle, enqueue, skillEffect) => {
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
+      applyAilment("잠듦", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
+    },
     화상치료: (battle, enqueue, skillEffect) => {
       if (isTargetSubstituteBlocked(battle)) {
         return;

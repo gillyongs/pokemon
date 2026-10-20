@@ -20,6 +20,7 @@ export const natkSkills = [
   new Skill("애교부리기", "페어리", "-", 100, 20, 0, "natk", null, "귀엽게 바라보며 응석을 부려 상대의 공격을 2랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "atk", target: "def", value: -2 }], {}),
 
   // 상태이상
+  new Skill("버섯포자", "풀", "-", 100, 15, 0, "natk", null, "최면 효과가 있는 포자를 뿌려 상대를 잠듦 상태로 만든다.", [{ name: "잠듦", probability: 100, printTextIfFail: true }], { powder: true }),
   new Skill("하품", "노말", "-", "-", 10, 0, "natk", null, "큰 하품으로 졸음을 유도한다. 다음 턴에 상대를 잠듦 상태로 만든다.", [{ name: "하품" }], {}),
   new Skill("전기자석파", "전기", "-", 90, 20, 0, "natk", null, "약한 전격을 날려서 상대를 마비 상태로 만든다.", [{ name: "마비", probability: 100, printTextIfFail: true }], {}),
   new Skill("뱀눈초리", "노말", "-", 100, 30, 0, "natk", null, "배의 무늬로 겁을 주어 상대를 마비 상태로 만든다.", [{ name: "마비", probability: 100, printTextIfFail: true }], {}),

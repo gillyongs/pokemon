@@ -179,6 +179,13 @@ export const skillUse = (bt, enqueue) => {
       return;
     }
 
+    if (skill.feature?.powder && (def.type1 === "풀" || def.type2 === "풀" || def.abil === "방진")) {
+      // 풀 타입 포켓몬과 방진 특성은 가루 기술 무효
+      const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
+      enqueue({ battle: bt, text: typeText });
+      return;
+    }
+
     const noSubstituteSkills = ["가드스왑", "길동무", "날려버리기", "냄새구별", "도발", "멸망의노래", "미라클아이", "봉인", "사슬묶기", "스킬스왑", "앙코르", "역할", "울부짖기", "원념", "원한", "자기암시", "저주", "트집", "하트스왑", "헤롱헤롱", "흑안개"];
     // 대타출동으로 막을 수 없는 상대방 대상 변화기 (natk)
     // 트릭, 하품, 뽐내기, 전기자석파, 씨뿌리기 등은 실패한다
