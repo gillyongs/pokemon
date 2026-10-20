@@ -34,6 +34,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   if (defPokemon.tempStatus.substitute) {
     if (!useSkill.feature?.sound && atkPokemon.abil !== "틈새포착") {
       // 소리 기술이나 틈새포착 특성은 대타를 뚫는다
+      defPokemon.turn.substitute = true;
+      defPokemon.turn.lastHitSubstitute = true;
+      // 대타출동을 깨뜨린 공격의 부가효과도 막기위해 별도로 명시
       enqueue({ battle, text: (commonText || "") + josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!" });
 
       if (!isNoTextSkill) {
@@ -62,6 +65,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       return;
     }
   }
+
+  defPokemon.turn.lastHitSubstitute = false;
 
   // 특성 "탈" 처리
   let talTrigger = false;

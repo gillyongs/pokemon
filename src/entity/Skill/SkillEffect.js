@@ -4,6 +4,17 @@ import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchNpcAuto, switchPlayer, switchPlayerForce } from "../../service/switch";
 
+function isTargetSubstituteBlocked(battle) {
+  const defPokemon = battle?.[battle?.turn?.def];
+  const atkPokemon = battle?.[battle?.turn?.atk];
+  const skill = atkPokemon?.turn?.useSkill;
+  const hitSub = defPokemon?.turn?.lastHitSubstitute !== null
+    ? Boolean(defPokemon.turn.lastHitSubstitute)
+    : Boolean(defPokemon?.turn?.substitute || defPokemon?.tempStatus?.substitute);
+  const penetrates = atkPokemon?.abil === "틈새포착" || Boolean(skill?.feature?.sound);
+  return hitSub && !penetrates;
+}
+
 function skillEffectSearch(name) {
   // 연속기에서 여러번 발동하는 효과의 경우 onHit에서 처리
   const functions = {
@@ -22,6 +33,7 @@ function skillEffectSearch(name) {
       if (def.ailment.freeze && !def.faint) {
         // 얼음치료와 상태이상 부여 이벤트가 동시에 있으면 상태이상 부여가 먼저 발생한다
         // => 상태이상 부여가 실패하고 얼음이 녹아 상태이상이 없는 상태가 된다
+        // 상대가 대타출동이면 적용 안될것같긴 한데 얼음+대타출동이 동시에 안될듯?
         const meltSkills = ["열탕", "스팀버스트", "열사의대지", "휘적휘적포"]; //불꽃 타입이 아니지만 얼음을 녹이는 기술들
         if (skill.type === "불꽃" || meltSkills.includes(skill.name)) {
           let freezeCureText = def.name + "의 얼음이 녹았다!";
@@ -36,12 +48,18 @@ function skillEffectSearch(name) {
 
     필드파괴: (battle, enqueue, skillEffect) => {
       if (battle.field?.terrain) {
-        battle.field.terrain.destroyTerrain(battle, enqueue);
+        battle.field.terrain.destroyTerrain(battle, enqueue); //안에 enqueue 있음
       }
     },
 
     랭크변화: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
+        return;
+      }
+
+      if (skillEffect.target === "def" && isTargetSubstituteBlocked(battle)) {
+        // 암석봉인으로 대타출동을 깨도 랭크다운은 적용되지 않는다.
+        // 싫은소리 같은 변화기는 애초에 skillCheck에서 막히므로 "실패했다" 텍스트 안띄워도 됨
         return;
       }
 
@@ -56,6 +74,10 @@ function skillEffectSearch(name) {
 
     랭크다수변화: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
+        return;
+      }
+
+      if (skillEffect.target === "def" && isTargetSubstituteBlocked(battle)) {
         return;
       }
 
@@ -75,16 +97,25 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       applyAilment("화상", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
     독: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       applyAilment("독", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
     맹독: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      if (isTargetSubstituteBlocked(battle)) {
         return;
       }
       applyAilment("맹독", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
@@ -94,15 +125,24 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       applyAilment("마비", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
     },
     얼음: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;
       }
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       applyAilment("얼음", battle, battle.turn.def, enqueue);
     },
     화상치료: (battle, enqueue, skillEffect) => {
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       const def = battle[battle.turn.def];
       if (def.ailment.burn && !def.faint) {
         def.ailment.burn = null;
@@ -118,6 +158,9 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       const r = Math.random();
       if (r < 1 / 3) applyAilment("얼음", battle, battle.turn.def, enqueue);
       else if (r < 2 / 3) applyAilment("마비", battle, battle.turn.def, enqueue);
@@ -129,6 +172,9 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       const r = Math.random();
       if (r < 1 / 3) applyAilment("독", battle, battle.turn.def, enqueue);
       else if (r < 2 / 3) applyAilment("마비", battle, battle.turn.def, enqueue);
@@ -138,6 +184,9 @@ function skillEffectSearch(name) {
       if (random(100 - skillEffect.probability)) {
         return;
       }
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       applyAilment("혼란", battle, battle.turn.def, enqueue);
     },
     풀죽음: (battle, enqueue, skillEffect) => {
@@ -145,6 +194,9 @@ function skillEffectSearch(name) {
       let def = battle[battle.turn.def];
       const noTggAtk = !atk.abilObj.feature?.tgg;
       if (def.abil === "정신력" && noTggAtk) {
+        return;
+      }
+      if (isTargetSubstituteBlocked(battle)) {
         return;
       }
       if (random(100 - skillEffect.probability)) {
@@ -203,6 +255,9 @@ function skillEffectSearch(name) {
       }
     },
     탁떨: (battle, enqueue, skillEffect) => {
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       const atk = battle[battle.turn.atk];
       const def = battle[battle.turn.def];
       const itemName = def.item;
@@ -281,6 +336,9 @@ function skillEffectSearch(name) {
       }
     },
     소리기술금지: (battle, enqueue, skillEffect) => {
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       const def = battle[battle.turn.def];
       if (!def.faint) {
         def.tempStatus.noSound = 2;
@@ -414,8 +472,8 @@ function skillEffectSearch(name) {
       const defPokemon = battle[battle.turn.def];
       const skill = battle[battle.turn.atk]?.turn?.useSkill;
       if (defPokemon.faint) return; // 드래곤테일로 상대를 기절시킨 경우 강제교체 발동하지 않음
-      if ((skill?.stype === "atk" || skill?.stype === "catk") && defPokemon.tempStatus.substitute && battle[battle.turn.atk]?.abil !== "틈새포착") return;
-      // 날려버리기, 울부짖기는 대타를 뚫지만 드래곤테일은 뚫지 못한다 (틈새포착 특성은 드래곤테일도 대타를 뚫음)
+      if ((skill?.stype === "atk" || skill?.stype === "catk") && isTargetSubstituteBlocked(battle)) return;
+      // 날려버리기, 울부짖기는 대타를 뚫지만 드래곤테일은 뚫지 못한다
 
       if (battle.turn.atk === "player") {
         // 플레이어가 강제교체 기술 사용시 NPC가 교체됨
@@ -534,6 +592,7 @@ function skillEffectSearch(name) {
       } else {
         atkPokemon.tempStatus.substitute = true;
         atkPokemon.tempStatus.substituteHp = needHp;
+        atkPokemon.turn.substitute = true;
         atkPokemon.getDamage(battle, enqueue, needHp, atkPokemon.name + "의 대타가 나타났다!");
       }
     },
@@ -587,6 +646,9 @@ function skillEffectSearch(name) {
     },
 
     구속: (battle, enqueue, skillEffect) => {
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
       const def = battle[battle.turn.def];
       if (def.tempStatus.switchLock === null && !def.faint) {
         def.tempStatus.switchLock = skillEffect.skillName;
@@ -598,6 +660,8 @@ function skillEffectSearch(name) {
 
     능력치초기화: (battle, enqueue, skillEffect) => {
       // 능력치 변화가 없어도 발동은 된다
+      const skill = battle[battle.turn.atk]?.turn?.useSkill;
+      if ((skill?.stype === "atk" || skill?.stype === "catk") && isTargetSubstituteBlocked(battle)) return;
       const def = battle[battle.turn.def];
       def.resetRank();
       enqueue({

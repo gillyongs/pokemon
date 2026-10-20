@@ -21,6 +21,10 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
   battle.player.turn.choice = actNumber;
   battle.npc.turn.choice = npcActNumber;
 
+  // 이번턴 대타출동 상태였는지 여부, 대타출동이 깨뜨린 기술의 부가효과를 막기 위함
+  battle.player.turn.substitute = Boolean(battle.player.tempStatus.substitute);
+  battle.npc.turn.substitute = Boolean(battle.npc.tempStatus.substitute);
+
   if (isAttack(actNumber)) battle.player.turn.useSkill = battle.player.origin.skill[actNumber];
   if (isAttack(npcActNumber)) battle.npc.turn.useSkill = battle.npc.origin.skill[npcActNumber];
 
