@@ -1,9 +1,10 @@
+// 배틀 중 포켓몬 기술 사용 화면
+
 import React, { useState } from "react";
 import SkillButton from "./SkillButton"; // 경로에 맞게 수정
-import TextBox from "../TextBox";
-import SwitchButton from "../SwitchButton";
-import FieldButton from "../FieldButton";
-import TextButton from "../TextButton";
+import TextBox from "../common/TextBox";
+import SwitchButton from "../common/SwitchButton";
+import LogButton from "../common/LogButton";
 import LogModal from "../../LogModal";
 
 import styled from "styled-components";
@@ -80,7 +81,7 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         }}
       /> */}
 
-      <TextButton
+      <LogButton
         isLog={queueObject.queueCheck()}
         onClick={(e) => {
           if (queueObject.queueCheck()) {

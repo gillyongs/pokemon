@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const TextButtonContainer = styled.div`
+const LogButtonContainer = styled.div`
   position: absolute;
   top: 12vh;
   left: 1vw;
@@ -30,8 +30,8 @@ const TextButtonContainer = styled.div`
   align-items: center;
 `;
 
-const SwitchButton = ({ onClick, innerText, isLog }) => {
-  return <TextButtonContainer $isLog={isLog} onClick={onClick}>{innerText}</TextButtonContainer>;
+const LogButton = ({ onClick, innerText, isLog }) => {
+  return <LogButtonContainer $isLog={isLog} onClick={onClick}>{innerText}</LogButtonContainer>;
 };
 
-export default SwitchButton;
+export default LogButton;

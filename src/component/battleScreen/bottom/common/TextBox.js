@@ -1,6 +1,18 @@
 import React from "react";
+import { useTransition, animated } from "react-spring";
 import styled from "styled-components";
-import FadeInComponent from "./FadeInComponent";
+
+// 텍스트박스 텍스트 자연스럽게 넘기는 css
+const FadeInComponent = ({ text }) => {
+  const transitions = useTransition(text, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
+    config: { duration: 100 },
+  });
+
+  return transitions((styles, item) => (item ? <StyledText style={styles}>{item}</StyledText> : null));
+};
 
 const TextBox = ({ text, onClick }) => {
   return (
@@ -13,6 +25,12 @@ const TextBox = ({ text, onClick }) => {
 };
 
 export default TextBox;
+
+const StyledText = styled(animated.div)`
+  position: absolute;
+  top: 3.2vh;
+  left: 6vw;
+`;
 
 const StyledTextBox = styled.div`
   position: absolute;

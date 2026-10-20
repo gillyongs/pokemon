@@ -3,7 +3,7 @@ import sampleList from "../entity/Pokemon/SamplePokemon";
 import { generate } from "../entity/Pokemon/PokemonInstance";
 import { createBattle } from "../entity/Battle";
 import { itemText } from "../entity/Item";
-import { getFavoriteItemsForPokemon, getItemListForPokemon, sortItems } from "../component/ItemSearchModal";
+import { getFavoriteItemsForPokemon, getItemListForPokemon, sortItems } from "../component/customScreen/ItemSearchModal";
 
 describe("커스텀 아이템 선택 및 엔트리 적용 테스트", () => {
   it("sampleList.getDataById는 문자열 ID와 { id, item } 객체 모두에서 정상적으로 데이터를 반환해야 한다", () => {

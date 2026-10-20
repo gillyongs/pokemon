@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
 import styled from "styled-components";
-import { abilObject } from "../entity/Ability";
-import { itemText } from "../entity/Item";
-import skillList from "../entity/Skill/skillList";
+import { abilObject } from "../../entity/Ability";
+import { itemText } from "../../entity/Item";
+import skillList from "../../entity/Skill/skillList";
 import ItemSearchModal from "./ItemSearchModal";
 import AbilSearchModal from "./AbilSearchModal";
 import SkillSearchModal from "./SkillSearchModal";

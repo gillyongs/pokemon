@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
-import { abilObject } from "../entity/Ability";
-import PokemonData from "../entity/Pokemon/PokemonData";
+import { abilObject } from "../../entity/Ability";
+import PokemonData from "../../entity/Pokemon/PokemonData";
 
 export const getAbilityListForPokemon = (pokemon) => {
   if (!pokemon) return [];

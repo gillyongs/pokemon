@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { getTypeEffectText } from "../../../util/typeEffectCalculate";
+import { getTypeEffectText } from "../../../../util/typeEffectCalculate";
 
 const InfoSkillButton = ({ battle, skillNumber, pokemon, setText }) => {
   if (!pokemon) pokemon = battle.player;

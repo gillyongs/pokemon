@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
-import PokemonData from "../entity/Pokemon/PokemonData";
+import PokemonData from "../../entity/Pokemon/PokemonData";
 
 export const STAT_KEYS = ["hp", "atk", "def", "catk", "cdef", "speed"];
 

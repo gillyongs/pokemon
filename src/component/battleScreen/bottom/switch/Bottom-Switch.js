@@ -1,14 +1,16 @@
+// 배틀중 포켓몬 교체 화면
+
 import React, { useState } from "react";
-import TextBox from "../TextBox";
-import SwitchButton from "../SwitchButton";
-import TextButton from "../TextButton";
+import TextBox from "../common/TextBox";
+import SwitchButton from "../common/SwitchButton";
+import LogButton from "../common/LogButton";
 import BenchPokemon from "./BenchPokemon";
 import LogModal from "../../LogModal";
-import { battleStart } from "../../../service/battleStart";
-import { switchPlayer, switchBothFaint } from "../../../service/switch";
-import { turnEnd } from "../../../service/turnEnd";
-import { attackNpc } from "../../../service/attack";
-import { npcChoice } from "../../../npc/npc";
+import { battleStart } from "../../../../service/battleStart";
+import { switchPlayer, switchBothFaint } from "../../../../service/switch";
+import { turnEnd } from "../../../../service/turnEnd";
+import { attackNpc } from "../../../../service/attack";
+import { npcChoice } from "../../../../npc/npc";
 const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueObject, setText, btObj }) => {
   const [selected, setSelected] = useState(null);
   const [logOpen, setLogOpen] = useState(false);
@@ -89,7 +91,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
       )}
 
       {/* 교체 화면에서는 스킵할 텍스트가 없으므로(큐에 "누구로 교체 할까?"가 남아있어도) 항상 로그 버튼을 보여준다 */}
-      <TextButton
+      <LogButton
         isLog={true}
         onClick={() => {
           setLogOpen(true);

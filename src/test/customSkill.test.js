@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { getSkillListForPokemon, UNIMPLEMENTED_SKILLS } from "../skill/PokemonSkillList";
 import PokemonInstance from "../entity/Pokemon/PokemonInstance";
 import sampleList from "../entity/Pokemon/SamplePokemon";
-import SkillSearchModal from "../component/SkillSearchModal";
+import SkillSearchModal from "../component/customScreen/SkillSearchModal";
 
 describe("PokemonSkillList and Custom Skill Support", () => {
   test("getSkillListForPokemon returns learnable skills for Charizard", () => {
