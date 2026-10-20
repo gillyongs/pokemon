@@ -158,6 +158,7 @@ export const atkSkills = [
   new Skill("깜짝베기", "악", 70, 100, 15, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true, slice: true }),
   new Skill("사이코커터", "에스퍼", 70, 100, 20, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { slice: true }),
   new Skill("드릴라이너", "땅", 80, 95, 10, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true }),
+  new Skill("리프블레이드", "풀", 90, 100, 15, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true, slice: true }),
   new Skill("스톤에지", "바위", 100, 80, 5, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], {}),
 
   // 확정급소
