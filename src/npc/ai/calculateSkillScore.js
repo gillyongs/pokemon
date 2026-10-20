@@ -60,6 +60,11 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
           }
         }
 
+        if (skillEffect.name === "반동휴식") {
+          score *= 0.3;
+          log += ` * 0.3 (반동휴식)`;
+        }
+
         if (skillEffect.name === "흡수") {
           const recoverValue = Math.min(playerHp, avrDmg) * skillEffect.ratio; // 평균 회복 수치
           score += recoverValue * 1; // 가중치 어느정도일지 조절 필요
@@ -74,9 +79,15 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
     for (const skillEffect of skill.skillEffectList) {
       // 1) 랭크 변화 ============================================================================
       if (skillEffect?.name === "랭크변화") {
-        let { rankScore, logText } = rankScoreCalculate(bt, sn, skillEffect);
-        score += rankScore;
-        log += logText;
+        if (skillEffect.stat === "all") {
+          let plus = 1.5 * skillEffect.probability;
+          score += plus;
+          log += ` + ${plus} (모든 능력치 증가)`;
+        } else {
+          let { rankScore, logText } = rankScoreCalculate(bt, sn, skillEffect);
+          score += rankScore;
+          log += logText;
+        }
       }
       if (skillEffect?.name === "랭크다수변화") {
         for (const info of skillEffect.stats) {
@@ -222,7 +233,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
       if (skillEffect.name === "리플렉터") {
         if (bt.field.npc.noClean.reflect === null) {
-          let origin = (player.origin.role === "물리어태커" || player.origin.role === "물리딜탱") ? 20 : 15; // 상대가 물리면 리플렉터를 먼저 치게
+          let origin = player.origin.role === "물리어태커" || player.origin.role === "물리딜탱" ? 20 : 15; // 상대가 물리면 리플렉터를 먼저 치게
           let value = origin * (remainPokemonCount(bt, "npc") + 1);
           score += value;
           log += ` + ${value} (${skillEffect.name})`;
@@ -230,7 +241,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
       if (skillEffect.name === "빛의장막") {
         if (bt.field.npc.noClean.lightScreen === null) {
-          let origin = (player.origin.role === "특수어태커" || player.origin.role === "특수딜탱") ? 20 : 15;
+          let origin = player.origin.role === "특수어태커" || player.origin.role === "특수딜탱" ? 20 : 15;
           let value = origin * (remainPokemonCount(bt, "npc") + 1);
           score += value;
           log += ` + ${value} (${skillEffect.name})`;

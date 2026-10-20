@@ -10,6 +10,8 @@ export const getStatName = (stat) => {
       return "특수방어가";
     case "speed":
       return "스피드가";
+    case "all":
+      return "모든 능력치가";
     default:
       return "알 수 없음"; // 유효하지 않은 값에 대한 기본 반환값
   }
@@ -27,6 +29,8 @@ export const getStatName2 = (stat) => {
       return "특수방어는";
     case "speed":
       return "스피드는";
+    case "all":
+      return "모든 능력치는";
     default:
       return "알 수 없음"; // 유효하지 않은 값에 대한 기본 반환값
   }

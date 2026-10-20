@@ -77,8 +77,9 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
       <BenchPokemon battle={battle} index={"playerBench2"} selected={selected} handleSelected={handleSelected} setBench={setBench} setBottom={setBottom} handleSwitch={handleSwitch} />
       {bottom === "switch" && (
         <SwitchButton
+          // 교체 -> 기술 화면으로 되돌아가는 뒤로가기 버튼
           onClick={() => {
-            if (!battle.player.auto && !battle.player.charge) {
+            if (!battle.player.auto && !battle.player.charge && !battle.player.recharge) {
               setText(battle.player.origin.names + " 무엇을 할까?");
             }
             setBottom("skill");

@@ -13,8 +13,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
   enqueue({
     battle: battle,
     text: `${battle.turnCount}번째 턴`,
-    isTurnLog: true,
-    skip: true
+    onlyLog: true, // 로그 모달에만 남고 화면에는 출력 안되게
   });
   battle.turnCount += 1;
 

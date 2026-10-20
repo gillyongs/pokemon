@@ -45,21 +45,29 @@ export const PokemonRank = {
       }
     }
 
-    // 상한/하한 검사
-    let rankText2 = `${this.name}의 ${getStatName2(rankType)}`; //공격'은' 더 이상 올라갈 수 없다!
-    if (rankValue < 0 && rank[rankType] <= -6) {
-      enqueue({ battle, text: `${rankText2} 더 이상 떨어질 수 없다!` });
-      return;
-    }
-    if (rankValue > 0 && rank[rankType] >= 6) {
-      enqueue({ battle, text: `${rankText2} 더 이상 올라갈 수 없다!` });
-      return;
-    }
+    if (rankType === "all") {
+      const stats = ["atk", "def", "catk", "cdef", "speed"];
+      stats.forEach((st) => {
+        rank[st] += rankValue;
+        if (rank[st] > 6) rank[st] = 6;
+        if (rank[st] < -6) rank[st] = -6;
+      });
+    } else {
+      // 상한/하한 검사
+      let rankText2 = `${this.name}의 ${getStatName2(rankType)}`; //공격'은' 더 이상 올라갈 수 없다!
+      if (rankValue < 0 && rank[rankType] <= -6) {
+        enqueue({ battle, text: `${rankText2} 더 이상 떨어질 수 없다!` });
+        return;
+      }
+      if (rankValue > 0 && rank[rankType] >= 6) {
+        enqueue({ battle, text: `${rankText2} 더 이상 올라갈 수 없다!` });
+        return;
+      }
 
-    // ✏️ 실제 변화 적용
-    rank[rankType] += rankValue;
-    if (rank[rankType] > 6) rank[rankType] = 6;
-    if (rank[rankType] < -6) rank[rankType] = -6;
+      rank[rankType] += rankValue;
+      if (rank[rankType] > 6) rank[rankType] = 6;
+      if (rank[rankType] < -6) rank[rankType] = -6;
+    }
 
     let rankText = `${this.name}의 ${getStatName(rankType)}`; //공격'이' 크게 올랐다!
 

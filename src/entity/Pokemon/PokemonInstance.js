@@ -17,8 +17,8 @@ class PokemonInstance {
     this.team = ""; // player or npc
     this.id = typeof id === "object" && id ? id.id : id;
     const customItem = typeof id === "object" && id ? id.item : options.item;
-    const customAbil = typeof id === "object" && id ? (id.abil || id.abill) : options.abil;
-    const customSkills = typeof id === "object" && id ? (id.skills || id.skill) : options.skills;
+    const customAbil = typeof id === "object" && id ? id.abil || id.abill : options.abil;
+    const customSkills = typeof id === "object" && id ? id.skills || id.skill : options.skills;
     const pokemon = sampleList.getDataById(this.id);
     this.origin = cloneWithMethods(pokemon);
     if (customItem !== undefined && customItem !== null) {
@@ -33,7 +33,7 @@ class PokemonInstance {
     }
     if (customSkills) {
       for (let slot = 1; slot <= 4; slot++) {
-        const sk = typeof customSkills === "object" ? (customSkills[slot] || customSkills[slot - 1]) : null;
+        const sk = typeof customSkills === "object" ? customSkills[slot] || customSkills[slot - 1] : null;
         if (sk) {
           const skillName = typeof sk === "string" ? sk : sk.name;
           if (skillName) {
@@ -146,6 +146,7 @@ class PokemonInstance {
     this.auto = null; //자동 행동 여부 (역린)
     this.autoSN = null;
     this.charge = null; //충전중 여부 (파워풀허브 없이 충전 기술을 썼을때)
+    this.recharge = null; //반동휴식 여부 (파괴광선 등)
     this.log = {
       damage1: null,
       damage2: null,

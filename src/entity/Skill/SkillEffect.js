@@ -242,7 +242,7 @@ function skillEffectSearch(name) {
           enqueue({
             battle,
             text: "누구로 교체할까?",
-            skip: true, // queueObject.queueCheck 때문에 추가
+            allowAct: true, // 교체 가능하게
           });
         }
       } else if (battle.turn.atk === "npc") {
@@ -443,6 +443,7 @@ function skillEffectSearch(name) {
         });
       }
     },
+
     트릭: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
       const atk = battle[battle.turn.atk];
@@ -466,9 +467,11 @@ function skillEffectSearch(name) {
         text: atk.names + " 서로의 도구를 교체했다!",
       });
     },
+
     트릭룸: (battle, enqueue, skillEffect) => {
       battle.field.room.handleTrickRoom(battle, enqueue);
     },
+
     자동: (battle, enqueue, skillEffect) => {
       // 역린
       const atk = battle[battle.turn.atk];
@@ -477,6 +480,14 @@ function skillEffectSearch(name) {
       }
       atk.auto = Math.random() < 0.5 ? 2 : 3;
       atk.autoSN = battle[battle.turn.atk].turn.choice;
+    },
+
+    반동휴식: (battle, enqueue, skillEffect) => {
+      let atkPokemon = battle[battle.turn.atk];
+      if (!atkPokemon.faint) {
+        atkPokemon.recharge = true;
+        atkPokemon.autoSN = battle[battle.turn.atk].turn.choice;
+      }
     },
 
     씨뿌리기: (battle, enqueue, skillEffect) => {

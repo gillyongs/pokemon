@@ -36,10 +36,10 @@ describe("역린 사용 시 자동 턴 진행 텍스트 테스트", () => {
     const hasWhatToDo = texts.some((t) => t && t.includes("무엇을 할까?"));
     expect(hasWhatToDo).toBe(false);
 
-    // 대신 autoTurn: true 플래그가 들어있어야 함
-    const autoTurnItem = mockQueue.find((item) => item.autoTurn);
-    expect(autoTurnItem).toBeDefined();
-    expect(autoTurnItem.autoTurn).toBe(true);
+    // 대신 autoActTurn: true 플래그가 들어있어야 함
+    const autoActTurnItem = mockQueue.find((item) => item.autoActTurn);
+    expect(autoActTurnItem).toBeDefined();
+    expect(autoActTurnItem.autoActTurn).toBe(true);
   });
 
   it("역린이 종료되어 혼란에 걸린 턴에는 '~는 무엇을 할까?' 텍스트가 정상적으로 큐에 들어가야 한다", () => {

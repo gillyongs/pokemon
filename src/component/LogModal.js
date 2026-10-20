@@ -129,7 +129,7 @@ export default function LogModal({ log, onClose }) {
             <Item>로그가 없습니다.</Item>
           ) : (
             log.map((item, index) => 
-              item.isTurnLog ? (
+              item.onlyLog ? (
                 <TurnIndicator key={index}>{item.text}</TurnIndicator>
               ) : (
                 <Item key={index}>{item.text}</Item>

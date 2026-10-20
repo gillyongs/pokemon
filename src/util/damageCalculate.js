@@ -371,6 +371,11 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.5 (옹골찬턱)";
   }
 
+  if (atkAbil === "용의턱" && skill.type === "드래곤") {
+    damage *= 1.5;
+    attackPokemon.log.damage1 += " * 1.5 (용의턱)";
+  }
+
   if (atkAbil === "예리함" && skill.feature?.slice) {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (예리함)";
@@ -607,7 +612,7 @@ const powerCalculate = (battle, skill, obj, ai) => {
     if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].turn.useSkill) power *= 2;
     // 유턴이나 교체로 나온 포켓몬은 본인이 스킬을 시전한게 아니므로 2배 적용됨
   }
-  if (skill.name === "해수스파우팅") {
+  if (skill.name === "해수스파우팅" || skill.name === "드래곤에너지") {
     // 체력비례 데미지
     power = (power * atk.hp) / atk.origin.hp;
   }

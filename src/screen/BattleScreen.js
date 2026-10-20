@@ -15,7 +15,6 @@ import ItemImage from "../component/Top/ItemImage";
 import BottomSectionSkill from "../component/Bottom/Bottom-Skill/Bottom-Skill";
 import BottomSectionSwitch from "../component/Bottom/Bottom-Switch/Bottom-Switch";
 import BottomSectionInfo from "../component/Bottom/Bottom-info/Bottom-Info";
-import BottomSectionField from "../component/Bottom/Bottom-field/Bottom-Field";
 import { speedCheck } from "../util/speedCheck";
 import { useLocation, useNavigate } from "react-router-dom";
 import { battleStart } from "../service/battleStart";
@@ -157,14 +156,19 @@ const Battle = () => {
   useEffect(() => {
     const queue = queueObject.queue;
     if (queue[0]) {
-      if (queue[0].isTurnLog) {
+      if (queue[0].onlyLog) {
+        // "N번쨰 턴" 로그는 화면에 출력하지 않고 로그 기록에만 남게
         queueObject.dequeue();
         return;
       }
       battleObj.current = cloneWithMethods(queue[0].battle);
       setBattle(queue[0].battle);
-      if (queue[0].autoTurn) {
+      if (queue[0].autoActTurn) {
+        const nextBattle = battleObj.current;
         queueObject.dequeue();
+        if (nextBattle.player.auto || nextBattle.player.charge || nextBattle.player.recharge) {
+          battleStart(nextBattle, nextBattle.player.autoSN, npcChoice(nextBattle, nextBattle.player.autoSN), queueObject);
+        }
         return;
       }
       setText(queue[0].text);
@@ -198,10 +202,11 @@ const Battle = () => {
       }
     }
     if (queue.length === 0) {
-      if (battle.player.auto || battle.player.charge) {
-        battleStart(battleObj.current, battle.player.autoSN, npcChoice(battle, battle.player.autoSN), queueObject);
-      } else {
-        setText(battle.player.origin.names + " 무엇을 할까?");
+      const curBattle = battleObj.current;
+      if (curBattle && (curBattle.player.auto || curBattle.player.charge || curBattle.player.recharge)) {
+        battleStart(curBattle, curBattle.player.autoSN, npcChoice(curBattle, curBattle.player.autoSN), queueObject);
+      } else if (curBattle) {
+        setText(curBattle.player.origin.names + " 무엇을 할까?");
       }
     }
   }, [queueObject.queue]);
@@ -211,12 +216,16 @@ const Battle = () => {
       if (battle.turn.textFreeze) {
         return;
       }
+      if (queueObject.queue[0]?.autoActTurn) {
+        return;
+      }
       screenFix = false;
       queueObject.dequeue();
     } else {
       if (bottom === "skill") {
-        if (!battle.player.auto && !battle.player.charge) {
-          setText(battle.player.origin.names + " 무엇을 할까?");
+        const curBattle = battleObj.current;
+        if (curBattle && !curBattle.player.auto && !curBattle.player.charge && !curBattle.player.recharge) {
+          setText(curBattle.player.origin.names + " 무엇을 할까?");
         }
       }
     }
@@ -268,7 +277,7 @@ const Battle = () => {
     // battle/text 반영
     battleObj.current = cloneWithMethods(last.battle);
     setBattle(last.battle);
-    if (!last.autoTurn) {
+    if (!last.autoActTurn) {
       setText(last.text);
     }
     // ----- 이후 UI 처리 -----
@@ -386,7 +395,6 @@ const Battle = () => {
           {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} battleStartBySkillButton={battleStartBySkillButton} textSkip={textSkip} btObj={battleObj.current} />}
           {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
           {bottom === "info" && <BottomSectionInfo battle={battle} text={text} setText={setText} setBottom={setBottom} bench={bench} />}
-          {bottom === "field" && <BottomSectionField battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
         </BOTTOM>
         {gameResult && !isTradeModalOpen && (
           <ModalOverlay>

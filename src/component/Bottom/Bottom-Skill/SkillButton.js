@@ -29,9 +29,10 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     if (!queueObject.queueCheck()) return;
 
     const reject = (message) => {
-      if (!player.auto && !player.charge) {
-        //enqueue하기떄문에 역린중에 다른 스킬 누르면 끊김
-        queueObject.enqueue({ battle, text: message, skip: true, noLog: true });
+      // 텍스트박스에 기술 사용 불가 메세지 띄우기
+      if (!player.auto && !player.charge && !player.recharge) {
+        // 역린, 충전 중에 enqueue되는거 방지
+        queueObject.enqueue({ battle, text: message, allowAct: true, noLog: true });
         setText?.(message);
       }
       return true;
@@ -111,7 +112,8 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
           return;
         }
         handleSkillClick(skillNumber);
-      }}>
+      }}
+    >
       <ICON src={`/pokemon/img/type/${skill.type}.svg`} alt={skill.name} />
       <NAME skname={skill.name}>{skill.name}</NAME>
       <EFFECT>{getTypeEffectText(battle.player, skill.type, battle.npc.type1, battle.npc.type2, skill.stype)}</EFFECT>

@@ -80,18 +80,18 @@ export const turnEnd = (battle, enqueue) => {
       battle: battle,
       text: "누구로 교체 할까?",
     });
-  } else if (battle.player.auto || battle.player.charge) {
+  } else if (battle.player.auto || battle.player.charge || battle.player.recharge) {
     enqueue({
       battle: battle,
       text: "",
-      autoTurn: true,
-      skip: true,
+      autoActTurn: true,
+      allowAct: true,
     });
   } else {
     enqueue({
       battle: battle,
       text: battle.player.origin.names + " 무엇을 할까?",
-      skip: true,
+      allowAct: true,
     });
     //이거 없으면 텍스트 없는게 (enqueue 안한게) 반영이 안됨
   }

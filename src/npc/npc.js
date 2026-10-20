@@ -27,8 +27,8 @@ export const makeNpcChoice = (battle, actNumber) => {
   // 형태: [1,2,3,4,'npcBench1','npcBench2']
   // 기절한 포켓몬으로 교체, 구애나 도발로 사용 불가능한 스킬 제외
 
-  // 자동기술(역린)이나 충전기술(메테오빔)으로 인한 선택지 고정
-  if (battle.npc?.auto !== null || battle.npc?.charge !== null) {
+  // 자동기술(역린)이나 충전기술(메테오빔), 반동휴식(파괴광선)으로 인한 선택지 고정
+  if (battle.npc?.auto !== null || battle.npc?.charge !== null || battle.npc?.recharge !== null) {
     return [battle.npc.autoSN];
   }
 

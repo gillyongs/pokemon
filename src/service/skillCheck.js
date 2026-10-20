@@ -6,18 +6,22 @@ import { attackDamage } from "../function/damage";
 import { josa } from "josa";
 
 export const beforeSkillCheck = (bt, enqueue) => {
-  //스킬명이 뜨기 전에 처리하는 트리거
-  // 잠듦, 마비, 얼음, 풀죽음, 도발, 혼란
-  // 잠듦, 얼음 -> 풀죽음,도발 -> 마비 -> 혼란
-  // 잠듦 상태면 풀죽음, 도발 메시지 안 뜸
-  // 잠듦 깨면 풀죽음, 도발 텍스트 뜸
-  // 얼음도 이와 동일한 판정일 것으로 추정
-  // 풀죽음 도발 동시에 불가
-  // 풀죽거나 도발이면 마비 텍스트 안 뜸
+  // 스킬명이 뜨기 전에 처리하는 트리거
+  // 반동(파괴광선) -> 잠듦, 얼음 -> 풀죽음 -> 혼란 -> 마비
   // 선도발, 마비, 얼음으로 행동 불가시 혼란 카운트 세지 않음
 
   const atk = bt[bt.turn.atk];
   const useSkill = atk.turn.useSkill;
+
+  // 파괴광선 반동
+  // 어지간하면 제일 먼저
+  if (atk.recharge) {
+    atk.recharge = null;
+    atk.autoSN = null;
+    let rechargeText = atk.names + " 반동으로 움직일 수 없다!";
+    enqueue({ battle: bt, text: rechargeText });
+    return false;
+  }
 
   // 잠듦
   if (atk.ailment.sleep > 0) {
@@ -56,36 +60,31 @@ export const beforeSkillCheck = (bt, enqueue) => {
     return false;
   }
 
-  // 상대 선도발을 맞은 경우
-  if (atk.tempStatus.taunt !== null) {
-    if (useSkill.stype === "buf" || useSkill.stype === "natk") {
-      enqueue({ battle: bt, text: atk.names + " 도발당한 상태라서 " + josa(`${useSkill.name}#{를} `) + "쓸 수 없다!" });
-      return false;
-    }
-  }
-
-  if (atk.ailment.mabi !== null) {
-    if (random(25)) {
-      let mabiText = atk.names + " 몸이 저려서 움직일 수 없다!";
-      enqueue({ battle: bt, text: mabiText });
-      return false;
-    }
-  }
-
+  // 혼란
+  // 잠듦, 풀죽음 등으로 행동 하지 못한 턴은 계산 x
   if (atk.tempStatus.confuse === 0) {
     let confuseText = atk.name + " 의 혼란이 풀렸다!";
     atk.tempStatus.confuse = null;
     enqueue({ battle: bt, text: confuseText });
   } else if (atk.tempStatus.confuse && atk.tempStatus.confuse > 0) {
     enqueue({ battle: bt, text: atk.names + " 혼란에 빠져있다!" });
-    // 혼란은 행동 기준이므로 상태이상이나 풀죽음으로 막히면 턴 수 계산 x
-    // 이 텍스트가 뜨는게 기준 같음
-    // 선도발로 변화기가 끊겨도 해당 텍스트가 안 뜨기에 카운트 세지 않음
+
     atk.tempStatus.confuse -= 1;
     if (random(33)) {
-      //상대방이 패널티로 기절해도 혼란 자해는 가능하다
+      // 혼란 자해는 마비에 막히지 않음
       let confuseText = atk.names + " 영문도 모른 채 자신을 공격했다!";
       attackDamage(bt, confuseDamageCalculate(bt), bt.turn.atk, enqueue, confuseText);
+      return false;
+    }
+  }
+
+  // 혼란이 마비보다 먼저
+  // 풀죽음, 잠듦 등으로 행동하지 못한 턴은 혼란이 차감되지 않지만 마비는 차감됨
+
+  if (atk.ailment.mabi !== null) {
+    if (random(25)) {
+      let mabiText = atk.names + " 몸이 저려서 움직일 수 없다!";
+      enqueue({ battle: bt, text: mabiText });
       return false;
     }
   }
@@ -129,12 +128,21 @@ export const afterSkillCheck = (bt, enqueue) => {
     return false;
   }
 
+  // 상대 선도발을 맞은 턴에 변화기를 쓴 경우
+  if (atk.tempStatus.taunt !== null) {
+    if (useSkill.stype === "buf" || useSkill.stype === "natk") {
+      enqueue({ battle: bt, text: atk.names + " 도발당한 상태라서 " + josa(`${useSkill.name}#{를} `) + "쓸 수 없다!" });
+      return false;
+    }
+  }
+
+  // 상대 선 지옥찌르기를 맞은 턴에 소리 기술을 쓴 경우
   if (skill.feature?.sound && atk.tempStatus.noSound) {
     enqueue({ battle: bt, text: atk.names + " 소리 기술을 사용할 수 없다!" });
     return false;
   }
 
-  // 짓궂은마음으로 우선도가 오른 상대 대상 변화기는 악타입에게 통하지 않는다
+  // 짓궃은마음 포켓몬이 악타입에게 변화기를 쓴 경우
   if (atk.abil === "짓궂은마음" && skillType === "natk" && (def.type1 === "악" || def.type2 === "악")) {
     enqueue({ battle: bt, text: def.name + "에겐 효과가 없는 것 같다..." });
     return false;

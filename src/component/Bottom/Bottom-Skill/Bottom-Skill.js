@@ -20,11 +20,15 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
       <TextBox
         text={text}
         onClick={(e) => {
-          if (queueObject.queue.length > 0 && queueObject.queue[0]?.skip) {
-            queueObject.dequeue();
+          if (queueObject.queue.length > 0) {
+            if (queueObject.queue[0]?.autoActTurn) return;
+            if (queueObject.queue[0]?.allowAct) {
+              queueObject.dequeue();
+            }
           }
-          if (!battle.player.auto && !battle.player.charge) {
-            setText?.(battle.player.origin.names + " 무엇을 할까?");
+          const curBattle = btObj || battle;
+          if (!curBattle.player.auto && !curBattle.player.charge && !curBattle.player.recharge) {
+            setText?.(curBattle.player.origin.names + " 무엇을 할까?");
           }
         }}
       />
