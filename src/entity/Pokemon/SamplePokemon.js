@@ -100,6 +100,12 @@ new PokemonTemplate("찌르호크", "0398", "6V", "AS252", "speed", "catk",
 new PokemonTemplate("한카리아스", "0445", "6V", "AS252", "speed", "catk",
   "지진", "스케일샷", "아이언헤드", "스텔스록", "속임수주사위", "까칠한피부", "물리어태커"),
 
+new PokemonTemplate("메가한카리아스", "0445", "6V", "AS252", "speed", "catk",
+  "지진", "스케일샷", "칼춤", "암석봉인", "한카리아스나이트", "까칠한피부", "물리어태커"),
+
+new PokemonTemplate("메가한카리아스Z", "0445", "5V0A", "CS252", "speed", "atk",
+  "용성군", "파워젬", "화염방사", "파도타기", "한카리아스나이트Z", "까칠한피부", "특수어태커"),
+
 new PokemonTemplate("하마돈", "0450", "6V", "HD252", "cdef", "catk",
   "지진", "하품", "스텔스록", "게으름피우기", "자뭉열매", "모래날림", "기점잡이"),
 
@@ -124,7 +130,7 @@ new PokemonTemplate("크레세리아", "0488", "5V0A", "HB252", "def", "atk",
 new PokemonTemplate("샤로다", "0497", "5V0A", "CS252", "speed", "atk",
   "리프스톰", "뱀눈초리", "씨뿌리기", "대타출동", "먹다남은음식", "심술꾸러기", "특수어태커", "특성 심술꾸러기를 사용시 리프스톰을 사용할 때 마다 특수공격이 2랭크 상승합니다."),
 
-new PokemonTemplate("히검귀", "0503-b", "6V", "AS252", "speed", "catk",
+new PokemonTemplate("히검귀", "0503-h", "6V", "AS252", "speed", "catk",
  "비검천중파", "성스러운칼", "퀵턴", "기습", "구애스카프", "예리함", "물리어태커"),
 
 new PokemonTemplate("몰드류", "0530", "6V", "AS252", "speed", "catk",
@@ -157,7 +163,7 @@ new PokemonTemplate("불카모스", "0637", "5V0A", "HB252", "def", "atk",
 new PokemonTemplate("블랙큐레무", "0646-a", "6V", "AS252", "speed", "catk",
   "고드름침", "크로스썬더", "용의춤", "스케일샷", "속임수주사위", "테라볼티지", "물리어태커"),
 
-new PokemonTemplate("랜드로스", "0645", "6V", "HA252", "def", "catk",
+new PokemonTemplate("랜드로스", "0645-a", "6V", "HA252", "def", "catk",
   "지진", "유턴", "스텔스록", "암석봉인", "울퉁불퉁멧", "위협", "물리딜탱"),
 
 new PokemonTemplate("게노세크트", "0649", "5V0A", "CS252", "speed", "atk",

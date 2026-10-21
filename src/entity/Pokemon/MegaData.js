@@ -82,6 +82,21 @@ export const megaDataList = {
       abil: "단단한발톱",
     },
   ],
+  // 한카리아스 (일반 / Z)
+  "0445": [
+    {
+      stone: "한카리아스나이트",
+      megaFormId: "0445-m",
+      name: "메가한카리아스",
+      abil: "모래의힘",
+    },
+    {
+      stone: "한카리아스나이트Z",
+      megaFormId: "0445-z",
+      name: "메가한카리아스Z",
+      abil: "부유",
+    },
+  ],
   // 뮤츠 (X / Y)
   "0150": [
     {

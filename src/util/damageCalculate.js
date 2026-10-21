@@ -476,6 +476,11 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
+  if (atkAbil === "모래의힘" && battle.field.weather.isSandstorm && ["바위", "땅", "강철"].includes(skill.type)) {
+    damage *= 1.3;
+    attackPokemon.log.damage1 += " * 1.3 (모래의힘)";
+  }
+
   if (atkAbil === "스카이스킨" && skill.type === "비행" && skill.originType === "노말") {
     damage *= 1.2;
     attackPokemon.log.damage1 += " * 1.2 (스카이스킨)";
