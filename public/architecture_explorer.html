@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokemon Battle Simulator - Architecture & Dependency Explorer</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+    ::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.5); }
+    .badge-ui { background-color: #3b82f6; color: white; }
+    .badge-service { background-color: #8b5cf6; color: white; }
+    .badge-ai { background-color: #ec4899; color: white; }
+    .badge-entity { background-color: #10b981; color: white; }
+    .badge-util { background-color: #f59e0b; color: white; }
+    .badge-function { background-color: #06b6d4; color: white; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-6 font-sans antialiased">
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <header class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">🎮</span>
+          <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            Pokemon Battle Simulator
+            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Architecture Map</span>
+          </h1>
+        </div>
+        <p class="text-sm text-slate-400 mt-1">전체 코드베이스 계층 구조 및 모듈 간 호출/참조 상관관계 인터랙티브 탐색기</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-slate-400">총 38개 핵심 모듈 매핑됨</span>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="flex flex-wrap gap-2 border-b border-slate-800 pb-2" id="navTabs">
+      <button onclick="switchView('explorer')" id="tabExplorer" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
+        🧭 모듈별 상관관계 탐색기
+      </button>
+      <button onclick="switchView('scenarios')" id="tabScenarios" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700">
+        ⚡ 4대 핵심 런타임 시나리오 흐름
+      </button>
+      <button onclick="switchView('matrix')" id="tabMatrix" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700">
+        📋 전체 의존성 매트릭스 표
+      </button>
+    </nav>
+
+    <!-- VIEW 1: EXPLORER -->
+    <div id="viewExplorer" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left Column: Filter & Module Grid (7 cols) -->
+      <div class="lg:col-span-7 space-y-4">
+        <!-- Control Bar -->
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">🔍</span>
+            <input type="text" id="searchInput" placeholder="모듈명 또는 함수 검색 (예: battleStart, damage...)" 
+              class="w-full pl-9 pr-4 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              oninput="handleSearch()">
+          </div>
+          <div class="flex flex-wrap gap-1.5" id="layerFilterButtons">
+            <!-- Filter buttons injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Modules Grid -->
+        <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5 max-h-[640px] overflow-y-auto">
+          <div id="modulesContainer" class="space-y-6">
+            <!-- Layers & cards injected dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Selected Module Details & Relationships (5 cols) -->
+      <div class="lg:col-span-5 space-y-4">
+        <div id="detailPanel" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sticky top-6 shadow-xl space-y-5">
+          <div class="text-center py-16 text-slate-500">
+            <div class="text-4xl mb-3">👈</div>
+            <p class="font-medium text-slate-400">좌측에서 확인하고 싶은 모듈을 클릭하세요.</p>
+            <p class="text-xs mt-1 text-slate-500">누가 이 모듈을 호출하고, 이 모듈이 무엇을 호출하는지 시각적으로 보여줍니다.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VIEW 2: SCENARIOS -->
+    <div id="viewScenarios" class="hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <button onclick="showScenario('turn')" id="scBtnTurn" class="scenario-btn p-4 rounded-xl border border-indigo-500 bg-indigo-500/10 text-left transition-all">
+          <div class="text-xs font-semibold text-indigo-400">시나리오 1</div>
+          <div class="font-bold text-white mt-1">⚔️ 배틀 1턴 실행 흐름</div>
+          <div class="text-xs text-slate-400 mt-1">유저 클릭부터 스냅샷 큐까지</div>
+        </button>
+        <button onclick="showScenario('ai')" id="scBtnAi" class="scenario-btn p-4 rounded-xl border border-slate-700 bg-slate-800 text-left hover:border-slate-600 transition-all">
+          <div class="text-xs font-semibold text-pink-400">시나리오 2</div>
+          <div class="font-bold text-white mt-1">🧠 AI 5단계 킬각 판단</div>
+          <div class="text-xs text-slate-400 mt-1">우선도 ➡️ 디메리트 ➡️ 명중 ➡️ 딜</div>
+        </button>
+        <button onclick="showScenario('custom')" id="scBtnCustom" class="scenario-btn p-4 rounded-xl border border-slate-700 bg-slate-800 text-left hover:border-slate-600 transition-all">
+          <div class="text-xs font-semibold text-emerald-400">시나리오 3</div>
+          <div class="font-bold text-white mt-1">🛠️ 커스텀 엔트리 & 배틀 진입</div>
+          <div class="text-xs text-slate-400 mt-1">CustomScreen ➡️ Battle 인스턴스</div>
+        </button>
+        <button onclick="showScenario('mega')" id="scBtnMega" class="scenario-btn p-4 rounded-xl border border-slate-700 bg-slate-800 text-left hover:border-slate-600 transition-all">
+          <div class="text-xs font-semibold text-amber-400">시나리오 4</div>
+          <div class="font-bold text-white mt-1">💥 메가진화 실행 파이프라인</div>
+          <div class="text-xs text-slate-400 mt-1">도구반응 ➡️ 스탯 ➡️ 특성발동</div>
+        </button>
+      </div>
+
+      <div id="scenarioContent" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+        <!-- Scenario content injected dynamically -->
+      </div>
+    </div>
+
+    <!-- VIEW 3: MATRIX -->
+    <div id="viewMatrix" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl overflow-x-auto">
+      <h3 class="text-lg font-bold text-white mb-4">전체 모듈 의존성 및 책임 매트릭스</h3>
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-slate-700 text-slate-400 font-semibold">
+            <th class="py-3 px-3">레이어</th>
+            <th class="py-3 px-3">모듈명</th>
+            <th class="py-3 px-3">경로</th>
+            <th class="py-3 px-3">상위 호출자 (Callers)</th>
+            <th class="py-3 px-3">하위 의존 모듈 (Dependencies)</th>
+            <th class="py-3 px-4">핵심 책임 및 역할</th>
+          </tr>
+        </thead>
+        <tbody id="matrixTableBody" class="divide-y divide-slate-700/60 text-slate-300">
+          <!-- Injected dynamically -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    // --- MODULES DATA GRAPH ---
+    const MODULES = [
+      // UI Layer
+      { id: "App", name: "App.js", layer: "UI", path: "src/App.js", callers: ["index.js"], callees: ["MainScreen", "CustomScreen", "BattleScreen"], desc: "라우팅 루트 (/, /custom, /battle) 및 RecoilRoot 제공", funcs: ["App()"] },
+      { id: "MainScreen", name: "MainScreen.js", layer: "UI", path: "src/screen/MainScreen.js", callers: ["App"], callees: ["randomTeam", "GameOptionModal", "recoilState"], desc: "메인 로비 화면. 빠른 배틀 시작, 커스텀 진입, 모바일 QR 연결, 게임 설정", funcs: ["handleQuickStart()"] },
+      { id: "CustomScreen", name: "CustomScreen.js", layer: "UI", path: "src/screen/CustomScreen.js", callers: ["App"], callees: ["SamplePokemon", "customEntryUtil", "FilterModal", "SampleInfoModal", "GameOptionModal", "EntryFileModal", "Battle"], desc: "3v3 팀 빌더 화면. 샘플 목록 조회/필터, 8종 모달 조립, 팀 파일 I/O", funcs: ["filterSamplePokemons()", "exportTeamToFile()"] },
+      { id: "BattleScreen", name: "BattleScreen.js", layer: "UI", path: "src/screen/BattleScreen.js", callers: ["App"], callees: ["battleStart", "switch", "npc", "useQueue", "recoilState", "PokemonInfo", "HpBar", "BottomSectionSkill", "BottomSectionSwitch", "LogModal", "TradeInfoModal"], desc: "3v3 턴제 배틀 화면. 상단 필드 뷰 + 하단 커맨드 패널, Recoil 큐 이벤트 구독", funcs: ["handleAction()", "handleDequeue()", "handleMegaToggle()"] },
+      { id: "FilterModal", name: "FilterModal.js", layer: "UI", path: "src/component/customScreen/FilterModal.js", callers: ["CustomScreen"], callees: ["customEntryUtil"], desc: "타입(OR/AND 로직 스위치), 역할군, 메가, 초전설, 위협, 날씨, 벽깔이 필터 모달", funcs: ["FilterModal()"] },
+      { id: "SampleInfoModal", name: "SampleInfoModal.js", layer: "UI", path: "src/component/customScreen/sampleInfo/SampleInfoModal.js", callers: ["CustomScreen"], callees: ["StatAdjustmentModal", "SkillSearchModal", "ItemSearchModal", "AbilSearchModal"], desc: "포켓몬 상세 스탯 및 [TIP] 운용 팁 표기, 항목 클릭 시 세부 서브 모달 오픈", funcs: ["SampleInfoModal()"] },
+      { id: "SkillSearchModal", name: "SkillSearchModal.js", layer: "UI", path: "src/component/customScreen/sampleInfo/SkillSearchModal.js", callers: ["SampleInfoModal"], callees: ["PokemonSkillList", "Skill"], desc: "포켓몬 습득 가능 기술 검색, 4개 필수 선택 검증, originText 분리 렌더링", funcs: ["handleSave()"] },
+      { id: "StatAdjustmentModal", name: "StatAdjustmentModal.js", layer: "UI", path: "src/component/customScreen/sampleInfo/StatAdjustmentModal.js", callers: ["SampleInfoModal"], callees: ["PokemonTemplate"], desc: "개체값(6V, 5V0A), 노력치(252/252/4), 성격 보정 설정 및 6각형 레이더 차트", funcs: ["calculateStat()", "getNatureInfo()"] },
+
+      // Service Layer
+      { id: "battleStart", name: "battleStart.js", layer: "Service", path: "src/service/battleStart.js", callers: ["BattleScreen", "BottomSectionSwitch"], callees: ["speedCheck", "attack", "switch", "turnEnd", "PokemonMega"], desc: "턴 진입점. 스피드/우선도 비교, 메가진화 우선 처리, 공격/교체 분기 후 turnEnd 호출", funcs: ["battleStart()", "isAttack()"] },
+      { id: "attack", name: "attack.js", layer: "Service", path: "src/service/attack.js", callers: ["battleStart"], callees: ["skillUse"], desc: "공격 주체 관점(player vs npc) 설정 후 skillUse 호출", funcs: ["attackPlayer()", "attackNpc()"] },
+      { id: "skillUse", name: "skillUse.js", layer: "Service", path: "src/service/skillUse.js", callers: ["attack"], callees: ["skillCheck", "damageCalculate", "damage", "onHit", "skillEffect", "typeEffectCalculate", "accuracyCalculate"], desc: "기술 시전 9단계 파이프라인 (검사 ➡️ PP차감 ➡️ 데미지 ➡️ 피격 ➡️ 부가효과)", funcs: ["skillUse()", "criticalRate()"] },
+      { id: "skillCheck", name: "skillCheck.js", layer: "Service", path: "src/service/skillCheck.js", callers: ["skillUse"], callees: ["ailment", "SkillRequirement"], desc: "시전 전/후 실패 조건 판정 (풀죽음, 마비, 혼란자해, 잠듦, 도발, 기습, 방어)", funcs: ["beforeSkillCheck()", "afterSkillCheck()"] },
+      { id: "skillEffect", name: "skillEffect.js", layer: "Service", path: "src/service/skillEffect.js", callers: ["skillUse"], callees: ["SkillEffect"], desc: "랭크변화, 상태이상, 퇴장/반동기(빗나감패널티, 자폭, 철제광선반동 faint 가드)", funcs: ["applySkillEffects()", "skillEffectsAfter()"] },
+      { id: "onHit", name: "onHit.js", layer: "Service", path: "src/service/onHit.js", callers: ["skillUse"], callees: ["damage", "Ability", "Item"], desc: "접촉기 피격 시 발동하는 특성/도구 (정전기, 불꽃몸, 울퉁불퉁멧, 까칠한피부)", funcs: ["onHit()"] },
+      { id: "switch", name: "switch.js", layer: "Service", path: "src/service/switch.js", callers: ["battleStart", "turnEnd", "BattleScreen"], callees: ["switchPokemon", "Ability", "field"], desc: "포켓몬 교체 처리, 등장 특성(applyAbilityEffects), 스락/독압정 장판 피해 적용", funcs: ["switchPlayer()", "switchNpc()", "switchNpcAuto()"] },
+      { id: "turnEnd", name: "turnEnd.js", layer: "Service", path: "src/service/turnEnd.js", callers: ["battleStart", "BottomSectionSwitch"], callees: ["ailmentEvent", "skillEvent", "switch"], desc: "턴 마무리. 날씨/지형 감소, 먹밥/희망사항 회복, 상태이상 딜, 기절 시 후속 교체", funcs: ["turnEnd()"] },
+      { id: "fieldService", name: "field.js", layer: "Service", path: "src/service/field.js", callers: ["switch"], callees: ["typeEffectCalculate", "ailment"], desc: "포켓몬 등장 시 스텔스록, 압정, 독압정 장판 효과 판정 및 데미지 적용", funcs: ["applyEntryHazards()"] },
+
+      // AI Layer
+      { id: "npc", name: "npc.js", layer: "AI", path: "src/npc/npc.js", callers: ["BattleScreen"], callees: ["easy", "random"], desc: "NPC AI 메인 엔트리. 유효 행동(기술/교체) 추출 후 선택된 난이도 AI로 위임", funcs: ["npcChoice()"] },
+      { id: "easy", name: "easy.js", layer: "AI", path: "src/npc/ai/easy.js", callers: ["npc"], callees: ["calculateSkillScore", "damageCalculate", "speedCheck", "accuracyCalculate"], desc: "지능형 AI. 5단계 킬각 판정 계층(우선도➡️강한디메리트➡️명중➡️약한디메리트➡️딜) 및 교체점수", funcs: ["getKillableSkill()", "hasStrongDemerit()", "hasWeakDemerit()", "calculatePokemonSwitchScore()"] },
+      { id: "calculateSkillScore", name: "calculateSkillScore.js", layer: "AI", path: "src/npc/ai/calculateSkillScore.js", callers: ["easy"], callees: ["damageCalculate", "accuracyCalculate", "easy"], desc: "공격/변화기 가중치 점수 산출, getLowHpFactor 희생기 지수 곡선, 장판/벽 점수", funcs: ["calculateSkillScore()", "getLowHpFactor()", "rankScoreCalculate()"] },
+
+      // Entity Layer
+      { id: "Battle", name: "Battle.js", layer: "Entity", path: "src/entity/Battle.js", callers: ["CustomScreen", "MainScreen", "battleStart"], callees: ["PokemonInstance", "Field"], desc: "배틀 최상위 도메인 객체 (선출 3v3 포켓몬, 턴 플래그, 필드, 메가진화 상태)", funcs: ["createBattle()", "resetTurn()"] },
+      { id: "PokemonInstance", name: "PokemonInstance.js", layer: "Entity", path: "src/entity/Pokemon/PokemonInstance.js", callers: ["Battle", "CustomScreen"], callees: ["PokemonRank", "PokemonGetDamage", "PokemonRecover", "PokemonMega", "PokemonAbil"], desc: "런타임 배틀 포켓몬 인스턴스 (HP, 실스탯, 랭크, 상태이상, 쿨다운 관리)", funcs: ["generate()"] },
+      { id: "PokemonMega", name: "PokemonMega.js", layer: "Entity", path: "src/entity/Pokemon/Methods/PokemonMega.js", callers: ["PokemonInstance", "battleStart"], callees: ["Ability", "MegaData"], desc: "메가진화 메서드 (isMegaEvolveAble, megaEvolve: 스탯/타입 변경 및 특성 재발동)", funcs: ["isMegaEvolveAble()", "megaEvolve()"] },
+      { id: "PokemonRank", name: "PokemonRank.js", layer: "Entity", path: "src/entity/Pokemon/Methods/PokemonRank.js", callers: ["PokemonInstance"], callees: ["rankStat"], desc: "포켓몬 랭크업/다운 연산 (+6~-6 제한 및 심술꾸러기 반전 반영)", funcs: ["rankUp()", "rankDown()", "rankUpMulti()"] },
+      { id: "SamplePokemon", name: "SamplePokemon.js", layer: "Entity", path: "src/entity/Pokemon/SamplePokemon.js", callers: ["CustomScreen", "randomTeam"], callees: ["PokemonTemplate"], desc: "실제 배틀에서 사용하는 프리셋 샘플 포켓몬 싱글턴 목록 (sampleList)", funcs: ["sampleList.getDataById()"] },
+      { id: "Skill", name: "Skill.js", layer: "Entity", path: "src/entity/Skill/Skill.js", callers: ["skillList", "PokemonSkillList"], callees: [], desc: "기술 도메인 클래스 (위력, 명중, PP, 우선도, 물리/특수/변화, originText)", funcs: ["Skill()"] },
+      { id: "SkillEffect", name: "SkillEffect.js", layer: "Entity", path: "src/entity/Skill/SkillEffect.js", callers: ["skillEffect"], callees: ["switch", "ailment"], desc: "40종 이상의 부가효과 실행 딕셔너리 (랭크변화, 상태이상, 필드파괴, 철제광선반동)", funcs: ["skillEffectSearch()"] },
+      { id: "PokemonSkillList", name: "PokemonSkillList.js", layer: "Entity", path: "src/skill/PokemonSkillList.js", callers: ["SkillSearchModal"], callees: ["Skill"], desc: "도감 번호별 포켓몬 습득 가능 기술 매핑 딕셔너리", funcs: ["getSkillListForPokemon()"] },
+      { id: "Field", name: "Field.js", layer: "Entity", path: "src/entity/Field/Field.js", callers: ["Battle"], callees: ["Weather", "Terrain", "Room", "UserField"], desc: "배틀 환경 루트 객체 (날씨, 필드 지형, 트릭룸, 양측 진영 상태 관리)", funcs: ["Field()"] },
+      { id: "Ability", name: "Ability.js", layer: "Entity", path: "src/entity/Ability.js", callers: ["switch", "PokemonMega", "onHit"], callees: ["Field"], desc: "특성 DB 및 등장 특성 실행기 (위협, 날씨/필드 전개, 불요의검, 다운로드 등)", funcs: ["applyAbilityEffects()"] },
+      { id: "Item", name: "Item.js", layer: "Entity", path: "src/entity/Item.js", callers: ["damageCalculate", "onHit", "calculateSkillScore"], callees: [], desc: "지닌물건 DB, 효과 및 AI 아이템 중요도 점수표 (aiItemScore)", funcs: ["aiItemScore"] },
+
+      // Utility & Function Layer
+      { id: "damageCalculate", name: "damageCalculate.js", layer: "Util", path: "src/util/damageCalculate.js", callers: ["skillUse", "easy", "calculateSkillScore"], callees: ["typeEffectCalculate", "rankStat", "speedCheck", "Item"], desc: "본가 6~9세대 데미지 공식. AI 모드 시 급소 제외/mustCritical 1.5배/고정난수 연산", funcs: ["damageCalculate()", "confuseDamageCalculate()"] },
+      { id: "typeEffectCalculate", name: "typeEffectCalculate.js", layer: "Util", path: "src/util/typeEffectCalculate.js", callers: ["damageCalculate", "skillUse", "fieldService"], callees: [], desc: "18개 타입 상성 매트릭스. 부유, 풍선, 심안 특성 조합 실 배율(0~4배) 산출", funcs: ["typeCheckOnBattle()", "typeCheck()"] },
+      { id: "speedCheck", name: "speedCheck.js", layer: "Util", path: "src/util/speedCheck.js", callers: ["battleStart", "easy", "damageCalculate"], callees: ["PokemonInstance"], desc: "선후공 판정. 스탯, 랭크, 마비, 순풍, 스카프, 기술우선도, 메가진화 반영", funcs: ["skillSpeedCheck()", "priCalculate()", "megaSpeedCheck()"] },
+      { id: "cloneWithMethods", name: "cloneWithMethods.js", layer: "Util", path: "src/util/cloneWithMethods.js", callers: ["useQueue", "easy"], callees: [], desc: "프로토타입 체인과 인스턴스 메서드를 보존하는 커스텀 깊은 복사 함수", funcs: ["cloneWithMethods()"] },
+      { id: "useQueue", name: "useQueue.js", layer: "Util", path: "src/util/useQueue.js", callers: ["BattleScreen", "battleStart"], callees: ["recoilState", "cloneWithMethods"], desc: "Recoil 기반 턴 애니메이션 이벤트 큐 조작 훅", funcs: ["enqueue()", "dequeue()", "resetQueue()", "textSkip()"] },
+      { id: "customEntryUtil", name: "customEntryUtil.js", layer: "Util", path: "src/util/customEntryUtil.js", callers: ["CustomScreen", "FilterModal"], callees: ["SamplePokemon", "SkillSearchModal"], desc: "커스텀 팀 유효성 검증, 이름/타입/역할군 필터링, JSON 파일 익스포트/임포트", funcs: ["filterSamplePokemons()", "exportTeamToFile()"] },
+      { id: "damageFunction", name: "damage.js", layer: "Function", path: "src/function/damage.js", callers: ["skillUse", "onHit"], callees: [], desc: "attackDamage: 체력 차감, 대타출동/탈(Disguise)/기띠/옹골참 처리", funcs: ["attackDamage()"] },
+      { id: "accuracyCalculate", name: "accuracyCalculate.js", layer: "Function", path: "src/function/accuracyCalculate.js", callers: ["skillUse", "easy", "calculateSkillScore"], callees: [], desc: "날씨(비 번개/폭풍 필중, 쾌청 50%), 복안 특성(1.3배) 반영 최종 명중률 계산", funcs: ["getAccuracy()"] },
+      { id: "ailment", name: "ailment.js", layer: "Function", path: "src/function/ailment.js", callers: ["skillCheck", "SkillEffect", "fieldService"], callees: [], desc: "상태이상 판정 및 부여 함수 (화상, 마비, 독, 맹독, 얼음, 잠듦)", funcs: ["ailmentAbleCheck()", "applyAilment()", "isAilmentCheck()"] }
+    ];
+
+    const LAYERS = {
+      UI: { name: "UI 화면 & 컴포넌트", color: "badge-ui", bg: "border-blue-500/30 bg-blue-500/5", text: "text-blue-400" },
+      Service: { name: "배틀 서비스 파이프라인", color: "badge-service", bg: "border-purple-500/30 bg-purple-500/5", text: "text-purple-400" },
+      AI: { name: "인공지능 엔진 (NPC AI)", color: "badge-ai", bg: "border-pink-500/30 bg-pink-500/5", text: "text-pink-400" },
+      Entity: { name: "도메인 데이터 & 엔티티", color: "badge-entity", bg: "border-emerald-500/30 bg-emerald-500/5", text: "text-emerald-400" },
+      Util: { name: "공통 유틸리티", color: "badge-util", bg: "border-amber-500/30 bg-amber-500/5", text: "text-amber-400" },
+      Function: { name: "순수 연산 함수", color: "badge-function", bg: "border-cyan-500/30 bg-cyan-500/5", text: "text-cyan-400" },
+    };
+
+    let activeLayerFilter = "ALL";
+    let selectedModuleId = null;
+
+    function init() {
+      renderLayerFilterButtons();
+      renderModules();
+      renderMatrix();
+      showScenario('turn');
+    }
+
+    function renderLayerFilterButtons() {
+      const container = document.getElementById("layerFilterButtons");
+      let html = `<button onclick="filterLayer('ALL')" class="layer-btn px-2.5 py-1 rounded-md text-xs font-medium transition-all ${activeLayerFilter === 'ALL' ? 'bg-indigo-600 text-white' : 'bg-slate-700/60 text-slate-300 hover:bg-slate-700'}">전체</button>`;
+      Object.entries(LAYERS).forEach(([key, info]) => {
+        const isActive = activeLayerFilter === key;
+        html += `<button onclick="filterLayer('${key}')" class="layer-btn px-2.5 py-1 rounded-md text-xs font-medium transition-all ${isActive ? 'bg-indigo-600 text-white' : 'bg-slate-700/60 text-slate-300 hover:bg-slate-700'}">${key}</button>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function filterLayer(layerKey) {
+      activeLayerFilter = layerKey;
+      renderLayerFilterButtons();
+      renderModules();
+    }
+
+    function handleSearch() {
+      renderModules();
+    }
+
+    function renderModules() {
+      const container = document.getElementById("modulesContainer");
+      const query = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+
+      // Group modules by layer
+      const grouped = {};
+      Object.keys(LAYERS).forEach(k => grouped[k] = []);
+
+      MODULES.forEach(mod => {
+        if (activeLayerFilter !== "ALL" && mod.layer !== activeLayerFilter) return;
+        if (query) {
+          const matchName = mod.name.toLowerCase().includes(query);
+          const matchDesc = mod.desc.toLowerCase().includes(query);
+          const matchFuncs = mod.funcs.some(f => f.toLowerCase().includes(query));
+          if (!matchName && !matchDesc && !matchFuncs) return;
+        }
+        if (grouped[mod.layer]) grouped[mod.layer].push(mod);
+      });
+
+      let html = "";
+      Object.entries(grouped).forEach(([layerKey, list]) => {
+        if (list.length === 0) return;
+        const layerInfo = LAYERS[layerKey];
+        html += `
+          <div>
+            <div class="flex items-center gap-2 mb-2.5">
+              <span class="w-2.5 h-2.5 rounded-full ${layerInfo.color}"></span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">${layerInfo.name} (${layerKey})</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              ${list.map(mod => {
+                const isSelected = selectedModuleId === mod.id;
+                return `
+                  <div onclick="selectModule('${mod.id}')"
+                    class="cursor-pointer p-3 rounded-xl border transition-all ${
+                      isSelected 
+                        ? 'border-indigo-400 bg-indigo-500/20 shadow-md ring-2 ring-indigo-500/30' 
+                        : 'border-slate-700/80 bg-slate-800/90 hover:border-slate-500 hover:bg-slate-800'
+                    }">
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="font-semibold text-sm text-white flex items-center gap-1.5">
+                        <span class="text-xs">${isSelected ? '📌' : '📄'}</span>
+                        ${mod.name}
+                      </div>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded font-mono ${layerInfo.color}">${mod.layer}</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">${mod.desc}</p>
+                    <div class="flex items-center gap-3 text-[10px] text-slate-500 mt-2 font-mono">
+                      <span>In: <strong class="text-slate-300">${mod.callers.length}</strong></span>
+                      <span>Out: <strong class="text-slate-300">${mod.callees.length}</strong></span>
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+        `;
+      });
+
+      if (!html) {
+        html = `<div class="text-center py-12 text-slate-500 text-sm">일치하는 모듈이 없습니다.</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function selectModule(id) {
+      selectedModuleId = id;
+      renderModules();
+
+      const mod = MODULES.find(m => m.id === id);
+      if (!mod) return;
+
+      const layerInfo = LAYERS[mod.layer];
+      const callersList = mod.callers.map(cid => {
+        const target = MODULES.find(m => m.id === cid || m.name === cid);
+        return target ? { id: target.id, name: target.name, layer: target.layer } : { id: cid, name: cid, layer: "External" };
+      });
+      const calleesList = mod.callees.map(cid => {
+        const target = MODULES.find(m => m.id === cid || m.name === cid);
+        return target ? { id: target.id, name: target.name, layer: target.layer } : { id: cid, name: cid, layer: "External" };
+      });
+
+      const panel = document.getElementById("detailPanel");
+      panel.innerHTML = `
+        <div class="flex items-start justify-between gap-3 border-b border-slate-700 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2 py-0.5 rounded font-mono font-bold ${layerInfo.color}">${mod.layer} Layer</span>
+              <h3 class="text-xl font-bold text-white">${mod.name}</h3>
+            </div>
+            <p class="text-xs font-mono text-slate-400 mt-1">${mod.path}</p>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">핵심 역할 & 책임</h4>
+          <p class="text-sm text-slate-200 leading-relaxed bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">${mod.desc}</p>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">주요 export 함수 / 인터페이스</h4>
+          <div class="flex flex-wrap gap-1.5">
+            ${mod.funcs.map(f => `<span class="text-xs font-mono px-2 py-1 bg-slate-900 text-indigo-300 rounded-md border border-slate-700">${f}</span>`).join("")}
+          </div>
+        </div>
+
+        <!-- Inbound: Who calls this module -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+            <span>📥 상위 호출자 (Callers) [${callersList.length}]</span>
+            <span class="text-[10px] text-slate-500 font-normal">누가 이 모듈을 부르는가</span>
+          </h4>
+          <div class="space-y-1.5">
+            ${callersList.length > 0 ? callersList.map(c => `
+              <div onclick="selectModule('${c.id}')" class="cursor-pointer p-2 rounded-lg bg-slate-900/80 hover:bg-slate-700/80 border border-slate-700 flex items-center justify-between text-xs transition-colors">
+                <span class="font-medium text-white flex items-center gap-1.5">
+                  <span class="text-slate-400">↳</span> ${c.name}
+                </span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded font-mono ${LAYERS[c.layer]?.color || 'bg-slate-600 text-white'}">${c.layer}</span>
+              </div>
+            `).join("") : `<div class="text-xs text-slate-500 p-2 italic">상위 호출자가 없는 최상위 진입점이거나 루트 모듈입니다.</div>`}
+          </div>
+        </div>
+
+        <!-- Outbound: Who this module calls -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+            <span>📤 하위 의존 모듈 (Dependencies) [${calleesList.length}]</span>
+            <span class="text-[10px] text-slate-500 font-normal">이 모듈이 호출/참조하는 대상</span>
+          </h4>
+          <div class="space-y-1.5">
+            ${calleesList.length > 0 ? calleesList.map(c => `
+              <div onclick="selectModule('${c.id}')" class="cursor-pointer p-2 rounded-lg bg-slate-900/80 hover:bg-slate-700/80 border border-slate-700 flex items-center justify-between text-xs transition-colors">
+                <span class="font-medium text-white flex items-center gap-1.5">
+                  <span class="text-slate-400">↳</span> ${c.name}
+                </span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded font-mono ${LAYERS[c.layer]?.color || 'bg-slate-600 text-white'}">${c.layer}</span>
+              </div>
+            `).join("") : `<div class="text-xs text-slate-500 p-2 italic">하위 의존성 없는 순수 독립 모듈입니다.</div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function switchView(viewName) {
+      document.getElementById("viewExplorer").classList.add("hidden");
+      document.getElementById("viewScenarios").classList.add("hidden");
+      document.getElementById("viewMatrix").classList.add("hidden");
+
+      document.getElementById("tabExplorer").className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700";
+      document.getElementById("tabScenarios").className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700";
+      document.getElementById("tabMatrix").className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700";
+
+      if (viewName === "explorer") {
+        document.getElementById("viewExplorer").classList.remove("hidden");
+        document.getElementById("tabExplorer").className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/30";
+      } else if (viewName === "scenarios") {
+        document.getElementById("viewScenarios").classList.remove("hidden");
+        document.getElementById("tabScenarios").className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/30";
+      } else if (viewName === "matrix") {
+        document.getElementById("viewMatrix").classList.remove("hidden");
+        document.getElementById("tabMatrix").className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/30";
+      }
+    }
+
+    const SCENARIOS = {
+      turn: {
+        title: "⚔️ 배틀 1턴 실행 시나리오 (Full Turn Execution)",
+        desc: "유저가 기술을 누른 시점부터 1턴의 모든 데미지/부가효과가 동기 연산되고 스냅샷 큐로 전달되는 전체 과정입니다.",
+        steps: [
+          { step: 1, mod: "BattleScreen.js", action: "유저가 기술(1~4번) 또는 교체 클릭 ➡️ handleAction() 호출" },
+          { step: 2, mod: "npc.js / easy.js", action: "NPC가 getKillableSkill 및 calculateSkillScore를 계산하여 최적의 기술 또는 교체 결정" },
+          { step: 3, mod: "battleStart.js", action: "양측 행동(공격/교체)을 접수하고 메가진화 체크 후 speedCheck로 우선순위 분기" },
+          { step: 4, mod: "attack.js", action: "선공자 관점으로 attackPlayer/attackNpc 호출 후 skillUse() 위임" },
+          { step: 5, mod: "skillUse.js", action: "beforeSkillCheck ➡️ PP차감 ➡️ afterSkillCheck ➡️ damageCalculate ➡️ attackDamage ➡️ applySkillEffects" },
+          { step: 6, mod: "damageCalculate.js", action: "자속, 상성, 날씨, 랭크, 아이템, 급소(1.5배), 85~100% 난수를 반영하여 최종 데미지 산출" },
+          { step: 7, mod: "damage.js", action: "피격 포켓몬의 HP 차감, 대타출동/탈(Disguise)/기합의띠 처리 및 기절 여부 갱신" },
+          { step: 8, mod: "turnEnd.js", action: "날씨/지형 턴 감소, 먹밥/희망사항 회복, 화상/독 지속 피해, 기절 시 후속 교체(switchNpcAuto/mustSwitch)" },
+          { step: 9, mod: "useQueue.js", action: "각 단계에서 cloneWithMethods(bt)로 복제된 스냅샷들을 dequeue하며 한 줄씩 화면에 재생" }
+        ]
+      },
+      ai: {
+        title: "🧠 AI 5단계 킬각 판단 시나리오 (NPC Decision Pipeline)",
+        desc: "easy.js의 getKillableSkill이 상대를 쓰러뜨릴 수 있는 기술을 엄격한 5단계 우선순위로 필터링하는 파이프라인입니다.",
+        steps: [
+          { step: 1, mod: "damageCalculate.js", action: "각 기술의 최소 데미지(minDmg, 난수85%)와 최대 데미지(maxDmg, 난수100%)를 AI 모드로 계산 (확정급소는 1.5배 반영, 일반급소 배제)" },
+          { step: 2, mod: "easy.js (후보 추출)", action: "minDmg >= 상대HP (확정 킬 기술군) 우선 필터링. 없으면 maxDmg >= 상대HP (난수 킬) 필터링" },
+          { step: 3, mod: "easy.js (1단계: 우선도)", action: "priCalculate() 기준 최고 우선도 기술만 남김 (야습, 신속 등 선공기 최우선)" },
+          { step: 4, mod: "easy.js (2단계: 강한디메리트 없음)", action: "hasStrongDemerit() 검사: 자폭, 대폭발, 반동휴식, 철제광선반동, 자동(역린), 특공2랭다운 배제 (모두 강한디메리트면 유지)" },
+          { step: 5, mod: "easy.js (3단계: 명중률)", action: "getAccuracy() 기준 최고 명중률 기술군만 남김 (필중 9999 > 100% > 90% > 70%)" },
+          { step: 6, mod: "easy.js (4단계: 약한디메리트 없음)", action: "hasWeakDemerit() 검사: 빗나감패널티, 반동(돌머리 제외), 내구1랭다운, 연속사용불가 배제" },
+          { step: 7, mod: "easy.js (5단계: 데미지)", action: "모든 조건이 동률일 때 최소 데미지(minDmg)가 가장 높은 기술 최종 채택" }
+        ]
+      },
+      custom: {
+        title: "🛠️ 커스텀 엔트리 & 배틀 진입 시나리오",
+        desc: "CustomScreen에서 포켓몬을 검색, 커스텀 조립하고 배틀 인스턴스로 변환하는 과정입니다.",
+        steps: [
+          { step: 1, mod: "CustomScreen.js", action: "filterSamplePokemons()로 이름/타입/역할군 필터링된 SamplePokemon 목록 노출" },
+          { step: 2, mod: "SampleInfoModal.js", action: "포켓몬 선택 시 스탯 및 [TIP] 운용 팁 노출, 세부 모달 진입" },
+          { step: 3, mod: "StatAdjustmentModal.js", action: "개체값(6V/5V0A), 노력치(252/252/4), 성격(up/down) 조정 후 calculateStat() 실스탯 연산" },
+          { step: 4, mod: "SkillSearchModal.js", action: "PokemonSkillList에서 기술 검색 후 4개 필수 선택 검증" },
+          { step: 5, mod: "Battle.js (createBattle)", action: "완성된 3v3 엔트리를 generate()로 넘겨 PokemonInstance로 인스턴스화하고 new Battle() 생성" },
+          { step: 6, mod: "BattleScreen.js", action: "생성된 battle 객체를 state로 주입받아 배틀 시작 큐 가동" }
+        ]
+      },
+      mega: {
+        title: "💥 메가진화(Mega Evolution) 실행 시나리오",
+        desc: "배틀 중 메가진화 선택 시 스피드 재계산 및 폼 체인지 파이프라인입니다.",
+        steps: [
+          { step: 1, mod: "BattleScreen.js", action: "하단 메가진화 버튼 클릭 ➡️ battle.megaTrigger[player] = true 플래그 설정" },
+          { step: 2, mod: "battleStart.js", action: "행동 개시 전 megaSpeedCheck()를 실행하여 메가진화 후 스피드 기준으로 턴 선후공 재계산" },
+          { step: 3, mod: "PokemonMega.js", action: "isMegaEvolveAble() 검증 후 megaEvolve() 실행: '도구가 반응했다!' 텍스트 큐 등록" },
+          { step: 4, mod: "PokemonMega.js", action: "스탯(공/방/특공/특방/스피드) 메가 수치로 갱신, 타입 및 도감번호 변경, 스킨류 특성 노말타입 변환" },
+          { step: 5, mod: "PokemonMega.js", action: "'메가진화했다!' 텍스트 큐 등록 후 applyAbilityEffects() 재호출 (가뭄/잔비 등 등장 특성 즉시 발동)" }
+        ]
+      }
+    };
+
+    function showScenario(key) {
+      document.querySelectorAll('.scenario-btn').forEach(btn => {
+        btn.classList.remove('border-indigo-500', 'bg-indigo-500/10');
+        btn.classList.add('border-slate-700', 'bg-slate-800');
+      });
+      const activeBtn = document.getElementById('scBtn' + key.charAt(0).toUpperCase() + key.slice(1));
+      if (activeBtn) {
+        activeBtn.classList.add('border-indigo-500', 'bg-indigo-500/10');
+        activeBtn.classList.remove('border-slate-700', 'bg-slate-800');
+      }
+
+      const sc = SCENARIOS[key];
+      const container = document.getElementById("scenarioContent");
+      container.innerHTML = `
+        <div>
+          <h3 class="text-xl font-bold text-white">${sc.title}</h3>
+          <p class="text-sm text-slate-400 mt-1">${sc.desc}</p>
+        </div>
+        <div class="mt-6 space-y-3 relative before:absolute before:inset-0 before:left-5 before:w-0.5 before:bg-slate-700">
+          ${sc.steps.map(s => `
+            <div class="flex items-start gap-4 relative">
+              <span class="w-10 h-10 rounded-full bg-slate-900 border-2 border-indigo-500 text-indigo-400 font-bold flex items-center justify-center text-sm z-10 shrink-0">
+                ${s.step}
+              </span>
+              <div class="flex-1 bg-slate-900/80 p-4 rounded-xl border border-slate-700">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs font-mono font-bold text-indigo-300 px-2 py-0.5 bg-indigo-950/60 rounded border border-indigo-800/60">${s.mod}</span>
+                </div>
+                <p class="text-sm text-slate-200 leading-relaxed">${s.action}</p>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderMatrix() {
+      const tbody = document.getElementById("matrixTableBody");
+      tbody.innerHTML = MODULES.map(m => {
+        const layerInfo = LAYERS[m.layer];
+        return `
+          <tr class="hover:bg-slate-700/30 transition-colors">
+            <td class="py-2.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] ${layerInfo.color}">${m.layer}</span></td>
+            <td class="py-2.5 px-3 font-semibold text-white whitespace-nowrap">${m.name}</td>
+            <td class="py-2.5 px-3 font-mono text-slate-400 text-[11px] whitespace-nowrap">${m.path}</td>
+            <td class="py-2.5 px-3 text-slate-300">
+              <div class="flex flex-wrap gap-1">
+                ${m.callers.map(c => `<span class="px-1.5 py-0.5 rounded bg-slate-900 text-slate-300 text-[10px] border border-slate-700">${c}</span>`).join("")}
+              </div>
+            </td>
+            <td class="py-2.5 px-3 text-slate-300">
+              <div class="flex flex-wrap gap-1">
+                ${m.callees.map(c => `<span class="px-1.5 py-0.5 rounded bg-slate-900 text-indigo-300 text-[10px] border border-slate-700">${c}</span>`).join("")}
+              </div>
+            </td>
+            <td class="py-2.5 px-4 text-slate-300 leading-relaxed min-w-[240px]">${m.desc}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // Auto-init on load
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
