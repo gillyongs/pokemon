@@ -8,9 +8,7 @@ function isTargetSubstituteBlocked(battle) {
   const defPokemon = battle?.[battle?.turn?.def];
   const atkPokemon = battle?.[battle?.turn?.atk];
   const skill = atkPokemon?.turn?.useSkill;
-  const hitSub = defPokemon?.turn?.lastHitSubstitute !== null
-    ? Boolean(defPokemon.turn.lastHitSubstitute)
-    : Boolean(defPokemon?.turn?.substitute || defPokemon?.tempStatus?.substitute);
+  const hitSub = defPokemon?.turn?.lastHitSubstitute !== null ? Boolean(defPokemon.turn.lastHitSubstitute) : Boolean(defPokemon?.turn?.substitute || defPokemon?.tempStatus?.substitute);
   const penetrates = atkPokemon?.abil === "틈새포착" || Boolean(skill?.feature?.sound);
   return hitSub && !penetrates;
 }
@@ -685,6 +683,9 @@ function skillEffectSearch(name) {
     },
     초승달춤: (battle, enqueue, skillEffect) => {
       battle.field[battle.turn.atk].handleLunarDance(battle, enqueue);
+    },
+    자폭: (battle, enqueue, skillEffect) => {
+      battle[battle.turn.atk].handleFaint(battle, enqueue);
     },
 
     희망사항: (battle, enqueue, skillEffect) => {

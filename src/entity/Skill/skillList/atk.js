@@ -60,6 +60,7 @@ export const atkSkills = [
   new Skill("인파이트", "격투", 120, 100, 5, 0, "atk", null, "사용 후 사용자의 방어와 특수방어가 1랭크 떨어진다.", [ { name: "랭크다수변화", probability: 100, target: "atk", stats: [ {stat: "def", value: -1}, {stat: "cdef", value: -1} ] }],{ touch: true }),
   new Skill("엄청난힘", "격투", 120, 100, 5, 0, "atk", null, "사용 후 사용자의 공격과 방어가 1랭크 떨어진다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "atk", value: -1 }, { stat: "def", value: -1 }] }], { touch: true }),
   new Skill("암해머", "격투", 100, 90, 10, 0, "atk", null, "사용 후 사용자의 스피드가 1랭크 떨어진다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: -1 }], { touch: true, punch: true }),
+  new Skill("대폭발", "노말", 250, 100, 5, 0, "atk", null, "큰 폭발로 주위에 있는 모든 것을 공격한다. 사용한 뒤에 기절한다.", [{ name: "자폭" }], {}),
 
   // 랭크 변화 (상대)
   new Skill("소울크래시", "페어리", 75, 100, 15, 0, "atk", null, "상대의 기를 꺾어 상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "def", value: -1 }], { touch: true }),

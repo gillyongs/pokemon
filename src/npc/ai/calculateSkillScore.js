@@ -65,6 +65,14 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
           log += ` * 0.3 (반동휴식)`;
         }
 
+        if (skillEffect.name === "자폭" || skillEffect.name === "대폭발") {
+          const hpPercent = npc.hp / npc.origin.hp;
+          if (hpPercent > 0.5) {
+            score *= 0.1;
+            log += ` * 0.1 (${skillEffect.name})`;
+          }
+        }
+
         if (skillEffect.name === "흡수") {
           const recoverValue = Math.min(playerHp, avrDmg) * skillEffect.ratio; // 평균 회복 수치
           score += recoverValue * 1; // 가중치 어느정도일지 조절 필요

@@ -21,11 +21,17 @@ export const skillEffectsAfter = (bt, enqueue) => {
   // 대부분의 부가효과는 스킬 명중시에만 발동하기에
   // skillUse 끝부분에서 처리함
   // 스킬이 빗나갔을때에도 발동되는 부가효과만 여기서 처리.
-  // 아직은 무릎차기 밖에 없음
+  // 무릎차기 빗나감, 자폭
   const skillEffectList = bt[bt.turn.atk].turn.useSkill?.skillEffectList;
   if (skillEffectList && typeof skillEffectList[Symbol.iterator] === "function") {
     for (const skillEffect of skillEffectList) {
       if (skillEffect?.name === "빗나감패널티") {
+        const skillFunction = skillEffectSearch(skillEffect.name);
+        if (typeof skillFunction === "function") {
+          skillFunction(bt, enqueue, skillEffect);
+        }
+      }
+      if (skillEffect?.name === "자폭" && !bt[bt.turn.atk].faint) {
         const skillFunction = skillEffectSearch(skillEffect.name);
         if (typeof skillFunction === "function") {
           skillFunction(bt, enqueue, skillEffect);

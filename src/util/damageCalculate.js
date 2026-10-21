@@ -400,6 +400,11 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.5 (용의턱)";
   }
 
+  if (atkAbil === "트랜지스터" && skill.type === "전기") {
+    damage *= 1.3;
+    attackPokemon.log.damage1 += " * 1.3 (트랜지스터)";
+  }
+
   if (atkAbil === "예리함" && skill.feature?.slice) {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (예리함)";
