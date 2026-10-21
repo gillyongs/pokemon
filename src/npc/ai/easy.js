@@ -75,10 +75,28 @@ function createSkObj(baseBattle, sn, hp) {
   return skObj;
 }
 
+//상대를 쓰러뜨릴 수 있는 기술을 필터링
+export function getKillableSkill(skObj, hp, bt) {
+  // 1. 상대를 확정으로 쓰러뜨릴 수 있는 기술 (minDmg >= hp)
+  const minCandidates = [1, 2, 3, 4].map((num) => skObj[num]).filter((s) => s && s.minDmg >= hp);
+
+  // 2. 그중에서 우선도 -> 강한 디메리트 없음 -> 명중률 -> 약한 디메리트 없음 -> 데미지 높은 순으로 선택
+  let bestSkill = findBestSkill(minCandidates, bt);
+
+  // 3. 상대를 쓰러뜨릴 수 있는 스킬 필터링 (maxDmg)
+  if (!bestSkill) {
+    const maxCandidates = [1, 2, 3, 4].map((num) => skObj[num]).filter((s) => s && s.maxDmg >= hp);
+    bestSkill = findBestSkill(maxCandidates, bt);
+  }
+
+  // 스킬 번호 리턴
+  return bestSkill?.number ?? null;
+}
+
 const findBestSkill = (skillList, bt) => {
   if (skillList.length === 0) return null;
 
-  // 우선도 체크
+  // 1. 우선도 체크
   let maxPrior = -Infinity;
   let topPriorSkills = [];
   for (const skill of skillList) {
@@ -95,41 +113,33 @@ const findBestSkill = (skillList, bt) => {
   // 우선도가 가장 높은 기술이 하나면 이를 리턴
   if (topPriorSkills.length === 1) return topPriorSkills[0];
 
-  // 우선도가 같은 기술이 여러개면 명중률이 제일 높은 기술을 리턴
+  // 2. 강한 디메리트 없음 (No Strong Demerit)
+  const noStrongDemeritSkills = topPriorSkills.filter((s) => !hasStrongDemerit(s, bt));
+  const candidatesAfterStrong = noStrongDemeritSkills.length > 0 ? noStrongDemeritSkills : topPriorSkills;
+  if (candidatesAfterStrong.length === 1) return candidatesAfterStrong[0];
+
+  // 3. 우선도가 같고 강한 디메리트 여부가 같다면 명중률이 제일 높은 기술을 리턴
   const getAccur = (s) => {
     let accRaw = getAccuracy(bt, s.sk, bt.npc);
     if (accRaw === "-") return 9999;
     return Math.min(100, Number(accRaw) || 0);
   };
 
-  const maxAccur = Math.max(...topPriorSkills.map(getAccur));
+  const maxAccur = Math.max(...candidatesAfterStrong.map(getAccur));
 
-  const topAccurSkills = topPriorSkills.filter((s) => getAccur(s) === maxAccur);
+  const topAccurSkills = candidatesAfterStrong.filter((s) => getAccur(s) === maxAccur);
 
   if (topAccurSkills.length === 1) return topAccurSkills[0];
 
-  // 명중률 마저 같다면 데미지가 더 높은 기술을 사용
-  const maxMinDmg = Math.max(...topAccurSkills.map((s) => s.minDmg || 0));
-  return topAccurSkills.find((s) => (s.minDmg || 0) === maxMinDmg) || null;
+  // 4. 약한 디메리트 없음 (No Weak Demerit)
+  const noWeakDemeritSkills = topAccurSkills.filter((s) => !hasWeakDemerit(s, bt));
+  const candidatesAfterWeak = noWeakDemeritSkills.length > 0 ? noWeakDemeritSkills : topAccurSkills;
+  if (candidatesAfterWeak.length === 1) return candidatesAfterWeak[0];
+
+  // 5. 명중률과 디메리트 여부마저 같다면 데미지가 더 높은 기술을 사용
+  const maxMinDmg = Math.max(...candidatesAfterWeak.map((s) => s.minDmg || 0));
+  return candidatesAfterWeak.find((s) => (s.minDmg || 0) === maxMinDmg) || null;
 };
-
-//상대를 쓰러뜨릴 수 있는 기술을 필터링
-export function getKillableSkill(skObj, hp, bt) {
-  // 1. 상대를 확정으로 쓰러뜨릴 수 있는 기술 (minDmg >= hp)
-  const minCandidates = [1, 2, 3, 4].map((num) => skObj[num]).filter((s) => s && s.minDmg >= hp);
-
-  // 2. 그중에서 우선도 ->  명중률 -> 데미지 높은 순으로 선택
-  let bestSkill = findBestSkill(minCandidates, bt);
-
-  // 3. 상대를 쓰러뜨릴 수 있는 스킬 필터링 (maxDmg)
-  if (!bestSkill) {
-    const maxCandidates = [1, 2, 3, 4].map((num) => skObj[num]).filter((s) => s && s.maxDmg >= hp);
-    bestSkill = findBestSkill(maxCandidates, bt);
-  }
-
-  // 스킬 번호 리턴
-  return bestSkill?.number ?? null;
-}
 
 export function getHighestScoreKey(skObj) {
   let bestKey = null;
@@ -143,6 +153,93 @@ export function getHighestScoreKey(skObj) {
     }
   }
   return bestKey;
+}
+
+// 강한 디메리트 체크
+export function hasStrongDemerit(skillObj, bt) {
+  const sk = skillObj?.sk;
+  if (!sk) return false;
+
+  const list = sk.skillEffectList || [];
+  // 추가 조건 없는 단순 강한 디메리트 효과 목록
+  const strongSimpleEffects = ["자폭", "대폭발", "반동휴식", "철제광선반동", "자동"];
+
+  for (const eff of list) {
+    // 1. 추가 조건 없는 단순 효과 순회
+    if (strongSimpleEffects.includes(eff.name)) {
+      return true;
+    }
+
+    // 2. 공격 OR 특공 2랭크 이상 하락
+    if (eff.name === "랭크변화" && eff.target === "atk" && (eff.stat === "atk" || eff.stat === "catk") && typeof eff.value === "number" && eff.value <= -2) {
+      return true;
+    }
+    if (eff.name === "랭크다수변화" && eff.target === "atk" && Array.isArray(eff.stats)) {
+      if (eff.stats.some((st) => (st.stat === "atk" || st.stat === "catk") && typeof st.value === "number" && st.value <= -2)) {
+        return true;
+      }
+    }
+
+    // 3. 상대방이 물리어태커/딜탱인데 화상을 입었을 때의 화상치료
+    if (eff.name === "화상치료") {
+      const player = bt?.player;
+      const role = player?.role || player?.origin?.role;
+      const isPhysical = role === "물리어태커" || role === "물리딜탱";
+      const hasBurn = player?.ailment?.burn !== null && player?.ailment?.burn !== undefined;
+      if (isPhysical && hasBurn) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+// 약한 디메리트 체크
+export function hasWeakDemerit(skillObj, bt) {
+  const sk = skillObj?.sk;
+  if (!sk) return false;
+
+  // 강한 디메리트에 해당하면 약한 디메리트에서는 제외
+  if (hasStrongDemerit(skillObj, bt)) {
+    return false;
+  }
+
+  const list = sk.skillEffectList || [];
+  const npc = bt?.npc;
+  // 추가 조건 없는 단순 약한 디메리트 효과 목록
+  const weakSimpleEffects = ["빗나감패널티"];
+
+  for (const eff of list) {
+    // 1. 추가 조건 없는 단순 효과 순회
+    if (weakSimpleEffects.includes(eff.name)) {
+      return true;
+    }
+
+    // 2. 반동 피해 (돌머리 특성일 경우 반동 무효이므로 디메리트 아님)
+    if (eff.name === "반동") {
+      if (npc?.abil !== "돌머리") {
+        return true;
+      }
+    }
+
+    // 3. 자신 대상 랭크 하락 (인파이트, 엄청난힘, 암해머, 스케일샷 등)
+    if (eff.name === "랭크변화" && eff.target === "atk" && typeof eff.value === "number" && eff.value < 0) {
+      return true;
+    }
+    if (eff.name === "랭크다수변화" && eff.target === "atk" && Array.isArray(eff.stats)) {
+      if (eff.stats.some((st) => typeof st.value === "number" && st.value < 0)) {
+        return true;
+      }
+    }
+  }
+
+  // 4. 2회 연속 사용 불가 (블러드문)
+  if (sk.feature?.noDouble) {
+    return true;
+  }
+
+  return false;
 }
 
 // 상태이상 가능 여부 체크

@@ -5,14 +5,14 @@ import { POKEMON_ROLES } from "../../entity/Pokemon/PokemonTemplate";
 const POKEMON_TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투", "독", "땅", "비행", "에스퍼", "벌레", "바위", "고스트", "드래곤", "악", "강철", "페어리"];
 
 const FilterModal = ({
-  activeTypes,
-  activeRoles,
-  isMegaFilter,
-  isLegendaryFilter,
-  isIntimidateFilter,
-  isWeatherFilter,
-  isWallFilter,
-  activeLogic,
+  activeTypes = [],
+  activeRoles = [],
+  isMegaFilter = false,
+  isLegendaryFilter = false,
+  isIntimidateFilter = false,
+  isWeatherFilter = false,
+  isWallFilter = false,
+  activeLogic = "OR",
   onApply,
   onClose,
 }) => {
@@ -54,20 +54,16 @@ const FilterModal = ({
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>포켓몬 검색</ModalTitle>
-          <LogicSwitch onClick={() => setTempLogic(tempLogic === "OR" ? "AND" : "OR")}>
-            <LogicOption $active={tempLogic === "OR"}>OR</LogicOption>
-            <LogicOption $active={tempLogic === "AND"}>AND</LogicOption>
-          </LogicSwitch>
           <CloseIcon onClick={onClose}>✕</CloseIcon>
         </ModalHeader>
         <SectionTitleRow>
-          <ModalSubTitle>타입</ModalSubTitle>
-          <SectionResetButton onClick={() => setTempSelectedTypes([])}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-              <path d="M3 3v5h5"></path>
-            </svg>
-          </SectionResetButton>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <ModalSubTitle>타입</ModalSubTitle>
+            <LogicSwitch onClick={() => setTempLogic(tempLogic === "OR" ? "AND" : "OR")}>
+              <LogicOption $active={tempLogic === "OR"}>OR</LogicOption>
+              <LogicOption $active={tempLogic === "AND"}>AND</LogicOption>
+            </LogicSwitch>
+          </div>
         </SectionTitleRow>
         <TypeGrid>
           <TypeButton $active={tempSelectedTypes.length === 0} onClick={() => setTempSelectedTypes([])}>
@@ -82,12 +78,6 @@ const FilterModal = ({
 
         <SectionTitleRow>
           <ModalSubTitle>역할군</ModalSubTitle>
-          <SectionResetButton onClick={() => setTempSelectedRoles([])}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-              <path d="M3 3v5h5"></path>
-            </svg>
-          </SectionResetButton>
         </SectionTitleRow>
         <RoleGrid>
           <TypeButton $active={tempSelectedRoles.length === 0} onClick={() => setTempSelectedRoles([])}>
@@ -240,7 +230,6 @@ const LogicSwitch = styled.div`
   background-color: #f0f0f0;
   border-radius: 20px;
   overflow: hidden;
-  margin-right: 15px;
   cursor: pointer;
 `;
 

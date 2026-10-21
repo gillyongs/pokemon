@@ -687,6 +687,14 @@ function skillEffectSearch(name) {
     자폭: (battle, enqueue, skillEffect) => {
       battle[battle.turn.atk].handleFaint(battle, enqueue);
     },
+    철제광선반동: (battle, enqueue, skillEffect) => {
+      const atkPokemon = battle[battle.turn.atk];
+      if (atkPokemon.turn.steelBeamRecoilDone) return;
+      atkPokemon.turn.steelBeamRecoilDone = true;
+      const damage = Math.ceil(atkPokemon.origin.hp / 2);
+      const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
+      atkPokemon.getDamage(battle, enqueue, damage, text);
+    },
 
     희망사항: (battle, enqueue, skillEffect) => {
       const skillUser = battle[battle.turn.atk];

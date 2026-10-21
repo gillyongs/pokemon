@@ -49,6 +49,8 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
     if (skill.skillEffectList && typeof skill.skillEffectList[Symbol.iterator] === "function") {
       for (const skillEffect of skill.skillEffectList) {
         if (skillEffect.name === "급소") {
+          // npc 가중치 계산시 damageCalculate에서 급소 난수를 배제하므로 급소 보정에 약간의 가중치를 줌
+          // 확정급소는 damageCalculate 안에서 처리되므로 고려하지 않는다
           score *= 1.05;
           log += ` * 1.05 (급소보정)`;
         }
@@ -66,11 +68,17 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
         }
 
         if (skillEffect.name === "자폭" || skillEffect.name === "대폭발") {
-          const hpPercent = npc.hp / npc.origin.hp;
-          if (hpPercent > 0.5) {
-            score *= 0.1;
-            log += ` * 0.1 (${skillEffect.name})`;
-          }
+          const factor = getLowHpFactor(npc.hp, npc.origin.hp, 2.3);
+          const mult = Number((0.15 + 0.95 * factor).toFixed(2));
+          score *= mult;
+          log += ` * ${mult} (${skillEffect.name})`;
+        }
+
+        if (skillEffect.name === "철제광선반동") {
+          const factor = getLowHpFactor(npc.hp, npc.origin.hp, 2.3);
+          const mult = Number((0.7 + 0.35 * factor).toFixed(2));
+          score *= mult;
+          log += ` * ${mult} (철제광선반동)`;
         }
 
         if (skillEffect.name === "흡수") {
@@ -321,14 +329,14 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
         }
       }
       if (skillEffect.name === "초승달춤" || skillEffect.name === "치유소원") {
-        const hp = npc.hp;
-        const maxHp = npc.origin.hp;
-        const hpPercent = hp / maxHp; // 0~1 사이 값
-        let value = 230 * Math.pow(1 - hpPercent, 2.3);
-        // const a = 60; // 곡선 크기 계수
-        // const b = 3.5; // 곡선 완만도 (클수록 저체력에서 급상승)
-        // const value = Math.round(a * Math.pow(1 / hpPercent - 1, b));
-        value = Math.round(value);
+        const benchCount = remainPokemonCount(bt, "npc");
+        if (benchCount === 0) {
+          // 남은 벤치 포켓몬이 없으면 사용하지 않음
+          skObj.log.score = "불발(벤치없음)";
+          return -999;
+        }
+        const factor = getLowHpFactor(npc.hp, npc.origin.hp, 2.3);
+        let value = Math.round(230 * factor);
         score += value;
         log += ` + ${value} (${skillEffect.name})`;
       }
@@ -500,3 +508,15 @@ const rankScoreCalculate = (bt, sn, skillEffect) => {
   }
   return { rankScore, logText };
 };
+
+export function getLowHpFactor(hp, maxHp, exponent = 2.3) {
+  /**
+   * 체력 비율에 따른 희생/퇴장기 가중치 비율 계산 (0 ~ 1)
+   * 체력이 100%일 때는 0에 가깝고, 체력이 0%에 가까워질수록 1에 수렴
+   * @param {number} exponent 곡선 완만도 (기본 2.3)
+   * @returns {number} 0 ~ 1 사이의 가중치 팩터
+   */
+  if (!maxHp || maxHp <= 0) return 0;
+  const ratio = Math.max(0, Math.min(1, hp / maxHp));
+  return Math.pow(1 - ratio, exponent);
+}

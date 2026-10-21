@@ -72,6 +72,9 @@ export const abilObject = {
   맹화: { text: "HP가 1/3 이하일 때 불꽃 타입 기술의 위력이 1.5배가 된다." },
   수포: { text: "물타입 기술의 위력이 2배가 되고, 불꽃타입 기술의 데미지를 반감하며 화상 상태가 되지 않는다." },
   정신력: { text: "상대의 공격에 풀죽지 않으며, 위협의 효과를 받지 않는다." },
+  다운로드: {
+    text: "상대의 방어와 특수방어를 비교하여 낮은 쪽에 맞춰 자신의 공격이나 특수공격을 1랭크 올린다.",
+  },
   트레이스: { text: "상대의 특성을 트레이스해서 같은 특성이 된다." },
   재앙의검: {
     text: "이 특성을 가진 포켓몬을 제외한 모든 포켓몬의 방어를 약하게 만든다.",
@@ -214,6 +217,21 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
       enqueue({ battle: bt, text: `[특성 ${def.abil}] ${def.name}의 공격은 떨어지지 않는다!` });
     } else {
       def.rankUp(bt, enqueue, "atk", -1, abilText, true);
+    }
+  }
+
+  // 다운로드
+  if (atkAbil === "다운로드" && def) {
+    const abilText = "[특성 다운로드]";
+    const statObj = def.origin?.stat || def.stat;
+    if (statObj) {
+      const defStat = statObj.def || 0;
+      const cdefStat = statObj.cdef || 0;
+      if (defStat < cdefStat) {
+        atk.rankUp(bt, enqueue, "atk", 1, abilText, false);
+      } else {
+        atk.rankUp(bt, enqueue, "catk", 1, abilText, false);
+      }
     }
   }
 

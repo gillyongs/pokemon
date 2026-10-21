@@ -38,9 +38,9 @@ describe("대짱이 및 메가대짱이 구현 테스트", () => {
     ];
     expect(skills).toEqual(["웨이브태클", "지진", "냉동펀치", "퀵턴"]);
 
-    // 대짱이로 조회 시에도 정상 생성 확인
+    // 대짱이로 조회 시에도 정상 생성 확인 (기본 샘플 분리 적용: 자뭉열매)
     const swampertByBase = generate("대짱이");
-    expect(swampertByBase.item).toBe("대짱이나이트");
+    expect(swampertByBase.item).toBe("자뭉열매");
     expect(swampertByBase.abil).toBe("급류");
   });
 

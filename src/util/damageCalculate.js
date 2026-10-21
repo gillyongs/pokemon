@@ -18,6 +18,10 @@ export const damageCalculate = (battle, obj, ai) => {
   const atkAbil = attackPokemon.abil;
   const defAbil = defensePokemon.abil;
 
+  const isMustCritical = Boolean(skill?.feature?.mustCritical);
+  const isCritical = ai ? isMustCritical : Boolean(attackPokemon.turn.critical);
+  // NPC 데미지 계산시엔 확정급소가 아니면 급소 보정을 하지 않는다 (난수 제거)
+
   const noTggAtk = !attackPokemon.abilObj.feature?.tgg;
 
   if (ai) {
@@ -94,7 +98,7 @@ export const damageCalculate = (battle, obj, ai) => {
     // 상대방의 능력치 변화를 무시한다
     // 맞는쪽이 천진이면 공격쪽의 랭크변화가 무시된다 (ex: 무한 용성군)
   }
-  if (attackPokemon.turn.critical && rankNumAtk < 0) {
+  if (isCritical && rankNumAtk < 0) {
     atkStat = noRankAtkStat;
     // 급소에 맞았을 경우 공격측에게 불리한 랭크다운이 무시된다
     // 랭크업은 적용된다
@@ -120,7 +124,7 @@ export const damageCalculate = (battle, obj, ai) => {
     defStat = noRankDefStat;
   }
   // 급소에 맞았을 경우 방어측에게 유리한 랭크업이 무시된다
-  if (attackPokemon.turn.critical && defensePokemon.tempStatus.rank[defenseStat] > 0) {
+  if (isCritical && defensePokemon.tempStatus.rank[defenseStat] > 0) {
     defStat = noRankDefStat;
   }
 
@@ -513,7 +517,7 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 급소 =============================================================================
-  if (attackPokemon.turn.critical) {
+  if (isCritical) {
     damage *= 1.5;
     attackPokemon.log.damage2 += " * 1.5 (급소)";
   }
