@@ -36,7 +36,8 @@ const BenchPokemon = ({ battle, index, selected, handleSelected, setBench, setBo
               e.stopPropagation();
               setBench(index);
               setBottom("info");
-            }}>
+            }}
+          >
             상세정보
           </PokemonButton>
         </div>
@@ -94,8 +95,8 @@ const PokemonImage = styled.img`
   position: absolute;
   height: 11vh;
   width: 11vh;
-  left: 3vh;
-  bottom: -0.1vh;
+  left: 4vh;
+  bottom: 1.4vh;
 `;
 
 const SwitchHpBar = styled.div`

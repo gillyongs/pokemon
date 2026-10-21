@@ -391,7 +391,7 @@ const CustomScreen = () => {
                       <img
                         src={`/pokemon/img/pokemon/${pokemonData.megaData?.pokemon_id || pokemonData.pokemon_id}.webp`}
                         alt={pokemonData.name}
-                        style={{ height: "60px" }}
+                        style={{ height: "70px", width: "70px", objectFit: "contain", transform: "scale(1.15) translateY(-4px)" }}
                         onError={(e) => {
                           e.target.src = "/pokemon/img/pokemon/0000.webp";
                         }}
@@ -490,7 +490,7 @@ const CustomScreen = () => {
                   <img
                     src={`/pokemon/img/pokemon/${pokemon.megaData?.pokemon_id || pokemon.pokemon_id}.webp`}
                     alt={pokemon.name}
-                    style={{ height: "60px", width: "60px", objectFit: "contain" }}
+                    style={{ height: "76px", width: "76px", objectFit: "contain", transform: "scale(1.2) translate(-3px, -6px)" }}
                     onError={(e) => {
                       e.target.src = "/pokemon/img/pokemon/0000.webp";
                     }}
@@ -872,17 +872,18 @@ const ImageWrapper = styled.div`
   margin-top: -5px;
 
   > img:first-child {
-    height: 64px;
+    height: 72px;
+    object-fit: contain;
     @media (max-width: 500px) {
-      height: 48px !important;
+      height: 56px !important;
     }
   }
 `;
 
 const SmallItemImage = styled.img`
   position: absolute;
-  bottom: -2px;
-  right: -5px;
+  bottom: 1px;
+  right: -2px;
   width: 20px !important;
   height: 20px !important;
   object-fit: contain;

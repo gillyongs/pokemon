@@ -36,7 +36,7 @@ const StyledPokemonImage = styled.img`
     className === "plr"
       ? css`
           right: 8.5vw;
-          top: -1.5vh;
+          top: -3vh;
           ${!$isSubstitute &&
           css`
             transform: scaleX(-1);
@@ -51,7 +51,7 @@ const StyledPokemonImage = styled.img`
         `
       : css`
           left: 8.5vw;
-          bottom: -3vh;
+          bottom: -2vh;
           animation: ${breath} 3s infinite ease-in-out;
 
           ${$isSubstitute &&

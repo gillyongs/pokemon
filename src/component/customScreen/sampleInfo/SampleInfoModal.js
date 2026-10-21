@@ -200,8 +200,8 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
         </CloseButton>
 
         <div style={{ display: "flex", alignItems: "stretch", marginBottom: "15px" }}>
-          <div style={{ flex: "0 0 90px", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#f5f5f5", borderRadius: "10px", padding: "8px", border: "1px solid #eee", boxSizing: "border-box" }}>
-            <img src={`/pokemon/img/pokemon/${p.megaData?.pokemon_id || p.pokemon_id}.webp`} alt={p.name} style={{ width: "95%", height: "95%", objectFit: "contain" }} />
+          <div style={{ flex: "0 0 115px", minHeight: "115px", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#f5f5f5", borderRadius: "10px", padding: "6px", border: "1px solid #eee", boxSizing: "border-box", overflow: "hidden" }}>
+            <img src={`/pokemon/img/pokemon/${p.megaData?.pokemon_id || p.pokemon_id}.webp`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", transform: "scale(1.2) translateY(-5px)" }} />
           </div>
           <div style={{ flex: "1", minWidth: 0, paddingLeft: "12px", textAlign: "left", display: "flex", flexDirection: "column", justifyContent: "center", gap: "6px" }}>
             <h2 style={{ color: "#333", margin: "0 0 2px 0", fontSize: "1.4rem", whiteSpace: "nowrap" }}>{p.name}</h2>
