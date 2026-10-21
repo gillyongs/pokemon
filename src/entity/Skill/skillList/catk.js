@@ -42,6 +42,7 @@ export const catkSkills = [
   new Skill("용성군", "드래곤", 130, 90, 5, 0, "catk", null, "사용 후 사용자의 특수공격이 2랭크 떨어진다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "atk", value: -2 }]),
   new Skill("리프스톰", "풀", 130, 90, 5, 0, "catk", null, "사용 후 사용자의 특수공격이 2랭크 떨어진다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "atk", value: -2 }]),
 
+  new Skill("불꽃춤", "불꽃", 80, 100, 10, 0, "catk", null, "50% 확률로 자신의 특수공격을 1랭크 올린다.", [{ name: "랭크변화", probability: 50, stat: "catk", target: "atk", value: 1 }], {}),
   new Skill("원시의힘", "바위", 60, 100, 5, 0, "catk", null, "10% 확률로 자신의 모든 능력을 1랭크씩 올린다.", [{name: "랭크변화",probability: 10,target: "atk",stat: "all",value: 1,},]),
 
   // 상태이상 =======================================================================================

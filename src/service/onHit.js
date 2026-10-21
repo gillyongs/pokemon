@@ -78,6 +78,11 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   if (useSkill.feature.punch && atkPokemon.item === "펀치글러브") {
     touch = false;
   }
+  if (defPokemon.abil === "불꽃몸" && touch && !atkPokemon.faint) {
+    if (random(30)) {
+      applyAilment("화상", battle, battle.turn.atk, enqueue, false, `[특성 불꽃몸] ${atkPokemon.names} 화상을 입었다!`);
+    }
+  }
   if (defPokemon.abil === "정전기" && touch && !atkPokemon.faint) {
     if (random(30)) {
       applyAilment("마비", battle, battle.turn.atk, enqueue, false, `[특성 정전기] ${atkPokemon.names} 마비되어 기술을 쓰기 어려워졌다!`);
