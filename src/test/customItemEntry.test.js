@@ -4,6 +4,7 @@ import { generate } from "../entity/Pokemon/PokemonInstance";
 import { createBattle } from "../entity/Battle";
 import { itemText } from "../entity/Item";
 import { getFavoriteItemsForPokemon, getItemListForPokemon, sortItems } from "../component/customScreen/sampleInfo/ItemSearchModal";
+import { isNameMatch, isValidTeamArray, filterSamplePokemons, isWallPokemon } from "../util/customEntryUtil";
 
 describe("커스텀 아이템 선택 및 엔트리 적용 테스트", () => {
   it("sampleList.getDataById는 문자열 ID와 { id, item } 객체 모두에서 정상적으로 데이터를 반환해야 한다", () => {
@@ -169,4 +170,75 @@ describe("커스텀 아이템 선택 및 엔트리 적용 테스트", () => {
       expect(sortedWithMegaY[0].name).toBe("리자몽나이트Y");
     });
   });
+
+  describe("이름 검색 괄호 무시 및 도감번호 중복 방지 테스트", () => {
+    it("isNameMatch는 괄호 안의 문자열로는 검색되지 않고, 괄호 밖의 본래 이름으로만 검색되어야 한다", () => {
+      const regielekiSpecial = sampleList.getDataById("레지에레키 (특수)");
+      const regielekiWall = sampleList.getDataById("레지에레키 (벽깔이)");
+
+      // 괄호 밖 이름 검색: 성공
+      expect(isNameMatch("레지", regielekiSpecial)).toBe(true);
+      expect(isNameMatch("레지에레키", regielekiSpecial)).toBe(true);
+      expect(isNameMatch("레지", regielekiWall)).toBe(true);
+      expect(isNameMatch("레지에레키", regielekiWall)).toBe(true);
+
+      // 괄호 안 문자열 검색: 제외되어 검색되지 않아야 함
+      expect(isNameMatch("특수", regielekiSpecial)).toBe(false);
+      expect(isNameMatch("특", regielekiSpecial)).toBe(false);
+      expect(isNameMatch("벽깔이", regielekiWall)).toBe(false);
+      expect(isNameMatch("벽", regielekiWall)).toBe(false);
+    });
+
+    it("isValidTeamArray는 같은 도감번호(no)를 가진 포켓몬이 팀에 2마리 이상 포함되어 있으면 false를 반환해야 한다", () => {
+      // 레지에레키 (벽깔이)와 레지에레키 (특수)는 동일 도감번호 0894 -> 중복 불허
+      const duplicateDexTeam = ["레지에레키 (벽깔이)", "레지에레키 (특수)", "칠색조"];
+      expect(isValidTeamArray(duplicateDexTeam)).toBe(false);
+
+      // 커스텀 객체 형태일 때도 동일 도감번호 중복 불허
+      const duplicateObjectTeam = [
+        { id: "레지에레키 (벽깔이)", item: "빛의점토" },
+        { id: "레지에레키 (특수)", item: "구애안경" },
+        "칠색조",
+      ];
+      expect(isValidTeamArray(duplicateObjectTeam)).toBe(false);
+
+      // 서로 다른 도감번호는 정상 통과
+      const validTeam = ["레지에레키 (특수)", "칠색조", "에이스번"];
+      expect(isValidTeamArray(validTeam)).toBe(true);
+    });
+
+    it("기타 필터의 벽깔이(isWallFilter) 적용 시 리플렉터/빛의장막/오로라베일 스킬을 가진 포켓몬만 필터링되어야 한다", () => {
+      const regielekiWall = sampleList.getDataById("레지에레키 (벽깔이)");
+      const regielekiSpecial = sampleList.getDataById("레지에레키 (특수)");
+      const grimmsnarl = sampleList.getDataById("오롱털");
+      const koko = sampleList.getDataById("카푸꼬꼬꼭");
+      const hooh = sampleList.getDataById("칠색조");
+
+      expect(isWallPokemon(regielekiWall)).toBe(true);
+      expect(isWallPokemon(grimmsnarl)).toBe(true);
+      expect(isWallPokemon(koko)).toBe(true);
+      expect(isWallPokemon(regielekiSpecial)).toBe(false);
+      expect(isWallPokemon(hooh)).toBe(false);
+
+      const filtered = filterSamplePokemons(sampleList.items, {
+        searchTerm: "",
+        activeTypes: [],
+        activeLogic: "OR",
+        activeRoles: [],
+        isMegaFilter: false,
+        isLegendaryFilter: false,
+        isIntimidateFilter: false,
+        isWeatherFilter: false,
+        isWallFilter: true,
+      });
+
+      const filteredIds = filtered.map((p) => p.id);
+      expect(filteredIds).toContain("레지에레키 (벽깔이)");
+      expect(filteredIds).toContain("오롱털");
+      expect(filteredIds).toContain("카푸꼬꼬꼭");
+      expect(filteredIds).not.toContain("레지에레키 (특수)");
+      expect(filteredIds).not.toContain("칠색조");
+    });
+  });
 });
+

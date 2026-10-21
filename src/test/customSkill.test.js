@@ -80,7 +80,16 @@ describe("PokemonSkillList and Custom Skill Support", () => {
     });
   });
 
-  test("SkillSearchModal handles 4 skill slots and toggling skills", () => {
+  test("Skill class and getSkillListForPokemon include originText without power and accur prefix", () => {
+    const skills = getSkillListForPokemon("0006");
+    const flamethrower = skills.find((s) => s.name === "화염방사");
+    expect(flamethrower).toBeDefined();
+    expect(flamethrower.originText).toBe("10% 확률로 상대를 화상 상태로 만든다.");
+    expect(flamethrower.text).toContain("위력 90");
+    expect(flamethrower.text).toContain("명중 100");
+  });
+
+  test("SkillSearchModal handles 4 skill slots, disables confirm button when fewer than 4 skills, and saves when 4 skills are chosen", () => {
     const charizard = sampleList.getDataById("리자몽");
     const equipped = {
       1: "화염방사",
@@ -104,12 +113,16 @@ describe("PokemonSkillList and Custom Skill Support", () => {
     );
 
     // 1. 4개 슬롯에 현재 스킬이 표시되어야 함
-    expect(screen.getByText("선택된 기술")).toBeInTheDocument();
+    expect(screen.getByText("기술 선택")).toBeInTheDocument();
     expect(screen.getByText("화염방사")).toBeInTheDocument();
     expect(screen.getByText("에어슬래시")).toBeInTheDocument();
     expect(screen.getByText("용의파동")).toBeInTheDocument();
 
-    // 2. ✕ 버튼을 눌러 슬롯 1(화염방사) 제거
+    const confirmButton = screen.getByRole("button", { name: /기술 선택 완료/ });
+    // 4개 모두 선택된 상태에서는 완료 버튼 활성화
+    expect(confirmButton).not.toBeDisabled();
+
+    // 2. ✕ 버튼을 눌러 슬롯 1(화염방사) 제거 -> 3개만 선택된 상태
     const removeButtons = container.querySelectorAll("button[aria-label='제외']");
     expect(removeButtons.length).toBe(4);
     fireEvent.click(removeButtons[0]);
@@ -117,14 +130,11 @@ describe("PokemonSkillList and Custom Skill Support", () => {
     // 슬롯 1이 비어있음을 확인 (+ 빈 슬롯 1)
     expect(screen.getByText("슬롯 1")).toBeInTheDocument();
 
-    // 3. '완료' 버튼 클릭 시 업데이트된 스킬 목록이 전달되어야 함
-    const confirmButton = screen.getByRole("button", { name: /기술 설정 완료/ });
-    fireEvent.click(confirmButton);
+    // 기술이 4개 미만이므로 완료 버튼이 비활성화(disabled)되어야 함
+    expect(confirmButton).toBeDisabled();
 
-    expect(savedSkills).toBeDefined();
-    expect(savedSkills[1]).toBe(""); // 제거된 슬롯
-    expect(savedSkills[2]).toBe("에어슬래시");
-    expect(savedSkills[3]).toBe("용의파동");
-    expect(savedSkills[4]).toBe("솔라빔");
+    // 비활성화 상태에서 클릭해도 저장이 실행되지 않아야 함
+    fireEvent.click(confirmButton);
+    expect(savedSkills).toBeNull();
   });
 });

@@ -60,6 +60,7 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
   };
 
   const handleSave = () => {
+    if (selectedCount < 4) return;
     const skillsObj = {
       1: selectedSkills[0] || "",
       2: selectedSkills[1] || "",
@@ -120,12 +121,6 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
 
           {/* 상단 선택된 4개 기술 슬롯 영역 */}
           <SlotsArea>
-            <SlotsHeader>
-              <SlotsTitle>
-                선택된 기술 <CountBadge>{selectedCount}/4</CountBadge>
-              </SlotsTitle>
-            </SlotsHeader>
-
             <SlotsRow>
               {[0, 1, 2, 3].map((idx) => {
                 const skillName = selectedSkills[idx];
@@ -171,7 +166,7 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
           </SlotsArea>
 
           <SearchFilterRow>
-            <SearchInput type="text" placeholder="기술 이름 검색..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <SearchInput type="text" placeholder="기술 이름 검색" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             <FilterToggleBtn type="button" $isActive={isFilterOpen || hasActiveFilter} onClick={() => setIsFilterOpen((prev) => !prev)}>
               필터 {hasActiveFilter ? "●" : "▼"}
             </FilterToggleBtn>
@@ -186,7 +181,7 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
                 <ButtonGroup>
                   {CATEGORIES.map((cat) => (
                     <CategoryChip key={cat} type="button" $isSelected={selectedCategory === cat} $category={cat} onClick={() => setSelectedCategory(cat)}>
-                      {cat === "전체" ? "전체 분류" : `${cat}기`}
+                      {cat === "전체" ? "전체" : `${cat}기`}
                     </CategoryChip>
                   ))}
                 </ButtonGroup>
@@ -195,7 +190,7 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
               <FilterSection style={{ marginTop: "10px" }}>
                 <FilterLabelRow>
                   <FilterSectionTitle>타입</FilterSectionTitle>
-                  {hasActiveFilter && (
+                  {false && hasActiveFilter && (
                     <ResetBtn type="button" onClick={handleResetFilter}>
                       초기화
                     </ResetBtn>
@@ -232,7 +227,7 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
                 } else if (isSelected) {
                   tooltip = `${item.name} (클릭하여 슬롯에서 제외)`;
                 } else {
-                  tooltip = `${item.name}: ${item.text}`;
+                  tooltip = `${item.name}: ${item.originText || item.text}`;
                 }
 
                 return (
@@ -266,7 +261,7 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
                         </span>
                       </StatRow>
 
-                      <SkillDesc $isImplemented={item.isImplemented}>{item.text}</SkillDesc>
+                      <SkillDesc $isImplemented={item.isImplemented}>{item.originText || item.text}</SkillDesc>
                     </InfoCol>
                   </SkillCard>
                 );
@@ -276,8 +271,8 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
         </ListArea>
 
         <ModalFooter>
-          <ConfirmButton type="button" disabled={selectedCount === 0} onClick={handleSave}>
-            기술 설정 완료 ({selectedCount}/4)
+          <ConfirmButton type="button" disabled={selectedCount < 4} onClick={handleSave}>
+            기술 선택 완료
           </ConfirmButton>
         </ModalFooter>
       </ModalBox>
@@ -305,15 +300,16 @@ const ModalBox = styled.div`
   position: relative;
   background: white;
   border-radius: 14px;
-  padding: 18px 16px;
+  padding: 16px 14px;
   width: 92vw;
   max-width: 580px;
-  max-height: 85vh;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   color: #333;
   box-sizing: border-box;
+  overflow: hidden;
 `;
 
 const CloseButton = styled.button`
@@ -341,8 +337,9 @@ const CloseButton = styled.button`
 const HeaderArea = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   text-align: left;
+  flex-shrink: 0;
 `;
 
 const TitleRow = styled.div`
@@ -540,11 +537,21 @@ const FilterToggleBtn = styled.button`
 `;
 
 const FilterPanel = styled.div`
-  margin-top: 10px;
-  padding: 10px;
+  margin-top: 8px;
+  padding: 8px 10px;
   background-color: #f9f9f9;
   border-radius: 8px;
   border: 1px solid #eee;
+  max-height: 160px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+  }
 `;
 
 const FilterSection = styled.div`
@@ -644,7 +651,7 @@ const ListArea = styled.div`
   flex: 1;
   overflow-y: auto;
   padding: 4px 4px 4px 2px;
-  min-height: 180px;
+  min-height: 0;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -800,6 +807,7 @@ const ModalFooter = styled.div`
   margin-top: 10px;
   display: flex;
   justify-content: center;
+  flex-shrink: 0;
 `;
 
 const ConfirmButton = styled.button`

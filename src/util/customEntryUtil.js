@@ -7,32 +7,44 @@ import { getSkillListForPokemon } from "../skill/PokemonSkillList";
 import { STAT_KEYS, getNatureInfo, normalizeGacha, calculateStat } from "../component/customScreen/sampleInfo/StatAdjustmentModal";
 
 export const WEATHER_ABILITIES = ["잔비", "가뭄", "진홍빛고동", "모래날림"];
+export const WALL_SKILLS = ["리플렉터", "빛의장막", "오로라베일"];
+
+export const isWallPokemon = (pokemon) => {
+  if (!pokemon) return false;
+  if (pokemon.id && pokemon.id.includes("벽깔이")) return true;
+  if (pokemon.skill) {
+    const skills = Object.values(pokemon.skill);
+    return skills.some((s) => s && WALL_SKILLS.includes(s.name));
+  }
+  return false;
+};
 
 export const isNameMatch = (searchStr, pokemon) => {
   if (!searchStr) return true;
 
   const s = searchStr.trim().toLowerCase();
-  const t = pokemon.id.toLowerCase();
+  const cleanId = (pokemon.id || "").replace(/\s*[\(（].*?[\)）]/g, "").trim().toLowerCase();
+  const cleanName = (pokemon.name || "").replace(/\s*[\(（].*?[\)）]/g, "").trim().toLowerCase();
 
   if (s === "위협" && (pokemon.abil === "위협" || pokemon.megaData?.abil === "위협")) return true;
   if (s === "날씨" && (WEATHER_ABILITIES.includes(pokemon.abil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil)))) return true;
   if (s === "초전설" && pokemon.feature?.legendary) return true;
   if ((s === "메가진화" || s === "메가") && pokemon.megaData) return true;
 
-  if (t.includes(s)) return true;
+  if (cleanId.includes(s) || cleanName.includes(s)) return true;
 
-  if (s === "다투" && t.includes("달투곰")) return true;
-  if (s === "우라" && (t.includes("물라오스") || t.includes("악라오스"))) return true;
-  if (s === "버드" && (t.includes("백마렉스") || t.includes("흑마렉스"))) return true;
-  if (s === "대검" && t.includes("히검귀")) return true;
-  if (s === "페" && t.includes("패리퍼")) return true;
+  if (s === "다투" && cleanId.includes("달투곰")) return true;
+  if (s === "우라" && (cleanId.includes("물라오스") || cleanId.includes("악라오스"))) return true;
+  if (s === "버드" && (cleanId.includes("백마렉스") || cleanId.includes("흑마렉스"))) return true;
+  if (s === "대검" && cleanId.includes("히검귀")) return true;
+  if (s === "페" && cleanId.includes("패리퍼")) return true;
 
   return false;
 };
 
 export const filterSamplePokemons = (
   items,
-  { searchTerm, activeTypes, activeLogic, activeRoles, isMegaFilter, isLegendaryFilter, isIntimidateFilter, isWeatherFilter }
+  { searchTerm, activeTypes, activeLogic, activeRoles, isMegaFilter, isLegendaryFilter, isIntimidateFilter, isWeatherFilter, isWallFilter }
 ) => {
   return items.filter((pokemon) => {
     const nameMatch = isNameMatch(searchTerm, pokemon);
@@ -71,7 +83,12 @@ export const filterSamplePokemons = (
       weatherMatch = WEATHER_ABILITIES.includes(pokemon.abil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil));
     }
 
-    return nameMatch && typeMatch && roleMatch && megaMatch && legendaryMatch && intimidateMatch && weatherMatch;
+    let wallMatch = true;
+    if (isWallFilter) {
+      wallMatch = isWallPokemon(pokemon);
+    }
+
+    return nameMatch && typeMatch && roleMatch && megaMatch && legendaryMatch && intimidateMatch && weatherMatch && wallMatch;
   });
 };
 
@@ -288,6 +305,16 @@ export const isValidTeamArray = (arr) => {
   // 팀 내 중복 포켓몬 검증
   const ids = arr.filter(Boolean).map((entry) => (typeof entry === "object" ? entry.id : entry));
   if (new Set(ids).size !== ids.length) return false;
+
+  // 팀 내 동일 도감번호 중복 검증
+  const nos = arr
+    .filter(Boolean)
+    .map((entry) => {
+      const raw = sampleList.getDataById(typeof entry === "object" ? entry.id : entry);
+      return raw?.no || raw?.pokemon_id;
+    })
+    .filter(Boolean);
+  if (new Set(nos).size !== nos.length) return false;
 
   return true;
 };

@@ -11,6 +11,7 @@ const FilterModal = ({
   isLegendaryFilter,
   isIntimidateFilter,
   isWeatherFilter,
+  isWallFilter,
   activeLogic,
   onApply,
   onClose,
@@ -21,6 +22,7 @@ const FilterModal = ({
   const [tempIsLegendaryFilter, setTempIsLegendaryFilter] = useState(isLegendaryFilter);
   const [tempIsIntimidateFilter, setTempIsIntimidateFilter] = useState(isIntimidateFilter);
   const [tempIsWeatherFilter, setTempIsWeatherFilter] = useState(isWeatherFilter);
+  const [tempIsWallFilter, setTempIsWallFilter] = useState(isWallFilter);
   const [tempLogic, setTempLogic] = useState(activeLogic);
   const [typeColors, setTypeColors] = useState({});
 
@@ -106,6 +108,7 @@ const FilterModal = ({
               setTempIsLegendaryFilter(false);
               setTempIsIntimidateFilter(false);
               setTempIsWeatherFilter(false);
+              setTempIsWallFilter(false);
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -131,6 +134,10 @@ const FilterModal = ({
             <CheckboxInput type="checkbox" checked={tempIsWeatherFilter} onChange={(e) => setTempIsWeatherFilter(e.target.checked)} />
             날씨
           </CheckboxLabel>
+          <CheckboxLabel>
+            <CheckboxInput type="checkbox" checked={tempIsWallFilter} onChange={(e) => setTempIsWallFilter(e.target.checked)} />
+            벽깔이
+          </CheckboxLabel>
         </EtcRow>
 
         <ModalFooter>
@@ -143,6 +150,7 @@ const FilterModal = ({
                 isLegendary: tempIsLegendaryFilter,
                 isIntimidate: tempIsIntimidateFilter,
                 isWeather: tempIsWeatherFilter,
+                isWall: tempIsWallFilter,
                 logic: tempLogic,
               });
               onClose();

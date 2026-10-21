@@ -46,6 +46,8 @@ export class Skill {
     if (stype === "buf") {
       this.text = text;
     }
+
+    this.originText = text;
   }
   _validateParams(name, type, power, accur, pp, prior, stype, skillEffectList, requirement, text){
     if(name === '임시스킬'){return}

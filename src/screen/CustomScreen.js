@@ -34,6 +34,7 @@ const CustomScreen = () => {
   const [isLegendaryFilter, setIsLegendaryFilter] = useState(false);
   const [isIntimidateFilter, setIsIntimidateFilter] = useState(false);
   const [isWeatherFilter, setIsWeatherFilter] = useState(false);
+  const [isWallFilter, setIsWallFilter] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
   const [gameOption, setGameOption] = useRecoilState(gameOptionState);
@@ -75,6 +76,7 @@ const CustomScreen = () => {
     setIsLegendaryFilter(false);
     setIsIntimidateFilter(false);
     setIsWeatherFilter(false);
+    setIsWallFilter(false);
     setActiveLogic("OR");
   };
 
@@ -87,6 +89,7 @@ const CustomScreen = () => {
     isLegendaryFilter,
     isIntimidateFilter,
     isWeatherFilter,
+    isWallFilter,
   });
 
   const getActiveTeam = () => (activeTab === "player" ? selectedTeam : npcTeam);
@@ -102,6 +105,22 @@ const CustomScreen = () => {
       handleRemove(existingIndex);
       return;
     }
+
+    const targetSample = sampleList.getDataById(pokemonId);
+    const targetNo = targetSample?.no || targetSample?.pokemon_id;
+    const hasSameNo = currentTeam.some((entry) => {
+      if (!entry) return false;
+      const entryId = typeof entry === "object" ? entry.id : entry;
+      const entrySample = sampleList.getDataById(entryId);
+      const entryNo = entrySample?.no || entrySample?.pokemon_id;
+      return Boolean(targetNo && entryNo && targetNo === entryNo);
+    });
+
+    if (hasSameNo) {
+      setAlertMessage("같은 도감번호의 포켓몬은 팀에 1마리만 넣을 수 있습니다.");
+      return;
+    }
+
     const emptyIndex = currentTeam.indexOf(null);
     if (emptyIndex === -1) {
       return;
@@ -115,6 +134,21 @@ const CustomScreen = () => {
     const currentTeam = getActiveTeam();
     const existingIndex = currentTeam.findIndex((entry) => (typeof entry === "object" && entry ? entry.id : entry) === pokemon.id);
     if (existingIndex !== -1) return;
+
+    const targetNo = pokemon?.no || pokemon?.pokemon_id;
+    const hasSameNo = currentTeam.some((entry) => {
+      if (!entry) return false;
+      const entryId = typeof entry === "object" ? entry.id : entry;
+      const entrySample = sampleList.getDataById(entryId);
+      const entryNo = entrySample?.no || entrySample?.pokemon_id;
+      return Boolean(targetNo && entryNo && targetNo === entryNo);
+    });
+
+    if (hasSameNo) {
+      setAlertMessage("같은 도감번호의 포켓몬은 팀에 1마리만 넣을 수 있습니다.");
+      return;
+    }
+
     const emptyIndex = currentTeam.indexOf(null);
     if (emptyIndex === -1) return;
     const newTeam = [...currentTeam];
@@ -125,6 +159,21 @@ const CustomScreen = () => {
   const handleUpdateTeamSlot = (slotIndex, pokemon, customItem, customAbil, customSkills, customStats) => {
     if (slotIndex === null || slotIndex === undefined) return;
     const currentTeam = getActiveTeam();
+
+    const targetNo = pokemon?.no || pokemon?.pokemon_id;
+    const hasSameNoInOtherSlot = currentTeam.some((entry, idx) => {
+      if (idx === slotIndex || !entry) return false;
+      const entryId = typeof entry === "object" ? entry.id : entry;
+      const entrySample = sampleList.getDataById(entryId);
+      const entryNo = entrySample?.no || entrySample?.pokemon_id;
+      return Boolean(targetNo && entryNo && targetNo === entryNo);
+    });
+
+    if (hasSameNoInOtherSlot) {
+      setAlertMessage("같은 도감번호의 포켓몬은 팀에 1마리만 넣을 수 있습니다.");
+      return;
+    }
+
     const newTeam = [...currentTeam];
     newTeam[slotIndex] = buildCustomSlotEntry(pokemon, customItem, customAbil, customSkills, customStats);
     setActiveTeam(newTeam);
@@ -500,14 +549,16 @@ const CustomScreen = () => {
           isLegendaryFilter={isLegendaryFilter}
           isIntimidateFilter={isIntimidateFilter}
           isWeatherFilter={isWeatherFilter}
+          isWallFilter={isWallFilter}
           activeLogic={activeLogic}
-          onApply={({ types, roles, isMega, isLegendary, isIntimidate, isWeather, logic }) => {
+          onApply={({ types, roles, isMega, isLegendary, isIntimidate, isWeather, isWall, logic }) => {
             setActiveTypes(types);
             setActiveRoles(roles);
             setIsMegaFilter(isMega);
             setIsLegendaryFilter(isLegendary);
             setIsIntimidateFilter(isIntimidate);
             setIsWeatherFilter(isWeather);
+            setIsWallFilter(isWall);
             setActiveLogic(logic);
           }}
           onClose={() => setIsFilterModalOpen(false)}
@@ -545,7 +596,16 @@ const CustomScreen = () => {
           isFull={
             editingSlotIndex !== null
               ? false
-              : !getActiveTeam().includes(null) || getActiveTeam().some((entry) => (typeof entry === "object" && entry ? entry.id : entry) === infoModalPokemon.id)
+              : !getActiveTeam().includes(null) ||
+                getActiveTeam().some((entry) => {
+                  if (!entry) return false;
+                  const entryId = typeof entry === "object" ? entry.id : entry;
+                  if (entryId === infoModalPokemon.id) return true;
+                  const entrySample = sampleList.getDataById(entryId);
+                  const entryNo = entrySample?.no || entrySample?.pokemon_id;
+                  const targetNo = infoModalPokemon.no || infoModalPokemon.pokemon_id;
+                  return Boolean(targetNo && entryNo && targetNo === entryNo);
+                })
           }
           submitText={editingSlotIndex !== null ? "수정" : "팀에 추가"}
         />

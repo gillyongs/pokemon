@@ -2,7 +2,7 @@ import { typeCheckOnBattle } from "./typeEffectCalculate";
 import { getMultiplier } from "../function/rankStat";
 import { noNullItem } from "../entity/Item";
 import { isAilmentCheck } from "../function/ailment";
-import { speedCheck } from "./speedCheck";
+import { speedCheck, speedCalculate } from "./speedCheck";
 
 export const damageCalculate = (battle, obj, ai) => {
   // 데미지를 "계산"만 해서 주는 함수
@@ -630,6 +630,17 @@ const powerCalculate = (battle, skill, obj, ai) => {
       if (speedCheck(battle) === "npc") return power * 2;
       else return power;
     }
+    if (skill.name === "일렉트릭볼") {
+      const atkSpeed = Math.max(speedCalculate(atk, atk?.origin?.stat?.speed, battle) || 1, 1);
+      const defPokemon = battle[battle.turn.def];
+      const defSpeed = Math.max(speedCalculate(defPokemon, defPokemon?.origin?.stat?.speed, battle) || 1, 1);
+      const ratio = atkSpeed / defSpeed;
+      if (ratio >= 4) return 150;
+      else if (ratio >= 3) return 120;
+      else if (ratio >= 2) return 80;
+      else if (ratio >= 1) return 60;
+      else return 40;
+    }
   }
   const defItem = battle[battle.turn.def].item;
   if (skill.name === "탁쳐서떨구기") {
@@ -671,6 +682,17 @@ const powerCalculate = (battle, skill, obj, ai) => {
       return sum + (typeof v === "number" && v > 0 ? v : 0);
     }, 0);
     power += 20 * total;
+  }
+  if (skill.name === "일렉트릭볼") {
+    const atkSpeed = Math.max(speedCalculate(atk, atk?.origin?.stat?.speed, battle) || 1, 1);
+    const defPokemon = battle[battle.turn.def];
+    const defSpeed = Math.max(speedCalculate(defPokemon, defPokemon?.origin?.stat?.speed, battle) || 1, 1);
+    const ratio = atkSpeed / defSpeed;
+    if (ratio >= 4) power = 150;
+    else if (ratio >= 3) power = 120;
+    else if (ratio >= 2) power = 80;
+    else if (ratio >= 1) power = 60;
+    else power = 40;
   }
   return Math.floor(power);
 };
