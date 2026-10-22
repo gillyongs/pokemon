@@ -199,6 +199,9 @@ new PokemonTemplate("카푸꼬꼬꼭 (벽깔이)", "0785", "5V0A", "HS252", "spe
 new PokemonTemplate("카푸꼬꼬꼭 (특수)", "0785", "5V0A", "CS252", "speed", "atk",
   "10만볼트", "볼트체인지", "매지컬샤인", "풀묶기", "생명의구슬", "일렉트릭메이커", "특수어태커",),
 
+new PokemonTemplate("카푸느지느", "0788", "5V0A", "HC252", "catk", "atk",
+  "파도타기", "문포스", "명상", "냉동빔", "먹다남은음식", "미스트메이커", "특수딜탱", "미스트메이커로 상태이상을 방지하고 명상으로 내구와 특공을 올려 공격하는 특수딜탱입니다."),
+
 new PokemonTemplate("텅비드", "0793", "5V0A", "CS252", "speed", "atk",
   "메테오빔", "오물웨이브", "풀묶기", "10만볼트", "파워풀허브", "비스트부스트", "특수어태커", "메테오빔으로 특공을 올리고 각종 특수기로 공격합니다."),
 
@@ -335,7 +338,13 @@ new PokemonTemplate("브리두라스", "1018", "5V0A", "HC252", "catk", "atk",
       this.items.find(
         (item) =>
           item.id.startsWith("메가") && item.id.replace(/^메가/, "") === searchId
-      ) || null
+      ) ||
+      this.items.find(
+        (item) =>
+          typeof searchId === "string" &&
+          item.id.replace(/\s*\(.*?\)/, "") === searchId.replace(/\s*\(.*?\)/, "")
+      ) ||
+      null
     );
   }
   getItemById(id) {

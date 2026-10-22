@@ -37,7 +37,7 @@ export const damageCalculate = (battle, obj, ai) => {
     //일격기
     return defensePokemon.origin.hp;
   }
-  if (skill.name === "카타스트로피") {
+  if (skill.name === "카타스트로피" || skill.name === "자연의분노") {
     // 현재 체력의 절반을 깎는 스킬
     return defensePokemon.hp / 2;
   }
@@ -345,6 +345,12 @@ export const damageCalculate = (battle, obj, ai) => {
     if (field === "그래스필드" && skill.name === "지진") {
       damage *= 0.5; //비행여부 상관없이 적용됨
       attackPokemon.log.damage1 += " * 0.5 (그래스필드+지진)";
+    }
+
+    const isDefFlying = defensePokemon.isFlying(battle);
+    if (field === "미스트필드" && skill.type === "드래곤" && !isDefFlying) {
+      damage *= 0.5;
+      attackPokemon.log.damage1 += " * 0.5 (미스트필드+드래곤)";
     }
   }
 

@@ -191,9 +191,13 @@ class PokemonInstance {
 
   // 떠있음 여부 체크
   // 그래스필드 회복(terrian.js), 필드 데미지 보정 (damageCalculate.js)
+  // 미스트필드 상태이상 방지 (ailment.js)
   // 일렉트릭필드 잠듦 가능여부(ailment.js), 일렉트릭필드 하품 가능 여부(skillEffect.js),
-  // 압정, 독압정, 끈적끈적네트(field.js)에서 사용
+  // 압정, 독압정, 끈적끈적네트(field.js), 교체시 장판 체크 (npc/easy.js),
+  // 땅타입 상성 계산(typeEffectCalculate.js)에서 사용
   isFlying(battle, isSkill) {
+    // isSkill: 상대방의 기술에 의한것인지 여부. 특성 틀깨기로 인한 부유 차단을 위해 사용
+    // 땅타입 상성계산, 장판기, 하품 및 상태이상 가능 여부 체크할때 true
     const pokemon = this;
     const enemy = pokemon.team === "player" ? battle.npc : battle.player;
 

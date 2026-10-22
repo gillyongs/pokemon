@@ -10,12 +10,17 @@ export class Terrain {
 
   get isGrassField() {
     return this.#type === "그래스필드";
-    // 턴 종료 회복, 그래스슬라이더 우선도
+    // 턴 종료시 회복, 그래스슬라이더 우선도
   }
 
   get isElectricField() {
     return this.#type === "일렉트릭필드";
-    // 하드론엔진, 잠듦 방지
+    // 하드론엔진, 쿼크차지, 잠듦 방지
+  }
+
+  get isMistyField() {
+    return this.#type === "미스트필드";
+    // 상태이상 방지, 드래곤 대미지 반감
   }
 
   #setTerrain(terrainType, turnRemain, enqueue, battle, terrainText) {
@@ -81,6 +86,7 @@ export class Terrain {
       const endTextMap = {
         그래스필드: "발밑의 풀이 사라졌다!",
         일렉트릭필드: "발밑의 전기가 사라졌다!",
+        미스트필드: "발밑의 안개가 사라졌다!",
       };
       text = endTextMap[endedType];
     }

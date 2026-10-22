@@ -13,6 +13,11 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
     return false;
   }
 
+  // 미스트필드 상태이면 땅에 붙어있는 포켓몬은 상태이상에 걸리지 않는다
+  if (battle?.field?.terrain?.isMistyField && !pokemon.isFlying(battle)) {
+    return false;
+  }
+
   let t1 = pokemon.type1;
   let t2 = pokemon.type2;
 
@@ -64,7 +69,7 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
 
   if (isSleep) {
     // 추가 조건: 일렉트릭필드면 자지 않는다
-    // 지금 잠듦 하품밖에 없어서 isFlying의 isSkill에 true 해놓음[부유-틀깨기 적용여부]
+    // 지금 잠듦 기술 부가효과랑 하품밖에 없어서 isFlying의 2번쨰 인자 isSkill에 true 해놓음[부유-틀깨기 적용여부]
     if (battle?.field?.terrain?.isElectricField && !pokemon.isFlying(battle, true)) {
       return false;
     }
@@ -83,6 +88,7 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
     if (pokemon.tempStatus.confuse !== null) return;
     // 기절 체크
     if (faintCheck(pokemon)) return;
+    if (battle?.field?.terrain?.isMistyField && (!pokemon.isFlying || !pokemon.isFlying(battle, true))) return;
 
     // 1 ~ 3턴
     pokemon.tempStatus.confuse = Math.floor(Math.random() * 3) + 1;

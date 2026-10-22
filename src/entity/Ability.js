@@ -17,6 +17,7 @@ export const abilObject = {
   불굴의방패: { text: "등장했을 때 방어가 1랭크 올라간다." },
   그래스메이커: { text: "전투에 나오면 지형을 그래스필드로 만든다." },
   일렉트릭메이커: { text: "전투에 나오면 지형을 일렉트릭필드로 만든다." },
+  미스트메이커: { text: "전투에 나오면 지형을 미스트필드로 만든다." },
   잔비: { text: "전투에 나오면 날씨를 5턴 간 비로 바꾼다." },
   가뭄: { text: "전투에 나오면 날씨를 5턴 간 쾌청으로 바꾼다." },
   진홍빛고동: {
@@ -255,6 +256,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   const terrainAbilities = {
     그래스메이커: { terrainType: "그래스필드", text: "발밑에 풀이 무성해졌다!" },
     일렉트릭메이커: { terrainType: "일렉트릭필드", text: "발밑에 전기가 떠돌기 시작했다!" },
+    미스트메이커: { terrainType: "미스트필드", text: "발밑이 안개로 자욱해졌다!" },
   };
   Object.entries(terrainAbilities).forEach(([abil, { terrainType, text }]) => {
     if (atkAbil === abil) {
