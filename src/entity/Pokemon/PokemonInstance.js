@@ -146,6 +146,7 @@ class PokemonInstance {
       switchLock: null, // 교체불가 (교체불가로 만든 기술명이 들어간다)
       switchLockTurnRemain: null, // 교체불가 남은 턴
       glaiveRush: null, // 대검돌격 디메리트
+      firstTurn: true, // 배틀 등장 첫 턴 여부 (속이기 판정)
     };
     this.faint = null; //기절 여부
     this.auto = null; //자동 행동 여부 (역린)
@@ -180,7 +181,9 @@ class PokemonInstance {
   resetTempStatus() {
     const ts = this.tempStatus;
     Object.keys(ts).forEach((key) => {
-      if (key !== "rank") {
+      if (key === "firstTurn") {
+        ts[key] = true;
+      } else if (key !== "rank") {
         ts[key] = null;
       } else {
         Object.keys(ts.rank).forEach((rk) => {

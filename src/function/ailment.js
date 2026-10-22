@@ -47,6 +47,9 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
     if (t1 === "전기" || t2 === "전기") {
       return false;
     }
+    if (pokemon.abil === "유연") {
+      return false;
+    }
   }
 
   if (isFreeze) {

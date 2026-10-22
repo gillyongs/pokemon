@@ -64,6 +64,12 @@ export const abilObject = {
   오기: {
     text: "상대에 의해 능력치가 떨어지면 공격이 2랭크 올라간다.",
   },
+  유연: {
+    text: "마비 상태가 되지 않는다.",
+  },
+  배짱: {
+    text: "고스트타입 포켓몬에게 노말타입과 격투타입 기술을 맞힐 수 있으며 위협을 받지 않는다.",
+  },
   깨어진갑옷: {
     text: "물리 기술을 맞으면 방어가 1랭크 떨어지고 스피드가 2랭크 올라간다.",
   },
@@ -234,7 +240,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     if (def.tempStatus.substitute) {
       // 위협은 대타에 막힘
       enqueue({ battle: bt, text: `${abilText} ${def.name}에겐 효과가 없는 것 같다...` });
-    } else if (def.abil === "정신력" || def.abil === "둔감") {
+    } else if (def.abil === "정신력" || def.abil === "둔감" || def.abil === "배짱") {
       enqueue({ battle: bt, text: `[특성 ${def.abil}] ${def.name}의 공격은 떨어지지 않는다!` });
     } else {
       def.rankUp(bt, enqueue, "atk", -1, abilText, true);

@@ -91,6 +91,15 @@ export const megaDataList = {
       abil: "단단한발톱",
     },
   ],
+  // 이어롭
+  "0428": [
+    {
+      stone: "이어롭나이트",
+      megaFormId: "0428-m",
+      name: "메가이어롭",
+      abil: "배짱",
+    },
+  ],
   // 한카리아스 (일반 / Z)
   "0445": [
     {

@@ -62,4 +62,12 @@ export const switchPokemon = (battle, IN, OUT) => {
   pokemonIn.abilObj = pokemonIn.origin.abilObj;
 
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
+
+  if (battle[IN]?.tempStatus) {
+    battle[IN].tempStatus.firstTurn = true;
+  }
+  if (battle?.turn) {
+    if (IN === "player") battle.turn.playerSwitched = true;
+    if (IN === "npc") battle.turn.npcSwitched = true;
+  }
 };

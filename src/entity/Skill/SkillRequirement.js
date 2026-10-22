@@ -73,6 +73,13 @@ function skillRequirementSearch(name) {
       }
       return true;
     },
+    속이기: (battle, enqueue) => {
+      const atk = battle[battle.turn.atk];
+      if (atk?.tempStatus?.firstTurn === false) {
+        return false;
+      }
+      return true;
+    },
   };
 
   return functions[name] || null;

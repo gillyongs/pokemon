@@ -3,7 +3,7 @@ const isOneOf = (value, list) => list.includes(value);
 
 // 심안(고스트 면역 무시)
 const isMindEye = (pokemon, skillType, t1, t2) => {
-  return pokemon.abil === "심안" && isOneOf(skillType, ["격투", "노말"]) && hasType("고스트", t1, t2);
+  return (pokemon?.abil === "심안" || pokemon?.abil === "배짱") && isOneOf(skillType, ["격투", "노말"]) && hasType("고스트", t1, t2);
 };
 
 export const typeCheck = (skillType, t1, t2, skillName) => {
