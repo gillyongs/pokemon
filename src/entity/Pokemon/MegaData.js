@@ -28,6 +28,15 @@ export const megaDataList = {
       abil: "천하장사",
     },
   ],
+  // 핫삼
+  "0212": [
+    {
+      stone: "핫삼나이트",
+      megaFormId: "0212-m",
+      name: "메가핫삼",
+      abil: "테크니션",
+    },
+  ],
   // 무장조
   "0227": [
     {

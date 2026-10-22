@@ -391,6 +391,11 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.2 (검은안경)";
   }
 
+  if (skill.type === "강철" && attackPokemon.item === "금속코트") {
+    damage *= 1.2;
+    attackPokemon.log.damage1 += " * 1.2 (금속코트)";
+  }
+
   // 특성 ===========================================================================================
 
   if (defAbil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
@@ -448,6 +453,11 @@ export const damageCalculate = (battle, obj, ai) => {
   if (atkAbil === "철주먹" && skill.feature?.punch) {
     damage *= 1.2;
     attackPokemon.log.damage1 += " * 1.2 (철주먹)";
+  }
+
+  if (atkAbil === "테크니션" && power <= 60 && power > 0) {
+    damage *= 1.5;
+    attackPokemon.log.damage1 += " * 1.5 (테크니션)";
   }
 
   if (atkAbil === "총대장") {

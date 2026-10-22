@@ -30,6 +30,7 @@ const EXCLUSIVE_ITEMS = {
   드닐레이브나이트: (p) => isPokemon(p, "드닐레이브"),
   킬라플로르나이트: (p) => isPokemon(p, "킬라플로르"),
   플라엣테나이트: (p) => isPokemon(p, "플라엣테"),
+  핫삼나이트: (p) => isPokemon(p, "핫삼"),
 };
 
 export const getFavoriteItemsForPokemon = (pokemon) => {
@@ -86,6 +87,7 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
   const hasDarkSkill = skillTypes.includes("악");
   const hasWaterSkill = skillTypes.includes("물");
   const hasIceSkill = skillTypes.includes("얼음");
+  const hasSteelSkill = skillTypes.includes("강철");
 
   // 타입별 데미지 증가 아이템
   if (isAttacker) {
@@ -102,6 +104,11 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
     // 얼음타입 & 얼음기술 -> 녹지않는얼음
     if (types.includes("얼음") && hasIceSkill) {
       add("녹지않는얼음");
+    }
+
+    // 강철타입 & 강철기술 -> 금속코트
+    if (types.includes("강철") && hasSteelSkill) {
+      add("금속코트");
     }
   }
 

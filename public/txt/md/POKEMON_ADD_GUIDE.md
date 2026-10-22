@@ -47,6 +47,9 @@
   - 기술 발동 효과: `src/entity/Skill/SkillEffect.js` (예: `니들가드`의 `turn.protect = true`, `turn.spikyShield = true`)
   - 피격/방어 상호작용: `src/service/skillCheck.js` (예: 니들가드로 상대 접촉기 차단 시 1/8 가시 피해)
   - 도감 기술 풀 등록: `src/skill/PokemonSkillList.js`의 `core` 및 `others` 배열에 등록하고 `UNIMPLEMENTED_SKILLS`에서 제거.
+  - **포켓몬 기술 풀(CORE 및 배울 수 있는 기술) 수집 원칙**:
+    - `https://pkmnchamps.com/pokedex/{도감번호}` (예: `https://pkmnchamps.com/pokedex/212`)를 조회하여 데이터가 있으면 이를 우선적으로 가져옵니다.
+    - 레귤레이션 사용률 상위 기술을 `core`로, 그 외 도감상 배울 수 있는 기술 전체를 `others`로 분류하여 등록합니다.
 
 ### B. 특성 (Ability) 등록 및 엔진 연동
 - **설명 등록**: `src/entity/Ability.js`의 `abilObject`에 특성 설명 등록
@@ -65,6 +68,10 @@
   - `noNullItem` 배열에 추가하여 탁쳐서떨구기나 트릭으로 도구가 제거/교체되지 않도록 방지.
 - **커스텀 도구 필터링 (`src/component/customScreen/sampleInfo/ItemSearchModal.js`)**:
   - `EXCLUSIVE_ITEMS` 객체에 전용 포켓몬 매칭 함수 등록 (예: `킬라플로르나이트: (p) => isPokemon(p, "킬라플로르")`).
+
+> [!CAUTION]
+> **메가스톤 이미지(`XXX나이트.webp`) 임의 복사 절대 금지**:
+> 전용 메가스톤 이미지(`public/img/item/XXX나이트.webp`)가 존재하지 않는다고 해서 임의로 다른 메가스톤 이미지를 복사하여 넣지 말 것 (사용자가 직접 추가할 예정). 도구 정의(`Item.js`), 전용 필터링(`ItemSearchModal.js`), 메가 데이터 매핑(`MegaData.js`)만 코드로 구성합니다.
 
 ---
 
@@ -126,10 +133,11 @@ new Pokemon("0970", "0970-m", "메가킬라플로르", 625, 83, 90, 105, 150, 96
 ## 6. 체크리스트 요약
 
 - [ ] 도감번호 4자리 규격 및 종족값 총합 일치 확인
+- [ ] `https://pkmnchamps.com/pokedex/{도감번호}`에서 기술 풀(core / others) 조회 및 반영
 - [ ] 신규 기술(우선도, feature, SkillEffect, skillCheck) 구현 완료
 - [ ] 신규 특성(Ability.js 설명, ailment.js / damageCalculate.js 배틀 효과) 구현 완료
-- [ ] 도구(Item.js noNullItem 및 ItemSearchModal 전용 매핑) 구현 완료
+- [ ] 도구(Item.js noNullItem 및 ItemSearchModal 전용 매핑) 구현 완료 (메가스톤 이미지는 임의 복사 금지)
 - [ ] `PokemonData.js`에 원본 및 메가진화 폼 등록
 - [ ] 메가진화인 경우 `MegaData.js` 및 `POKEMON_SKILL_ALIASES` 등록
-- [ ] `public/img/pokemon/{id}.webp` 256x256 투명 스프라이트 배치 완료
+- [ ] `public/img/pokemon/{id}.webp` 256x256 투명 스프라이트 배치 완료 (크기 밸런스 점검)
 - [ ] 단위 테스트 작성 및 통과 확인
