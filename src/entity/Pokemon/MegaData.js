@@ -121,6 +121,15 @@ export const megaDataList = {
       abil: "열교환",
     },
   ],
+  // 킬라플로르
+  "0970": [
+    {
+      stone: "킬라플로르나이트",
+      megaFormId: "0970-m",
+      name: "메가킬라플로르",
+      abil: "적응력",
+    },
+  ],
 };
 
 /**

@@ -366,6 +366,15 @@ function skillEffectSearch(name) {
         text: skillUser.names + " 방어 태세에 들어갔다!",
       });
     },
+    니들가드: (battle, enqueue, skillEffect) => {
+      const skillUser = battle[battle.turn.atk];
+      skillUser.turn.protect = true;
+      skillUser.turn.spikyShield = true;
+      enqueue({
+        battle,
+        text: skillUser.names + " 방어 태세에 들어갔다!",
+      });
+    },
 
     스텔스록: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;

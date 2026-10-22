@@ -60,8 +60,10 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
   }
 
   if (isPoison) {
-    // 독, 강철 타입은 독에 걸리지 않는다
-    if (t1 === "독" || t2 === "독" || t1 === "강철" || t2 === "강철") {
+    // 특성 부식: 상대가 독, 강철 타입이라도 독/맹독 상태로 만들 수 있다
+    const hasCorrosion = atkPokemon?.abil === "부식";
+    // 독, 강철 타입은 독에 걸리지 않는다 (부식 특성 제외)
+    if (!hasCorrosion && (t1 === "독" || t2 === "독" || t1 === "강철" || t2 === "강철")) {
       return false;
     }
   }

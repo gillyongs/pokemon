@@ -6,6 +6,7 @@ import { Skill } from "../Skill.js";
 // prettier-ignore
 export const bufSkills = [
   new Skill("방어", "노말", "-", "-", 10, 4, "buf", { name: "방어" }, "상대의 공격을 전혀 받지 않는다. 연속으로 쓰면 실패하기 쉽다. (우선도 +4)", [{ name: "방어" }], { protect: true }),
+  new Skill("니들가드", "풀", "-", "-", 10, 4, "buf", { name: "방어" }, "상대의 공격을 막고 접촉 공격을 한 상대에게 데미지를 준다. 연속으로 쓰면 실패하기 쉽다. (우선도 +4)", [{ name: "니들가드" }], { protect: true }),
 
   new Skill("대타출동", "노말", "-", "-", 10, 0, "buf", null, "자신의 HP를 ¼ 깎아서 분신을 만든다. 분신은 자신의 대타가 된다.", [{ name: "대타출동" }], {}),
 

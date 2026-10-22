@@ -198,6 +198,16 @@ export const afterSkillCheck = (bt, enqueue) => {
       //방어로 막은 경우
       atk.turn.jumpKickFail = true;
       enqueue({ battle: bt, text: def.names + " 공격으로부터 몸을 지켰다!" });
+
+      // 니들가드(spikyShield): 직접 접촉 공격한 상대에게 최대 체력 1/8 데미지
+      // 펀치글러브 착용 시 접촉 판정이 사라져 피해 없음
+      const isTouch = Boolean(skill.feature?.touch && atk.item !== "펀치글러브");
+      if (def.turn?.spikyShield && isTouch && !atk.faint) {
+        const spikyDmg = Math.floor(atk.origin.hp / 8);
+        const spikyText = `${atk.names} 가시에 찔려 데미지를 입었다!`;
+        atk.getDamage(bt, enqueue, spikyDmg, spikyText);
+      }
+
       return false;
     }
   }

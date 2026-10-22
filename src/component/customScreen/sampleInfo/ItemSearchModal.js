@@ -28,6 +28,7 @@ const EXCLUSIVE_ITEMS = {
   한카리아스나이트: (p) => isPokemon(p, "한카리아스"),
   한카리아스나이트Z: (p) => isPokemon(p, "한카리아스"),
   드닐레이브나이트: (p) => isPokemon(p, "드닐레이브"),
+  킬라플로르나이트: (p) => isPokemon(p, "킬라플로르"),
 };
 
 export const getFavoriteItemsForPokemon = (pokemon) => {
