@@ -50,7 +50,7 @@ export const atkSkills = [
   new Skill("스케일샷", "드래곤", 25, 90, 20, 0, "atk", null, "2-5회 동안 연속으로 쓴다. 스피드가 1랭크 올라가지만 방어가 1랭크 떨어진다.", [ { name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "speed", value: 1}, {stat: "def", value: -1}] }], { serial: "twoFive" }),
   new Skill("더블윙", "비행", 40, 90, 10, 0, "atk", null, "날개로 상대를 내리쳐 공격한다. 2회 연속으로 데미지를 준다.", [], { serial: "double", touch: true }),
   new Skill("더블펀처", "강철", 60, 100, 5, 0, "atk", null, "2회 연속으로 공격한다. 30% 확률로 상대를 풀죽게 만든다.", [{ name: "풀죽음", probability: 30 }], { touch: true, punch: true, serial: "double" }),
-  new Skill("드래곤에로", "드래곤", 50, 100, 10, 0, "atk", null, "드라꼰을 발사하여 2회 연속으로 데미지를 준다.", [], { serial: "double" }),
+  new Skill("드래곤애로", "드래곤", 50, 100, 10, 0, "atk", null, "드라꼰을 발사하여 2회 연속으로 데미지를 준다.", [], { serial: "double" }),
 
   // 랭크 변화 (자신) 
   new Skill("개척하기", "풀", 50, 100, 20, 0, "atk", null, "자신의 스피드를 1랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: 1 }], { touch: true }),

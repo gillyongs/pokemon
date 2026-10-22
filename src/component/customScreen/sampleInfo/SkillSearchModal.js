@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import styled from "styled-components";
 import { getSkillListForPokemon } from "../../../skill/PokemonSkillList";
 import skillList from "../../../entity/Skill/skillList";
+import { TYPE_COLORS } from "./SampleInfoModal";
 
 const ALL_TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투", "독", "땅", "비행", "에스퍼", "벌레", "바위", "고스트", "드래곤", "악", "강철", "페어리"];
 
@@ -18,6 +19,7 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [selectedType, setSelectedType] = useState("전체");
+  const [onlyCore, setOnlyCore] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState("");
 
@@ -74,6 +76,10 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
 
   const filteredSkills = useMemo(() => {
     return allSkills.filter((item) => {
+      // 0. 주력 기술 필터
+      if (onlyCore && !item.isCore) {
+        return false;
+      }
       // 1. 이름 검색 필터
       if (searchTerm.trim()) {
         const term = searchTerm.trim().toLowerCase();
@@ -98,11 +104,19 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
 
       return true;
     });
-  }, [allSkills, searchTerm, selectedCategory, selectedType]);
+  }, [allSkills, searchTerm, selectedCategory, selectedType, onlyCore]);
 
-  const hasActiveFilter = selectedCategory !== "전체" || selectedType !== "전체";
+  const hasCategoryOrTypeFilter = selectedCategory !== "전체" || selectedType !== "전체";
+  const hasActiveFilter = hasCategoryOrTypeFilter || onlyCore;
 
   const handleResetFilter = () => {
+    setSelectedCategory("전체");
+    setSelectedType("전체");
+  };
+
+  const handleResetAll = () => {
+    setSearchTerm("");
+    setOnlyCore(false);
     setSelectedCategory("전체");
     setSelectedType("전체");
   };
@@ -166,10 +180,26 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
           </SlotsArea>
 
           <SearchFilterRow>
-            <SearchInput type="text" placeholder="기술 이름 검색" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-            <FilterToggleBtn type="button" $isActive={isFilterOpen || hasActiveFilter} onClick={() => setIsFilterOpen((prev) => !prev)}>
-              필터 {hasActiveFilter ? "●" : "▼"}
+            <SearchInputWrapper>
+              <SearchInput type="text" placeholder="기술 검색" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              {searchTerm && (
+                <ClearSearchBtn type="button" onClick={() => setSearchTerm("")} title="검색어 지우기" aria-label="검색어 지우기">
+                  ✕
+                </ClearSearchBtn>
+              )}
+            </SearchInputWrapper>
+            <CoreToggleBtn type="button" $isActive={onlyCore} onClick={() => setOnlyCore((prev) => !prev)} title="채용률 10% 이상 주력 기술만 필터링합니다" aria-label={onlyCore ? "★ 주력 기술 ON" : "☆ 주력 기술"}>
+              {onlyCore ? "★" : "☆"}
+            </CoreToggleBtn>
+            <FilterToggleBtn type="button" $hasFilter={hasCategoryOrTypeFilter} onClick={() => setIsFilterOpen((prev) => !prev)}>
+              필터 {isFilterOpen ? "▲" : "▼"}
             </FilterToggleBtn>
+            <ResetFilterBtn type="button" onClick={handleResetAll} title="검색 및 필터 초기화" aria-label="검색 및 필터 초기화">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+            </ResetFilterBtn>
           </SearchFilterRow>
 
           {isFilterOpen && (
@@ -197,12 +227,11 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
                   )}
                 </FilterLabelRow>
                 <TypeChipGrid>
-                  <TypeChip type="button" $isSelected={selectedType === "전체"} onClick={() => setSelectedType("전체")}>
+                  <TypeChip type="button" $type="전체" $isSelected={selectedType === "전체"} $activeType={selectedType} onClick={() => setSelectedType("전체")}>
                     전체
                   </TypeChip>
                   {ALL_TYPES.map((type) => (
-                    <TypeChip key={type} type="button" $isSelected={selectedType === type} onClick={() => setSelectedType(type)}>
-                      <img src={`/pokemon/img/type/${type}.svg`} alt={type} style={{ width: "14px", height: "14px", marginRight: "3px" }} />
+                    <TypeChip key={type} type="button" $type={type} $isSelected={selectedType === type} $activeType={selectedType} onClick={() => setSelectedType(type)}>
                       {type}
                     </TypeChip>
                   ))}
@@ -243,8 +272,9 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
                         <TypeBadge>{item.type}</TypeBadge>
 
                         <CategoryBadge $category={item.category}>{item.category}</CategoryBadge>
+                        {item.isCore && <Badge $type="core">★</Badge>}
 
-                        {item.isImplemented ? isSelected ? <Badge $type="equipped">선택됨 ✓</Badge> : <Badge $type="ready">+ 추가</Badge> : <Badge $type="unimplemented">미구현</Badge>}
+                        {!item.isImplemented && <Badge $type="unimplemented">미구현</Badge>}
                       </NameRow>
 
                       <StatRow>
@@ -259,6 +289,14 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
                         <span>
                           PP <strong>{item.pp}</strong>
                         </span>
+                        {item.prior !== undefined && item.prior !== 0 && (
+                          <>
+                            <StatDivider>•</StatDivider>
+                            <span>
+                              우선도 <strong>{typeof item.prior === "number" ? (item.prior > 0 ? `+${item.prior}` : item.prior) : item.prior === "change" ? "조건부(+1)" : item.prior}</strong>
+                            </span>
+                          </>
+                        )}
                       </StatRow>
 
                       <SkillDesc $isImplemented={item.isImplemented}>{item.originText || item.text}</SkillDesc>
@@ -310,6 +348,17 @@ const ModalBox = styled.div`
   color: #333;
   box-sizing: border-box;
   overflow: hidden;
+
+  @media (max-width: 480px) {
+    padding: 14px 10px;
+    width: 95vw;
+    height: 85vh;
+    height: 85dvh;
+    min-height: 85vh;
+    min-height: 85dvh;
+    max-height: 85vh;
+    max-height: 85dvh;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -499,13 +548,27 @@ const NoticeBanner = styled.div`
 
 const SearchFilterRow = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 480px) {
+    gap: 4px;
+  }
+`;
+
+const SearchInputWrapper = styled.div`
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
   align-items: center;
 `;
 
 const SearchInput = styled.input`
-  flex: 1;
-  padding: 9px 12px;
+  width: 100%;
+  padding: 9px 30px 9px 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 0.92rem;
@@ -517,14 +580,38 @@ const SearchInput = styled.input`
     border-color: #4caf50;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
   }
+
+  @media (max-width: 480px) {
+    padding: 7px 26px 7px 8px;
+    font-size: 0.82rem;
+  }
 `;
 
-const FilterToggleBtn = styled.button`
+const ClearSearchBtn = styled.button`
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #666;
+  }
+`;
+
+const CoreToggleBtn = styled.button`
+  flex-shrink: 0;
   padding: 9px 12px;
   border-radius: 8px;
-  border: 1px solid ${({ $isActive }) => ($isActive ? "#4caf50" : "#ddd")};
-  background-color: ${({ $isActive }) => ($isActive ? "#e8f5e9" : "#fff")};
-  color: ${({ $isActive }) => ($isActive ? "#2e7d32" : "#555")};
+  border: 1px solid ${({ $isActive }) => ($isActive ? "#f59e0b" : "#ddd")};
+  background-color: ${({ $isActive }) => ($isActive ? "#fffbeb" : "#fff")};
+  color: ${({ $isActive }) => ($isActive ? "#b45309" : "#666")};
   font-weight: bold;
   font-size: 0.85rem;
   cursor: pointer;
@@ -532,7 +619,61 @@ const FilterToggleBtn = styled.button`
   transition: all 0.2s;
 
   &:hover {
-    background-color: ${({ $isActive }) => ($isActive ? "#c8e6c9" : "#f5f5f5")};
+    background-color: ${({ $isActive }) => ($isActive ? "#fef3c7" : "#f5f5f5")};
+  }
+
+  @media (max-width: 480px) {
+    padding: 7px 8px;
+    font-size: 0.8rem;
+  }
+`;
+
+const FilterToggleBtn = styled.button`
+  flex-shrink: 0;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid ${({ $hasFilter }) => ($hasFilter ? "#4caf50" : "#ddd")};
+  background-color: ${({ $hasFilter }) => ($hasFilter ? "#e8f5e9" : "#fff")};
+  color: ${({ $hasFilter }) => ($hasFilter ? "#2e7d32" : "#555")};
+  font-weight: bold;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: ${({ $hasFilter }) => ($hasFilter ? "#c8e6c9" : "#f5f5f5")};
+  }
+
+  @media (max-width: 480px) {
+    padding: 7px 8px;
+    font-size: 0.8rem;
+  }
+`;
+
+const ResetFilterBtn = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  color: #555;
+  padding: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  @media (max-width: 480px) {
+    width: 32px;
+    height: 32px;
   }
 `;
 
@@ -542,7 +683,7 @@ const FilterPanel = styled.div`
   background-color: #f9f9f9;
   border-radius: 8px;
   border: 1px solid #eee;
-  max-height: 160px;
+  max-height: 230px;
   overflow-y: auto;
 
   &::-webkit-scrollbar {
@@ -624,26 +765,64 @@ const CategoryChip = styled.button`
 `;
 
 const TypeChipGrid = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
 `;
 
 const TypeChip = styled.button`
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  padding: 3px 7px;
-  font-size: 0.72rem;
-  border-radius: 12px;
-  border: 1px solid ${({ $isSelected }) => ($isSelected ? "#4caf50" : "#ddd")};
-  background-color: ${({ $isSelected }) => ($isSelected ? "#e8f5e9" : "#fff")};
-  color: ${({ $isSelected }) => ($isSelected ? "#2e7d32" : "#555")};
-  font-weight: ${({ $isSelected }) => ($isSelected ? "bold" : "normal")};
+  justify-content: center;
+  width: 100%;
+  height: 28px;
+  box-sizing: border-box;
+  font-size: 0.76rem;
+  border-radius: 6px;
+  border: 1px solid
+    ${({ $isSelected, $type }) => {
+      if ($isSelected) return "#222";
+      if ($type === "전체") return "#ddd";
+      return "transparent";
+    }};
+  background-color: ${({ $isSelected, $type }) => {
+    if ($type === "전체") {
+      return $isSelected ? "#374151" : "#f1f3f5";
+    }
+    return TYPE_COLORS[$type] || "#A0A29F";
+  }};
+  color: ${({ $isSelected, $type }) => {
+    if ($type === "전체") {
+      return $isSelected ? "#ffffff" : "#495057";
+    }
+    return "#ffffff";
+  }};
+  font-weight: ${({ $isSelected }) => ($isSelected ? "bold" : "600")};
+  text-shadow: ${({ $type }) => ($type === "전체" ? "none" : "0 1px 2px rgba(0, 0, 0, 0.25)")};
   cursor: pointer;
-  transition: all 0.15s;
+  white-space: nowrap;
+  transition: all 0.15s ease-in-out;
+  opacity: ${({ $isSelected, $activeType }) => {
+    if ($isSelected) return 1;
+    if ($activeType === "전체") return 0.85;
+    return 0.38;
+  }};
+  box-shadow: ${({ $isSelected }) => ($isSelected ? "0 0 0 2px #222" : "none")};
+  transform: ${({ $isSelected }) => ($isSelected ? "scale(1.02)" : "scale(1)")};
 
   &:hover {
-    background-color: #f5f5f5;
+    opacity: 1;
+  }
+
+  @media (max-width: 480px) {
+    height: 26px;
+    font-size: 0.72rem;
+    padding: 0;
   }
 `;
 
@@ -772,6 +951,7 @@ const Badge = styled.span`
   background-color: ${({ $type }) => {
     if ($type === "equipped") return "#2e7d32";
     if ($type === "ready") return "#4caf50";
+    if ($type === "core") return "#d97706";
     return "#9e9e9e";
   }};
 `;
@@ -781,6 +961,7 @@ const StatRow = styled.div`
   color: #666;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
 
   strong {
