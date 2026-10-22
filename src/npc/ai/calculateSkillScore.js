@@ -377,8 +377,11 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       log += ` + 50 (대타 관통 보정)`;
     }
     if (f.charge && npc.item !== "파워풀허브") {
-      score /= 2;
-      log += ` /2 (충전)`;
+      const isWeatherSkip = (f.charge.weatherSkip === "sunny" && bt.field.weather.isSunny) || (f.charge.weatherSkip === "rain" && bt.field.weather.isRainy);
+      if (!isWeatherSkip) {
+        score /= 3;
+        log += ` /3 (충전)`;
+      }
     }
   }
 

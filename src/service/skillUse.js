@@ -54,7 +54,12 @@ export const skillUse = (bt, enqueue) => {
         atk.rankUp(bt, enqueue, chargeObj.rankUpStat, 1);
       }
 
-      if (atk.item === "파워풀허브") {
+      const isWeatherSkip = (chargeObj.weatherSkip === "sunny" && bt.field.weather.isSunny) || (chargeObj.weatherSkip === "rain" && bt.field.weather.isRainy);
+
+      if (isWeatherSkip) {
+        // 날씨에 의해 1턴 충전 생략하고 즉시 공격
+        enqueue({ battle: bt, text: skillUseText }); // 스킬 텍스트 2번 뜨는게 맞음
+      } else if (atk.item === "파워풀허브") {
         atk.item = null;
         enqueue({ battle: bt, text: atk.name + "은 파워풀허브로 힘이 넘쳐흐른다!" });
         enqueue({ battle: bt, text: skillUseText }); // 스킬 텍스트 2번 뜨는게 맞음

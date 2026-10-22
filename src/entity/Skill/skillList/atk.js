@@ -8,6 +8,7 @@ export const atkSkills = [
   new Skill("탁쳐서떨구기", "악", 65, 100, 20, 0, "atk", null, "상대가 지닌 물건이 있으면 없애고 추가 데미지를 준다.", [{ name: "탁떨" }], { touch: true }),
 
   new Skill("카운터", "격투", "-", 100, 20, -5, "atk", { name: "반사", stat: "atk" }, "상대로부터 받은 물리 공격의 데미지를 2배로 만들어 돌려준다. (우선도-5)", [], { counter: true, touch: true }),
+  new Skill("메탈버스트", "강철", "-", 100, 10, 0, "atk", { name: "반사", stat: "all" }, "상대에게 마지막으로 받은 공격의 데미지를 1.5배로 돌려준다.", [], { counter: true, counterMult: 1.5 }),
 
   new Skill("역린", "드래곤", 120, 100, 10, 0, "atk", null, "2~3턴 동안 마구 난동 부려서 공격한다. 난동 부린 뒤에는 혼란에 빠진다.", [{ name: "자동" }], { touch: true }),
 
@@ -63,15 +64,18 @@ export const atkSkills = [
   new Skill("엄청난힘", "격투", 120, 100, 5, 0, "atk", null, "사용 후 사용자의 공격과 방어가 1랭크 떨어진다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "atk", value: -1 }, { stat: "def", value: -1 }] }], { touch: true }),
   new Skill("암해머", "격투", 100, 90, 10, 0, "atk", null, "사용 후 사용자의 스피드가 1랭크 떨어진다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "atk", value: -1 }], { touch: true, punch: true }),
   new Skill("대폭발", "노말", 250, 100, 5, 0, "atk", null, "큰 폭발로 주위에 있는 모든 것을 공격한다. 사용한 뒤에 기절한다.", [{ name: "자폭" }], {}),
+  new Skill("자폭", "노말", 200, 100, 5, 0, "atk", null, "폭발하여 주위의 모든 것을 공격한다. 사용한 뒤에 기절한다.", [{ name: "자폭" }], {}),
 
   // 랭크 변화 (상대)
   new Skill("소울크래시", "페어리", 75, 100, 15, 0, "atk", null, "상대의 기를 꺾어 상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "def", value: -1 }], { touch: true }),
   new Skill("로킥", "격투", 65, 100, 20, 0, "atk", null, "상대의 다리를 노려 공격하여 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], { touch: true }),
   new Skill("암석봉인", "바위", 60, 95, 15, 0, "atk", null, "상대방의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
   new Skill("드럼어택", "풀", 80, 100, 10, 0, "atk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }]),
+  new Skill("달려들기", "벌레", 50, 100, 20, 0, "atk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], { touch: true }),
 
   new Skill("깨물어부수기", "악", 80, 100, 15, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 20, stat: "def", target: "def", value: -1 }], { touch: true, bite: true }),
   new Skill("아쿠아브레이크", "물", 85, 100, 10, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 20, stat: "def", target: "def", value: -1 }], { touch: true }),
+  new Skill("쉘블레이드", "물", 75, 95, 10, 0, "atk", null, "50% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 50, stat: "def", target: "def", value: -1 }], { touch: true, slice: true }),
   new Skill("치근거리기", "페어리", 90, 90, 10, 0, "atk", null, "10% 확률로 상대의 공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "atk", target: "def", value: -1 }], { touch: true }),
   new Skill("덤벼들기", "벌레", 80, 100, 15, 0, "atk", null, "상대방의 공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "atk", target: "def", value: -1 }], { touch: true }),
 
@@ -84,11 +88,14 @@ export const atkSkills = [
   new Skill("성스러운칼", "격투", 90, 100, 15, 0, "atk", null, "상대의 능력 변화에 상관없이 데미지를 준다.", [{ name: "천진" }], { touch: true, slice: true }),
   new Skill("DD래리어트", "악", 85, 100, 10, 0, "atk", null, "상대의 능력 변화에 상관없이 데미지를 준다.", [{ name: "천진" }], { touch: true }),
   new Skill("객기", "노말", 70, 100, 20, 0, "atk", null, "자신이 독, 마비, 화상 상태일 때 기술의 위력이 2배가 된다.", [], { touch: true }),
+  new Skill("애크러뱃", "비행", 55, 100, 15, 0, "atk", null, "자신이 도구를 지니고 있지 않으면 위력이 2배가 된다.", [], { touch: true }),
+  new Skill("자이로볼", "강철", "-", 100, 5, 0, "atk", null, "자신이 상대보다 느릴수록 위력이 올라간다.", [], { touch: true }),
 
   // 일격기
   new Skill("땅가르기", "땅", "-", 30, 5, 0, "atk", null, "땅이 갈라진 곳에 상대를 떨어뜨려 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true }),
   new Skill("절대영도", "얼음", "-", 30, 5, 0, "atk", null, "절대영도의 추위로 상대를 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true }),
   new Skill("가위자르기", "노말", "-", 30, 5, 0, "atk", null, "큰 집게로 상대를 베어 갈라 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true, touch: true }),
+  new Skill("뿔드릴", "노말", "-", 30, 5, 0, "atk", null, "회전하는 뿔을 찔러 넣어 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true, touch: true }),
 
   // 데미지 고정
   new Skill("지구던지기", "격투", "-", 100, 20, 0, "atk", null, "자신의 레벨과 똑같은 데미지를 상대에게 준다.", [], { noText: true, touch: true }),
@@ -128,6 +135,7 @@ export const atkSkills = [
   new Skill("성스러운불꽃", "불꽃", 100, 95, 5, 0, "atk", null, "50%의 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 50 }]),
   new Skill("플레어드라이브", "불꽃", 120, 100, 15, 0, "atk", null, "대상에게 준 피해의 ⅓만큼 반동 피해를 받는다. 10% 확률로 상대를 화상 상태로 만든다", [{ name: "반동" }, { name: "화상", probability: 10 }], { touch: true, rebound: true }),
   new Skill("불꽃펀치", "불꽃", 75, 100, 15, 0, "atk", null, "10% 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 10 }], { touch: true, punch: true }),
+  new Skill("블레이즈킥", "불꽃", 85, 90, 10, 0, "atk", null, "급소에 맞기 쉽고 10% 확률로 상대를 화상 상태로 만든다.", [{ name: "급소" }, { name: "화상", probability: 10 }], { touch: true }),
   new Skill("불꽃엄니", "불꽃", 65, 95, 15, 0, "atk", null, "10% 확률로 상대를 화상 상태로 만들거나 풀죽게 만든다.", [{ name: "화상", probability: 10 }, { name: "풀죽음", probability: 10 }], { touch: true, bite: true }),
 
   // 마비
@@ -160,6 +168,7 @@ export const atkSkills = [
   new Skill("섀도크루", "고스트", 70, 100, 15, 0, "atk", null, "급소에 맞을 확률이 높다.", [{ name: "급소" }], { touch: true }),
   new Skill("깜짝베기", "악", 70, 100, 15, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true, slice: true }),
   new Skill("사이코커터", "에스퍼", 70, 100, 20, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { slice: true }),
+  new Skill("아쿠아커터", "물", 70, 100, 20, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { slice: true }),
   new Skill("드릴라이너", "땅", 80, 95, 10, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true }),
   new Skill("리프블레이드", "풀", 90, 100, 15, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true, slice: true }),
   new Skill("스톤에지", "바위", 100, 80, 5, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], {}),

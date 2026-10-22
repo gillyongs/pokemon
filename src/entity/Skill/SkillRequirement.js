@@ -17,10 +17,17 @@ function skillRequirementSearch(name) {
       const pokemon = battle[battle.turn.atk];
       const reflectSkill = battle[battle.turn.def].turn.useSkill;
 
-      if (reflectSkill === null || reflectSkill.stype !== obj.stat) {
+      if (reflectSkill === null) {
         return false;
       }
-      if (pokemon.turn.recentDamageGet === null) {
+      if (obj.stat === "all") {
+        if (reflectSkill.stype !== "atk" && reflectSkill.stype !== "catk") {
+          return false;
+        }
+      } else if (reflectSkill.stype !== obj.stat) {
+        return false;
+      }
+      if (pokemon.turn.recentDamageGet === null || pokemon.turn.recentDamageGet <= 0) {
         return false;
       }
       return true;

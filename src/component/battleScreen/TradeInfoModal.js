@@ -65,6 +65,10 @@ const TradeInfoModal = ({ pokemon, onClose }) => {
   };
 
   const handleItemClick = () => {
+    if (!p.item) {
+      setInfoText("지닌 아이템이 없습니다.");
+      return;
+    }
     const desc = p.itemText || "아이템 설명이 없습니다.";
     setInfoText(`[${p.item}] ${desc}`);
   };
@@ -95,7 +99,7 @@ const TradeInfoModal = ({ pokemon, onClose }) => {
             </div>
             <div style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "0.95rem", whiteSpace: "nowrap" }}>
               <span style={{ color: "#aaa", width: "65px" }}>지닌물건:</span>
-              <ClickableBadge onClick={handleItemClick}>{p.item}</ClickableBadge>
+              <ClickableBadge onClick={handleItemClick}>{p.item || "없음"}</ClickableBadge>
             </div>
           </div>
         </div>

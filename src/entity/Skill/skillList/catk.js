@@ -7,8 +7,11 @@ export const catkSkills = [
   new Skill("미러코트", "에스퍼", "-", 100, 20, -5, "catk", { name: "반사", stat: "catk" }, "상대에게 받은 특수공격의 데미지를 2배로 만들어 그 상대에게 돌려준다. (우선도-5)", [], { counter: true }),
   new Skill("클리어스모그", "독", 50, "-", 15, 0, "catk", null, "상대의 능력 변화를 원래대로 돌린다.", [{ name: "능력치초기화" }], {}),
   new Skill("메테오빔", "바위", 120, 90, 10, 0, "catk", null, "1턴째에 특수공격을 1랭크 올리고 2턴째에 상대를 공격한다.", [], { charge: { head: "name", text: "에게서 우주의 힘이 넘쳐난다!", rankUpStat: "catk" } }),
+  new Skill("솔라빔", "풀", 120, 100, 10, 0, "catk", null, "1턴째에 빛을 모으고 2턴째에 상대를 공격한다. 쾌청이면 즉시 공격한다.", [], { charge: { head: "names", text: " 빛을 흡수했다!", weatherSkip: "sunny" } }),
+  new Skill("일렉트로빔", "전기", 130, 100, 10, 0, "catk", null, "1턴째에 특수공격을 올리고 2턴째에 상대를 공격한다. 비가 내리면 즉시 공격한다.", [], { charge: { head: "names", text: " 전기를 모으고 있다!", rankUpStat: "catk", weatherSkip: "rain" } }),
   new Skill("물거품아리아", "물", 90, 100, 10, 0, "catk", null, "노래 부르는 것으로 많은 벌룬을 방출한다. 기술에 맞으면 화상이 낫는다.", [{ name: "화상치료" }], { sound: true }),
   new Skill("마그마스톰", "불꽃", 100, 75, 5, 0, "catk", null, "불꽃 속에 4~5턴 동안 상대를 가두어 공격한다. 상대는 교체할 수 없고 매 턴 HP의 ⅛의 피해를 입는다.", [{ name: "구속", skillName: "마그마스톰", text: "마그마의 소용돌이에 갇혔다!" }], {}),
+  new Skill("회오리불꽃", "불꽃", 35, 85, 15, 0, "catk", null, "불꽃 속에 4~5턴 동안 상대를 가두어 공격한다. 상대는 교체할 수 없고 매 턴 HP의 ⅛의 피해를 입는다.", [{ name: "구속", skillName: "회오리불꽃", text: "불꽃의 소용돌이에 갇혔다!" }], {}),
   new Skill("카타스트로피", "악", "-", 90, 10, 0, "catk", null, "파멸적인 재앙에 휩쓸리게 하여 상대의 HP를 절반으로 만든다.", [], { noText: true }),
   new Skill("자연의분노", "페어리", "-", 90, 10, 0, "catk", null, "자연의 분노를 상대에게 부딪쳐 상대의 HP를 절반으로 만든다.", [], { noText: true }),
   new Skill("어시스트파워", "에스퍼", 20, 100, 10, 0, "catk", null, "자신의 능력이 올라가 있는 만큼 위력이 오른다.", [], {}),
@@ -28,6 +31,7 @@ export const catkSkills = [
   new Skill("바크아웃", "악", 55, 95, 15, 0, "catk", null, "상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "def", value: -1 }], { sound: true }),
   new Skill("매지컬플레임", "불꽃", 75, 100, 10, 0, "catk", null, "상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "def", value: -1 }], {}),
   new Skill("얼다바람", "얼음", 55, 95, 15, 0, "catk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
+  new Skill("머드샷", "땅", 55, 95, 15, 0, "catk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
 
   new Skill("문포스", "페어리", 95, 100, 15, 0, "catk", null, "30% 확률로 상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 30, stat: "catk", target: "def", value: -1 }], {}),
   new Skill("섀도볼", "고스트", 80, 100, 15, 0, "catk", null, "20% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 20, stat: "cdef", target: "def", value: -1 }], {}),
@@ -53,6 +57,8 @@ export const catkSkills = [
   new Skill("열풍", "불꽃", 95, 90, 10, 0, "catk", null, "10% 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 10 }], {}),
   new Skill("화염방사", "불꽃", 90, 100, 15, 0, "catk", null, "10% 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 10 }], {}),
   new Skill("열탕", "물", 80, 100, 15, 0, "catk", null, "30% 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 30 }], {}),
+  new Skill("분연", "불꽃", 80, 100, 15, 0, "catk", null, "30% 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 30 }], {}),
+  new Skill("열사의대지", "땅", 70, 100, 10, 0, "catk", null, "30% 확률로 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 30 }], {}),
   // 독
   new Skill("오물폭탄", "독", 90, 100, 10, 0, "catk", null, "30% 확률로 상대를 독 상태로 만든다.", [{ name: "독", probability: 30 }], {}),
   new Skill("오물웨이브", "독", 95, 100, 10, 0, "catk", null, "10% 확률로 상대를 독 상태로 만든다.", [{ name: "독", probability: 10 }], {}),
@@ -91,6 +97,7 @@ export const catkSkills = [
 
   // 기타 =========================================================================
   new Skill("하이드로펌프", "물", 110, 80, 5, 0, "catk", null, "맹렬한 기세로 대량의 물을 상대에게 발사하여 공격한다.", []),
+  new Skill("파동탄", "격투", 80, "-", 20, 0, "catk", null, "반드시 명중하는 파동탄을 발사한다.", [], {}),
   new Skill("파도타기", "물", 90, 100, 15, 0, "catk", null, "큰 파도로 자기 주위에 있는 모든 포켓몬을 공격한다.", [], {}),
   new Skill("근원의파동", "물", 110, 85, 10, 0, "catk", null, "파랗게 빛나는 무수한 광선으로 모든 상대를 공격한다.", []),
   new Skill("용의파동", "드래곤", 85, 100, 10, 0, "catk", null, "커다란 입에서 충격파를 일으켜 상대를 공격한다.", [], {}),

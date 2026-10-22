@@ -51,9 +51,10 @@ export const damageCalculate = (battle, obj, ai) => {
     return diff > 0 ? diff : 0;
   }
   if (skill.feature.counter) {
-    // 미러코트, 카운터
+    // 미러코트, 카운터, 메탈버스트
     // 성공 실패 조건은 skillRequirement에서 관리
-    return Math.floor(attackPokemon.turn.recentDamageGet) * 2;
+    const mult = skill.feature.counterMult || 2;
+    return Math.floor(attackPokemon.turn.recentDamageGet * mult);
   }
 
   // 스탯 ================================================================================================================
@@ -638,7 +639,7 @@ const powerCalculate = (battle, skill, obj, ai) => {
   const atk = battle[battle.turn.atk];
   let power = skill.power;
 
-  // 인공지능 데미지 계산시 기대값으로 측정
+  // 인공지능 데미지 계산시 연속기는 기대값으로 측정
   if (ai) {
     if (skill.name === "트리플악셀") return 94;
     if (skill.name === "수류연타") return 75;
@@ -660,22 +661,11 @@ const powerCalculate = (battle, skill, obj, ai) => {
       if (speedCheck(battle) === "npc") return power * 2;
       else return power;
     }
-    if (skill.name === "일렉트릭볼") {
-      const atkSpeed = Math.max(speedCalculate(atk, atk?.origin?.stat?.speed, battle) || 1, 1);
-      const defPokemon = battle[battle.turn.def];
-      const defSpeed = Math.max(speedCalculate(defPokemon, defPokemon?.origin?.stat?.speed, battle) || 1, 1);
-      const ratio = atkSpeed / defSpeed;
-      if (ratio >= 4) return 150;
-      else if (ratio >= 3) return 120;
-      else if (ratio >= 2) return 80;
-      else if (ratio >= 1) return 60;
-      else return 40;
-    }
   }
   const defItem = battle[battle.turn.def].item;
   if (skill.name === "탁쳐서떨구기") {
     // 상대한테 도구가 있고 떨굴 수 있는 아이템이면 위력 1.5배
-    if (defItem !== null && !noNullItem.includes(defItem)) power *= 1.5;
+    if (defItem !== null && defItem !== "" && !noNullItem.includes(defItem)) power *= 1.5;
   }
   if (skill.name === "아가미물기") {
     // 먼저 공격하면 위력 2배
@@ -723,6 +713,24 @@ const powerCalculate = (battle, skill, obj, ai) => {
     else if (ratio >= 2) power = 80;
     else if (ratio >= 1) power = 60;
     else power = 40;
+  }
+  if (skill.name === "애크러뱃") {
+    if (atk.item === null || atk.item === undefined || atk.item === "") {
+      power *= 2;
+    }
+  }
+  if (skill.name === "자이로볼") {
+    const atkSpeed = Math.max(speedCalculate(atk, atk?.origin?.stat?.speed, battle) || 1, 1);
+    const defPokemon = battle[battle.turn.def];
+    const defSpeed = Math.max(speedCalculate(defPokemon, defPokemon?.origin?.stat?.speed, battle) || 1, 1);
+    const calculatedPower = Math.floor((25 * defSpeed) / atkSpeed) + 1;
+    power = Math.max(1, Math.min(150, calculatedPower));
+  }
+  if (skill.name === "솔라빔") {
+    const weather = battle.field.weather;
+    if (weather.isRainy || weather.isSandstorm || weather.get() === "설경" || weather.get() === "눈") {
+      power = Math.floor(power * 0.5);
+    }
   }
   return Math.floor(power);
 };

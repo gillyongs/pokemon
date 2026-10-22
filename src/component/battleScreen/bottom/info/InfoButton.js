@@ -76,14 +76,11 @@ const InfoButton = ({ pokemon, type, setText, bench }) => {
   let handleClick;
   let itemText;
   if (type === "item") {
-    imgSrc = `/pokemon/img/item/${pokemon.item}.webp`;
+    const hasItem = Boolean(pokemon.item && pokemon.item !== "");
+    imgSrc = hasItem ? `/pokemon/img/item/${pokemon.item}.webp` : `/pokemon/img/item/null.webp`;
     innerText = "지닌아이템";
-    innerContent = pokemon.item;
-    itemText = pokemon.itemText;
-    if (pokemon.item === null) {
-      innerContent = "없음";
-      itemText = "지닌 아이템 없음";
-    }
+    innerContent = hasItem ? pokemon.item : "없음";
+    itemText = hasItem ? (pokemon.itemText || `${pokemon.item}`) : "지닌 아이템 없음";
     handleClick = (e) => {
       e.stopPropagation();
       consecutiveClickCount = 0;
