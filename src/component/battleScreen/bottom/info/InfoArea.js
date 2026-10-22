@@ -25,8 +25,10 @@ export default InfoArea;
 const PokemonImage = styled.img`
   position: absolute;
   left: 2vh;
-  top: 10.5vh;
+  top: 9vh;
   width: 12vh;
+  height: 12vh;
+  object-fit: contain;
 `;
 
 const HeaderCard = styled.div`

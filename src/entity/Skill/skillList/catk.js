@@ -36,6 +36,7 @@ export const catkSkills = [
   new Skill("머드샷", "땅", 55, 95, 15, 0, "catk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
 
   new Skill("문포스", "페어리", 95, 100, 15, 0, "catk", null, "30% 확률로 상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 30, stat: "catk", target: "def", value: -1 }], {}),
+  new Skill("파멸의빛", "페어리", 140, 90, 5, 0, "catk", null, "자신도 대상에게 준 피해의 ½만큼 반동 피해를 받는다.", [{ name: "반동", ratio: 2 }], { rebound: true }),
   new Skill("섀도볼", "고스트", 80, 100, 15, 0, "catk", null, "20% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 20, stat: "cdef", target: "def", value: -1 }], {}),
   new Skill("기합구슬", "격투", 120, 70, 5, 0, "catk", null, "10%의 확률로 상대의 특수방어를 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "cdef", target: "def", value: -1 }], {}),
   new Skill("대지의힘", "땅", 90, 100, 10, 0, "catk", null, "10%의 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "cdef", target: "def", value: -1 }]),

@@ -130,6 +130,15 @@ export const megaDataList = {
       abil: "적응력",
     },
   ],
+  // 플라엣테
+  "0670": [
+    {
+      stone: "플라엣테나이트",
+      megaFormId: "0670-m",
+      name: "메가플라엣테",
+      abil: "페어리오라",
+    },
+  ],
 };
 
 /**
