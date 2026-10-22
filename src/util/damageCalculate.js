@@ -3,6 +3,7 @@ import { getMultiplier } from "../function/rankStat";
 import { noNullItem } from "../entity/Item";
 import { isAilmentCheck } from "../function/ailment";
 import { speedCheck, speedCalculate } from "./speedCheck";
+import { getWeatherBallType } from "./weatherBall";
 
 export const damageCalculate = (battle, obj, ai) => {
   // 데미지를 "계산"만 해서 주는 함수
@@ -13,7 +14,11 @@ export const damageCalculate = (battle, obj, ai) => {
   const defensePokemon = battle[battle.turn.def];
 
   const skillNumber = battle.turn.atkSN;
-  const skill = attackPokemon.origin.skill[skillNumber]; // 시전 스킬
+  let skill = attackPokemon.origin.skill[skillNumber]; // 시전 스킬
+  if (skill?.name === "웨더볼") {
+    const wType = getWeatherBallType(battle.field?.weather);
+    skill = { ...skill, type: wType };
+  }
 
   const atkAbil = attackPokemon.abil;
   const defAbil = defensePokemon.abil;
@@ -49,6 +54,10 @@ export const damageCalculate = (battle, obj, ai) => {
     if (ai && (defensePokemon.type1 === "고스트" || defensePokemon.type2 === "고스트")) return 0;
     const diff = defensePokemon.hp - attackPokemon.hp;
     return diff > 0 ? diff : 0;
+  }
+  if (skill.name === "목숨걸기") {
+    if (ai && (battle.player.type1 === "고스트" || battle.player.type2 === "고스트")) return 0;
+    return attackPokemon.hp;
   }
   if (skill.feature.counter) {
     // 미러코트, 카운터, 메탈버스트
@@ -730,6 +739,12 @@ const powerCalculate = (battle, skill, obj, ai) => {
     const weather = battle.field.weather;
     if (weather.isRainy || weather.isSandstorm || weather.get() === "설경" || weather.get() === "눈") {
       power = Math.floor(power * 0.5);
+    }
+  }
+  if (skill.name === "웨더볼") {
+    const weather = battle.field?.weather;
+    if (weather && weather.get() !== null) {
+      power = 100;
     }
   }
   return Math.floor(power);

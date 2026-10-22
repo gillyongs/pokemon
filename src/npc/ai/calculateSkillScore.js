@@ -13,6 +13,12 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   let log; // 가중치 계산 로그 문자열
   log = score;
 
+  // 일단 안쓰게 해놓은거
+  if (skill.name === "배북" || skill.name === "목숨걸기") {
+    skObj.log.score = "미정";
+    return -999;
+  }
+
   // 무효 변화기 처리
   if (skill.name === "전기자석파" && (player.type1 === "땅" || player.type2 === "땅")) {
     skObj.log.score = "불발";

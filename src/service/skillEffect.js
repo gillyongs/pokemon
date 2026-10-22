@@ -22,6 +22,7 @@ export const skillEffectsAfter = (bt, enqueue) => {
   // skillUse 끝부분에서 처리함
   // 스킬이 빗나갔을때에도 발동되는 부가효과만 여기서 처리.
   // 무릎차기 빗나감, 자폭, 철제광선
+  // 목숨걸기는 명중했을때만 쓰러짐
   const skillEffectList = bt[bt.turn.atk].turn.useSkill?.skillEffectList;
   if (skillEffectList && typeof skillEffectList[Symbol.iterator] === "function") {
     const afterEffectNames = ["빗나감패널티", "자폭", "철제광선반동"];

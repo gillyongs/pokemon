@@ -588,6 +588,23 @@ function skillEffectSearch(name) {
         });
       }
     },
+    배북: (battle, enqueue, skillEffect) => {
+      const atk = battle.turn.atk;
+      const atkPokemon = battle[atk];
+      const needHp = Math.floor(atkPokemon.origin.hp / 2);
+
+      if (atkPokemon.hp <= needHp || atkPokemon.tempStatus.rank.atk >= 6) {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+        return;
+      }
+
+      atkPokemon.getDamage(battle, enqueue, needHp, `${atkPokemon.names} 체력을 깎아 파워를 최대로 올렸다!`);
+      if (atkPokemon.faint) return;
+      atkPokemon.rankUp(battle, enqueue, "atk", 12);
+    },
     대타출동: (battle, enqueue, skillEffect) => {
       const atk = battle.turn.atk;
       const atkPokemon = battle[atk];
@@ -683,6 +700,9 @@ function skillEffectSearch(name) {
     },
     초승달춤: (battle, enqueue, skillEffect) => {
       battle.field[battle.turn.atk].handleLunarDance(battle, enqueue);
+    },
+    목숨걸기: (battle, enqueue, skillEffect) => {
+      battle[battle.turn.atk].handleFaint(battle, enqueue);
     },
     자폭: (battle, enqueue, skillEffect) => {
       battle[battle.turn.atk].handleFaint(battle, enqueue);

@@ -1,10 +1,12 @@
 import { useRef } from "react";
 import styled from "styled-components";
 import { getTypeEffectText } from "../../../../util/typeEffectCalculate";
+import { getWeatherBallType } from "../../../../util/weatherBall";
 
 const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {
   let pp = battle.player.pp[skillNumber];
   let skill = battle.player.origin.skill[skillNumber];
+  const displayType = skill?.name === "웨더볼" ? getWeatherBallType(battle.field?.weather) : skill?.type;
 
   const sn = getNumberText(skillNumber);
 
@@ -115,9 +117,9 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
         handleSkillClick(skillNumber);
       }}
     >
-      <ICON src={`/pokemon/img/type/${skill.type}.svg`} alt={skill.name} />
+      <ICON src={`/pokemon/img/type/${displayType}.svg`} alt={skill.name} />
       <NAME skname={skill.name}>{skill.name}</NAME>
-      <EFFECT>{getTypeEffectText(battle.player, skill.type, battle.npc.type1, battle.npc.type2, skill.stype, skill.name)}</EFFECT>
+      <EFFECT>{getTypeEffectText(battle.player, displayType, battle.npc.type1, battle.npc.type2, skill.stype, skill.name)}</EFFECT>
       <PP>
         {pp}/{skill.pp}
       </PP>

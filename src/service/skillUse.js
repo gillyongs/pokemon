@@ -6,12 +6,18 @@ import { beforeSkillCheck, afterSkillCheck } from "./skillCheck";
 import { rank } from "../function/rankStat";
 import { random } from "../util/randomCheck";
 import { getAccuracy } from "../function/accuracyCalculate";
+import { getWeatherBallType } from "../util/weatherBall";
 
 export const skillUse = (bt, enqueue) => {
   const skillNumber = bt.turn.atkSN;
   const atk = bt[bt.turn.atk];
   const def = bt[bt.turn.def];
-  const skill = atk.turn.useSkill;
+  let skill = atk.turn.useSkill;
+  if (skill?.name === "웨더볼") {
+    const wType = getWeatherBallType(bt.field?.weather);
+    skill = { ...skill, type: wType };
+    atk.turn.useSkill = skill;
+  }
   const skillType = skill.stype;
 
   if (beforeSkillCheck(bt, enqueue) === false) {

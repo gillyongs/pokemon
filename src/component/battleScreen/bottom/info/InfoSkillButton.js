@@ -1,17 +1,19 @@
 import styled from "styled-components";
 import { getTypeEffectText } from "../../../../util/typeEffectCalculate";
+import { getWeatherBallType } from "../../../../util/weatherBall";
 
 const InfoSkillButton = ({ battle, skillNumber, pokemon, setText }) => {
   if (!pokemon) pokemon = battle.player;
   let skill = pokemon.origin.skill[skillNumber];
   let pp = pokemon.pp[skillNumber];
   const sn = getNumberText(skillNumber);
+  const displayType = skill?.name === "웨더볼" ? getWeatherBallType(battle.field?.weather) : skill?.type;
 
   return (
     <ButtonContainer className={sn} onClick={() => setText(skill.text)}>
-      <SkillTypeIcon src={`/pokemon/img/type/${skill.type}.svg`} alt={skill.name} />
+      <SkillTypeIcon src={`/pokemon/img/type/${displayType}.svg`} alt={skill.name} />
       <SkillName>{skill.name}</SkillName>
-      <SkillEffect>{getTypeEffectText(pokemon, skill.type, battle.npc.type1, battle.npc.type2, skill.stype, skill.name)}</SkillEffect>
+      <SkillEffect>{getTypeEffectText(pokemon, displayType, battle.npc.type1, battle.npc.type2, skill.stype, skill.name)}</SkillEffect>
       <SkillPP>
         {pp}/{skill.pp}
       </SkillPP>

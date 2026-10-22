@@ -57,4 +57,5 @@ export const bufSkills = [
   new Skill("나비춤", "벌레", "-", "-", 20, 0, "buf", null, "자신의 특수공격, 특수방어, 스피드를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "catk", value: 1 }, { stat: "cdef", value: 1 }, { stat: "speed", value: 1 }] }]),
   new Skill("껍질깨기", "노말", "-", "-", 15, 0, "buf", null, "자신의 방어와 특수방어를 1랭크 떨어뜨리고 공격과 특수공격, 스피드를 2랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "def", value: -1}, {stat: "cdef", value: -1}, {stat: "atk", value: 2}, {stat: "catk", value: 2}, {stat: "speed", value: 2}] }], {}),
   new Skill("지오컨트롤", "페어리", "-", "-", 10, 0, "buf", null, "1턴째에 에너지를 흡수하여 2턴째에 특수공격, 특수방어, 스피드를 2랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "catk", value: 2}, {stat: "cdef", value: 2}, {stat: "speed", value: 2}] }], { charge: { text: " 파워를 모으고 있다!", head: "names" } }),
+  new Skill("배북", "노말", "-", "-", 10, 0, "buf", { name: "배북" }, "자신의 최대 HP의 절반만큼 체력을 깎아 공격을 최대치까지 올린다.", [{ name: "배북" }], {}),
 ];

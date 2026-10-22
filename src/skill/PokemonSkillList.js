@@ -1,4 +1,4 @@
-import { allSkills } from "../entity/Skill/skillList";
+import { allSkills } from "../entity/Skill/skillList.js";
 
 // 미구현된 주요 포켓몬 기술 리스트
 export const UNIMPLEMENTED_SKILLS = [
@@ -73,16 +73,6 @@ export const UNIMPLEMENTED_SKILLS = [
     isImplemented: false,
   },
   {
-    name: "배북",
-    type: "노말",
-    category: "변화",
-    power: "-",
-    accur: "-",
-    pp: 10,
-    text: "자신의 최대 HP의 절반만큼 체력을 깎아 공격을 최대치까지 올린다.",
-    isImplemented: false,
-  },
-  {
     name: "저주",
     type: "고스트",
     category: "변화",
@@ -154,16 +144,6 @@ export const UNIMPLEMENTED_SKILLS = [
     isImplemented: false,
   },
   {
-    name: "웨더볼",
-    type: "노말",
-    category: "특수",
-    power: 50,
-    accur: 100,
-    pp: 10,
-    text: "날씨에 따라 기술의 타입과 위력이 바뀐다.",
-    isImplemented: false,
-  },
-  {
     name: "불사르기",
     type: "불꽃",
     category: "특수",
@@ -191,16 +171,6 @@ export const UNIMPLEMENTED_SKILLS = [
     accur: "-",
     pp: 30,
     text: "숨을 깊게 들이쉬어 기를 모은다. 기술이 급소에 맞기 쉬워진다.",
-    isImplemented: false,
-  },
-  {
-    name: "목숨걸기",
-    type: "격투",
-    category: "특수",
-    power: "-",
-    accur: 100,
-    pp: 5,
-    text: "자신은 기절하지만 자신의 현재 HP만큼 상대에게 데미지를 준다.",
     isImplemented: false,
   },
   {
