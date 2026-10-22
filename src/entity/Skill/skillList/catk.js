@@ -42,7 +42,7 @@ export const catkSkills = [
   new Skill("대지의힘", "땅", 90, 100, 10, 0, "catk", null, "10%의 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "cdef", target: "def", value: -1 }]),
   new Skill("사이코키네시스", "에스퍼", 90, 100, 10, 0, "catk", null, "10% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "cdef", target: "def", value: -1 }], {}),
   new Skill("에너지볼", "풀", 90, 100, 10, 0, "catk", null, "10% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "cdef", target: "def", value: -1 }], {}),
-  new Skill("러스트캐논", "강철", 80, 100, 10, 0, "catk", null, "10% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "cdef", target: "def", value: -1 }], {}),
+  new Skill("러스터캐논", "강철", 80, 100, 10, 0, "catk", null, "10% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "cdef", target: "def", value: -1 }], {}),
   new Skill("벌레의야단법석", "벌레", 90, 100, 10, 0, "catk", null, "10% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "cdef", target: "def", value: -1 }], { sound: true }),
 
   // 랭크 변화 (자신)

@@ -80,6 +80,16 @@ export const PokemonRank = {
     if (abilText) rankText = `${abilText} ${rankText}`;
 
     enqueue({ battle, text: rankText });
+
+    // 승기 / 오기: 상대에 의해 능력치가 떨어졌을 때 발동
+    if (isOpponent && rankValue < 0) {
+      // 끈끈넷에 발동하는거 맞음
+      if (this.abil === "승기") {
+        this.rankUp(battle, enqueue, "catk", 2, "[특성 승기]", false);
+      } else if (this.abil === "오기") {
+        this.rankUp(battle, enqueue, "atk", 2, "[특성 오기]", false);
+      }
+    }
   },
 
   rankUp(battle, enqueue, rankType, rankValue, abilText, isOpponent, isMoldBreaker) {

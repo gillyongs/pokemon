@@ -1,5 +1,6 @@
 import { applyAilment } from "../function/ailment";
 import { random } from "../util/randomCheck";
+import { typeCheckOnBattle } from "../util/typeEffectCalculate";
 
 export const applyOnHitEvents = (battle, enqueue, substitute) => {
   // 피격시 발동되는 특성, 아이템 모음
@@ -20,6 +21,15 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
 
   if (substitute) return;
   // 대타출동 상태로 맞을땐 대부분의 피격 이벤트가 발생하지 않음
+
+  const noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
+  if (defPokemon.item === "슈케열매" && useSkill?.type === "땅" && !noBerryAbil.includes(atkPokemon.abil)) {
+    const typeDamage = typeCheckOnBattle(battle, useSkill.type, defPokemon.type1, defPokemon.type2);
+    if (typeDamage > 1) {
+      defPokemon.item = null;
+      enqueue({ battle, text: `${defPokemon.names} 슈케열매로 땅타입 기술의 위력을 반감시켰다!` });
+    }
+  }
 
   if (defPokemon.abil === "열교환" && !defPokemon.faint && useSkill.type === "불꽃" && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
     defPokemon.rankUp(battle, enqueue, "atk", 1, "[특성 열교환]");

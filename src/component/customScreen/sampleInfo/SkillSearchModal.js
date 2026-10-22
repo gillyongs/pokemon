@@ -8,6 +8,11 @@ const ALL_TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투
 
 const CATEGORIES = ["전체", "물리", "특수", "변화"];
 
+export const isOnlyPrioritySkillText = (text) => {
+  if (!text || typeof text !== "string") return false;
+  return /^우선도\s*[+-]?\d+\.?$/i.test(text.trim());
+};
+
 const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onClose }) => {
   const [selectedSkills, setSelectedSkills] = useState(() => {
     if (Array.isArray(equippedSkills)) {
@@ -250,13 +255,16 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
                 const isSelected = selectedSkills.includes(item.name);
                 const isClickable = item.isImplemented;
 
+                const descText = item.originText || item.text;
+                const isOnlyPriority = isOnlyPrioritySkillText(descText);
+
                 let tooltip = "";
                 if (!item.isImplemented) {
                   tooltip = `${item.name} (미구현 기술로 선택할 수 없습니다)`;
                 } else if (isSelected) {
                   tooltip = `${item.name} (클릭하여 슬롯에서 제외)`;
                 } else {
-                  tooltip = `${item.name}: ${item.originText || item.text}`;
+                  tooltip = isOnlyPriority || !descText ? item.name : `${item.name}: ${descText}`;
                 }
 
                 return (
@@ -299,7 +307,9 @@ const SkillSearchModal = ({ pokemon, equippedSkills = {}, onSave, onSelect, onCl
                         )}
                       </StatRow>
 
-                      <SkillDesc $isImplemented={item.isImplemented}>{item.originText || item.text}</SkillDesc>
+                      {!isOnlyPriority && descText && (
+                        <SkillDesc $isImplemented={item.isImplemented}>{descText}</SkillDesc>
+                      )}
                     </InfoCol>
                   </SkillCard>
                 );

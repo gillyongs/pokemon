@@ -5,7 +5,7 @@ import { itemText } from "../../../entity/Item";
 import skillList from "../../../entity/Skill/skillList";
 import ItemSearchModal from "./ItemSearchModal";
 import AbilSearchModal from "./AbilSearchModal";
-import SkillSearchModal from "./SkillSearchModal";
+import SkillSearchModal, { isOnlyPrioritySkillText } from "./SkillSearchModal";
 import StatAdjustmentModal from "./StatAdjustmentModal";
 
 const HexagonGraph = ({ origin }) => {
@@ -188,7 +188,8 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
   };
 
   const showSkillDesc = (skill) => {
-    const desc = skill.text || "설명이 없습니다.";
+    const isOnlyPriority = isOnlyPrioritySkillText(skill.text);
+    const desc = isOnlyPriority || !skill.text ? "설명이 없습니다." : skill.text;
     setInfoText(`[${skill.name}] ${desc}`);
   };
 

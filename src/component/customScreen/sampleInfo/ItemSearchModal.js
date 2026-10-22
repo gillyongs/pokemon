@@ -130,6 +130,12 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
     add("풍선");
   }
 
+  // 땅 약점(2배 이상) -> 슈케열매 (단, 특성이 부유인 경우 제외)
+  const isGroundWeak = typeCheck("땅", pokemon.type1, pokemon.type2) > 1 || (pokemon.megaData && typeCheck("땅", pokemon.megaData.type1, pokemon.megaData.type2) > 1);
+  if (isGroundWeak && !abilities.includes("부유")) {
+    add("슈케열매");
+  }
+
   // 특성 관련
   // 특성이 곡예인 경우 -> 하양허브
   if (abilities.includes("곡예")) {
