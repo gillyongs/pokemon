@@ -2,6 +2,12 @@
 export function getAccuracy(bt, skill, attacker) {
   let accur = skill.accur;
 
+  // 대검돌격 필중 보정
+  const defender = bt[bt.turn?.def];
+  if (defender?.tempStatus?.glaiveRush) {
+    return 100;
+  }
+
   // 필중
   if (accur === "-") {
     return 100; //ai 가중치 계산에 사용하므로 100 리턴해줘야함

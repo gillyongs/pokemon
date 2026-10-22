@@ -12,6 +12,10 @@ export const beforeSkillCheck = (bt, enqueue) => {
 
   const atk = bt[bt.turn.atk];
   const useSkill = atk.turn.useSkill;
+  if (atk.tempStatus.glaiveRush) {
+    //대검돌격 후 얼음뭉치로 선공 -> 대검돌격 디메리트 초기화
+    atk.tempStatus.glaiveRush = null;
+  }
 
   // 파괴광선 반동
   // 어지간하면 제일 먼저

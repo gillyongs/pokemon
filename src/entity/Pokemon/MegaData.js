@@ -112,6 +112,15 @@ export const megaDataList = {
       abil: "불면",
     },
   ],
+  // 드닐레이브
+  "0998": [
+    {
+      stone: "드닐레이브나이트",
+      megaFormId: "0998-m",
+      name: "메가드닐레이브",
+      abil: "열교환",
+    },
+  ],
 };
 
 /**

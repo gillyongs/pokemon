@@ -3,17 +3,31 @@ import styled from "styled-components";
 import { itemText } from "../../../entity/Item";
 import { typeCheck } from "../../../util/typeEffectCalculate";
 
+export const isPokemon = (pokemon, target) => {
+  if (!pokemon || !target) return false;
+  return Boolean(
+    pokemon.id?.includes(target) ||
+    pokemon.name?.includes(target) ||
+    pokemon.origin?.name?.includes(target) ||
+    pokemon.origin?.id?.includes(target)
+  );
+};
+
 const EXCLUSIVE_ITEMS = {
-  녹슨검: (p) => p?.id === "자시안" || p?.name === "자시안",
-  녹슨방패: (p) => p?.id === "자마젠타" || p?.name === "자마젠타",
-  리자몽나이트X: (p) => ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.id) || ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.name),
-  리자몽나이트Y: (p) => ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.id) || ["리자몽", "메가리자몽X", "메가리자몽Y"].includes(p?.name),
-  메타그로스나이트: (p) => p?.id?.includes("메타그로스") || p?.name?.includes("메타그로스"),
-  보만다나이트: (p) => p?.id?.includes("보만다") || p?.name?.includes("보만다"),
-  입치트나이트: (p) => p?.id?.includes("입치트") || p?.name?.includes("입치트"),
-  아쿠스타나이트: (p) => p?.id?.includes("아쿠스타") || p?.name?.includes("아쿠스타"),
-  대짱이나이트: (p) => p?.id?.includes("대짱이") || p?.name?.includes("대짱이"),
-  마기라스나이트: (p) => p?.id?.includes("마기라스") || p?.name?.includes("마기라스"),
+  녹슨검: (p) => isPokemon(p, "자시안"),
+  녹슨방패: (p) => isPokemon(p, "자마젠타"),
+  리자몽나이트X: (p) => isPokemon(p, "리자몽"),
+  리자몽나이트Y: (p) => isPokemon(p, "리자몽"),
+  메타그로스나이트: (p) => isPokemon(p, "메타그로스"),
+  보만다나이트: (p) => isPokemon(p, "보만다"),
+  입치트나이트: (p) => isPokemon(p, "입치트"),
+  아쿠스타나이트: (p) => isPokemon(p, "아쿠스타"),
+  대짱이나이트: (p) => isPokemon(p, "대짱이"),
+  마기라스나이트: (p) => isPokemon(p, "마기라스"),
+  무장조나이트: (p) => isPokemon(p, "무장조"),
+  한카리아스나이트: (p) => isPokemon(p, "한카리아스"),
+  한카리아스나이트Z: (p) => isPokemon(p, "한카리아스"),
+  드닐레이브나이트: (p) => isPokemon(p, "드닐레이브"),
 };
 
 export const getFavoriteItemsForPokemon = (pokemon) => {
@@ -65,16 +79,27 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
     }
   }
 
+  const skills = [1, 2, 3, 4].map((num) => pokemon.skill?.[num] || pokemon.skill?.[String(num)]).filter(Boolean);
+  const skillTypes = skills.map((sk) => sk.type).filter(Boolean);
+  const hasDarkSkill = skillTypes.includes("악");
+  const hasWaterSkill = skillTypes.includes("물");
+  const hasIceSkill = skillTypes.includes("얼음");
+
   // 타입별 데미지 증가 아이템
   if (isAttacker) {
     // 악타입 -> 검은안경
-    if (types.includes("악")) {
+    if (types.includes("악") && hasDarkSkill) {
       add("검은안경");
     }
 
     // 물타입 -> 신비의물방울
-    if (types.includes("물")) {
+    if (types.includes("물") && hasWaterSkill) {
       add("신비의물방울");
+    }
+
+    // 얼음타입 & 얼음기술 -> 녹지않는얼음
+    if (types.includes("얼음") && hasIceSkill) {
+      add("녹지않는얼음");
     }
   }
 
@@ -134,7 +159,7 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
   }
 
   // 물라오스 -> 펀치글러브
-  if (pokemon.id === "물라오스" || pokemon.name === "물라오스") {
+  if (isPokemon(pokemon, "물라오스")) {
     add("펀치글러브");
   }
 
@@ -147,7 +172,8 @@ export const getItemListForPokemon = (pokemon) => {
   const excludedFromAll = new Set();
 
   for (const [itemName, matcher] of Object.entries(EXCLUSIVE_ITEMS)) {
-    if (matcher(pokemon)) {
+    const isMatch = typeof matcher === "function" ? matcher(pokemon) : isPokemon(pokemon, matcher);
+    if (isMatch) {
       exclusiveForThis.push(itemName);
     } else {
       excludedFromAll.add(itemName);

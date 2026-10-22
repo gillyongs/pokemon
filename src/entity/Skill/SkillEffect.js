@@ -325,8 +325,8 @@ function skillEffectSearch(name) {
       if (!isAilmentCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0) {
         // 상대가 상태이상에 걸려있지 않음 + 하품 맞은 상태 아님
         if (battle.field?.terrian?.isElectircField && !def.isFlying(battle, true)) {
-          // 일렉트릭 필드가 깔려있고 상대가 떠있지 않으면 실패함
-          // 잠들때 판정 보는거 아님 그냥 일레트릭필드 적용받는 상태면 하품 실패함
+          // 일렉트릭필드면 실패함 (잠드는 것만 실패하는게 아님 그냥 하품 자체가 실패함)
+          // 미스트필드면 하품은 쓸 수 있음, 잠들지는 않음. 다음턴에 필드 꺼지면 잠듦
           enqueue({
             battle,
             text: "하지만 실패했다!",
@@ -694,6 +694,11 @@ function skillEffectSearch(name) {
       const damage = Math.ceil(atkPokemon.origin.hp / 2);
       const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
       atkPokemon.getDamage(battle, enqueue, damage, text);
+    },
+
+    대검돌격: (battle, enqueue, skillEffect) => {
+      let atkPokemon = battle[battle.turn.atk];
+      atkPokemon.tempStatus.glaiveRush = true;
     },
 
     희망사항: (battle, enqueue, skillEffect) => {

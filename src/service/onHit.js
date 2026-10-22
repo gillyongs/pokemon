@@ -21,6 +21,11 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   if (substitute) return;
   // 대타출동 상태로 맞을땐 대부분의 피격 이벤트가 발생하지 않음
 
+  if (defPokemon.abil === "열교환" && !defPokemon.faint && useSkill.type === "불꽃" && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
+    defPokemon.rankUp(battle, enqueue, "atk", 1, "[특성 열교환]");
+    // 데미지 무효 효과는 없음
+  }
+
   if (defPokemon.abil === "지구력" && !defPokemon.faint && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
     // 공격 기술에 맞을 때마다 방어 1랭크 상승 (연속기면 여러번)
     // 지구력, 꺠어진갑옷 틀꺠기랑 상관없이 발동됨
@@ -74,8 +79,8 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
 
   // 접촉 관련 ==============================================================================
 
-  let touch = useSkill.feature.touch;
-  if (useSkill.feature.punch && atkPokemon.item === "펀치글러브") {
+  let touch = useSkill.feature?.touch;
+  if (useSkill.feature?.punch && atkPokemon.item === "펀치글러브") {
     touch = false;
   }
   if (defPokemon.abil === "불꽃몸" && touch && !atkPokemon.faint) {

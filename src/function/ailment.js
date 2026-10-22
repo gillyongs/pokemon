@@ -35,10 +35,9 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
       // 물,얼음 타입 화상 걸리는거 맞음
       return false;
     }
-    const isTgg = atkPokemon?.abilObj?.feature?.tgg || false;
-    if (pokemon.abil === "수포" && !isTgg) {
-      // 특성 수포는 화상에 걸리지 않는다 (틀깨기 무시 여부 반영)
-
+    if (pokemon.abil === "열교환" || pokemon.abil === "수포") {
+      // 특성이 열교환, 수포인 화상에 걸리지 않는다
+      // 상대방이 틀깨기면 걸리기는 하는데 어차피 즉시 회복되므로 걍 생략함
       return false;
     }
   }
@@ -68,7 +67,7 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
   }
 
   if (isSleep) {
-    // 추가 조건: 일렉트릭필드면 자지 않는다
+    // 일렉트릭필드면 잠들지 않는다
     // 지금 잠듦 기술 부가효과랑 하품밖에 없어서 isFlying의 2번쨰 인자 isSkill에 true 해놓음[부유-틀깨기 적용여부]
     if (battle?.field?.terrain?.isElectricField && !pokemon.isFlying(battle, true)) {
       return false;

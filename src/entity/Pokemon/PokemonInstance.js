@@ -145,6 +145,7 @@ class PokemonInstance {
       flashFire: null, // 타오르는불꽃
       switchLock: null, // 교체불가 (교체불가로 만든 기술명이 들어간다)
       switchLockTurnRemain: null, // 교체불가 남은 턴
+      glaiveRush: null, // 대검돌격 디메리트
     };
     this.faint = null; //기절 여부
     this.auto = null; //자동 행동 여부 (역린)

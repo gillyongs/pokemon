@@ -366,6 +366,16 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.2 (신비의물방울)";
   }
 
+  if (skill.type === "얼음" && attackPokemon.item === "녹지않는얼음") {
+    damage *= 1.2;
+    attackPokemon.log.damage1 += " * 1.2 (녹지않는얼음)";
+  }
+
+  if (defensePokemon?.tempStatus?.glaiveRush) {
+    damage *= 2;
+    attackPokemon.log.damage1 += " * 2 (대검돌격 디메리트)";
+  }
+
   if (skill.type === "악" && attackPokemon.item === "검은안경") {
     damage *= 1.2;
     attackPokemon.log.damage1 += " * 1.2 (검은안경)";
