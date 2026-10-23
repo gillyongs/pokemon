@@ -80,6 +80,13 @@ function skillRequirementSearch(name) {
       }
       return true;
     },
+    만나자마자: (battle, enqueue) => {
+      const atk = battle[battle.turn.atk];
+      if (atk?.tempStatus?.firstTurn === false) {
+        return false;
+      }
+      return true;
+    },
   };
 
   return functions[name] || null;

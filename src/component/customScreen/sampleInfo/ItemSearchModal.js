@@ -32,6 +32,7 @@ const EXCLUSIVE_ITEMS = {
   플라엣테나이트: (p) => isPokemon(p, "플라엣테"),
   핫삼나이트: (p) => isPokemon(p, "핫삼"),
   이어롭나이트: (p) => isPokemon(p, "이어롭"),
+  갑주무사나이트: (p) => isPokemon(p, "갑주무사"),
 };
 
 export const getFavoriteItemsForPokemon = (pokemon) => {

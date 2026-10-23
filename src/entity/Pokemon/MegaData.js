@@ -157,6 +157,15 @@ export const megaDataList = {
       abil: "페어리오라",
     },
   ],
+  // 갑주무사
+  "0768": [
+    {
+      stone: "갑주무사나이트",
+      megaFormId: "0768-m",
+      name: "메가갑주무사",
+      abil: "단단한발톱",
+    },
+  ],
 };
 
 /**
