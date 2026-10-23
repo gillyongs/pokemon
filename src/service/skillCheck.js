@@ -229,7 +229,11 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 특성 옹골참에 일격기가 막힌 경우
   // 리베로가 발동된다
   if (skill.feature?.oneShot && def.abil === "옹골참") {
-    enqueue({ battle: bt, text: "[특성 옹골참] " + def.name + "에겐 효과가 없는 것 같다..." });
+  }
+
+  if (skill.name === "절대영도" && (def.type1 === "얼음" || def.type2 === "얼음")) {
+    // 얼음타입 포켓몬에게 절대영도를 쓰는 경우
+    enqueue({ battle: bt, text: def.name + "에겐 효과가 없는 것 같다..." });
     return false;
   }
 
