@@ -23,6 +23,11 @@ export class Weather {
     return this.#type === "모래바람";
   }
 
+  get isSnow() {
+    return this.#type === "설경";
+    // 얼음타입 방어 1.5배, 눈보라 필중, 오로라베일 사용 조건
+  }
+
   #setWeather(weatherType, turnRemain, enqueue, battle, weatherText) {
     this.#type = weatherType;
     this.#turnRemain = turnRemain;
@@ -37,6 +42,7 @@ export class Weather {
       비: "축축한바위",
       쾌청: "뜨거운바위",
       모래바람: "매끄러운바위",
+      설경: "차가운바위",
     };
 
     const baseTurn = 5;
@@ -67,6 +73,7 @@ export class Weather {
       비: "비가 그쳤다!",
       쾌청: "햇살이 원래대로 되돌아왔다!",
       모래바람: "모래바람이 가라앉았다!",
+      설경: "눈이 그쳤다!",
     };
     enqueue({ battle, text: endTextMap[endedType] });
 

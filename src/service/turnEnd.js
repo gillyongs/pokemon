@@ -31,6 +31,10 @@ export const turnEnd = (battle, enqueue) => {
   battle.field[fastUser].handleTailwindTurnEnd(battle, enqueue);
   battle.field[slowUser].handleTailwindTurnEnd(battle, enqueue);
 
+  // 리플렉터, 빛의장막, 오로라베일
+  battle.field[fastUser].handleWallTurnEnd(battle, enqueue);
+  battle.field[slowUser].handleWallTurnEnd(battle, enqueue);
+
   // 아이템 (먹밥)
   battle[fastUser].leftOver(battle, enqueue);
   battle[slowUser].leftOver(battle, enqueue);

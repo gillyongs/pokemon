@@ -186,7 +186,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
         log += ` - 10 (${skillEffect.name})`;
       }
 
-      if ((skillEffect.name === "벽부수기" && bt.field.player.noClean.reflect !== null) || bt.field.player.noClean.lightScreen !== null) {
+      if (skillEffect.name === "벽부수기" && (bt.field.player.noClean.reflect !== null || bt.field.player.noClean.lightScreen !== null || bt.field.player.noClean.auroraVeil !== null)) {
         score += 50;
         log += ` + 50 (${skillEffect.name})`;
       }
@@ -267,6 +267,16 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
           let value = origin * (remainPokemonCount(bt, "npc") + 1);
           score += value;
           log += ` + ${value} (${skillEffect.name})`;
+        }
+      }
+      if (skillEffect.name === "오로라베일") {
+        if (bt.field.weather.isSnow && bt.field.npc.noClean.auroraVeil === null) {
+          let value = 25 * (remainPokemonCount(bt, "npc") + 1); // 물리/특수 모두 반감하므로 리플렉터/빛의장막보다 가중치를 높게
+          score += value;
+          log += ` + ${value} (${skillEffect.name})`;
+        } else {
+          score -= 1000; // 설경이 아니면 실패하므로 사용하지 않는다
+          log += ` - 1000 (${skillEffect.name} 실패)`;
         }
       }
       if (skillEffect.name === "씨뿌리기") {

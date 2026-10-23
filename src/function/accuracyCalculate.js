@@ -13,6 +13,11 @@ export function getAccuracy(bt, skill, attacker) {
     return 100; //ai 가중치 계산에 사용하므로 100 리턴해줘야함
   }
 
+  // 설경 눈보라 필중
+  if (skill.name === "눈보라" && bt.field.weather.isSnow) {
+    return 100;
+  }
+
   // 비바라기 번개 폭풍 필중
   const weatherSkill = ["번개", "폭풍"];
   if (weatherSkill.includes(skill.name) && bt.field.weather.isRainy) {

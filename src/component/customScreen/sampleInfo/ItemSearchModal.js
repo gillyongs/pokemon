@@ -160,9 +160,9 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
     add("축축한바위");
   }
 
-  // 현재 기술에 리플렉터/빛의장막이 있는 경우 -> 빛의점토
+  // 현재 기술에 리플렉터/빛의장막/오로라베일이 있는 경우 -> 빛의점토
   const skillNames = [1, 2, 3, 4].map((num) => pokemon.skill?.[num]?.name).filter(Boolean);
-  if (skillNames.includes("리플렉터") || skillNames.includes("빛의장막")) {
+  if (skillNames.includes("리플렉터") || skillNames.includes("빛의장막") || skillNames.includes("오로라베일")) {
     add("빛의점토");
   }
 

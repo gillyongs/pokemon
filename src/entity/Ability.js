@@ -114,6 +114,7 @@ export const abilObject = {
   둔감: { text: "헤롱헤롱이나 도발 상태가 되지 않고 위협의 효과를 받지 않는다." },
   모래날림: { text: "전투에 나오면 날씨를 5턴 간 모래바람으로 바꾼다." },
   모래의힘: { text: "모래바람이 불 때 바위, 땅, 강철 타입 기술의 위력이 1.3배가 된다." },
+  눈퍼뜨리기: { text: "전투에 나오면 날씨를 5턴 간 설경으로 바꾼다." },
 
   // 틀깨기 반영
   재앙의그릇: {
@@ -268,6 +269,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     잔비: { weatherType: "비", text: "주변에 비가 내리기 시작했다!" },
     가뭄: { weatherType: "쾌청", text: "주변의 햇살이 강해졌다!" },
     모래날림: { weatherType: "모래바람", text: "주변에 모래바람이 불기 시작했다!" },
+    눈퍼뜨리기: { weatherType: "설경", text: "주변에 눈이 내리기 시작했다!" },
   };
   Object.entries(weatherAbilities).forEach(([abil, { weatherType, text }]) => {
     if (atkAbil === abil) {

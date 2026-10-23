@@ -780,6 +780,27 @@ function skillEffectSearch(name) {
       });
     },
 
+    오로라베일: (battle, enqueue, skillEffect) => {
+      const user = battle.turn.atk;
+      const skillUser = battle[user];
+      const field = battle.field[user].noClean;
+      // 설경이 아니거나 이미 오로라베일이 있으면 실패
+      if (!battle.field.weather.isSnow || field.auroraVeil !== null) {
+        enqueue({
+          battle,
+          text: "하지만 실패했다!",
+        });
+        return;
+      }
+      let num = 5;
+      if (skillUser.item === "빛의점토") num = 8;
+      field.auroraVeil = num;
+      enqueue({
+        battle,
+        text: battle.common[user].teamKr + " 편은 오로라베일로 물리공격과 특수공격에 강해졌다!",
+      });
+    },
+
     순풍: (battle, enqueue, skillEffect) => {
       const user = battle.turn.atk;
       const field = battle.field[user].noClean;
@@ -800,7 +821,7 @@ function skillEffectSearch(name) {
     벽부수기: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const field = battle.field[def].noClean;
-      if (field.reflect === null && field.lightScreen === null) {
+      if (field.reflect === null && field.lightScreen === null && field.auroraVeil === null) {
         return;
       }
       if (field.reflect !== null) {
@@ -815,6 +836,13 @@ function skillEffectSearch(name) {
         enqueue({
           battle,
           text: battle.common[battle.turn.def].teamKr + " 편의 빛의장막이 깨졌다!",
+        });
+      }
+      if (field.auroraVeil !== null) {
+        field.auroraVeil = null;
+        enqueue({
+          battle,
+          text: battle.common[battle.turn.def].teamKr + " 편의 오로라베일이 깨졌다!",
         });
       }
     },
