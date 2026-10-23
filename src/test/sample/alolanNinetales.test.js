@@ -24,7 +24,7 @@ describe("알로라나인테일 / 눈퍼뜨리기 / 오로라베일 구현 테�
   });
 
   it("템플릿 및 종족값 확인", () => {
-    const template = sampleList.getDataById("알로라나인테일");
+    const template = sampleList.getDataById("나인테일");
     expect(template).toBeDefined();
     expect(template.pokemon_id).toBe("0038-a");
     expect(template.item).toBe("빛의점토");
@@ -34,12 +34,12 @@ describe("알로라나인테일 / 눈퍼뜨리기 / 오로라베일 구현 테�
     expect(template.nature).toEqual({ up: "speed", down: "atk" });
 
     const data = pokemonData.getDataById("0038-a");
-    expect(data.name).toBe("알로라나인테일");
+    expect(data.name).toBe("나인테일");
     expect(data.type1).toBe("얼음");
     expect(data.type2).toBe("페어리");
     expect(data.hp + data.atk + data.def + data.catk + data.cdef + data.speed).toBe(505);
 
-    const ninetales = generate("알로라나인테일");
+    const ninetales = generate("나인테일");
     const names = [1, 2, 3, 4].map((n) => ninetales.origin.skill[n].name);
     expect(names).toEqual(["오로라베일", "프리즈드라이", "눈보라", "문포스"]);
 
@@ -48,7 +48,7 @@ describe("알로라나인테일 / 눈퍼뜨리기 / 오로라베일 구현 테�
   });
 
   it("눈퍼뜨리기로 설경이 되고, 설경에서 눈보라는 필중이 된다", () => {
-    const ninetales = generate("알로라나인테일");
+    const ninetales = generate("나인테일");
     const enemy = generate("한카리아스");
     const battle = makeBattle(ninetales, enemy);
     battle.turn.atk = "player";
@@ -64,7 +64,7 @@ describe("알로라나인테일 / 눈퍼뜨리기 / 오로라베일 구현 테�
   });
 
   it("설경이 아니면 오로라베일은 실패한다", () => {
-    const ninetales = generate("알로라나인테일");
+    const ninetales = generate("나인테일");
     const battle = makeBattle(ninetales, generate("한카리아스"));
     battle.turn.atk = "player";
     battle.turn.def = "npc";
@@ -75,7 +75,7 @@ describe("알로라나인테일 / 눈퍼뜨리기 / 오로라베일 구현 테�
   });
 
   it("설경에서 오로라베일 사용 시 빛의점토로 8턴 지속되고, 물리/특수 데미지가 반감된다", () => {
-    const ninetales = generate("알로라나인테일");
+    const ninetales = generate("나인테일");
     const enemy = generate("한카리아스");
     const battle = makeBattle(ninetales, enemy);
     battle.turn.atk = "player";
@@ -109,7 +109,7 @@ describe("알로라나인테일 / 눈퍼뜨리기 / 오로라베일 구현 테�
   });
 
   it("오로라베일은 턴 종료마다 감소하여 사라진다", () => {
-    const ninetales = generate("알로라나인테일");
+    const ninetales = generate("나인테일");
     const battle = makeBattle(ninetales, generate("한카리아스"));
     battle.field.player.noClean.auroraVeil = 2;
 
@@ -121,7 +121,7 @@ describe("알로라나인테일 / 눈퍼뜨리기 / 오로라베일 구현 테�
   });
 
   it("벽부수기 기술은 오로라베일을 깨뜨린다", () => {
-    const ninetales = generate("알로라나인테일");
+    const ninetales = generate("나인테일");
     const battle = makeBattle(ninetales, generate("한카리아스"));
     battle.turn.atk = "npc";
     battle.turn.def = "player";
@@ -132,7 +132,7 @@ describe("알로라나인테일 / 눈퍼뜨리기 / 오로라베일 구현 테�
   });
 
   it("설경에서 얼음 타입은 방어가 1.5배가 된다", () => {
-    const ninetales = generate("알로라나인테일");
+    const ninetales = generate("나인테일");
     const enemy = generate("한카리아스");
     const battle = makeBattle(ninetales, enemy);
     battle.turn.atk = "player";

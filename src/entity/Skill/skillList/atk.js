@@ -79,7 +79,7 @@ export const atkSkills = [
 
   new Skill("깨물어부수기", "악", 80, 100, 15, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 20, stat: "def", target: "def", value: -1 }], { touch: true, bite: true }),
   new Skill("아쿠아브레이크", "물", 85, 100, 10, 0, "atk", null, "20% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 20, stat: "def", target: "def", value: -1 }], { touch: true }),
-  new Skill("쉘블레이드", "물", 75, 95, 10, 0, "atk", null, "50% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 50, stat: "def", target: "def", value: -1 }], { touch: true, slice: true }),
+  new Skill("셸블레이드", "물", 75, 95, 10, 0, "atk", null, "50% 확률로 상대의 방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 50, stat: "def", target: "def", value: -1 }], { touch: true, slice: true }),
   new Skill("치근거리기", "페어리", 90, 90, 10, 0, "atk", null, "10% 확률로 상대의 공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 10, stat: "atk", target: "def", value: -1 }], { touch: true }),
   new Skill("덤벼들기", "벌레", 80, 100, 15, 0, "atk", null, "상대방의 공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "atk", target: "def", value: -1 }], { touch: true }),
 
@@ -129,7 +129,7 @@ export const atkSkills = [
 
   // 벽파괴
   new Skill("사이코팽", "에스퍼", 85, 100, 10, 0, "atk", null, "상대 진영에 빛의장막이나 리플렉터가 존재한다면 파괴할 수 있다.", [{ name: "벽부수기" }], { touch: true, bite: true, wallBreaker: true }),
-  new Skill("깨트리다", "격투", 75, 100, 15, 0, "atk", null, "상대 진영에 빛의장막이나 리플렉터가 존재한다면 파괴할 수 있다.", [{ name: "벽부수기" }], { touch: true, wallBreaker: true }),
+  new Skill("깨트리기", "격투", 75, 100, 15, 0, "atk", null, "상대 진영에 빛의장막이나 리플렉터가 존재한다면 파괴할 수 있다.", [{ name: "벽부수기" }], { touch: true, wallBreaker: true }),
 
 
   // 상태이상 =================================================================================================================
@@ -169,7 +169,7 @@ export const atkSkills = [
   // 기타 =================================================================================================================
 
   // 급소
-  new Skill("섀도크루", "고스트", 70, 100, 15, 0, "atk", null, "급소에 맞을 확률이 높다.", [{ name: "급소" }], { touch: true }),
+  new Skill("섀도클로", "고스트", 70, 100, 15, 0, "atk", null, "급소에 맞을 확률이 높다.", [{ name: "급소" }], { touch: true }),
   new Skill("깜짝베기", "악", 70, 100, 15, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { touch: true, slice: true }),
   new Skill("사이코커터", "에스퍼", 70, 100, 20, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { slice: true }),
   new Skill("아쿠아커터", "물", 70, 100, 20, 0, "atk", null, "급소에 맞기 쉽다.", [{ name: "급소" }], { slice: true }),

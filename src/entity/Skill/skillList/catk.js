@@ -32,7 +32,7 @@ export const catkSkills = [
   // 랭크 변화 (상대)
   new Skill("바크아웃", "악", 55, 95, 15, 0, "catk", null, "상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "def", value: -1 }], { sound: true }),
   new Skill("매지컬플레임", "불꽃", 75, 100, 10, 0, "catk", null, "상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "def", value: -1 }], {}),
-  new Skill("얼다바람", "얼음", 55, 95, 15, 0, "catk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
+  new Skill("얼어붙은바람", "얼음", 55, 95, 15, 0, "catk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
   new Skill("머드샷", "땅", 55, 95, 15, 0, "catk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
 
   new Skill("문포스", "페어리", 95, 100, 15, 0, "catk", null, "30% 확률로 상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 30, stat: "catk", target: "def", value: -1 }], {}),
@@ -92,7 +92,7 @@ export const catkSkills = [
   // 반동 휴식
   new Skill("파괴광선", "노말", 150, 90, 5, 0, "catk", null, "빛의 광선으로 상대를 공격한다. 다음 턴에는 움직일 수 없다.", [{ name: "반동휴식" }]),
   new Skill("하이드로캐논", "물", 150, 90, 5, 0, "catk", null, "물 대포로 상대를 공격한다. 다음 턴에는 움직일 수 없다.", [{ name: "반동휴식" }]),
-  new Skill("블래스트번", "불꽃", 150, 90, 5, 0, "catk", null, "폭발의 불꽃으로 상대를 공격한다. 다음 턴에는 움직일 수 없다.", [{ name: "반동휴식" }]),
+  new Skill("블라스트번", "불꽃", 150, 90, 5, 0, "catk", null, "폭발의 불꽃으로 상대를 공격한다. 다음 턴에는 움직일 수 없다.", [{ name: "반동휴식" }]),
   new Skill("하드플랜트", "풀", 150, 90, 5, 0, "catk", null, "뿌리를 내뻗어 공격한다. 다음 턴에는 움직일 수 없다.", [{ name: "반동휴식" }]),
 
   // 반동

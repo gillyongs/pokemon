@@ -48,8 +48,9 @@
   - 피격/방어 상호작용: `src/service/skillCheck.js` (예: 니들가드로 상대 접촉기 차단 시 1/8 가시 피해)
   - 도감 기술 풀 등록: `src/skill/PokemonSkillList.js`의 `core` 및 `others` 배열에 등록하고 `UNIMPLEMENTED_SKILLS`에서 제거.
   - **포켓몬 기술 풀(CORE 및 배울 수 있는 기술) 수집 원칙**:
+    - 상세 추출 로직 및 워크플로우: `public/txt/md/PKMNCHAMPS_SKILL_EXTRACTION_GUIDE.md` 참조
     - `https://pkmnchamps.com/pokedex/{도감번호}` (예: `https://pkmnchamps.com/pokedex/212`)를 조회하여 데이터가 있으면 이를 우선적으로 가져옵니다.
-    - 레귤레이션 사용률 상위 기술을 `core`로, 그 외 도감상 배울 수 있는 기술 전체를 `others`로 분류하여 등록합니다.
+    - 레귤레이션 사용률 상위 기술(10% 이상)을 `core`로, 그 외 도감상 배울 수 있는 기술 전체를 `others`로 분류하여 등록합니다.
 
 ### B. 특성 (Ability) 등록 및 엔진 연동
 - **설명 등록**: `src/entity/Ability.js`의 `abilObject`에 특성 설명 등록
