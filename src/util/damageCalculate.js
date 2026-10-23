@@ -196,12 +196,15 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStr += " * 0.5 (화상)";
     }
 
-    if (battle.field[battle.turn.def].noClean.reflect) {
+    const defNoCleanAtk = battle.field[battle.turn.def].noClean;
+    if (defNoCleanAtk.reflect || defNoCleanAtk.auroraVeil) {
+      // 리플렉터와 오로라베일은 중첩되지 않는다
+      const wallName = defNoCleanAtk.reflect ? "리플렉터" : "오로라베일";
       if (skill.feature?.wallBreaker || atkAbil === "틈새포착") {
-        atkStr += " * 1 (리플렉터 무효)";
+        atkStr += ` * 1 (${wallName} 무효)`;
       } else {
         atkStat *= 0.5;
-        atkStr += " * 0.5 (리플렉터)";
+        atkStr += ` * 0.5 (${wallName})`;
       }
     }
 
@@ -232,13 +235,16 @@ export const damageCalculate = (battle, obj, ai) => {
       }
     }
 
-    if (battle.field[battle.turn.def].noClean.lightScreen) {
+    const defNoCleanCatk = battle.field[battle.turn.def].noClean;
+    if (defNoCleanCatk.lightScreen || defNoCleanCatk.auroraVeil) {
       // 사이코쇼크는 특수기이므로 빛의장막 영향을 받는다
+      // 빛의장막과 오로라베일은 중첩되지 않는다
+      const wallName = defNoCleanCatk.lightScreen ? "빛의장막" : "오로라베일";
       if (skill.feature?.wallBreaker || atkAbil === "틈새포착") {
-        atkStr += " * 1 (빛의장막 무효)";
+        atkStr += ` * 1 (${wallName} 무효)`;
       } else {
         atkStat *= 0.5;
-        atkStr += " * 0.5 (빛의장막)";
+        atkStr += ` * 0.5 (${wallName})`;
       }
     }
     if (attackPokemon.tempStatus.protosynthesis === "catk") {
@@ -272,6 +278,10 @@ export const damageCalculate = (battle, obj, ai) => {
     if (defensePokemon.item === "진화의휘석" && defensePokemon.origin.feature?.evo) {
       defStat *= 1.5;
       defStr += " * 1.5 (진화의휘석)";
+    }
+    if (battle.field.weather.isSnow && (defensePokemon.type1 === "얼음" || defensePokemon.type2 === "얼음")) {
+      defStat *= 1.5;
+      defStr += " * 1.5 (설경+얼음)";
     }
   }
 

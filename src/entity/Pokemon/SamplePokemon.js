@@ -13,7 +13,7 @@ new PokemonTemplate("메가리자몽X", "0006", "6V", "AS252", "speed", "catk",
 new PokemonTemplate("메가리자몽Y", "0006", "5V0A", "CS252", "speed", "atk",
   "화염방사", "에어슬래시", "열풍", "도깨비불", "리자몽나이트Y", "맹화", "특수어태커"),
 
-new PokemonTemplate("알로라나인테일", "0038-a", "5V0A", "CS252", "speed", "atk",
+new PokemonTemplate("나인테일", "0038-a", "5V0A", "CS252", "speed", "atk",
   "오로라베일", "프리즈드라이", "눈보라", "문포스", "빛의점토", "눈퍼뜨리기", "기점잡이"),
 
 new PokemonTemplate("윈디", "0059", "6V", "HA252", "atk", "catk",
