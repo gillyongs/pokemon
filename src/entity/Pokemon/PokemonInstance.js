@@ -109,7 +109,7 @@ class PokemonInstance {
       roost: null, //날개쉬기
       critical: null, // 공격의 급소 여부. damageCalculate 호출 직전에 skillUser에서 계산하여 적용. 연속기에선 매 공격 직전마다 계산
       recentDamageGive: null, // 최근 준 데미지 -> 반동, 흡수 계산에 사용
-      recentDamageGet: null,
+      recentDamageGet: null, // 최근 받은 데미지 -> 카운터에 사용
       protect: null, //방어
       useSkill: null, //이번턴 사용한 (사용할) 스킬
       substitute: null, // 이번 턴에 대타출동 상태였는지 여부. 대타출동을 깨뜨린 공격의 부가효과도 막기 위함
@@ -146,7 +146,8 @@ class PokemonInstance {
       switchLock: null, // 교체불가 (교체불가로 만든 기술명이 들어간다)
       switchLockTurnRemain: null, // 교체불가 남은 턴
       glaiveRush: null, // 대검돌격 디메리트
-      firstTurn: true, // 배틀 등장 첫 턴 여부 (속이기 판정)
+      hitCount: 0, // 피격 횟수 (분노의주먹 위력계산) * 교체하면 초기화되게 너프됐음
+      firstTurn: true, // 배틀 등장 첫 턴 여부 (속이기, 만나자마자 성공 판정)
     };
     this.faint = null; //기절 여부
     this.auto = null; //자동 행동 여부 (역린)

@@ -26,6 +26,10 @@ export const POKEMON_SKILLS = {
 
 pkmnchamps는 Next.js (App Router) 기반의 웹 애플리케이션으로, 도감 상세 페이지와 랭크 배틀 통계 페이지에서 각각 데이터를 제공합니다.
 
+> [!NOTE]
+> **사용자가 기술 목록을 직접 제공하는 경우**:
+> 사용자가 프롬프트에서 주력 기술(10%+) 및 전체 배울 수 있는 기술 목록을 직접 제공한 경우, pkmnchamps 사이트를 별도로 조회하거나 참고하지 않고 사용자가 전달한 목록을 기반으로 기술명 표준 통일 규칙만 적용하여 즉시 등록합니다.
+
 ### A. 배울 수 있는 기술 (Learnable Moves)
 - **출처 URL**: `https://pkmnchamps.com/pokedex/{id}` (리전폼의 경우 `?form={form-slug}`)
 - **데이터 위치**:

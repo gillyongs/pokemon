@@ -322,8 +322,9 @@ function skillEffectSearch(name) {
     },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
-      if (!isAilmentCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0) {
+      if (!isAilmentCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0 && def.abil !== "의기양양" && def.abil !== "불면") {
         // 상대가 상태이상에 걸려있지 않음 + 하품 맞은 상태 아님
+        // 불면, 의기양양이면 하품 자체가 실패함
         if (battle.field?.terrian?.isElectircField && !def.isFlying(battle, true)) {
           // 일렉트릭필드면 실패함 (잠드는 것만 실패하는게 아님 그냥 하품 자체가 실패함)
           // 미스트필드면 하품은 쓸 수 있음, 잠들지는 않음. 다음턴에 필드 꺼지면 잠듦

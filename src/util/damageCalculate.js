@@ -721,6 +721,11 @@ const powerCalculate = (battle, skill, obj, ai) => {
     // 혼란에 적용 안되는거 맞음
     if (isAilmentCheck(battle[battle.turn.def])) power *= 2;
   }
+  if (skill.name === "분노의주먹") {
+    // 맞은 횟수당 위력 50증가 (최대 350)
+    const hitCount = atk.tempStatus?.hitCount || 0;
+    power = Math.min(350, power + hitCount * 50);
+  }
   if (skill.name === "성묘") {
     // 쓰러진 아군 수만큼 위력 +50
     if (battle[battle.turn.atk + "Bench1"].faint) power += 50;

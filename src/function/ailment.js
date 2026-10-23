@@ -72,6 +72,9 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
   }
 
   if (isSleep) {
+    if (pokemon.abil === "의기양양" || pokemon.abil === "불면") {
+      return false;
+    }
     // 일렉트릭필드면 잠들지 않는다
     // 지금 잠듦 기술 부가효과랑 하품밖에 없어서 isFlying의 2번쨰 인자 isSkill에 true 해놓음[부유-틀깨기 적용여부]
     if (battle?.field?.terrain?.isElectricField && !pokemon.isFlying(battle, true)) {

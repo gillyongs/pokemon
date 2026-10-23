@@ -51,6 +51,7 @@
     - 상세 추출 로직 및 워크플로우: `public/txt/md/PKMNCHAMPS_SKILL_EXTRACTION_GUIDE.md` 참조
     - `https://pkmnchamps.com/pokedex/{도감번호}` (예: `https://pkmnchamps.com/pokedex/212`)를 조회하여 데이터가 있으면 이를 우선적으로 가져옵니다.
     - 레귤레이션 사용률 상위 기술(10% 이상)을 `core`로, 그 외 도감상 배울 수 있는 기술 전체를 `others`로 분류하여 등록합니다.
+    - **(예외)**: 사용자가 프롬프트에서 주력 기술 및 전체 기술 목록을 직접 제공하는 경우에는 pkmnchamps를 참고하지 않고 제공된 목록을 우선 적용합니다.
 
 ### B. 특성 (Ability) 등록 및 엔진 연동
 - **설명 등록**: `src/entity/Ability.js`의 `abilObject`에 특성 설명 등록

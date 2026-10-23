@@ -32,11 +32,12 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   // 대타출동
   if (defPokemon.tempStatus.substitute) {
-    if (!useSkill.feature?.sound && atkPokemon.abil !== "틈새포착") {
+    if (useSkill.feature?.sound || atkPokemon.abil === "틈새포착") {
       // 소리 기술이나 틈새포착 특성은 대타를 뚫는다
+    } else {
       defPokemon.turn.substitute = true;
-      defPokemon.turn.lastHitSubstitute = true;
-      // 대타출동을 깨뜨린 공격의 부가효과도 막기위해 별도로 명시
+      defPokemon.turn.lastHitSubstitute = true; // 대타출동을 깨뜨린 공격의 부가효과도 막기위해 별도로 명시
+
       enqueue({ battle, text: (commonText || "") + josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!" });
 
       if (!isNoTextSkill) {
@@ -58,7 +59,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
         defPokemon.tempStatus.substituteHp -= skDamage;
       }
       atkPokemon.turn.recentDamageGive = actualGiveDamage;
-      defPokemon.turn.recentDamageGet = actualGiveDamage;
+      // defPokemon.turn.recentDamageGet = actualGiveDamage;
+      // 대타출동을 때렸을때 반동, 흡수 (recentDamageGive)는 정상 작동 (대타출동체력으로 계산)
+      // 대타출동 상태로 카운터 사용시 실패
       applyOnHitEvents(battle, enqueue, true);
       // 대타출동 상태일땐 대부분의 피격 이벤트 (ex:울멧)가 발동하지 않음
       // 대타출동 상태일때에도 발생하는 이벤트 처리 (풍선)
@@ -115,8 +118,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
 
   // 최근 기록
-  atkPokemon.turn.recentDamageGive = actualGiveDamage;
-  defPokemon.turn.recentDamageGet = actualGiveDamage;
+  atkPokemon.turn.recentDamageGive = actualGiveDamage; // 반동, 흡수
+  defPokemon.turn.recentDamageGet = actualGiveDamage; // 카운터
+  defPokemon.tempStatus.hitCount = (defPokemon.tempStatus.hitCount || 0) + 1; // 분노의주먹
 
   // ================= 텍스트 처리 =================
   let defaultText = true;
