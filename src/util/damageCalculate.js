@@ -33,6 +33,7 @@ export const damageCalculate = (battle, obj, ai) => {
     const typeDamage = typeCheckOnBattle(battle, skill.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
     if (typeDamage === 0) return 0; // 고스트포켓몬에게 지구던지기를 쓰는 경우
     if (skill.feature.oneShot && defAbil === "옹골참") return 0; // 특성이 옹골참인 상대에게 일격기를 쓰는 경우
+    if (skill.name === "절대영도" && (defensePokemon.type1 === "얼음" || defensePokemon.type2 === "얼음")) return 0; // 얼음타입 포켓몬에게 절대영도를 쓰는 경우
     if (skill.type === "불꽃" && defAbil === "타오르는불꽃") return 0;
   }
 
