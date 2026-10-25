@@ -212,6 +212,12 @@ export const afterSkillCheck = (bt, enqueue) => {
     }
   }
 
+  // 특성 피뢰침에 전기 기술이 막힌 경우 (전기 무효 + 특공 1랭크 상승)
+  if (skill.type === "전기" && skill.stype !== "buf" && def.abil === "피뢰침" && atk.abilObj.feature?.tgg !== true) {
+    def.rankUp(bt, enqueue, "catk", 1, "[특성 피뢰침]");
+    return false;
+  }
+
   // 특성 타오르는불꽃에 불꽃 기술이 막힌 경우 리베로가 발동한다
   // 방어로 막으면 특성 발동하지 않음
   // 대타출동 상태일때 불꽃기술 맞으면 특성 발동함

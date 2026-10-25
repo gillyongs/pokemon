@@ -8,6 +8,11 @@ export function getAccuracy(bt, skill, attacker) {
     return 100;
   }
 
+  // 노가드 특성: 공격자 또는 방어자가 노가드면 필중
+  if (attacker?.abil === "노가드" || defender?.abil === "노가드") {
+    return 100;
+  }
+
   // 필중
   if (accur === "-") {
     return 100; //ai 가중치 계산에 사용하므로 100 리턴해줘야함

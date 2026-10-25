@@ -18,6 +18,7 @@ const EXCLUSIVE_ITEMS = {
   녹슨방패: (p) => isPokemon(p, "자마젠타"),
   리자몽나이트X: (p) => isPokemon(p, "리자몽"),
   리자몽나이트Y: (p) => isPokemon(p, "리자몽"),
+  라이츄나이트Y: (p) => isPokemon(p, "라이츄"),
   메타그로스나이트: (p) => isPokemon(p, "메타그로스"),
   보만다나이트: (p) => isPokemon(p, "보만다"),
   입치트나이트: (p) => isPokemon(p, "입치트"),

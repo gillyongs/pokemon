@@ -110,4 +110,5 @@ export const catkSkills = [
   new Skill("매지컬샤인", "페어리", 80, 100, 10, 0, "catk", null, "강력한 빛을 내어 상대에게 데미지를 준다.", []),
   new Skill("아스트랄비트", "고스트", 120, 100, 5, 0, "catk", null, "수많은 작은 영체를 상대에게 부딪쳐서 공격한다.", [], {}),
   new Skill("하이퍼보이스", "노말", 90, 100, 10, 0, "catk", null, "시끄럽게 울리는 큰 진동을 상대에게 전달하여 공격한다.", [], { sound: true }),
+  new Skill("전자포", "전기", 120, 50, 5, 0, "catk", null, "대포처럼 전격을 발사하여 공격한다. 상대를 반드시 마비 상태로 만든다.", [{ name: "마비", probability: 100, printTextIfFail: true }], {}),
 ];
