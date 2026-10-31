@@ -779,5 +779,11 @@ const powerCalculate = (battle, skill, obj, ai) => {
       power = 100;
     }
   }
+  
+  // 도박 중독 증강: 공격기(물리/특수) 위력 2배
+  if (atk?.hasAugment?.('gamblingAddict') && (skill.stype === 'atk' || skill.stype === 'catk')) {
+    power *= 2;
+  }
+
   return Math.floor(power);
 };

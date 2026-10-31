@@ -66,6 +66,7 @@ const MainScreen = () => {
         difficulty: gameOption.difficulty,
         teamOption: gameOption.teamOption,
         round: defaultOption.round,
+        mayhemMode: gameOption.mayhemMode,
       },
     });
   };

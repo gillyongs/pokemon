@@ -154,12 +154,31 @@ class PokemonInstance {
     this.autoSN = null;
     this.charge = null; //충전중 여부 (파워풀허브 없이 충전 기술을 썼을때)
     this.recharge = null; //반동휴식 여부 (파괴광선 등)
+    this.augments = [];
     this.log = {
       damage1: null,
       damage2: null,
       speedCalculate: null,
       speedVS: null,
     };
+  }
+
+  hasAugment(nameOrId) {
+    if (!this.augments || !Array.isArray(this.augments)) return false;
+    return this.augments.some((aug) => {
+      if (typeof aug === 'string') return aug === nameOrId;
+      return aug.id === nameOrId || aug.name === nameOrId;
+    });
+  }
+
+  applyAugment(augment, battle) {
+    if (!this.augments) this.augments = [];
+    const augId = typeof augment === 'string' ? augment : augment.id;
+    if (this.hasAugment(augId)) return;
+    this.augments.push(augment);
+    if (typeof augment === 'object' && augment.onApply) {
+      augment.onApply(this, battle);
+    }
   }
 
   // 기절시 상태이상 초기화

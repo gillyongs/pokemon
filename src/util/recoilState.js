@@ -10,6 +10,7 @@ export const getStoredGameOption = () => {
         return {
           difficulty: parsed.difficulty || defaultOption.difficulty,
           teamOption: parsed.teamOption || defaultOption.teamOption,
+          mayhemMode: parsed.mayhemMode !== undefined ? parsed.mayhemMode : defaultOption.mayhemMode,
         };
       }
     }
@@ -19,6 +20,7 @@ export const getStoredGameOption = () => {
   return {
     difficulty: defaultOption.difficulty,
     teamOption: defaultOption.teamOption,
+    mayhemMode: defaultOption.mayhemMode,
   };
 };
 

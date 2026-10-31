@@ -42,6 +42,8 @@ const CustomScreen = () => {
   const teamOption = gameOption.teamOption;
   const setDifficulty = (level) => setGameOption((prev) => ({ ...prev, difficulty: level }));
   const setTeamOption = (opt) => setGameOption((prev) => ({ ...prev, teamOption: opt }));
+  const mayhemMode = gameOption.mayhemMode;
+  const setMayhemMode = (val) => setGameOption((prev) => ({ ...prev, mayhemMode: val }));
 
   const listAreaRef = useRef(null);
   const [showTopBtn, setShowTopBtn] = useState(false);
@@ -262,7 +264,7 @@ const CustomScreen = () => {
   const startBattle = () => {
     const team1 = getRandomTeamWithExisting(selectedTeam, 3);
     const team2 = getRandomTeamWithExisting(npcTeam, 3);
-    navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, round: defaultOption.round, fromCustom: true } });
+    navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, mayhemMode, round: defaultOption.round, fromCustom: true } });
   };
 
   const handleTestSetup = () => {
@@ -571,6 +573,8 @@ const CustomScreen = () => {
           setDifficulty={setDifficulty}
           teamOption={teamOption}
           setTeamOption={setTeamOption}
+          mayhemMode={mayhemMode}
+          setMayhemMode={setMayhemMode}
           onClose={() => setIsOptionModalOpen(false)}
         />
       )}

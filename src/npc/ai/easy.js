@@ -61,6 +61,11 @@ function createSkObj(baseBattle, sn, hp) {
     },
   };
 
+  // 메가진화 가능한 포켓몬이면 메가진화 상태 기준으로 계산
+  if (bt.npc.isMegaEvolveAble?.(bt)) {
+    bt.npc.megaEvolve(bt, () => {});
+  }
+
   const isAttack = (stype) => {
     return ["atk", "catk"].includes(stype);
   };

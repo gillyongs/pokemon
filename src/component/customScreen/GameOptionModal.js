@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const GameOptionModal = ({ difficulty, setDifficulty, teamOption, setTeamOption, onClose }) => {
+const GameOptionModal = ({ difficulty, setDifficulty, teamOption, setTeamOption, mayhemMode, setMayhemMode, onClose }) => {
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
@@ -22,6 +22,7 @@ const GameOptionModal = ({ difficulty, setDifficulty, teamOption, setTeamOption,
           {difficulty === "노말" && "매 라운드마다 적의 체력이 0.1배 증가합니다."}
           {difficulty === "하드" && "매 라운드마다 적의 모든 능력치가 0.1배 증가합니다."}
         </DifficultyDescription>
+
         <ModalSubTitle style={{ marginTop: "20px" }}>팀 옵션</ModalSubTitle>
         <DifficultyContainer>
           {["랜덤", "고정", "트레이드"].map((opt) => (
@@ -34,6 +35,26 @@ const GameOptionModal = ({ difficulty, setDifficulty, teamOption, setTeamOption,
           {teamOption === "랜덤" && "매 라운드마다 팀 엔트리가 랜덤하게 바뀝니다."}
           {teamOption === "고정" && "팀 엔트리가 바뀌지 않습니다."}
           {teamOption === "트레이드" && "매 라운드마다 상대 팀 엔트리에서 한명을 교환할 수 있습니다."}
+        </DifficultyDescription>
+
+        <ModalSubTitle style={{ marginTop: "20px" }}>아수라장 모드</ModalSubTitle>
+        <DifficultyContainer>
+          {[
+            { label: "OFF", value: false },
+            { label: "ON", value: true },
+          ].map((item) => (
+            <DifficultyButton
+              key={item.label}
+              $active={Boolean(mayhemMode) === item.value}
+              onClick={() => setMayhemMode?.(item.value)}>
+              {item.label}
+            </DifficultyButton>
+          ))}
+        </DifficultyContainer>
+        <DifficultyDescription>
+          {mayhemMode
+            ? "아수라장 모드 활성화: 배틀 시작 시 파격적인 랜덤 증강을 선택할 수 있습니다."
+            : "아수라장 모드 비활성화: 기본 포켓몬 배틀 규칙으로 진행합니다."}
         </DifficultyDescription>
       </ModalContent>
     </ModalOverlay>

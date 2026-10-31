@@ -95,6 +95,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   let ogcTextTrigger = false;
   let gdTextTrigger = false;
+  let mandooTextTrigger = false;
 
   // HP 차감
   const prevHp = defPokemon.hp;
@@ -114,6 +115,13 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       }
 
       actualGiveDamage -= 1;
+    } else if (defPokemon.hasAugment?.("mandoocornEndure")) {
+      // 10% 확률로 HP 1로 버팀
+      if (Math.random() < 0.1) {
+        defPokemon.hp = 1;
+        actualGiveDamage = prevHp - 1;
+        mandooTextTrigger = true;
+      }
     }
   }
 
@@ -151,6 +159,11 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   if (gdTextTrigger) {
     enqueue({ battle, text: (commonText || "") + defPokemon.names + " 기합의 띠로 버텼다!" });
+    defaultText = false;
+  }
+
+  if (mandooTextTrigger) {
+    enqueue({ battle, text: (commonText || "") + defPokemon.names + " 플레이어를 슬프지 않게 하려고 버텼다!" });
     defaultText = false;
   }
 

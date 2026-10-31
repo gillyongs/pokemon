@@ -7,6 +7,8 @@ import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../util/recoilState";
 import { testmode, setSelectedNpcAct } from "../config/testMode";
 import TradeInfoModal from "../component/battleScreen/TradeInfoModal";
+import AugmentModal from "../component/battleScreen/AugmentModal";
+import { rollAugments } from "../util/augmentRoll";
 import { useQueue } from "../util/useQueue";
 
 import PokemonInfo from "../component/battleScreen/top/PokemonInfo";
@@ -36,6 +38,8 @@ const Battle = () => {
   const [tradeInfoPokemon, setTradeInfoPokemon] = useState(null);
   const [tradeAlertMessage, setTradeAlertMessage] = useState(null);
   const [isRoundOptionsOpen, setIsRoundOptionsOpen] = useState(false);
+  const [augmentModalOpen, setAugmentModalOpen] = useState(false);
+  const [augmentChoices, setAugmentChoices] = useState([]);
   //개발용 배틀 객체.
   const [text, setText] = useState("");
   //화면에 보여질 텍스트 전역변수
@@ -86,7 +90,7 @@ const Battle = () => {
     setTradeInfoPokemon(null);
     setTradeAlertMessage(null);
     queueObject.initQueue();
-    const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round, fromCustom } = location.state || {};
+    const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round, fromCustom, mayhemMode = gameOption.mayhemMode } = location.state || {};
 
     let nextTeam1 = customTeam1 ? customTeam1 : [...team1];
     if (!customTeam1 && teamOption === "랜덤") {
@@ -94,7 +98,7 @@ const Battle = () => {
     }
 
     const nextTeam2 = getRandomTeam(3);
-    navigate("/battle", { state: { team1: nextTeam1, team2: nextTeam2, isNew: true, difficulty, teamOption, round: round + 1, fromCustom }, replace: true });
+    navigate("/battle", { state: { team1: nextTeam1, team2: nextTeam2, isNew: true, difficulty, teamOption, round: round + 1, fromCustom, mayhemMode }, replace: true });
   };
 
   const submitTrade = () => {
@@ -132,9 +136,28 @@ const Battle = () => {
   //   랜드로스             유턴:4
   //   날개치는머리          도발:4
 
+  
+  const handleSelectAugment = (selectedAugment) => {
+    setAugmentModalOpen(false);
+    const curBattle = battleObj.current;
+    if (!curBattle) return;
+
+    curBattle.player.applyAugment(selectedAugment, curBattle);
+    queueObject.enqueue({
+      battle: curBattle,
+      text: `[증강] ${curBattle.player.names} "${selectedAugment.name}" 효과를 얻었다!`,
+    });
+
+    const fastUser = speedCheck(curBattle);
+    const slowUser = fastUser === "player" ? "npc" : "player";
+    applyAbilityEffects(curBattle, fastUser, queueObject.enqueue);
+    applyAbilityEffects(curBattle, slowUser, queueObject.enqueue);
+    setBattle(cloneWithMethods(curBattle));
+  };
+
   let screenFix = false;
   useEffect(() => {
-    let { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round } = location.state || {}; // 랜덤 battleObject 가져오기
+    let { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round, mayhemMode = gameOption.mayhemMode } = location.state || {}; // 랜덤 battleObject 가져오기
     screenFix = true;
     queueObject.initQueue();
     setBottom("skill");
@@ -145,12 +168,20 @@ const Battle = () => {
     setTradeInfoPokemon(null);
     setTradeAlertMessage(null);
 
+    const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
     battleObj.current = createBattle(team1, team2, { difficulty, round });
     queueObject.enqueue({ battle: battleObj.current, text: "배틀시작!" });
-    const fastUser = speedCheck(battleObj.current);
-    const slowUser = fastUser === "player" ? "npc" : "player";
-    applyAbilityEffects(battleObj.current, fastUser, queueObject.enqueue);
-    applyAbilityEffects(battleObj.current, slowUser, queueObject.enqueue);
+
+    if (isMayhem) {
+      const rolled = rollAugments(battleObj.current.player, 3);
+      setAugmentChoices(rolled);
+      setAugmentModalOpen(true);
+    } else {
+      const fastUser = speedCheck(battleObj.current);
+      const slowUser = fastUser === "player" ? "npc" : "player";
+      applyAbilityEffects(battleObj.current, fastUser, queueObject.enqueue);
+      applyAbilityEffects(battleObj.current, slowUser, queueObject.enqueue);
+    }
   }, [location.state]); // location.state가 변경될 때 실행
 
   useEffect(() => {
@@ -592,6 +623,13 @@ const Battle = () => {
               </ModalOverlay>
             );
           })()}
+        {augmentModalOpen && (
+          <AugmentModal
+            augments={augmentChoices}
+            targetPokemon={battleObj.current?.player}
+            onSelect={handleSelectAugment}
+          />
+        )}
       </BATTLE>
     </>
   );
