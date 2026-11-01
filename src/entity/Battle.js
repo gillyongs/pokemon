@@ -94,7 +94,9 @@ export function createBattle(playerArray, npcArray, options = { difficulty: "이
   npcBench2.names = "상대 " + npcBench2.names;
   npcBench2.originalIndex = 2;
 
-  return new Battle(player, npc, playerBench1, playerBench2, npcBench1, npcBench2);
+  const b = new Battle(player, npc, playerBench1, playerBench2, npcBench1, npcBench2);
+  b.isMayhem = Boolean(options.mayhemMode);
+  return b;
 }
 
 export default Battle;

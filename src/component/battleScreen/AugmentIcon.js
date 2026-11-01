@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-// 롤 아수라장/아레나/TFT 특유의 프리즘 & 홀로그램 룬 스타일 SVG 아이콘 세트
+// 포켓몬 배틀 UI 스타일에 맞춘 룬 & 심볼 SVG 아이콘 세트 (틸/청록 & 골드 & 슬레이트 네이비 테마)
 export const AugmentIcon = ({ id, size = 42 }) => {
   return (
     <IconFrame $size={size}>
@@ -13,30 +13,30 @@ export const AugmentIcon = ({ id, size = 42 }) => {
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* 롤 아수라장 프리즘 홀로그램 그라데이션 */}
+          {/* 게임 테마 맞춤 틸/스카이블루 그라데이션 */}
           <linearGradient id="prismGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#c084fc" />
-            <stop offset="35%" stopColor="#f472b6" />
-            <stop offset="70%" stopColor="#38bdf8" />
+            <stop offset="0%" stopColor="#64ffda" />
+            <stop offset="40%" stopColor="#38bdf8" />
+            <stop offset="75%" stopColor="#60a5fa" />
             <stop offset="100%" stopColor="#fef08a" />
           </linearGradient>
 
           <linearGradient id="prismRing" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#818cf8" />
-            <stop offset="50%" stopColor="#e879f9" />
-            <stop offset="100%" stopColor="#67e8f9" />
+            <stop offset="0%" stopColor="#64ffda" />
+            <stop offset="50%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#22d3ee" />
           </linearGradient>
 
           <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fde047" />
-            <stop offset="50%" stopColor="#f472b6" />
-            <stop offset="100%" stopColor="#a855f7" />
+            <stop offset="0%" stopColor="#fef08a" />
+            <stop offset="50%" stopColor="#fde047" />
+            <stop offset="100%" stopColor="#f59e0b" />
           </linearGradient>
 
           <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#3b1d60" stopOpacity="0.9" />
-            <stop offset="75%" stopColor="#1e1035" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#0f071d" stopOpacity="0.9" />
+            <stop offset="0%" stopColor="#1e293b" stopOpacity="0.95" />
+            <stop offset="70%" stopColor="#0f172a" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#090d16" stopOpacity="0.95" />
           </radialGradient>
 
           {/* 발광 필터 */}
@@ -79,7 +79,7 @@ export const AugmentIcon = ({ id, size = 42 }) => {
               d="M14 42 C12 28 22 14 32 12 C42 14 52 28 50 42 C44 50 32 54 32 54 C32 54 20 50 14 42 Z"
               stroke="url(#prismRing)"
               strokeWidth="2"
-              fill="rgba(192, 132, 252, 0.15)"
+              fill="rgba(100, 255, 218, 0.12)"
               strokeLinejoin="round"
             />
             {/* 견고한 중앙 하트 (버팀의 상징) */}
@@ -92,11 +92,11 @@ export const AugmentIcon = ({ id, size = 42 }) => {
             {/* 중앙 HP 1을 상징하는 빛나는 십자/플러스 마크 */}
             <path d="M32 27 L32 35 M28 31 L36 31" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
             {/* ✦ 스파클 */}
-            <path d="M46 14 Q46 18 50 18 Q46 18 46 22 Q46 18 42 18 Q46 18 46 14 Z" fill="#f472b6" />
+            <path d="M46 14 Q46 18 50 18 Q46 18 46 22 Q46 18 42 18 Q46 18 46 14 Z" fill="#64ffda" />
           </g>
         )}
 
-        {/* 3. 도박 중독 (입체 프리즘 주사위 & 회오리 마법 스파크) */}
+        {/* 3. 도박 중독 (입체 주사위 & 회오리 마법 스파크) */}
         {id === "gamblingAddict" && (
           <g filter="url(#glow)">
             {/* 회전하는 소용돌이 오라 */}
@@ -110,9 +110,9 @@ export const AugmentIcon = ({ id, size = 42 }) => {
             {/* 윗면 */}
             <path d="M32 16 L46 23 L32 30 L18 23 Z" fill="url(#prismGrad)" stroke="#ffffff" strokeWidth="1" />
             {/* 좌측면 */}
-            <path d="M18 23 L32 30 L32 46 L18 39 Z" fill="#9333ea" fillOpacity="0.85" stroke="#ffffff" strokeWidth="1" />
+            <path d="M18 23 L32 30 L32 46 L18 39 Z" fill="#0284c7" fillOpacity="0.85" stroke="#ffffff" strokeWidth="1" />
             {/* 우측면 */}
-            <path d="M32 30 L46 23 L46 39 L32 46 Z" fill="#ec4899" fillOpacity="0.85" stroke="#ffffff" strokeWidth="1" />
+            <path d="M32 30 L46 23 L46 39 L32 46 Z" fill="#0d9488" fillOpacity="0.85" stroke="#ffffff" strokeWidth="1" />
             {/* 주사위 눈금 점들 */}
             <circle cx="32" cy="23" r="2" fill="#ffffff" />
             <circle cx="23" cy="33" r="1.5" fill="#ffffff" />
@@ -137,7 +137,7 @@ export const AugmentIcon = ({ id, size = 42 }) => {
             />
             <path d="M11 31 L14 39 L22 37" fill="none" stroke="url(#prismRing)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             {/* 내부 룰렛 나침반 다이얼 */}
-            <circle cx="32" cy="32" r="14" stroke="url(#goldGrad)" strokeWidth="1.5" fill="rgba(30, 16, 53, 0.6)" />
+            <circle cx="32" cy="32" r="14" stroke="url(#goldGrad)" strokeWidth="1.5" fill="rgba(15, 23, 42, 0.6)" />
             {/* 룰렛 분할선 (8방향 살) */}
             <path d="M32 18 L32 46 M18 32 L46 32 M22 22 L42 42 M42 22 L22 42" stroke="url(#prismGrad)" strokeWidth="1.2" strokeOpacity="0.7" />
             {/* 중앙 신비로운 물음표 룬 */}
@@ -171,7 +171,7 @@ export const AugmentIcon = ({ id, size = 42 }) => {
               strokeLinejoin="round"
             />
             {/* 방패 내부 엠블럼 */}
-            <path d="M26 26 L26 40 M21 31 L31 31" stroke="#3b1d60" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M26 26 L26 40 M21 31 L31 31" stroke="#0d1722" strokeWidth="1.5" strokeLinecap="round" />
             {/* 오른쪽을 향해 교차하는 빛나는 대검 */}
             <g transform="rotate(40 38 32)">
               {/* 검신 */}
@@ -196,7 +196,7 @@ const IconFrame = styled.div`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 8px rgba(192, 132, 252, 0.45));
+  filter: drop-shadow(0 0 6px rgba(100, 255, 218, 0.35));
   transition: transform 0.2s ease, filter 0.2s ease;
 
   svg {

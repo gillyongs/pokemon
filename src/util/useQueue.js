@@ -53,6 +53,36 @@ export function useQueue() {
     return removedItem;
   };
 
+  const updateHead = (updater, curBattle) => {
+    setQueue((prevQueue) => {
+      if (prevQueue.length === 0) return prevQueue;
+      const head = typeof updater === "function" ? updater(prevQueue[0]) : updater;
+      const deepCopiedHead = cloneWithMethods(head);
+
+      if (!curBattle) {
+        return [deepCopiedHead, ...prevQueue.slice(1)];
+      }
+
+      const rest = prevQueue.slice(1).map((item) => {
+        if (!item.battle) return item;
+        const nextItemBattle = cloneWithMethods(item.battle);
+        const sourceTeam = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2];
+        const targetTeam = [nextItemBattle.player, nextItemBattle.playerBench1, nextItemBattle.playerBench2];
+        sourceTeam.forEach((sPoke, pIdx) => {
+          if (sPoke && targetTeam[pIdx]) {
+            targetTeam[pIdx].augments = cloneWithMethods(sPoke.augments || []);
+          }
+        });
+        return {
+          ...item,
+          battle: nextItemBattle,
+        };
+      });
+
+      return [deepCopiedHead, ...rest];
+    });
+  };
+
   const resetQueue = () => {
     setQueue((prev) => (prev.length > 0 ? [] : prev));
   };
@@ -77,6 +107,7 @@ export function useQueue() {
       log,
       enqueue,
       dequeue,
+      updateHead,
       resetQueue,
       initQueue,
       queueCheck,

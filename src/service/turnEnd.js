@@ -87,6 +87,28 @@ export const turnEnd = (battle, enqueue) => {
     // (아니면 NPC가 교체할 포켓몬을 플레이어가 알게 되므로)
     switchNpcAuto(battle, enqueue);
   }
+
+  // 적을 쓰러뜨리고, turnEnd 마지막에 "증강을 선택하세요", isAugment:true queue 추가
+  if (battle.isMayhem && (battle.turn?.npcFaintedCount > 0 || battle.turn?.npcFaintedThisTurn)) {
+    const fCount = battle.turn?.npcFaintedCount || 1;
+    if (battle.turn) {
+      battle.turn.npcFaintedCount = 0;
+      battle.turn.npcFaintedThisTurn = false;
+    }
+    for (let i = 0; i < fCount; i++) {
+      const hasSlot = [battle.player, battle.playerBench1, battle.playerBench2].some(
+        (p) => p && (p.augments || []).length < 3
+      );
+      if (hasSlot) {
+        enqueue({
+          battle: battle,
+          text: "증강을 선택하세요",
+          isAugment: true,
+        });
+      }
+    }
+  }
+
   if (battle.player.faint) {
     battle.turn.textFreeze = true;
     enqueue({

@@ -1,7 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
+const DEFAULT_DESCRIPTION = "게임의 난이도 및 옵션을 설정할 수 있습니다.";
+
+const OPTION_DESCRIPTIONS = {
+  이지: "기본적인 포켓몬 배틀입니다",
+  노말: "매 라운드마다 적의 체력이 0.1배 증가합니다.",
+  하드: "매 라운드마다 적의 모든 능력치가 0.1배 증가합니다.",
+  랜덤: "매 라운드마다 팀 엔트리가 랜덤하게 바뀝니다.",
+  고정: "팀 엔트리가 바뀌지 않습니다.",
+  트레이드: "매 라운드마다 상대 팀 엔트리에서 한명을 교환할 수 있습니다.",
+  아수라장: `배틀 시작시 랜덤한 증강을 선택할 수 있습니다. 
+  상대 포켓몬을 쓰러뜨리면 증강을 하나 더 얻습니다. 
+  다음 라운드로 넘어갈때 하나의 증강을 가져갈 수 있습니다.`,
+};
+
 const GameOptionModal = ({ difficulty, setDifficulty, teamOption, setTeamOption, mayhemMode, setMayhemMode, onClose }) => {
+  const [description, setDescription] = useState(DEFAULT_DESCRIPTION);
+
+  const handleDifficultySelect = (level) => {
+    setDifficulty(level);
+    setDescription(OPTION_DESCRIPTIONS[level] || DEFAULT_DESCRIPTION);
+  };
+
+  const handleTeamOptionSelect = (opt) => {
+    setTeamOption(opt);
+    setDescription(OPTION_DESCRIPTIONS[opt] || DEFAULT_DESCRIPTION);
+  };
+
+  const handleMayhemSelect = (value) => {
+    setMayhemMode?.(value);
+    setDescription(value ? OPTION_DESCRIPTIONS.아수라장 : OPTION_DESCRIPTIONS.이지);
+  };
+
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
@@ -9,53 +40,38 @@ const GameOptionModal = ({ difficulty, setDifficulty, teamOption, setTeamOption,
           <ModalTitle>게임 옵션</ModalTitle>
           <CloseIcon onClick={onClose}>✕</CloseIcon>
         </ModalHeader>
+
         <ModalSubTitle>난이도</ModalSubTitle>
         <DifficultyContainer>
           {["이지", "노말", "하드"].map((level) => (
-            <DifficultyButton key={level} $active={difficulty === level} onClick={() => setDifficulty(level)}>
+            <DifficultyButton key={level} $active={difficulty === level} onClick={() => handleDifficultySelect(level)}>
               {level}
             </DifficultyButton>
           ))}
         </DifficultyContainer>
-        <DifficultyDescription>
-          {difficulty === "이지" && "기초적인 포켓몬배틀이다."}
-          {difficulty === "노말" && "매 라운드마다 적의 체력이 0.1배 증가합니다."}
-          {difficulty === "하드" && "매 라운드마다 적의 모든 능력치가 0.1배 증가합니다."}
-        </DifficultyDescription>
 
-        <ModalSubTitle style={{ marginTop: "20px" }}>팀 옵션</ModalSubTitle>
+        <ModalSubTitle>팀 옵션</ModalSubTitle>
         <DifficultyContainer>
           {["랜덤", "고정", "트레이드"].map((opt) => (
-            <DifficultyButton key={opt} $active={teamOption === opt} onClick={() => setTeamOption(opt)}>
+            <DifficultyButton key={opt} $active={teamOption === opt} onClick={() => handleTeamOptionSelect(opt)}>
               {opt}
             </DifficultyButton>
           ))}
         </DifficultyContainer>
-        <DifficultyDescription>
-          {teamOption === "랜덤" && "매 라운드마다 팀 엔트리가 랜덤하게 바뀝니다."}
-          {teamOption === "고정" && "팀 엔트리가 바뀌지 않습니다."}
-          {teamOption === "트레이드" && "매 라운드마다 상대 팀 엔트리에서 한명을 교환할 수 있습니다."}
-        </DifficultyDescription>
 
-        <ModalSubTitle style={{ marginTop: "20px" }}>아수라장 모드</ModalSubTitle>
+        <ModalSubTitle>아수라장 모드</ModalSubTitle>
         <DifficultyContainer>
           {[
             { label: "OFF", value: false },
             { label: "ON", value: true },
           ].map((item) => (
-            <DifficultyButton
-              key={item.label}
-              $active={Boolean(mayhemMode) === item.value}
-              onClick={() => setMayhemMode?.(item.value)}>
+            <DifficultyButton key={item.label} $active={Boolean(mayhemMode) === item.value} onClick={() => handleMayhemSelect(item.value)}>
               {item.label}
             </DifficultyButton>
           ))}
         </DifficultyContainer>
-        <DifficultyDescription>
-          {mayhemMode
-            ? "아수라장 모드 활성화: 배틀 시작 시 파격적인 랜덤 증강을 선택할 수 있습니다."
-            : "아수라장 모드 비활성화: 기본 포켓몬 배틀 규칙으로 진행합니다."}
-        </DifficultyDescription>
+
+        <OptionDescription>{description}</OptionDescription>
       </ModalContent>
     </ModalOverlay>
   );
@@ -123,8 +139,8 @@ const CloseIcon = styled.div`
 const DifficultyContainer = styled.div`
   display: flex;
   gap: 10px;
-  margin-top: 10px;
-  margin-bottom: 20px;
+  margin-top: 8px;
+  margin-bottom: 16px;
 `;
 
 const DifficultyButton = styled.div`
@@ -143,11 +159,15 @@ const DifficultyButton = styled.div`
   }
 `;
 
-const DifficultyDescription = styled.div`
+const OptionDescription = styled.div`
   background-color: #f9f9f9;
   padding: 15px;
   border-radius: 6px;
   color: #666;
   font-size: 0.9rem;
   line-height: 1.5;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  word-break: keep-all;
 `;

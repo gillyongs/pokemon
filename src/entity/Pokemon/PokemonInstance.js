@@ -172,13 +172,23 @@ class PokemonInstance {
   }
 
   applyAugment(augment, battle) {
-    if (!this.augments) this.augments = [];
+    if (!this.augments) {
+      this.augments = [];
+    }
     const augId = typeof augment === 'string' ? augment : augment.id;
-    if (this.hasAugment(augId)) return;
-    this.augments.push(augment);
+    if (this.augments.length >= 3) return false;
+    if (this.hasAugment(augId)) return false;
+
+    if (Array.isArray(this.augments) && Object.isExtensible(this.augments)) {
+      this.augments.push(augment);
+    } else {
+      this.augments = [...(this.augments || []), augment];
+    }
+
     if (typeof augment === 'object' && augment.onApply) {
       augment.onApply(this, battle);
     }
+    return true;
   }
 
   // 기절시 상태이상 초기화

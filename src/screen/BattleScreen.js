@@ -8,7 +8,9 @@ import { gameOptionState } from "../util/recoilState";
 import { testmode, setSelectedNpcAct } from "../config/testMode";
 import TradeInfoModal from "../component/battleScreen/TradeInfoModal";
 import AugmentModal from "../component/battleScreen/AugmentModal";
-import { rollAugments } from "../util/augmentRoll";
+import AugmentStatusModal from "../component/battleScreen/AugmentStatusModal";
+import AugmentCarryoverModal from "../component/battleScreen/AugmentCarryoverModal";
+import { rollAugments, grantRandomAugment } from "../util/augmentRoll";
 import { useQueue } from "../util/useQueue";
 
 import PokemonInfo from "../component/battleScreen/top/PokemonInfo";
@@ -40,6 +42,11 @@ const Battle = () => {
   const [isRoundOptionsOpen, setIsRoundOptionsOpen] = useState(false);
   const [augmentModalOpen, setAugmentModalOpen] = useState(false);
   const [augmentChoices, setAugmentChoices] = useState([]);
+  const [augmentTargetPoke, setAugmentTargetPoke] = useState(null);
+  const [isInitialBattleStart, setIsInitialBattleStart] = useState(false);
+  const [isAugmentStatusOpen, setIsAugmentStatusOpen] = useState(false);
+  const [isAugmentCarryModalOpen, setIsAugmentCarryModalOpen] = useState(false);
+  const [carriedAugmentsData, setCarriedAugmentsData] = useState(null);
   //개발용 배틀 객체.
   const [text, setText] = useState("");
   //화면에 보여질 텍스트 전역변수
@@ -70,6 +77,26 @@ const Battle = () => {
   };
 
   const handleNextRound = () => {
+    const { mayhemMode = gameOption.mayhemMode } = location.state || {};
+    const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
+    const teamHasAugments = [battle?.player, battle?.playerBench1, battle?.playerBench2].some(
+      (p) => (p?.augments || []).length > 0
+    );
+
+    if (isMayhem && teamHasAugments) {
+      setIsAugmentCarryModalOpen(true);
+      return;
+    }
+    continueNextRound();
+  };
+
+  const handleCarryoverConfirm = (carriedMap) => {
+    setIsAugmentCarryModalOpen(false);
+    setCarriedAugmentsData(carriedMap);
+    continueNextRound(carriedMap);
+  };
+
+  const continueNextRound = (carriedMap = carriedAugmentsData) => {
     const { teamOption = gameOption.teamOption } = location.state || {};
     if (teamOption === "트레이드" && !isTradeModalOpen) {
       setTradePlayerIdx(null);
@@ -79,12 +106,14 @@ const Battle = () => {
       setIsTradeModalOpen(true);
       return;
     }
-    proceedNextRound();
+    proceedNextRound(null, carriedMap);
   };
 
-  const proceedNextRound = (customTeam1 = null) => {
+  const proceedNextRound = (customTeam1 = null, carriedMap = carriedAugmentsData) => {
     setGameResult(null);
     setIsTradeModalOpen(false);
+    setIsAugmentCarryModalOpen(false);
+    setCarriedAugmentsData(null);
     setTradePlayerIdx(null);
     setTradeNpcIdx(null);
     setTradeInfoPokemon(null);
@@ -98,7 +127,20 @@ const Battle = () => {
     }
 
     const nextTeam2 = getRandomTeam(3);
-    navigate("/battle", { state: { team1: nextTeam1, team2: nextTeam2, isNew: true, difficulty, teamOption, round: round + 1, fromCustom, mayhemMode }, replace: true });
+    navigate("/battle", {
+      state: {
+        team1: nextTeam1,
+        team2: nextTeam2,
+        isNew: true,
+        difficulty,
+        teamOption,
+        round: round + 1,
+        fromCustom,
+        mayhemMode,
+        carriedAugments: carriedMap,
+      },
+      replace: true,
+    });
   };
 
   const submitTrade = () => {
@@ -119,7 +161,7 @@ const Battle = () => {
     let nextTeam1 = [...team1];
     const npcIds = npcTeamFixed.map((p) => p.id);
     nextTeam1[tradePlayerIdx] = npcIds[tradeNpcIdx];
-    proceedNextRound(nextTeam1);
+    proceedNextRound(nextTeam1, carriedAugmentsData);
   };
 
   useEffect(() => {
@@ -142,46 +184,91 @@ const Battle = () => {
     const curBattle = battleObj.current;
     if (!curBattle) return;
 
-    curBattle.player.applyAugment(selectedAugment, curBattle);
-    queueObject.enqueue({
-      battle: curBattle,
-      text: `[증강] ${curBattle.player.names} "${selectedAugment.name}" 효과를 얻었다!`,
-    });
+    const teamPokes = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2];
+    const target = (augmentTargetPoke && teamPokes.find((p) => p && (p.originalIndex === augmentTargetPoke.originalIndex || p.id === augmentTargetPoke.id))) || curBattle.player;
+    target.applyAugment(selectedAugment, curBattle);
 
-    const fastUser = speedCheck(curBattle);
-    const slowUser = fastUser === "player" ? "npc" : "player";
-    applyAbilityEffects(curBattle, fastUser, queueObject.enqueue);
-    applyAbilityEffects(curBattle, slowUser, queueObject.enqueue);
+    const gainText = `[증강] ${target.names} "${selectedAugment.name}"(값: ${selectedAugment.cost || 1}) 효과를 얻었다!`;
+    if (queueObject.queue[0]?.isAugment) {
+      queueObject.updateHead(
+        (prev) => ({
+          ...prev,
+          battle: curBattle,
+          text: gainText,
+          isAugment: false,
+        }),
+        curBattle
+      );
+      setText(gainText);
+    } else {
+      queueObject.enqueue({
+        battle: curBattle,
+        text: `[증강] ${target.names} "${selectedAugment.name}"(값: ${selectedAugment.cost || 1}) 효과를 얻었다!`,
+      });
+    }
+    setBattle(cloneWithMethods(curBattle));
+  };
+
+  const handleCloseAugment = () => {
+    setAugmentModalOpen(false);
+    const curBattle = battleObj.current;
+    if (!curBattle) return;
+
+    if (queueObject.queue[0]?.isAugment) {
+      queueObject.dequeue();
+    }
     setBattle(cloneWithMethods(curBattle));
   };
 
   let screenFix = false;
   useEffect(() => {
-    let { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round, mayhemMode = gameOption.mayhemMode } = location.state || {}; // 랜덤 battleObject 가져오기
+    let { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round, mayhemMode = gameOption.mayhemMode, carriedAugments } = location.state || {}; // 랜덤 battleObject 가져오기
     screenFix = true;
     queueObject.initQueue();
     setBottom("skill");
     setBench(null);
     setIsTradeModalOpen(false);
+    setIsAugmentCarryModalOpen(false);
+    setCarriedAugmentsData(null);
     setTradePlayerIdx(null);
     setTradeNpcIdx(null);
     setTradeInfoPokemon(null);
     setTradeAlertMessage(null);
 
     const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
-    battleObj.current = createBattle(team1, team2, { difficulty, round });
-    queueObject.enqueue({ battle: battleObj.current, text: "배틀시작!" });
+    battleObj.current = createBattle(team1, team2, { difficulty, round, mayhemMode: isMayhem });
+    if (isMayhem && carriedAugments) {
+      // 이전 라운드에서 선택하여 유지한 증강 복원
+      const teamPokes = [battleObj.current.player, battleObj.current.playerBench1, battleObj.current.playerBench2];
+      teamPokes.forEach((p, idx) => {
+        if (p && Array.isArray(carriedAugments[idx])) {
+          carriedAugments[idx].forEach((aug) => {
+            p.applyAugment(aug, battleObj.current);
+          });
+        }
+      });
+    }
 
     if (isMayhem) {
-      const rolled = rollAugments(battleObj.current.player, 3);
-      setAugmentChoices(rolled);
-      setAugmentModalOpen(true);
-    } else {
-      const fastUser = speedCheck(battleObj.current);
-      const slowUser = fastUser === "player" ? "npc" : "player";
-      applyAbilityEffects(battleObj.current, fastUser, queueObject.enqueue);
-      applyAbilityEffects(battleObj.current, slowUser, queueObject.enqueue);
+      // 배틀 시작 전에 증강 선택 큐를 먼저 추가
+      const target = [battleObj.current.player, battleObj.current.playerBench1, battleObj.current.playerBench2].find(
+        (p) => p && (p.augments || []).length < 3
+      );
+      if (target) {
+        queueObject.enqueue({
+          battle: battleObj.current,
+          text: "증강을 선택하세요",
+          isAugment: true,
+        });
+      }
     }
+
+    queueObject.enqueue({ battle: battleObj.current, text: "배틀시작!" });
+
+    const fastUser = speedCheck(battleObj.current);
+    const slowUser = fastUser === "player" ? "npc" : "player";
+    applyAbilityEffects(battleObj.current, fastUser, queueObject.enqueue);
+    applyAbilityEffects(battleObj.current, slowUser, queueObject.enqueue);
   }, [location.state]); // location.state가 변경될 때 실행
 
   useEffect(() => {
@@ -216,6 +303,25 @@ const Battle = () => {
         setBottom("uturn");
       }
 
+      if (queue[0].isAugment) {
+        const curB = battleObj.current;
+        const target = [curB.player, curB.playerBench1, curB.playerBench2].find(
+          (p) => p && (p.augments || []).length < 3
+        );
+        if (target) {
+          const choices = rollAugments(target, 3);
+          if (choices && choices.length > 0) {
+            setAugmentChoices(choices);
+            setAugmentTargetPoke(target);
+            setAugmentModalOpen(true);
+          } else {
+            queueObject.dequeue();
+          }
+        } else {
+          queueObject.dequeue();
+        }
+      }
+
       const qBattle = queue[0].battle;
       const npcFaint = qBattle.npc.faint;
       const npcFaint1 = qBattle.npcBench1.faint;
@@ -243,6 +349,7 @@ const Battle = () => {
   }, [queueObject.queue]);
 
   const handleDequeue = () => {
+    if (augmentModalOpen || queueObject.queue[0]?.isAugment) return;
     if (queueObject.queue.length > 0) {
       if (battle.turn.textFreeze) {
         return;
@@ -426,6 +533,20 @@ const Battle = () => {
           {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} battleStartBySkillButton={battleStartBySkillButton} textSkip={textSkip} btObj={battleObj.current} />}
           {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
           {bottom === "info" && <BottomSectionInfo battle={battle} text={text} setText={setText} setBottom={setBottom} bench={bench} />}
+          <AugmentStatusButton
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsAugmentStatusOpen(true);
+            }}
+          >
+            증강 {(() => {
+              const count = [battle?.player, battle?.playerBench1, battle?.playerBench2].reduce(
+                (sum, p) => sum + (p?.augments?.length || 0),
+                0
+              );
+              return count > 0 ? `(${count})` : "";
+            })()}
+          </AugmentStatusButton>
           {testmode && location.state?.fromCustom && (
             <CustomBackButton
               onClick={(e) => {
@@ -626,8 +747,22 @@ const Battle = () => {
         {augmentModalOpen && (
           <AugmentModal
             augments={augmentChoices}
-            targetPokemon={battleObj.current?.player}
+            targetPokemon={augmentTargetPoke || battleObj.current?.player}
             onSelect={handleSelectAugment}
+            onClose={handleCloseAugment}
+          />
+        )}
+        {isAugmentStatusOpen && (
+          <AugmentStatusModal
+            battle={battle}
+            onClose={() => setIsAugmentStatusOpen(false)}
+          />
+        )}
+        {isAugmentCarryModalOpen && (
+          <AugmentCarryoverModal
+            battle={battle}
+            round={location.state?.round || defaultOption.round}
+            onConfirm={handleCarryoverConfirm}
           />
         )}
       </BATTLE>
@@ -891,10 +1026,39 @@ const NpcActionItem = styled.div`
   }
 `;
 
-const CustomBackButton = styled.div`
+const AugmentStatusButton = styled.div`
   position: absolute;
   top: 49.5vh;
   left: 1vw;
+  width: 14vw;
+  height: 6vh;
+  border-radius: 5px;
+  background: linear-gradient(135deg, rgba(20, 30, 40, 0.85), rgba(0, 0, 0, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: #cbd5e1;
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(30, 45, 60, 0.95), rgba(10, 15, 20, 0.9));
+    border-color: rgba(100, 255, 218, 0.5);
+    color: #64ffda;
+  }
+`;
+
+const CustomBackButton = styled.div`
+  position: absolute;
+  top: 49.5vh;
+  left: 16vw;
   width: 14vw;
   height: 6vh;
   border-radius: 5px;

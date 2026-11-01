@@ -5,21 +5,25 @@ export const AUGMENT_LIST = [
   {
     id: "noUnfairMiss",
     name: "억까 방지",
+    cost: 1,
     desc: "명중률이 80% 이상인 기술이 절대 빗나가지 않습니다.",
   },
   {
     id: "mandoocornEndure",
     name: "만두콘은 이왕걸을 슬프게 하지 않게 하려고 버텼다",
+    cost: 1,
     desc: "기절할 공격을 받을 때 10% 확률로 HP 1로 버팁니다.",
   },
   {
     id: "gamblingAddict",
     name: "도박 중독",
+    cost: 2,
     desc: "모든 공격기(물리/특수)의 명중률이 절반이 되지만, 기술 위력이 2배가 됩니다.",
   },
   {
     id: "rouletteWheel",
     name: "돌려 돌려 돌림판",
+    cost: 1,
     desc: "현재 포켓몬을 임의의 포켓몬으로 교체합니다.",
     onApply: (pokemon, battle) => {
       if (!battle) return;
@@ -46,6 +50,7 @@ export const AUGMENT_LIST = [
   {
     id: "swordAndShield",
     name: "오른손에 방패 왼손엔 검",
+    cost: 2,
     desc: "공격과 방어, 특수공격과 특수방어 능력치를 서로 맞바꿉니다.",
     onApply: (pokemon) => {
       if (!pokemon?.origin?.stat) return;

@@ -38,6 +38,12 @@ export const PokemonGetDamage = {
       battle,
       text: `${this.names} 쓰러졌다!`,
     });
+
+    // 상대 포켓몬이 쓰러진 횟수를 기록 (turnEnd에서 증강 선택 큐 추가용)
+    if (this.team === "npc" && battle?.turn) {
+      battle.turn.npcFaintedCount = (battle.turn.npcFaintedCount || 0) + 1;
+      battle.turn.npcFaintedThisTurn = true;
+    }
   },
 
   tryBerry(battle, enqueue) {
@@ -49,9 +55,11 @@ export const PokemonGetDamage = {
     const noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
     if (noBerryAbil.includes(atkAbil)) return;
 
-    if (this.item === "자뭉열매" && this.hp <= this.origin.hp / 2) {
-      this.item = null;
-      this.recover(battle, Math.floor(this.origin.hp / 4), enqueue, `${this.names} 자뭉열매로 체력을 회복했다!`);
+    if (this.item === "자뭉열매") {
+      if (this.hp <= Math.floor(this.origin.hp / 2)) {
+        this.recover(battle, Math.floor(this.origin.hp / 4), enqueue, `${this.names} 자뭉열매로 인해 조금 회복했다.`);
+        this.item = null;
+      }
     }
   },
 };
