@@ -37,13 +37,15 @@ export const AUGMENT_LIST = [
       newPoke.originalIndex = pokemon.originalIndex !== undefined ? pokemon.originalIndex : 0;
       newPoke.augments = [...(pokemon.augments || [])];
 
-      if (battle.player === pokemon) {
+      const targetIdx = pokemon.originalIndex;
+      if (battle.player === pokemon || (targetIdx !== undefined && battle.player?.originalIndex === targetIdx)) {
         battle.player = newPoke;
-      } else if (battle.playerBench1 === pokemon) {
+      } else if (battle.playerBench1 === pokemon || (targetIdx !== undefined && battle.playerBench1?.originalIndex === targetIdx)) {
         battle.playerBench1 = newPoke;
-      } else if (battle.playerBench2 === pokemon) {
+      } else if (battle.playerBench2 === pokemon || (targetIdx !== undefined && battle.playerBench2?.originalIndex === targetIdx)) {
         battle.playerBench2 = newPoke;
       }
+      Object.setPrototypeOf(pokemon, Object.getPrototypeOf(newPoke));
       Object.assign(pokemon, newPoke);
     },
   },

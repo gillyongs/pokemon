@@ -121,10 +121,18 @@ const Battle = () => {
     queueObject.initQueue();
     const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round, fromCustom, mayhemMode = gameOption.mayhemMode } = location.state || {};
 
-    let nextTeam1 = customTeam1 ? customTeam1 : [...team1];
-    if (!customTeam1 && teamOption === "랜덤") {
-      nextTeam1 = getRandomTeam(3);
-    }
+    const curPlayerTeam = [battleObj.current?.player, battleObj.current?.playerBench1, battleObj.current?.playerBench2]
+      .filter(Boolean)
+      .sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
+    const curTeamIds = curPlayerTeam.map((p) => p.id);
+
+    let nextTeam1 = customTeam1
+      ? customTeam1
+      : teamOption === "랜덤"
+      ? getRandomTeam(3)
+      : curTeamIds.length === 3
+      ? curTeamIds
+      : [...team1];
 
     const nextTeam2 = getRandomTeam(3);
     navigate("/battle", {
@@ -158,7 +166,7 @@ const Battle = () => {
     }
 
     const { team1 } = location.state || {};
-    let nextTeam1 = [...team1];
+    let nextTeam1 = playerTeamFixed.length === 3 ? playerTeamFixed.map((p) => p.id) : [...team1];
     const npcIds = npcTeamFixed.map((p) => p.id);
     nextTeam1[tradePlayerIdx] = npcIds[tradeNpcIdx];
     proceedNextRound(nextTeam1, carriedAugmentsData);
@@ -179,6 +187,14 @@ const Battle = () => {
   //   날개치는머리          도발:4
 
   
+  const enqueueBattleStart = (bt) => {
+    queueObject.enqueue({ battle: bt, text: "배틀시작!" });
+    const fastUser = speedCheck(bt);
+    const slowUser = fastUser === "player" ? "npc" : "player";
+    applyAbilityEffects(bt, fastUser, queueObject.enqueue);
+    applyAbilityEffects(bt, slowUser, queueObject.enqueue);
+  };
+
   const handleSelectAugment = (selectedAugment) => {
     setAugmentModalOpen(false);
     const curBattle = battleObj.current;
@@ -189,12 +205,15 @@ const Battle = () => {
     target.applyAugment(selectedAugment, curBattle);
 
     const gainText = `[증강] ${target.names} "${selectedAugment.name}"(값: ${selectedAugment.cost || 1}) 효과를 얻었다!`;
+    // 로그 기록에는 (값: N) 제외
+    const gainLogText = `[증강] ${target.names} "${selectedAugment.name}" 효과를 얻었다!`;
     if (queueObject.queue[0]?.isAugment) {
       queueObject.updateHead(
         (prev) => ({
           ...prev,
           battle: curBattle,
           text: gainText,
+          logText: gainLogText,
           isAugment: false,
         }),
         curBattle
@@ -203,9 +222,12 @@ const Battle = () => {
     } else {
       queueObject.enqueue({
         battle: curBattle,
-        text: `[증강] ${target.names} "${selectedAugment.name}"(값: ${selectedAugment.cost || 1}) 효과를 얻었다!`,
+        text: gainText,
+        logText: gainLogText,
       });
     }
+
+    enqueueBattleStart(curBattle);
     setBattle(cloneWithMethods(curBattle));
   };
 
@@ -217,6 +239,7 @@ const Battle = () => {
     if (queueObject.queue[0]?.isAugment) {
       queueObject.dequeue();
     }
+    enqueueBattleStart(curBattle);
     setBattle(cloneWithMethods(curBattle));
   };
 
@@ -260,15 +283,12 @@ const Battle = () => {
           text: "증강을 선택하세요",
           isAugment: true,
         });
+      } else {
+        enqueueBattleStart(battleObj.current);
       }
+    } else {
+      enqueueBattleStart(battleObj.current);
     }
-
-    queueObject.enqueue({ battle: battleObj.current, text: "배틀시작!" });
-
-    const fastUser = speedCheck(battleObj.current);
-    const slowUser = fastUser === "player" ? "npc" : "player";
-    applyAbilityEffects(battleObj.current, fastUser, queueObject.enqueue);
-    applyAbilityEffects(battleObj.current, slowUser, queueObject.enqueue);
   }, [location.state]); // location.state가 변경될 때 실행
 
   useEffect(() => {
@@ -316,9 +336,11 @@ const Battle = () => {
             setAugmentModalOpen(true);
           } else {
             queueObject.dequeue();
+            enqueueBattleStart(curB);
           }
         } else {
           queueObject.dequeue();
+          enqueueBattleStart(curB);
         }
       }
 

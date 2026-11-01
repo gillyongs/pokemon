@@ -45,7 +45,9 @@ export function useQueue() {
     if (removedItem) {
       if (!(removedItem.text && (removedItem.text.includes("무엇을 할까?") || removedItem.text.includes("누구로 교체")))) {
         if (!removedItem.noLog) {
-          setLog((prevLog) => [...prevLog, removedItem]);
+          // logText가 있으면 로그에는 logText로 기록 (화면 표시 텍스트와 다르게)
+          const logItem = removedItem.logText ? { ...removedItem, text: removedItem.logText } : removedItem;
+          setLog((prevLog) => [...prevLog, logItem]);
         }
       }
     }
@@ -70,7 +72,17 @@ export function useQueue() {
         const targetTeam = [nextItemBattle.player, nextItemBattle.playerBench1, nextItemBattle.playerBench2];
         sourceTeam.forEach((sPoke, pIdx) => {
           if (sPoke && targetTeam[pIdx]) {
-            targetTeam[pIdx].augments = cloneWithMethods(sPoke.augments || []);
+            if (sPoke.id !== targetTeam[pIdx].id) {
+              const clonedPoke = cloneWithMethods(sPoke);
+              if (pIdx === 0) nextItemBattle.player = clonedPoke;
+              else if (pIdx === 1) nextItemBattle.playerBench1 = clonedPoke;
+              else if (pIdx === 2) nextItemBattle.playerBench2 = clonedPoke;
+            } else {
+              targetTeam[pIdx].augments = cloneWithMethods(sPoke.augments || []);
+              if (sPoke.origin?.stat && targetTeam[pIdx].origin?.stat) {
+                targetTeam[pIdx].origin.stat = cloneWithMethods(sPoke.origin.stat);
+              }
+            }
           }
         });
         return {

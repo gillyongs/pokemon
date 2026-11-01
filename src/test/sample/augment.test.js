@@ -112,8 +112,9 @@ describe("아수라장 증강 시스템 테스트", () => {
     expect(poke.origin.stat.cdef).toBe(origCatk);
   });
 
-  test("4. 돌려 돌려 돌림판: 포켓몬 교체 확인", () => {
+  test("4. 돌려 돌려 돌림판: 포켓몬 교체 확인 및 메서드 정상 유지", () => {
     const poke = generate("배바닐라");
+    poke.originalIndex = 0;
     const fakeBattle = { player: poke };
     const origId = poke.id;
 
@@ -121,5 +122,21 @@ describe("아수라장 증강 시스템 테스트", () => {
 
     expect(fakeBattle.player.id).not.toBe(origId);
     expect(fakeBattle.player.augments).toBeDefined();
+    expect(fakeBattle.player.augments.some((a) => a.id === "rouletteWheel")).toBe(true);
+    expect(typeof fakeBattle.player.applyAugment).toBe("function");
+    expect(poke.id).toBe(fakeBattle.player.id);
+  });
+
+  test("5. 돌려 돌려 돌림판: 벤치 포켓몬 대상 교체 확인", () => {
+    const poke1 = generate("배바닐라");
+    const poke2 = generate("한카리아스");
+    poke1.originalIndex = 0;
+    poke2.originalIndex = 1;
+    const fakeBattle = { player: poke1, playerBench1: poke2 };
+
+    poke2.applyAugment(AUGMENT_LIST.find((a) => a.id === "rouletteWheel"), fakeBattle);
+
+    expect(fakeBattle.playerBench1.id).not.toBe("한카리아스");
+    expect(fakeBattle.player.id).toBe("배바닐라");
   });
 });
