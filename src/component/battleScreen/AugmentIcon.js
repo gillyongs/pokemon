@@ -187,6 +187,46 @@ export const AugmentIcon = ({ id, size = 42 }) => {
             <path d="M14 18 Q14 21 17 21 Q14 21 14 24 Q14 21 11 21 Q14 21 14 18 Z" fill="#67e8f9" />
           </g>
         )}
+
+        {/* 7. H.H.G.G.H.G.G (모든 능력치를 가장 높은 능력치로 통일 - 전능의 헥사곤 스타 & 프리즘 젬) */}
+        {(id === "hhgghgg" || id === "HHGGHGG") && (
+          <g filter="url(#glow)">
+            {/* 외곽 회전 마법진 링 */}
+            <circle cx="32" cy="32" r="23" stroke="url(#prismRing)" strokeWidth="1.2" strokeDasharray="6 4" strokeOpacity="0.8" />
+            <circle cx="32" cy="32" r="19" stroke="url(#goldGrad)" strokeWidth="1" strokeOpacity="0.6" />
+
+            {/* 6방향(모든 능력치)으로 뻗어나가는 헥사그램 / 육각 별자리 라인 */}
+            {/* 정삼각형 1 (상단) */}
+            <polygon points="32,11 48,39 16,39" stroke="url(#goldGrad)" strokeWidth="1.8" fill="rgba(254, 240, 138, 0.08)" strokeLinejoin="round" />
+            {/* 정삼각형 2 (하단) */}
+            <polygon points="32,53 48,25 16,25" stroke="url(#prismRing)" strokeWidth="1.8" fill="rgba(100, 255, 218, 0.08)" strokeLinejoin="round" />
+
+            {/* 각 꼭짓점 6개(능력치 노드)의 빛나는 오브 */}
+            <circle cx="32" cy="11" r="2.4" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.8" />
+            <circle cx="48" cy="25" r="2.4" fill="url(#prismGrad)" stroke="#ffffff" strokeWidth="0.8" />
+            <circle cx="48" cy="39" r="2.4" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.8" />
+            <circle cx="32" cy="53" r="2.4" fill="url(#prismGrad)" stroke="#ffffff" strokeWidth="0.8" />
+            <circle cx="16" cy="39" r="2.4" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.8" />
+            <circle cx="16" cy="25" r="2.4" fill="url(#prismGrad)" stroke="#ffffff" strokeWidth="0.8" />
+
+            {/* 중앙으로 모여드는 6방향 에너지 광선 */}
+            <line x1="32" y1="11" x2="32" y2="32" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
+            <line x1="48" y1="25" x2="32" y2="32" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
+            <line x1="48" y1="39" x2="32" y2="32" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
+            <line x1="32" y1="53" x2="32" y2="32" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
+            <line x1="16" y1="39" x2="32" y2="32" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
+            <line x1="16" y1="25" x2="32" y2="32" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
+
+            {/* 중앙 정점: 모든 수치를 통일하는 찬란한 다이아몬드 크리스탈 */}
+            <polygon points="32,24 40,32 32,40 24,32" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="1.5" />
+            <polygon points="32,27 37,32 32,37 27,32" fill="#ffffff" />
+
+            {/* ✦ 화려한 스파클 */}
+            <path d="M49 13 Q49 17 53 17 Q49 17 49 21 Q49 17 45 17 Q49 17 49 13 Z" fill="#fef08a" />
+            <path d="M15 47 Q15 50 18 50 Q15 50 15 53 Q15 50 12 50 Q15 50 15 47 Z" fill="#64ffda" />
+            <path d="M49 48 Q49 51 52 51 Q49 51 49 54 Q49 51 46 51 Q49 51 49 48 Z" fill="#38bdf8" />
+          </g>
+        )}
       </svg>
     </IconFrame>
   );

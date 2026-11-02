@@ -227,4 +227,28 @@ describe("아수라장 증강 시스템 테스트", () => {
     expect(fakeBattle.playerBench1.id).not.toBe("한카리아스");
     expect(fakeBattle.player.id).toBe("배바닐라");
   });
+
+  test("6. H.H.G.G.H.G.G: 가장 높은 능력치로 모든 능력치 통일 및 코스트 6 확인", () => {
+    const hhgghggAug = AUGMENT_LIST.find((a) => a.id === "hhgghgg");
+    expect(hhgghggAug).toBeDefined();
+    expect(hhgghggAug.name).toBe("H.H.G.G.H.G.G");
+    expect(hhgghggAug.cost).toBe(6);
+
+    const poke = generate("배바닐라");
+    const stat = poke.origin.stat;
+    const maxVal = Math.max(stat.atk, stat.def, stat.catk, stat.cdef, stat.speed);
+
+    // 동적 설명 검증
+    const descWithPoke = getAugmentDesc(hhgghggAug, poke);
+    expect(descWithPoke).toBe(`가장 높은 능력치(${maxVal})로 모든 능력치가 통일됩니다.`);
+    expect(getAugmentDesc(hhgghggAug, null)).toBe("가장 높은 능력치로 모든 능력치가 통일됩니다.");
+
+    // 적용 시 모든 능력치가 maxVal로 통일
+    expect(poke.applyAugment(hhgghggAug)).toBe(true);
+    expect(poke.origin.stat.atk).toBe(maxVal);
+    expect(poke.origin.stat.def).toBe(maxVal);
+    expect(poke.origin.stat.catk).toBe(maxVal);
+    expect(poke.origin.stat.cdef).toBe(maxVal);
+    expect(poke.origin.stat.speed).toBe(maxVal);
+  });
 });

@@ -119,7 +119,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       actualGiveDamage -= 1;
     } else if (defPokemon.hasAugment?.("mandoocornEndure")) {
       // 10% 확률로 HP 1로 버팀
-      if (Math.random() < 0.9) {
+      if (Math.random() < 0.1) {
         defPokemon.hp = 1;
         actualGiveDamage = prevHp - 1;
         mandooTextTrigger = true;
@@ -165,7 +165,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
 
   if (mandooTextTrigger) {
-    enqueue({ id: "68433131-04e8-41e0-8cc4-c13dcc8b93a4", battle, text: (commonText || "") + defPokemon.names + " 플레이어를 슬프지 않게 하려고 버텼다!" });
+    enqueue({ id: "68433131-04e8-41e0-8cc4-c13dcc8b93a4", battle, text: (commonText || "") + defPokemon.names + " 플레이어를 슬프게 하지 않으려고 버텼다!" });
     defaultText = false;
   }
 

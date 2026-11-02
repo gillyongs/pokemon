@@ -57,9 +57,7 @@ const AugmentModal = ({ augments = [], targetPokemon = null, onSelect, onClose }
                   <IconWrapper>
                     <AugmentIcon id={aug.id} size={38} />
                   </IconWrapper>
-                  {aug.cost !== "-" && aug.cost !== undefined && (
-                    <CostBadge>값 {aug.cost ?? 1} pt</CostBadge>
-                  )}
+                  {aug.cost !== "-" && aug.cost !== undefined && <CostBadge>{aug.cost ?? 1} cost</CostBadge>}
                 </IconCol>
                 <CardContent>
                   <CardTitle>{aug.name}</CardTitle>

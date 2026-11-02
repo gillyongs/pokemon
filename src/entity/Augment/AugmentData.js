@@ -18,9 +18,23 @@ export const getAugmentDesc = (augment, pokemon = null) => {
 
   if (augment.id === "specialSwordAndShield") {
     if (stat && typeof stat.catk === "number" && typeof stat.cdef === "number") {
-      return `특공(${stat.catk})과 특방(${stat.cdef}) 중 더 높은 수치로 두 능력치를 통일합니다.`;
+      const higher = Math.max(stat.catk, stat.cdef);
+      return `특공(${stat.catk})과 특방(${stat.cdef}) 중 더 높은 수치(${higher})로 두 능력치를 통일합니다.`;
     }
     return "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
+  }
+
+  if (augment.id === "hhgghgg") {
+    if (stat) {
+      const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter(
+        (v) => typeof v === "number"
+      );
+      if (values.length > 0) {
+        const higher = Math.max(...values);
+        return `가장 높은 능력치(${higher})로 모든 능력치가 통일됩니다.`;
+      }
+    }
+    return "가장 높은 능력치로 모든 능력치가 통일됩니다.";
   }
 
   if (typeof augment.getDesc === "function") {
@@ -124,6 +138,39 @@ export const AUGMENT_LIST = [
       const higher = Math.max(stat.catk, stat.cdef);
       stat.catk = higher;
       stat.cdef = higher;
+    },
+  },
+  {
+    id: "hhgghgg",
+    name: "H.H.G.G.H.G.G",
+    cost: 6,
+    desc: "가장 높은 능력치로 모든 능력치가 통일됩니다.",
+    getDesc: (pokemon) => {
+      const stat = pokemon?.origin?.stat;
+      if (stat) {
+        const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter(
+          (v) => typeof v === "number"
+        );
+        if (values.length > 0) {
+          const higher = Math.max(...values);
+          return `가장 높은 능력치(${higher})로 모든 능력치가 통일됩니다.`;
+        }
+      }
+      return "가장 높은 능력치로 모든 능력치가 통일됩니다.";
+    },
+    onApply: (pokemon) => {
+      if (!pokemon?.origin?.stat) return;
+      const stat = pokemon.origin.stat;
+      const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter(
+        (v) => typeof v === "number"
+      );
+      if (values.length === 0) return;
+      const higher = Math.max(...values);
+      stat.atk = higher;
+      stat.def = higher;
+      stat.catk = higher;
+      stat.cdef = higher;
+      stat.speed = higher;
     },
   },
 ];
