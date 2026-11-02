@@ -7,6 +7,11 @@ const AugmentModal = ({ augments = [], targetPokemon = null, onSelect, onClose }
 
   if (!augments || augments.length === 0) return null;
 
+  const handleTogglePeek = (e) => {
+    e.stopPropagation();
+    setIsPeekMode((prev) => !prev);
+  };
+
   const handleContainerClick = (e) => {
     e.stopPropagation();
     if (isPeekMode) {
@@ -24,7 +29,8 @@ const AugmentModal = ({ augments = [], targetPokemon = null, onSelect, onClose }
   };
 
   return (
-    <ModalOverlay $isPeek={isPeekMode} onClick={() => setIsPeekMode(true)}>
+    <ModalOverlay $isPeek={isPeekMode} onClick={() => setIsPeekMode((prev) => !prev)}>
+      <ModalWrapper onClick={(e) => e.stopPropagation()}>
       <ModalContainer $isPeek={isPeekMode} onClick={handleContainerClick}>
         <HeaderArea>
           <HeaderTopRow>
@@ -70,7 +76,15 @@ const AugmentModal = ({ augments = [], targetPokemon = null, onSelect, onClose }
             </AugmentCard>
           ))}
         </CardContainer>
-      </ModalContainer>
+        </ModalContainer>
+        <PeekToggleButton
+          $isPeek={isPeekMode}
+          onClick={handleTogglePeek}
+          title={isPeekMode ? "증강 선택창 선명하게" : "모달 흐리게 (필드 확인)"}
+        >
+          {isPeekMode ? "👁 선명하게 보기" : "👁 필드 보기 (흐리게)"}
+        </PeekToggleButton>
+      </ModalWrapper>
     </ModalOverlay>
   );
 };
@@ -108,6 +122,47 @@ const ModalOverlay = styled.div`
   cursor: ${(props) => (props.$isPeek ? "default" : "pointer")};
 `;
 
+const ModalWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 430px;
+  gap: 12px;
+  position: relative;
+  z-index: 10001;
+`;
+
+const PeekToggleButton = styled.button`
+  background: ${(props) => (props.$isPeek ? "rgba(15, 20, 28, 0.95)" : "rgba(15, 20, 28, 0.9)")};
+  border: 1px solid ${(props) => (props.$isPeek ? "#64ffda" : "rgba(255, 255, 255, 0.25)")};
+  border-radius: 20px;
+  color: ${(props) => (props.$isPeek ? "#64ffda" : "#cbd5e1")};
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+  transition: all 0.2s ease;
+  user-select: none;
+
+  &:hover {
+    background: rgba(25, 35, 50, 0.98);
+    border-color: #64ffda;
+    color: #64ffda;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(100, 255, 218, 0.25);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+`;
+
 const ModalContainer = styled.div`
   background: rgba(15, 20, 28, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -122,7 +177,7 @@ const ModalContainer = styled.div`
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
-  opacity: ${(props) => (props.$isPeek ? 0.4 : 1)};
+  opacity: ${(props) => (props.$isPeek ? 0.15 : 1)};
   transition: opacity 0.2s ease, border-color 0.2s ease;
   cursor: ${(props) => (props.$isPeek ? "pointer" : "default")};
 

@@ -204,9 +204,9 @@ const Battle = () => {
     const target = (augmentTargetPoke && teamPokes.find((p) => p && (p.originalIndex === augmentTargetPoke.originalIndex || p.id === augmentTargetPoke.id))) || curBattle.player;
     target.applyAugment(selectedAugment, curBattle);
 
-    const gainText = `[증강] ${target.names} "${selectedAugment.name}"(값: ${selectedAugment.cost || 1}) 효과를 얻었다!`;
-    // 로그 기록에는 (값: N) 제외
-    const gainLogText = `[증강] ${target.names} "${selectedAugment.name}" 효과를 얻었다!`;
+    const gainText = `[증강] ${target.names} "${selectedAugment.name}" 효과를 얻었다!`;
+
+    const gainLogText = gainText;
     if (queueObject.queue[0]?.isAugment) {
       queueObject.updateHead(
         (prev) => ({
