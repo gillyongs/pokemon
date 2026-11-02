@@ -197,14 +197,14 @@ const Battle = () => {
     applyAbilityEffects(bt, slowUser, queueObject.enqueue);
   };
 
-  const handleSelectAugment = (selectedAugment) => {
+  const handleSelectAugment = (selectedAugment, options = null) => {
     setAugmentModalOpen(false);
     const curBattle = battleObj.current;
     if (!curBattle) return;
 
     const teamPokes = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2];
     const target = (augmentTargetPoke && teamPokes.find((p) => p && (p.originalIndex === augmentTargetPoke.originalIndex || p.id === augmentTargetPoke.id))) || curBattle.player;
-    target.applyAugment(selectedAugment, curBattle);
+    target.applyAugment(selectedAugment, curBattle, options);
 
     const gainText = `[증강] ${target.names} "${selectedAugment.name}" 효과를 얻었다!`;
 

@@ -1,6 +1,6 @@
 import { generate } from "../../entity/Pokemon/PokemonInstance";
 import { createBattle } from "../../entity/Battle";
-import { AUGMENT_LIST, getAugmentDesc } from "../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, getAugmentDesc, isEligibleForDanceGarchomp } from "../../entity/Augment/AugmentData";
 import { rollAugments, grantRandomAugment } from "../../util/augmentRoll";
 import { getAccuracy } from "../../function/accuracyCalculate";
 import { damageCalculate } from "../../util/damageCalculate";
@@ -250,5 +250,40 @@ describe("아수라장 증강 시스템 테스트", () => {
     expect(poke.origin.stat.catk).toBe(maxVal);
     expect(poke.origin.stat.cdef).toBe(maxVal);
     expect(poke.origin.stat.speed).toBe(maxVal);
+  });
+
+  test("7. 전용 증강 '춤춰라 한카리아스': 등장 조건 및 기술 교환 검증", () => {
+    const danceAug = AUGMENT_LIST.find((a) => a.id === "danceOfGarchomp");
+    expect(danceAug).toBeDefined();
+    expect(danceAug.name).toBe("춤춰라 한카리아스");
+    expect(danceAug.cost).toBe(1);
+
+    // 1) 등장 자격 조건 검증 (isEligibleForDanceGarchomp)
+    const garchomp = generate("한카리아스");
+    expect(isEligibleForDanceGarchomp(garchomp)).toBe(true);
+
+    const nonGarchomp = generate("배바닐라");
+    expect(isEligibleForDanceGarchomp(nonGarchomp)).toBe(false);
+
+    // 2) rollAugments: 한카리아스가 아닌 포켓몬에게는 절대 등장하지 않음
+    for (let i = 0; i < 20; i++) {
+      const rolled = rollAugments(nonGarchomp, 3);
+      expect(rolled.some((a) => a.id === "danceOfGarchomp")).toBe(false);
+    }
+
+    // 3) 기술 교환 검증: 3번 슬롯(아이언헤드)을 용의춤으로 교환
+    expect(garchomp.origin.skill[3].name).toBe("아이언헤드");
+    expect(garchomp.applyAugment(danceAug, null, { replaceSlot: 3 })).toBe(true);
+
+    expect(garchomp.origin.skill[1].name).toBe("지진");
+    expect(garchomp.origin.skill[2].name).toBe("스케일샷");
+    expect(garchomp.origin.skill[3].name).toBe("용의춤");
+    expect(garchomp.origin.skill[3].skillNumber).toBe(3);
+    expect(garchomp.origin.skill[4].name).toBe("스텔스록");
+    expect(garchomp.pp[3]).toBe(32);
+
+    // 4) 이미 용의춤을 배운 한카리아스에게는 다시 등장하지 않음
+    expect(isEligibleForDanceGarchomp(garchomp)).toBe(false);
+    expect(rollAugments(garchomp, 3).some((a) => a.id === "danceOfGarchomp")).toBe(false);
   });
 });

@@ -2,7 +2,33 @@ import React from "react";
 import styled from "styled-components";
 
 // 포켓몬 배틀 UI 스타일에 맞춘 룬 & 심볼 SVG 아이콘 세트 (틸/청록 & 골드 & 슬레이트 네이비 테마)
-export const AugmentIcon = ({ id, size = 42 }) => {
+// 전용 증강별 포켓몬 도감번호 매핑
+export const DEDICATED_AUGMENT_POKEMON = {
+  danceOfGarchomp: "0445",
+  danceGarchomp: "0445",
+};
+
+export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null }) => {
+  const pokeId = pokemonId || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.origin?.pokemon_id && (id === "danceOfGarchomp" || id === "danceGarchomp") ? pokemon.origin.pokemon_id : null);
+
+  if (pokeId) {
+    return (
+      <IconFrame $size={size}>
+        <DedicatedFrame $size={size}>
+          <DedicatedBg />
+          <DedicatedImg
+            src={`/pokemon/img/pokemon/${pokeId}.webp`}
+            alt="전용 증강"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+          <DedicatedRing />
+        </DedicatedFrame>
+      </IconFrame>
+    );
+  }
+
   return (
     <IconFrame $size={size}>
       <svg viewBox="0 0 64 64" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -227,6 +253,33 @@ export const AugmentIcon = ({ id, size = 42 }) => {
             <path d="M49 48 Q49 51 52 51 Q49 51 49 54 Q49 51 46 51 Q49 51 49 48 Z" fill="#38bdf8" />
           </g>
         )}
+
+        {/* 8. 춤춰라 한카리아스 (용의 날개/지느러미 & 소용돌이치는 용의 춤 오라) */}
+        {(id === "danceOfGarchomp" || id === "danceGarchomp") && (
+          <g filter="url(#glow)">
+            {/* 용의 기운 소용돌이 테두리 */}
+            <path d="M14 36 C10 22 24 12 36 12 C48 12 54 24 50 38 C46 48 34 52 24 50" stroke="#38bdf8" strokeWidth="2" strokeDasharray="14 4" strokeLinecap="round" />
+            <path d="M22 18 C28 14 42 16 46 26" stroke="#f43f5e" strokeWidth="2" strokeLinecap="round" />
+
+            {/* 한카리아스 샤크 핀 / 드래곤 윙 실루엣 */}
+            <path d="M32 14 C36 22 46 26 48 34 C42 34 36 30 32 26 C28 30 22 34 16 34 C18 26 28 22 32 14 Z" fill="url(#prismGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
+
+            {/* 용의춤 상승 기류 나선 화살표 */}
+            <path d="M22 46 C24 38 32 36 36 32 C40 28 44 24 44 18" stroke="url(#goldGrad)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+            <path d="M40 16 L45 17 L44 22" fill="none" stroke="url(#goldGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+            <path d="M42 46 C40 38 32 36 28 32 C24 28 20 24 20 18" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" fill="none" />
+            <path d="M24 16 L19 17 L20 22" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+
+            {/* 중앙 드래곤 문장 룬 */}
+            <circle cx="32" cy="38" r="5" fill="#0f172a" stroke="url(#goldGrad)" strokeWidth="1.5" />
+            <path d="M32 35 L34 38 L32 41 L30 38 Z" fill="#f43f5e" />
+
+            {/* ✦ 스파클 */}
+            <path d="M48 14 Q48 18 52 18 Q48 18 48 22 Q48 18 44 18 Q48 18 48 14 Z" fill="#fef08a" />
+            <path d="M14 44 Q14 47 17 47 Q14 47 14 50 Q14 47 11 47 Q14 47 14 44 Z" fill="#f43f5e" />
+          </g>
+        )}
       </svg>
     </IconFrame>
   );
@@ -247,4 +300,47 @@ const IconFrame = styled.div`
   svg {
     display: block;
   }
+`;
+
+const DedicatedFrame = styled.div`
+  width: ${(props) => props.$size}px;
+  height: ${(props) => props.$size}px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: radial-gradient(circle, #1e293b 0%, #0f172a 70%, #090d16 100%);
+  border: 1.5px solid #38bdf8;
+  box-shadow:
+    0 0 8px rgba(56, 189, 248, 0.5),
+    inset 0 0 6px rgba(100, 255, 218, 0.3);
+`;
+
+const DedicatedBg = styled.div`
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(100, 255, 218, 0.15), transparent 70%);
+  pointer-events: none;
+`;
+
+const DedicatedImg = styled.img`
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+  z-index: 1;
+  user-select: none;
+  -webkit-user-drag: none;
+`;
+
+const DedicatedRing = styled.div`
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  border: 1px dashed rgba(254, 240, 138, 0.6);
+  pointer-events: none;
+  z-index: 2;
 `;

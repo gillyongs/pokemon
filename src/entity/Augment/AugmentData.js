@@ -1,10 +1,29 @@
 import sampleList from "../Pokemon/SamplePokemon";
 import { generate } from "../Pokemon/PokemonInstance";
+import skillList from "../Skill/skillList";
 
 /**
  * 포켓몬의 현재 수치를 반영한 증강 설명 텍스트를 반환합니다.
  * 포켓몬 객체가 없을 경우 기본 설명 문구를 반환합니다.
  */
+/**
+ * 춤춰라 한카리아스 등장 조건:
+ * - 포켓몬 이름에 '한카리아스'가 포함되어 있고
+ * - 현재 보유 기술 중 '용의춤'이 없는 경우
+ */
+export const isEligibleForDanceGarchomp = (pokemon) => {
+  if (!pokemon) return false;
+  const name = pokemon.origin?.name || pokemon.name || pokemon.id || "";
+  if (!name.includes("한카리아스")) return false;
+  const skills = pokemon.origin?.skill || pokemon.skill;
+  if (!skills) return true;
+  const hasDragonDance = [1, 2, 3, 4].some((slot) => {
+    const sk = skills[slot] || skills[String(slot)];
+    return sk?.name === "용의춤";
+  });
+  return !hasDragonDance;
+};
+
 export const getAugmentDesc = (augment, pokemon = null) => {
   if (!augment) return "";
   const stat = pokemon?.origin?.stat;
@@ -171,6 +190,24 @@ export const AUGMENT_LIST = [
       stat.catk = higher;
       stat.cdef = higher;
       stat.speed = higher;
+    },
+  },
+  {
+    id: "danceOfGarchomp",
+    name: "춤춰라 한카리아스",
+    cost: 1,
+    desc: '지니고 있는 기술 4개 중 하나를 "용의춤"과 교환합니다.',
+    isEligible: (pokemon) => isEligibleForDanceGarchomp(pokemon),
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon?.origin?.skill) return;
+      const slot = Number(options?.replaceSlot) || this.replacedSlot || 4;
+      this.replacedSlot = slot;
+      const dDance = { ...skillList.search("용의춤"), skillNumber: slot };
+      pokemon.origin.skill[slot] = dDance;
+      if (pokemon.pp) {
+        pokemon.pp[slot] = dDance.pp;
+      }
+      pokemon._danceReplacedSlot = slot;
     },
   },
 ];

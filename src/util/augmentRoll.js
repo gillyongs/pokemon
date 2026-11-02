@@ -10,7 +10,11 @@ export function rollAugments(pokemon, count = 3) {
   if (currentCount >= 3) return [];
 
   // 이미 보유한 증강 제외
-  const available = AUGMENT_LIST.filter((aug) => !pokemon.hasAugment?.(aug.id));
+  const available = AUGMENT_LIST.filter((aug) => {
+    if (pokemon.hasAugment?.(aug.id)) return false;
+    if (typeof aug.isEligible === "function" && !aug.isEligible(pokemon)) return false;
+    return true;
+  });
   const pool = [...available];
   const selected = [];
 

@@ -171,7 +171,7 @@ class PokemonInstance {
     });
   }
 
-  applyAugment(augment, battle) {
+  applyAugment(augment, battle, options) {
     if (!this.augments) {
       this.augments = [];
     }
@@ -186,7 +186,7 @@ class PokemonInstance {
     }
 
     if (typeof augment === 'object' && augment.onApply) {
-      augment.onApply(this, battle);
+      augment.onApply(this, battle, options);
     }
     return true;
   }
