@@ -1,6 +1,6 @@
 import { generate } from "../../entity/Pokemon/PokemonInstance";
 import { createBattle } from "../../entity/Battle";
-import { AUGMENT_LIST, getAugmentDesc, isEligibleForDanceGarchomp } from "../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, getAugmentDesc, isEligibleForDanceGarchomp, isEligibleForRouletteWheel } from "../../entity/Augment/AugmentData";
 import { rollAugments, grantRandomAugment, rollTeamAugments } from "../../util/augmentRoll";
 import { getAccuracy } from "../../function/accuracyCalculate";
 import { damageCalculate } from "../../util/damageCalculate";
@@ -8,6 +8,8 @@ import { afterSkillCheck } from "../../service/skillCheck";
 import * as randomCheckModule from "../../util/randomCheck";
 import { cloneWithMethods } from "../../util/cloneWithMethods";
 import { turnEnd } from "../../service/turnEnd";
+import { processAilment } from "../../service/turnEnd/ailmentEvent";
+import { applyOnHitEvents } from "../../service/onHit";
 import { skillUse } from "../../service/skillUse";
 
 describe("아수라장 증강 시스템 테스트", () => {
@@ -385,5 +387,140 @@ describe("아수라장 증강 시스템 테스트", () => {
     skillUse(dBattle, () => {});
     // 무아지경 효과로 인해 onlySkill은 여전히 고정되어야 함
     expect(dBattle.player.tempStatus.onlySkill).toBe(dBattle.player.origin.skill[1].name);
+  });
+  test("할머니의 고추기름(grandmasChiliOil): 화상 부가효과 기술 보유 조건 및 화상 데미지 5배 증가", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "grandmasChiliOil");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("할머니의 고추기름");
+    expect(aug.cost).toBe(1);
+
+    // 1) 조건 검증: 현재 기술의 부가효과로 화상이 있는 경우만 출현
+    const arcanine = generate("윈디"); // 도깨비불(화상), 플레어드라이브(화상)
+    expect(aug.isEligible(arcanine)).toBe(true);
+
+    const kyogre = generate("가이오가"); // 화상 부가효과 없음
+    expect(aug.isEligible(kyogre)).toBe(false);
+
+    const garchomp = generate("한카리아스"); // 화상 부가효과 없음
+    expect(aug.isEligible(garchomp)).toBe(false);
+
+    // 2) 효과 검증: 상대 포켓몬이 화상 상태일 때 화상 데미지 5배 증가
+    const battle = createBattle(["윈디", "배바닐라", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    battle.npc.ailment.burn = true;
+    const baseDamage = Math.max(1, Math.floor(battle.npc.origin.hp / 16));
+
+    const initialHp = battle.npc.hp;
+    processAilment(battle, () => {}, "player", "npc");
+    // 증강 미적용 시: 일반 화상 데미지
+    expect(battle.npc.hp).toBe(initialHp - baseDamage);
+
+    // 증강 적용
+    battle.player.applyAugment(aug);
+    const hpBeforeAugment = battle.npc.hp;
+    processAilment(battle, () => {}, "player", "npc");
+    // 증강 적용 시: 화상 데미지 5배 증가
+    expect(battle.npc.hp).toBe(hpBeforeAugment - baseDamage * 5);
+
+    // 본인(플레이어)이 화상일 때는 5배 증가가 적용되지 않음 (상대 포켓몬만 해당)
+    battle.player.ailment.burn = true;
+    const playerBaseDmg = Math.max(1, Math.floor(battle.player.origin.hp / 16));
+    const playerInitHp = battle.player.hp;
+    processAilment(battle, () => {}, "player", "npc");
+    expect(battle.player.hp).toBe(playerInitHp - playerBaseDmg);
+
+    // 3) 벤치 포켓몬이 고추기름 증강을 가지고 있고, 현재 배틀 중인 포켓몬은 가지고 있지 않은 경우 5배 미적용 (일반 데미지 적용)
+    const benchBattle = createBattle(["배바닐라", "윈디", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    benchBattle.playerBench1.applyAugment(aug); // 벤치 포켓몬이 증강 보유
+    benchBattle.npc.ailment.burn = true;
+    const benchNpcInitHp = benchBattle.npc.hp;
+    processAilment(benchBattle, () => {}, "player", "npc");
+    // 배틀 중인 배바닐라는 증강이 없으므로 일반 1배 화상 데미지만 적용됨
+    expect(benchBattle.npc.hp).toBe(benchNpcInitHp - baseDamage);
+  });
+
+  test("돌려 돌려 돌림판: 반피 이상일 때만 등장 조건(isEligible) 확인", () => {
+    const poke = generate("배바닐라");
+    const maxHp = poke.origin.hp;
+    const roulette = AUGMENT_LIST.find((a) => a.id === "rouletteWheel");
+
+    // 1) 풀피: 등장 가능
+    poke.hp = maxHp;
+    expect(isEligibleForRouletteWheel(poke)).toBe(true);
+    expect(roulette.isEligible(poke)).toBe(true);
+
+    // 2) 정확히 반피: 등장 가능
+    poke.hp = Math.ceil(maxHp / 2);
+    expect(isEligibleForRouletteWheel(poke)).toBe(true);
+    expect(roulette.isEligible(poke)).toBe(true);
+
+    // 3) 반피 미만 (예: 절반 - 1): 등장 불가
+    poke.hp = Math.floor(maxHp / 2) - 1;
+    expect(isEligibleForRouletteWheel(poke)).toBe(false);
+    expect(roulette.isEligible(poke)).toBe(false);
+
+    // 반피 미만일 때 추첨 풀에 돌려돌려돌림판이 포함되지 않아야 함
+    const rolledBelowHalf = rollAugments(poke, 20);
+    expect(rolledBelowHalf.some((a) => a.id === "rouletteWheel")).toBe(false);
+
+    const teamChoices = rollTeamAugments([poke]);
+    const pokeKey = poke.originalIndex ?? poke.id ?? 0;
+    expect((teamChoices[pokeKey] || []).some((a) => a.id === "rouletteWheel")).toBe(false);
+
+    // 4) 기절(HP 0): 등장 불가
+    poke.hp = 0;
+    expect(isEligibleForRouletteWheel(poke)).toBe(false);
+    expect(roulette.isEligible(poke)).toBe(false);
+  });
+
+  test("가시갑옷(thornmail): 타격기술(접촉기) 피격 시 상대에게 1/6 데미지 반사 및 울퉁불퉁멧 중첩 확인", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "thornmail");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("가시갑옷");
+    expect(aug.cost).toBe(3);
+    expect(aug.desc).toBe("타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 준다.");
+
+    const battle = createBattle(["배바닐라", "한카리아스", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    // 플레이어: 한카리아스(피격자), NPC: 어써러셔(공격자)
+    battle.player.applyAugment(aug);
+
+    battle.turn.atk = "npc";
+    battle.turn.def = "player";
+
+    // 1) 타격기술 (접촉기: feature.touch = true)
+    battle.npc.turn.useSkill = {
+      name: "웨이브푸시",
+      feature: { touch: true },
+      type: "물",
+      stype: "atk",
+    };
+
+    const initialNpcHp = battle.npc.hp;
+    const expectedDmg = Math.floor(battle.npc.origin.hp / 6);
+    applyOnHitEvents(battle, () => {});
+
+    expect(battle.npc.hp).toBe(initialNpcHp - expectedDmg);
+
+    // 2) 비접촉기 (feature.touch = false): 가시갑옷 반사 데미지 미발동
+    battle.npc.turn.useSkill = {
+      name: "파도타기",
+      feature: { touch: false },
+      type: "물",
+      stype: "catk",
+    };
+    const hpBeforeNonTouch = battle.npc.hp;
+    applyOnHitEvents(battle, () => {});
+    expect(battle.npc.hp).toBe(hpBeforeNonTouch);
+
+    // 3) 울퉁불퉁멧과 동시 장착 시 각각 1/6씩 총 2배(1/3) 데미지 중첩 적용
+    battle.player.item = "울퉁불퉁멧";
+    battle.npc.turn.useSkill = {
+      name: "웨이브푸시",
+      feature: { touch: true },
+      type: "물",
+      stype: "atk",
+    };
+    const hpBeforeDouble = battle.npc.hp;
+    applyOnHitEvents(battle, () => {});
+    expect(battle.npc.hp).toBe(hpBeforeDouble - expectedDmg * 2);
   });
 });

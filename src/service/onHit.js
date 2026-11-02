@@ -105,6 +105,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
       applyAilment("마비", battle, battle.turn.atk, enqueue, false, `[특성 정전기] ${atkPokemon.names} 마비되어 기술을 쓰기 어려워졌다!`);
     }
   }
+  // 철가시, 울퉁불퉁멧
   if (defPokemon.abilObj.feature?.hanka && touch && !atkPokemon.faint) {
     const text = "[특성 " + defPokemon.abil + "] " + atkPokemon.names + " 상처를 입었다!";
     atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 8, text);
@@ -114,5 +115,10 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
     const text = atkPokemon.names + " 울퉁불퉁멧 때문에 데미지를 입었다!";
     atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 6, text);
     // 철가시 1/8, 울멧 1/6 맞음
+  }
+  // [증강] 가시갑옷: 타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 준다
+  if (defPokemon.hasAugment?.("thornmail") && touch && !atkPokemon.faint) {
+    const text = atkPokemon.names + " 가시갑옷 때문에 데미지를 입었다!";
+    atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 6, text);
   }
 };

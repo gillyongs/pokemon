@@ -38,7 +38,7 @@ export const getAugmentDesc = (augment, pokemon = null) => {
   if (augment.id === "specialSwordAndShield") {
     if (stat && typeof stat.catk === "number" && typeof stat.cdef === "number") {
       const higher = Math.max(stat.catk, stat.cdef);
-      return `특공(${stat.catk})과 특방(${stat.cdef}) 중 더 높은 수치(${higher})로 두 능력치를 통일합니다.`;
+      return `특공(${stat.catk})과 특방(${stat.cdef}) 중 더 높은 수치로 두 능력치를 통일합니다.`;
     }
     return "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
   }
@@ -63,6 +63,29 @@ export const getAugmentDesc = (augment, pokemon = null) => {
   return augment.desc || "";
 };
 
+/**
+ * 돌려 돌려 돌림판 등장 조건:
+ * - 포켓몬의 현재 체력이 최대 체력의 절반(반피) 이상인 경우에만 등장
+ */
+export const isEligibleForRouletteWheel = (pokemon) => {
+  if (!pokemon) return false;
+  const currentHp = typeof pokemon.hp === "number" ? pokemon.hp : pokemon.origin?.hp;
+  const maxHp = pokemon.origin?.hp ?? pokemon.maxHp ?? currentHp;
+  if (typeof currentHp !== "number" || typeof maxHp !== "number" || maxHp <= 0) {
+    return false;
+  }
+  return currentHp >= maxHp / 2;
+};
+
+export function hasBurnSkillEffect(pokemon) {
+  if (!pokemon?.origin?.skill) return false;
+  const skills = Object.values(pokemon.origin.skill).filter(Boolean);
+  return skills.some((sk) => {
+    if (!sk) return false;
+    return Array.isArray(sk.skillEffectList) && sk.skillEffectList.some((eff) => eff.name === "화상" || eff.name === "트라이어택");
+  });
+}
+
 export const AUGMENT_LIST = [
   {
     id: "noUnfairMiss",
@@ -81,7 +104,7 @@ export const AUGMENT_LIST = [
   {
     id: "gamblingAddict",
     name: "도박 중독",
-    cost: 1,
+    cost: 3,
     desc: "기술 위력이 3배가 되지만 공격 기술이 50% 확률로 실패합니다.",
     // damageCalculate.js, skillCheck.js에 구현
   },
@@ -90,6 +113,7 @@ export const AUGMENT_LIST = [
     name: "돌려 돌려 돌림판",
     cost: "-",
     desc: "현재 포켓몬을 임의의 포켓몬과 교체합니다.",
+    isEligible: (pokemon) => isEligibleForRouletteWheel(pokemon),
     onApply: (pokemon, battle) => {
       if (!battle) return;
       const allItems = sampleList.items || [];
@@ -190,7 +214,7 @@ export const AUGMENT_LIST = [
     id: "danceOfGarchomp",
     name: "춤춰라 한카리아스",
     cost: 1,
-    desc: '지니고 있는 기술 4개 중 하나를 "용의춤"과 교환합니다.',
+    desc: '지니고 있는 기술 중 하나를 "용의춤"으로 변경합니다.',
     isEligible: (pokemon) => isEligibleForDanceGarchomp(pokemon),
     onApply: function (pokemon, battle, options) {
       if (!pokemon?.origin?.skill) return;
@@ -207,7 +231,7 @@ export const AUGMENT_LIST = [
   {
     id: "unboundChoice",
     name: "구애받지않는",
-    cost: 2,
+    cost: 4,
     desc: "구애 시리즈의 기술 고정 효과를 받지 않습니다.",
     isEligible: (pokemon) => Boolean(pokemon?.item && pokemon.item.startsWith("구애")),
     onApply: (pokemon) => {
@@ -215,5 +239,20 @@ export const AUGMENT_LIST = [
         pokemon.tempStatus.onlySkill = null;
       }
     },
+  },
+  {
+    id: "grandmasChiliOil",
+    name: "할머니의 고추기름",
+    cost: 3,
+    desc: "상대 포켓몬의 화상 데미지가 5배로 증가합니다.",
+    isEligible: (pokemon) => hasBurnSkillEffect(pokemon),
+    // ailmentEvent.js에 구현
+  },
+  {
+    id: "thornmail",
+    name: "가시갑옷",
+    cost: 3,
+    desc: "타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 줍니다.",
+    // onHit.js에 구현
   },
 ];
