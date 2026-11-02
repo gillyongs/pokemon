@@ -12,10 +12,11 @@ export const switchPlayer = (battle, actNumber, enqueue) => {
   battle.turn.textFreeze = null;
   battle.turn.turnEnd = null;
   let isFaintSwitch = battle.player.faint;
-  enqueue({ battle, text: battle.player.origin.name + " 돌아와!" });
+  enqueue({ id: "b83eb420-1c0d-47c1-aa65-c3b7115a7268", battle, text: battle.player.origin.name + " 돌아와!" });
   switchPokemon(battle, "player", actNumber);
   battle.turn.turnEnd = null;
   enqueue({
+    id: "d62ecb46-560e-40ad-a16a-e57235acf4e2",
     battle,
     text: "가랏! " + battle.player.origin.name + "!",
   });
@@ -36,6 +37,7 @@ export const switchPlayer = (battle, actNumber, enqueue) => {
 export const switchPlayerForce = (battle, actNumber, enqueue) => {
   switchPokemon(battle, "player", actNumber);
   enqueue({
+    id: "5635931b-ab6f-4b80-ab18-55df5ec2cd2f",
     battle,
     text: battle.player.origin.names + " 배틀에 끌려나왔다!",
   });
@@ -52,16 +54,19 @@ export const switchNpc = (battle, actNumber, enqueue, force) => {
   if (force) {
     switchPokemon(battle, "npc", actNumber);
     enqueue({
+      id: "cbe52210-aa36-4e06-9244-9807127f2e58",
       battle,
       text: "상대 " + battle.npc.origin.names + " 배틀에 끌려나왔다!",
     });
   } else {
     enqueue({
+      id: "e895cc4c-5ad6-4ccc-a7dd-98bd1a5b3c04",
       battle,
       text: "상대는 " + battle.npc.origin.namess + " 넣어 버렸다!",
     });
     switchPokemon(battle, "npc", actNumber);
     enqueue({
+      id: "50befd61-7787-45c3-ba72-b3ed7b1892f1",
       battle,
       text: "상대는 " + battle.npc.origin.namess + " 내보냈다!",
     });
@@ -110,10 +115,11 @@ export const switchBothFaint = (battle, actNumber, enqueue) => {
   // 기절 맞교체는 필드 위 포켓몬이 없으므로 교체 순서는 랜덤, 양족 포켓몬이 나온 다음 특성이 빠른 쪽부터 먼저 적용된다.
   battle.turn.textFreeze = null;
   battle.turn.turnEnd = null;
-  enqueue({ battle, text: battle.player.origin.name + " 돌아와!" });
+  enqueue({ id: "24038799-2c59-4d5c-92c3-ed926eeb7c20", battle, text: battle.player.origin.name + " 돌아와!" });
   switchPokemon(battle, "player", actNumber);
   battle.turn.turnEnd = null;
   enqueue({
+    id: "4fb97c1c-8937-4290-96c6-1e9c48689d18",
     battle,
     text: "가랏! " + battle.player.origin.name + "!",
   });
@@ -121,11 +127,13 @@ export const switchBothFaint = (battle, actNumber, enqueue) => {
   const targetBench = getNpcAutoSwitchTarget(battle);
   if (targetBench) {
     enqueue({
+      id: "abad55be-ab92-466e-823f-39eda4774b5e",
       battle,
       text: "상대는 " + battle.npc.origin.namess + " 넣어 버렸다!",
     });
     switchPokemon(battle, "npc", targetBench);
     enqueue({
+      id: "d0fdcf3b-fb85-458f-8850-0923f8a57148",
       battle,
       text: "상대는 " + battle.npc.origin.namess + " 내보냈다!",
     });
@@ -161,6 +169,7 @@ const extraSwitchWhenTurnEnd = (battle, user, enqueue) => {
     battle.turn.turnEnd = true;
     battle.turn.textFreeze = true;
     enqueue({
+      id: "3f3fba5e-e31f-4243-aade-a7adb8038cc8",
       battle,
       text: "누구로 교체할까?",
       allowAct: true,

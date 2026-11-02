@@ -100,19 +100,19 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
     // 1 ~ 3턴
     pokemon.tempStatus.confuse = Math.floor(Math.random() * 3) + 1;
     const confuseText = textOption || `${pokemon.names} 혼란에 빠졌다!`;
-    enqueue({ battle, text: confuseText });
+    enqueue({ id: "b3741b6f-1875-4b80-bf5a-dd826a54574a", battle, text: confuseText });
     return;
   }
 
   // 기절 체크
   if (faintCheck(pokemon)) {
-    if (printTextIfFail) enqueue({ battle, text: printTextIfFail === true ? "하지만 실패했다!" : printTextIfFail });
+    if (printTextIfFail) enqueue({ id: "a7ca081f-26f0-466c-a581-b99e69dfe8ae", battle, text: printTextIfFail === true ? "하지만 실패했다!" : printTextIfFail });
     return;
   }
 
   // 상태 적용 가능 여부 체크
   if (!ailmentAbleCheck(battle, ailment, pokemon)) {
-    if (printTextIfFail) enqueue({ battle, text: printTextIfFail === true ? "하지만 실패했다!" : printTextIfFail });
+    if (printTextIfFail) enqueue({ id: "dc327ef9-a884-4104-b400-e86e000a4b86", battle, text: printTextIfFail === true ? "하지만 실패했다!" : printTextIfFail });
     return;
   }
 
@@ -154,5 +154,5 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
   }
 
   // 출력 텍스트
-  enqueue({ battle, text });
+  enqueue({ id: "e56c6a48-8fbc-4bae-8be5-7d9f9c8cd7ea", battle, text });
 };

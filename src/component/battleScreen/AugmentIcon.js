@@ -5,13 +5,7 @@ import styled from "styled-components";
 export const AugmentIcon = ({ id, size = 42 }) => {
   return (
     <IconFrame $size={size}>
-      <svg
-        viewBox="0 0 64 64"
-        width={size}
-        height={size}
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg viewBox="0 0 64 64" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           {/* 게임 테마 맞춤 틸/스카이블루 그라데이션 */}
           <linearGradient id="prismGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -53,13 +47,7 @@ export const AugmentIcon = ({ id, size = 42 }) => {
         {id === "noUnfairMiss" && (
           <g filter="url(#glow)">
             {/* 아치형 외곽 타겟 링 */}
-            <path
-              d="M16 32 A16 16 0 0 1 48 32 M48 32 A16 16 0 0 1 16 32"
-              stroke="url(#prismRing)"
-              strokeWidth="2.5"
-              strokeDasharray="18 6"
-              strokeLinecap="round"
-            />
+            <path d="M16 32 A16 16 0 0 1 48 32 M48 32 A16 16 0 0 1 16 32" stroke="url(#prismRing)" strokeWidth="2.5" strokeDasharray="18 6" strokeLinecap="round" />
             {/* 십자 조준선 */}
             <path d="M32 10 L32 20 M32 44 L32 54 M10 32 L20 32 M44 32 L54 32" stroke="url(#prismGrad)" strokeWidth="2.5" strokeLinecap="round" />
             {/* 중앙 다이아몬드 타겟 & 직격 화살촉 */}
@@ -75,20 +63,9 @@ export const AugmentIcon = ({ id, size = 42 }) => {
         {id === "mandoocornEndure" && (
           <g filter="url(#glow)">
             {/* 수호의 날개형 아치 테두리 */}
-            <path
-              d="M14 42 C12 28 22 14 32 12 C42 14 52 28 50 42 C44 50 32 54 32 54 C32 54 20 50 14 42 Z"
-              stroke="url(#prismRing)"
-              strokeWidth="2"
-              fill="rgba(100, 255, 218, 0.12)"
-              strokeLinejoin="round"
-            />
+            <path d="M14 42 C12 28 22 14 32 12 C42 14 52 28 50 42 C44 50 32 54 32 54 C32 54 20 50 14 42 Z" stroke="url(#prismRing)" strokeWidth="2" fill="rgba(100, 255, 218, 0.12)" strokeLinejoin="round" />
             {/* 견고한 중앙 하트 (버팀의 상징) */}
-            <path
-              d="M32 44 C26 38 20 34 20 27 C20 22 24 19 28 20 C30 21 31.5 23 32 25 C32.5 23 34 21 36 20 C40 19 44 22 44 27 C44 34 38 38 32 44 Z"
-              fill="url(#prismGrad)"
-              stroke="#ffffff"
-              strokeWidth="1.2"
-            />
+            <path d="M32 44 C26 38 20 34 20 27 C20 22 24 19 28 20 C30 21 31.5 23 32 25 C32.5 23 34 21 36 20 C40 19 44 22 44 27 C44 34 38 38 32 44 Z" fill="url(#prismGrad)" stroke="#ffffff" strokeWidth="1.2" />
             {/* 중앙 HP 1을 상징하는 빛나는 십자/플러스 마크 */}
             <path d="M32 27 L32 35 M28 31 L36 31" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
             {/* ✦ 스파클 */}
@@ -100,12 +77,7 @@ export const AugmentIcon = ({ id, size = 42 }) => {
         {id === "gamblingAddict" && (
           <g filter="url(#glow)">
             {/* 회전하는 소용돌이 오라 */}
-            <path
-              d="M14 26 C16 16 28 10 38 12 M50 38 C48 48 36 54 26 52"
-              stroke="url(#prismRing)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
+            <path d="M14 26 C16 16 28 10 38 12 M50 38 C48 48 36 54 26 52" stroke="url(#prismRing)" strokeWidth="2.5" strokeLinecap="round" />
             {/* 아이소메트릭 입체 주사위 */}
             {/* 윗면 */}
             <path d="M32 16 L46 23 L32 30 L18 23 Z" fill="url(#prismGrad)" stroke="#ffffff" strokeWidth="1" />
@@ -129,47 +101,26 @@ export const AugmentIcon = ({ id, size = 42 }) => {
         {id === "rouletteWheel" && (
           <g filter="url(#glow)">
             {/* 순환 회전 화살표 링 */}
-            <path
-              d="M32 12 A20 20 0 1 1 14 38"
-              stroke="url(#prismRing)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
+            <path d="M32 12 A20 20 0 1 1 14 38" stroke="url(#prismRing)" strokeWidth="2.5" strokeLinecap="round" />
             <path d="M11 31 L14 39 L22 37" fill="none" stroke="url(#prismRing)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             {/* 내부 룰렛 나침반 다이얼 */}
             <circle cx="32" cy="32" r="14" stroke="url(#goldGrad)" strokeWidth="1.5" fill="rgba(15, 23, 42, 0.6)" />
             {/* 룰렛 분할선 (8방향 살) */}
             <path d="M32 18 L32 46 M18 32 L46 32 M22 22 L42 42 M42 22 L22 42" stroke="url(#prismGrad)" strokeWidth="1.2" strokeOpacity="0.7" />
             {/* 중앙 신비로운 물음표 룬 */}
-            <path
-              d="M29 27 C29 25 30.5 24 32 24 C33.5 24 35 25 35 26.5 C35 28.5 32 29.5 32 32 M32 36 L32 37"
-              stroke="#ffffff"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
+            <path d="M29 27 C29 25 30.5 24 32 24 C33.5 24 35 25 35 26.5 C35 28.5 32 29.5 32 32 M32 36 L32 37" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
             {/* ✦ 스파클 */}
             <path d="M48 14 Q48 18 52 18 Q48 18 48 22 Q48 18 44 18 Q48 18 48 14 Z" fill="#fef08a" />
           </g>
         )}
 
-        {/* 5. 오른손에 방패 왼손엔 검 (대검 & 카이트 실드 교차 스왑) */}
-        {id === "swordAndShield" && (
+        {/* 5. 오른손엔 방패 왼손엔 검 (대검 & 카이트 실드 교차 스왑) */}
+        {(id === "swordAndShield" || id === "specialSwordAndShield") && (
           <g filter="url(#glow)">
             {/* 힘의 아치 테두리 */}
-            <path
-              d="M18 50 C12 40 14 22 26 14 M38 14 C50 22 52 40 46 50"
-              stroke="url(#prismRing)"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
+            <path d="M18 50 C12 40 14 22 26 14 M38 14 C50 22 52 40 46 50" stroke="url(#prismRing)" strokeWidth="2" strokeLinecap="round" />
             {/* 왼쪽 방패 */}
-            <path
-              d="M26 22 C32 22 34 26 34 32 C34 40 26 46 26 46 C26 46 18 40 18 32 C18 26 20 22 26 22 Z"
-              fill="url(#prismGrad)"
-              stroke="#ffffff"
-              strokeWidth="1.2"
-              strokeLinejoin="round"
-            />
+            <path d="M26 22 C32 22 34 26 34 32 C34 40 26 46 26 46 C26 46 18 40 18 32 C18 26 20 22 26 22 Z" fill="url(#prismGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
             {/* 방패 내부 엠블럼 */}
             <path d="M26 26 L26 40 M21 31 L31 31" stroke="#0d1722" strokeWidth="1.5" strokeLinecap="round" />
             {/* 오른쪽을 향해 교차하는 빛나는 대검 */}
@@ -197,7 +148,9 @@ const IconFrame = styled.div`
   justify-content: center;
   flex-shrink: 0;
   filter: drop-shadow(0 0 6px rgba(100, 255, 218, 0.35));
-  transition: transform 0.2s ease, filter 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
 
   svg {
     display: block;

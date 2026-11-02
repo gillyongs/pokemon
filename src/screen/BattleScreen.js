@@ -187,8 +187,10 @@ const Battle = () => {
   //   날개치는머리          도발:4
 
   
-  const enqueueBattleStart = (bt) => {
-    queueObject.enqueue({ battle: bt, text: "배틀시작!" });
+  const enqueueBattleStart = (bt, options = {}) => {
+    if (!options.skipStartText) {
+      queueObject.enqueue({ id: "75857006-b1b6-489c-b77b-bb3bfdcf8d78", battle: bt, text: "배틀시작!" });
+    }
     const fastUser = speedCheck(bt);
     const slowUser = fastUser === "player" ? "npc" : "player";
     applyAbilityEffects(bt, fastUser, queueObject.enqueue);
@@ -221,13 +223,14 @@ const Battle = () => {
       setText(gainText);
     } else {
       queueObject.enqueue({
+        id: "d7391e86-25e9-459f-abc7-588560b20d83",
         battle: curBattle,
         text: gainText,
         logText: gainLogText,
       });
     }
 
-    enqueueBattleStart(curBattle);
+    enqueueBattleStart(curBattle, { skipStartText: true });
     setBattle(cloneWithMethods(curBattle));
   };
 
@@ -279,6 +282,7 @@ const Battle = () => {
       );
       if (target) {
         queueObject.enqueue({
+          id: "82c455ab-c426-4986-80c4-f030b3742f94",
           battle: battleObj.current,
           text: "증강을 선택하세요",
           isAugment: true,

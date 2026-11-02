@@ -24,7 +24,7 @@ function applyStatusDamage(battle, enqueue, user) {
   if (p.ailment.burn) {
     if (p.abil === "수포") {
       p.ailment.burn = null;
-      enqueue({ battle, text: `[특성 수포] ${p.name}의 화상이 나았다!` });
+      enqueue({ id: "cc52dcd3-d1cf-42f8-8131-424e8fca5156", battle, text: `[특성 수포] ${p.name}의 화상이 나았다!` });
     } else {
       p.getDamage(battle, enqueue, Math.floor(p.origin.hp / 16), `${p.names} 화상 데미지를 입었다!`);
     }

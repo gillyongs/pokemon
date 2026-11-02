@@ -24,6 +24,7 @@ export const PokemonMega = {
 
     // 1. 도구 반응 텍스트 (진화 전 원본 상태)
     enqueue({
+      id: "eb794c41-0d86-4f58-9812-5391b3ffcef0",
       battle,
       text: `${this.name}의 ${this.item}가 반응했다!`,
     });
@@ -62,6 +63,7 @@ export const PokemonMega = {
 
     // 3. 메가진화 완료 텍스트 (메가진화 후 이미지/아이콘이 적용된 상태로 큐에 등록)
     enqueue({
+      id: "0c2dbb7e-c2bc-4509-b8c1-dcd41ddafc1e",
       battle,
       text: `${this.names} ${mega.name}로 메가진화했다!`,
     });

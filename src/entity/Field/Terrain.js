@@ -26,7 +26,7 @@ export class Terrain {
   #setTerrain(terrainType, turnRemain, enqueue, battle, terrainText) {
     this.#type = terrainType;
     this.#turnRemain = turnRemain;
-    if (terrainText) enqueue({ battle, text: terrainText });
+    if (terrainText) enqueue({ id: "aaab923e-b1d8-456b-b48f-a6baf4363abb", battle, text: terrainText });
   }
 
   setTerrainOnBattle(battle, enqueue, pokemon, terrainType, terrainText) {
@@ -91,7 +91,7 @@ export class Terrain {
       text = endTextMap[endedType];
     }
 
-    enqueue({ battle, text });
+    enqueue({ id: "a8383504-d7d2-4664-bba3-e10153a2a29e", battle, text });
 
     this.#handleTerrainEndEffect(battle, enqueue, endedType);
   }

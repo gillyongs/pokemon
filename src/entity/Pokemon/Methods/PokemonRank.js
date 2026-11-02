@@ -17,7 +17,7 @@ export const PokemonRank = {
     // 단, 틀깨기 포켓몬의 공격에 의한거면 막을 수 없음 (즉 끈끈넷은 막힘)
     if (isOpponent && rankValue < 0 && this.abil === "클리어바디") {
       if (!isMoldBreaker) {
-        enqueue({ battle, text: `[특성 클리어바디] ${this.name}의 ${getStatName2(rankType)} 떨어지지 않았다!` });
+        enqueue({ id: "78565ebe-ca8e-400d-a6aa-fc94467688a5", battle, text: `[특성 클리어바디] ${this.name}의 ${getStatName2(rankType)} 떨어지지 않았다!` });
         return;
       }
     }
@@ -27,6 +27,7 @@ export const PokemonRank = {
     if (isOpponent && rankValue < 0 && this.abil === "미러아머") {
       if (!isMoldBreaker) {
         enqueue({
+          id: "6f9438d1-dbcf-494d-bc4d-f9a6f4c18c96",
           battle,
           text: `[특성 미러아머] ${this.name}의 미러아머로 능력 다운 효과를 되받아쳤다!
 `,
@@ -34,7 +35,7 @@ export const PokemonRank = {
         const enemy = this.team === "player" ? battle?.npc : battle?.player;
         if (enemy && !enemy.faint) {
           if (enemy.abil === "클리어바디") {
-            enqueue({ battle, text: `[특성 클리어바디] ${enemy.name}의 ${getStatName2(rankType)} 떨어지지 않았다!` });
+            enqueue({ id: "b95689e3-6766-42de-8396-560a9797079d", battle, text: `[특성 클리어바디] ${enemy.name}의 ${getStatName2(rankType)} 떨어지지 않았다!` });
           } else {
             // 미러아머로 반사한 랭크다운은 미러아머로 반사되지 않는다 (무한반사 방지)
             // isOpponent를 false로 호출하기에 무한반사 되지 않음
@@ -56,11 +57,11 @@ export const PokemonRank = {
       // 상한/하한 검사
       let rankText2 = `${this.name}의 ${getStatName2(rankType)}`; //공격'은' 더 이상 올라갈 수 없다!
       if (rankValue < 0 && rank[rankType] <= -6) {
-        enqueue({ battle, text: `${rankText2} 더 이상 떨어질 수 없다!` });
+        enqueue({ id: "f2e2cc26-6f80-4732-8637-ce2e2ec27341", battle, text: `${rankText2} 더 이상 떨어질 수 없다!` });
         return;
       }
       if (rankValue > 0 && rank[rankType] >= 6) {
-        enqueue({ battle, text: `${rankText2} 더 이상 올라갈 수 없다!` });
+        enqueue({ id: "dd919dcf-073b-4c0a-be44-b55d42a8bdcc", battle, text: `${rankText2} 더 이상 올라갈 수 없다!` });
         return;
       }
 
@@ -79,7 +80,7 @@ export const PokemonRank = {
 
     if (abilText) rankText = `${abilText} ${rankText}`;
 
-    enqueue({ battle, text: rankText });
+    enqueue({ id: "ae99525b-1aae-4c94-9679-077ef006af98", battle, text: rankText });
 
     // 승기 / 오기: 상대에 의해 능력치가 떨어졌을 때 발동
     if (isOpponent && rankValue < 0) {
@@ -117,7 +118,7 @@ export const PokemonRank = {
       rank[key] = 0;
     });
     this.item = null;
-    enqueue({ battle, text: `${this.names} 하양허브로 떨어진 능력을 원래대로 되돌렸다!` });
+    enqueue({ id: "4f4cbeb9-0f39-466d-b6ab-333e57af715c", battle, text: `${this.names} 하양허브로 떨어진 능력을 원래대로 되돌렸다!` });
     // 디버프를 받기 전 상태로 되돌리는게 아니라, 랭크다운된 능력치를 제로로 만드는게 맞음
   },
 

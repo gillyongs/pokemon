@@ -16,7 +16,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
     //기절하거나 탁떨, 대타출동 상태중에 맞아도 풍선은 무조건 터진다
     const text = defPokemon.name + "의 풍선이 터졌다!";
     defPokemon.item = null;
-    enqueue({ battle, text: text });
+    enqueue({ id: "13bb1111-7771-46b2-b0f6-b5b95f4bc81b", battle, text: text });
   }
 
   if (substitute) return;
@@ -27,7 +27,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
     const typeDamage = typeCheckOnBattle(battle, useSkill.type, defPokemon.type1, defPokemon.type2);
     if (typeDamage > 1) {
       defPokemon.item = null;
-      enqueue({ battle, text: `${defPokemon.names} 슈케열매로 땅타입 기술의 위력을 반감시켰다!` });
+      enqueue({ id: "7c0782c7-e4a8-4dc9-9bc6-22738696e17e", battle, text: `${defPokemon.names} 슈케열매로 땅타입 기술의 위력을 반감시켰다!` });
     }
   }
 
@@ -68,6 +68,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
           sRockText = "[특성 독치장] 아군의 발밑에 독압정이 뿌려졌다!";
         }
         enqueue({
+          id: "b95f894e-6ed3-4ff4-9c22-1ecc9cb8f7a5",
           battle,
           text: sRockText,
         });
@@ -80,6 +81,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
           sRockText = "[특성 독치장] 아군의 발밑에 맹독압정이 뿌려졌다!";
         }
         enqueue({
+          id: "a7e6e93e-f0bc-4b56-ab2f-e83d7a21533f",
           battle,
           text: sRockText,
         });

@@ -80,7 +80,7 @@ const InfoButton = ({ pokemon, type, setText, bench }) => {
     imgSrc = hasItem ? `/pokemon/img/item/${pokemon.item}.webp` : `/pokemon/img/item/null.webp`;
     innerText = "지닌아이템";
     innerContent = hasItem ? pokemon.item : "없음";
-    itemText = hasItem ? (pokemon.itemText || `${pokemon.item}`) : "지닌 아이템 없음";
+    itemText = hasItem ? pokemon.itemText || `${pokemon.item}` : "지닌 아이템 없음";
     handleClick = (e) => {
       e.stopPropagation();
       consecutiveClickCount = 0;
@@ -101,7 +101,7 @@ const InfoButton = ({ pokemon, type, setText, bench }) => {
   } else if (type === "abil") {
     imgSrc = `/pokemon/img/background/abil.webp`;
     innerText = "특성";
-    innerContent = pokemon.origin.abil;
+    innerContent = pokemon.abil;
     handleClick = (e) => {
       e.stopPropagation();
       consecutiveClickCount = 0;

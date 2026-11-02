@@ -25,7 +25,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
       // 회복할게 없는 경우
       // 기술이 사용되지 않고 필드에 남아있는다
     } else {
-      enqueue({ battle: bt, text: atk.names + " 신비한 달빛에 둘러싸였다!" });
+      enqueue({ id: "2b8df1c7-1a0d-48f1-b0bc-5d5d0f46b7de", battle: bt, text: atk.names + " 신비한 달빛에 둘러싸였다!" });
       bt.field[atks].noClean.lunarDance = null;
       atk.resetAilment(); // 상태이상 회복
       atk.pp[1] = atk.origin.skill[1].pp;
@@ -45,7 +45,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     if (atk.hp === atk.origin.hp && !isAilmentCheck(atk)) {
       // 회복할게 없는 경우
     } else {
-      enqueue({ battle: bt, text: "치유소원이 " + atk.name + "에게 전해졌다!" });
+      enqueue({ id: "97d16ba0-522e-4226-8fd6-50ae8a5cf09a", battle: bt, text: "치유소원이 " + atk.name + "에게 전해졌다!" });
       bt.field[atks].noClean.healingWish = null;
       atk.resetAilment(); // 상태이상 회복
       atk.recover(bt, atk.origin.hp, enqueue, atk.name + "의 체력과 상태이상이 회복됐다!");
@@ -87,7 +87,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
   if (poisonSpikes !== null) {
     if (atk.type1 === "독" || atk.type2 === "독") {
       bt.field[atks].poisonSpikes = null;
-      enqueue({ battle: bt, text: "바닥의 독압정이 제거되었다!" });
+      enqueue({ id: "dc023d32-6f04-4736-ab3a-5dbb0e4831f6", battle: bt, text: "바닥의 독압정이 제거되었다!" });
       // 독타입 포켓몬이 풍선을 달고 나온뒤, 풍선이 터져서 땅에 닿아도 제거되지 않음. 무조건 교체해서 나올때만 제거됨
     }
     if (poisonSpikes === 1) {
@@ -101,7 +101,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
 
   // 끈적끈적네트
   if (bt.field[atks].stickyWeb) {
-    enqueue({ battle: bt, text: atk.names + " 끈적끈적네트에 걸렸다!" });
+    enqueue({ id: "e969206b-06ab-4048-bf07-9dc030362c1f", battle: bt, text: atk.names + " 끈적끈적네트에 걸렸다!" });
     atk.rankUp(bt, enqueue, "speed", -1, null, true);
   }
 };

@@ -49,7 +49,7 @@ export function switchLock(battle, enqueue, getter) {
     if (skillGetter.tempStatus.switchLockTurnRemain === 0) {
       skillGetter.tempStatus.switchLock = null;
       skillGetter.tempStatus.switchLockTurnRemain = null;
-      enqueue({ battle, text: `${skillGetter.names} ${skillName}에게서 벗어났다!` });
+      enqueue({ id: "8c6a1aa2-f25d-45bf-bbe3-f5aea20fdb22", battle, text: `${skillGetter.names} ${skillName}에게서 벗어났다!` });
     } else {
       skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.origin.hp / 8), `${skillGetter.names} ${skillName}의 데미지를 입고 있다.`);
     }
@@ -68,7 +68,7 @@ function taunt(battle, enqueue, getter) {
   if (skillGetter.tempStatus.taunt === 0) {
     let wakeUpText = skillGetter.names + " 도발의 효과가 풀렸다!";
     skillGetter.tempStatus.taunt = null;
-    enqueue({ battle: battle, text: wakeUpText });
+    enqueue({ id: "e40f7ddc-71fe-4cd9-b3ac-36031dbbdf26", battle: battle, text: wakeUpText });
   }
 }
 
@@ -84,7 +84,7 @@ function noSound(battle, enqueue, getter) {
   if (skillGetter.tempStatus.noSound === 0) {
     let wakeUpText = skillGetter.names + " 다시 소리 기술을 사용할 수 있게 됐다!";
     skillGetter.tempStatus.noSound = null;
-    enqueue({ battle: battle, text: wakeUpText });
+    enqueue({ id: "10facab5-d501-4e07-a21d-ab5d777c55db", battle: battle, text: wakeUpText });
   }
 }
 

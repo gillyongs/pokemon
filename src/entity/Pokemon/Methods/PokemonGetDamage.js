@@ -8,7 +8,7 @@ export const PokemonGetDamage = {
     const actualDamage = this._applyDamage(Math.floor(damageValue));
 
     if (text) {
-      enqueue({ battle, text });
+      enqueue({ id: "7ca5ce1a-303b-4665-b41d-48905926319b", battle, text });
     }
 
     if (this.hp <= 0) {
@@ -35,6 +35,7 @@ export const PokemonGetDamage = {
     this.resetTurn();
     this.resetTempStatus();
     enqueue({
+      id: "04606dda-a370-46f8-97d6-155e4f7722c2",
       battle,
       text: `${this.names} 쓰러졌다!`,
     });

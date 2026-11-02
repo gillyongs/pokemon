@@ -34,7 +34,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
       // 텍스트박스에 기술 사용 불가 메세지 띄우기
       if (!player.auto && !player.charge && !player.recharge) {
         // 역린, 충전 중에 enqueue되는거 방지
-        queueObject.enqueue({ battle, text: message, allowAct: true, noLog: true });
+        queueObject.enqueue({ id: "be2fd62f-0afb-482d-b063-5466d93e5aff", battle, text: message, allowAct: true, noLog: true });
         setText?.(message);
       }
       return true;

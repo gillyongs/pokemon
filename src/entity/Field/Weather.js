@@ -31,7 +31,7 @@ export class Weather {
   #setWeather(weatherType, turnRemain, enqueue, battle, weatherText) {
     this.#type = weatherType;
     this.#turnRemain = turnRemain;
-    if (weatherText) enqueue({ battle, text: weatherText });
+    if (weatherText) enqueue({ id: "e89aa2ed-051a-4539-8c4a-4504306726f0", battle, text: weatherText });
   }
 
   setWeatherOnBattle(battle, enqueue, pokemon, weatherType, weatherText) {
@@ -75,7 +75,7 @@ export class Weather {
       모래바람: "모래바람이 가라앉았다!",
       설경: "눈이 그쳤다!",
     };
-    enqueue({ battle, text: endTextMap[endedType] });
+    enqueue({ id: "73eac5c5-08df-41f7-8eee-388297d2c5ab", battle, text: endTextMap[endedType] });
 
     // 날씨별 종료 효과
     this.#handleWeatherEndEffect(battle, enqueue, endedType);

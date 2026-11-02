@@ -30,6 +30,9 @@ export function useQueue() {
   // battleStart에서 시작할때마다 넣음
 
   const enqueue = (item) => {
+    if (item && !item.id) {
+      item.id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11);
+    }
     const deepCopiedItem = cloneWithMethods(item); // 메서드까지 깊은 복사하는 함수
     setQueue((prevQueue) => [...prevQueue, deepCopiedItem]);
   };

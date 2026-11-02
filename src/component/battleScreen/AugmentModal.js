@@ -31,58 +31,43 @@ const AugmentModal = ({ augments = [], targetPokemon = null, onSelect, onClose }
   return (
     <ModalOverlay $isPeek={isPeekMode} onClick={() => setIsPeekMode((prev) => !prev)}>
       <ModalWrapper onClick={(e) => e.stopPropagation()}>
-      <ModalContainer $isPeek={isPeekMode} onClick={handleContainerClick}>
-        <HeaderArea>
-          <HeaderTopRow>
-            <Title>
-              {targetPokemon ? `${targetPokemon.name}의 증강 선택` : "아수라장 증강 선택"}
-            </Title>
-            {onClose && (
-              <CloseButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClose();
-                }}
-                title="선택하지 않고 닫기"
-              >
-                ✕
-              </CloseButton>
-            )}
-          </HeaderTopRow>
-          <SubTitle>
-            {isPeekMode
-              ? "클릭하면 다시 증강 선택이 활성화됩니다"
-              : "하나의 증강을 선택하여 강화하세요! (바깥 클릭 시 필드 확인)"}
-          </SubTitle>
-        </HeaderArea>
+        <ModalContainer $isPeek={isPeekMode} onClick={handleContainerClick}>
+          <HeaderArea>
+            <HeaderTopRow>
+              <Title>{targetPokemon ? `증강 선택 (${targetPokemon.name})` : "아수라장 증강 선택"}</Title>
+              {onClose && (
+                <CloseButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClose();
+                  }}
+                  title="선택하지 않고 닫기"
+                >
+                  ✕
+                </CloseButton>
+              )}
+            </HeaderTopRow>
+          </HeaderArea>
 
-        <CardContainer>
-          {augments.map((aug, index) => (
-            <AugmentCard
-              key={aug.id || index}
-              $isPeek={isPeekMode}
-              onClick={(e) => handleCardClick(e, aug)}
-            >
-              <IconWrapper>
-                <AugmentIcon id={aug.id} size={42} />
-              </IconWrapper>
-              <CardContent>
-                <CardTopRow>
-                  <CardTitle>{aug.name}</CardTitle>
+          <CardContainer>
+            {augments.map((aug, index) => (
+              <AugmentCard key={aug.id || index} $isPeek={isPeekMode} onClick={(e) => handleCardClick(e, aug)}>
+                <IconCol>
+                  <IconWrapper>
+                    <AugmentIcon id={aug.id} size={38} />
+                  </IconWrapper>
                   <CostBadge>값 {aug.cost || 1} pt</CostBadge>
-                </CardTopRow>
-                <CardDescription>{aug.desc}</CardDescription>
-              </CardContent>
-            </AugmentCard>
-          ))}
-        </CardContainer>
+                </IconCol>
+                <CardContent>
+                  <CardTitle>{aug.name}</CardTitle>
+                  <CardDescription>{aug.desc}</CardDescription>
+                </CardContent>
+              </AugmentCard>
+            ))}
+          </CardContainer>
         </ModalContainer>
-        <PeekToggleButton
-          $isPeek={isPeekMode}
-          onClick={handleTogglePeek}
-          title={isPeekMode ? "증강 선택창 선명하게" : "모달 흐리게 (필드 확인)"}
-        >
-          {isPeekMode ? "👁 선명하게 보기" : "👁 필드 보기 (흐리게)"}
+        <PeekToggleButton $isPeek={isPeekMode} onClick={handleTogglePeek} title={isPeekMode ? "증강 선택창 선명하게" : "모달 흐리게 (필드 확인)"}>
+          {isPeekMode ? "선명하게 보기" : "필드 보기 (흐리게)"}
         </PeekToggleButton>
       </ModalWrapper>
     </ModalOverlay>
@@ -178,7 +163,9 @@ const ModalContainer = styled.div`
   overflow: hidden;
   box-sizing: border-box;
   opacity: ${(props) => (props.$isPeek ? 0.15 : 1)};
-  transition: opacity 0.2s ease, border-color 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    border-color 0.2s ease;
   cursor: ${(props) => (props.$isPeek ? "pointer" : "default")};
 
   &::before {
@@ -236,12 +223,6 @@ const CloseButton = styled.div`
   }
 `;
 
-const SubTitle = styled.div`
-  font-size: 0.8rem;
-  color: #94a3b8;
-  margin-top: 5px;
-`;
-
 const CardContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -249,13 +230,23 @@ const CardContainer = styled.div`
   width: 100%;
 `;
 
-const IconWrapper = styled.div`
-  margin-right: 12px;
+const IconCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14px;
   flex-shrink: 0;
+  gap: 4px;
+`;
+
+const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
 `;
 
 const AugmentCard = styled.div`
@@ -299,16 +290,8 @@ const CardContent = styled.div`
   min-width: 0;
 `;
 
-const CardTopRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 3px;
-`;
-
 const CardTitle = styled.h3`
-  margin: 0;
+  margin: 0 0 4px 0;
   font-size: 0.95rem;
   font-weight: 700;
   color: #ffffff;
@@ -317,15 +300,14 @@ const CardTitle = styled.h3`
 `;
 
 const CostBadge = styled.span`
-  font-size: 0.72rem;
-  font-weight: bold;
-  padding: 1px 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 1px 5px;
   border-radius: 4px;
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  flex-shrink: 0;
-  margin-left: 6px;
+  background: rgba(100, 255, 218, 0.08);
+  color: #64ffda;
+  border: 1px solid rgba(100, 255, 218, 0.25);
+  white-space: nowrap;
 `;
 
 const CardDescription = styled.p`

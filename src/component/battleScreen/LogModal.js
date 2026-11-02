@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
+import { AugmentIcon } from "./AugmentIcon";
+import { AUGMENT_LIST } from "../../entity/Augment/AugmentData";
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -88,6 +90,90 @@ const Item = styled.div`
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 `;
 
+const AugmentLogCard = styled.div`
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, rgba(16, 28, 42, 0.95), rgba(10, 18, 28, 0.98));
+  border: 1px solid rgba(100, 255, 218, 0.35);
+  border-left: 4px solid #64ffda;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const AugmentHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const AugmentBadge = styled.span`
+  background: rgba(100, 255, 218, 0.15);
+  color: #64ffda;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(100, 255, 218, 0.35);
+  letter-spacing: 0.5px;
+`;
+
+const TargetPokemonText = styled.span`
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 600;
+`;
+
+const AugmentBody = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const AugmentInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+`;
+
+const AugmentTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 3px;
+`;
+
+const AugmentName = styled.span`
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  word-break: keep-all;
+`;
+
+const AugmentCost = styled.span`
+  font-size: 0.72rem;
+  font-weight: bold;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  flex-shrink: 0;
+  margin-left: 6px;
+`;
+
+const AugmentDesc = styled.div`
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  word-break: keep-all;
+`;
+
 const CloseButton = styled.button`
   flex-shrink: 0;
   width: 100%;
@@ -109,6 +195,25 @@ const CloseButton = styled.button`
   }
 `;
 
+const parseAugmentLog = (item) => {
+  if (item.augmentData) {
+    return item.augmentData;
+  }
+  if (item.text && item.text.startsWith("[증강]")) {
+    const match = item.text.match(/^\[증강\]\s*(.+?)\s*["“](.+?)["”]/);
+    if (match) {
+      const targetName = match[1].trim();
+      const augmentName = match[2].trim();
+      const foundAug = AUGMENT_LIST.find((a) => a.name === augmentName);
+      return {
+        targetName,
+        augment: foundAug || { name: augmentName },
+      };
+    }
+  }
+  return null;
+};
+
 export default function LogModal({ log, onClose }) {
   const listRef = useRef(null);
 
@@ -128,13 +233,38 @@ export default function LogModal({ log, onClose }) {
           {log.length === 0 ? (
             <Item>로그가 없습니다.</Item>
           ) : (
-            log.map((item, index) => 
-              item.onlyLog ? (
-                <TurnIndicator key={index}>{item.text}</TurnIndicator>
-              ) : (
-                <Item key={index}>{item.text}</Item>
-              )
-            )
+            log.map((item, index) => {
+              if (item.onlyLog) {
+                return <TurnIndicator key={index}>{item.text}</TurnIndicator>;
+              }
+
+              const augmentData = parseAugmentLog(item);
+              if (augmentData) {
+                const { targetName, augment } = augmentData;
+                return (
+                  <AugmentLogCard key={index}>
+                    <AugmentHeader>
+                      <AugmentBadge>증강 획득</AugmentBadge>
+                      <TargetPokemonText>{targetName}에게 적용</TargetPokemonText>
+                    </AugmentHeader>
+                    <AugmentBody>
+                      {augment.id && <AugmentIcon id={augment.id} size={36} />}
+                      <AugmentInfo>
+                        <AugmentTitleRow>
+                          <AugmentName>{augment.name}</AugmentName>
+                          {augment.cost !== undefined && (
+                            <AugmentCost>값 {augment.cost || 1} pt</AugmentCost>
+                          )}
+                        </AugmentTitleRow>
+                        {augment.desc && <AugmentDesc>{augment.desc}</AugmentDesc>}
+                      </AugmentInfo>
+                    </AugmentBody>
+                  </AugmentLogCard>
+                );
+              }
+
+              return <Item key={index}>{item.text}</Item>;
+            })
           )}
         </LogList>
 

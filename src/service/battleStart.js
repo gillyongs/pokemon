@@ -11,6 +11,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
   const enqueue = queueObject.enqueue;
 
   enqueue({
+    id: "9c8085c6-c4a3-43c5-85b8-010728c2e90d",
     battle: battle,
     text: `${battle.turnCount}번째 턴`,
     onlyLog: true, // 로그 모달에만 남고 화면에는 출력 안되게

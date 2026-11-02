@@ -96,13 +96,12 @@ export const turnEnd = (battle, enqueue) => {
       battle.turn.npcFaintedThisTurn = false;
     }
     for (let i = 0; i < fCount; i++) {
-      const hasSlot = [battle.player, battle.playerBench1, battle.playerBench2].some(
-        (p) => p && (p.augments || []).length < 3
-      );
+      const hasSlot = [battle.player, battle.playerBench1, battle.playerBench2].some((p) => p && (p.augments || []).length < 3);
       if (hasSlot) {
         enqueue({
+          id: "122fb584-429d-4b41-9558-755143829687",
           battle: battle,
-          text: "증강을 선택하세요",
+          text: "증강을 선택하세요.",
           isAugment: true,
         });
       }
@@ -112,6 +111,7 @@ export const turnEnd = (battle, enqueue) => {
   if (battle.player.faint) {
     battle.turn.textFreeze = true;
     enqueue({
+      id: "bf1b2882-a834-49f8-8ef4-aebc64735142",
       battle: battle,
       text: "누구로 교체 할까?",
       bottomMode: "mustSwitch",
@@ -119,6 +119,7 @@ export const turnEnd = (battle, enqueue) => {
     });
   } else if (battle.player.auto || battle.player.charge || battle.player.recharge) {
     enqueue({
+      id: "2ef883d0-9649-4aee-92ae-9e16e5010e62",
       battle: battle,
       text: "",
       autoActTurn: true,
@@ -128,6 +129,7 @@ export const turnEnd = (battle, enqueue) => {
     });
   } else {
     enqueue({
+      id: "a5b4b821-d398-45a0-8169-dfad0859a11b",
       battle: battle,
       text: battle.player.origin.names + " 무엇을 할까?",
       bottomMode: "skill",

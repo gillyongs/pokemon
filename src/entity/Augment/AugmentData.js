@@ -10,7 +10,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "mandoocornEndure",
-    name: "만두콘은 이왕걸을 슬프게 하지 않게 하려고 버텼다",
+    name: "슬프게 하지 않게 하려고 버텼다",
     cost: 1,
     desc: "기절할 공격을 받을 때 10% 확률로 HP 1로 버팁니다.",
   },
@@ -51,19 +51,28 @@ export const AUGMENT_LIST = [
   },
   {
     id: "swordAndShield",
-    name: "오른손에 방패 왼손엔 검",
+    name: "오른손엔 방패 왼손엔 검",
     cost: 2,
-    desc: "공격과 방어, 특수공격과 특수방어 능력치를 서로 맞바꿉니다.",
+    desc: "공격과 방어 중 더 높은 수치로 두 능력치를 통일합니다.",
     onApply: (pokemon) => {
       if (!pokemon?.origin?.stat) return;
       const stat = pokemon.origin.stat;
-      const tempAtk = stat.atk;
-      stat.atk = stat.def;
-      stat.def = tempAtk;
-
-      const tempCatk = stat.catk;
-      stat.catk = stat.cdef;
-      stat.cdef = tempCatk;
+      const higher = Math.max(stat.atk, stat.def);
+      stat.atk = higher;
+      stat.def = higher;
+    },
+  },
+  {
+    id: "specialSwordAndShield",
+    name: "오른손엔 방패 왼손엔 스태프",
+    cost: 2,
+    desc: "특수공격과 특수방어 중 더 높은 수치로 두 능력치를 통일합니다.",
+    onApply: (pokemon) => {
+      if (!pokemon?.origin?.stat) return;
+      const stat = pokemon.origin.stat;
+      const higher = Math.max(stat.catk, stat.cdef);
+      stat.catk = higher;
+      stat.cdef = higher;
     },
   },
 ];

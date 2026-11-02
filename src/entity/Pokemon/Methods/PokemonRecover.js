@@ -6,9 +6,9 @@ export const PokemonRecover = {
     if (this.hp >= this.origin.hp) {
       if (!silent && enqueue) {
         if (text && text.includes("씨뿌리기")) {
-          enqueue({ battle, text });
+          enqueue({ id: "ca583d1b-b96c-4942-8d91-52795f0093fe", battle, text });
         } else {
-          enqueue({ battle, text: "더 이상 회복할 수 없다!" });
+          enqueue({ id: "1649b88d-4742-4b07-905d-fee185f68335", battle, text: "더 이상 회복할 수 없다!" });
         }
       }
       return;
@@ -22,6 +22,7 @@ export const PokemonRecover = {
 
     if (!silent && enqueue) {
       enqueue({
+        id: "45f9331b-d45f-4425-9cad-c1249947a90b",
         battle,
         text: text ?? `${this.names} 체력을 회복했다!`,
       });

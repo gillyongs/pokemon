@@ -97,19 +97,36 @@ describe("아수라장 증강 시스템 테스트", () => {
     expect(getAccuracy(fakeBt, bufSkill, poke)).toBe(90);
   });
 
-  test("3. 오른손에 방패 왼손엔 검: 공/방, 특공/특방 스왑 확인", () => {
+  test("3. 오른손엔 방패 왼손엔 검: 공/방 중 더 높은 값으로 통일 확인", () => {
     const poke = generate("배바닐라");
     const origAtk = poke.origin.stat.atk;
     const origDef = poke.origin.stat.def;
     const origCatk = poke.origin.stat.catk;
     const origCdef = poke.origin.stat.cdef;
+    const maxPhys = Math.max(origAtk, origDef);
 
     poke.applyAugment(AUGMENT_LIST.find((a) => a.id === "swordAndShield"));
 
-    expect(poke.origin.stat.atk).toBe(origDef);
-    expect(poke.origin.stat.def).toBe(origAtk);
-    expect(poke.origin.stat.catk).toBe(origCdef);
-    expect(poke.origin.stat.cdef).toBe(origCatk);
+    expect(poke.origin.stat.atk).toBe(maxPhys);
+    expect(poke.origin.stat.def).toBe(maxPhys);
+    expect(poke.origin.stat.catk).toBe(origCatk);
+    expect(poke.origin.stat.cdef).toBe(origCdef);
+  });
+
+  test("3-1. 오른손엔 검 왼손엔 방패: 특공/특방 중 더 높은 값으로 통일 확인", () => {
+    const poke = generate("배바닐라");
+    const origAtk = poke.origin.stat.atk;
+    const origDef = poke.origin.stat.def;
+    const origCatk = poke.origin.stat.catk;
+    const origCdef = poke.origin.stat.cdef;
+    const maxSpec = Math.max(origCatk, origCdef);
+
+    poke.applyAugment(AUGMENT_LIST.find((a) => a.id === "specialSwordAndShield"));
+
+    expect(poke.origin.stat.atk).toBe(origAtk);
+    expect(poke.origin.stat.def).toBe(origDef);
+    expect(poke.origin.stat.catk).toBe(maxSpec);
+    expect(poke.origin.stat.cdef).toBe(maxSpec);
   });
 
   test("4. 돌려 돌려 돌림판: 포켓몬 교체 확인 및 메서드 정상 유지", () => {
@@ -118,7 +135,10 @@ describe("아수라장 증강 시스템 테스트", () => {
     const fakeBattle = { player: poke };
     const origId = poke.id;
 
-    poke.applyAugment(AUGMENT_LIST.find((a) => a.id === "rouletteWheel"), fakeBattle);
+    poke.applyAugment(
+      AUGMENT_LIST.find((a) => a.id === "rouletteWheel"),
+      fakeBattle
+    );
 
     expect(fakeBattle.player.id).not.toBe(origId);
     expect(fakeBattle.player.augments).toBeDefined();
@@ -134,7 +154,10 @@ describe("아수라장 증강 시스템 테스트", () => {
     poke2.originalIndex = 1;
     const fakeBattle = { player: poke1, playerBench1: poke2 };
 
-    poke2.applyAugment(AUGMENT_LIST.find((a) => a.id === "rouletteWheel"), fakeBattle);
+    poke2.applyAugment(
+      AUGMENT_LIST.find((a) => a.id === "rouletteWheel"),
+      fakeBattle
+    );
 
     expect(fakeBattle.playerBench1.id).not.toBe("한카리아스");
     expect(fakeBattle.player.id).toBe("배바닐라");

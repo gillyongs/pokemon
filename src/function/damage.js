@@ -38,15 +38,15 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       defPokemon.turn.substitute = true;
       defPokemon.turn.lastHitSubstitute = true; // 대타출동을 깨뜨린 공격의 부가효과도 막기위해 별도로 명시
 
-      enqueue({ battle, text: (commonText || "") + josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!" });
+      enqueue({ id: "80a18710-3b5b-4a73-91c7-7e8e0bbeee0d", battle, text: (commonText || "") + josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!" });
 
       if (!isNoTextSkill) {
         if (typeText) {
           // 효과가 굉장했다!
-          enqueue({ battle, text: (commonText || "") + typeText });
+          enqueue({ id: "ae60a301-c5b2-4a6e-aac6-e14055462374", battle, text: (commonText || "") + typeText });
         }
         if (atkPokemon.turn.critical) {
-          enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
+          enqueue({ id: "4ab645b9-29cc-4902-9fa9-e7e70b95ef79", battle, text: (commonText || "") + "급소에 맞았다!" });
         }
       }
       if (defPokemon.tempStatus.substituteHp <= skDamage) {
@@ -54,7 +54,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
         actualGiveDamage = defPokemon.tempStatus.substituteHp;
         defPokemon.tempStatus.substitute = null;
         defPokemon.tempStatus.substituteHp = null;
-        enqueue({ battle, text: defPokemon.name + "의 대타는 사라져 버렸다..." });
+        enqueue({ id: "e267b6b5-b9ab-4e32-8b34-4c45e6e9d9f0", battle, text: defPokemon.name + "의 대타는 사라져 버렸다..." });
       } else {
         defPokemon.tempStatus.substituteHp -= skDamage;
       }
@@ -77,7 +77,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     if (!atkAbilObj.feature?.tgg) {
       //틀깨기
       talTrigger = true;
-      defPokemon.abil = defPokemon.origin.abil = "탈 (사용됨)";
+      //트레이스 특성때문에 포켓몬 교체시 abil을 origin.abil 값으로 바꾸므로 origin.abil도 바꿔줘야함
+      defPokemon.abil = "탈 (사용됨)";
+      defPokemon.origin.abil = "탈 (사용됨)";
       const talHp = Math.floor(defPokemon.origin.hp / 8);
       if (skDamage > talHp) {
         skDamage = talHp;
@@ -133,7 +135,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   // ================= 텍스트 처리 =================
   let defaultText = true;
   if (talTrigger) {
-    enqueue({ battle, text: (commonText || "") + "탈이 대타가 되었다!" });
+    enqueue({ id: "1032cc24-b340-43e9-a8b5-1b9a158f34e5", battle, text: (commonText || "") + "탈이 대타가 되었다!" });
     defaultText = false;
   }
 
@@ -143,27 +145,27 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   if (!isNoTextSkill) {
     if (typeText) {
       // 효과가 굉장했다!
-      enqueue({ battle, text: (commonText || "") + typeText });
+      enqueue({ id: "1ade4efe-3baf-400a-9f3e-102d8f1db3a8", battle, text: (commonText || "") + typeText });
       defaultText = false;
     }
     if (atkPokemon.turn.critical) {
-      enqueue({ battle, text: (commonText || "") + "급소에 맞았다!" });
+      enqueue({ id: "03dad601-d7df-4e96-bed2-f9ea2177aef1", battle, text: (commonText || "") + "급소에 맞았다!" });
       defaultText = false;
     }
   }
 
   if (ogcTextTrigger) {
-    enqueue({ battle, text: (commonText || "") + "[특성 옹골참] " + defPokemon.names + " 옹골참으로 버텼다!" });
+    enqueue({ id: "d13b5f2a-c639-454b-a99b-3cda35125184", battle, text: (commonText || "") + "[특성 옹골참] " + defPokemon.names + " 옹골참으로 버텼다!" });
     defaultText = false;
   }
 
   if (gdTextTrigger) {
-    enqueue({ battle, text: (commonText || "") + defPokemon.names + " 기합의 띠로 버텼다!" });
+    enqueue({ id: "c5586860-fd7d-43fd-9e5a-2b01d89fa561", battle, text: (commonText || "") + defPokemon.names + " 기합의 띠로 버텼다!" });
     defaultText = false;
   }
 
   if (mandooTextTrigger) {
-    enqueue({ battle, text: (commonText || "") + defPokemon.names + " 플레이어를 슬프지 않게 하려고 버텼다!" });
+    enqueue({ id: "68433131-04e8-41e0-8cc4-c13dcc8b93a4", battle, text: (commonText || "") + defPokemon.names + " 플레이어를 슬프지 않게 하려고 버텼다!" });
     defaultText = false;
   }
 
@@ -172,16 +174,16 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   if (defPokemon.hp <= 0) {
     if (useSkill.feature?.oneShot) {
       //일격기 성공 텍스트
-      enqueue({ battle, text: "일격필살!" });
+      enqueue({ id: "7b865133-6bb6-456d-b080-dceacb589196", battle, text: "일격필살!" });
     }
     if (serialAttackObject) {
       if (typeText) {
         //연속기일때 텍스트 없으면 출력
-        enqueue({ battle, text: typeText });
+        enqueue({ id: "9cd84b54-3c72-4ac9-81ef-d2a076c499e7", battle, text: typeText });
       }
       if (defaultText) {
         //연속기일때 텍스트 없으면 출력
-        enqueue({ battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
+        enqueue({ id: "04fa1546-dec5-489e-b336-b23323ed15e9", battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
       }
     }
 
@@ -204,7 +206,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   } else {
     // 출력 텍스트가 하나도 없을 때
     if (defaultText) {
-      enqueue({ battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
+      enqueue({ id: "463e5193-4b0b-4468-94d2-2c3a7421f6fe", battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
     }
 
     const noBerrySkill = useSkill.name === "탁쳐서떨구기";
