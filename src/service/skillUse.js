@@ -142,7 +142,7 @@ export const skillUse = (bt, enqueue) => {
       for (let i = 1; i <= num; i++) {
         atk.turn.critical = null;
         // 급소 여부 계산 (연속기는 매 타격마다 독립 판정)
-        if (criticalRate(cri)) {
+        if (criticalRate(cri, atk)) {
           atk.turn.critical = true;
         }
         // 급소확정
@@ -169,7 +169,7 @@ export const skillUse = (bt, enqueue) => {
       // 연속기 아닌 경우
       atk.turn.critical = null;
       // 급소 여부 계산
-      if (criticalRate(cri)) {
+      if (criticalRate(cri, atk)) {
         atk.turn.critical = true;
       }
       // 급소확정
@@ -223,12 +223,8 @@ export const skillUse = (bt, enqueue) => {
   }
 };
 
-const criticalRate = (input) => {
+const criticalRate = (input, pokemon = null) => {
   let probability = 0;
-  if (input !== 0 && input !== 1 && input !== 2 && input !== 3) {
-    console.error("급소율 에러 확인 필요");
-  }
-
   switch (input) {
     case 0:
       probability = 1 / 24;
@@ -240,9 +236,15 @@ const criticalRate = (input) => {
       probability = 1 / 2;
       break;
     default:
-      return true;
+      probability = 1;
+      break;
   }
 
+  if (pokemon?.hasAugment?.("infinityEdge") || pokemon?.augments?.some((a) => a.id === "infinityEdge")) {
+    probability += 0.25;
+  }
+
+  if (probability >= 1) return true;
   return Math.random() < probability;
 };
 

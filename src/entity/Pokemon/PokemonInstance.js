@@ -179,14 +179,16 @@ class PokemonInstance {
     if (this.augments.length >= 3) return false;
     if (this.hasAugment(augId)) return false;
 
+    const augObj = typeof augment === 'object' ? { ...augment } : { id: augment };
+
     if (Array.isArray(this.augments) && Object.isExtensible(this.augments)) {
-      this.augments.push(augment);
+      this.augments.push(augObj);
     } else {
-      this.augments = [...(this.augments || []), augment];
+      this.augments = [...(this.augments || []), augObj];
     }
 
-    if (typeof augment === 'object' && augment.onApply) {
-      augment.onApply(this, battle, options);
+    if (typeof augObj === 'object' && augObj.onApply) {
+      augObj.onApply(this, battle, options);
     }
     return true;
   }

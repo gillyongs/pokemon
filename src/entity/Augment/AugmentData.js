@@ -1,3 +1,4 @@
+import { josa } from "josa";
 import { ALL_POKEMON_TYPES, isTypeAlreadyNullified } from "../../util/typeEffectCalculate";
 import sampleList from "../Pokemon/SamplePokemon";
 import { generate } from "../Pokemon/PokemonInstance";
@@ -70,12 +71,31 @@ export const getAugmentDesc = (augment, pokemon = null) => {
       }
     }
     return "가장 높은 능력치로 모든 능력치가 통일됩니다.";
-  }
-
+  }
+
+  if (augment.id === "teraBlast") {
+    return "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.";
+  }
+
+  if (augment.id === "rabadonsDeathcap") {
+    return "특공 + 130\n총 특공이 30% 증가합니다.";
+  }
+
+  if (augment.id === "infinityEdge") {
+    return "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%";
+  }
+
+  if (augment.id === "rebellionOrRevolution" || augment.id === "revolution") {
+    if (stat && typeof stat.atk === "number" && typeof stat.catk === "number") {
+      return `공격(${stat.atk})과 특수공격(${stat.catk}) 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.`;
+    }
+    return "공격과 특수공격 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.";
+  }
+
   if (augment.id === "nullifyGetto") {
     const chosen = augment.selectedType || pokemon?._nullifyType;
     if (chosen) {
-      return `해당 포켓몬에게 [${chosen}] 무효 타입을 추가했습니다.\n(${chosen} 타입 공격 무효화)`;
+      return `해당 포켓몬에게 [${chosen}] 무효 타입을 추가했습니다.`;
     }
     return "해당 포켓몬에게 무효 타입을 하나 추가합니다.";
   }
@@ -87,6 +107,59 @@ export const getAugmentDesc = (augment, pokemon = null) => {
     return augment.desc(pokemon);
   }
   return augment.desc || "";
+};
+
+/**
+ * 증강이 포켓몬에게 적용된 후의 상태를 설명하는 텍스트 (로그 및 상태 모달용)
+ * augment.logDesc가 정의되어 있으면 이를 우선 사용하고, 없으면 getAugmentDesc로 대체합니다.
+ */
+export const getAugmentLogDesc = (augment, pokemon = null) => {
+  if (!augment) return "";
+
+  if (typeof augment.logDesc === "function") {
+    return augment.logDesc(pokemon, augment);
+  }
+  if (typeof augment.logDesc === "string") {
+    return augment.logDesc;
+  }
+
+  if (augment.id === "teraBlast") {
+    const chosen = augment.selectedType || augment._teraBlastType || pokemon?._teraBlastType || pokemon?.origin?._teraBlastType || "노말";
+    const prevName = augment.replacedSkillName || augment._replacedSkillName || pokemon?._teraBlastReplacedSkillName || pokemon?.origin?._teraBlastReplacedSkillName;
+    if (prevName) {
+      return `${josa(`[${prevName}]#{을}`)} [${chosen}] 타입 테라버스트로 변경하였습니다.`;
+    }
+    return `[${chosen}] 타입 테라버스트로 변경하였습니다.`;
+  }
+
+  if (augment.id === "rabadonsDeathcap") {
+    return "특공 + 130\n총 특공이 30% 증가합니다.";
+  }
+
+  if (augment.id === "infinityEdge") {
+    return "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%";
+  }
+
+  if (augment.id === "infinityEdge") {
+    return "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%";
+  }
+
+  if (augment.id === "rebellionOrRevolution" || augment.id === "revolution") {
+    const res = augment.revolutionResult || augment._revolutionResult || pokemon?._revolutionResult || pokemon?.origin?._revolutionResult;
+    const stat = pokemon?.origin?.stat || pokemon?.stat;
+    if (res === "atk") {
+      const atkVal = stat?.atk !== undefined ? `(${stat.atk})` : "";
+      const catkVal = stat?.catk !== undefined ? `(${stat.catk})` : "";
+      return `공격${atkVal}이 2배, 특수공격${catkVal}이 절반이 되었습니다.`;
+    }
+    if (res === "catk") {
+      const catkVal = stat?.catk !== undefined ? `(${stat.catk})` : "";
+      const atkVal = stat?.atk !== undefined ? `(${stat.atk})` : "";
+      return `특수공격${catkVal}이 2배, 공격${atkVal}이 절반이 되었습니다.`;
+    }
+  }
+
+  return getAugmentDesc(augment, pokemon);
 };
 
 /**
@@ -301,7 +374,7 @@ export const AUGMENT_LIST = [
     id: "thornmail",
     name: "가시갑옷",
     cost: 3,
-    desc: "타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 준다.",
+    desc: "타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 줍니다.",
     // onHit.js에 구현
   },
   {
@@ -327,6 +400,159 @@ export const AUGMENT_LIST = [
         if (!pokemon.origin.immuneTypes.includes(chosenType)) {
           pokemon.origin.immuneTypes.push(chosenType);
         }
+      }
+    },
+  },
+  {
+    id: "teraBlast",
+    name: "테라버스트",
+    cost: 1,
+    desc: "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.",
+    getDesc: () => {
+      return "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.";
+    },
+    logDesc: (pokemon, augment) => {
+      const chosen = augment?.selectedType || augment?._teraBlastType || pokemon?._teraBlastType || pokemon?.origin?._teraBlastType || "노말";
+      const prevName = augment?.replacedSkillName || augment?._replacedSkillName || pokemon?._teraBlastReplacedSkillName || pokemon?.origin?._teraBlastReplacedSkillName;
+      if (prevName) {
+        return `${josa(`[${prevName}]#{을}`)} [${chosen}] 타입 테라버스트로 변경하였습니다.`;
+      }
+      return `[${chosen}] 타입 테라버스트로 변경하였습니다.`;
+    },
+    isEligible: (pokemon) => {
+      if (!pokemon) return false;
+      const skills = pokemon.origin?.skill || pokemon.skill;
+      if (!skills) return true;
+      return Object.values(skills).some(Boolean);
+    },
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon?.origin?.skill) return;
+      const slot = Number(options?.replaceSlot) || this.replacedSlot || 4;
+      this.replacedSlot = slot;
+      const chosenType = options?.selectedType || this.selectedType || "노말";
+      this.selectedType = chosenType;
+
+      const prevSkill = pokemon.origin.skill[slot] || pokemon.skill?.[slot];
+      const prevSkillName = options?.replacedSkillName || prevSkill?.name || this.replacedSkillName || "기존 기술";
+      this.replacedSkillName = prevSkillName;
+      this._replacedSkillName = prevSkillName;
+      pokemon._teraBlastReplacedSkillName = prevSkillName;
+      if (pokemon.origin) {
+        pokemon.origin._teraBlastReplacedSkillName = prevSkillName;
+      }
+
+      const baseTera = skillList.search("테라버스트");
+      const teraBlast = {
+        ...baseTera,
+        type: chosenType,
+        skillNumber: slot,
+      };
+
+      pokemon.origin.skill[slot] = teraBlast;
+      if (pokemon.skill) {
+        pokemon.skill[slot] = teraBlast;
+      }
+      if (pokemon.pp) {
+        pokemon.pp[slot] = teraBlast.pp;
+      }
+      pokemon._teraBlastReplacedSlot = slot;
+      pokemon._teraBlastType = chosenType;
+    },
+  },
+  {
+    id: "rebellionOrRevolution",
+    name: "실패하면 반역 성공하면 혁명",
+    cost: 3,
+    desc: "공격과 특수공격 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.",
+    getDesc: (pokemon) => {
+      const stat = pokemon?.origin?.stat || pokemon?.stat;
+      if (stat && typeof stat.atk === "number" && typeof stat.catk === "number") {
+        return `공격(${stat.atk})과 특수공격(${stat.catk}) 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.`;
+      }
+      return "공격과 특수공격 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.";
+    },
+    logDesc: (pokemon, augment) => {
+      const res = augment?.revolutionResult || augment?._revolutionResult || pokemon?._revolutionResult || pokemon?.origin?._revolutionResult;
+      const stat = pokemon?.origin?.stat || pokemon?.stat;
+      if (res === "atk") {
+        const atkVal = stat?.atk !== undefined ? `(${stat.atk})` : "";
+        const catkVal = stat?.catk !== undefined ? `(${stat.catk})` : "";
+        return `공격${atkVal}이 2배, 특수공격${catkVal}이 절반이 되었습니다.`;
+      }
+      if (res === "catk") {
+        const catkVal = stat?.catk !== undefined ? `(${stat.catk})` : "";
+        const atkVal = stat?.atk !== undefined ? `(${stat.atk})` : "";
+        return `특수공격${catkVal}이 2배, 공격${atkVal}이 절반이 되었습니다.`;
+      }
+      if (stat && typeof stat.atk === "number" && typeof stat.catk === "number") {
+        return `공격(${stat.atk})과 특수공격(${stat.catk}) 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.`;
+      }
+      return "공격과 특수공격 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.";
+    },
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon) return;
+      const stat = pokemon.origin?.stat || pokemon.stat;
+      if (!stat || typeof stat.atk !== "number" || typeof stat.catk !== "number") return;
+
+      const pick = options?.targetStat || (Math.random() < 0.5 ? "atk" : "catk");
+      pokemon._revolutionResult = pick;
+      if (pokemon.origin) {
+        pokemon.origin._revolutionResult = pick;
+      }
+      if (this && this !== AUGMENT_LIST.find((a) => a.id === "rebellionOrRevolution")) {
+        this.revolutionResult = pick;
+        this._revolutionResult = pick;
+      }
+
+      if (pick === "atk") {
+        stat.atk = Math.round(stat.atk * 2);
+        stat.catk = Math.max(1, Math.floor(stat.catk / 2));
+      } else {
+        stat.catk = Math.round(stat.catk * 2);
+        stat.atk = Math.max(1, Math.floor(stat.atk / 2));
+      }
+
+      if (pokemon.origin?.stat) {
+        pokemon.origin.stat.atk = stat.atk;
+        pokemon.origin.stat.catk = stat.catk;
+      }
+      if (pokemon.stat) {
+        pokemon.stat.atk = stat.atk;
+        pokemon.stat.catk = stat.catk;
+      }
+    },
+  },
+  {
+    id: "infinityEdge",
+    name: "무한의 대검",
+    cost: 7,
+    desc: "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%",
+    getDesc: () => "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%",
+    logDesc: () => "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%",
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon) return;
+      if (pokemon.origin?.stat && typeof pokemon.origin.stat.atk === "number") {
+        pokemon.origin.stat.atk += 75;
+      }
+      if (pokemon.stat && typeof pokemon.stat.atk === "number" && pokemon.stat !== pokemon.origin?.stat) {
+        pokemon.stat.atk += 75;
+      }
+    },
+  },
+  {
+    id: "rabadonsDeathcap",
+    name: "라바돈의 죽음모자",
+    cost: 7,
+    desc: "특공 + 130\n총 특공이 30% 증가합니다.",
+    getDesc: () => "특공 + 130\n총 특공이 30% 증가합니다.",
+    logDesc: () => "특공 + 130\n총 특공이 30% 증가합니다.",
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon) return;
+      if (pokemon.origin?.stat && typeof pokemon.origin.stat.catk === "number") {
+        pokemon.origin.stat.catk = Math.round((pokemon.origin.stat.catk + 130) * 1.3);
+      }
+      if (pokemon.stat && typeof pokemon.stat.catk === "number" && pokemon.stat !== pokemon.origin?.stat) {
+        pokemon.stat.catk = Math.round((pokemon.stat.catk + 130) * 1.3);
       }
     },
   },

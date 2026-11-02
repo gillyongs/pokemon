@@ -154,8 +154,10 @@ const Battle = () => {
       ? Object.entries(carriedMap).reduce((acc, [idx, augs]) => {
           acc[idx] = (augs || []).map((aug) => ({
             id: aug.id || aug,
-            replacedSlot: aug.replacedSlot ?? aug._danceReplacedSlot ?? aug._salamenceReplacedSlot,
-            selectedType: aug.selectedType ?? aug._nullifyType,
+            replacedSlot: aug.replacedSlot ?? aug._danceReplacedSlot ?? aug._salamenceReplacedSlot ?? aug._teraBlastReplacedSlot,
+            selectedType: aug.selectedType ?? aug._nullifyType ?? aug._teraBlastType,
+            revolutionResult: aug.revolutionResult ?? aug._revolutionResult,
+            replacedSkillName: aug.replacedSkillName ?? aug._replacedSkillName ?? aug._teraBlastReplacedSkillName,
           }));
           return acc;
         }, {})
@@ -264,7 +266,7 @@ const Battle = () => {
     target.applyAugment(selectedAugment, curBattle, options);
     setAugmentTargetPoke(target);
 
-    const typeNote = options?.selectedType ? ` (${options.selectedType} 무효)` : "";
+    const typeNote = options?.selectedType ? (selectedAugment.id === "teraBlast" ? ` (${options.selectedType} 타입)` : ` (${options.selectedType} 무효)`) : "";
     const gainText = `[증강] ${target.names} "${selectedAugment.name}"${typeNote} 효과를 얻었다!`;
 
     const gainLogText = gainText;
@@ -286,6 +288,17 @@ const Battle = () => {
         battle: curBattle,
         text: gainText,
         logText: gainLogText,
+      });
+    }
+
+    if (selectedAugment.id === "rebellionOrRevolution" || selectedAugment.id === "revolution") {
+      const statName = target._revolutionResult === "catk" ? "특수공격" : "공격";
+      const detailText = `${statName}이 2배가 되었다!`;
+      queueObject.enqueue({
+        id: "rev-stat-doubled-msg",
+        battle: curBattle,
+        text: detailText,
+        logText: detailText,
       });
     }
 
@@ -338,7 +351,16 @@ const Battle = () => {
               if (savedAug?.selectedType) {
                 augToApply.selectedType = savedAug.selectedType;
               }
-              p.applyAugment(augToApply, battleObj.current, { replaceSlot: savedAug?.replacedSlot, selectedType: savedAug?.selectedType });
+              p.applyAugment(augToApply, battleObj.current, {
+
+                replaceSlot: savedAug?.replacedSlot,
+
+                selectedType: savedAug?.selectedType,
+
+                targetStat: savedAug?.revolutionResult,
+                replacedSkillName: savedAug?.replacedSkillName,
+
+              });
             }
           });
         }
@@ -860,6 +882,7 @@ const Battle = () => {
             battle={battleObj.current || battle}
             onSelect={handleSelectAugment}
             onClose={handleCloseAugment}
+            isTestMode={testmode}
           />
         )}
         {isAugmentStatusOpen && (

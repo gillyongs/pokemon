@@ -84,6 +84,19 @@ export const damageCalculate = (battle, obj, ai) => {
     if (skill.name === "사이코쇼크") {
       defenseStat = "def";
     }
+    if (skill.name === "테라버스트") {
+      const atkRank = attackPokemon.tempStatus?.rank?.atk ?? 0;
+      const catkRank = attackPokemon.tempStatus?.rank?.catk ?? 0;
+      const currentAtk = (attackPokemon.origin?.stat?.atk ?? 0) * getMultiplier(atkRank);
+      const currentCatk = (attackPokemon.origin?.stat?.catk ?? 0) * getMultiplier(catkRank);
+      if (currentAtk > currentCatk) {
+        attackStat = "atk";
+        defenseStat = "def";
+      } else {
+        attackStat = "catk";
+        defenseStat = "cdef";
+      }
+    }
   }
 
   if (skill.name === "바디프레스") {
@@ -160,7 +173,7 @@ export const damageCalculate = (battle, obj, ai) => {
   let defStr = defStat + "(" + defenseStat + ")";
 
   // 공격 (atk) ===================================
-  if (skill.stype === "atk") {
+  if (skill.stype === "atk" || (skill.name === "테라버스트" && attackStat === "atk")) {
     // 바디프레스나 속임수는 '물리기'면 구애머리띠나 화상이 적용된다.
     if (attackPokemon.item === "구애머리띠") {
       atkStat *= 1.5;
@@ -224,7 +237,7 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 특공 (catk) ===================================
-  if (skill.stype === "catk") {
+  if (skill.stype === "catk" && !(skill.name === "테라버스트" && attackStat === "atk")) {
     if (attackPokemon.item === "구애안경") {
       atkStat *= 1.5;
       atkStr += " * 1.5 (구애안경)";
@@ -581,8 +594,14 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 급소 =============================================================================
   if (isCritical) {
-    damage *= 1.5;
-    attackPokemon.log.damage2 += " * 1.5 (급소)";
+    const hasIE = attackPokemon?.hasAugment?.("infinityEdge") || attackPokemon?.augments?.some((a) => a.id === "infinityEdge");
+    if (hasIE) {
+      damage *= (1.5 * 1.3);
+      attackPokemon.log.damage2 += " * 1.5 (급소) * 1.3 (무한의 대검)";
+    } else {
+      damage *= 1.5;
+      attackPokemon.log.damage2 += " * 1.5 (급소)";
+    }
   }
 
   // 랜덤값 ======================================================================================================

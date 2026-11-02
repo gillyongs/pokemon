@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { getAugmentDesc } from "../../entity/Augment/AugmentData";
+import { getAugmentLogDesc } from "../../entity/Augment/AugmentData";
 
 const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   // 라운드 * 3 값 (1라운드: 3pt, 2라운드: 6pt, 3라운드: 9pt...)
@@ -50,7 +50,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
       setSelectedKeys(next);
     } else {
       if (currentCost + itemCost > maxPoints) {
-        setErrorMessage(`보유 포인트(${maxPoints}pt)를 초과하여 선택할 수 없습니다!`);
+        setErrorMessage(`보유 코스트(${maxPoints})를 초과하여 선택할 수 없습니다!`);
         return;
       }
       const next = new Set(selectedKeys);
@@ -80,18 +80,14 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <HeaderArea>
           <Title>다음 라운드 증강 유지</Title>
-          <SubTitle>
-            포인트를 소모하여 원하는 증강을 다음 라운드로 가져가세요!
-          </SubTitle>
+          <SubTitle>코스트를 소모하여 원하는 증강을 다음 라운드로 가져가세요!</SubTitle>
         </HeaderArea>
 
         <PointBar>
           <PointText>
-            사용 포인트: <HighlightText>{currentCost}</HighlightText> / {maxPoints} pt
+            사용 코스트: <HighlightText>{currentCost}</HighlightText> / {maxPoints} cost
           </PointText>
-          <RemainingBadge $full={currentCost === maxPoints}>
-            남은 포인트: {maxPoints - currentCost} pt
-          </RemainingBadge>
+          <RemainingBadge $full={currentCost === maxPoints}>남은 코스트: {maxPoints - currentCost} cost</RemainingBadge>
         </PointBar>
 
         {errorMessage && <AlertBox>{errorMessage}</AlertBox>}
@@ -105,35 +101,23 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
               if (pokeAugs.length === 0) return null;
               return (
                 <PokemonSection key={index}>
-                  <PokeSectionTitle>
-                    {poke.names || poke.name}
-                  </PokeSectionTitle>
+                  <PokeSectionTitle>{poke.names || poke.name}</PokeSectionTitle>
                   <AugmentGrid>
                     {pokeAugs.map((item) => {
                       const isSelected = selectedKeys.has(item.uniqueKey);
                       return (
-                        <AugmentCard
-                          key={item.uniqueKey}
-                          $selected={isSelected}
-                          onClick={() => toggleSelect(item)}
-                        >
+                        <AugmentCard key={item.uniqueKey} $selected={isSelected} onClick={() => toggleSelect(item)}>
                           <CardHeader>
                             <IconWrapper>
                               <AugmentIcon id={item.augment.id} size={30} />
                             </IconWrapper>
                             <CardMeta>
                               <AugName>{item.augment.name}</AugName>
-                              {item.augment.cost !== "-" && item.augment.cost !== undefined && (
-                                <CostTag $selected={isSelected}>
-                                  값 {item.augment.cost ?? 1} pt
-                                </CostTag>
-                              )}
+                              {item.augment.cost !== "-" && item.augment.cost !== undefined && <CostTag $selected={isSelected}>{item.augment.cost ?? 1} cost</CostTag>}
                             </CardMeta>
-                            <CheckIndicator $selected={isSelected}>
-                              {isSelected ? "✓" : ""}
-                            </CheckIndicator>
+                            <CheckIndicator $selected={isSelected}>{isSelected ? "✓" : ""}</CheckIndicator>
                           </CardHeader>
-                          <AugDesc>{getAugmentDesc(item.augment, item.pokemon)}</AugDesc>
+                          <AugDesc>{getAugmentLogDesc(item.augment, item.pokemon)}</AugDesc>
                         </AugmentCard>
                       );
                     })}
@@ -146,7 +130,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
 
         <FooterArea>
           <ConfirmButton onClick={handleComplete}>
-            선택 완료 ({currentCost} / {maxPoints} pt 사용)
+            선택 완료 ({currentCost} / {maxPoints} cost 사용)
           </ConfirmButton>
         </FooterArea>
       </ModalContainer>
@@ -337,13 +321,13 @@ const AugName = styled.span`
 `;
 
 const CostTag = styled.span`
-  font-size: 0.72rem;
-  font-weight: bold;
+  font-size: 0.68rem;
+  font-weight: 600;
   padding: 1px 6px;
   border-radius: 4px;
-  background: ${(props) => (props.$selected ? "rgba(245, 158, 11, 0.3)" : "rgba(245, 158, 11, 0.15)")};
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(100, 255, 218, 0.08);
+  color: #64ffda;
+  border: 1px solid rgba(100, 255, 218, 0.25);
 `;
 
 const CheckIndicator = styled.div`

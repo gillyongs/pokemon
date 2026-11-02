@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { getAugmentDesc } from "../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, getAugmentDesc } from "../../entity/Augment/AugmentData";
 import { ALL_POKEMON_TYPES, TYPE_COLORS, isTypeAlreadyNullified, getTypeEffectText } from "../../util/typeEffectCalculate";
 import { getWeatherBallType } from "../../util/weatherBall";
 import { rollTeamAugments } from "../../util/augmentRoll";
+import { testmode, subscribeTestMode } from "../../config/testMode";
 import AugmentStatusModal from "./AugmentStatusModal";
 
 const AugmentModal = ({
@@ -15,7 +16,26 @@ const AugmentModal = ({
   battle = null,
   onSelect,
   onClose,
+  isTestMode: propTestMode = null,
 }) => {
+  const [isTestMode, setIsTestMode] = useState(() => {
+    if (typeof propTestMode === "boolean") return propTestMode;
+    if (typeof window !== "undefined" && typeof window.testmode === "boolean") return window.testmode;
+    return Boolean(testmode);
+  });
+  const [showAllList, setShowAllList] = useState(false);
+
+  useEffect(() => {
+    if (typeof propTestMode === "boolean") {
+      setIsTestMode(propTestMode);
+    }
+  }, [propTestMode]);
+
+  useEffect(() => {
+    return subscribeTestMode(({ testmode: tm }) => {
+      setIsTestMode(Boolean(tm));
+    });
+  }, []);
   const [isPeekMode, setIsPeekMode] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [skillSelectAug, setSkillSelectAug] = useState(null);
@@ -40,6 +60,33 @@ const AugmentModal = ({
     }
     return resolvedTeam.find((p) => (p.augments || []).length < 3) || resolvedTeam[0] || null;
   });
+
+  const checkEligibility = (aug, pokemon) => {
+    if (!pokemon) return false;
+    if ((pokemon.augments || []).length >= 3) return false;
+    if (pokemon.hasAugment?.(aug.id) || (pokemon.augments || []).some((a) => a.id === aug.id)) {
+      return false;
+    }
+    if (typeof aug.isEligible === "function") {
+      return aug.isEligible(pokemon);
+    }
+    return true;
+  };
+
+  const { allEligible, allIneligible } = useMemo(() => {
+    const eligible = [];
+    const ineligible = [];
+    AUGMENT_LIST.forEach((aug) => {
+      if (checkEligibility(aug, activePokemon)) {
+        eligible.push(aug);
+      } else {
+        ineligible.push(aug);
+      }
+    });
+    eligible.sort((a, b) => (a.name || "").localeCompare(b.name || "", "ko"));
+    ineligible.sort((a, b) => (a.name || "").localeCompare(b.name || "", "ko"));
+    return { allEligible: eligible, allIneligible: ineligible };
+  }, [activePokemon]);
 
   const [choicesMap] = useState(() => {
     return rollTeamAugments(resolvedTeam);
@@ -72,6 +119,8 @@ const AugmentModal = ({
     setSelectedAugment(null); // 다른 포켓몬 선택 시 증강 선택 상태 초기화
     setTypeSelectAug(null);
     setSelectedType(null);
+    setSkillSelectAug(null);
+    setSelectedSlot(null);
   };
 
   const handleCardClick = (e, aug) => {
@@ -102,6 +151,12 @@ const AugmentModal = ({
       return;
     }
 
+    if (selectedAugment.id === "teraBlast") {
+      setTypeSelectAug(selectedAugment);
+      setSelectedType(null);
+      return;
+    }
+
     onSelect(selectedAugment, { targetPokemon: activePokemon });
   };
 
@@ -118,15 +173,27 @@ const AugmentModal = ({
                     <CloseButton
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedSlot(null);
-                        setSkillSelectAug(null);
+                        if (skillSelectAug?.id === "teraBlast") {
+                          setTypeSelectAug(skillSelectAug);
+                          setSkillSelectAug(null);
+                          setSelectedSlot(null);
+                        } else {
+                          setSelectedSlot(null);
+                          setSkillSelectAug(null);
+                        }
                       }}
                       title="되돌아가기"
                     >
                       ✕
                     </CloseButton>
                   </HeaderTopRow>
-                  <SubTitleText>{skillSelectAug?.id === "nameIsSalamence" ? "지진과 교체할 기술을 선택해주세요." : "용의춤과 교체할 기술을 선택해주세요."}</SubTitleText>
+                  <SubTitleText>
+                    {skillSelectAug?.id === "teraBlast"
+                      ? `[${selectedType || "노말"}] 테라버스트와 교체할 기술을 선택해주세요.`
+                      : skillSelectAug?.id === "nameIsSalamence"
+                      ? "지진과 교체할 기술을 선택해주세요."
+                      : "용의춤과 교체할 기술을 선택해주세요."}
+                  </SubTitleText>
                 </HeaderArea>
 
                 <SkillGrid>
@@ -178,8 +245,14 @@ const AugmentModal = ({
                     $variant="back"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelectedSlot(null);
-                      setSkillSelectAug(null);
+                      if (skillSelectAug?.id === "teraBlast") {
+                        setTypeSelectAug(skillSelectAug);
+                        setSkillSelectAug(null);
+                        setSelectedSlot(null);
+                      } else {
+                        setSelectedSlot(null);
+                        setSkillSelectAug(null);
+                      }
                     }}
                   >
                     되돌아가기
@@ -191,7 +264,14 @@ const AugmentModal = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       if (!selectedSlot) return;
-                      onSelect(skillSelectAug, { replaceSlot: selectedSlot, targetPokemon: activePokemon });
+                      onSelect(skillSelectAug, {
+                        replaceSlot: selectedSlot,
+                        targetPokemon: activePokemon,
+                        selectedType: selectedType || "노말",
+                      });
+                      setSelectedSlot(null);
+                      setSkillSelectAug(null);
+                      setSelectedType(null);
                     }}
                   >
                     교체
@@ -202,7 +282,7 @@ const AugmentModal = ({
               <>
                 <HeaderArea>
                   <HeaderTopRow>
-                    <Title>무효 타입 선택</Title>
+                    <Title>{typeSelectAug?.id === "teraBlast" ? "테라버스트 타입 선택" : "무효 타입 선택"}</Title>
                     <CloseButton
                       onClick={(e) => {
                         e.stopPropagation();
@@ -215,14 +295,16 @@ const AugmentModal = ({
                     </CloseButton>
                   </HeaderTopRow>
                   <SubTitleText>
-                    {activePokemon?.name ? `${activePokemon.name}에게 추가할 무효 타입을 선택해주세요.` : "무효화할 타입을 선택해주세요."}
+                    {typeSelectAug?.id === "teraBlast"
+                      ? (activePokemon?.name ? `${activePokemon.name}의 테라버스트에 부여할 타입을 선택해주세요.` : "테라버스트의 타입을 선택해주세요.")
+                      : (activePokemon?.name ? `${activePokemon.name}에게 추가할 무효 타입을 선택해주세요.` : "무효화할 타입을 선택해주세요.")}
                   </SubTitleText>
                 </HeaderArea>
 
                 <TypeGridContainer>
                   <TypeGrid>
                     {ALL_POKEMON_TYPES.map((tName) => {
-                      const isDisabled = isTypeAlreadyNullified(activePokemon, tName, battle);
+                      const isDisabled = typeSelectAug?.id === "teraBlast" ? false : isTypeAlreadyNullified(activePokemon, tName, battle);
                       const isSelected = selectedType === tName;
                       const typeCol = TYPE_COLORS[tName] || "#64ffda";
                       return (
@@ -236,7 +318,7 @@ const AugmentModal = ({
                             if (isDisabled) return;
                             setSelectedType((prev) => (prev === tName ? null : tName));
                           }}
-                          title={isDisabled ? `${tName} 타입은 이미 무효화되어 있습니다` : `${tName} 타입 무효화 선택`}
+                          title={typeSelectAug?.id === "teraBlast" ? `${tName} 타입 테라버스트 선택` : (isDisabled ? `${tName} 타입은 이미 무효화되어 있습니다` : `${tName} 타입 무효화 선택`)}
                         >
                           <TypeIconImg
                             src={`/pokemon/img/type/${tName}.svg`}
@@ -276,12 +358,18 @@ const AugmentModal = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       if (!selectedType) return;
+                      if (typeSelectAug?.id === "teraBlast") {
+                        setSkillSelectAug(typeSelectAug);
+                        setTypeSelectAug(null);
+                        setSelectedSlot(null);
+                        return;
+                      }
                       onSelect(typeSelectAug, { targetPokemon: activePokemon, selectedType });
                       setSelectedType(null);
                       setTypeSelectAug(null);
                     }}
                   >
-                    선택
+                    {typeSelectAug?.id === "teraBlast" ? "다음" : "선택"}
                   </ActionButton>
                 </ButtonGroup>
               </>
@@ -289,7 +377,23 @@ const AugmentModal = ({
               <>
                 <HeaderArea>
                   <HeaderTopRow>
-                    <Title>증강 선택</Title>
+                    <TitleGroup>
+                      <Title>증강 선택</Title>
+                      {isTestMode && (
+                        <AllListButton
+                          type="button"
+                          $active={showAllList}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowAllList((prev) => !prev);
+                            setSelectedAugment(null);
+                          }}
+                          title={showAllList ? "3개 추첨 모드로 전환" : "모든 증강 목록 보기 (글자순)"}
+                        >
+                          {showAllList ? "추첨 목록" : "증강 목록"}
+                        </AllListButton>
+                      )}
+                    </TitleGroup>
                     <HeaderRightGroup>
                       <StatusButton
                         type="button"
@@ -346,8 +450,68 @@ const AugmentModal = ({
                   </EntryContainer>
                 )}
 
-                <CardContainer>
-                  {currentChoices.length === 0 ? (
+                <CardContainer $isAll={showAllList}>
+                  {showAllList ? (
+                    allEligible.length === 0 && allIneligible.length === 0 ? (
+                      <EmptyChoiceText>등록된 증강이 없습니다.</EmptyChoiceText>
+                    ) : (
+                      <>
+                        {allEligible.map((aug, index) => {
+                          const isCardSelected = selectedAugment?.id === aug.id;
+                          return (
+                            <AugmentCard
+                              key={aug.id || index}
+                              $isPeek={isPeekMode}
+                              $isSelected={isCardSelected}
+                              onClick={(e) => handleCardClick(e, aug)}
+                            >
+                              <IconCol>
+                                <IconWrapper>
+                                  <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
+                                </IconWrapper>
+                                {aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                              </IconCol>
+                              <CardContent>
+                                <CardTitle>{aug.name}</CardTitle>
+                                <CardDescription>{getAugmentDesc(aug, activePokemon)}</CardDescription>
+                              </CardContent>
+                            </AugmentCard>
+                          );
+                        })}
+
+                        {allIneligible.length > 0 && (
+                          <>
+                            <IneligibleDivider>
+                              <span>선택 불가 증강 ({allIneligible.length})</span>
+                            </IneligibleDivider>
+                            {allIneligible.map((aug, index) => (
+                              <AugmentCard
+                                key={`ineligible-${aug.id || index}`}
+                                $isPeek={isPeekMode}
+                                $disabled={true}
+                                onClick={(e) => e.stopPropagation()}
+                                title="이 포켓몬은 해당 증강의 선택 조건을 만족하지 않거나 이미 보유 중입니다."
+                              >
+                                <IconCol>
+                                  <IconWrapper>
+                                    <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
+                                  </IconWrapper>
+                                  {aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                                </IconCol>
+                                <CardContent>
+                                  <CardTitleRow>
+                                    <CardTitle>{aug.name}</CardTitle>
+                                    <IneligibleBadge>선택 불가</IneligibleBadge>
+                                  </CardTitleRow>
+                                  <CardDescription>{getAugmentDesc(aug, activePokemon)}</CardDescription>
+                                </CardContent>
+                              </AugmentCard>
+                            ))}
+                          </>
+                        )}
+                      </>
+                    )
+                  ) : currentChoices.length === 0 ? (
                     <EmptyChoiceText>선택 가능한 증강이 없습니다.</EmptyChoiceText>
                   ) : (
                     currentChoices.map((aug, index) => {
@@ -692,6 +856,105 @@ const CardContainer = styled.div`
   flex-direction: column;
   gap: 10px;
   width: 100%;
+  box-sizing: border-box;
+
+  ${(props) =>
+    props.$isAll &&
+    `
+    max-height: 52vh;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 4px;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(100, 255, 218, 0.35);
+      border-radius: 4px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 255, 218, 0.65);
+    }
+  `}
+`;
+
+const TitleGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const AllListButton = styled.button`
+  background: ${(props) => (props.$active ? "rgba(100, 255, 218, 0.2)" : "rgba(255, 255, 255, 0.08)")};
+  border: 1px solid ${(props) => (props.$active ? "rgba(100, 255, 218, 0.6)" : "rgba(255, 255, 255, 0.2)")};
+  border-radius: 6px;
+  color: ${(props) => (props.$active ? "#64ffda" : "#cbd5e1")};
+  font-size: 0.76rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(100, 255, 218, 0.25);
+    border-color: #64ffda;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+`;
+
+const IneligibleDivider = styled.div`
+  display: flex;
+  align-items: center;
+  margin: 12px 0 6px;
+  width: 100%;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  span {
+    padding: 0 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #f87171;
+    letter-spacing: -0.2px;
+  }
+`;
+
+const IneligibleBadge = styled.span`
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 6px;
+  flex-shrink: 0;
+`;
+
+const CardTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
 `;
 
 const EmptyChoiceText = styled.div`
@@ -731,20 +994,27 @@ const IconWrapper = styled.div`
 const AugmentCard = styled.div`
   width: 100%;
   background: ${(props) =>
-    props.$isSelected
+    props.$disabled
+      ? "rgba(15, 23, 42, 0.35)"
+      : props.$isSelected
       ? "rgba(22, 45, 64, 0.98)"
       : "rgba(0, 0, 0, 0.45)"};
   border: ${(props) =>
-    props.$isSelected
+    props.$disabled
+      ? "1px solid rgba(255, 255, 255, 0.06)"
+      : props.$isSelected
       ? "1.5px solid #64ffda"
       : "1px solid rgba(255, 255, 255, 0.1)"};
-  border-left: 4px solid ${(props) => (props.$isSelected ? "#38bdf8" : "#64ffda")};
+  border-left: 4px solid ${(props) => (props.$disabled ? "#475569" : props.$isSelected ? "#38bdf8" : "#64ffda")};
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;
   flex-direction: row;
   align-items: center;
-  cursor: pointer;
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
+  pointer-events: ${(props) => (props.$disabled ? "none" : "auto")};
+  opacity: ${(props) => (props.$disabled ? 0.45 : 1)};
+  filter: ${(props) => (props.$disabled ? "grayscale(0.65)" : "none")};
   transition: all 0.2s ease;
   box-sizing: border-box;
   box-shadow: ${(props) =>
@@ -756,23 +1026,26 @@ const AugmentCard = styled.div`
     padding: 10px 10px;
   }
 
-  &:hover {
-    transform: ${(props) => (props.$isPeek ? "none" : "translateY(-2px)")};
-    border-color: ${(props) => (props.$isSelected ? "#64ffda" : "rgba(100, 255, 218, 0.5)")};
-    border-left: 4px solid #64ffda;
-    background: ${(props) =>
-      props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(20, 30, 44, 0.75)"};
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  ${(props) =>
+    !props.$disabled &&
+    `
+    &:hover {
+      transform: ${props.$isPeek ? "none" : "translateY(-2px)"};
+      border-color: ${props.$isSelected ? "#64ffda" : "rgba(100, 255, 218, 0.5)"};
+      border-left: 4px solid #64ffda;
+      background: ${props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(20, 30, 44, 0.75)"};
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 
-    ${IconWrapper} {
-      transform: ${(props) => (props.$isPeek ? "none" : "scale(1.05)")};
-      filter: drop-shadow(0 0 6px rgba(100, 255, 218, 0.4));
+      ${IconWrapper} {
+        transform: ${props.$isPeek ? "none" : "scale(1.05)"};
+        filter: drop-shadow(0 0 6px rgba(100, 255, 218, 0.4));
+      }
     }
-  }
 
-  &:active {
-    transform: scale(0.98);
-  }
+    &:active {
+      transform: scale(0.98);
+    }
+  `}
 `;
 
 const CardContent = styled.div`
@@ -800,9 +1073,9 @@ const CardTitle = styled.h3`
 `;
 
 const CostBadge = styled.span`
-  width: 48px;
   min-width: 48px;
-  max-width: 48px;
+  width: auto;
+  padding: 0 5px;
   height: 18px;
   display: inline-flex;
   align-items: center;

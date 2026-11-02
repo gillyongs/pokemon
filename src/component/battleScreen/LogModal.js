@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST, getAugmentDesc } from "../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, getAugmentLogDesc } from "../../entity/Augment/AugmentData";
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -132,6 +132,15 @@ const AugmentBody = styled.div`
   gap: 12px;
 `;
 
+const AugmentIconCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  min-width: 44px;
+`;
+
 const AugmentInfo = styled.div`
   display: flex;
   flex-direction: column;
@@ -143,7 +152,6 @@ const AugmentInfo = styled.div`
 const AugmentTitleRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
   margin-bottom: 3px;
 `;
@@ -156,15 +164,21 @@ const AugmentName = styled.span`
 `;
 
 const AugmentCost = styled.span`
-  font-size: 0.72rem;
-  font-weight: bold;
-  padding: 1px 6px;
+  width: 44px;
+  min-width: 44px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 600;
   border-radius: 4px;
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  flex-shrink: 0;
-  margin-left: 6px;
+  background: rgba(100, 255, 218, 0.08);
+  color: #64ffda;
+  border: 1px solid rgba(100, 255, 218, 0.25);
+  white-space: nowrap;
+  text-align: center;
+  box-sizing: border-box;
 `;
 
 const AugmentDesc = styled.div`
@@ -207,10 +221,11 @@ const parseAugmentLog = (item) => {
       const foundAug = AUGMENT_LIST.find((a) => a.name === augmentName);
       const pokes = [item.battle?.player, item.battle?.playerBench1, item.battle?.playerBench2];
       const targetPoke = pokes.find((p) => p && (p.names === targetName || p.name === targetName));
+      const pokeAug = targetPoke?.augments?.find((a) => a.id === foundAug?.id || a.name === augmentName);
       return {
         targetName,
         targetPoke,
-        augment: foundAug || { name: augmentName },
+        augment: pokeAug || foundAug || { name: augmentName },
       };
     }
   }
@@ -251,15 +266,19 @@ export default function LogModal({ log, onClose }) {
                       <TargetPokemonText>{targetName}에게 적용</TargetPokemonText>
                     </AugmentHeader>
                     <AugmentBody>
-                      {augment.id && <AugmentIcon id={augment.id} size={36} />}
+                      <AugmentIconCol>
+                        {augment.id && <AugmentIcon id={augment.id} size={36} />}
+                        {augment.cost !== undefined && augment.cost !== "-" && (
+                          <AugmentCost>{augment.cost ?? 1} cost</AugmentCost>
+                        )}
+                      </AugmentIconCol>
                       <AugmentInfo>
                         <AugmentTitleRow>
                           <AugmentName>{augment.name}</AugmentName>
-                          {augment.cost !== undefined && augment.cost !== "-" && (
-                            <AugmentCost>값 {augment.cost ?? 1} pt</AugmentCost>
-                          )}
                         </AugmentTitleRow>
-                        {augment.desc && <AugmentDesc>{getAugmentDesc(augment, targetPoke)}</AugmentDesc>}
+                        {(augment.desc || augment.logDesc) && (
+                          <AugmentDesc>{getAugmentLogDesc(augment, targetPoke)}</AugmentDesc>
+                        )}
                       </AugmentInfo>
                     </AugmentBody>
                   </AugmentLogCard>

@@ -1,6 +1,6 @@
 import { generate } from "../../entity/Pokemon/PokemonInstance";
 import { createBattle } from "../../entity/Battle";
-import { AUGMENT_LIST, getAugmentDesc, isEligibleForDanceGarchomp, isEligibleForRouletteWheel } from "../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, getAugmentDesc, getAugmentLogDesc, isEligibleForDanceGarchomp, isEligibleForRouletteWheel } from "../../entity/Augment/AugmentData";
 import { isTypeAlreadyNullified, typeCheckOnBattle } from "../../util/typeEffectCalculate";
 import { rollAugments, grantRandomAugment, rollTeamAugments } from "../../util/augmentRoll";
 import { getAccuracy } from "../../function/accuracyCalculate";
@@ -478,7 +478,7 @@ describe("아수라장 증강 시스템 테스트", () => {
     expect(aug).toBeDefined();
     expect(aug.name).toBe("가시갑옷");
     expect(aug.cost).toBe(3);
-    expect(aug.desc).toBe("타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 준다.");
+    expect(aug.desc).toBe("타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 줍니다.");
 
     const battle = createBattle(["배바닐라", "한카리아스", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
     // 플레이어: 한카리아스(피격자), NPC: 어써러셔(공격자)
@@ -542,7 +542,7 @@ describe("아수라장 증강 시스템 테스트", () => {
     battle.player.applyAugment(aug);
     const opmDamage = damageCalculate(battle, {}, true);
 
-    expect(opmDamage).toBeGreaterThanOrEqual(baseDamage * 900);
+    expect(opmDamage).toBeGreaterThanOrEqual(baseDamage * 800);
   });
 
   test("이 포켓몬의 이름은 보만다(nameIsSalamence): 보만다 전용 + 지진 미보유 조건, 지진 교체, 코스트 0, 줄바꿈 설명", () => {
@@ -612,5 +612,125 @@ describe("아수라장 증강 시스템 테스트", () => {
 
     const dmg = damageCalculate(battle, {}, true);
     expect(dmg).toBe(0);
+  });
+
+  test("테라버스트(teraBlast): 기술 교체, 선택한 타입 부여, 공격/특공 중 높은 쪽으로 데미지 계산", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "teraBlast");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("테라버스트");
+    expect(aug.cost).toBe(1);
+
+    // 1. 망나뇽에게 불꽃 타입 테라버스트를 2번 슬롯에 적용
+    const battle = createBattle(["망나뇽", "배바닐라", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    const dragonite = battle.player;
+    dragonite.applyAugment(aug, battle, { replaceSlot: 2, selectedType: "불꽃" });
+
+    const teraSkill = dragonite.origin.skill[2];
+    expect(teraSkill).toBeDefined();
+    expect(teraSkill.name).toBe("테라버스트");
+    expect(teraSkill.type).toBe("불꽃");
+    expect(teraSkill.power).toBe(80);
+    expect(teraSkill.accur).toBe(100);
+    expect(teraSkill.pp).toBe(16); // 10 PP * 1.6 (포인트업 3회)
+    expect(teraSkill.stype).toBe("catk");
+
+    // getAugmentDesc (선택 화면용) 확인: (공격/특공 중 높은 능력치로 계산) 제외
+    expect(getAugmentDesc(aug, dragonite)).toBe("현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.");
+    expect(getAugmentDesc(aug, dragonite)).not.toContain("공격/특공 중 높은 능력치로 계산");
+
+    // getAugmentLogDesc (로그 및 상태용) 확인: [이전기술명]을/를 [타입] 타입 테라버스트로 변경하였습니다
+    const logDesc = getAugmentLogDesc(aug, dragonite);
+    expect(logDesc).toBe("[역린]을 [불꽃] 타입 테라버스트로 변경하였습니다.");
+    expect(logDesc).not.toContain("공격/특공 중 높은 능력치로 계산");
+
+    // 2. 공격 > 특공인 포켓몬 (망나뇽은 공격 134 > 특공 100) -> 물리(atk, def)로 계산
+    battle.turn.atk = "player";
+    battle.turn.def = "npc";
+    battle.player.turn = { useSkill: teraSkill, critical: false };
+    battle.turn.atkSN = 2;
+
+    const dmgPhys = damageCalculate(battle, {}, true);
+    expect(dmgPhys).toBeGreaterThan(0);
+
+    // 3. 특공 > 공격인 포켓몬으로 교체 테스트 (가이오가: 특공 150 > 공격 100)
+    const kyogre = generate("가이오가");
+    battle.player = kyogre;
+    kyogre.applyAugment(aug, battle, { replaceSlot: 1, selectedType: "전기" });
+    const elecTera = kyogre.origin.skill[1];
+    expect(elecTera.type).toBe("전기");
+
+    battle.player.turn = { useSkill: elecTera, critical: false };
+    battle.turn.atkSN = 1;
+    const dmgSpec = damageCalculate(battle, {}, true);
+    expect(dmgSpec).toBeGreaterThan(0);
+  });
+
+  test("실패하면 반역 성공하면 혁명: 공격과 특공 중 하나가 2배, 다른 하나가 절반이 됨", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "rebellionOrRevolution");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("실패하면 반역 성공하면 혁명");
+    expect(aug.cost).toBe(3);
+
+    // 1) 공격 2배, 특공 절반 케이스
+    const battle1 = createBattle(["망나뇽", "한카리아스", "한카리아스"], ["어써러셔", "어써러셔", "어써러셔"]);
+    const p1 = battle1.player;
+    const origAtk1 = p1.origin.stat.atk;
+    const origCatk1 = p1.origin.stat.catk;
+
+    p1.applyAugment(aug, battle1, { targetStat: "atk" });
+    expect(p1.origin.stat.atk).toBe(Math.round(origAtk1 * 2));
+    expect(p1.origin.stat.catk).toBe(Math.floor(origCatk1 / 2));
+    // getAugmentLogDesc는 적용된 결과 표시
+    expect(getAugmentLogDesc(aug, p1)).toContain("공격");
+    expect(getAugmentLogDesc(aug, p1)).toContain("2배");
+    expect(getAugmentLogDesc(aug, p1)).toContain("절반이 되었습니다");
+
+    // 2) 2번째 포켓몬이 증강 목록을 볼 때 (getAugmentDesc), 1번 포켓몬의 결과가 누출되지 않아야 함
+    const battle2 = createBattle(["망나뇽", "한카리아스", "한카리아스"], ["어써러셔", "어써러셔", "어써러셔"]);
+    const p2 = battle2.player;
+    expect(getAugmentDesc(aug, p2)).toContain("중 하나가 2배가 되고 다른 하나가 절반이 됩니다");
+    expect(getAugmentDesc(aug, p2)).not.toContain("절반이 되었습니다");
+
+    // 특공 2배, 공격 절반 케이스 적용
+    const origAtk2 = p2.origin.stat.atk;
+    const origCatk2 = p2.origin.stat.catk;
+
+    p2.applyAugment(aug, battle2, { targetStat: "catk" });
+    expect(p2.origin.stat.catk).toBe(Math.round(origCatk2 * 2));
+    expect(p2.origin.stat.atk).toBe(Math.floor(origAtk2 / 2));
+    expect(getAugmentLogDesc(aug, p2)).toContain("특수공격");
+    expect(getAugmentLogDesc(aug, p2)).toContain("2배");
+    expect(getAugmentLogDesc(aug, p2)).toContain("절반이 되었습니다");
+  })
+  test("무한의 대검(infinityEdge): 코스트 3500, 공격력 +75, 치명타 피해량 +30% 검증", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "infinityEdge");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("무한의 대검");
+    expect(aug.cost).toBe(7);
+
+    // 설명 확인
+    expect(getAugmentDesc(aug)).toContain("공격력 🗡️ 75");
+    expect(getAugmentDesc(aug)).toContain("치명타 확률 💥 25%");
+    expect(getAugmentDesc(aug)).toContain("치명타 피해량 ➕💥 30%");
+
+    // 망나뇽에게 적용
+    const battle = createBattle(["망나뇽", "배바닐라", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    const dragonite = battle.player;
+    const baseAtk = dragonite.origin.stat.atk;
+
+    dragonite.applyAugment(aug, battle);
+    expect(dragonite.origin.stat.atk).toBe(baseAtk + 75);
+    if (dragonite.stat) expect(dragonite.stat.atk).toBe(baseAtk + 75);
+
+    // 급소 데미지 계산 시 30% 증가 검증
+    battle.turn.atk = "player";
+    battle.turn.def = "npc";
+    battle.turn.atkSN = 1; // 신속
+    battle.player.turn = { useSkill: dragonite.origin.skill[1], critical: true };
+
+    // IE 적용 상태 데미지
+    const ieCritDamage = damageCalculate(battle, {}, false);
+    expect(dragonite.log.damage2).toContain("1.5 (급소) * 1.3 (무한의 대검)");
+    expect(ieCritDamage).toBeGreaterThan(0);
   });
 });

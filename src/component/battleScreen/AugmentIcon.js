@@ -236,10 +236,165 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="85%" stopColor="rgba(239, 68, 68, 0.35)" />
             <stop offset="100%" stopColor="rgba(239, 68, 68, 0)" />
           </radialGradient>
+
+          {/* 실패하면 반역 성공하면 혁명 화살표 그라데이션 */}
+          <linearGradient id="redArrowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#b91c1c" />
+            <stop offset="50%" stopColor="#ef4444" />
+            <stop offset="100%" stopColor="#f87171" />
+          </linearGradient>
+          <linearGradient id="greenArrowGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stopColor="#15803d" />
+            <stop offset="50%" stopColor="#22c55e" />
+            <stop offset="100%" stopColor="#86efac" />
+          </linearGradient>
+          <radialGradient id="revDarkBg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#131b2e" />
+            <stop offset="70%" stopColor="#0a0f1d" />
+            <stop offset="100%" stopColor="#03060c" />
+          </radialGradient>
+
+          {/* 무효화 하늘색 X 심볼 그라데이션 */}
+          <radialGradient id="nullifySkyAura" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.3" />
+            <stop offset="60%" stopColor="#0284c7" stopOpacity="0.1" />
+            <stop offset="100%" stopColor="#030712" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="skyBlueXGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#64ffda" />
+            <stop offset="35%" stopColor="#38bdf8" />
+            <stop offset="70%" stopColor="#60a5fa" />
+            <stop offset="100%" stopColor="#3b82f6" />
+          </linearGradient>
+
+          {/* 테라버스트 무지개 그라데이션 (테라스탈 6각성) */}
+          <linearGradient id="teraRainbowExact" x1="15%" y1="10%" x2="85%" y2="90%">
+            <stop offset="0%" stopColor="#f97316" />
+            <stop offset="16%" stopColor="#facc15" />
+            <stop offset="34%" stopColor="#4ade80" />
+            <stop offset="52%" stopColor="#06b6d4" />
+            <stop offset="70%" stopColor="#3b82f6" />
+            <stop offset="86%" stopColor="#a855f7" />
+            <stop offset="100%" stopColor="#ec4899" />
+          </linearGradient>
+          <radialGradient id="teraDarkBg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#1e293b" />
+            <stop offset="70%" stopColor="#0b1120" />
+            <stop offset="100%" stopColor="#020617" />
+          </radialGradient>
+          <radialGradient id="teraAuraGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.3" />
+            <stop offset="50%" stopColor="#38bdf8" stopOpacity="0.15" />
+            <stop offset="80%" stopColor="#a855f7" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#020617" stopOpacity="0" />
+          </radialGradient>
+
+          {/* 무한의 대검 (LoL Infinity Edge 스티커 픽토그램 아트) 전용 그라데이션 */}
+          <radialGradient id="ieBgGrad" cx="46%" cy="62%" r="48%" fx="44%" fy="66%">
+            <stop offset="0%" stopColor="#fef9c3" />
+            <stop offset="28%" stopColor="#facc15" />
+            <stop offset="62%" stopColor="#ca8a04" />
+            <stop offset="88%" stopColor="#78350f" />
+            <stop offset="100%" stopColor="#451a03" />
+          </radialGradient>
+          <radialGradient id="ieSoftGlow" cx="45%" cy="68%" r="36%">
+            <stop offset="0%" stopColor="#fef08a" stopOpacity="0.7" />
+            <stop offset="50%" stopColor="#facc15" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#ca8a04" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="ieBoltFill" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fef08a" />
+            <stop offset="55%" stopColor="#eab308" />
+            <stop offset="100%" stopColor="#b45309" />
+          </linearGradient>
+          <linearGradient id="ieSilverLight" x1="20%" y1="15%" x2="70%" y2="70%">
+            <stop offset="0%" stopColor="#e2e8f0" />
+            <stop offset="50%" stopColor="#cbd5e1" />
+            <stop offset="100%" stopColor="#94a3b8" />
+          </linearGradient>
+          <linearGradient id="ieSilverDark" x1="20%" y1="15%" x2="60%" y2="75%">
+            <stop offset="0%" stopColor="#7c8696" />
+            <stop offset="50%" stopColor="#647080" />
+            <stop offset="100%" stopColor="#525d6d" />
+          </linearGradient>
+          <linearGradient id="ieDarkTrench" x1="25%" y1="20%" x2="65%" y2="75%">
+            <stop offset="0%" stopColor="#2b313d" />
+            <stop offset="50%" stopColor="#232832" />
+            <stop offset="100%" stopColor="#1b1f27" />
+          </linearGradient>
+          <linearGradient id="ieRuneYellow" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fff72e" />
+            <stop offset="60%" stopColor="#ffea00" />
+            <stop offset="100%" stopColor="#facc15" />
+          </linearGradient>
+          <filter id="ieCyanRingGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.8" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="ieRuneSoftGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="0.6" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <clipPath id="ieMainCircleClip">
+            <circle cx="50" cy="52.5" r="40.8" />
+          </clipPath>
+
+          {/* 라바돈의 죽음모자 (LoL Rabadon's Deathcap 스티커 픽토그램 아트) 전용 그라데이션 */}
+          <radialGradient id="rabBgGrad" cx="48%" cy="54%" r="48%" fx="44%" fy="58%">
+            <stop offset="0%" stopColor="#fef08a" />
+            <stop offset="28%" stopColor="#f97316" />
+            <stop offset="60%" stopColor="#c2410c" />
+            <stop offset="85%" stopColor="#7c2d12" />
+            <stop offset="100%" stopColor="#431407" />
+          </radialGradient>
+          <linearGradient id="rabFlameOrange" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stopColor="#fbbf24" />
+            <stop offset="50%" stopColor="#f97316" />
+            <stop offset="100%" stopColor="#ea580c" />
+          </linearGradient>
+          <linearGradient id="rabFlameYellow" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="40%" stopColor="#fef08a" />
+            <stop offset="100%" stopColor="#f59e0b" />
+          </linearGradient>
+          <linearGradient id="rabHatPurple" x1="25%" y1="15%" x2="75%" y2="80%">
+            <stop offset="0%" stopColor="#6b4c9a" />
+            <stop offset="45%" stopColor="#4c3277" />
+            <stop offset="85%" stopColor="#35205a" />
+            <stop offset="100%" stopColor="#241342" />
+          </linearGradient>
+          <linearGradient id="rabHatDark" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3b2363" />
+            <stop offset="100%" stopColor="#1e0f38" />
+          </linearGradient>
+          <radialGradient id="rabMouthGlow" cx="44%" cy="50%" r="55%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="45%" stopColor="#e8ffff" />
+            <stop offset="80%" stopColor="#b8f9ff" />
+            <stop offset="100%" stopColor="#7ce8ff" />
+          </radialGradient>
+          <filter id="rabCyanRingGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.8" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <clipPath id="rabCircleClip">
+            <circle cx="51" cy="46.5" r="44" />
+          </clipPath>
         </defs>
 
         {/* 베이스 배경 원 */}
-        <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && (
+          <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />
+        )}
 
         {/* 1. 억까 방지 (정밀 조준경 + 필중 화살 + 스파클) */}
         {id === "noUnfairMiss" && (
@@ -912,44 +1067,808 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 13. 무효~! 겟또다제 (BAN / 금지 / 무효화 네온 엠블럼) */}
+        {/* 13. 무효~! 겟또다제 (억까방지 스타일: 검은 바탕 + 크기를 줄인 하늘색 X) */}
         {id === "nullifyGetto" && (
           <g filter="url(#glow)">
-            {/* 1. 배경 다크 크림슨 심연 & 외곽 붉은 경고 오라 */}
-            <circle cx="32" cy="32" r="29" fill="url(#banDarkBg)" />
-            <circle cx="32" cy="32" r="29" fill="url(#banGlowHalo)" />
+            {/* 1. 검은 바탕 베이스 원 & 은은한 하늘색 오라 */}
+            <circle cx="32" cy="32" r="29" fill="#040711" />
+            <circle cx="32" cy="32" r="28" fill="url(#nullifySkyAura)" />
 
-            {/* 2. 외곽 사이버 타겟/코너 브래킷 (BAN HUD Lock Frame) */}
-            <path d="M 12 21 L 12 12 L 21 12" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M 43 12 L 52 12 L 52 21" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M 12 43 L 12 52 L 21 52" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M 52 43 L 52 52 L 43 52" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            {/* 2. 외곽 억까방지 테마 아치형 하늘색 링 */}
+            <path d="M16 32 A16 16 0 0 1 48 32 M48 32 A16 16 0 0 1 16 32" stroke="url(#prismRing)" strokeWidth="1.8" strokeDasharray="14 6" strokeLinecap="round" opacity="0.65" />
+            <circle cx="32" cy="32" r="25" fill="none" stroke="rgba(56, 189, 248, 0.25)" strokeWidth="0.8" />
 
-            {/* 점선 테크 서클 */}
-            <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(239, 68, 68, 0.4)" strokeWidth="1" strokeDasharray="3 3" />
+            {/* 3. 살짝 키운 34x34 하늘색 앵귤러 X 심볼 */}
+            <path
+              d="M 32 27 L 44 15 L 49 20 L 37 32 L 49 44 L 44 49 L 32 37 L 20 49 L 15 44 L 27 32 L 15 20 L 20 15 Z"
+              fill="url(#skyBlueXGrad)"
+              stroke="#ffffff"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
 
-            {/* 3. 중앙 붉은 네온 BAN (🚫) 심볼 딥 섀도우 베이스 */}
-            <circle cx="32" cy="32" r="18" fill="none" stroke="#450a0a" strokeWidth="7" />
-            <line x1="19.3" y1="19.3" x2="44.7" y2="44.7" stroke="#450a0a" strokeWidth="7" strokeLinecap="round" />
+            {/* 중앙 화이트 스파클 코어 */}
+            <circle cx="32" cy="32" r="2" fill="#ffffff" />
 
-            {/* 메인 비비드 레드 BAN 링 & 대각선 슬래시 */}
-            <circle cx="32" cy="32" r="18" fill="none" stroke="url(#banRedGrad)" strokeWidth="5.4" />
-            <line x1="19.3" y1="19.3" x2="44.7" y2="44.7" stroke="url(#banRedGrad)" strokeWidth="5.4" strokeLinecap="round" />
+            {/* 억까방지와 동일한 스파클 장식 */}
+            <path d="M48 16 Q48 19 51 19 Q48 19 48 22 Q48 19 45 19 Q48 19 48 16 Z" fill="#fef08a" />
+            <path d="M16 48 Q16 50.5 18.5 50.5 Q16 50.5 16 53 Q16 50.5 13.5 50.5 Q16 50.5 16 48 Z" fill="#67e8f9" />
+          </g>
+        )}
 
-            {/* 네온 하이라이트 (밝은 핑크/화이트 광택 림) */}
-            <circle cx="32" cy="32" r="18" fill="none" stroke="#ffccd5" strokeWidth="1.4" opacity="0.85" />
-            <line x1="20" y1="20" x2="44" y2="44" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" opacity="0.95" />
+        {/* 15. 실패하면 반역 성공하면 혁명 (좌측 빨간 하강 화살표 + 우측 초록 상승 화살표, 높이 30% 축소) */}
+        {(id === "rebellionOrRevolution" || id === "revolution") && (
+          <g filter="url(#glow)">
+            {/* 1. 배경 어두운 원 & 섀도우 림 */}
+            <circle cx="32" cy="32" r="29" fill="url(#revDarkBg)" />
+            <circle cx="32" cy="32" r="27.5" fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="0.8" strokeDasharray="3 2" />
 
-            {/* 4. 사선 양끝 충돌 스파클 & 코너 노드 */}
-            <circle cx="19.3" cy="19.3" r="1.6" fill="#ffffff" />
-            <circle cx="44.7" cy="44.7" r="1.6" fill="#ffffff" />
-            <circle cx="32" cy="6" r="1.8" fill="#fecaca" />
-            <circle cx="32" cy="58" r="1.8" fill="#fecaca" />
-            <circle cx="6" cy="32" r="1.8" fill="#fecaca" />
-            <circle cx="58" cy="32" r="1.8" fill="#fecaca" />
+            {/* 좌우 은은한 색상 오라 */}
+            <ellipse cx="21" cy="32" rx="12" ry="18" fill="#ef4444" fillOpacity="0.14" />
+            <ellipse cx="43" cy="32" rx="12" ry="18" fill="#22c55e" fillOpacity="0.14" />
 
-            {/* 중심 섬광 글린트 */}
-            <path d="M 32 30 Q 32 32 34 32 Q 32 32 32 34 Q 32 32 30 32 Q 32 32 32 30 Z" fill="#ffffff" />
+            {/* 2. 좌측 빨간 하강 화살표 (▼) */}
+            <path
+              d="M 17 16 L 25 16 L 25 35 L 29 35 L 21 48 L 13 35 L 17 35 Z"
+              fill="url(#redArrowGrad)"
+              stroke="#ffffff"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+            <circle cx="21" cy="48.5" r="1.3" fill="#fecaca" />
+
+            {/* 3. 우측 초록 상승 화살표 (▲) */}
+            <path
+              d="M 43 16 L 51 29 L 47 29 L 47 48 L 39 48 L 39 29 L 35 29 Z"
+              fill="url(#greenArrowGrad)"
+              stroke="#ffffff"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+            <circle cx="43" cy="15.5" r="1.3" fill="#bbf7d0" />
+          </g>
+        )}
+
+        {/* 14. 테라버스트 (업로드 원본 이미지와 100% 동일 형태 + 무지개 그라데이션) */}
+        {id === "teraBlast" && (
+          <g filter="url(#glow)">
+            {/* 1. 배경 어두운 원 + 은은한 오라 */}
+            <circle cx="32" cy="32" r="29" fill="url(#teraDarkBg)" />
+            <circle cx="32" cy="32" r="28" fill="url(#teraAuraGlow)" />
+
+            {/* 2. 테라스탈 6각성 메인 바디 (외곽 14포인트 - 내부 세로 6각 홀) */}
+            <path
+              d="M 32 6
+                 L 39.7 22.7
+                 L 51 18.4
+                 L 42 28.2
+                 L 42 35.8
+                 L 51.1 45.2
+                 L 39.7 41.3
+                 L 32 58
+                 L 24.3 41.3
+                 L 12.9 45.2
+                 L 22 35.8
+                 L 22 28.2
+                 L 12.9 18.4
+                 L 24.3 22.7 Z
+                 M 32 24.3
+                 L 35.8 27.6
+                 L 35.8 36.4
+                 L 32 39.7
+                 L 28.2 36.4
+                 L 28.2 27.6 Z"
+              fill="url(#teraRainbowExact)"
+              fillRule="evenodd"
+              stroke="#ffffff"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+          </g>
+        )}
+
+        {/* 16. 무한의 대검 (LoL Infinity Edge 스티커 픽토그램 아트) */}
+        {id === "infinityEdge" && (
+          <g transform="translate(0, -1.6) scale(0.64)">
+            {/* 1. 원형 배경 (클리핑 내부) */}
+            <g clipPath="url(#ieMainCircleClip)">
+              <circle cx="50" cy="52.5" r="41" fill="url(#ieBgGrad)" />
+              <circle cx="50" cy="52.5" r="41" fill="url(#ieSoftGlow)" />
+            </g>
+
+            {/* 2. 시안(Cyan) 네온 원형 링 */}
+            <circle cx="50" cy="52.5" r="40.8" fill="none" stroke="#06b6d4" strokeWidth="3.2" filter="url(#ieCyanRingGlow)" />
+            <circle cx="50" cy="52.5" r="40.8" fill="none" stroke="#22f2ff" strokeWidth="2.2" />
+
+            {/* 3. 배경 황금 번개 줄기들 */}
+            <g>
+              {/* (A) 우측 상단 번개 가지 */}
+              <path
+                d="M 53.5 13
+                   L 58.2 24.5 L 66.2 27.2 L 65.5 29.8 L 73.8 30.8 L 70 40 L 64.8 45.2 L 66.5 58.5
+                   L 69.5 46.8 L 78.2 41.8 L 76.5 38.8 L 79.8 29.2 L 73.2 27.2 L 70.8 19.5 L 69.2 24.8 L 62.5 21.5 L 60.2 14 Z"
+                fill="url(#ieBoltFill)"
+                stroke="#fef08a"
+                strokeWidth="1.0"
+                strokeLinejoin="miter"
+              />
+              {/* (B) 우측 중단 번개 가지 & 샤드 */}
+              <path
+                d="M 72.5 63.5 L 74 53.8 L 80.2 52.5 L 86 42.5 L 83 55.8 L 76 57.5 Z"
+                fill="url(#ieBoltFill)"
+                stroke="#fef08a"
+                strokeWidth="1.0"
+                strokeLinejoin="miter"
+              />
+              <polygon points="79.5,64.2 92.8,58.2 82.2,66.8" fill="url(#ieBoltFill)" stroke="#fef08a" strokeWidth="0.8" />
+
+              {/* (C) 좌측 상단~중단 번개 가지 */}
+              <path
+                d="M 5.5 30.5
+                   L 19.8 47.8 L 19.5 53.2 L 10.8 54.8 L 24.8 58.8 L 26.2 64.8 L 15 66.5 L 24.8 70.2 L 39.2 64.5
+                   L 28.5 63.5 L 29.2 56.2 L 22.2 53.8 L 22.8 47.2 Z"
+                fill="url(#ieBoltFill)"
+                stroke="#fef08a"
+                strokeWidth="1.0"
+                strokeLinejoin="miter"
+              />
+
+              {/* (D) 좌측 하단 번개 가지 & 샤드들 */}
+              <polygon points="39.5,67 45.2,71 40.5,72.2" fill="url(#ieBoltFill)" stroke="#fef08a" strokeWidth="0.8" />
+              <path
+                d="M 13.8 90.5
+                   L 27.2 75 L 35.2 76.8 L 46.8 74.5 L 41.2 84.8 L 37.2 81.2 L 25.5 81.5 Z"
+                fill="url(#ieBoltFill)"
+                stroke="#fef08a"
+                strokeWidth="1.0"
+                strokeLinejoin="miter"
+              />
+              <path
+                d="M 37.2 95.5
+                   L 43.2 85.2 L 49.2 84.5 L 50.2 90 L 45.5 89.5 Z"
+                fill="url(#ieBoltFill)"
+                stroke="#fef08a"
+                strokeWidth="0.9"
+                strokeLinejoin="miter"
+              />
+            </g>
+
+            {/* 4. 대검 본체 (화이트 스티커 아웃라인 + 블랙 윤곽선 + 실버 베벨 + 룬 + 골드 힐트) */}
+            <g>
+              {/* [레이어 1] 통일된 두꺼운 화이트 스티커 테두리 */}
+              <path
+                d="M 18.5 14.5
+                   C 29 16, 46 22, 58.5 36
+                   L 56 40.5
+                   C 56.5 49, 61 57, 68.5 63.5
+                   C 68 66.5, 68.5 69.5, 70.5 71.5
+                   C 72.5 69.5, 74 67.5, 75.5 66
+                   C 78 71, 78.5 77.5, 75.5 83
+                   L 69.5 87.8
+                   C 67 87.5, 65 87.5, 63.5 87.5
+                   C 58.5 87, 54 84, 51 80.5
+                   C 54.5 80.8, 57.5 80.5, 60 80
+                   C 59 77.5, 55.5 75.5, 51.5 74.5
+                   C 47 63, 38 52.5, 27.5 52.5
+                   C 20.5 40, 17 27, 18.5 14.5 Z"
+                fill="#ffffff"
+                stroke="#ffffff"
+                strokeWidth="5.2"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+
+              {/* [레이어 2] 대검 칼날 베이스 & 베벨 */}
+              {/* (2-1) 좌측 하단 어두운 스틸 베벨면 */}
+              <path
+                d="M 18.5 14.5
+                   L 23.5 21.5
+                   C 23 29, 25 38, 30.5 48.5
+                   C 42 51, 53 64, 60.5 76.5
+                   L 59 77.5
+                   C 56.5 75.5, 54 74.8, 51.5 74.5
+                   C 47 63, 38 52.5, 27.5 52.5
+                   C 20.5 40, 17 27, 18.5 14.5 Z"
+                fill="url(#ieSilverDark)"
+              />
+
+              {/* (2-2) 우측 상단 밝은 실버 베벨면 */}
+              <path
+                d="M 18.5 14.5
+                   C 29 16, 46 22, 58.5 36
+                   L 56 40.5
+                   C 56.5 49, 61 57, 68.5 63.5
+                   C 67.8 67, 68.2 70, 70 72.5
+                   L 66.5 71.5
+                   C 58 61, 52.5 51, 51.5 42
+                   L 54.5 36.5
+                   C 44 28, 32 23, 23.5 21.5
+                   Z"
+                fill="url(#ieSilverLight)"
+              />
+
+              {/* (2-3) 칼끝 상단 화이트 하이라이트 패싯 */}
+              <polygon points="18.5,14.5 35,18.2 25,22 23.5,21.5" fill="#ffffff" opacity="0.85" />
+
+              {/* (2-4) 우측 숄더 안쪽 중간 톤 베벨 패싯 */}
+              <path
+                d="M 56 40.5
+                   C 56.5 49, 61 57, 68.5 63.5
+                   L 65.5 66
+                   C 59 59, 54.5 50.5, 53.5 41.5
+                   Z"
+                fill="#e2e8f0"
+                opacity="0.75"
+              />
+
+              {/* (2-5) 좌측 숄더 능선 음영 선 */}
+              <line x1="27.5" y1="52.5" x2="30.5" y2="48.5" stroke="#475569" strokeWidth="1.2" />
+
+              {/* (2-6) 칼날 외곽 굵은 블랙 윤곽선 */}
+              <path
+                d="M 18.5 14.5
+                   C 29 16, 46 22, 58.5 36
+                   L 56 40.5
+                   C 56.5 49, 61 57, 68.5 63.5
+                   C 67.8 67, 68.2 70, 70 72.5
+                   L 60.5 78
+                   C 58 76, 55 75, 51.5 74.5
+                   C 47 63, 38 52.5, 27.5 52.5
+                   C 20.5 40, 17 27, 18.5 14.5 Z"
+                fill="none"
+                stroke="#080a0f"
+                strokeWidth="2.4"
+                strokeLinejoin="round"
+              />
+
+              {/* [레이어 3] 중앙 다크 차콜 트렌치 홈 */}
+              <path
+                d="M 23.5 21.5
+                   C 32 23, 44 28, 54.5 36.5
+                   L 51.5 42
+                   C 52.5 51, 58 61, 66.5 71.5
+                   L 60.5 76.5
+                   C 53 64, 42 51, 30.5 48.5
+                   C 25 38, 23 29, 23.5 21.5 Z"
+                fill="url(#ieDarkTrench)"
+                stroke="#080a0f"
+                strokeWidth="2.2"
+                strokeLinejoin="round"
+              />
+
+              {/* [레이어 4] 고대 황금 룬 글리프들 (원작 6개 룬 1:1 정밀 매칭) */}
+              <g filter="url(#ieRuneSoftGlow)" fill="url(#ieRuneYellow)">
+                {/* 룬 1: 상단 작은 점 + 큰 V자 꺾임 */}
+                <polygon points="31.2,28 35,28.8 35.4,30.4 32,30.4" />
+                <polygon points="27.2,27.2 30.5,36 38.8,31.2 35.5,31 31.2,32.5" />
+
+                {/* 룬 2: 불꽃/초승달 곡선 룬 */}
+                <path d="M 34.5 35.5 C 33.8 38.2, 34 41.2, 35.5 42.3 C 37.2 43, 39.5 41.5, 40 39.5 C 40.3 37.5, 39 35, 38 34.2 L 36.5 37.5 C 36.5 38.6, 35.8 39, 35.4 38 C 35 37, 35 36, 34.5 35.5 Z" />
+
+                {/* 룬 3: 긴 쐐기 훅 + 우측 작은 획 */}
+                <polygon points="43,37.2 44.8,40.5 41,44.5 42.6,52 38,44.2 42.5,40.5" />
+                <polygon points="45.8,42.5 46.5,45 44.5,46.8 42.8,46.5" />
+
+                {/* 룬 4: 각진 아치형(П) 룬 */}
+                <polygon points="45,54.5 46.8,46.8 49,49 50.5,48.2 51.8,52.2 48,56.5 47.3,55.8 49.5,52.2 47.2,50.5" />
+
+                {/* 룬 5: 삼각 점 + 꺾인 쐐기 */}
+                <polygon points="52.8,54.5 54.2,57.5 51.5,57.2" />
+                <polygon points="50.5,58.2 56.5,60.2 55.5,62 52.8,63.5 51.8,62.8 52.5,60.5 50.5,59" />
+
+                {/* 룬 6: 하단 Y자 획 + 슬래시 + 원형 점 */}
+                <polygon points="58,63 59.5,64.8 58,66.5 58.8,68 57.8,68.5 55.8,65.5" />
+                <polygon points="61,67.2 61.5,68 58.2,71.2 56.8,70.2" />
+                <ellipse cx="61.3" cy="71.6" rx="1.0" ry="1.3" transform="rotate(-30 61.3 71.6)" />
+              </g>
+
+              {/* [레이어 5] 하단 골드 힐트 (좌/우 뿔 + 중앙 다이아몬드 가드 + 다크 아몬드 보석) */}
+              {/* (5-1) 좌측 골드 뿔 */}
+              <path
+                d="M 51.2 80.5
+                   C 55 81, 58.8 80.5, 61.5 80
+                   L 64.5 87.5
+                   C 59 87, 54 84, 51.2 80.5 Z"
+                fill="#a16207"
+                stroke="#080a0f"
+                strokeWidth="2.2"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M 52.5 80.8 C 55.5 81.2, 58.8 80.8, 61.2 80.3 L 62.5 83.8 C 58.5 83.5, 55 82.2, 52.5 80.8 Z"
+                fill="#eab308"
+              />
+
+              {/* (5-2) 우측 골드 뿔 */}
+              <path
+                d="M 75.5 66.2
+                   C 78 71, 78.2 77, 75.5 82.8
+                   L 71.2 75
+                   C 72.5 72, 74 69, 75.5 66.2 Z"
+                fill="#ca8a04"
+                stroke="#080a0f"
+                strokeWidth="2.2"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M 75.3 67.5 C 74 70, 72.8 72.5, 71.8 75 L 74.2 79.5 C 75.5 75.5, 75.8 71.5, 75.3 67.5 Z"
+                fill="#fde68a"
+              />
+
+              {/* (5-3) 중앙 다이아몬드/나뭇잎 골드 가드 */}
+              <path
+                d="M 63.5 72.5
+                   C 69 73, 74 77, 74.8 83.5
+                   L 69.5 87.8
+                   C 63 86.5, 60 80, 63.5 72.5 Z"
+                fill="#eab308"
+                stroke="#080a0f"
+                strokeWidth="2.4"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M 63.5 72.5
+                   C 60 80, 63 86.5, 69.5 87.8
+                   L 71.5 85.5
+                   C 66 84, 64 78.5, 65.5 75.5 Z"
+                fill="#b45309"
+              />
+              <path
+                d="M 63.8 73.8 C 68.5 74.2, 72.8 77.5, 73.8 82.8 L 71.5 84 C 70.8 79.5, 68 76.8, 65 76 Z"
+                fill="#fef08a"
+              />
+              <path
+                d="M 63.5 72.5
+                   C 69 73, 74 77, 74.8 83.5
+                   L 69.5 87.8
+                   C 63 86.5, 60 80, 63.5 72.5 Z"
+                fill="none"
+                stroke="#080a0f"
+                strokeWidth="2.4"
+                strokeLinejoin="round"
+              />
+
+              {/* (5-4) 중앙 다크 아몬드 보석 */}
+              <path
+                d="M 65.5 76.5
+                   C 69.2 77.5, 71.8 80.5, 72 85.2
+                   C 67.2 84.5, 64.5 81, 65.5 76.5 Z"
+                fill="#262c36"
+                stroke="#080a0f"
+                strokeWidth="2.2"
+                strokeLinejoin="round"
+              />
+            </g>
+          </g>
+        )}
+
+        {/* 17. 라바돈의 죽음모자 (LoL Rabadon's Deathcap 스티커 픽토그램 아트) */}
+        {id === "rabadonsDeathcap" && (
+          <g transform="translate(-0.6, 2.2) scale(0.64)">
+            {/* 1. 원형 클리핑 내부: 타오르는 화염 배경 */}
+            <g clipPath="url(#rabCircleClip)">
+              <circle cx="51" cy="46.5" r="44.5" fill="url(#rabBgGrad)" />
+
+              {/* 좌측 및 상단 큰 오렌지 불꽃 결 */}
+              <path
+                d="M 8 60
+                   C 10 45, 22 36, 26 42
+                   C 22 30, 30 16, 39 10
+                   C 34 19, 39 24, 46 15
+                   C 43 6, 48 2, 54 2
+                   L 66 4
+                   C 56 12, 52 20, 56 26
+                   L 35 65 Z"
+                fill="url(#rabFlameOrange)"
+                opacity="0.88"
+              />
+              {/* 우측 및 하단 큰 오렌지 불꽃 결 */}
+              <path
+                d="M 62 32
+                   C 72 22, 82 14, 92 24
+                   C 84 26, 86 36, 95 45
+                   L 94 68
+                   C 82 78, 70 88, 52 90
+                   C 58 84, 54 78, 44 82
+                   C 36 86, 24 84, 18 76
+                   L 45 55 Z"
+                fill="url(#rabFlameOrange)"
+                opacity="0.85"
+              />
+
+              {/* 좌측 하단~중앙 밝은 옐로우/화이트 불꽃 코어 */}
+              <path
+                d="M 18 68
+                   C 18 55, 26 48, 30 36
+                   C 31 45, 36 42, 38 34
+                   L 44 58
+                   L 30 70 Z"
+                fill="url(#rabFlameYellow)"
+                opacity="0.92"
+              />
+              {/* 우측 중단~하단 밝은 옐로우/화이트 불꽃 코어 (챙 아래 소용돌이 화염 포함) */}
+              <path
+                d="M 59 38
+                   C 68 35, 76 30, 82 28
+                   C 78 36, 84 42, 89 52
+                   C 82 50, 78 58, 76 68
+                   C 70 74, 58 74, 52 67
+                   C 62 69, 72 67, 74 61
+                   C 74 56, 65 56, 56 60 Z"
+                fill="url(#rabFlameYellow)"
+                opacity="0.95"
+              />
+              {/* 챙 아래 선명한 오렌지 소용돌이 혀 */}
+              <path
+                d="M 64 67
+                   C 72 68, 79 65, 79 59
+                   C 83 63, 81 70, 72 72
+                   C 66 73, 60 70, 56 66 Z"
+                fill="#ea580c"
+              />
+
+              {/* 원 안쪽 불티(Embers) 파티클들 */}
+              <circle cx="25.5" cy="19" r="1.4" fill="#fef08a" />
+              <circle cx="29" cy="24.5" r="1.1" fill="#fde047" />
+              <ellipse cx="17" cy="27" rx="1.6" ry="3.2" transform="rotate(30 17 27)" fill="#f97316" />
+              <ellipse cx="21.5" cy="46" rx="1.3" ry="2.2" transform="rotate(-25 21.5 46)" fill="#fef08a" />
+              <circle cx="23" cy="51.5" r="0.8" fill="#fef08a" />
+              <circle cx="74" cy="13.8" r="1.5" fill="#fbbf24" />
+              <circle cx="77" cy="16.5" r="0.9" fill="#fef08a" />
+              <circle cx="83" cy="21" r="1.1" fill="#fb923c" />
+              <circle cx="89" cy="37" r="0.8" fill="#fbbf24" />
+              <circle cx="89.8" cy="40.8" r="1.1" fill="#fde047" />
+              <ellipse cx="63" cy="77" rx="1.8" ry="1.2" transform="rotate(-30 63 77)" fill="#fef08a" />
+              <circle cx="74.5" cy="74" r="0.8" fill="#fde047" />
+              <circle cx="68.2" cy="81.2" r="0.6" fill="#fef08a" />
+            </g>
+
+            {/* 2. 시안(Cyan) 네온 원형 링 */}
+            <circle cx="51" cy="46.5" r="44" fill="none" stroke="#06b6d4" strokeWidth="3.2" filter="url(#rabCyanRingGlow)" />
+            <circle cx="51" cy="46.5" r="44" fill="none" stroke="#22f2ff" strokeWidth="2.2" />
+
+            {/* 3. 링 바깥 우상단 & 좌하단 불티 스파크 */}
+            <g>
+              {/* 우상단 불티들 */}
+              <ellipse cx="83" cy="8.8" rx="1.0" ry="2.4" transform="rotate(15 83 8.8)" fill="#fb923c" />
+              <ellipse cx="89.2" cy="8.5" rx="1.2" ry="4.8" transform="rotate(42 89.2 8.5)" fill="#f97316" />
+              <ellipse cx="89.5" cy="15.2" rx="0.9" ry="2.2" transform="rotate(72 89.5 15.2)" fill="#fbbf24" />
+              <circle cx="85.8" cy="3.5" r="0.7" fill="#ea580c" />
+              <circle cx="93.3" cy="13.2" r="0.6" fill="#f97316" />
+
+              {/* 좌하단 불티들 */}
+              <ellipse cx="8.5" cy="71.2" rx="1.8" ry="1.0" transform="rotate(10 8.5 71.2)" fill="#fb923c" />
+              <ellipse cx="9.2" cy="76.2" rx="3.2" ry="1.2" transform="rotate(-35 9.2 76.2)" fill="#f97316" />
+              <ellipse cx="14.8" cy="77.5" rx="0.7" ry="1.6" transform="rotate(15 14.8 77.5)" fill="#fbbf24" />
+              <circle cx="8" cy="66.5" r="0.7" fill="#fbbf24" />
+              <circle cx="4.5" cy="70.2" r="0.6" fill="#ea580c" />
+              <circle cx="14" cy="81.2" r="0.6" fill="#f97316" />
+            </g>
+
+            {/* 4. 라바돈의 죽음모자 본체 (화이트 스티커 아웃라인 + 블랙 윤곽선 + 보라색 모자 + 민트 입) */}
+            <g>
+              {/* [레이어 1] 통일된 두꺼운 화이트 스티커 외곽 테두리 */}
+              <path
+                d="M 55 12.5
+                   C 60 13, 65 20, 66 25.5
+                   C 68 24, 72 22.5, 76 23
+                   C 80 24, 83 27.5, 84 32
+                   C 80 29, 76 28.5, 73.5 31
+                   C 71.5 33.5, 70 36, 66 36.8
+                   C 63.5 37, 61.5 36, 60.2 35
+                   C 61 36.8, 63 38.2, 64 40
+                   C 65.5 43.2, 69 44, 72 45.5
+                   C 73 46.8, 76.5 46.5, 78.5 47.8
+                   C 80 49.5, 82 51, 85 52.5
+                   C 90 55, 93 58.5, 92.5 64
+                   C 92 69, 86 71.5, 79 71
+                   C 73 70.5, 67.5 68, 65.5 66.5
+                   C 71 67, 77 67.5, 82.5 66
+                   C 85.5 64.5, 86 60, 82 58
+                   C 75 55.5, 65 58, 56 64.5
+                   C 48 70.5, 42 77, 32 78
+                   C 22 78.5, 16.5 73.5, 14 68
+                   C 13 66, 14.5 65, 18 65
+                   C 23 64.5, 27 62.5, 30 60
+                   C 30.2 57.5, 30.8 55.5, 31.5 54
+                   L 34.5 57.5
+                   L 36 52
+                   L 39 54
+                   L 39.8 50
+                   L 41 51
+                   L 40.5 46.5
+                   L 38.2 44
+                   L 36.2 47.8
+                   L 35.2 44
+                   L 33 46
+                   C 32.2 44.5, 33.5 41.5, 35.5 40
+                   C 34.2 38.5, 35 36.5, 37.5 35
+                   C 39.5 31, 40.5 24, 43 20
+                   C 46.5 15.5, 51 12.2, 55 12.5 Z"
+                fill="#ffffff"
+                stroke="#ffffff"
+                strokeWidth="5.2"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+
+              {/* [레이어 2] 입 안쪽 민트-화이트 발광 영역 */}
+              <path
+                d="M 35 42
+                   L 63 41
+                   L 61 54
+                   L 46 62
+                   L 31 58
+                   L 37 49 Z"
+                fill="url(#rabMouthGlow)"
+              />
+
+              {/* [레이어 3] 입 안쪽 민트색 보조 어금니/속이빨 */}
+              <g fill="#7dd3fc" stroke="#08060c" strokeWidth="1.8" strokeLinejoin="round">
+                <polygon points="35.2,43.5 36.2,47.8 38.8,43.5" />
+                <polygon points="56.5,44 59,41 61.8,44 60.2,49.5 58.2,46" />
+                <polygon points="34.5,58.5 36,52 38.8,54.8 36.8,59.5" />
+              </g>
+
+              {/* [레이어 4] 모자 상단 몸통 + 꼬깔 + 윗잇몸 & 윗니 */}
+              <path
+                d="M 55 12.5
+                   C 60 13, 65 20, 66 25.5
+                   C 68 24, 72 22.5, 76 23
+                   C 80 24, 83 27.5, 84 32
+                   C 80 29, 76 28.5, 73.5 31
+                   C 71.5 33.5, 70 36, 66 36.8
+                   C 63.5 37, 61.5 36, 60.2 35
+                   C 61 36.8, 63 38.2, 64 40
+                   L 61.8 44
+                   L 59 41
+                   L 56.8 46.5
+                   L 54 41.2
+                   L 50.2 46.8
+                   L 44.5 40.5
+                   L 41.8 48
+                   L 38.5 43.2
+                   L 33 46
+                   C 32.2 44.5, 33.5 41.5, 35.5 40
+                   C 34.2 38.5, 35 36.5, 37.5 35
+                   C 39.5 31, 40.5 24, 43 20
+                   C 46.5 15.5, 51 12.2, 55 12.5 Z"
+                fill="url(#rabHatPurple)"
+              />
+
+              {/* 상단 모자 하이라이트 & 음영 디테일 */}
+              <path
+                d="M 42 29
+                   C 43 23, 46 18, 53 14.5
+                   C 56 14, 59 16, 61 20
+                   C 56 17.5, 50 18.5, 46.5 23
+                   C 44.5 25.5, 43.5 28, 42 29 Z"
+                fill="#8b6fc0"
+                opacity="0.7"
+              />
+              <path
+                d="M 67.5 26.8
+                   C 70.5 24.5, 74.5 24, 78 25.5
+                   C 74.5 26, 71 27, 68.5 28.5 Z"
+                fill="#8b6fc0"
+                opacity="0.65"
+              />
+              <path
+                d="M 36.5 39.5 C 42 36, 48 36.5, 54 38.5 C 50 39.5, 43 39.5, 36.5 39.5 Z"
+                fill="#7c5bb0"
+                opacity="0.55"
+              />
+
+              {/* 크라운 중앙 소용돌이(Swirl) 문양 */}
+              <path
+                d="M 51 28.8
+                   C 52.2 28.8, 52.8 30, 52 31
+                   C 50.8 32.2, 48.8 31.5, 48.5 29.8
+                   C 48 27.2, 50.5 25.2, 53 25.8
+                   C 56 26.5, 57.2 30, 55.8 32.8
+                   C 54 35.8, 49.5 36.5, 46.8 34
+                   C 44 31.2, 44.8 25.8, 48.5 23.5
+                   C 52.2 21.2, 56.8 22.8, 58.2 26.5"
+                fill="none"
+                stroke="#6d509e"
+                strokeWidth="2.1"
+                strokeLinecap="round"
+              />
+
+              {/* [레이어 5] 모자 하단 턱(아랫니/아랫잇몸) + 넓은 챙(Brim) */}
+              <path
+                d="M 30 60
+                   C 30.2 57.5, 30.8 55.5, 31.5 54
+                   L 35.8 59.5
+                   L 37.8 54.8
+                   L 45.2 60.5
+                   L 45.8 54
+                   L 51 56
+                   L 53 49.8
+                   L 56.5 51.8
+                   L 58.5 46
+                   L 60.2 49.5
+                   L 61.8 44
+                   L 64 40
+                   C 65.5 43.2, 69 44, 72 45.5
+                   L 75 47.2
+                   C 64 49, 54 57, 46.5 64
+                   C 39 65, 33 63, 30 60 Z"
+                fill="url(#rabHatDark)"
+              />
+
+              {/* 아랫니 보라색 하이라이트 패싯 */}
+              <polygon points="31.5,55.5 34.8,59.5 32,60.5" fill="#6b4c9a" />
+              <polygon points="37.8,55.5 43.5,60.2 37.5,61" fill="#583c87" />
+              <polygon points="46.2,54.8 50.2,56.5 46,60" fill="#583c87" />
+
+              {/* 모자 넓은 챙 (Brim) */}
+              <path
+                d="M 30 60
+                   C 34 64.5, 41 65, 46.5 64
+                   C 54 56.5, 64 48.5, 75 47.2
+                   L 78.5 47.8
+                   C 80 49.5, 82 51, 85 52.5
+                   C 90 55, 93 58.5, 92.5 64
+                   C 92 69, 86 71.5, 79 71
+                   C 73 70.5, 67.5 68, 65.5 66.5
+                   C 71 67, 77 67.5, 82.5 66
+                   C 85.5 64.5, 86 60, 82 58
+                   C 75 55.5, 65 58, 56 64.5
+                   C 48 70.5, 42 77, 32 78
+                   C 22 78.5, 16.5 73.5, 14 68
+                   C 13 66, 14.5 65, 18 65
+                   C 23 64.5, 27 62.5, 30 60 Z"
+                fill="url(#rabHatPurple)"
+              />
+
+              {/* 챙 상단 밝은 보라색 입체 하이라이트 면 */}
+              <path
+                d="M 16 66.8
+                   C 21 66.5, 26 64.5, 29.8 61.5
+                   C 31 63.5, 34 65, 37 65.5
+                   C 31 70, 22 70.5, 16 66.8 Z"
+                fill="#7c5bb0"
+                opacity="0.7"
+              />
+              <path
+                d="M 60 56
+                   C 68 51.5, 78 51, 86 55
+                   C 89 56.5, 90.5 58.8, 90 61
+                   C 86 56.5, 76 54, 60 56 Z"
+                fill="#7c5bb0"
+                opacity="0.65"
+              />
+              {/* 챙 하단 깊은 그림자 보라색 */}
+              <path
+                d="M 15.5 69.5
+                   C 19 74.5, 24 77.5, 32 77.2
+                   C 41 76.2, 47.5 70, 55.5 64
+                   C 64.5 57.2, 75 54.8, 82.5 57.5
+                   C 86.5 59.5, 86 64.8, 82.5 66.2
+                   C 77 67.8, 71 67.2, 65.5 66.5
+                   C 68 68.2, 73.5 70.5, 79 71
+                   C 85 71.2, 90 69.5, 91.5 65.5
+                   C 89 68, 85 69, 80 68.5
+                   C 74 68, 70 66.5, 67 65.5
+                   C 74 66, 80 65.5, 83.5 63.5
+                   C 84.5 61, 83 59, 79 58
+                   C 71 56.5, 62 60, 53 67
+                   C 45 73, 39 76.5, 31 76.5
+                   C 23 76.5, 18 73, 15.5 69.5 Z"
+                fill="#231242"
+              />
+
+              {/* [레이어 6] 굵고 선명한 카툰 블랙 윤곽선 & 주름 디테일 */}
+              <path
+                d="M 55 12.5
+                   C 60 13, 65 20, 66 25.5
+                   C 68 24, 72 22.5, 76 23
+                   C 80 24, 83 27.5, 84 32
+                   C 80 29, 76 28.5, 73.5 31
+                   C 71.5 33.5, 70 36, 66 36.8
+                   C 63.5 37, 61.5 36, 60.2 35
+                   C 61 36.8, 63 38.2, 64 40
+                   L 61.8 44
+                   L 59 41
+                   L 56.8 46.5
+                   L 54 41.2
+                   L 50.2 46.8
+                   L 44.5 40.5
+                   L 41.8 48
+                   L 38.5 43.2
+                   L 33 46
+                   C 32.2 44.5, 33.5 41.5, 35.5 40
+                   C 34.2 38.5, 35 36.5, 37.5 35
+                   C 39.5 31, 40.5 24, 43 20
+                   C 46.5 15.5, 51 12.2, 55 12.5 Z"
+                fill="none"
+                stroke="#08060c"
+                strokeWidth="2.3"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+
+              <path
+                d="M 38.2 44 L 40.5 46.5 L 41 51 L 39.8 50 L 39 54 L 36 52 L 34.5 57.5"
+                fill="none"
+                stroke="#08060c"
+                strokeWidth="1.9"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+
+              <path
+                d="M 31.5 54
+                   L 35.8 59.5
+                   L 37.8 54.8
+                   L 45.2 60.5
+                   L 45.8 54
+                   L 51 56
+                   L 53 49.8
+                   L 56.5 51.8
+                   L 58.5 46
+                   L 60.2 49.5
+                   L 61.8 44
+                   L 64 40
+                   C 65.5 43.2, 69 44, 72 45.5
+                   C 73 46.8, 76.5 46.5, 78.5 47.8
+                   C 80 49.5, 82 51, 85 52.5
+                   C 90 55, 93 58.5, 92.5 64
+                   C 92 69, 86 71.5, 79 71
+                   C 73 70.5, 67.5 68, 65.5 66.5
+                   C 71 67, 77 67.5, 82.5 66
+                   C 85.5 64.5, 86 60, 82 58
+                   C 75 55.5, 65 58, 56 64.5
+                   C 48 70.5, 42 77, 32 78
+                   C 22 78.5, 16.5 73.5, 14 68
+                   C 13 66, 14.5 65, 18 65
+                   C 23 64.5, 27 62.5, 30 60
+                   C 30.2 57.5, 30.8 55.5, 31.5 54 Z"
+                fill="none"
+                stroke="#08060c"
+                strokeWidth="2.3"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+
+              {/* 모자 주름 & 눈썹 결 블랙 라인 디테일 */}
+              <path
+                d="M 56.5 23 C 59.5 26, 60.2 31, 60.2 35"
+                fill="none"
+                stroke="#08060c"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M 65.5 25.5 C 66.5 27.5, 68 28.5, 69.8 28.2"
+                fill="none"
+                stroke="#08060c"
+                strokeWidth="2.0"
+                strokeLinecap="round"
+              />
+              <path
+                d="M 37.5 35 C 39.8 34.2, 41.8 34.2, 43.2 34.8"
+                fill="none"
+                stroke="#08060c"
+                strokeWidth="2.0"
+                strokeLinecap="round"
+              />
+              <path
+                d="M 55.5 36.8 C 58.5 37.2, 61.5 38.5, 64 40"
+                fill="none"
+                stroke="#08060c"
+                strokeWidth="2.0"
+                strokeLinecap="round"
+              />
+              <path
+                d="M 30 60 C 34 64.5, 41 65, 46.5 64 C 54 56.5, 64 48.5, 75 47.2"
+                fill="none"
+                stroke="#08060c"
+                strokeWidth="2.1"
+                strokeLinecap="round"
+              />
+            </g>
           </g>
         )}
       </svg>
