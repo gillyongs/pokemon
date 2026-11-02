@@ -62,6 +62,12 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="100%" stopColor="#22d3ee" />
           </linearGradient>
 
+          <linearGradient id="augRingTone" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3aa3ac" />
+            <stop offset="50%" stopColor="#2884ab" />
+            <stop offset="100%" stopColor="#2494b4" />
+          </linearGradient>
+
           {/* 고추기름 레드/오렌지/골드 그라데이션 */}
           <linearGradient id="chiliGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#f43f5e" />
@@ -389,10 +395,107 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           <clipPath id="rabCircleClip">
             <circle cx="51" cy="46.5" r="44" />
           </clipPath>
+
+          {/* 공허의 지팡이 (LoL Void Staff 스티커 픽토그램 아트) 전용 그라데이션 */}
+          <radialGradient id="voidBgGrad" cx="38%" cy="28%" r="65%">
+            <stop offset="0%" stopColor="#9333ea" />
+            <stop offset="32%" stopColor="#5b21b6" />
+            <stop offset="68%" stopColor="#2e1065" />
+            <stop offset="100%" stopColor="#0f0728" />
+          </radialGradient>
+          <linearGradient id="voidSwirlLight" x1="15%" y1="65%" x2="70%" y2="15%">
+            <stop offset="0%" stopColor="#a855f7" stopOpacity="0.15" />
+            <stop offset="45%" stopColor="#e9d5ff" stopOpacity="0.75" />
+            <stop offset="80%" stopColor="#ffffff" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#c084fc" stopOpacity="0.4" />
+          </linearGradient>
+          <radialGradient id="voidOrbBase" cx="46%" cy="38%" r="55%">
+            <stop offset="0%" stopColor="#1e0538" />
+            <stop offset="55%" stopColor="#3b0764" />
+            <stop offset="85%" stopColor="#7e22ce" />
+            <stop offset="100%" stopColor="#d946ef" />
+          </radialGradient>
+          <radialGradient id="voidMagentaGlow" cx="46%" cy="44%" r="22%">
+            <stop offset="0%" stopColor="#ff2bf5" stopOpacity="0.95" />
+            <stop offset="45%" stopColor="#e81cff" stopOpacity="0.65" />
+            <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="voidMetalGrad" x1="25%" y1="35%" x2="70%" y2="68%">
+            <stop offset="0%" stopColor="#94a3b8" />
+            <stop offset="35%" stopColor="#475569" />
+            <stop offset="75%" stopColor="#1e293b" />
+            <stop offset="100%" stopColor="#0f172a" />
+          </linearGradient>
+          <linearGradient id="voidWoodGrad" x1="50%" y1="60%" x2="80%" y2="90%">
+            <stop offset="0%" stopColor="#6b4235" />
+            <stop offset="50%" stopColor="#4a2c24" />
+            <stop offset="100%" stopColor="#271512" />
+          </linearGradient>
+          <filter id="voidCyanRingGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.8" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <clipPath id="voidCircleClip">
+            <circle cx="52.5" cy="50.5" r="39.2" />
+          </clipPath>
+
+          {/* 11-2. 가시갑옷 (Thornmail 스티커 배지 1:1 전용 그라데이션 & 필터) */}
+          <radialGradient id="tmBgGrad" cx="46%" cy="54%" r="48%">
+            <stop offset="0%" stopColor="#f97316" />
+            <stop offset="38%" stopColor="#dc2626" />
+            <stop offset="72%" stopColor="#7f1d1d" />
+            <stop offset="100%" stopColor="#2a0810" />
+          </radialGradient>
+          <radialGradient id="tmWarmGlow1" cx="28%" cy="60%" r="28%">
+            <stop offset="0%" stopColor="#fde047" stopOpacity="0.55" />
+            <stop offset="50%" stopColor="#f97316" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#dc2626" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="tmWarmGlow2" cx="76%" cy="56%" r="26%">
+            <stop offset="0%" stopColor="#fb923c" stopOpacity="0.5" />
+            <stop offset="50%" stopColor="#ef4444" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#7f1d1d" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="tmDarkMetal" x1="25%" y1="20%" x2="75%" y2="85%">
+            <stop offset="0%" stopColor="#7a6d7a" />
+            <stop offset="40%" stopColor="#564b57" />
+            <stop offset="80%" stopColor="#38303b" />
+            <stop offset="100%" stopColor="#221c26" />
+          </linearGradient>
+          <linearGradient id="tmDarkShade" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#433946" />
+            <stop offset="100%" stopColor="#1c1620" />
+          </linearGradient>
+          <linearGradient id="tmGoldGrad" x1="20%" y1="25%" x2="80%" y2="75%">
+            <stop offset="0%" stopColor="#9e7f56" />
+            <stop offset="32%" stopColor="#fff8d6" />
+            <stop offset="52%" stopColor="#e7ca91" />
+            <stop offset="82%" stopColor="#b08d57" />
+            <stop offset="100%" stopColor="#735534" />
+          </linearGradient>
+          <linearGradient id="tmSpikeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="35%" stopColor="#fef08a" />
+            <stop offset="70%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#7c5826" />
+          </linearGradient>
+          <filter id="tmCyanRingGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.8" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <clipPath id="tmCircleClip">
+            <circle cx="50.8" cy="50.8" r="44.8" />
+          </clipPath>
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && (
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "thornmail" && (
           <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />
         )}
 
@@ -684,6 +787,67 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
+        {/* 6-2. 크산테 (체력 4700 방어력 329 마저 201: 왼편 황금 물리방어 방패 + 오른편 비전 특수방어 방패 + 상하 통일 화살표 + DEF/SpD 오브) */}
+        {id === "ksante" && (
+          <g filter="url(#glow)">
+            {/* 1. 배경: 거대 중장갑 수호자(크산테) 실루엣 & 불굴의 오라 */}
+            <g opacity="0.45">
+              <circle cx="32" cy="32" r="26" stroke="#f59e0b" strokeWidth="0.9" strokeDasharray="4 2" fill="none" />
+              <path d="M26 21 C26 14 38 14 38 21 L37 27 C37 28 35 29 32 29 C29 29 27 28 27 27 Z" fill="#334155" stroke="#94a3b8" strokeWidth="0.8" />
+              <circle cx="29.5" cy="22" r="1.0" fill="#fef08a" />
+              <circle cx="34.5" cy="22" r="1.0" fill="#38bdf8" />
+              <path d="M18 28 C24 25 40 25 46 28 L48 50 L16 50 Z" fill="#1e293b" stroke="#64748b" strokeWidth="0.9" />
+            </g>
+
+            {/* 2. 왼편: 황금 물리 방어(DEF 329) 수호 방패 */}
+            <g>
+              <path d="M13 17 C21 17 22 21 22 30 C22 41 13 49 13 49 C13 49 4 41 4 30 C4 21 5 17 13 17 Z" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
+              <path d="M13 20 C18.5 20 19.5 23 19.5 30 C19.5 38 13 44.5 13 44.5 C13 44.5 6.5 38 6.5 30 C6.5 23 7.5 20 13 20 Z" fill="#78350f" fillOpacity="0.35" stroke="#fef08a" strokeWidth="0.8" />
+              <path d="M13 22 L13 41 M8.5 29 L17.5 29" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" strokeOpacity="0.85" />
+            </g>
+
+            {/* 3. 오른편: 비전 마법 저항(SpD 201) 룬 방패 */}
+            <g>
+              <path d="M51 17 C59 17 60 21 60 30 C60 41 51 49 51 49 C51 49 42 41 42 30 C42 21 43 17 51 17 Z" fill="url(#magicStaffGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
+              <path d="M51 20 C56.5 20 57.5 23 57.5 30 C57.5 38 51 44.5 51 44.5 C51 44.5 44.5 38 44.5 30 C44.5 23 45.5 20 51 20 Z" fill="#3b0764" fillOpacity="0.45" stroke="#67e8f9" strokeWidth="0.8" />
+              <path d="M51 23 L54.5 30 L51 37 L47.5 30 Z" fill="#ffffff" fillOpacity="0.85" stroke="#38bdf8" strokeWidth="0.8" />
+              <circle cx="51" cy="30" r="1.3" fill="#38bdf8" />
+            </g>
+
+            {/* 4. 상하 순환 방어/특방 통일 화살표 */}
+            <g>
+              <path d="M43 20 C38 14 28 14 21 19" stroke="#38bdf8" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+              <path d="M22 15 L17 21 L24 23 Z" fill="#38bdf8" stroke="#ffffff" strokeWidth="0.6" strokeLinejoin="round" />
+            </g>
+            <g>
+              <path d="M21 44 C26 50 36 50 43 45" stroke="#f59e0b" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+              <path d="M42 49 L47 43 L40 41 Z" fill="#f59e0b" stroke="#ffffff" strokeWidth="0.6" strokeLinejoin="round" />
+            </g>
+
+            {/* 5. 중앙 방어/특방 통일 구체 (DEF = SpD 오브) */}
+            <g>
+              <circle cx="23" cy="32" r="7.5" fill="url(#yugiohDefOrb)" stroke="#ffffff" strokeWidth="1.2" />
+              <text x="23" y="34.2" fontSize="5.2" fontWeight="900" fontFamily="system-ui, -apple-system, sans-serif" fill="#ffffff" textAnchor="middle" letterSpacing="0.2">
+                DEF
+              </text>
+            </g>
+            <g>
+              <circle cx="41" cy="32" r="7.5" fill="url(#yugiohSpdOrb)" stroke="#ffffff" strokeWidth="1.2" />
+              <text x="41" y="34.2" fontSize="5.0" fontWeight="900" fontFamily="system-ui, -apple-system, sans-serif" fill="#ffffff" textAnchor="middle" letterSpacing="0.1">
+                SpD
+              </text>
+            </g>
+
+            {/* 중앙 등호 기호 (=) */}
+            <line x1="29.5" y1="30.5" x2="34.5" y2="30.5" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" />
+            <line x1="29.5" y1="33.5" x2="34.5" y2="33.5" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" />
+
+            {/* ✦ 스파클 반짝임 */}
+            <path d="M51 9 Q51 12 54 12 Q51 12 51 15 Q51 12 48 12 Q51 12 51 9 Z" fill="#67e8f9" />
+            <path d="M13 9 Q13 12 16 12 Q13 12 13 15 Q13 12 10 12 Q13 12 13 9 Z" fill="#fef08a" />
+          </g>
+        )}
+
         {/* 7. H.H.G.G.H.G.G (모든 능력치를 가장 높은 능력치로 통일 - 올스탯 만점 퍼펙트 육각형 레이더 차트) */}
         {(id === "hhgghgg" || id === "HHGGHGG") && (
           <g filter="url(#glow)">
@@ -862,61 +1026,589 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 11. 가시갑옷 (LoL Thornmail: 크림슨 레드 배경 & 차콜 숄더/체스트 & 화이트골드 스파이크/복부 플레이트) */}
+        {/* 11. 가시갑옷 (업로드 이미지 1:1 재현: 시안 네온 링 + 크림슨 용암 배경 + 화이트 스티커 아웃라인 + 다크 차콜 & 골드 가시갑옷) */}
         {id === "thornmail" && (
-          <g filter="url(#glow)">
-            {/* 크림슨 레드 스파이크 배경 */}
-            <circle cx="32" cy="32" r="29" fill="url(#thornCrimsonBg)" />
-            {/* 방사형 붉은 가시 빛살 */}
-            <polygon points="32,32 10,4 20,4" fill="#e11d48" opacity="0.4" />
-            <polygon points="32,32 54,4 44,4" fill="#e11d48" opacity="0.4" />
-            <polygon points="32,32 4,26 4,36" fill="#e11d48" opacity="0.3" />
-            <polygon points="32,32 60,26 60,36" fill="#e11d48" opacity="0.3" />
+          <g transform="translate(-0.5, -0.5) scale(0.64)">
+            {/* 1. 원형 클리핑 내부: 크림슨 레드 에너지 폭풍 & 번개 줄기 배경 */}
+            <g clipPath="url(#tmCircleClip)">
+              <circle cx="50.8" cy="50.8" r="45.5" fill="url(#tmBgGrad)" />
 
-            {/* 1. 어깨 원뿔형 가시 (좌/우 3개씩) */}
-            {/* 좌측 어깨 가시 */}
-            <polygon points="12,17 9,5 17,14" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.6" />
-            <polygon points="19,16 19,5 24,14" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.6" />
-            <polygon points="8,26 2,21 12,22" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.6" />
+              {/* 어두운 와류 그림자 결 */}
+              <path
+                d="M 10 35 C 25 15, 50 8, 75 18 C 60 22, 42 25, 10 35 Z"
+                fill="#3b0a14"
+                opacity="0.65"
+              />
+              <path
+                d="M 75 45 C 88 55, 92 75, 72 92 C 78 75, 76 58, 68 48 Z"
+                fill="#3b0a14"
+                opacity="0.65"
+              />
 
-            {/* 우측 어깨 가시 */}
-            <polygon points="52,17 55,5 47,14" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.6" />
-            <polygon points="45,16 45,5 40,14" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.6" />
-            <polygon points="56,26 62,21 52,22" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.6" />
+              {/* 좌하단 & 우중단 밝은 오렌지-골드 열기 글로우 */}
+              <circle cx="50.8" cy="50.8" r="45.5" fill="url(#tmWarmGlow1)" />
+              <circle cx="50.8" cy="50.8" r="45.5" fill="url(#tmWarmGlow2)" />
 
-            {/* 2. 어깨 견갑 (다크 차콜) */}
-            <path d="M7 26 C9 18 18 15 26 18 L24 28 C18 27 12 28 7 26 Z" fill="url(#thornDarkArmorGrad)" stroke="#56536b" strokeWidth="0.8" />
-            <path d="M57 26 C55 18 46 15 38 18 L40 28 C46 27 52 28 57 26 Z" fill="url(#thornDarkArmorGrad)" stroke="#56536b" strokeWidth="0.8" />
+              {/* 상단 번개/에너지 크랙 */}
+              <path
+                d="M 52 21 L 59.5 16.5 L 56.5 12.2 L 67.5 8 L 59 13.5 L 61.5 17.5 Z"
+                fill="#fed7aa"
+                opacity="0.85"
+              />
+              {/* 좌중단~좌하단 지그재그 에너지 번개 줄기 */}
+              <path
+                d="M 6.5 44 L 12.5 53.5 L 18 55 L 11 55.2 L 6.5 49 Z"
+                fill="#fed7aa"
+                opacity="0.85"
+              />
+              <path
+                d="M 10.5 68 L 15.8 71.5 L 18.2 66.8 L 26.8 71.5 L 25.5 63.5 L 30.8 62.5 L 31.8 59.5
+                   L 29.5 64 L 26.8 64.8 L 28.2 73.2 L 19 68.5 L 16.2 73.2 Z"
+                fill="#fca5a5"
+                opacity="0.8"
+              />
+              {/* 우하단 에너지 줄기 */}
+              <path
+                d="M 73.5 55 L 81.5 57.5 L 86 64 L 83.5 70 L 89.5 72.5 L 85.5 79.5
+                   L 83 72 L 85.5 69 L 83.5 63.5 L 79.5 58.8 Z"
+                fill="#fca5a5"
+                opacity="0.75"
+              />
+              {/* 하단 불꽃 줄기 */}
+              <path
+                d="M 30 88.5 C 35 86, 40 86.5, 45 84.5 C 41 87.5, 35 88.5, 30 88.5 Z"
+                fill="#fb923c"
+                opacity="0.85"
+              />
 
-            {/* 3. 목 둘레 & 골드 칼라 (목 안쪽 구멍과 안감) */}
-            <ellipse cx="32" cy="18" rx="10" ry="7" fill="#18181b" stroke="url(#thornGoldPlateGrad)" strokeWidth="1.5" />
-            <path d="M26 18 C26 24 38 24 38 18" fill="url(#thornGoldPlateGrad)" stroke="#7a6e51" strokeWidth="0.8" />
+              {/* 내부 불티 & 붉은 꽃잎/파편 파티클들 */}
+              <ellipse cx="38" cy="16.5" rx="0.8" ry="1.8" transform="rotate(25 38 16.5)" fill="#fde047" />
+              <circle cx="36.8" cy="13.5" r="0.7" fill="#fb923c" />
+              <circle cx="21.5" cy="54.2" r="0.9" fill="#fde047" />
+              <circle cx="12.2" cy="61.5" r="0.8" fill="#fca5a5" />
+              <circle cx="23" cy="82.2" r="1.1" fill="#fb923c" />
+              <ellipse cx="53.8" cy="92.2" rx="1.4" ry="0.9" transform="rotate(-25 53.8 92.2)" fill="#fde047" />
+              <ellipse cx="71" cy="85.5" rx="0.9" ry="1.5" transform="rotate(30 71 85.5)" fill="#fb923c" />
+              <ellipse cx="89.5" cy="43.8" rx="1.3" ry="2.2" fill="#fde047" stroke="#ea580c" strokeWidth="0.6" />
+              <path d="M 87.5 52 C 89.5 54, 90.8 57.5, 90 60 C 88.2 58, 87 55, 87.5 52 Z" fill="#ef4444" />
+              <ellipse cx="89" cy="56.8" rx="0.8" ry="1.8" transform="rotate(-20 89 56.8)" fill="#fde047" />
+            </g>
 
-            {/* 4. 복부 겹겹이 층진 골드 플레이트 (V자 쉐브론) */}
-            {/* 1단 (상단) */}
-            <polygon points="24,33 32,38 40,33 38,29 32,33 26,29" fill="url(#thornGoldPlateGrad)" stroke="#524835" strokeWidth="0.6" />
-            {/* 2단 (중단) */}
-            <polygon points="22,41 32,46 42,41 40,36 32,41 24,36" fill="url(#thornGoldPlateGrad)" stroke="#524835" strokeWidth="0.6" />
-            {/* 3단 (하단) */}
-            <polygon points="24,48 32,54 40,48 38,44 32,48 26,44" fill="url(#thornGoldPlateGrad)" stroke="#524835" strokeWidth="0.6" />
+            {/* 2. 기존 증강 톤에 맞춘 원형 링 */}
+            <circle cx="50.8" cy="50.8" r="44.8" fill="none" stroke="url(#augRingTone)" strokeWidth="2.4" />
 
-            {/* 5. 흉부 차콜 흉갑 덮개 (V라인 & 가시 스터드) */}
-            <path d="M21 24 L32 30 L43 24 L45 32 C41 36 37 38 32 39 C27 38 23 36 19 32 Z" fill="url(#thornDarkArmorGrad)" stroke="#6b6980" strokeWidth="1" />
+            {/* 3. 링 바깥 크림슨/오렌지 파편들 (좌상단 & 우상단) */}
+            <g>
+              <ellipse cx="11.2" cy="11.5" rx="0.9" ry="1.3" transform="rotate(-15 11.2 11.5)" fill="#ea580c" />
+              <path d="M 7.2 19.5 C 9.2 21, 10.8 23.5, 9.8 25.5 C 7.8 24.5, 6.8 22, 7.2 19.5 Z" fill="#dc2626" />
+              <ellipse cx="83.5" cy="9" rx="1.1" ry="0.8" transform="rotate(30 83.5 9)" fill="#ea580c" />
+              <path d="M 92 12 C 94.5 13, 95 16.5, 92.2 19 C 92.5 16.5, 91.5 14, 92 12 Z" fill="#dc2626" />
+              <ellipse cx="93" cy="15.5" rx="0.7" ry="1.4" transform="rotate(10 93 15.5)" fill="#fb923c" />
+              <path d="M 95.5 26 C 96.2 28, 95 29.8, 93.2 30.2 C 94 28.5, 94.8 27, 95.5 26 Z" fill="#dc2626" />
+            </g>
 
-            {/* 흉갑 리벳/원뿔 스터드 3개 */}
-            <circle cx="27" cy="32" r="2.2" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.6" />
-            <circle cx="32" cy="35" r="2.4" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.6" />
-            <circle cx="37" cy="32" r="2.2" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.6" />
+            {/* 4. 가시갑옷 본체 (화이트 스티커 아웃라인 + 다크 플레이트 아머 + 골드 복부/칼라 + 골드 스파이크) */}
+            <g>
+              {/* [레이어 1] 갑옷 전체 통일된 화이트 스티커 외곽 아웃라인 */}
+              <path
+                d="M 25.2 13.8
+                   L 33 25.8
+                   C 34.8 25.2, 36.8 25.5, 38.2 26.2
+                   L 39.5 24.8
+                   C 41.2 20.5, 46.5 19, 53.5 20.2
+                   C 57.5 20.8, 60.8 22.2, 62.8 23.8
+                   L 64.8 18.2
+                   L 67.5 23.8
+                   L 69.2 24.2
+                   L 76.8 15.2
+                   L 75.8 27.5
+                   L 77.2 28.5
+                   L 83.5 25.5
+                   L 80.5 32.8
+                   C 82.5 35.5, 83.8 38.2, 83.8 39.8
+                   L 82.2 40.5
+                   L 84.8 44.2
+                   C 83.5 45.8, 79.5 45.5, 75.2 43.2
+                   L 75.2 44.8
+                   L 73.5 47.2
+                   C 74.2 51.8, 73.8 56.5, 72 60.5
+                   L 71.2 64.2
+                   L 72.5 64.8
+                   L 76.5 64.2
+                   L 74.2 70.5
+                   L 75.2 73
+                   L 76.2 74.2
+                   L 74.8 75.2
+                   C 75.5 77.8, 74.8 80.2, 73.5 81.8
+                   L 70.5 79.8
+                   C 68 83.8, 65.2 87.2, 62 89.2
+                   C 57.5 87.8, 52.5 84.8, 48.2 81.2
+                   L 44.2 85.8
+                   C 40.2 84.5, 36.2 81.2, 33.5 77.2
+                   L 35.2 74.2
+                   L 31.2 68.8
+                   L 36 69.8
+                   L 36.5 66
+                   L 38.5 65.5
+                   C 37.8 63.2, 37.5 60.8, 37.8 58.8
+                   C 34.2 57.2, 31.5 53.5, 30.2 48.2
+                   C 25.8 50.2, 19.5 51.2, 15.2 49.5
+                   L 17.5 44.2
+                   L 15.8 43.8
+                   L 17 39.2
+                   L 15.2 38.2
+                   C 15.8 35.5, 17.5 33, 19.5 31.2
+                   L 17.2 24.5
+                   L 24 27.8
+                   Z"
+                fill="#ffffff"
+                stroke="#ffffff"
+                strokeWidth="4.2"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
 
-            {/* 6. 허리 벨트 & 좌측 하단 대형 가시 (원작 LoL 반영) */}
-            <polygon points="17,50 8,54 18,58" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.7" />
-            <polygon points="47,50 54,53 46,57" fill="url(#thornSpikeGrad)" stroke="#22212d" strokeWidth="0.6" />
-            <path d="M19 50 L32 55 L45 50" fill="none" stroke="#22212d" strokeWidth="2.5" />
+              {/* [레이어 2] 하단 차콜 허리/골반 아머 & 좌/우 타셋(Tassets) */}
+              <g>
+                {/* 내부 어두운 몸통 베이스 */}
+                <polygon points="30,36 74,36 72,78 62,88 46,80 38,65" fill="#18131d" />
 
-            {/* 금속 광택 하이라이트 */}
-            <line x1="22" y1="26" x2="31" y2="31" stroke="#ffffff" strokeWidth="0.8" strokeLinecap="round" opacity="0.8" />
-            <circle cx="9" cy="5" r="1" fill="#ffffff" />
-            <circle cx="55" cy="5" r="1" fill="#ffffff" />
+                {/* 중앙 하단 V자 골반 다크 아머 */}
+                <path
+                  d="M 48.2 73.5
+                     L 62.5 79.8
+                     L 70.5 71.5
+                     L 70.5 79.8
+                     C 68 83.8, 65.2 87.2, 62 89.2
+                     C 57.5 87.8, 52.5 84.8, 48.2 81.2
+                     Z"
+                  fill="url(#tmDarkMetal)"
+                  stroke="#0b080e"
+                  strokeWidth="2.1"
+                  strokeLinejoin="round"
+                />
+                {/* 골반 아머 상단 벨트 스트랩 단차 */}
+                <path
+                  d="M 49.2 73.5 L 62.2 79.8 L 62 83.2 L 48.5 76.5 Z"
+                  fill="#645866"
+                  stroke="#0b080e"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+                {/* 골반 아머 우측 음영면 */}
+                <polygon points="62.2,79.8 70.2,72 69.8,79.5 62,88.5" fill="#2c2430" />
+
+                {/* 우측 허리 타셋 플레이트 + 미니 스파이크 */}
+                <polygon
+                  points="72.5,66.2 76.5,64.2 74.2,70.5"
+                  fill="url(#tmSpikeGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="1.8"
+                  strokeLinejoin="round"
+                />
+                <polygon
+                  points="74.5,72.8 76.2,74.2 74.5,75.5"
+                  fill="url(#tmSpikeGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="1.5"
+                  strokeLinejoin="round"
+                />
+                {/* 우측 타셋 본체 */}
+                <path
+                  d="M 71.2 64.5
+                     L 73.2 65.2
+                     C 74.5 70.5, 75.5 76.5, 73.5 81.8
+                     L 69.8 79.2
+                     C 69.8 74.5, 70.2 69.5, 71.2 64.5 Z"
+                  fill="url(#tmDarkMetal)"
+                  stroke="#0b080e"
+                  strokeWidth="2.0"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 71.2 64.5 L 73.2 65.2 L 73.5 73.5 L 69.8 73.2 Z"
+                  fill="url(#tmGoldGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+
+                {/* 좌측 허리 타셋 플레이트 */}
+                <path
+                  d="M 36.5 66
+                     L 38.5 65.5
+                     L 50.2 74.8
+                     L 46.2 84.2
+                     L 44.2 85.8
+                     C 40.2 84.5, 36.2 81.2, 33.5 77.2
+                     L 35.2 74.2
+                     Z"
+                  fill="url(#tmGoldGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="2.1"
+                  strokeLinejoin="round"
+                />
+                {/* 좌측 타셋 내부 다크 메탈 면 */}
+                <path
+                  d="M 36.5 67.5
+                     L 46.8 76.2
+                     L 42.8 84.8
+                     C 39.2 83.2, 36 80.2, 33.8 77
+                     Z"
+                  fill="url(#tmDarkMetal)"
+                  stroke="#0b080e"
+                  strokeWidth="1.8"
+                  strokeLinejoin="round"
+                />
+                {/* 좌측 타셋 골드 리벳 스터드 */}
+                <circle cx="43" cy="76.5" r="1.3" fill="#fef08a" stroke="#0b080e" strokeWidth="0.8" />
+                {/* 좌측 타셋 측면 가시 */}
+                <path
+                  d="M 36.8 71.2
+                     L 31.2 68.8
+                     L 35.8 75.2
+                     C 37.8 75.5, 39.2 73.5, 36.8 71.2 Z"
+                  fill="url(#tmSpikeGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="1.9"
+                  strokeLinejoin="round"
+                />
+              </g>
+
+              {/* [레이어 3] 좌측 겨드랑이 암홀 & 측면 늑골 다크 플레이트 */}
+              <g>
+                <path
+                  d="M 30.2 46
+                     L 42.5 43
+                     L 46 65
+                     L 38.5 65.5
+                     C 37.8 63.2, 37.5 60.8, 37.8 58.8
+                     C 34.2 57.2, 31.5 53.5, 30.2 46 Z"
+                  fill="url(#tmDarkShade)"
+                  stroke="#0b080e"
+                  strokeWidth="2.1"
+                  strokeLinejoin="round"
+                />
+                {/* 겨드랑이 검은 암홀 내부 구멍 */}
+                <path
+                  d="M 31 46.5 C 31.5 51.8, 34.5 54.5, 37.2 53.5 C 39.8 52.5, 40.5 47.5, 39.5 43.5 Z"
+                  fill="#07050a"
+                  stroke="#0b080e"
+                  strokeWidth="1.6"
+                />
+                {/* 암홀 아래 붉은 반사광 하이라이트 */}
+                <path
+                  d="M 32.5 52.5 C 34 55.2, 36.5 56.5, 39.2 56.2"
+                  fill="none"
+                  stroke="#f87171"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  opacity="0.75"
+                />
+                {/* 측면 늑골 분절 라인 */}
+                <path
+                  d="M 37.8 58.8 C 40.5 58.5, 42.8 57.2, 44.2 55.2"
+                  fill="none"
+                  stroke="#0b080e"
+                  strokeWidth="2.0"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M 38.5 64.2 C 41.8 64.2, 44.5 62.8, 46.2 60.5"
+                  fill="none"
+                  stroke="#0b080e"
+                  strokeWidth="2.0"
+                  strokeLinecap="round"
+                />
+              </g>
+
+              {/* [레이어 4] 복부 2단 골드 쉐브론(Chevron) 플레이트 */}
+              <g>
+                {/* 하단(2단) 복부 골드 쉐브론 플레이트 */}
+                <path
+                  d="M 43.8 63.5
+                     L 69.8 58.5
+                     C 69.8 63.5, 68.2 68.5, 66.2 71.2
+                     L 64.2 70.8
+                     L 62.5 79.5
+                     L 54.5 71.2
+                     L 51.5 72.8
+                     C 47.8 70.2, 45.2 67, 43.8 63.5 Z"
+                  fill="url(#tmGoldGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="2.2"
+                  strokeLinejoin="round"
+                />
+                <polygon points="51.5,63 55.5,62 55.5,71.2 51.5,72.2" fill="#ffffff" opacity="0.65" />
+                <polygon points="62.5,68 69.2,60 66.2,70.8 64.2,70.5 62.5,78.8" fill="#85623a" opacity="0.65" />
+
+                {/* 상단(1단) 복부 골드 쉐브론 플레이트 */}
+                <path
+                  d="M 41.8 52.8
+                     L 45.5 48.2
+                     L 73.2 48.5
+                     C 73.8 52.8, 73.2 56.8, 71.8 60.2
+                     L 69.8 60.2
+                     L 64.5 69.8
+                     L 54.5 60.8
+                     L 50.5 63.2
+                     C 46.2 60.5, 43.2 56.8, 41.8 52.8 Z"
+                  fill="url(#tmGoldGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="2.2"
+                  strokeLinejoin="round"
+                />
+                <polygon points="49.5,55.5 55,58.5 55,61.5 50.5,62.8" fill="#fffbeb" opacity="0.7" />
+                <polygon points="61.5,58.5 64.5,59.5 64.5,69.2 61.5,66.2" fill="#fffbeb" opacity="0.65" />
+                <polygon points="64.5,58.5 72.8,50 71.5,59.8 69.8,59.8 64.5,68.8" fill="#85623a" opacity="0.6" />
+              </g>
+
+              {/* [레이어 5] 중앙 다크 차콜 흉갑 (Breastplate) & 골드 넥 칼라 (Gorget) */}
+              <g>
+                <path
+                  d="M 41.5 28.5
+                     L 66.5 27.5
+                     L 75.2 44.8
+                     L 71.2 50.2
+                     L 66.5 58.2
+                     L 52.8 54.2
+                     L 49.5 48.5
+                     L 40.5 46.2
+                     Z"
+                  fill="url(#tmDarkMetal)"
+                  stroke="#0b080e"
+                  strokeWidth="2.3"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 40.8 44.2 L 50.2 46.5 L 53.5 52.2 L 66.2 55.8 L 70.8 48.2 L 74.5 43.5
+                     L 75.2 44.8 L 71.2 50.2 L 66.5 58.2 L 52.8 54.2 L 49.5 48.5 L 40.5 46.2 Z"
+                  fill="#261f2b"
+                />
+                <polygon points="65.2,47.5 66.8,47.5 66.8,57.5 65.2,57.5" fill="#8b7d8b" opacity="0.7" />
+                <path
+                  d="M 50.5 39.5 C 52.5 39.5, 54.5 41.5, 55.2 44 C 53.2 43.5, 51.2 41.5, 50.5 39.5 Z"
+                  fill="#8b7d8b"
+                  opacity="0.65"
+                />
+                <ellipse cx="51.2" cy="44.2" rx="1.4" ry="0.7" transform="rotate(25 51.2 44.2)" fill="#8b7d8b" opacity="0.65" />
+
+                {/* 상단 골드 칼라 (High Gold Collar / Gorget) */}
+                <path
+                  d="M 39.5 24.8
+                     C 41.2 20.5, 46.5 19, 53.5 20.2
+                     C 61.5 21.5, 67.2 25.5, 67.2 30.5
+                     C 67.2 36.5, 66.8 42.8, 65.5 48
+                     C 61.2 42.5, 54.5 38.2, 46.5 34.8
+                     C 41.5 32.8, 39.2 28.5, 39.5 24.8 Z"
+                  fill="url(#tmGoldGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="2.3"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 40.5 25.5 C 40.8 29, 43.5 32, 48.5 34.2 L 49.5 30.5 C 44.5 28.5, 41.8 26, 40.5 25.5 Z"
+                  fill="#9a5b42"
+                  opacity="0.65"
+                />
+                <path
+                  d="M 48 29.5 C 52.5 31.5, 57.5 33.5, 59.5 36.5 L 61.2 41.5 C 58 37.5, 53 34.5, 48 32.5 Z"
+                  fill="#fffbeb"
+                  opacity="0.75"
+                />
+
+                {/* 칼라 안쪽 어두운 목 구멍 */}
+                <path
+                  d="M 44.2 24.2
+                     C 45.2 21.5, 51.5 21.5, 57.5 23.8
+                     C 62.5 25.8, 64.5 28.8, 63.2 31.5
+                     C 62.2 33.8, 63.2 37.2, 63.2 39.2
+                     C 61.8 39.2, 60.8 36.8, 59.2 33.2
+                     C 56.8 31.2, 51.5 29.5, 47.5 27.5
+                     C 44.8 26.2, 43.8 25.2, 44.2 24.2 Z"
+                  fill="#1b1521"
+                  stroke="#0b080e"
+                  strokeWidth="1.8"
+                  strokeLinejoin="round"
+                />
+              </g>
+
+              {/* [레이어 6] 우측 어깨 견갑 (Right Pauldron - 3단 레이어 + 스파이크 3개) */}
+              <g>
+                <path
+                  d="M 74.5 39.5 L 82.2 40.5 L 84.8 44.2 C 82.5 45.5, 78.5 44.8, 74.5 42.5 Z"
+                  fill="url(#tmDarkShade)"
+                  stroke="#0b080e"
+                  strokeWidth="2.0"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 71.5 33.5 L 80.5 32.8 C 82.5 35.5, 83.8 38.2, 83.8 39.8 C 80.5 40.5, 77.5 39.5, 74.5 38.2 Z"
+                  fill="url(#tmDarkMetal)"
+                  stroke="#0b080e"
+                  strokeWidth="2.0"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 63.5 24.2
+                     C 68.5 23.5, 74.5 26.2, 78.5 31.2
+                     C 79.5 34.5, 79.8 37.5, 78.5 39.5
+                     L 73.2 40.2
+                     C 72.5 33.5, 69.2 27.8, 63.5 24.2 Z"
+                  fill="url(#tmDarkMetal)"
+                  stroke="#0b080e"
+                  strokeWidth="2.1"
+                  strokeLinejoin="round"
+                />
+                <polygon points="80.2,34.2 82.8,38.5 79.8,38.8" fill="#dc2626" opacity="0.7" />
+                <polygon points="81.2,41.2 83.8,43.8 80.5,43.8" fill="#dc2626" opacity="0.65" />
+
+                {/* 우측 어깨 스파이크 3개 */}
+                <path
+                  d="M 62.8 23.8 L 64.8 18.2 L 67.5 23.8 C 66 24.5, 64.2 24.5, 62.8 23.8 Z"
+                  fill="url(#tmSpikeGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="2.0"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 69.2 24.2 L 76.8 15.2 L 75.8 28.2 C 73.2 27.8, 70.8 26.2, 69.2 24.2 Z"
+                  fill="url(#tmSpikeGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="2.1"
+                  strokeLinejoin="round"
+                />
+                <polygon points="76.2,16.5 75.2,27.5 73.2,26.8" fill="#855832" opacity="0.7" />
+                <path
+                  d="M 75.5 30.2 L 83.5 25.5 L 79.5 34.5 C 77.2 34.5, 75.2 32.8, 75.5 30.2 Z"
+                  fill="url(#tmSpikeGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="2.1"
+                  strokeLinejoin="round"
+                />
+              </g>
+
+              {/* [레이어 7] 좌측 거대 어깨 견갑 (Left Pauldron - 3단 겹침 플레이트 + 대형 스파이크 3개) */}
+              <g>
+                <path
+                  d="M 17.5 43.5
+                     L 36.2 39.5
+                     C 35.2 44.5, 30.5 48.2, 24.5 49.5
+                     C 20.2 50.2, 16.8 49.8, 15.2 48.8
+                     Z"
+                  fill="url(#tmDarkShade)"
+                  stroke="#0b080e"
+                  strokeWidth="2.2"
+                  strokeLinejoin="round"
+                />
+                <path d="M 16.2 48.2 L 18.2 44.2 L 21.5 45.2 L 19.5 48.8 Z" fill="#dc2626" opacity="0.7" />
+                <path d="M 17 48.5 C 22.5 49.2, 28.5 47.5, 33.5 43.5" fill="none" stroke="#8b7d8b" strokeWidth="1.3" strokeLinecap="round" />
+
+                <path
+                  d="M 17 38.5
+                     L 37.5 35.5
+                     C 35.5 40.5, 30.2 43.8, 23.5 44.8
+                     C 19.2 45.2, 16.5 44.8, 15.8 43.5
+                     Z"
+                  fill="url(#tmDarkMetal)"
+                  stroke="#0b080e"
+                  strokeWidth="2.2"
+                  strokeLinejoin="round"
+                />
+                <path d="M 16.8 42.8 L 18.5 39.2 L 21.8 40.2 L 19.8 43.5 Z" fill="#dc2626" opacity="0.7" />
+                <path d="M 17.5 43.2 C 23 43.8, 29 42, 34 38.5" fill="none" stroke="#8b7d8b" strokeWidth="1.3" strokeLinecap="round" />
+
+                <path
+                  d="M 15.2 38.2
+                     C 16.2 33.2, 20.5 28.5, 27.5 26.2
+                     C 32.5 24.8, 36.8 25.2, 39.5 27.2
+                     C 42.5 31.2, 44.5 36.5, 45.2 41.2
+                     L 41.8 42.2
+                     C 38.5 39.8, 34.5 38.2, 30.5 38
+                     C 25.5 40.2, 20.2 40.8, 15.2 38.2 Z"
+                  fill="url(#tmDarkMetal)"
+                  stroke="#0b080e"
+                  strokeWidth="2.3"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 16.5 37.2 C 17.5 34.2, 19.8 31.8, 22.5 30.5 C 21.2 33.5, 19.8 36.2, 18.8 38.2 Z"
+                  fill="#dc2626"
+                  opacity="0.75"
+                />
+                <path
+                  d="M 25.5 33.5 C 28.5 31.5, 31.5 30.5, 33.8 31.5 C 32.5 33.5, 29.5 34.8, 25.5 33.5 Z"
+                  fill="#a396a6"
+                  opacity="0.7"
+                />
+                <path
+                  d="M 16.2 38.5 C 21 39.2, 26 38.2, 30.5 36.2 C 35 36.5, 39 38, 42.5 40.2"
+                  fill="none"
+                  stroke="#0b080e"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M 17.5 37.2 C 21.8 37.8, 26.2 36.8, 30.5 34.8 C 34.8 35.2, 38.8 36.8, 42.2 38.8"
+                  fill="none"
+                  stroke="#9ca3af"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  opacity="0.75"
+                />
+
+                {/* 좌측 어깨 스파이크 3개 */}
+                <path
+                  d="M 19.5 31.5 L 17.2 24.5 L 24.2 28 C 23.2 30.2, 21.2 31.5, 19.5 31.5 Z"
+                  fill="url(#tmSpikeGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="2.0"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 24.5 29.5
+                     L 25.2 13.8
+                     L 33.2 26.8
+                     C 31.2 30.5, 26.8 31.2, 24.5 29.5 Z"
+                  fill="url(#tmSpikeGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="2.3"
+                  strokeLinejoin="round"
+                />
+                <path d="M 25.2 14.8 L 28.2 30.2 C 26.2 30.2, 25 29.5, 24.7 28.8 Z" fill="#8c5828" opacity="0.85" />
+                <polygon points="25.5,14.8 30.8,29.2 28.2,30.2" fill="#fffbeb" opacity="0.9" />
+
+                <path
+                  d="M 33.8 32.8
+                     L 39.2 25.5
+                     L 40.2 34.8
+                     C 38.2 36.8, 34.5 35.8, 33.8 32.8 Z"
+                  fill="url(#tmSpikeGrad)"
+                  stroke="#0b080e"
+                  strokeWidth="2.1"
+                  strokeLinejoin="round"
+                />
+                <polygon points="39,26.5 37.5,35.5 35.2,34.5" fill="#fffbeb" opacity="0.85" />
+              </g>
+
+              {/* [레이어 8] 스파이크 끝단 골든-오렌지 스타버스트 섬광 */}
+              <g>
+                <polygon
+                  points="25.2,13.8 21.8,7.2 24.6,13.2 29.2,9.8 25.8,13.6 32.5,16.5 25.6,14.5 27.8,20.5 24.8,14.8 20.5,19.8 24.2,14.2 17.8,13.5"
+                  fill="#fb923c"
+                />
+                <circle cx="25.2" cy="14" r="1.3" fill="#ffffff" />
+
+                <polygon points="32.5,28.8 33,29.8 34.2,30.2 33,30.6 32.5,31.8 32,30.6 30.8,30.2 32,29.8" fill="#fde047" />
+                <polygon points="36.8,28.2 37.3,29.5 38.8,29.8 37.3,30.2 36.8,31.5 36.3,30.2 34.8,29.8 36.3,29.5" fill="#ffffff" />
+
+                <polygon
+                  points="83.5,25.5 85.2,22.2 84,25.2 87.2,24.8 84,25.8 85.8,28.8 83.3,26 80.5,27.2 83,25.5 81.2,23.2"
+                  fill="#fde047"
+                />
+                <circle cx="83.5" cy="25.5" r="0.8" fill="#ffffff" />
+              </g>
+            </g>
           </g>
         )}
 
@@ -1104,28 +1796,28 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="32" cy="32" r="27.5" fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="0.8" strokeDasharray="3 2" />
 
             {/* 좌우 은은한 색상 오라 */}
-            <ellipse cx="21" cy="32" rx="12" ry="18" fill="#ef4444" fillOpacity="0.14" />
-            <ellipse cx="43" cy="32" rx="12" ry="18" fill="#22c55e" fillOpacity="0.14" />
+            <ellipse cx="24.5" cy="32" rx="11" ry="18" fill="#ef4444" fillOpacity="0.14" />
+            <ellipse cx="39.5" cy="32" rx="11" ry="18" fill="#22c55e" fillOpacity="0.14" />
 
-            {/* 2. 좌측 빨간 하강 화살표 (▼) */}
+            {/* 2. 좌측 빨간 하강 화살표 (▼, 중앙 밀집) */}
             <path
-              d="M 17 16 L 25 16 L 25 35 L 29 35 L 21 48 L 13 35 L 17 35 Z"
+              d="M 20.5 16 L 28.5 16 L 28.5 35 L 32.5 35 L 24.5 48 L 16.5 35 L 20.5 35 Z"
               fill="url(#redArrowGrad)"
               stroke="#ffffff"
               strokeWidth="1.2"
               strokeLinejoin="round"
             />
-            <circle cx="21" cy="48.5" r="1.3" fill="#fecaca" />
+            <circle cx="24.5" cy="48.5" r="1.3" fill="#fecaca" />
 
-            {/* 3. 우측 초록 상승 화살표 (▲) */}
+            {/* 3. 우측 초록 상승 화살표 (▲, 중앙 밀집) */}
             <path
-              d="M 43 16 L 51 29 L 47 29 L 47 48 L 39 48 L 39 29 L 35 29 Z"
+              d="M 39.5 16 L 47.5 29 L 43.5 29 L 43.5 48 L 35.5 48 L 35.5 29 L 31.5 29 Z"
               fill="url(#greenArrowGrad)"
               stroke="#ffffff"
               strokeWidth="1.2"
               strokeLinejoin="round"
             />
-            <circle cx="43" cy="15.5" r="1.3" fill="#bbf7d0" />
+            <circle cx="39.5" cy="15.5" r="1.3" fill="#bbf7d0" />
           </g>
         )}
 
@@ -1169,16 +1861,15 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
 
         {/* 16. 무한의 대검 (LoL Infinity Edge 스티커 픽토그램 아트) */}
         {id === "infinityEdge" && (
-          <g transform="translate(0, -1.6) scale(0.64)">
+          <g transform="translate(-2.2, -3.9) scale(0.685)">
             {/* 1. 원형 배경 (클리핑 내부) */}
             <g clipPath="url(#ieMainCircleClip)">
               <circle cx="50" cy="52.5" r="41" fill="url(#ieBgGrad)" />
               <circle cx="50" cy="52.5" r="41" fill="url(#ieSoftGlow)" />
             </g>
 
-            {/* 2. 시안(Cyan) 네온 원형 링 */}
-            <circle cx="50" cy="52.5" r="40.8" fill="none" stroke="#06b6d4" strokeWidth="3.2" filter="url(#ieCyanRingGlow)" />
-            <circle cx="50" cy="52.5" r="40.8" fill="none" stroke="#22f2ff" strokeWidth="2.2" />
+            {/* 2. 기존 증강 톤에 맞춘 원형 링 */}
+            <circle cx="50" cy="52.5" r="40.8" fill="none" stroke="url(#augRingTone)" strokeWidth="2.3" />
 
             {/* 3. 배경 황금 번개 줄기들 */}
             <g>
@@ -1523,9 +2214,8 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
               <circle cx="68.2" cy="81.2" r="0.6" fill="#fef08a" />
             </g>
 
-            {/* 2. 시안(Cyan) 네온 원형 링 */}
-            <circle cx="51" cy="46.5" r="44" fill="none" stroke="#06b6d4" strokeWidth="3.2" filter="url(#rabCyanRingGlow)" />
-            <circle cx="51" cy="46.5" r="44" fill="none" stroke="#22f2ff" strokeWidth="2.2" />
+            {/* 2. 기존 증강 톤에 맞춘 원형 링 */}
+            <circle cx="51" cy="46.5" r="44" fill="none" stroke="url(#augRingTone)" strokeWidth="2.4" />
 
             {/* 3. 링 바깥 우상단 & 좌하단 불티 스파크 */}
             <g>
@@ -1868,6 +2558,357 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
                 strokeWidth="2.1"
                 strokeLinecap="round"
               />
+            </g>
+          </g>
+        )}
+
+        {/* 18. 공허의 지팡이 (LoL Void Staff 스티커 픽토그램 아트) */}
+        {id === "voidStaff" && (
+          <g transform="translate(-6.4, -5.0) scale(0.732)">
+            {/* 1. 원형 클리핑 내부: 공허 성운 & 에너지 소용돌이 배경 */}
+            <g clipPath="url(#voidCircleClip)">
+              <circle cx="52.5" cy="50.5" r="40" fill="url(#voidBgGrad)" />
+
+              {/* 우측 하단 어두운 공허 그림자 구름 */}
+              <path
+                d="M 60 35 C 75 30, 92 25, 95 45 L 95 92 L 35 92 C 45 78, 55 62, 60 35 Z"
+                fill="#140836"
+                opacity="0.7"
+              />
+              {/* 우측 중단 보라색 성운 빛줄기 */}
+              <path
+                d="M 55 45 C 70 38, 84 35, 92 38 C 82 48, 72 55, 58 56 Z"
+                fill="#4c1d95"
+                opacity="0.6"
+              />
+
+              {/* 좌상단 밝은 바이올렛 오라 */}
+              <ellipse cx="42" cy="24" rx="22" ry="12" transform="rotate(-20 42 24)" fill="#a855f7" opacity="0.45" />
+              <ellipse cx="52.5" cy="22" rx="3.2" ry="1.8" fill="#c084fc" opacity="0.55" />
+              <circle cx="40.8" cy="16.8" r="1.1" fill="#e9d5ff" opacity="0.7" />
+              <circle cx="69" cy="35" r="1.4" fill="#a855f7" opacity="0.5" />
+
+              {/* 좌측 하단에서 상단 우측으로 감아 올라가는 큰 공허 바람 소용돌이 */}
+              <path
+                d="M 48 80
+                   C 30 78, 18 68, 19.5 55
+                   C 21 44, 30 38, 38 35
+                   L 36 42
+                   C 27 46, 23 54, 26 62
+                   C 29 70, 39 74, 48 80 Z"
+                fill="url(#voidSwirlLight)"
+                opacity="0.65"
+              />
+              {/* 좌측 가장자리 날카로운 백색 소용돌이 스트림 */}
+              <path
+                d="M 16 58
+                   C 17 48, 23 41, 31 37
+                   C 25 43, 21 50, 21 58
+                   C 21 65, 25 71, 32 75
+                   C 23 72, 16 65, 16 58 Z"
+                fill="#e9d5ff"
+                opacity="0.75"
+              />
+
+              {/* 우상단으로 뻗어나가는 넓은 라벤더-화이트 소용돌이 웨이크 */}
+              <path
+                d="M 56 28
+                   C 63 26, 66 21, 63 14
+                   L 72 18
+                   C 72 25, 67 31, 60 35 Z"
+                fill="url(#voidSwirlLight)"
+                opacity="0.85"
+              />
+              {/* 우상단 날카로운 직선 광선 */}
+              <polygon points="56,36 81.5,22.5 83,25.5 58,39" fill="#e9d5ff" opacity="0.75" />
+              <polygon points="55,36.8 78,24.5 57.5,38.2" fill="#ffffff" opacity="0.9" />
+              {/* 우측 중단 보라색 얇은 광선 */}
+              <polygon points="55,46.8 76,41 56,48.2" fill="#a855f7" opacity="0.75" />
+
+              {/* 배경 스파클 & 별빛들 */}
+              <path
+                d="M 23.3 34.5 Q 23.3 37.8 26.5 37.8 Q 23.3 37.8 23.3 41.1 Q 23.3 37.8 20.1 37.8 Q 23.3 37.8 23.3 34.5 Z"
+                fill="#f472b6"
+              />
+              <path
+                d="M 21.2 51.5 Q 21.2 53.2 22.9 53.2 Q 21.2 53.2 19.5 53.2 Q 21.2 53.2 21.2 51.5 Z"
+                fill="#ffffff"
+              />
+              <polygon points="46.2,16.1 47.4,17.5 46.2,18.9 45,17.5" fill="#ffffff" />
+              <path
+                d="M 62.2 22.8 Q 62.2 24.5 63.9 24.5 Q 62.2 24.5 62.2 26.2 Q 62.2 24.5 60.5 24.5 Q 62.2 24.5 62.2 22.8 Z"
+                fill="#ffffff"
+              />
+              <circle cx="21" cy="44.2" r="1.1" fill="#ffffff" />
+              <circle cx="19.5" cy="48.8" r="0.6" fill="#e9d5ff" />
+            </g>
+
+            {/* 2. 기존 증강 톤에 맞춘 원형 링 */}
+            <circle cx="52.5" cy="50.5" r="39.2" fill="none" stroke="url(#augRingTone)" strokeWidth="2.1" />
+
+            {/* 3. 공허의 지팡이 본체 */}
+            <g transform="translate(-0.8, -1.0)">
+              {/* [레이어 1] 지팡이 하단(금속 헤드 + 나무 자루) 화이트 스티커 외곽 아웃라인 */}
+              <path
+                d="M 63.2 37.5
+                   C 63.8 39.8, 63.5 42, 62.5 43.8
+                   C 63.8 45.8, 63.8 48.2, 62.8 50.2
+                   C 64.5 51.2, 65.5 52.8, 65.5 54.5
+                   C 67.5 55.8, 68.5 58.5, 68 61.5
+                   L 71.5 67.2
+                   L 73.5 69.2
+                   L 76.8 75.8
+                   C 79.2 77.5, 79.8 80.5, 78.2 82.8
+                   C 76.8 84.6, 74 84.5, 72.2 83.6
+                   C 69.8 84.2, 67.5 82.8, 66.2 80.2
+                   C 65.2 78.2, 63 76.8, 61.2 74.5
+                   C 59.8 72.5, 59.2 70.8, 57.8 69.5
+                   L 56 68.2
+                   C 53.5 68, 51.2 67.2, 50.2 66
+                   L 50.2 62.5
+                   C 48 62.8, 46.5 61.8, 46.2 59.5
+                   C 44.5 59, 43.5 57.5, 43.5 55.8
+                   C 41.2 55.2, 40 53.8, 39.5 52.2
+                   L 36.2 49.5
+                   Z"
+                fill="#ffffff"
+                stroke="#ffffff"
+                strokeWidth="4.0"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+
+              {/* [레이어 2] 하단 뒤틀린 고목 나무 자루 & 푸른 공허 수정 줄기 */}
+              <g>
+                <path
+                  d="M 56.2 67.5
+                     L 67.5 61
+                     L 71.5 67.2
+                     L 73.5 69.2
+                     L 76.8 75.8
+                     C 79.2 77.5, 79.8 80.5, 78.2 82.8
+                     C 76.8 84.6, 74 84.5, 72.2 83.6
+                     C 69.8 84.2, 67.5 82.8, 66.2 80.2
+                     C 65.2 78.2, 63 76.8, 61.2 74.5
+                     C 59.8 72.5, 59.2 70.8, 57.8 69.5
+                     Z"
+                  fill="url(#voidWoodGrad)"
+                  stroke="#08060c"
+                  strokeWidth="2.2"
+                  strokeLinejoin="round"
+                />
+
+                {/* 나무 자루 내부 밝은 갈색 결 하이라이트 */}
+                <path
+                  d="M 59 68 C 61 71.2, 64.2 73.8, 68.2 75.8 C 64.8 72.8, 62.2 70.2, 60.5 67 Z"
+                  fill="#855849"
+                  opacity="0.75"
+                />
+                <path
+                  d="M 66.2 63.2 C 67.8 66.8, 71 70.5, 74.2 73.8 C 72.5 70, 69.8 66.5, 67.5 62.5 Z"
+                  fill="#784b3d"
+                  opacity="0.75"
+                />
+                <path
+                  d="M 61 73.5 C 63.5 76, 67.2 78, 69.8 81.2 C 66.8 78.8, 63 77, 61 73.5 Z"
+                  fill="#784b3d"
+                  opacity="0.7"
+                />
+
+                {/* 나무 뿌리 꼬임 블랙 윤곽선 디테일 */}
+                <path
+                  d="M 63.2 64.5 C 64 67.8, 66.5 71, 71 74.2 C 73 75.8, 74.8 78.5, 76.2 82.2"
+                  fill="none"
+                  stroke="#08060c"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M 59.2 70.2 C 62.5 72.8, 66.8 74.5, 70.2 77.8 C 71.5 79.5, 72.2 81.5, 72.2 83.2"
+                  fill="none"
+                  stroke="#08060c"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+
+                {/* 나무 틈새로 빛나는 푸른(시안) 수정 광맥 3줄기 */}
+                <polygon
+                  points="62.8,63.8 65.2,62.8 66.8,71.2 64,68.2"
+                  fill="#38bdf8"
+                  stroke="#08060c"
+                  strokeWidth="1.1"
+                  strokeLinejoin="round"
+                />
+                <polygon
+                  points="65.8,73.2 70.2,75.8 71.8,81.2 68.5,77.2"
+                  fill="#38bdf8"
+                  stroke="#08060c"
+                  strokeWidth="1.1"
+                  strokeLinejoin="round"
+                />
+                <polygon
+                  points="73.8,76.8 76.8,79.5 77.5,83.2 75,80.5"
+                  fill="#38bdf8"
+                  stroke="#08060c"
+                  strokeWidth="1.1"
+                  strokeLinejoin="round"
+                />
+              </g>
+
+              {/* [레이어 3] 조각된 다크 메탈 헤드 / 칼라 */}
+              <g>
+                {/* (3-1) 하단 받침 링 */}
+                <path
+                  d="M 50.2 61.5
+                     L 66.2 53.5
+                     C 68 55.2, 68.5 58.2, 67.8 61.2
+                     C 64.5 65.5, 58.5 68.2, 50.2 66 Z"
+                  fill="url(#voidMetalGrad)"
+                  stroke="#08060c"
+                  strokeWidth="2.1"
+                  strokeLinejoin="round"
+                />
+                <polygon points="51.2,62.2 56.5,60.5 56.5,65.2 51.2,65" fill="#4a2c3a" opacity="0.8" />
+                <polygon points="56.5,60.5 60.5,58.8 60.5,63.8 56.5,65" fill="#94a3b8" opacity="0.7" />
+
+                {/* (3-2) 중단 물결 조각부 */}
+                <path
+                  d="M 39.5 52.2
+                     L 62.5 43.8
+                     C 63.8 45.8, 63.8 48.2, 62.8 50.2
+                     C 64.5 51.2, 65.5 52.8, 65.5 54.5
+                     C 63.5 58.5, 56.5 62.2, 47.2 62.2
+                     C 46.2 61.5, 45.8 60.2, 46.2 59.2
+                     C 44.5 58.8, 43.5 57.5, 43.5 55.8
+                     C 41.2 55.2, 40 53.8, 39.5 52.2 Z"
+                  fill="url(#voidMetalGrad)"
+                  stroke="#08060c"
+                  strokeWidth="2.1"
+                  strokeLinejoin="round"
+                />
+
+                {/* 중단 조각 물결 하이라이트 & 음영 홈 */}
+                <path
+                  d="M 52.8 50.5
+                     C 52.2 54.5, 52.8 58.8, 55.2 59.5
+                     C 57.2 60, 58.2 56.5, 57.5 52.5
+                     C 58.8 55.5, 59.2 58.5, 61.2 58.2
+                     C 62.8 57.8, 63.2 54.5, 61.8 50.5"
+                  fill="none"
+                  stroke="#08060c"
+                  strokeWidth="2.0"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 54 51.5 C 53.8 54.8, 54.5 57.8, 55.8 58.2"
+                  fill="none"
+                  stroke="#cbd5e1"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M 59.2 51.2 C 59.8 54, 60.2 56.5, 61.2 56.8"
+                  fill="none"
+                  stroke="#94a3b8"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M 46.5 53.5 L 51.5 52.2 M 46.8 56.8 L 51.2 55.8"
+                  fill="none"
+                  stroke="#94a3b8"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                />
+
+                {/* (3-3) 상단 컵 림 */}
+                <path
+                  d="M 36.2 49.5
+                     C 40.5 47.5, 45.8 45.2, 50.8 43.2
+                     L 53.8 46.8
+                     L 54.2 41.5
+                     L 62.2 35.2
+                     C 63.2 38.2, 63.2 41.5, 62.2 44.2
+                     C 56.5 49.5, 47.5 53.2, 39.5 53.5
+                     C 37.5 52.8, 36.2 51.2, 36.2 49.5 Z"
+                  fill="url(#voidMetalGrad)"
+                  stroke="#08060c"
+                  strokeWidth="2.1"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 38.5 50.8 C 43.5 50.2, 48.5 48.2, 52.5 46.2"
+                  fill="none"
+                  stroke="#e879f9"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M 45.5 51.2 C 50 49.8, 54.5 47.8, 58.5 45.2"
+                  fill="none"
+                  stroke="#cbd5e1"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                />
+              </g>
+
+              {/* [레이어 4] 공허의 구슬 (Void Orb) & 마젠타 코어 & 화이트 크레센트 링 */}
+              <g>
+                <circle cx="43.8" cy="35.8" r="13.5" fill="url(#voidOrbBase)" />
+                <circle cx="44.2" cy="36.2" r="9.0" fill="#4c1d95" opacity="0.65" />
+                <circle cx="45.2" cy="37.8" r="5.6" fill="#7e22ce" opacity="0.85" />
+
+                {/* 오브 하단 강렬한 네온 마젠타-핑크 코어 발광 */}
+                <ellipse cx="44" cy="43" rx="9.5" ry="4.5" transform="rotate(-22 44 43)" fill="url(#voidMagentaGlow)" />
+
+                {/* 오브 정중앙 어두운 공허의 눈동자 */}
+                <rect x="43" y="36.8" width="6.8" height="3.6" rx="1.8" transform="rotate(-18 46.4 38.6)" fill="#140524" />
+
+                {/* 오브 좌측 상단 밝은 민트-화이트 타원 반사광 */}
+                <ellipse cx="32.4" cy="33.2" rx="2.7" ry="3.2" transform="rotate(-15 32.4 33.2)" fill="#e0f2fe" />
+
+                {/* 오브 외곽을 감싸는 화이트 에너지 소용돌이 고리 & 상단 스파이크 */}
+                <path
+                  d="M 30.2 43.2
+                     C 27.5 36.2, 29.2 28.5, 34.2 25
+                     L 31.8 18.2
+                     L 36.2 24
+                     C 43.5 20.5, 53 22.8, 57.2 29.5
+                     C 53 25, 44.5 23, 37.5 26.2
+                     C 31.8 28.8, 29.8 35.5, 31.8 42.2 Z"
+                  fill="#ffffff"
+                />
+
+                {/* 오브 하단을 감싸며 좌우로 뻗어 나가는 화이트-라벤더 소용돌이 고리 */}
+                <path
+                  d="M 26.2 49.5
+                     C 25.8 47.8, 27.5 45.2, 30.2 43.2
+                     C 33.2 46.8, 39.2 47.5, 46.2 44.8
+                     C 53.2 42, 57.5 36.5, 56.8 30.5
+                     C 59.5 28, 62.5 27, 63.5 28.8
+                     C 64.2 30.2, 62.5 32.5, 61.5 34
+                     C 63.8 35.5, 65.5 37.5, 65.5 39
+                     L 62.2 36.8
+                     C 57.5 41.2, 50.5 45.2, 42.5 47.8
+                     C 38.5 49.2, 35.5 50.2, 34.5 51.5
+                     L 36.8 53.8
+                     L 38.2 57.2
+                     L 32.5 53
+                     C 29.5 52.5, 26.8 51.2, 26.2 49.5 Z"
+                  fill="#f5f3ff"
+                />
+                <path
+                  d="M 27.5 48.8 C 28.5 46.8, 30.5 45.5, 33 46.5 C 31.5 48.2, 29.2 49.2, 27.5 48.8 Z"
+                  fill="#c084fc"
+                  opacity="0.55"
+                />
+                <path
+                  d="M 57.5 32.5 C 59.5 30, 61.8 29.2, 62.5 30.5 C 61.8 32.2, 59.5 34.2, 57.2 35.5 Z"
+                  fill="#c084fc"
+                  opacity="0.55"
+                />
+              </g>
             </g>
           </g>
         )}

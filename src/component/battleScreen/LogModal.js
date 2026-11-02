@@ -218,10 +218,10 @@ const parseAugmentLog = (item) => {
     if (match) {
       const targetName = match[1].trim();
       const augmentName = match[2].trim();
-      const foundAug = AUGMENT_LIST.find((a) => a.name === augmentName);
+      const foundAug = AUGMENT_LIST.find((a) => a.name === augmentName || a.shortName === augmentName);
       const pokes = [item.battle?.player, item.battle?.playerBench1, item.battle?.playerBench2];
       const targetPoke = pokes.find((p) => p && (p.names === targetName || p.name === targetName));
-      const pokeAug = targetPoke?.augments?.find((a) => a.id === foundAug?.id || a.name === augmentName);
+      const pokeAug = targetPoke?.augments?.find((a) => a.id === foundAug?.id || a.name === augmentName || a.shortName === augmentName);
       return {
         targetName,
         targetPoke,
@@ -274,7 +274,7 @@ export default function LogModal({ log, onClose }) {
                       </AugmentIconCol>
                       <AugmentInfo>
                         <AugmentTitleRow>
-                          <AugmentName>{augment.name}</AugmentName>
+                          <AugmentName>{augment.shortName || augment.name}</AugmentName>
                         </AugmentTitleRow>
                         {(augment.desc || augment.logDesc) && (
                           <AugmentDesc>{getAugmentLogDesc(augment, targetPoke)}</AugmentDesc>

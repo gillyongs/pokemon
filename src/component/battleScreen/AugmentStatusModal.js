@@ -70,7 +70,7 @@ const AugmentStatusModal = ({ battle, team = [], onClose }) => {
                   )}
                 </IconCol>
                 <CardContent>
-                  <CardTitle>{aug.name}</CardTitle>
+                  <CardTitle>{aug.shortName || aug.name}</CardTitle>
                   <CardDescription>{getAugmentLogDesc(aug, activePokemon)}</CardDescription>
                 </CardContent>
               </AugmentCard>

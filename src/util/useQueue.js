@@ -60,14 +60,24 @@ export function useQueue() {
     return removedItem;
   };
 
-  const updateHead = (updater, curBattle) => {
+  const updateHead = (updater, curBattle, extraAfterHead = []) => {
     setQueue((prevQueue) => {
       if (prevQueue.length === 0) return prevQueue;
       const head = typeof updater === "function" ? updater(prevQueue[0]) : updater;
       const deepCopiedHead = cloneWithMethods(head);
+      const deepCopiedExtras = (extraAfterHead || []).map((item) => {
+        const nextItem = { ...item };
+        if (!nextItem.id) {
+          nextItem.id =
+            typeof crypto !== "undefined" && crypto.randomUUID
+              ? crypto.randomUUID()
+              : Math.random().toString(36).substring(2, 11);
+        }
+        return cloneWithMethods(nextItem);
+      });
 
       if (!curBattle) {
-        return [deepCopiedHead, ...prevQueue.slice(1)];
+        return [deepCopiedHead, ...deepCopiedExtras, ...prevQueue.slice(1)];
       }
 
       const rest = prevQueue.slice(1).map((item) => {
@@ -90,13 +100,20 @@ export function useQueue() {
             }
           }
         });
+        const updatedText =
+          typeof item.text === "string" &&
+          item.text.includes("무엇을 할까?") &&
+          nextItemBattle.player?.origin?.names
+            ? nextItemBattle.player.origin.names + " 무엇을 할까?"
+            : item.text;
         return {
           ...item,
+          text: updatedText,
           battle: nextItemBattle,
         };
       });
 
-      return [deepCopiedHead, ...rest];
+      return [deepCopiedHead, ...deepCopiedExtras, ...rest];
     });
   };
 

@@ -7,12 +7,14 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   // 라운드 * 3 값 (1라운드: 3pt, 2라운드: 6pt, 3라운드: 9pt...)
   const maxPoints = (round || 1) * 3;
 
-  // 팀 포켓몬 목록
-  const teamMembers = [
-    { poke: battle?.player, index: 0 },
-    { poke: battle?.playerBench1, index: 1 },
-    { poke: battle?.playerBench2, index: 2 },
-  ].filter((item) => item.poke);
+  // 팀 포켓몬 목록 (배틀 중 교체/기절로 슬롯이 바뀌어도 원래 엔트리 순서인 originalIndex 기준으로 매핑)
+  const teamMembers = [battle?.player, battle?.playerBench1, battle?.playerBench2]
+    .filter(Boolean)
+    .map((poke, fallbackIdx) => ({
+      poke,
+      index: poke.originalIndex ?? fallbackIdx,
+    }))
+    .sort((a, b) => a.index - b.index);
 
   // 모든 보유 증강 플랫 리스트 [{ pokeIndex, pokemonName, augment, uniqueKey }]
   const allOwnedAugments = [];
@@ -68,7 +70,31 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           id: item.augment.id,
           name: item.augment.name,
           cost: item.augment.cost,
-          replacedSlot: item.augment.replacedSlot ?? item.augment._danceReplacedSlot,
+          replacedSlot:
+            item.augment.replacedSlot ??
+            item.augment._danceReplacedSlot ??
+            item.augment._salamenceReplacedSlot ??
+            item.augment._teraBlastReplacedSlot ??
+            item.pokemon?._danceReplacedSlot ??
+            item.pokemon?._salamenceReplacedSlot ??
+            item.pokemon?._teraBlastReplacedSlot,
+          selectedType:
+            item.augment.selectedType ??
+            item.augment._nullifyType ??
+            item.augment._teraBlastType ??
+            item.pokemon?._nullifyType ??
+            item.pokemon?._teraBlastType,
+          revolutionResult:
+            item.augment.revolutionResult ??
+            item.augment._revolutionResult ??
+            item.pokemon?._revolutionResult ??
+            item.pokemon?.origin?._revolutionResult,
+          replacedSkillName:
+            item.augment.replacedSkillName ??
+            item.augment._replacedSkillName ??
+            item.augment._teraBlastReplacedSkillName ??
+            item.pokemon?._teraBlastReplacedSkillName ??
+            item.pokemon?.origin?._teraBlastReplacedSkillName,
         });
       }
     });
@@ -112,7 +138,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
                               <AugmentIcon id={item.augment.id} size={30} />
                             </IconWrapper>
                             <CardMeta>
-                              <AugName>{item.augment.name}</AugName>
+                              <AugName>{item.augment.shortName || item.augment.name}</AugName>
                               {item.augment.cost !== "-" && item.augment.cost !== undefined && <CostTag $selected={isSelected}>{item.augment.cost ?? 1} cost</CostTag>}
                             </CardMeta>
                             <CheckIndicator $selected={isSelected}>{isSelected ? "✓" : ""}</CheckIndicator>

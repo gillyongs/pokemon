@@ -325,6 +325,11 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 1.5;
       defStr += " * 1.5 (모래바람+바위)";
     }
+    const hasVoidStaff = attackPokemon?.hasAugment?.("voidStaff") || attackPokemon?.augments?.some((a) => a.id === "voidStaff");
+    if (hasVoidStaff) {
+      defStat *= 0.6;
+      defStr += " * 0.6 (공허의 지팡이)";
+    }
   }
 
   // 위력 ======================================================================================================

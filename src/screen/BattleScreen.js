@@ -267,9 +267,28 @@ const Battle = () => {
     setAugmentTargetPoke(target);
 
     const typeNote = options?.selectedType ? (selectedAugment.id === "teraBlast" ? ` (${options.selectedType} 타입)` : ` (${options.selectedType} 무효)`) : "";
-    const gainText = `[증강] ${target.names} "${selectedAugment.name}"${typeNote} 효과를 얻었다!`;
+    const displayAugName = selectedAugment.shortName || selectedAugment.name;
+    const gainText = `[증강] ${target.names} "${displayAugName}"${typeNote} 효과를 얻었다!`;
 
     const gainLogText = gainText;
+    const followUpItems = [];
+
+    if (selectedAugment.id === "rebellionOrRevolution" || selectedAugment.id === "revolution") {
+      const statName = target._revolutionResult === "catk" ? "특수공격" : "공격";
+      const detailText = `${statName}이 2배가 되었다!`;
+      followUpItems.push({
+        id: "rev-stat-doubled-msg",
+        battle: curBattle,
+        text: detailText,
+        logText: detailText,
+      });
+    }
+
+    const fastUser = speedCheck(curBattle);
+    const slowUser = fastUser === "player" ? "npc" : "player";
+    applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
+    applyAbilityEffects(curBattle, slowUser, (item) => followUpItems.push(item));
+
     if (queueObject.queue[0]?.isAugment) {
       queueObject.updateHead(
         (prev) => ({
@@ -279,7 +298,8 @@ const Battle = () => {
           logText: gainLogText,
           isAugment: false,
         }),
-        curBattle
+        curBattle,
+        followUpItems
       );
       setText(gainText);
     } else {
@@ -289,20 +309,8 @@ const Battle = () => {
         text: gainText,
         logText: gainLogText,
       });
+      followUpItems.forEach((item) => queueObject.enqueue(item));
     }
-
-    if (selectedAugment.id === "rebellionOrRevolution" || selectedAugment.id === "revolution") {
-      const statName = target._revolutionResult === "catk" ? "특수공격" : "공격";
-      const detailText = `${statName}이 2배가 되었다!`;
-      queueObject.enqueue({
-        id: "rev-stat-doubled-msg",
-        battle: curBattle,
-        text: detailText,
-        logText: detailText,
-      });
-    }
-
-    enqueueBattleStart(curBattle, { skipStartText: true });
     setBattle(cloneWithMethods(curBattle));
   };
 
@@ -339,8 +347,9 @@ const Battle = () => {
       // 이전 라운드에서 선택하여 유지한 증강 복원 (AUGMENT_LIST에서 완전한 객체 매핑)
       const teamPokes = [battleObj.current.player, battleObj.current.playerBench1, battleObj.current.playerBench2];
       teamPokes.forEach((p, idx) => {
-        if (p && Array.isArray(carriedAugments[idx])) {
-          carriedAugments[idx].forEach((savedAug) => {
+        const targetIdx = p?.originalIndex ?? idx;
+        if (p && Array.isArray(carriedAugments[targetIdx])) {
+          carriedAugments[targetIdx].forEach((savedAug) => {
             const augId = typeof savedAug === "string" ? savedAug : savedAug?.id;
             const fullAug = AUGMENT_LIST.find((a) => a.id === augId);
             if (fullAug) {

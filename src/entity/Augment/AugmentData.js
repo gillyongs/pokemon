@@ -62,6 +62,13 @@ export const getAugmentDesc = (augment, pokemon = null) => {
     return "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
   }
 
+  if (augment.id === "ksante") {
+    if (stat && typeof stat.def === "number" && typeof stat.cdef === "number") {
+      return `방어(${stat.def})과 특방(${stat.cdef}) 중 더 높은 수치로 두 능력치를 통일합니다.`;
+    }
+    return "방어과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
+  }
+
   if (augment.id === "hhgghgg") {
     if (stat) {
       const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter((v) => typeof v === "number");
@@ -79,6 +86,10 @@ export const getAugmentDesc = (augment, pokemon = null) => {
 
   if (augment.id === "rabadonsDeathcap") {
     return "특공 + 130\n총 특공이 30% 증가합니다.";
+  }
+
+  if (augment.id === "voidStaff") {
+    return "특공 + 95\n상대방의 특수방어를 40% 약하게 만듭니다.";
   }
 
   if (augment.id === "infinityEdge") {
@@ -134,6 +145,10 @@ export const getAugmentLogDesc = (augment, pokemon = null) => {
 
   if (augment.id === "rabadonsDeathcap") {
     return "특공 + 130\n총 특공이 30% 증가합니다.";
+  }
+
+  if (augment.id === "voidStaff") {
+    return "특공 + 95\n상대방의 특수방어를 40% 약하게 만듭니다.";
   }
 
   if (augment.id === "infinityEdge") {
@@ -241,7 +256,7 @@ export const AUGMENT_LIST = [
   {
     id: "swordAndShield",
     name: "오른손엔 방패 왼손엔 검",
-    cost: 2,
+    cost: 3,
     desc: "공격과 방어 중 더 높은 수치로 두 능력치를 통일합니다.",
     getDesc: (pokemon) => {
       const stat = pokemon?.origin?.stat;
@@ -262,7 +277,7 @@ export const AUGMENT_LIST = [
   {
     id: "specialSwordAndShield",
     name: "오른손엔 방패 왼손엔 스태프",
-    cost: 2,
+    cost: 3,
     desc: "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.",
     getDesc: (pokemon) => {
       const stat = pokemon?.origin?.stat;
@@ -278,6 +293,32 @@ export const AUGMENT_LIST = [
       const higher = Math.max(stat.catk, stat.cdef);
       stat.catk = higher;
       stat.cdef = higher;
+    },
+  },
+  {
+    id: "ksante",
+    name: "체력 4700 방어력 329 마저201 인 챔피언👤이 저지불가🚫, 쉴드🛡, 벽🧱 넘기는 거 있고요. 에어본🌪 있고, 심지어 쿨타임은 1️⃣초밖에 안되고 마나🧙♂️는 1️⃣5️⃣ 들고 w는 심지어 변신💫하면 쿨 초기화에다가 패시브는 고정피해🗡가 들어가며 그 다음에 방마저🥋 올리면📈 올릴수록📈 스킬 가속⏰이 생기고! q에 스킬가속⏰이 생기고 스킬 속도🚀가 빨라지고📈 그 다음에 공격력🗡 계수가 있어가지고 W가 그 이익-으아아아악😱",
+    shortName: "그 긴거",
+    cost: 4,
+    desc: "방어과 특방 중 더 높은 수치로 두 능력치를 통일합니다.",
+    getDesc: (pokemon) => {
+      const stat = pokemon?.origin?.stat;
+      if (stat && typeof stat.def === "number" && typeof stat.cdef === "number") {
+        const higher = Math.max(stat.def, stat.cdef);
+        return `방어(${stat.def})과 특방(${stat.cdef}) 중 더 높은 수치(${higher})로 두 능력치를 통일합니다.`;
+      }
+      return "방어과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
+    },
+    onApply: (pokemon) => {
+      if (!pokemon?.origin?.stat) return;
+      const stat = pokemon.origin.stat;
+      const higher = Math.max(stat.def, stat.cdef);
+      stat.def = higher;
+      stat.cdef = higher;
+      if (pokemon.stat && pokemon.stat !== pokemon.origin.stat) {
+        pokemon.stat.def = higher;
+        pokemon.stat.cdef = higher;
+      }
     },
   },
   {
@@ -353,7 +394,7 @@ export const AUGMENT_LIST = [
   {
     id: "unboundChoice",
     name: "구애받지않는",
-    cost: 2,
+    cost: 3,
     desc: "구애 시리즈의 기술 고정 효과를 받지 않습니다.",
     isEligible: (pokemon) => Boolean(pokemon?.item && pokemon.item.startsWith("구애")),
     onApply: (pokemon) => {
@@ -365,7 +406,7 @@ export const AUGMENT_LIST = [
   {
     id: "grandmasChiliOil",
     name: "할머니의 고추기름",
-    cost: 1,
+    cost: 3,
     desc: "상대 포켓몬의 화상 데미지가 5배로 증가합니다.",
     isEligible: (pokemon) => hasBurnSkillEffect(pokemon),
     // ailmentEvent.js에 구현
@@ -379,7 +420,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "nullifyGetto",
-    name: "무효~! 겟또다제",
+    name: "무효~ 초★럭키-다!",
     cost: 5,
     desc: "해당 포켓몬에게 무효 타입을 하나 추가합니다.",
     isEligible: (pokemon) => {
@@ -461,8 +502,8 @@ export const AUGMENT_LIST = [
   },
   {
     id: "rebellionOrRevolution",
-    name: "실패하면 반역 성공하면 혁명",
-    cost: 3,
+    name: "실패하면 반역 성공하면 혁명 아닙니까!",
+    cost: 7,
     desc: "공격과 특수공격 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.",
     getDesc: (pokemon) => {
       const stat = pokemon?.origin?.stat || pokemon?.stat;
@@ -525,7 +566,7 @@ export const AUGMENT_LIST = [
   {
     id: "infinityEdge",
     name: "무한의 대검",
-    cost: 7,
+    cost: 5,
     desc: "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%",
     getDesc: () => "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%",
     logDesc: () => "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%",
@@ -542,7 +583,7 @@ export const AUGMENT_LIST = [
   {
     id: "rabadonsDeathcap",
     name: "라바돈의 죽음모자",
-    cost: 7,
+    cost: 5,
     desc: "특공 + 130\n총 특공이 30% 증가합니다.",
     getDesc: () => "특공 + 130\n총 특공이 30% 증가합니다.",
     logDesc: () => "특공 + 130\n총 특공이 30% 증가합니다.",
@@ -553,6 +594,23 @@ export const AUGMENT_LIST = [
       }
       if (pokemon.stat && typeof pokemon.stat.catk === "number" && pokemon.stat !== pokemon.origin?.stat) {
         pokemon.stat.catk = Math.round((pokemon.stat.catk + 130) * 1.3);
+      }
+    },
+  },
+  {
+    id: "voidStaff",
+    name: "공허의 지팡이",
+    cost: 5,
+    desc: "특공 + 95\n상대방의 특수방어를 40% 약하게 만듭니다.",
+    getDesc: () => "특공 + 95\n상대방의 특수방어를 40% 약하게 만듭니다.",
+    logDesc: () => "특공 + 95\n상대방의 특수방어를 40% 약하게 만듭니다.",
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon) return;
+      if (pokemon.origin?.stat && typeof pokemon.origin.stat.catk === "number") {
+        pokemon.origin.stat.catk += 95;
+      }
+      if (pokemon.stat && typeof pokemon.stat.catk === "number" && pokemon.stat !== pokemon.origin?.stat) {
+        pokemon.stat.catk += 95;
       }
     },
   },
