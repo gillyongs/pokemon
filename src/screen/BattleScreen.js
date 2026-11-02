@@ -154,7 +154,8 @@ const Battle = () => {
       ? Object.entries(carriedMap).reduce((acc, [idx, augs]) => {
           acc[idx] = (augs || []).map((aug) => ({
             id: aug.id || aug,
-            replacedSlot: aug.replacedSlot ?? aug._danceReplacedSlot,
+            replacedSlot: aug.replacedSlot ?? aug._danceReplacedSlot ?? aug._salamenceReplacedSlot,
+            selectedType: aug.selectedType ?? aug._nullifyType,
           }));
           return acc;
         }, {})
@@ -263,7 +264,8 @@ const Battle = () => {
     target.applyAugment(selectedAugment, curBattle, options);
     setAugmentTargetPoke(target);
 
-    const gainText = `[증강] ${target.names} "${selectedAugment.name}" 효과를 얻었다!`;
+    const typeNote = options?.selectedType ? ` (${options.selectedType} 무효)` : "";
+    const gainText = `[증강] ${target.names} "${selectedAugment.name}"${typeNote} 효과를 얻었다!`;
 
     const gainLogText = gainText;
     if (queueObject.queue[0]?.isAugment) {
@@ -333,7 +335,10 @@ const Battle = () => {
               if (savedAug?.replacedSlot) {
                 augToApply.replacedSlot = savedAug.replacedSlot;
               }
-              p.applyAugment(augToApply, battleObj.current, { replaceSlot: savedAug?.replacedSlot });
+              if (savedAug?.selectedType) {
+                augToApply.selectedType = savedAug.selectedType;
+              }
+              p.applyAugment(augToApply, battleObj.current, { replaceSlot: savedAug?.replacedSlot, selectedType: savedAug?.selectedType });
             }
           });
         }

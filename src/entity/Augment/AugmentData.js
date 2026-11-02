@@ -1,3 +1,4 @@
+import { ALL_POKEMON_TYPES, isTypeAlreadyNullified } from "../../util/typeEffectCalculate";
 import sampleList from "../Pokemon/SamplePokemon";
 import { generate } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
@@ -6,6 +7,24 @@ import skillList from "../Skill/skillList";
  * 포켓몬의 현재 수치를 반영한 증강 설명 텍스트를 반환합니다.
  * 포켓몬 객체가 없을 경우 기본 설명 문구를 반환합니다.
  */
+/**
+ * 이 포켓몬의 이름은 보만다 등장 조건:
+ * - 포켓몬 이름에 '보만다'가 포함되어 있고
+ * - 현재 보유 기술 중 '지진'이 없는 경우
+ */
+export const isEligibleForNameIsSalamence = (pokemon) => {
+  if (!pokemon) return false;
+  const name = pokemon.origin?.name || pokemon.name || pokemon.id || "";
+  if (!name.includes("보만다")) return false;
+  const skills = pokemon.origin?.skill || pokemon.skill;
+  if (!skills) return true;
+  const hasEarthquake = [1, 2, 3, 4].some((slot) => {
+    const sk = skills[slot] || skills[String(slot)];
+    return sk?.name === "지진";
+  });
+  return !hasEarthquake;
+};
+
 /**
  * 춤춰라 한카리아스 등장 조건:
  * - 포켓몬 이름에 '한카리아스'가 포함되어 있고
@@ -37,7 +56,6 @@ export const getAugmentDesc = (augment, pokemon = null) => {
 
   if (augment.id === "specialSwordAndShield") {
     if (stat && typeof stat.catk === "number" && typeof stat.cdef === "number") {
-      const higher = Math.max(stat.catk, stat.cdef);
       return `특공(${stat.catk})과 특방(${stat.cdef}) 중 더 높은 수치로 두 능력치를 통일합니다.`;
     }
     return "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
@@ -52,6 +70,14 @@ export const getAugmentDesc = (augment, pokemon = null) => {
       }
     }
     return "가장 높은 능력치로 모든 능력치가 통일됩니다.";
+  }
+
+  if (augment.id === "nullifyGetto") {
+    const chosen = augment.selectedType || pokemon?._nullifyType;
+    if (chosen) {
+      return `해당 포켓몬에게 [${chosen}] 무효 타입을 추가했습니다.\n(${chosen} 타입 공격 무효화)`;
+    }
+    return "해당 포켓몬에게 무효 타입을 하나 추가합니다.";
   }
 
   if (typeof augment.getDesc === "function") {
@@ -112,7 +138,7 @@ export const AUGMENT_LIST = [
     id: "rouletteWheel",
     name: "돌려 돌려 돌림판",
     cost: "-",
-    desc: "현재 포켓몬을 임의의 포켓몬과 교체합니다.",
+    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다.",
     isEligible: (pokemon) => isEligibleForRouletteWheel(pokemon),
     onApply: (pokemon, battle) => {
       if (!battle) return;
@@ -211,6 +237,29 @@ export const AUGMENT_LIST = [
     },
   },
   {
+    id: "nameIsSalamence",
+    name: "그리고 쓰는 기술은 지진이 있다",
+    cost: 0,
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -5.5, scale: 1.15 },
+    desc: "보  만  다  !!\n  지   진",
+    isEligible: (pokemon) => isEligibleForNameIsSalamence(pokemon),
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon?.origin?.skill) return;
+      const slot = Number(options?.replaceSlot) || this.replacedSlot || 4;
+      this.replacedSlot = slot;
+      const earthquake = { ...skillList.search("지진"), skillNumber: slot };
+      pokemon.origin.skill[slot] = earthquake;
+      if (pokemon.skill) {
+        pokemon.skill[slot] = earthquake;
+      }
+      if (pokemon.pp) {
+        pokemon.pp[slot] = earthquake.pp;
+      }
+      pokemon._salamenceReplacedSlot = slot;
+    },
+  },
+  {
     id: "danceOfGarchomp",
     name: "춤춰라 한카리아스",
     cost: 1,
@@ -231,7 +280,7 @@ export const AUGMENT_LIST = [
   {
     id: "unboundChoice",
     name: "구애받지않는",
-    cost: 4,
+    cost: 2,
     desc: "구애 시리즈의 기술 고정 효과를 받지 않습니다.",
     isEligible: (pokemon) => Boolean(pokemon?.item && pokemon.item.startsWith("구애")),
     onApply: (pokemon) => {
@@ -243,7 +292,7 @@ export const AUGMENT_LIST = [
   {
     id: "grandmasChiliOil",
     name: "할머니의 고추기름",
-    cost: 3,
+    cost: 1,
     desc: "상대 포켓몬의 화상 데미지가 5배로 증가합니다.",
     isEligible: (pokemon) => hasBurnSkillEffect(pokemon),
     // ailmentEvent.js에 구현
@@ -252,7 +301,39 @@ export const AUGMENT_LIST = [
     id: "thornmail",
     name: "가시갑옷",
     cost: 3,
-    desc: "타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 줍니다.",
+    desc: "타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 준다.",
     // onHit.js에 구현
+  },
+  {
+    id: "nullifyGetto",
+    name: "무효~! 겟또다제",
+    cost: 5,
+    desc: "해당 포켓몬에게 무효 타입을 하나 추가합니다.",
+    isEligible: (pokemon) => {
+      return ALL_POKEMON_TYPES.some((type) => !isTypeAlreadyNullified(pokemon, type));
+    },
+    onApply: function (pokemon, battle, options) {
+      const chosenType = options?.selectedType || this.selectedType;
+      if (!chosenType) return;
+      this.selectedType = chosenType;
+      pokemon._nullifyType = chosenType;
+      pokemon.immuneTypes = pokemon.immuneTypes || [];
+      if (!pokemon.immuneTypes.includes(chosenType)) {
+        pokemon.immuneTypes.push(chosenType);
+      }
+      if (pokemon.origin) {
+        pokemon.origin._nullifyType = chosenType;
+        pokemon.origin.immuneTypes = pokemon.origin.immuneTypes || [];
+        if (!pokemon.origin.immuneTypes.includes(chosenType)) {
+          pokemon.origin.immuneTypes.push(chosenType);
+        }
+      }
+    },
+  },
+  {
+    id: "onePunchMan",
+    name: "진심 펀치",
+    cost: 999,
+    desc: "공격기술의 위력이 999배 증가합니다.",
   },
 ];

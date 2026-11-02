@@ -1,6 +1,33 @@
 const hasType = (type, t1, t2) => t1 === type || t2 === type;
 const isOneOf = (value, list) => list.includes(value);
 
+export const ALL_POKEMON_TYPES = [
+  "노말", "불꽃", "물", "풀", "전기", "얼음",
+  "격투", "독", "땅", "비행", "에스퍼", "벌레",
+  "바위", "고스트", "드래곤", "악", "강철", "페어리"
+];
+
+export const TYPE_COLORS = {
+  "노말": "#A0A29F",
+  "불꽃": "#E73B3C",
+  "물": "#3390F8",
+  "풀": "#56B13F",
+  "전기": "#F3C523",
+  "얼음": "#3BD2DA",
+  "격투": "#EB812A",
+  "독": "#9E4ED7",
+  "땅": "#A76735",
+  "비행": "#8FA8DD",
+  "에스퍼": "#E44B79",
+  "벌레": "#9DB922",
+  "바위": "#B5B08C",
+  "고스트": "#664082",
+  "드래곤": "#4A6DE0",
+  "악": "#4B4242",
+  "강철": "#6093A8",
+  "페어리": "#F37CE6"
+};
+
 // 심안(고스트 면역 무시)
 const isMindEye = (pokemon, skillType, t1, t2) => {
   return (pokemon?.abil === "심안" || pokemon?.abil === "배짱") && isOneOf(skillType, ["격투", "노말"]) && hasType("고스트", t1, t2);
@@ -14,19 +41,36 @@ export const typeCheck = (skillType, t1, t2, skillName) => {
   return onlyTypeEffectCalculate(skillType, t1, t2, skillName);
 };
 
-export const typeCheckOnBattle = (battle, skillType, t1, t2, skillName) => {
+export const typeCheckOnBattle = (battle, skillType, t1, t2, skillName, defPoke = null) => {
   // 배틀에 적용되는 실제 상성
   // damageCalculate(상성보정 데미지계산), skillUse("효과가 굉장했다!" 상성 텍스트 및 무효 스킬 실패 처리)에서 호출된다
   // 타오르는불꽃은 버프 효과가 있기에 skillCheck에서 따로 처리
-  const atk = battle[battle.turn.atk];
-  const def = battle[battle.turn.def];
-  const activeSkillName = skillName || atk?.turn?.useSkill?.name || atk?.origin?.skill?.[battle.turn.atkSN]?.name;
+  const atk = battle?.[battle?.turn?.atk];
+  const def = defPoke || battle?.[battle?.turn?.def];
+  const activeSkillName = skillName || atk?.turn?.useSkill?.name || atk?.origin?.skill?.[battle?.turn?.atkSN]?.name;
+
+  // 무효 증강/속성 체크: 방어 포켓몬이 해당 타입을 무효화하는지 확인
+  if (def?.immuneTypes && def.immuneTypes.includes(skillType)) {
+    return 0;
+  }
+  if (def?.origin?.immuneTypes && def.origin.immuneTypes.includes(skillType)) {
+    return 0;
+  }
+  if (def?._nullifyType === skillType || def?.origin?._nullifyType === skillType) {
+    return 0;
+  }
+  if (def?.hasAugment?.("nullifyGetto")) {
+    const aug = def.augments?.find((a) => typeof a === "object" && a.id === "nullifyGetto");
+    if (aug?.selectedType && aug.selectedType === skillType) {
+      return 0;
+    }
+  }
 
   if (isNoEffect(skillType, t1, t2) && !isMindEye(atk, skillType, t1, t2)) {
     return 0;
   }
 
-  if (skillType === "땅" && def.isFlying(battle, true)) {
+  if (skillType === "땅" && def?.isFlying && def.isFlying(battle, true)) {
     return 0;
   }
 
@@ -50,7 +94,7 @@ export const getTypeText = (typeDamage) => {
   }
 };
 
-export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass, skillName) => {
+export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass, skillName, defPokemon = null) => {
   // 스킬창 밑에 뜨는 상성 텍스트
   // 부유, 건조피부, 저수 등 상대방의 특성은 반영하지 않고
   // 심안 등 본인의 특성은 반영해서 보여준다.
@@ -58,6 +102,15 @@ export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass, skillN
 
   if (skillClass === "natk" || skillClass === "buf") {
     return;
+  }
+  if (defPokemon?.immuneTypes && defPokemon.immuneTypes.includes(skillType)) {
+    return "✕ 효과가 없음";
+  }
+  if (defPokemon?.origin?.immuneTypes && defPokemon.origin.immuneTypes.includes(skillType)) {
+    return "✕ 효과가 없음";
+  }
+  if (defPokemon?._nullifyType === skillType || defPokemon?.origin?._nullifyType === skillType) {
+    return "✕ 효과가 없음";
   }
   if (isNoEffect(skillType, t1, t2) && !isMindEye(pokemon, skillType, t1, t2)) {
     return "✕ 효과가 없음";
@@ -91,7 +144,7 @@ const onlyTypeEffectCalculate = (skillType, t1, t2, skillName) => {
 };
 
 // 0배 상성 여부 (순수 타입)
-const isNoEffect = (skillType, t1, t2) => {
+export const isNoEffect = (skillType, t1, t2) => {
   return typeChart[skillType][t1] === 0 || typeChart[skillType][t2] === 0;
 };
 
@@ -216,4 +269,38 @@ const typeChart = {
     강철: 0.5,
     기타: 1,
   },
+};
+
+/**
+ * 포켓몬이 이미 해당 타입에 대해 무효(면역)인지 검사하는 헬퍼 함수
+ */
+export const isTypeAlreadyNullified = (pokemon, type, battle = null) => {
+  if (!pokemon || !type) return false;
+  const t1 = pokemon.origin?.type1 || pokemon.type1;
+  const t2 = pokemon.origin?.type2 || pokemon.type2;
+
+  // 1. 순수 타입 상성상 0배 (면역)
+  if (isNoEffect(type, t1, t2)) return true;
+
+  // 2. 비행 / 부유로 땅 무효
+  if (type === "땅") {
+    if (typeof pokemon.isFlying === "function" && pokemon.isFlying(battle, true)) return true;
+    const abil = pokemon.origin?.abil || pokemon.abil;
+    if (abil === "부유") return true;
+  }
+
+  // 3. 특성상 특정 타입 무효화
+  const abil = pokemon.origin?.abil || pokemon.abil;
+  if (type === "물" && ["저수", "마중물", "건조피부"].includes(abil)) return true;
+  if (type === "전기" && ["축전", "피뢰침", "전기엔진"].includes(abil)) return true;
+  if (type === "불꽃" && abil === "타오르는불꽃") return true;
+  if (type === "풀" && abil === "풀소식") return true;
+  if (type === "땅" && abil === "흙먹기") return true;
+
+  // 4. 이미 추가된 무효 타입
+  if (pokemon.immuneTypes && pokemon.immuneTypes.includes(type)) return true;
+  if (pokemon.origin?.immuneTypes && pokemon.origin.immuneTypes.includes(type)) return true;
+  if (pokemon._nullifyType === type || pokemon.origin?._nullifyType === type) return true;
+
+  return false;
 };

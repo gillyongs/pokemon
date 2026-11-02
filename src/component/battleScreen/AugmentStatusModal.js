@@ -63,10 +63,10 @@ const AugmentStatusModal = ({ battle, team = [], onClose }) => {
               <AugmentCard key={aug.id || index}>
                 <IconCol>
                   <IconWrapper>
-                    <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} />
+                    <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                   </IconWrapper>
                   {aug.cost !== "-" && aug.cost !== undefined && (
-                    <CostBadge>{aug.cost ?? 1} cost</CostBadge>
+                    <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>
                   )}
                 </IconCol>
                 <CardContent>
@@ -118,6 +118,10 @@ const ModalOverlay = styled.div`
   padding: 16px;
   box-sizing: border-box;
   cursor: pointer;
+
+  @media (max-width: 480px) {
+    padding: 8px;
+  }
 `;
 
 const ModalContainer = styled.div`
@@ -135,6 +139,11 @@ const ModalContainer = styled.div`
   overflow: hidden;
   box-sizing: border-box;
   cursor: default;
+
+  @media (max-width: 480px) {
+    padding: 14px 10px;
+    width: 96%;
+  }
 
   &::before {
     content: "";
@@ -195,6 +204,11 @@ const EntryContainer = styled.div`
   width: 100%;
   margin-bottom: 12px;
   box-sizing: border-box;
+
+  @media (max-width: 480px) {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
 `;
 
 const EntryCard = styled.div`
@@ -215,6 +229,10 @@ const EntryCard = styled.div`
   box-shadow: ${(props) => (props.$isSelected ? "0 0 10px rgba(100, 255, 218, 0.35)" : "none")};
   user-select: none;
   min-width: 0;
+
+  @media (max-width: 480px) {
+    padding: 6px 2px;
+  }
 
   &:hover {
     ${(props) =>
@@ -242,6 +260,10 @@ const EntryPokemonName = styled.span`
   text-overflow: ellipsis;
   max-width: 100%;
   text-align: center;
+
+  @media (max-width: 480px) {
+    font-size: 0.74rem;
+  }
 `;
 
 const EntryCountBadge = styled.span`
@@ -286,9 +308,17 @@ const IconCol = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 50px;
+  min-width: 50px;
   margin-right: 14px;
   flex-shrink: 0;
   gap: 4px;
+
+  @media (max-width: 480px) {
+    width: 44px;
+    min-width: 44px;
+    margin-right: 10px;
+  }
 `;
 
 const IconWrapper = styled.div`
@@ -309,6 +339,10 @@ const AugmentCard = styled.div`
   align-items: center;
   box-sizing: border-box;
   transition: all 0.2s ease;
+
+  @media (max-width: 480px) {
+    padding: 10px 10px;
+  }
 
   &:hover {
     border-color: rgba(100, 255, 218, 0.5);
@@ -333,17 +367,40 @@ const CardTitle = styled.h3`
   color: #ffffff;
   word-break: keep-all;
   line-height: 1.3;
+
+  @media (max-width: 480px) {
+    font-size: 0.86rem;
+    letter-spacing: -0.3px;
+    margin-bottom: 2px;
+  }
 `;
 
 const CostBadge = styled.span`
-  font-size: 0.68rem;
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: ${(props) => (props.$isLong ? "0.61rem" : "0.68rem")};
+  letter-spacing: ${(props) => (props.$isLong ? "-0.4px" : "normal")};
   font-weight: 600;
-  padding: 1px 5px;
   border-radius: 4px;
   background: rgba(100, 255, 218, 0.08);
   color: #64ffda;
   border: 1px solid rgba(100, 255, 218, 0.25);
   white-space: nowrap;
+  text-align: center;
+  box-sizing: border-box;
+
+  @media (max-width: 480px) {
+    width: 44px;
+    min-width: 44px;
+    max-width: 44px;
+    height: 16px;
+    font-size: ${(props) => (props.$isLong ? "0.58rem" : "0.64rem")};
+  }
 `;
 
 const CardDescription = styled.p`
@@ -352,6 +409,12 @@ const CardDescription = styled.p`
   color: #cbd5e1;
   line-height: 1.4;
   word-break: keep-all;
+  white-space: pre-wrap;
+
+  @media (max-width: 480px) {
+    font-size: 0.76rem;
+    line-height: 1.35;
+  }
 `;
 
 const ButtonGroup = styled.div`

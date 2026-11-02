@@ -1,6 +1,7 @@
 import { generate } from "../../entity/Pokemon/PokemonInstance";
 import { createBattle } from "../../entity/Battle";
 import { AUGMENT_LIST, getAugmentDesc, isEligibleForDanceGarchomp, isEligibleForRouletteWheel } from "../../entity/Augment/AugmentData";
+import { isTypeAlreadyNullified, typeCheckOnBattle } from "../../util/typeEffectCalculate";
 import { rollAugments, grantRandomAugment, rollTeamAugments } from "../../util/augmentRoll";
 import { getAccuracy } from "../../function/accuracyCalculate";
 import { damageCalculate } from "../../util/damageCalculate";
@@ -522,5 +523,94 @@ describe("아수라장 증강 시스템 테스트", () => {
     const hpBeforeDouble = battle.npc.hp;
     applyOnHitEvents(battle, () => {});
     expect(battle.npc.hp).toBe(hpBeforeDouble - expectedDmg * 2);
+  });
+
+  test("원펀맨(onePunchMan): 코스트 999 및 공격기술 위력 999배 증가 검증", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "onePunchMan");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("진심 펀치");
+    expect(aug.cost).toBe(999);
+    expect(aug.desc).toBe("공격기술의 위력이 999배 증가합니다.");
+
+    const battle = createBattle(["망나뇽", "배바닐라", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    battle.turn.atk = "player";
+    battle.turn.def = "npc";
+    battle.turn.atkSN = 1;
+    battle.player.turn = { useSkill: battle.player.origin.skill[1], critical: false };
+
+    const baseDamage = damageCalculate(battle, {}, true);
+    battle.player.applyAugment(aug);
+    const opmDamage = damageCalculate(battle, {}, true);
+
+    expect(opmDamage).toBeGreaterThanOrEqual(baseDamage * 900);
+  });
+
+  test("이 포켓몬의 이름은 보만다(nameIsSalamence): 보만다 전용 + 지진 미보유 조건, 지진 교체, 코스트 0, 줄바꿈 설명", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "nameIsSalamence");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("그리고 쓰는 기술은 지진이 있다");
+    expect(aug.cost).toBe(0);
+    expect(aug.desc).toBe("보  만  다  !!\n  지   진");
+    expect(aug.shiftUp).toBe(true);
+
+    const salamence = generate("메가보만다");
+    const hasEarthquake = Object.values(salamence.origin.skill).some((sk) => sk?.name === "지진");
+    expect(hasEarthquake).toBe(false);
+    expect(aug.isEligible(salamence)).toBe(true);
+
+    const garchomp = generate("한카리아스");
+    expect(aug.isEligible(garchomp)).toBe(false);
+
+    const battle = createBattle(["메가보만다", "배바닐라", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    salamence.applyAugment(aug, battle, { replaceSlot: 2 });
+
+    expect(salamence.origin.skill[2].name).toBe("지진");
+    expect(salamence.pp[2]).toBe(16);
+    expect(salamence._salamenceReplacedSlot).toBe(2);
+
+    expect(aug.isEligible(salamence)).toBe(false);
+  });
+
+  test("무효~! 겟또다제(nullifyGetto): 코스트 5, 이미 무효인 타입 판정, 선택한 타입 데미지 0 및 무효화 검증", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "nullifyGetto");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("무효~! 겟또다제");
+    expect(aug.cost).toBe(5);
+    expect(aug.desc).toBe("해당 포켓몬에게 무효 타입을 하나 추가합니다.");
+
+    // 1. 이미 무효인 타입 판정 검사 (저승갓숭: 격투/고스트 -> 노말/격투는 고스트 상성으로 이미 무효)
+    const annihilape = generate("저승갓숭");
+    expect(isTypeAlreadyNullified(annihilape, "노말")).toBe(true);
+    expect(isTypeAlreadyNullified(annihilape, "격투")).toBe(true);
+    expect(isTypeAlreadyNullified(annihilape, "페어리")).toBe(false);
+
+    // 2. 비행 타입 포켓몬 (망나뇽: 드래곤/비행 -> 땅 이미 무효, 얼음은 4배 약점)
+    const dragonite = generate("망나뇽");
+    expect(isTypeAlreadyNullified(dragonite, "땅")).toBe(true);
+    expect(isTypeAlreadyNullified(dragonite, "얼음")).toBe(false);
+
+    // 3. 증강 적용 (망나뇽에게 얼음 타입 무효 선택)
+    const battle = createBattle(["망나뇽", "배바닐라", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    dragonite.applyAugment(aug, battle, { selectedType: "얼음" });
+
+    // 적용 후에는 얼음 타입도 무효로 판정
+    expect(isTypeAlreadyNullified(dragonite, "얼음")).toBe(true);
+    expect(dragonite.immuneTypes).toContain("얼음");
+    expect(getAugmentDesc(aug, dragonite)).toContain("[얼음] 무효");
+
+    // 4. 배틀에서 실제 얼음 타입 공격 시 상성 배율 0배 및 데미지 0 확인
+    battle.turn.atk = "npc";
+    battle.turn.def = "player";
+    battle.player = dragonite;
+    const iceSkill = { name: "눈보라", type: "얼음", power: 110, stype: "catk" };
+    battle.npc.turn = { useSkill: iceSkill, critical: false };
+    battle.turn.atkSN = 1;
+    battle.npc.origin.skill[1] = iceSkill;
+
+    const mult = typeCheckOnBattle(battle, "얼음", dragonite.type1, dragonite.type2, "눈보라");
+    expect(mult).toBe(0);
+
+    const dmg = damageCalculate(battle, {}, true);
+    expect(dmg).toBe(0);
   });
 });

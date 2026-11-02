@@ -785,5 +785,10 @@ const powerCalculate = (battle, skill, obj, ai) => {
     power *= 3;
   }
 
+  // 원펀맨 증강: 공격기술의 위력 999배 증가
+  if (atk?.hasAugment?.('onePunchMan') && (skill.stype === 'atk' || skill.stype === 'catk')) {
+    power *= 999;
+  }
+
   return Math.floor(power);
 };
