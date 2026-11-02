@@ -307,6 +307,8 @@ function skillEffectSearch(name) {
             battle,
             text: "누구로 교체할까?",
             allowAct: true, // 교체 가능하게
+            bottomMode: "uturn",
+            waitInput: true,
           });
         }
       } else if (battle.turn.atk === "npc") {

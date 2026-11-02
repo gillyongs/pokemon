@@ -243,10 +243,10 @@ const Battle = () => {
     setBattle(cloneWithMethods(curBattle));
   };
 
-  let screenFix = false;
+
   useEffect(() => {
     let { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round, mayhemMode = gameOption.mayhemMode, carriedAugments } = location.state || {}; // 랜덤 battleObject 가져오기
-    screenFix = true;
+
     queueObject.initQueue();
     setBottom("skill");
     setBench(null);
@@ -314,12 +314,15 @@ const Battle = () => {
       const player = queue[0].battle.player;
       const turnEnd = queue[0].battle.turn.turnEnd;
       let gameEnd = false;
-      if (player.faint && turnEnd && !screenFix) {
-        // 겜 다시시작할때 자꾸 실행되길래 막을려고 screenFix 추가함
+      if (queue[0].bottomMode) {
+        setBottom(queue[0].bottomMode);
+      }
+      if (!queue[0].bottomMode && player.faint && turnEnd) {
+
         setBottom("mustSwitch");
       }
 
-      if (queue[0].battle.turn.uturn) {
+      if (!queue[0].bottomMode && queue[0].battle.turn.uturn) {
         setBottom("uturn");
       }
 
@@ -373,13 +376,13 @@ const Battle = () => {
   const handleDequeue = () => {
     if (augmentModalOpen || queueObject.queue[0]?.isAugment) return;
     if (queueObject.queue.length > 0) {
-      if (battle.turn.textFreeze) {
+      if (battle.turn.textFreeze || queueObject.queue[0]?.waitInput) {
         return;
       }
       if (queueObject.queue[0]?.autoActTurn) {
         return;
       }
-      screenFix = false;
+
       queueObject.dequeue();
     } else {
       if (bottom === "skill") {
@@ -415,17 +418,18 @@ const Battle = () => {
 
       const turnEnd = b.turn.turnEnd;
 
-      const condition1 = playerFaint && turnEnd && !screenFix;
+      const condition1 = playerFaint && turnEnd;
       const condition2 = b.turn.uturn;
       const condition3 = npcFaint && npcFaint1 && npcFaint2;
       const condition4 = playerFaint && playerFaint1 && playerFaint2;
 
       // 교체 선택 화면(mustSwitch/uturn)에서 멈추는 경우, 해당 항목은 큐에 남겨둔다.
       // (일반 흐름처럼 Bottom-Switch의 handleSwitch가 직접 dequeue 한다)
-      const keepInQueue = (condition1 || condition2) && !condition3 && !condition4;
+      const isInputPending = cur.waitInput || cur.bottomMode === "mustSwitch" || cur.bottomMode === "uturn" || condition1 || condition2;
+      const keepInQueue = isInputPending && !condition3 && !condition4;
       if (!keepInQueue) queueObject.dequeue();
 
-      if (condition1 || condition2 || condition3 || condition4 || q.length === 0) {
+      if (isInputPending || condition3 || condition4 || q.length === 0) {
         // 조건 만족 or 마지막 queue 도달
         found = cur;
         break;
@@ -441,10 +445,13 @@ const Battle = () => {
       setText(last.text);
     }
     // ----- 이후 UI 처리 -----
-    if (last.battle.player.faint && last.battle.turn.turnEnd && !screenFix) {
+    if (last.bottomMode) {
+      setBottom(last.bottomMode);
+    }
+    else if (!last.bottomMode && last.battle.player.faint && last.battle.turn.turnEnd) {
       setBottom("mustSwitch");
     }
-    if (last.battle.turn.uturn) {
+    else if (!last.bottomMode && last.battle.turn.uturn) {
       setBottom("uturn");
     }
 

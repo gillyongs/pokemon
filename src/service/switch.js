@@ -160,7 +160,13 @@ const extraSwitchWhenTurnEnd = (battle, user, enqueue) => {
   if (user === "player") {
     battle.turn.turnEnd = true;
     battle.turn.textFreeze = true;
-    enqueue({ battle, text: "누구로 교체할까?" });
+    enqueue({
+      battle,
+      text: "누구로 교체할까?",
+      allowAct: true,
+      bottomMode: "mustSwitch",
+      waitInput: true,
+    });
   }
   if (user === "npc") {
     switchNpcAuto(battle, enqueue);
