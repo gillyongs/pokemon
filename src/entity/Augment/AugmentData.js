@@ -1,30 +1,64 @@
 import sampleList from "../Pokemon/SamplePokemon";
 import { generate } from "../Pokemon/PokemonInstance";
 
+/**
+ * 포켓몬의 현재 수치를 반영한 증강 설명 텍스트를 반환합니다.
+ * 포켓몬 객체가 없을 경우 기본 설명 문구를 반환합니다.
+ */
+export const getAugmentDesc = (augment, pokemon = null) => {
+  if (!augment) return "";
+  const stat = pokemon?.origin?.stat;
+
+  if (augment.id === "swordAndShield") {
+    if (stat && typeof stat.atk === "number" && typeof stat.def === "number") {
+      return `공격(${stat.atk})과 방어(${stat.def}) 중 더 높은 수치로 두 능력치를 통일합니다.`;
+    }
+    return "공격과 방어 중 더 높은 수치로 두 능력치를 통일합니다.";
+  }
+
+  if (augment.id === "specialSwordAndShield") {
+    if (stat && typeof stat.catk === "number" && typeof stat.cdef === "number") {
+      return `특공(${stat.catk})과 특방(${stat.cdef}) 중 더 높은 수치로 두 능력치를 통일합니다.`;
+    }
+    return "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
+  }
+
+  if (typeof augment.getDesc === "function") {
+    return augment.getDesc(pokemon);
+  }
+  if (typeof augment.desc === "function") {
+    return augment.desc(pokemon);
+  }
+  return augment.desc || "";
+};
+
 export const AUGMENT_LIST = [
   {
     id: "noUnfairMiss",
     name: "억까 방지",
     cost: 1,
     desc: "명중률이 80% 이상인 기술이 절대 빗나가지 않습니다.",
+    // accuracyCalculate.js에 구현
   },
   {
     id: "mandoocornEndure",
     name: "슬프게 하지 않게 하려고 버텼다",
-    cost: 1,
+    cost: 2,
     desc: "기절할 공격을 받을 때 10% 확률로 HP 1로 버팁니다.",
+    // damege.js에 구현
   },
   {
     id: "gamblingAddict",
     name: "도박 중독",
-    cost: 2,
-    desc: "모든 공격기(물리/특수)의 명중률이 절반이 되지만, 기술 위력이 2배가 됩니다.",
+    cost: 1,
+    desc: "기술 위력이 3배가 되지만 공격 기술이 50% 확률로 실패합니다.",
+    // damageCalculate.js, skillCheck.js에 구현
   },
   {
     id: "rouletteWheel",
     name: "돌려 돌려 돌림판",
-    cost: 1,
-    desc: "현재 포켓몬을 임의의 포켓몬으로 교체합니다.",
+    cost: "-",
+    desc: "현재 포켓몬을 임의의 포켓몬과 교체합니다.",
     onApply: (pokemon, battle) => {
       if (!battle) return;
       const allItems = sampleList.items || [];
@@ -35,7 +69,7 @@ export const AUGMENT_LIST = [
 
       newPoke.team = pokemon.team || "player";
       newPoke.originalIndex = pokemon.originalIndex !== undefined ? pokemon.originalIndex : 0;
-      newPoke.augments = [...(pokemon.augments || [])];
+      newPoke.augments = []; // 돌려 돌려 돌림판 적용 시 증강 초기화
 
       const targetIdx = pokemon.originalIndex;
       if (battle.player === pokemon || (targetIdx !== undefined && battle.player?.originalIndex === targetIdx)) {
@@ -47,6 +81,7 @@ export const AUGMENT_LIST = [
       }
       Object.setPrototypeOf(pokemon, Object.getPrototypeOf(newPoke));
       Object.assign(pokemon, newPoke);
+      pokemon.augments = []; // 교체된 포켓몬의 증강 목록 초기화
     },
   },
   {
@@ -54,6 +89,14 @@ export const AUGMENT_LIST = [
     name: "오른손엔 방패 왼손엔 검",
     cost: 2,
     desc: "공격과 방어 중 더 높은 수치로 두 능력치를 통일합니다.",
+    getDesc: (pokemon) => {
+      const stat = pokemon?.origin?.stat;
+      if (stat && typeof stat.atk === "number" && typeof stat.def === "number") {
+        const higher = Math.max(stat.atk, stat.def);
+        return `공격(${stat.atk})과 방어(${stat.def}) 중 더 높은 수치(${higher})로 두 능력치를 통일합니다.`;
+      }
+      return "공격과 방어 중 더 높은 수치로 두 능력치를 통일합니다.";
+    },
     onApply: (pokemon) => {
       if (!pokemon?.origin?.stat) return;
       const stat = pokemon.origin.stat;
@@ -66,7 +109,15 @@ export const AUGMENT_LIST = [
     id: "specialSwordAndShield",
     name: "오른손엔 방패 왼손엔 스태프",
     cost: 2,
-    desc: "특수공격과 특수방어 중 더 높은 수치로 두 능력치를 통일합니다.",
+    desc: "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.",
+    getDesc: (pokemon) => {
+      const stat = pokemon?.origin?.stat;
+      if (stat && typeof stat.catk === "number" && typeof stat.cdef === "number") {
+        const higher = Math.max(stat.catk, stat.cdef);
+        return `특공(${stat.catk})과 특방(${stat.cdef}) 중 더 높은 수치(${higher})로 두 능력치를 통일합니다.`;
+      }
+      return "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
+    },
     onApply: (pokemon) => {
       if (!pokemon?.origin?.stat) return;
       const stat = pokemon.origin.stat;

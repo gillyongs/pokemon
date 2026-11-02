@@ -13,17 +13,13 @@ export function getAccuracy(bt, skill, attacker) {
     return 100;
   }
 
-  // 억까 방지 증강: 원래 기술 명중률이 80% 이상이면 필중
+  // [증강] 억까 방지 : 원래 기술 명중률이 80% 이상이면 필중
   if (attacker?.hasAugment?.("noUnfairMiss") && typeof skill.accur === "number" && skill.accur >= 80) {
     return 100;
   }
 
   // 필중
   if (accur === "-") {
-    // 도박 중독이더라도 필중기가 공격기면 50%로 절반 처리
-    if (attacker?.hasAugment?.("gamblingAddict") && (skill.stype === "atk" || skill.stype === "catk")) {
-      return 50;
-    }
     return 100; //ai 가중치 계산에 사용하므로 100 리턴해줘야함
   }
 
@@ -49,10 +45,6 @@ export function getAccuracy(bt, skill, attacker) {
     accur = Math.floor(accur * 1.3);
   }
 
-  // 도박 중독 증강: 모든 공격기 명중률 절반
-  if (attacker?.hasAugment?.("gamblingAddict") && (skill.stype === "atk" || skill.stype === "catk") && typeof accur === "number") {
-    accur = Math.floor(accur / 2);
-  }
 
   return accur;
 }

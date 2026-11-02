@@ -244,6 +244,15 @@ export const afterSkillCheck = (bt, enqueue) => {
     return false;
   }
 
+  // [증강] 도박 중독: 공격 기술이 50% 확률로 실패
+  if (atk?.hasAugment?.("gamblingAddict") && (skillType === "atk" || skillType === "catk")) {
+    if (!random(50)) {
+      atk.turn.jumpKickFail = true;
+      enqueue({ id: "88ab9135-e51c-4b30-9b36-58352b21c469", battle: bt, text: "하지만 실패했다!" });
+      return false;
+    }
+  }
+
   // 스킬이 빗나간 경우
   // 리베로가 발동된다
   let accurPercent = getAccuracy(bt, skill, atk);

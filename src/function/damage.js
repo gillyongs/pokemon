@@ -106,11 +106,11 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     actualGiveDamage = prevHp;
     defPokemon.hp = noOneShot ? 1 : 0;
     if (noOneShot) {
+      // 옹골참 또는 기띠
       if (ogcTrigger) {
         // 옹골참
         ogcTextTrigger = true;
         // 옹골참 기띠가 동시에 있으면 옹골참이 먼저 쓰인다
-        // 기합의띠로 버텼다! 텍스트 안 뜨게 false 처리
       } else if (gdTrigger) {
         gdTextTrigger = true;
         defPokemon.item = null;
@@ -119,7 +119,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       actualGiveDamage -= 1;
     } else if (defPokemon.hasAugment?.("mandoocornEndure")) {
       // 10% 확률로 HP 1로 버팀
-      if (Math.random() < 0.1) {
+      if (Math.random() < 0.9) {
         defPokemon.hp = 1;
         actualGiveDamage = prevHp - 1;
         mandooTextTrigger = true;

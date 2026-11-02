@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST } from "../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, getAugmentDesc } from "../../entity/Augment/AugmentData";
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -205,8 +205,11 @@ const parseAugmentLog = (item) => {
       const targetName = match[1].trim();
       const augmentName = match[2].trim();
       const foundAug = AUGMENT_LIST.find((a) => a.name === augmentName);
+      const pokes = [item.battle?.player, item.battle?.playerBench1, item.battle?.playerBench2];
+      const targetPoke = pokes.find((p) => p && (p.names === targetName || p.name === targetName));
       return {
         targetName,
+        targetPoke,
         augment: foundAug || { name: augmentName },
       };
     }
@@ -240,7 +243,7 @@ export default function LogModal({ log, onClose }) {
 
               const augmentData = parseAugmentLog(item);
               if (augmentData) {
-                const { targetName, augment } = augmentData;
+                const { targetName, targetPoke, augment } = augmentData;
                 return (
                   <AugmentLogCard key={index}>
                     <AugmentHeader>
@@ -252,11 +255,11 @@ export default function LogModal({ log, onClose }) {
                       <AugmentInfo>
                         <AugmentTitleRow>
                           <AugmentName>{augment.name}</AugmentName>
-                          {augment.cost !== undefined && (
-                            <AugmentCost>값 {augment.cost || 1} pt</AugmentCost>
+                          {augment.cost !== undefined && augment.cost !== "-" && (
+                            <AugmentCost>값 {augment.cost ?? 1} pt</AugmentCost>
                           )}
                         </AugmentTitleRow>
-                        {augment.desc && <AugmentDesc>{augment.desc}</AugmentDesc>}
+                        {augment.desc && <AugmentDesc>{getAugmentDesc(augment, targetPoke)}</AugmentDesc>}
                       </AugmentInfo>
                     </AugmentBody>
                   </AugmentLogCard>

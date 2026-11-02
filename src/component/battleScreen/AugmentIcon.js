@@ -27,6 +27,20 @@ export const AugmentIcon = ({ id, size = 42 }) => {
             <stop offset="100%" stopColor="#f59e0b" />
           </linearGradient>
 
+          {/* 스태프 마법 핑크/퍼플/블루 그라데이션 */}
+          <linearGradient id="magicStaffGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f472b6" />
+            <stop offset="45%" stopColor="#c084fc" />
+            <stop offset="100%" stopColor="#38bdf8" />
+          </linearGradient>
+
+          <radialGradient id="magicOrbGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="35%" stopColor="#f472b6" />
+            <stop offset="70%" stopColor="#c084fc" />
+            <stop offset="100%" stopColor="#38bdf8" />
+          </radialGradient>
+
           <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#1e293b" stopOpacity="0.95" />
             <stop offset="70%" stopColor="#0f172a" stopOpacity="0.9" />
@@ -115,7 +129,7 @@ export const AugmentIcon = ({ id, size = 42 }) => {
         )}
 
         {/* 5. 오른손엔 방패 왼손엔 검 (대검 & 카이트 실드 교차 스왑) */}
-        {(id === "swordAndShield" || id === "specialSwordAndShield") && (
+        {id === "swordAndShield" && (
           <g filter="url(#glow)">
             {/* 힘의 아치 테두리 */}
             <path d="M18 50 C12 40 14 22 26 14 M38 14 C50 22 52 40 46 50" stroke="url(#prismRing)" strokeWidth="2" strokeLinecap="round" />
@@ -133,6 +147,44 @@ export const AugmentIcon = ({ id, size = 42 }) => {
             {/* ✦ 스파클 */}
             <path d="M48 16 Q48 19 51 19 Q48 19 48 22 Q48 19 45 19 Q48 19 48 16 Z" fill="#fef08a" />
             <path d="M15 17 Q15 20 18 20 Q15 20 15 23 Q15 20 12 20 Q15 20 15 17 Z" fill="#67e8f9" />
+          </g>
+        )}
+
+        {/* 6. 오른손엔 방패 왼손엔 스태프 (마법 지팡이 & 룬 방패 교차) */}
+        {id === "specialSwordAndShield" && (
+          <g filter="url(#glow)">
+            {/* 신비로운 마법 아치 테두리 */}
+            <path d="M16 48 C10 38 14 20 28 14 M36 12 C48 18 54 36 48 48" stroke="url(#magicStaffGrad)" strokeWidth="2" strokeLinecap="round" />
+            {/* 왼쪽 마법 방패 */}
+            <path d="M25 22 C31 22 33 26 33 32 C33 40 25 46 25 46 C25 46 17 40 17 32 C17 26 19 22 25 22 Z" fill="url(#prismGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
+            {/* 방패 내부 마법 크리스탈 룬 */}
+            <path d="M25 26 L29 32 L25 38 L21 32 Z" fill="#0f172a" stroke="#c084fc" strokeWidth="1.2" />
+            <circle cx="25" cy="32" r="1.5" fill="#f472b6" />
+
+            {/* 오른쪽을 향해 교차하는 마법 스태프 */}
+            <g transform="rotate(38 39 32)">
+              {/* 스태프 봉 (Shaft) */}
+              <line x1="39" y1="18" x2="39" y2="47" stroke="url(#goldGrad)" strokeWidth="2.4" strokeLinecap="round" />
+              <line x1="39" y1="20" x2="39" y2="45" stroke="#ffffff" strokeWidth="0.9" strokeLinecap="round" />
+              {/* 스태프 하단 폼멜 (Pommel) */}
+              <circle cx="39" cy="48" r="2" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.8" />
+
+              {/* 스태프 상단 윙 브라켓 (Wings/Crescent Head) */}
+              <path d="M33 16 C33 11 36 8 39 8 C42 8 45 11 45 16 C43 14 41 13 39 13 C37 13 35 14 33 16 Z" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.8" />
+              <path d="M31 20 C32 15 35 11 39 11 C43 11 46 15 47 20 C44 17 42 16 39 16 C36 16 34 17 31 20 Z" fill="url(#magicStaffGrad)" />
+
+              {/* 찬란한 마법 구체 (Orb) */}
+              <circle cx="39" cy="15" r="4.2" fill="url(#magicOrbGlow)" stroke="#ffffff" strokeWidth="0.8" />
+              <circle cx="37.8" cy="13.8" r="1.2" fill="#ffffff" />
+
+              {/* 회전하는 마법 오라 링 */}
+              <ellipse cx="39" cy="15" rx="7.2" ry="2.6" stroke="url(#prismRing)" strokeWidth="1.2" fill="none" strokeDasharray="3 2" transform="rotate(-20 39 15)" />
+            </g>
+
+            {/* ✦ 마법 스파클 */}
+            <path d="M50 14 Q50 18 54 18 Q50 18 50 22 Q50 18 46 18 Q50 18 50 14 Z" fill="#f472b6" />
+            <path d="M38 8 Q38 11 41 11 Q38 11 38 14 Q38 11 35 11 Q38 11 38 8 Z" fill="#c084fc" />
+            <path d="M14 18 Q14 21 17 21 Q14 21 14 24 Q14 21 11 21 Q14 21 14 18 Z" fill="#67e8f9" />
           </g>
         )}
       </svg>

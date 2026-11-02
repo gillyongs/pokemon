@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
+import { getAugmentDesc } from "../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, onClose }) => {
   if (!battle) return null;
@@ -39,9 +40,11 @@ const AugmentStatusModal = ({ battle, onClose }) => {
                         <AugmentInfo>
                           <AugmentTopRow>
                             <AugmentName>{aug.name}</AugmentName>
-                            <CostBadge>값 {aug.cost || 1} pt</CostBadge>
+                            {aug.cost !== "-" && aug.cost !== undefined && (
+                              <CostBadge>값 {aug.cost ?? 1} pt</CostBadge>
+                            )}
                           </AugmentTopRow>
-                          <AugmentDesc>{aug.desc}</AugmentDesc>
+                          <AugmentDesc>{getAugmentDesc(aug, pokemon)}</AugmentDesc>
                         </AugmentInfo>
                       </AugmentItem>
                     ))}

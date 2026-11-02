@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
+import { getAugmentDesc } from "../../entity/Augment/AugmentData";
 
 const AugmentModal = ({ augments = [], targetPokemon = null, onSelect, onClose }) => {
   const [isPeekMode, setIsPeekMode] = useState(false);
@@ -56,11 +57,13 @@ const AugmentModal = ({ augments = [], targetPokemon = null, onSelect, onClose }
                   <IconWrapper>
                     <AugmentIcon id={aug.id} size={38} />
                   </IconWrapper>
-                  <CostBadge>값 {aug.cost || 1} pt</CostBadge>
+                  {aug.cost !== "-" && aug.cost !== undefined && (
+                    <CostBadge>값 {aug.cost ?? 1} pt</CostBadge>
+                  )}
                 </IconCol>
                 <CardContent>
                   <CardTitle>{aug.name}</CardTitle>
-                  <CardDescription>{aug.desc}</CardDescription>
+                  <CardDescription>{getAugmentDesc(aug, targetPokemon)}</CardDescription>
                 </CardContent>
               </AugmentCard>
             ))}

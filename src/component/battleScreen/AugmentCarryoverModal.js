@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
+import { getAugmentDesc } from "../../entity/Augment/AugmentData";
 
 const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   // 라운드 * 3 값 (1라운드: 3pt, 2라운드: 6pt, 3라운드: 9pt...)
@@ -19,6 +20,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
     (poke.augments || []).forEach((aug, augIdx) => {
       allOwnedAugments.push({
         pokeIndex: index,
+        pokemon: poke,
         pokemonName: poke.names || poke.name,
         augment: aug,
         uniqueKey: `${index}-${aug.id}-${augIdx}`,
@@ -32,7 +34,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   // 현재 선택된 총 포인트 계산
   const currentCost = allOwnedAugments.reduce((sum, item) => {
     if (selectedKeys.has(item.uniqueKey)) {
-      return sum + (item.augment.cost || 1);
+      return sum + (item.augment.cost ?? 1);
     }
     return sum;
   }, 0);
@@ -40,7 +42,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   const toggleSelect = (item) => {
     setErrorMessage("");
     const isSelected = selectedKeys.has(item.uniqueKey);
-    const itemCost = item.augment.cost || 1;
+    const itemCost = item.augment.cost ?? 1;
 
     if (isSelected) {
       const next = new Set(selectedKeys);
@@ -116,15 +118,17 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
                             </IconWrapper>
                             <CardMeta>
                               <AugName>{item.augment.name}</AugName>
-                              <CostTag $selected={isSelected}>
-                                값 {item.augment.cost || 1} pt
-                              </CostTag>
+                              {item.augment.cost !== "-" && item.augment.cost !== undefined && (
+                                <CostTag $selected={isSelected}>
+                                  값 {item.augment.cost ?? 1} pt
+                                </CostTag>
+                              )}
                             </CardMeta>
                             <CheckIndicator $selected={isSelected}>
                               {isSelected ? "✓" : ""}
                             </CheckIndicator>
                           </CardHeader>
-                          <AugDesc>{item.augment.desc}</AugDesc>
+                          <AugDesc>{getAugmentDesc(item.augment, item.pokemon)}</AugDesc>
                         </AugmentCard>
                       );
                     })}
