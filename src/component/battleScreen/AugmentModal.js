@@ -3,13 +3,51 @@ import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { getAugmentDesc } from "../../entity/Augment/AugmentData";
 import { getTypeEffectText } from "../../util/typeEffectCalculate";
+import { getWeatherBallType } from "../../util/weatherBall";
+import { rollTeamAugments } from "../../util/augmentRoll";
+import AugmentStatusModal from "./AugmentStatusModal";
 
-const AugmentModal = ({ augments = [], targetPokemon = null, battle = null, onSelect, onClose }) => {
+const AugmentModal = ({
+  team = [],
+  augments = [],
+  targetPokemon = null,
+  initialTarget = null,
+  battle = null,
+  onSelect,
+  onClose,
+}) => {
   const [isPeekMode, setIsPeekMode] = useState(false);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [skillSelectAug, setSkillSelectAug] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [selectedAugment, setSelectedAugment] = useState(null);
 
-  if (!augments || augments.length === 0) return null;
+  const resolvedTeam =
+    team && team.length > 0
+      ? team
+      : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
+
+  const getPokeKey = (p, idx) => p?.originalIndex ?? p?.id ?? idx;
+
+  const [activePokemon, setActivePokemon] = useState(() => {
+    if (initialTarget && resolvedTeam.some((p) => p === initialTarget || p.id === initialTarget.id)) {
+      return initialTarget;
+    }
+    if (targetPokemon && resolvedTeam.some((p) => p === targetPokemon || p.id === targetPokemon.id)) {
+      return targetPokemon;
+    }
+    return resolvedTeam.find((p) => (p.augments || []).length < 3) || resolvedTeam[0] || null;
+  });
+
+  const [choicesMap] = useState(() => {
+    return rollTeamAugments(resolvedTeam);
+  });
+
+  const activeKey = getPokeKey(activePokemon, 0);
+  const currentChoices =
+    choicesMap && choicesMap[activeKey] && choicesMap[activeKey].length > 0
+      ? choicesMap[activeKey]
+      : augments || [];
 
   const handleTogglePeek = (e) => {
     e.stopPropagation();
@@ -23,154 +61,253 @@ const AugmentModal = ({ augments = [], targetPokemon = null, battle = null, onSe
     }
   };
 
+  const handleSelectPokemon = (poke) => {
+    if (isPeekMode) setIsPeekMode(false);
+    const isFull = (poke.augments || []).length >= 3;
+    if (isFull) return;
+    if (poke === activePokemon || poke?.id === activePokemon?.id) return;
+    setActivePokemon(poke);
+    setSelectedAugment(null); // 다른 포켓몬 선택 시 증강 선택 상태 초기화
+  };
+
   const handleCardClick = (e, aug) => {
     e.stopPropagation();
     if (isPeekMode) {
       setIsPeekMode(false);
       return;
     }
-    if ((aug.id === "danceOfGarchomp" || aug.id === "danceGarchomp") && targetPokemon?.origin?.skill) {
-      setSkillSelectAug(aug);
+    setSelectedAugment((prev) => (prev?.id === aug.id ? null : aug));
+  };
+
+  const handleConfirm = (e) => {
+    e?.stopPropagation();
+    if (!selectedAugment || !activePokemon) return;
+
+    if (
+      (selectedAugment.id === "danceOfGarchomp" || selectedAugment.id === "danceGarchomp") &&
+      activePokemon?.origin?.skill
+    ) {
+      setSkillSelectAug(selectedAugment);
       setSelectedSlot(null);
       return;
     }
-    onSelect(aug);
+
+    onSelect(selectedAugment, { targetPokemon: activePokemon });
   };
 
   return (
-    <ModalOverlay $isPeek={isPeekMode} onClick={() => setIsPeekMode((prev) => !prev)}>
-      <ModalWrapper onClick={(e) => e.stopPropagation()}>
-        <ModalContainer $isPeek={isPeekMode} onClick={handleContainerClick}>
-          {skillSelectAug ? (
-            <>
-              <HeaderArea>
-                <HeaderTopRow>
-                  <Title>교체할 기술 선택</Title>
-                  <CloseButton
+    <>
+      <ModalOverlay $isPeek={isPeekMode} onClick={() => setIsPeekMode((prev) => !prev)}>
+        <ModalWrapper onClick={(e) => e.stopPropagation()}>
+          <ModalContainer $isPeek={isPeekMode} onClick={handleContainerClick}>
+            {skillSelectAug ? (
+              <>
+                <HeaderArea>
+                  <HeaderTopRow>
+                    <Title>교체할 기술 선택</Title>
+                    <CloseButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedSlot(null);
+                        setSkillSelectAug(null);
+                      }}
+                      title="되돌아가기"
+                    >
+                      ✕
+                    </CloseButton>
+                  </HeaderTopRow>
+                  <SubTitleText>용의춤과 교체할 기술을 선택해주세요.</SubTitleText>
+                </HeaderArea>
+
+                <SkillGrid>
+                  {[1, 2, 3, 4].map((slot) => {
+                    const sk = activePokemon?.origin?.skill?.[slot];
+                    if (!sk) return null;
+                    const currentPp = activePokemon?.pp?.[slot] ?? sk.pp;
+                    const displayType = sk.name === "웨더볼" ? getWeatherBallType(battle?.field?.weather) : sk.type;
+                    const effectText = battle?.npc
+                      ? getTypeEffectText(activePokemon, displayType, battle.npc.type1, battle.npc.type2, sk.stype, sk.name)
+                      : "";
+                    const isSelected = selectedSlot === slot;
+                    return (
+                      <SkillCard
+                        key={slot}
+                        $isSelected={isSelected}
+                        $isPeek={isPeekMode}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (isPeekMode) {
+                            setIsPeekMode(false);
+                            return;
+                          }
+                          setSelectedSlot(slot);
+                        }}
+                      >
+                        <SkillTopRow>
+                          <SkillTypeIcon
+                            src={`/pokemon/img/type/${displayType}.svg`}
+                            alt={sk.type}
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                          <SkillName title={sk.name}>{sk.name}</SkillName>
+                        </SkillTopRow>
+                        <SkillEffectText>{effectText || ""}</SkillEffectText>
+                        <SkillPP>
+                          {currentPp}/{sk.pp}
+                        </SkillPP>
+                      </SkillCard>
+                    );
+                  })}
+                </SkillGrid>
+
+                <ButtonGroup>
+                  <ActionButton
+                    type="button"
+                    $variant="back"
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedSlot(null);
                       setSkillSelectAug(null);
                     }}
-                    title="되돌아가기"
                   >
-                    ✕
-                  </CloseButton>
-                </HeaderTopRow>
-                <SubTitleText>용의춤과 교체할 기술을 선택해주세요.</SubTitleText>
-              </HeaderArea>
+                    되돌아가기
+                  </ActionButton>
+                  <ActionButton
+                    type="button"
+                    $variant="confirm"
+                    disabled={!selectedSlot}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!selectedSlot) return;
+                      onSelect(skillSelectAug, { replaceSlot: selectedSlot, targetPokemon: activePokemon });
+                    }}
+                  >
+                    교체
+                  </ActionButton>
+                </ButtonGroup>
+              </>
+            ) : (
+              <>
+                <HeaderArea>
+                  <HeaderTopRow>
+                    <Title>증강 선택</Title>
+                    <HeaderRightGroup>
+                      <StatusButton
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsStatusOpen(true);
+                        }}
+                        title="현재 팀 증강 현황 보기"
+                      >
+                        증강 현황
+                      </StatusButton>
+                      <CloseButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onClose) onClose();
+                        }}
+                        title="닫기"
+                      >
+                        ✕
+                      </CloseButton>
+                    </HeaderRightGroup>
+                  </HeaderTopRow>
+                </HeaderArea>
 
-              <SkillGrid>
-                {[1, 2, 3, 4].map((slot) => {
-                  const sk = targetPokemon?.origin?.skill?.[slot];
-                  if (!sk) return null;
-                  const currentPp = targetPokemon?.pp?.[slot] ?? sk.pp;
-                  const effectText = battle?.npc
-                    ? getTypeEffectText(targetPokemon, sk.type, battle.npc.type1, battle.npc.type2, sk.stype, sk.name)
-                    : "";
-                  const isSelected = selectedSlot === slot;
-                  return (
-                    <SkillCard
-                      key={slot}
-                      $isSelected={isSelected}
-                      $isPeek={isPeekMode}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (isPeekMode) {
-                          setIsPeekMode(false);
-                          return;
-                        }
-                        setSelectedSlot(slot);
-                      }}
-                    >
-                      <SkillTopRow>
-                        <SkillTypeIcon
-                          src={`/pokemon/img/type/${sk.type}.svg`}
-                          alt={sk.type}
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
+                {resolvedTeam.length > 0 && (
+                  <EntryContainer>
+                    {resolvedTeam.map((poke, idx) => {
+                      const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
+                      const isFull = (poke.augments || []).length >= 3;
+                      const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
+                      return (
+                        <EntryCard
+                          key={getPokeKey(poke, idx)}
+                          $isSelected={isSelected}
+                          $disabled={isFull}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectPokemon(poke);
                           }}
-                        />
-                        <SkillName title={sk.name}>{sk.name}</SkillName>
-                      </SkillTopRow>
-                      <SkillEffectText>{effectText || ""}</SkillEffectText>
-                      <SkillPP>
-                        {currentPp}/{sk.pp}
-                      </SkillPP>
-                    </SkillCard>
-                  );
-                })}
-              </SkillGrid>
+                          title={isFull ? `${poke.name} (증강 3개 보유 완료)` : poke.name}
+                        >
+                          <EntryPokemonImg
+                            src={`/pokemon/img/pokemon/${pokeId}.webp`}
+                            alt={poke.name}
+                            onError={(e) => {
+                              e.currentTarget.src = "/pokemon/img/pokemon/0000.webp";
+                            }}
+                          />
+                          <EntryPokemonName>{poke.name}</EntryPokemonName>
+                          {isFull && <EntryFullBadge>3/3</EntryFullBadge>}
+                        </EntryCard>
+                      );
+                    })}
+                  </EntryContainer>
+                )}
 
-              <ButtonGroup>
-                <ActionButton
-                  type="button"
-                  $variant="back"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedSlot(null);
-                    setSkillSelectAug(null);
-                  }}
-                >
-                  되돌아가기
-                </ActionButton>
-                <ActionButton
-                  type="button"
-                  $variant="confirm"
-                  disabled={!selectedSlot}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!selectedSlot) return;
-                    onSelect(skillSelectAug, { replaceSlot: selectedSlot });
-                  }}
-                >
-                  교체
-                </ActionButton>
-              </ButtonGroup>
-            </>
-          ) : (
-            <>
-              <HeaderArea>
-                <HeaderTopRow>
-                  <Title>{targetPokemon ? `증강 선택 (${targetPokemon.name})` : "아수라장 증강 선택"}</Title>
-                  {onClose && (
-                    <CloseButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onClose();
-                      }}
-                      title="선택하지 않고 닫기"
-                    >
-                      ✕
-                    </CloseButton>
+                <CardContainer>
+                  {currentChoices.length === 0 ? (
+                    <EmptyChoiceText>선택 가능한 증강이 없습니다.</EmptyChoiceText>
+                  ) : (
+                    currentChoices.map((aug, index) => {
+                      const isCardSelected = selectedAugment?.id === aug.id;
+                      return (
+                        <AugmentCard
+                          key={aug.id || index}
+                          $isPeek={isPeekMode}
+                          $isSelected={isCardSelected}
+                          onClick={(e) => handleCardClick(e, aug)}
+                        >
+                          <IconCol>
+                            <IconWrapper>
+                              <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} />
+                            </IconWrapper>
+                            {aug.cost !== "-" && aug.cost !== undefined && <CostBadge>{aug.cost ?? 1} cost</CostBadge>}
+                          </IconCol>
+                          <CardContent>
+                            <CardTitle>{aug.name}</CardTitle>
+                            <CardDescription>{getAugmentDesc(aug, activePokemon)}</CardDescription>
+                          </CardContent>
+                        </AugmentCard>
+                      );
+                    })
                   )}
-                </HeaderTopRow>
-              </HeaderArea>
+                </CardContainer>
 
-              <CardContainer>
-                {augments.map((aug, index) => (
-                  <AugmentCard key={aug.id || index} $isPeek={isPeekMode} onClick={(e) => handleCardClick(e, aug)}>
-                    <IconCol>
-                      <IconWrapper>
-                        <AugmentIcon id={aug.id} size={38} pokemon={targetPokemon} />
-                      </IconWrapper>
-                      {aug.cost !== "-" && aug.cost !== undefined && <CostBadge>{aug.cost ?? 1} cost</CostBadge>}
-                    </IconCol>
-                    <CardContent>
-                      <CardTitle>{aug.name}</CardTitle>
-                      <CardDescription>{getAugmentDesc(aug, targetPokemon)}</CardDescription>
-                    </CardContent>
-                  </AugmentCard>
-                ))}
-              </CardContainer>
-            </>
-          )}
-        </ModalContainer>
-        <PeekToggleButton $isPeek={isPeekMode} onClick={handleTogglePeek} title={isPeekMode ? "증강 선택창 선명하게" : "모달 흐리게 (필드 확인)"}>
-          {isPeekMode ? "선명하게 보기" : "필드 보기 (흐리게)"}
-        </PeekToggleButton>
-      </ModalWrapper>
-    </ModalOverlay>
+                <ButtonGroup>
+                  <ConfirmButton
+                    type="button"
+                    disabled={!selectedAugment}
+                    onClick={handleConfirm}
+                  >
+                    선택
+                  </ConfirmButton>
+                </ButtonGroup>
+              </>
+            )}
+          </ModalContainer>
+          <PeekToggleButton
+            $isPeek={isPeekMode}
+            onClick={handleTogglePeek}
+            title={isPeekMode ? "증강 선택창 선명하게" : "모달 흐리게 (필드 확인)"}
+          >
+            {isPeekMode ? "선명하게 보기" : "필드 보기 (흐리게)"}
+          </PeekToggleButton>
+        </ModalWrapper>
+      </ModalOverlay>
+
+      {isStatusOpen && (
+        <AugmentStatusModal
+          battle={battle}
+          team={resolvedTeam}
+          onClose={() => setIsStatusOpen(false)}
+        />
+      )}
+    </>
   );
 };
 
@@ -281,7 +418,7 @@ const ModalContainer = styled.div`
 
 const HeaderArea = styled.div`
   width: 100%;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 `;
 
 const HeaderTopRow = styled.div`
@@ -297,7 +434,38 @@ const Title = styled.h2`
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.5px;
-  flex: 1;
+`;
+
+const HeaderRightGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const StatusButton = styled.button`
+  background: rgba(100, 255, 218, 0.1);
+  border: 1px solid rgba(100, 255, 218, 0.35);
+  border-radius: 6px;
+  color: #64ffda;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(100, 255, 218, 0.2);
+    border-color: #64ffda;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
 `;
 
 const CloseButton = styled.div`
@@ -307,14 +475,13 @@ const CloseButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #94a3b8;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  margin-left: 8px;
 
   &:hover {
     color: #fff;
@@ -323,11 +490,92 @@ const CloseButton = styled.div`
   }
 `;
 
+const EntryContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+`;
+
+const EntryCard = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: ${(props) =>
+    props.$isSelected
+      ? "rgba(20, 48, 64, 0.95)"
+      : "rgba(255, 255, 255, 0.05)"};
+  border: ${(props) =>
+    props.$isSelected
+      ? "2px solid #64ffda"
+      : "1px solid rgba(255, 255, 255, 0.12)"};
+  border-radius: 8px;
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.$disabled ? 0.45 : 1)};
+  transition: all 0.2s ease;
+  box-shadow: ${(props) =>
+    props.$isSelected
+      ? "0 0 10px rgba(100, 255, 218, 0.35)"
+      : "none"};
+  user-select: none;
+  min-width: 0;
+
+  &:hover {
+    ${(props) =>
+      !props.$disabled &&
+      !props.$isSelected &&
+      `
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(100, 255, 218, 0.4);
+    `}
+  }
+`;
+
+const EntryPokemonImg = styled.img`
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+`;
+
+const EntryPokemonName = styled.span`
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  text-align: center;
+`;
+
+const EntryFullBadge = styled.span`
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.2);
+  padding: 1px 4px;
+  border-radius: 4px;
+  line-height: 1;
+`;
+
 const CardContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
   width: 100%;
+`;
+
+const EmptyChoiceText = styled.div`
+  font-size: 0.9rem;
+  color: #94a3b8;
+  padding: 24px 0;
+  text-align: center;
 `;
 
 const IconCol = styled.div`
@@ -351,9 +599,15 @@ const IconWrapper = styled.div`
 
 const AugmentCard = styled.div`
   width: 100%;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-left: 4px solid #64ffda;
+  background: ${(props) =>
+    props.$isSelected
+      ? "rgba(22, 45, 64, 0.98)"
+      : "rgba(0, 0, 0, 0.45)"};
+  border: ${(props) =>
+    props.$isSelected
+      ? "1.5px solid #64ffda"
+      : "1px solid rgba(255, 255, 255, 0.1)"};
+  border-left: 4px solid ${(props) => (props.$isSelected ? "#38bdf8" : "#64ffda")};
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;
@@ -362,12 +616,17 @@ const AugmentCard = styled.div`
   cursor: pointer;
   transition: all 0.2s ease;
   box-sizing: border-box;
+  box-shadow: ${(props) =>
+    props.$isSelected
+      ? "0 0 14px rgba(100, 255, 218, 0.45), inset 0 0 8px rgba(100, 255, 218, 0.15)"
+      : "none"};
 
   &:hover {
     transform: ${(props) => (props.$isPeek ? "none" : "translateY(-2px)")};
-    border-color: rgba(100, 255, 218, 0.5);
+    border-color: ${(props) => (props.$isSelected ? "#64ffda" : "rgba(100, 255, 218, 0.5)")};
     border-left: 4px solid #64ffda;
-    background: rgba(20, 30, 44, 0.75);
+    background: ${(props) =>
+      props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(20, 30, 44, 0.75)"};
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 
     ${IconWrapper} {
@@ -437,11 +696,11 @@ const SkillGrid = styled.div`
 
 const SkillCard = styled.div`
   position: relative;
-  background: ${(props) => (props.$isSelected ? "rgba(18, 38, 54, 0.95)" : "rgba(0, 0, 0, 0.6)")};
+  background: ${(props) => (props.$isSelected ? "rgba(22, 45, 64, 0.95)" : "rgba(18, 24, 35, 0.85)")};
   border: ${(props) => (props.$isSelected ? "2px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.15)")};
   border-radius: 8px;
   padding: 10px 10px 28px 10px;
-  min-height: 84px;
+  min-height: 80px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -474,8 +733,8 @@ const SkillTopRow = styled.div`
 `;
 
 const SkillTypeIcon = styled.img`
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 5px;
   object-fit: contain;
   flex-shrink: 0;
@@ -483,7 +742,7 @@ const SkillTypeIcon = styled.img`
 `;
 
 const SkillName = styled.span`
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #ffffff;
   white-space: nowrap;
@@ -493,9 +752,9 @@ const SkillName = styled.span`
 `;
 
 const SkillEffectText = styled.div`
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #f1f5f9;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
   margin-top: 6px;
   min-height: 18px;
   line-height: 1.2;
@@ -504,12 +763,12 @@ const SkillEffectText = styled.div`
 
 const SkillPP = styled.div`
   position: absolute;
-  bottom: 6px;
-  right: 6px;
-  font-size: 0.75rem;
+  bottom: 5px;
+  right: 5px;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #ffffff;
-  background-color: #555050;
+  background-color: #665f5f;
   border-radius: 4px;
   padding: 1px 5px;
   letter-spacing: 0.5px;
@@ -525,12 +784,51 @@ const ButtonGroup = styled.div`
   box-sizing: border-box;
 `;
 
+const ConfirmButton = styled.button`
+  width: 100%;
+  padding: 10px 0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  user-select: none;
+
+  background: ${(props) =>
+    props.disabled
+      ? "rgba(255, 255, 255, 0.05)"
+      : "linear-gradient(135deg, #0d9488, #0284c7)"};
+  border: ${(props) =>
+    props.disabled
+      ? "1px solid rgba(255, 255, 255, 0.1)"
+      : "1px solid #64ffda"};
+  color: ${(props) => (props.disabled ? "#64748b" : "#ffffff")};
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  box-shadow: ${(props) =>
+    props.disabled ? "none" : "0 0 12px rgba(100, 255, 218, 0.35)"};
+
+  &:hover {
+    ${(props) =>
+      !props.disabled &&
+      `
+      background: linear-gradient(135deg, #14b8a6, #0284c7);
+      box-shadow: 0 0 16px rgba(100, 255, 218, 0.55);
+      transform: translateY(-1px);
+    `}
+  }
+
+  &:active {
+    ${(props) => !props.disabled && `transform: translateY(1px);`}
+  }
+`;
+
 const ActionButton = styled.button`
   flex: 1;
   padding: 10px 0;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 700;
+  font-family: inherit;
   transition: all 0.2s ease;
   user-select: none;
 

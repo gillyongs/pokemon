@@ -11,6 +11,8 @@ import AugmentModal from "../component/battleScreen/AugmentModal";
 import AugmentStatusModal from "../component/battleScreen/AugmentStatusModal";
 import AugmentCarryoverModal from "../component/battleScreen/AugmentCarryoverModal";
 import { rollAugments, grantRandomAugment } from "../util/augmentRoll";
+import { AUGMENT_LIST } from "../entity/Augment/AugmentData";
+import { generate } from "../entity/Pokemon/PokemonInstance";
 import { useQueue } from "../util/useQueue";
 
 import PokemonInfo from "../component/battleScreen/top/PokemonInfo";
@@ -47,6 +49,7 @@ const Battle = () => {
   const [isAugmentStatusOpen, setIsAugmentStatusOpen] = useState(false);
   const [isAugmentCarryModalOpen, setIsAugmentCarryModalOpen] = useState(false);
   const [carriedAugmentsData, setCarriedAugmentsData] = useState(null);
+  const [pendingNextTeam, setPendingNextTeam] = useState(null);
   //개발용 배틀 객체.
   const [text, setText] = useState("");
   //화면에 보여질 텍스트 전역변수
@@ -77,28 +80,9 @@ const Battle = () => {
   };
 
   const handleNextRound = () => {
-    const { mayhemMode = gameOption.mayhemMode } = location.state || {};
-    const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
-    const teamHasAugments = [battle?.player, battle?.playerBench1, battle?.playerBench2].some(
-      (p) => (p?.augments || []).length > 0
-    );
-
-    if (isMayhem && teamHasAugments) {
-      setIsAugmentCarryModalOpen(true);
-      return;
-    }
-    continueNextRound();
-  };
-
-  const handleCarryoverConfirm = (carriedMap) => {
-    setIsAugmentCarryModalOpen(false);
-    setCarriedAugmentsData(carriedMap);
-    continueNextRound(carriedMap);
-  };
-
-  const continueNextRound = (carriedMap = carriedAugmentsData) => {
     const { teamOption = gameOption.teamOption } = location.state || {};
-    if (teamOption === "트레이드" && !isTradeModalOpen) {
+    // 1. 트레이드 모드인 경우 트레이드 모달을 먼저 띄운다.
+    if (teamOption === "트레이드") {
       setTradePlayerIdx(null);
       setTradeNpcIdx(null);
       setTradeInfoPokemon(null);
@@ -106,14 +90,42 @@ const Battle = () => {
       setIsTradeModalOpen(true);
       return;
     }
-    proceedNextRound(null, carriedMap);
+    // 2. 트레이드 모드가 아닌 경우 다음 라운드 증강 유지 확인 또는 진행
+    openCarryoverOrProceed(null);
   };
 
-  const proceedNextRound = (customTeam1 = null, carriedMap = carriedAugmentsData) => {
+  const openCarryoverOrProceed = (nextTeam) => {
+    setPendingNextTeam(nextTeam);
+    const { mayhemMode = gameOption.mayhemMode } = location.state || {};
+    const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
+    const currentBattle = battleObj.current || battle;
+    const teamHasAugments = [currentBattle?.player, currentBattle?.playerBench1, currentBattle?.playerBench2].some(
+      (p) => (p?.augments || []).length > 0
+    );
+
+    if (isMayhem && teamHasAugments) {
+      setIsAugmentCarryModalOpen(true);
+      return;
+    }
+    proceedNextRound(nextTeam, null);
+  };
+
+  const handleCarryoverConfirm = (carriedMap) => {
+    setIsAugmentCarryModalOpen(false);
+    proceedNextRound(pendingNextTeam, carriedMap);
+  };
+
+  const handleSkipTrade = () => {
+    setIsTradeModalOpen(false);
+    openCarryoverOrProceed(null);
+  };
+
+  const proceedNextRound = (customTeam1 = null, carriedMap = null) => {
     setGameResult(null);
     setIsTradeModalOpen(false);
     setIsAugmentCarryModalOpen(false);
     setCarriedAugmentsData(null);
+    setPendingNextTeam(null);
     setTradePlayerIdx(null);
     setTradeNpcIdx(null);
     setTradeInfoPokemon(null);
@@ -135,6 +147,19 @@ const Battle = () => {
       : [...team1];
 
     const nextTeam2 = getRandomTeam(3);
+
+    // 함수(onApply, getDesc 등)가 포함된 증강 객체는 history.replaceState에서 DataCloneError를 유발하므로
+    // 직렬화 가능한 plain 객체({ id, replacedSlot })로 변환하여 전달
+    const serializedCarried = carriedMap
+      ? Object.entries(carriedMap).reduce((acc, [idx, augs]) => {
+          acc[idx] = (augs || []).map((aug) => ({
+            id: aug.id || aug,
+            replacedSlot: aug.replacedSlot ?? aug._danceReplacedSlot,
+          }));
+          return acc;
+        }, {})
+      : null;
+
     navigate("/battle", {
       state: {
         team1: nextTeam1,
@@ -145,7 +170,7 @@ const Battle = () => {
         round: round + 1,
         fromCustom,
         mayhemMode,
-        carriedAugments: carriedMap,
+        carriedAugments: serializedCarried,
       },
       replace: true,
     });
@@ -153,8 +178,9 @@ const Battle = () => {
 
   const submitTrade = () => {
     if (tradePlayerIdx === null || tradeNpcIdx === null) return;
-    const playerTeamFixed = [battle.player, battle.playerBench1, battle.playerBench2].sort((a, b) => a.originalIndex - b.originalIndex);
-    const npcTeamFixed = [battle.npc, battle.npcBench1, battle.npcBench2].sort((a, b) => a.originalIndex - b.originalIndex);
+    const curBattle = battleObj.current || battle;
+    const playerTeamFixed = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2].sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
+    const npcTeamFixed = [curBattle.npc, curBattle.npcBench1, curBattle.npcBench2].sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
 
     const playerPoke = playerTeamFixed[tradePlayerIdx];
     const npcPoke = npcTeamFixed[tradeNpcIdx];
@@ -168,8 +194,28 @@ const Battle = () => {
     const { team1 } = location.state || {};
     let nextTeam1 = playerTeamFixed.length === 3 ? playerTeamFixed.map((p) => p.id) : [...team1];
     const npcIds = npcTeamFixed.map((p) => p.id);
-    nextTeam1[tradePlayerIdx] = npcIds[tradeNpcIdx];
-    proceedNextRound(nextTeam1, carriedAugmentsData);
+    const tradedId = npcIds[tradeNpcIdx];
+    nextTeam1[tradePlayerIdx] = tradedId;
+
+    // 방금 트레이드한 포켓몬은 증강이 없음(augments: [])
+    const newPoke = generate(tradedId);
+    newPoke.team = "player";
+    newPoke.originalIndex = playerPoke.originalIndex ?? tradePlayerIdx;
+    newPoke.augments = [];
+
+    // 배틀 객체에 트레이드 결과 반영
+    if (curBattle.player === playerPoke) {
+      curBattle.player = newPoke;
+    } else if (curBattle.playerBench1 === playerPoke) {
+      curBattle.playerBench1 = newPoke;
+    } else if (curBattle.playerBench2 === playerPoke) {
+      curBattle.playerBench2 = newPoke;
+    }
+
+    setBattle(cloneWithMethods(curBattle));
+    setIsTradeModalOpen(false);
+    // 트레이드 완료 후 증강 유지 모달 또는 다음 라운드 진행
+    openCarryoverOrProceed(nextTeam1);
   };
 
   useEffect(() => {
@@ -202,9 +248,20 @@ const Battle = () => {
     const curBattle = battleObj.current;
     if (!curBattle) return;
 
-    const teamPokes = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2];
-    const target = (augmentTargetPoke && teamPokes.find((p) => p && (p.originalIndex === augmentTargetPoke.originalIndex || p.id === augmentTargetPoke.id))) || curBattle.player;
+    const teamPokes = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2].filter(Boolean);
+    const targetCandidate = options?.targetPokemon || augmentTargetPoke;
+    const target =
+      (targetCandidate &&
+        teamPokes.find(
+          (p) =>
+            p &&
+            (p.originalIndex === targetCandidate.originalIndex ||
+              p.id === targetCandidate.id ||
+              p.name === targetCandidate.name)
+        )) ||
+      curBattle.player;
     target.applyAugment(selectedAugment, curBattle, options);
+    setAugmentTargetPoke(target);
 
     const gainText = `[증강] ${target.names} "${selectedAugment.name}" 효과를 얻었다!`;
 
@@ -264,12 +321,20 @@ const Battle = () => {
     const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
     battleObj.current = createBattle(team1, team2, { difficulty, round, mayhemMode: isMayhem });
     if (isMayhem && carriedAugments) {
-      // 이전 라운드에서 선택하여 유지한 증강 복원
+      // 이전 라운드에서 선택하여 유지한 증강 복원 (AUGMENT_LIST에서 완전한 객체 매핑)
       const teamPokes = [battleObj.current.player, battleObj.current.playerBench1, battleObj.current.playerBench2];
       teamPokes.forEach((p, idx) => {
         if (p && Array.isArray(carriedAugments[idx])) {
-          carriedAugments[idx].forEach((aug) => {
-            p.applyAugment(aug, battleObj.current);
+          carriedAugments[idx].forEach((savedAug) => {
+            const augId = typeof savedAug === "string" ? savedAug : savedAug?.id;
+            const fullAug = AUGMENT_LIST.find((a) => a.id === augId);
+            if (fullAug) {
+              const augToApply = { ...fullAug };
+              if (savedAug?.replacedSlot) {
+                augToApply.replacedSlot = savedAug.replacedSlot;
+              }
+              p.applyAugment(augToApply, battleObj.current, { replaceSlot: savedAug?.replacedSlot });
+            }
           });
         }
       });
@@ -717,7 +782,7 @@ const Battle = () => {
                     </TradeColumn>
                   </TradeContainer>
                   <ModalButtonContainer>
-                    <ModalButton onClick={() => proceedNextRound()}>건너뛰기</ModalButton>
+                    <ModalButton onClick={handleSkipTrade}>건너뛰기</ModalButton>
                     <ModalButton
                       $primary
                       $isWin={true}
@@ -779,8 +844,15 @@ const Battle = () => {
           })()}
         {augmentModalOpen && (
           <AugmentModal
+            team={[
+              battleObj.current?.player,
+              battleObj.current?.playerBench1,
+              battleObj.current?.playerBench2,
+            ].filter(Boolean)}
+            initialTarget={augmentTargetPoke || battleObj.current?.player}
             augments={augmentChoices}
             targetPokemon={augmentTargetPoke || battleObj.current?.player}
+            battle={battleObj.current || battle}
             onSelect={handleSelectAugment}
             onClose={handleCloseAugment}
           />

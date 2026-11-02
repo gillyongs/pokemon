@@ -45,8 +45,12 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
 
     // 구애 시리즈 또는 무아지경으로 인해 사용 가능한 스킬이 고정된 경우
     const { onlySkill } = player.tempStatus;
-    if (onlySkill && (player.item?.startsWith("구애") || player.abil === "무아지경") && onlySkill !== skill.name) {
-      const lockSource = player.item?.startsWith("구애") ? player.item : "특성 무아지경";
+    const hasUnbound = player.hasAugment?.("unboundChoice");
+    const isChoiceLocked = Boolean(player.item?.startsWith("구애") && !hasUnbound);
+    const isGorillaLocked = player.abil === "무아지경";
+
+    if (onlySkill && (isChoiceLocked || isGorillaLocked) && onlySkill !== skill.name) {
+      const lockSource = isGorillaLocked ? "특성 무아지경" : player.item;
       return reject(lockSource + " 효과로 인해 해당 스킬은 사용할 수 없다!");
     }
 

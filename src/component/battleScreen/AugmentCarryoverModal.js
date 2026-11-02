@@ -64,7 +64,12 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
     const carriedMap = { 0: [], 1: [], 2: [] };
     allOwnedAugments.forEach((item) => {
       if (selectedKeys.has(item.uniqueKey)) {
-        carriedMap[item.pokeIndex].push(item.augment);
+        carriedMap[item.pokeIndex].push({
+          id: item.augment.id,
+          name: item.augment.name,
+          cost: item.augment.cost,
+          replacedSlot: item.augment.replacedSlot ?? item.augment._danceReplacedSlot,
+        });
       }
     });
     onConfirm(carriedMap);

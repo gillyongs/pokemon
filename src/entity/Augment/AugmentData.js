@@ -45,9 +45,7 @@ export const getAugmentDesc = (augment, pokemon = null) => {
 
   if (augment.id === "hhgghgg") {
     if (stat) {
-      const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter(
-        (v) => typeof v === "number"
-      );
+      const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter((v) => typeof v === "number");
       if (values.length > 0) {
         const higher = Math.max(...values);
         return `가장 높은 능력치(${higher})로 모든 능력치가 통일됩니다.`;
@@ -167,9 +165,7 @@ export const AUGMENT_LIST = [
     getDesc: (pokemon) => {
       const stat = pokemon?.origin?.stat;
       if (stat) {
-        const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter(
-          (v) => typeof v === "number"
-        );
+        const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter((v) => typeof v === "number");
         if (values.length > 0) {
           const higher = Math.max(...values);
           return `가장 높은 능력치(${higher})로 모든 능력치가 통일됩니다.`;
@@ -180,9 +176,7 @@ export const AUGMENT_LIST = [
     onApply: (pokemon) => {
       if (!pokemon?.origin?.stat) return;
       const stat = pokemon.origin.stat;
-      const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter(
-        (v) => typeof v === "number"
-      );
+      const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter((v) => typeof v === "number");
       if (values.length === 0) return;
       const higher = Math.max(...values);
       stat.atk = higher;
@@ -208,6 +202,18 @@ export const AUGMENT_LIST = [
         pokemon.pp[slot] = dDance.pp;
       }
       pokemon._danceReplacedSlot = slot;
+    },
+  },
+  {
+    id: "unboundChoice",
+    name: "구애받지않는",
+    cost: 2,
+    desc: "구애 시리즈의 기술 고정 효과를 받지 않습니다.",
+    isEligible: (pokemon) => Boolean(pokemon?.item && pokemon.item.startsWith("구애")),
+    onApply: (pokemon) => {
+      if (pokemon?.tempStatus && pokemon.abil !== "무아지경") {
+        pokemon.tempStatus.onlySkill = null;
+      }
     },
   },
 ];

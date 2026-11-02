@@ -35,7 +35,11 @@ export const skillUse = (bt, enqueue) => {
   }
 
   // 구애 스킬 고정 처리 (구애 시리즈 또는 무아지경)
-  if (atk.item === "구애스카프" || atk.item === "구애머리띠" || atk.item === "구애안경" || atk.abil === "무아지경") {
+  const hasUnbound = atk.hasAugment?.("unboundChoice");
+  const isChoiceItem = (atk.item === "구애스카프" || atk.item === "구애머리띠" || atk.item === "구애안경") && !hasUnbound;
+  const isGorillaTactics = atk.abil === "무아지경";
+
+  if (isChoiceItem || isGorillaTactics) {
     atk.tempStatus.onlySkill = skill.name;
     // 상대방이 기절해서 스킬 실패해도 고정됨
   }

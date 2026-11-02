@@ -60,6 +60,7 @@ class Battle {
     this.turnCount = 1;
     this.megaUsed = { player: false, npc: false }; // 해당 배틀 메가진화 사용 여부
     this.megaTrigger = { player: false, npc: false }; // 해당 턴 메가진화 선택 여부
+    this.hasKnockoutAugmentThisRound = false; // 해당 라운드 적 처치 증강 획득 여부 (최대 1회)
   }
 
   // 턴 시작시 turn 초기화

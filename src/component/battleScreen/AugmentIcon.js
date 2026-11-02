@@ -280,6 +280,39 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null })
             <path d="M14 44 Q14 47 17 47 Q14 47 14 50 Q14 47 11 47 Q14 47 14 44 Z" fill="#f43f5e" />
           </g>
         )}
+
+        {/* 9. 구애받지않는 (끊어지는 쇠사슬 & 해방의 에너지 스파크) */}
+        {id === "unboundChoice" && (
+          <g filter="url(#glow)">
+            {/* 해방의 빛나는 링 */}
+            <circle cx="32" cy="32" r="23" stroke="url(#prismRing)" strokeWidth="1.5" strokeDasharray="6 3" strokeOpacity="0.8" />
+            {/* 끊어지는 쇠사슬 링크 - 좌측 */}
+            <path
+              d="M18 36 C14 36 12 32 12 28 C12 24 16 20 22 20 C28 20 30 24 29 27"
+              stroke="url(#prismGrad)"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+              fill="none"
+            />
+            {/* 끊어지는 쇠사슬 링크 - 우측 (파괴되어 튕겨나감) */}
+            <path
+              d="M35 37 C34 40 36 44 42 44 C48 44 52 40 52 36 C52 32 50 28 46 28"
+              stroke="url(#goldGrad)"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+              fill="none"
+            />
+            {/* 중앙 사슬 파괴 에너지 버스트 (스파크) */}
+            <line x1="28" y1="28" x2="36" y2="36" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
+            <line x1="36" y1="28" x2="28" y2="36" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
+            <polygon points="32,26 34,31 39,32 34,33 32,38 30,33 25,32 30,31" fill="#fef08a" />
+            {/* 자유의 스파클 */}
+            <circle cx="20" cy="15" r="1.5" fill="#64ffda" />
+            <circle cx="44" cy="17" r="1.8" fill="#38bdf8" />
+            <circle cx="48" cy="48" r="1.5" fill="#fde047" />
+            <circle cx="16" cy="46" r="1.5" fill="#64ffda" />
+          </g>
+        )}
       </svg>
     </IconFrame>
   );

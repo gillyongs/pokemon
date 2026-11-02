@@ -1,61 +1,88 @@
-import React from "react";
+import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { getAugmentDesc } from "../../entity/Augment/AugmentData";
 
-const AugmentStatusModal = ({ battle, onClose }) => {
-  if (!battle) return null;
+const AugmentStatusModal = ({ battle, team = [], onClose }) => {
+  const resolvedTeam =
+    team && team.length > 0
+      ? team
+      : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
 
-  const team = [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean);
+  const [activePokemon, setActivePokemon] = useState(resolvedTeam[0] || null);
+
+  if (!resolvedTeam || resolvedTeam.length === 0) return null;
+
+  const currentAugments = activePokemon?.augments || [];
 
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <HeaderArea>
-          <Title>보유 증강 현황</Title>
-          <CloseIcon onClick={onClose}>✕</CloseIcon>
+          <HeaderTopRow>
+            <Title>증강 현황</Title>
+            <CloseButton onClick={onClose} title="닫기">
+              ✕
+            </CloseButton>
+          </HeaderTopRow>
         </HeaderArea>
 
-        <TeamList>
-          {team.map((pokemon, idx) => {
-            const augments = pokemon.augments || [];
-            return (
-              <PokemonCard key={pokemon.id || idx}>
-                <PokemonHeader>
-                  <PokemonName>{pokemon.names || pokemon.name}</PokemonName>
-                  <AugmentCountBadge>
-                    증강 {augments.length} / 3
-                  </AugmentCountBadge>
-                </PokemonHeader>
+        {resolvedTeam.length > 0 && (
+          <EntryContainer>
+            {resolvedTeam.map((poke, idx) => {
+              const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
+              const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
+              const count = (poke.augments || []).length;
+              return (
+                <EntryCard
+                  key={poke.originalIndex ?? poke.id ?? idx}
+                  $isSelected={isSelected}
+                  onClick={() => setActivePokemon(poke)}
+                  title={`${poke.name} (보유 증강 ${count}/3)`}
+                >
+                  <EntryPokemonImg
+                    src={`/pokemon/img/pokemon/${pokeId}.webp`}
+                    alt={poke.name}
+                    onError={(e) => {
+                      e.currentTarget.src = "/pokemon/img/pokemon/0000.webp";
+                    }}
+                  />
+                  <EntryPokemonName>{poke.name}</EntryPokemonName>
+                  <EntryCountBadge $hasAugment={count > 0}>{count}/3</EntryCountBadge>
+                </EntryCard>
+              );
+            })}
+          </EntryContainer>
+        )}
 
-                {augments.length === 0 ? (
-                  <EmptyText>보유 중인 증강이 없습니다.</EmptyText>
-                ) : (
-                  <AugmentList>
-                    {augments.map((aug, aIdx) => (
-                      <AugmentItem key={aug.id || aIdx}>
-                        <IconWrapper>
-                          <AugmentIcon id={aug.id} size={30} />
-                        </IconWrapper>
-                        <AugmentInfo>
-                          <AugmentTopRow>
-                            <AugmentName>{aug.name}</AugmentName>
-                            {aug.cost !== "-" && aug.cost !== undefined && (
-                              <CostBadge>값 {aug.cost ?? 1} pt</CostBadge>
-                            )}
-                          </AugmentTopRow>
-                          <AugmentDesc>{getAugmentDesc(aug, pokemon)}</AugmentDesc>
-                        </AugmentInfo>
-                      </AugmentItem>
-                    ))}
-                  </AugmentList>
-                )}
-              </PokemonCard>
-            );
-          })}
-        </TeamList>
+        <CardContainer>
+          {currentAugments.length === 0 ? (
+            <EmptyChoiceText>보유 중인 증강이 없습니다.</EmptyChoiceText>
+          ) : (
+            currentAugments.map((aug, index) => (
+              <AugmentCard key={aug.id || index}>
+                <IconCol>
+                  <IconWrapper>
+                    <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} />
+                  </IconWrapper>
+                  {aug.cost !== "-" && aug.cost !== undefined && (
+                    <CostBadge>{aug.cost ?? 1} cost</CostBadge>
+                  )}
+                </IconCol>
+                <CardContent>
+                  <CardTitle>{aug.name}</CardTitle>
+                  <CardDescription>{getAugmentDesc(aug, activePokemon)}</CardDescription>
+                </CardContent>
+              </AugmentCard>
+            ))
+          )}
+        </CardContainer>
 
-        <CloseButton onClick={onClose}>닫기</CloseButton>
+        <ButtonGroup>
+          <CloseActionButton type="button" onClick={onClose}>
+            닫기
+          </CloseActionButton>
+        </ButtonGroup>
       </ModalContainer>
     </ModalOverlay>
   );
@@ -80,63 +107,80 @@ const ModalOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10000;
+  z-index: 10010;
   animation: ${fadeIn} 0.2s ease-out;
   padding: 16px;
   box-sizing: border-box;
+  cursor: pointer;
 `;
 
 const ModalContainer = styled.div`
   background: rgba(15, 20, 28, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
-  padding: 20px 22px;
-  width: 90vw;
-  max-width: 440px;
-  max-height: 80vh;
+  padding: 18px 16px;
+  width: 100%;
+  max-width: 430px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-  box-sizing: border-box;
-  color: #fff;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+  position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+  cursor: default;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #64ffda, #38bdf8, #64ffda);
+  }
 `;
 
 const HeaderArea = styled.div`
+  width: 100%;
+  margin-bottom: 12px;
+`;
+
+const HeaderTopRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
 `;
 
-const Title = styled.h3`
+const Title = styled.h2`
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #64ffda;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
   letter-spacing: 0.5px;
 `;
 
-const CloseIcon = styled.div`
-  font-size: 1rem;
-  cursor: pointer;
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const CloseButton = styled.div`
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 
   &:hover {
     color: #fff;
@@ -145,13 +189,80 @@ const CloseIcon = styled.div`
   }
 `;
 
-const TeamList = styled.div`
-  overflow-y: auto;
+const EntryContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+`;
+
+const EntryCard = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-right: 4px;
-  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: ${(props) =>
+    props.$isSelected ? "rgba(20, 48, 64, 0.95)" : "rgba(255, 255, 255, 0.05)"};
+  border: ${(props) =>
+    props.$isSelected ? "2px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.12)"};
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: ${(props) => (props.$isSelected ? "0 0 10px rgba(100, 255, 218, 0.35)" : "none")};
+  user-select: none;
+  min-width: 0;
+
+  &:hover {
+    ${(props) =>
+      !props.$isSelected &&
+      `
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(100, 255, 218, 0.4);
+    `}
+  }
+`;
+
+const EntryPokemonImg = styled.img`
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+`;
+
+const EntryPokemonName = styled.span`
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  text-align: center;
+`;
+
+const EntryCountBadge = styled.span`
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: ${(props) => (props.$hasAugment ? "#64ffda" : "#94a3b8")};
+  background: ${(props) =>
+    props.$hasAugment ? "rgba(100, 255, 218, 0.12)" : "rgba(255, 255, 255, 0.06)"};
+  padding: 1px 5px;
+  border-radius: 4px;
+  line-height: 1.2;
+`;
+
+const CardContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  min-height: 120px;
+  max-height: 50vh;
+  overflow-y: auto;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -162,117 +273,116 @@ const TeamList = styled.div`
   }
 `;
 
-const PokemonCard = styled.div`
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 10px 12px;
-`;
-
-const PokemonHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-`;
-
-const PokemonName = styled.span`
-  font-size: 0.95rem;
-  font-weight: bold;
-  color: #f1f5f9;
-`;
-
-const AugmentCountBadge = styled.span`
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background: rgba(100, 255, 218, 0.12);
-  color: #64ffda;
-  border: 1px solid rgba(100, 255, 218, 0.25);
-  font-weight: bold;
-`;
-
-const EmptyText = styled.div`
-  font-size: 0.8rem;
+const EmptyChoiceText = styled.div`
+  font-size: 0.85rem;
   color: #94a3b8;
+  padding: 32px 0;
   text-align: center;
-  padding: 8px 0;
+  width: 100%;
 `;
 
-const AugmentList = styled.div`
+const IconCol = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
-`;
-
-const AugmentItem = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  border-left: 3px solid #64ffda;
-  border-radius: 6px;
-  padding: 8px 10px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14px;
+  flex-shrink: 0;
+  gap: 4px;
 `;
 
 const IconWrapper = styled.div`
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 `;
 
-const AugmentInfo = styled.div`
-  flex: 1;
+const AugmentCard = styled.div`
+  width: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #64ffda;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(100, 255, 218, 0.5);
+    background: rgba(20, 30, 44, 0.75);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+`;
+
+const CardContent = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
 `;
 
-const AugmentTopRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2px;
-`;
-
-const AugmentName = styled.span`
-  font-size: 0.85rem;
-  font-weight: bold;
+const CardTitle = styled.h3`
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: #ffffff;
+  word-break: keep-all;
+  line-height: 1.3;
 `;
 
 const CostBadge = styled.span`
-  font-size: 0.7rem;
-  font-weight: bold;
-  padding: 1px 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 1px 5px;
   border-radius: 4px;
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(100, 255, 218, 0.08);
+  color: #64ffda;
+  border: 1px solid rgba(100, 255, 218, 0.25);
+  white-space: nowrap;
 `;
 
-const AugmentDesc = styled.span`
-  font-size: 0.75rem;
+const CardDescription = styled.p`
+  margin: 0;
+  font-size: 0.8rem;
   color: #cbd5e1;
-  line-height: 1.35;
+  line-height: 1.4;
   word-break: keep-all;
 `;
 
-const CloseButton = styled.button`
+const ButtonGroup = styled.div`
+  display: flex;
   width: 100%;
   margin-top: 14px;
+  box-sizing: border-box;
+`;
+
+const CloseActionButton = styled.button`
+  width: 100%;
   padding: 10px 0;
-  font-size: 1rem;
-  font-weight: bold;
-  border: 1px solid rgba(100, 255, 218, 0.5);
   border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  user-select: none;
+  background: linear-gradient(135deg, #0d9488, #0284c7);
+  border: 1px solid #64ffda;
+  color: #ffffff;
   cursor: pointer;
-  background: rgba(100, 255, 218, 0.1);
-  color: #64ffda;
-  transition: all 0.25s ease;
+  box-shadow: 0 0 12px rgba(100, 255, 218, 0.35);
 
   &:hover {
-    background: rgba(100, 255, 218, 0.25);
-    box-shadow: 0 4px 14px rgba(100, 255, 218, 0.2);
+    background: linear-gradient(135deg, #14b8a6, #0284c7);
+    box-shadow: 0 0 16px rgba(100, 255, 218, 0.55);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(1px);
   }
 `;

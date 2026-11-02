@@ -1,12 +1,14 @@
 import { generate } from "../../entity/Pokemon/PokemonInstance";
 import { createBattle } from "../../entity/Battle";
 import { AUGMENT_LIST, getAugmentDesc, isEligibleForDanceGarchomp } from "../../entity/Augment/AugmentData";
-import { rollAugments, grantRandomAugment } from "../../util/augmentRoll";
+import { rollAugments, grantRandomAugment, rollTeamAugments } from "../../util/augmentRoll";
 import { getAccuracy } from "../../function/accuracyCalculate";
 import { damageCalculate } from "../../util/damageCalculate";
 import { afterSkillCheck } from "../../service/skillCheck";
 import * as randomCheckModule from "../../util/randomCheck";
 import { cloneWithMethods } from "../../util/cloneWithMethods";
+import { turnEnd } from "../../service/turnEnd";
+import { skillUse } from "../../service/skillUse";
 
 describe("아수라장 증강 시스템 테스트", () => {
   test("증강 3개 추첨 확인", () => {
@@ -285,5 +287,103 @@ describe("아수라장 증강 시스템 테스트", () => {
     // 4) 이미 용의춤을 배운 한카리아스에게는 다시 등장하지 않음
     expect(isEligibleForDanceGarchomp(garchomp)).toBe(false);
     expect(rollAugments(garchomp, 3).some((a) => a.id === "danceOfGarchomp")).toBe(false);
+  });
+  test("rollTeamAugments: 포켓몬별 증강 목록이 서로 다르게 추첨됨", () => {
+    const p1 = generate("가이오가");
+    const p2 = generate("에이스번");
+    const p3 = generate("다투곰");
+    const team = [p1, p2, p3];
+
+    const teamChoices = rollTeamAugments(team);
+    const k1 = p1.originalIndex ?? p1.id ?? 0;
+    const k2 = p2.originalIndex ?? p2.id ?? 1;
+    const k3 = p3.originalIndex ?? p3.id ?? 2;
+
+    expect(teamChoices[k1].length).toBe(3);
+    expect(teamChoices[k2].length).toBe(3);
+    expect(teamChoices[k3].length).toBe(3);
+
+    // 포켓몬 1과 포켓몬 2의 3개 목록이 완전히 같지 않음 (서로 다름)
+    const ids1 = teamChoices[k1].map((a) => a.id);
+    const ids2 = teamChoices[k2].map((a) => a.id);
+    const ids3 = teamChoices[k3].map((a) => a.id);
+
+    expect(ids1.sort().join(",")).not.toBe(ids2.sort().join(","));
+    expect(ids2.sort().join(",")).not.toBe(ids3.sort().join(","));
+  });
+  test("적 처치 증강은 한 라운드에 최대 1회만 발생", () => {
+    const battle = createBattle(["배바닐라", "배바닐라", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"], { mayhemMode: true });
+    const queue = [];
+    const enqueue = (item) => queue.push(item);
+
+    // 1번째 적 쓰러짐
+    battle.turn.npcFaintedCount = 1;
+    turnEnd(battle, enqueue);
+
+    expect(battle.hasKnockoutAugmentThisRound).toBe(true);
+    const augmentItems1 = queue.filter((q) => q.isAugment);
+    expect(augmentItems1.length).toBe(1);
+
+    // 2번째 적 쓰러짐 (같은 라운드)
+    battle.turn.npcFaintedCount = 1;
+    turnEnd(battle, enqueue);
+
+    // 2번째 적이 쓰러져도 추가 증강은 큐에 등록되지 않음
+    const augmentItems2 = queue.filter((q) => q.isAugment);
+    expect(augmentItems2.length).toBe(1);
+  });
+  test("구애받지않는(unboundChoice): 구애류 도구 소유 조건, 코스트 2 및 스킬 잠금 면제 검증", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "unboundChoice");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("구애받지않는");
+    expect(aug.cost).toBe(2);
+
+    // 1) 조건 검증: 구애 시리즈 도구 소유 여부
+    const scarfPoke = generate("가이오가"); // 기본 도구 구애스카프
+    expect(scarfPoke.item).toBe("구애스카프");
+    expect(aug.isEligible(scarfPoke)).toBe(true);
+
+    const bandPoke = generate("망나뇽");
+    bandPoke.item = "구애머리띠";
+    expect(aug.isEligible(bandPoke)).toBe(true);
+
+    const nonChoicePoke = generate("배바닐라");
+    expect(aug.isEligible(nonChoicePoke)).toBe(false);
+
+    // 2) 효과 검증: 구애스카프 착용 시 증강이 없으면 onlySkill 잠금, 증강 적용 시 잠금 해제/면제
+    const battle = createBattle(["가이오가", "배바닐라", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    battle.turn.atkSN = 1;
+    battle.turn.atk = "player";
+    battle.turn.def = "npc";
+    battle.player.turn.useSkill = battle.player.origin.skill[1];
+
+    // 증강 없이 스킬 사용 -> onlySkill 고정됨
+    skillUse(battle, () => {});
+    expect(battle.player.tempStatus.onlySkill).toBe(battle.player.origin.skill[1].name);
+
+    // 증강 적용 -> onlySkill 잠금 해제됨
+    scarfPoke.tempStatus = { onlySkill: "해수스파우팅" };
+    expect(scarfPoke.applyAugment(aug)).toBe(true);
+    expect(scarfPoke.tempStatus.onlySkill).toBeNull();
+
+    // 증강 적용 후 스킬 사용 -> onlySkill 고정되지 않음
+    battle.player.applyAugment(aug);
+    battle.player.tempStatus.onlySkill = null;
+    skillUse(battle, () => {});
+    expect(battle.player.tempStatus.onlySkill).toBeNull();
+
+    // 3) 특성 무아지경은 구애받지않는 증강이 있어도 무아지경으로 인해 잠금 유지
+    const dBattle = createBattle(["불비달마", "배바닐라", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    dBattle.player.abil = "무아지경";
+    dBattle.player.item = "구애스카프";
+    dBattle.player.applyAugment(aug);
+    dBattle.turn.atkSN = 1;
+    dBattle.turn.atk = "player";
+    dBattle.turn.def = "npc";
+    dBattle.player.turn.useSkill = dBattle.player.origin.skill[1];
+
+    skillUse(dBattle, () => {});
+    // 무아지경 효과로 인해 onlySkill은 여전히 고정되어야 함
+    expect(dBattle.player.tempStatus.onlySkill).toBe(dBattle.player.origin.skill[1].name);
   });
 });

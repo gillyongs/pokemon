@@ -51,3 +51,60 @@ export function grantRandomAugment(battle, preferredPokemon = null) {
 
   return { target, augment: aug };
 }
+
+/**
+ * 팀 내 포켓몬별로 서로 다른 3개의 증강을 추첨합니다.
+ * 포켓몬마다 중복되지 않는 증강을 우선 배분하여 포켓몬 간 목록이 서로 다르게 구성됩니다.
+ * @param {Array} team
+ * @returns {Object} { [pokeKey]: augment[] }
+ */
+export function rollTeamAugments(team) {
+  if (!Array.isArray(team)) return {};
+  const choicesMap = {};
+  const globalPickedIds = new Set();
+
+  team.forEach((poke, idx) => {
+    if (!poke) return;
+    const key = poke.originalIndex ?? poke.id ?? idx;
+    const currentCount = Array.isArray(poke.augments) ? poke.augments.length : 0;
+    if (currentCount >= 3) {
+      choicesMap[key] = [];
+      return;
+    }
+
+    const available = AUGMENT_LIST.filter((aug) => {
+      if (poke.hasAugment?.(aug.id)) return false;
+      if (typeof aug.isEligible === "function" && !aug.isEligible(poke)) return false;
+      return true;
+    });
+
+    const unused = available.filter((a) => !globalPickedIds.has(a.id));
+    const already = available.filter((a) => globalPickedIds.has(a.id));
+
+    const shuffle = (arr) => {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+
+    const shuffledUnused = shuffle(unused);
+    const shuffledAlready = shuffle(already);
+
+    const chosen = [];
+    while (chosen.length < 3 && shuffledUnused.length > 0) {
+      const pick = shuffledUnused.pop();
+      chosen.push(pick);
+      globalPickedIds.add(pick.id);
+    }
+    while (chosen.length < 3 && shuffledAlready.length > 0) {
+      chosen.push(shuffledAlready.pop());
+    }
+
+    choicesMap[key] = chosen;
+  });
+
+  return choicesMap;
+}
