@@ -148,6 +148,7 @@ class PokemonInstance {
       glaiveRush: null, // 대검돌격 디메리트
       hitCount: 0, // 피격 횟수 (분노의주먹 위력계산) * 교체하면 초기화되게 너프됐음
       firstTurn: true, // 배틀 등장 첫 턴 여부 (속이기, 만나자마자 성공 판정)
+      turnsOnField: 0, // 필드에 나온 턴 수 (슬로스타트)
     };
     this.faint = null; //기절 여부
     this.auto = null; //자동 행동 여부 (역린)
@@ -177,15 +178,20 @@ class PokemonInstance {
       this.augments = [];
     }
     const augId = typeof augment === "string" ? augment : augment.id;
-    if (this.augments.length >= 3) return false;
-    if (this.hasAugment(augId)) return false;
-
     const augObj = typeof augment === "object" ? { ...augment } : { id: augment };
+    const isInstant = augObj.cost === "-" || augId === "legendaryTitan" || augId === "rouletteWheel";
 
-    if (Array.isArray(this.augments) && Object.isExtensible(this.augments)) {
-      this.augments.push(augObj);
-    } else {
-      this.augments = [...(this.augments || []), augObj];
+    const maxLimit = 3;
+    if (this.augments.length >= maxLimit) return false;
+    if (!isInstant && this.hasAugment(augId)) return false;
+
+    // 코스트 '-'인 즉발형 증강은 누적되지 않음
+    if (!isInstant) {
+      if (Array.isArray(this.augments) && Object.isExtensible(this.augments)) {
+        this.augments.push(augObj);
+      } else {
+        this.augments = [...(this.augments || []), augObj];
+      }
     }
 
     if (typeof augObj === "object" && augObj.onApply) {

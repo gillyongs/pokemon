@@ -1,5 +1,9 @@
 import { getStatName } from "../../../function/rankStat.js";
+import { changePokemonAbility } from "../../Ability.js";
 export const PokemonAbil = {
+  changeAbility(abilityName, fallbackText) {
+    return changePokemonAbility(this, abilityName, fallbackText);
+  },
   // 고대활성 발동
   handleProtosynthesis(battle, enqueue) {
     // 특성이 고대활성이 아니거나 이미 고대활성이 적용된 경우 발동하지 않음

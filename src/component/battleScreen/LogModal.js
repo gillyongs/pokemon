@@ -243,9 +243,7 @@ export default function LogModal({ log, onClose }) {
                     <AugmentBody>
                       <AugmentIconCol>
                         {augment.id && <AugmentIcon id={augment.id} size={36} />}
-                        {augment.cost !== undefined && augment.cost !== "-" && (
-                          <AugmentCost>{augment.cost ?? 1} cost</AugmentCost>
-                        )}
+                        {augment.cost !== undefined && augment.cost !== "-" && <AugmentCost>{augment.cost ?? 1} cost</AugmentCost>}
                       </AugmentIconCol>
                       <AugmentInfo>
                         <AugmentTitleRow>

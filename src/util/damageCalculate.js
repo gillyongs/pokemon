@@ -4,6 +4,7 @@ import { noNullItem } from "../entity/Item";
 import { isAilmentCheck } from "../function/ailment";
 import { speedCheck, speedCalculate } from "./speedCheck";
 import { getWeatherBallType } from "./weatherBall";
+import { consoleLog } from "./consoleLog";
 
 export const getAugmentedStat = (pokemon, statKey) => {
   const baseStatObj = pokemon?.origin?.stat || pokemon?.stat;
@@ -283,6 +284,14 @@ export const damageCalculate = (battle, obj, ai) => {
     if (atkAbil === "천하장사") {
       atkStat *= 2;
       atkStr += " * 2 (천하장사)";
+    }
+    if (atkAbil === "패스트스타트" && (attackPokemon.tempStatus?.turnsOnField ?? 0) >= 5) {
+      atkStat *= 2;
+      atkStr += " * 2 (패스트스타트)";
+    }
+    if (atkAbil === "슬로스타트" && (attackPokemon.tempStatus?.turnsOnField ?? 0) < 5) {
+      atkStat *= 0.5;
+      atkStr += " * 0.5 (슬로스타트)";
     }
     if (atkAbil === "무아지경") {
       atkStat *= 1.5;
@@ -743,13 +752,13 @@ export const damageCalculate = (battle, obj, ai) => {
     let text = attackPokemon.name + "의 공격";
     if (obj) text += ` (${obj.serial + 1}타)`;
 
-    console.log(text);
+    consoleLog(text);
     if (getAugmentedStat(attackPokemon, attackStat) !== attackPokemon.origin.stat[attackStat]) {
-      console.log(attackPokemon.log.getAugmentedStat);
+      consoleLog(attackPokemon.log.getAugmentedStat);
     }
 
-    console.log(attackPokemon.log.damage1);
-    console.log(attackPokemon.log.damage2);
+    consoleLog(attackPokemon.log.damage1);
+    consoleLog(attackPokemon.log.damage2);
   }
 
   return finalDamage;
@@ -865,6 +874,13 @@ const powerCalculate = (battle, skill, obj, ai) => {
   if (skill.feature?.hpScale) {
     // 체력비례 데미지
     power = (power * atk.hp) / atk.origin.hp;
+  }
+  if (skill.name === "묵사발") {
+    // 상대의 남은 HP 비례 (최대 120, 최소 1)
+    const defPoke = battle[battle.turn.def];
+    const curHp = defPoke?.hp ?? 1;
+    const maxHp = defPoke?.origin?.hp || curHp;
+    power = Math.max(1, Math.floor(120 * (curHp / maxHp)));
   }
   if (skill.name === "객기" && (atk.ailment.burn || atk.ailment.mabi || atk.ailment.poison || atk.ailment.mpoison)) {
     //화상, 독, 마비일때 위력 2배

@@ -4,6 +4,7 @@ import { typeCheck } from "../../util/typeEffectCalculate";
 import { cloneWithMethods } from "../../util/cloneWithMethods";
 import { getAccuracy } from "../../function/accuracyCalculate";
 import { calculateSkillScore } from "./calculateSkillScore";
+import { consoleLog } from "../../util/consoleLog";
 
 export function npcAiEasy(choices, battle) {
   // 상대 HP
@@ -27,8 +28,8 @@ export function npcAiEasy(choices, battle) {
       skObj[c] = createPkObj(base, 2, hp);
     }
   });
-  console.log("AI 가중치 계산");
-  console.log(skObj);
+  consoleLog("AI 가중치 계산");
+  consoleLog(skObj);
 
   // 상대를 쓰러뜨릴 수 있는 기술이 있으면 이를 사용한다
   let result;

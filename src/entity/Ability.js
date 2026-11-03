@@ -1,3 +1,5 @@
+import { josa } from "josa";
+
 export const abilObject = {
   복안: { text: "기술의 명중률이 1.3배 올라간다." },
   리베로: { text: "자신이 사용한 기술과 같은 타입으로 변화한다." },
@@ -182,12 +184,38 @@ export const abilObject = {
     text: "상대를 긴장시켜 나무열매를 먹지 못하게 한다. 상대를 쓰러뜨리면 공격이 올라간다.",
     feature: { swip: "atk" },
   },
+  슬로스타트: { text: "전투에 나오고 5턴 동안 공격과 스피드가 절반이 된다." },
+  패스트스타트: { text: "전투에 나오고 5턴 뒤 공격과 스피드가 2배가 된다." },
   스카이스킨: { text: "노말타입 기술이 비행타입이 되고 위력이 1.2배가 된다.", feature: { skin: true, type: "비행" } },
 };
 
 // 트레이스로 베낄 수 없는 특성
 // 테라볼티지, 터보블레이즈, 재앙시리즈, 불가사의부적 가능
-const noTraceAbil = ["트레이스", "혼연일체(흑)", "혼연일체(백)", "탈", "배틀스위치", "고대활성", "쿼크차지", "테라체인지", "테라셀", "제로포밍", "어군", "절대안깸", "플라워기프트", "화학의힘", "일루전", "유대변화", "스웜체인지", "리시버", "리밋실드", "달마모드", "기분파", "괴짜", "AR시스템", "그대로꿀꺽미사일", "아이스페이스", "일루전"];
+export const noTraceAbil = ["트레이스", "혼연일체(흑)", "혼연일체(백)", "탈", "배틀스위치", "고대활성", "쿼크차지", "테라체인지", "테라셀", "제로포밍", "어군", "절대안깸", "플라워기프트", "화학의힘", "일루전", "유대변화", "스웜체인지", "리시버", "리밋실드", "달마모드", "기분파", "괴짜", "AR시스템", "그대로꿀꺽미사일", "아이스페이스", "일루전"];
+
+// 랜덤 특성 증강에서 제외할 특성 목록 (noTraceAbil + 패스트스타트)
+export const noRandomAbil = [...noTraceAbil, "패스트스타트"];
+
+// 포켓몬 특성 변경 공통 함수
+export const changePokemonAbility = (pokemon, abilityName, fallbackText = "") => {
+  if (!pokemon || !abilityName) return null;
+  pokemon.abil = abilityName;
+  if (pokemon.origin) {
+    pokemon.origin.abil = abilityName;
+  }
+  const baseObj = abilObject[abilityName]
+    ? { ...abilObject[abilityName] }
+    : { text: fallbackText || "설명이 없습니다." };
+  baseObj.name = abilityName;
+  pokemon.abilObj = baseObj;
+  if (pokemon.origin) {
+    pokemon.origin.abilObj = baseObj;
+  }
+  return baseObj;
+};
+
+export const changeAbility = changePokemonAbility;
+export const setPokemonAbility = changePokemonAbility;
 
 // 특성 발동
 // 첫대면(battleScreen.js), 교체(switch.js), 메가진화 후(pokemonMage.js) 발동
@@ -348,7 +376,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
       enqueue({
         id: "9ef304eb-b117-4c2d-984d-6d4af03ab4aa",
         battle: bt,
-        text: `[특성 트레이스] ${atk.names} ${def.name}의 ${def.abil}를 트레이스했다!`,
+        text: `[특성 트레이스] ${atk.names} ${josa(`${def.name}의 ${def.abil}#{을}`)} 트레이스했다!`,
       });
       applyAbilityEffects(bt, atks, enqueue, true);
     }
@@ -365,7 +393,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
       enqueue({
         id: "4a7114ef-c9eb-474b-9fda-fd9c847a35b5",
         battle: bt,
-        text: `[특성 트레이스] ${def.names} ${atk.name}의 ${atk.abil}를 트레이스했다!`,
+        text: `[특성 트레이스] ${def.names} ${josa(`${atk.name}의 ${atk.abil}#{을}`)} 트레이스했다!`,
       });
       applyAbilityEffects(bt, defs, enqueue, true);
     }

@@ -53,6 +53,23 @@ export const turnEnd = (battle, enqueue) => {
   applySunfireAegis(battle, enqueue, fastUser);
   applySunfireAegis(battle, enqueue, slowUser);
 
+  [battle[fastUser], battle[slowUser]].forEach((p) => {
+    if (!p || p.hp <= 0 || p.faint) return;
+    p.tempStatus.turnsOnField = (p.tempStatus.turnsOnField || 0) + 1;
+    if (p.abil === "패스트스타트" && p.tempStatus.turnsOnField === 5) {
+      enqueue({
+        battle,
+        text: `[특성: 패스트스타트] ${p.names} 더 강한 힘을 낼 수 있게 되었다!`,
+      });
+    }
+    if (p.abil === "슬로스타트" && p.tempStatus.turnsOnField === 5) {
+      enqueue({
+        battle,
+        text: `[특성: 슬로스타트] ${p.names} 마침내 제 힘을 낼 수 있게 되었다!`,
+      });
+    }
+  });
+
   let tempPlayer = battle.player.turn;
   let tempNpc = battle.npc.turn;
 

@@ -374,6 +374,9 @@ new PokemonTemplate("브리두라스", "1018", "5V0A", "HC252", "catk", "atk",
   // ID로 객체 찾기
   getDataById(id) {
     const searchId = typeof id === "object" && id ? id.id : id;
+    if (searchId === "레지기가스" || searchId === "0486") {
+      return regigigasSample;
+    }
     const exact = this.items.find((item) => item.id === searchId);
     if (exact) return exact;
     return (
@@ -393,6 +396,8 @@ new PokemonTemplate("브리두라스", "1018", "5V0A", "HC252", "catk", "atk",
     return this.getDataById(id);
   }
 }
+
+export const regigigasSample = new PokemonTemplate("레지기가스", "0486", "6V", "HA252", "atk", "catk", "묵사발", "화풀이", "드레인펀치", "냉동펀치", "돌격조끼", "슬로스타트", "물리딜탱");
 
 // 싱글턴 객체 생성 (전역에서 사용 가능)
 const sampleList = new SamplePokemonList();

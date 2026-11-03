@@ -71,7 +71,7 @@ export const skillUse = (bt, enqueue) => {
         enqueue({ id: "2eadbf55-e934-439a-bb56-133d4f6d4022", battle: bt, text: skillUseText }); // 스킬 텍스트 2번 뜨는게 맞음
       } else if (atk.item === "파워풀허브") {
         atk.item = null;
-        enqueue({ id: "5584b7a1-3115-45f1-8b80-9597bed46fd3", battle: bt, text: atk.name + "은 파워풀허브로 힘이 넘쳐흐른다!" });
+        enqueue({ id: "5584b7a1-3115-45f1-8b80-9597bed46fd3", battle: bt, text: `${atk.names} 파워풀허브로 힘이 넘쳐흐른다!` });
         enqueue({ id: "b3212fe0-7e8a-4302-8dfe-a239852d0f6f", battle: bt, text: skillUseText }); // 스킬 텍스트 2번 뜨는게 맞음
       } else {
         atk.charge = true;

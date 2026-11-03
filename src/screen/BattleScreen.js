@@ -5,13 +5,15 @@ import { useRecoilValue } from "recoil";
 import { createBattle } from "../entity/Battle";
 import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../util/recoilState";
-import { testmode, setSelectedNpcAct } from "../config/testMode";
+import { testmode, setSelectedNpcAct, subscribeTestMode } from "../config/testMode";
 import TradeInfoModal from "../component/battleScreen/TradeInfoModal";
 import AugmentModal from "../component/battleScreen/augment/AugmentModal";
 import AugmentStatusModal from "../component/battleScreen/augment/AugmentStatusModal";
 import AugmentCarryoverModal from "../component/battleScreen/augment/AugmentCarryoverModal";
-import { rollAugments, grantRandomAugment } from "../util/augmentRoll";
-import { AUGMENT_LIST } from "../entity/Augment/AugmentData";
+import DebugLogModal from "../component/battleScreen/DebugLogModal";
+import { consoleLog } from "../util/consoleLog";
+import { rollAugments } from "../util/augmentRoll";
+import { AUGMENT_LIST, getAugmentText } from "../entity/Augment/AugmentData";
 import { generate } from "../entity/Pokemon/PokemonInstance";
 import { useQueue } from "../util/useQueue";
 
@@ -42,7 +44,10 @@ const Battle = () => {
   const [tradeInfoPokemon, setTradeInfoPokemon] = useState(null);
   const [tradeAlertMessage, setTradeAlertMessage] = useState(null);
   const [isRoundOptionsOpen, setIsRoundOptionsOpen] = useState(false);
+  const [isDebugModalOpen, setIsDebugModalOpen] = useState(false);
   const [augmentModalOpen, setAugmentModalOpen] = useState(false);
+  const [isTitanSelection, setIsTitanSelection] = useState(false);
+  const [isTitanPendingStart, setIsTitanPendingStart] = useState(false);
   const [augmentChoices, setAugmentChoices] = useState([]);
   const [augmentTargetPoke, setAugmentTargetPoke] = useState(null);
   const [isInitialBattleStart, setIsInitialBattleStart] = useState(false);
@@ -67,6 +72,13 @@ const Battle = () => {
   };
 
   const [gameResult, setGameResult] = useState(null); // "win" | "lose" | null
+  const [isTestMode, setIsTestMode] = useState(() => Boolean(testmode));
+
+  useEffect(() => {
+    return subscribeTestMode(({ testmode: tm }) => {
+      setIsTestMode(Boolean(tm));
+    });
+  }, []);
 
   const handleRestart = () => {
     setGameResult(null);
@@ -133,9 +145,18 @@ const Battle = () => {
     const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round, fromCustom, mayhemMode = gameOption.mayhemMode } = location.state || {};
 
     const curPlayerTeam = [battleObj.current?.player, battleObj.current?.playerBench1, battleObj.current?.playerBench2].filter(Boolean).sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
-    const curTeamIds = curPlayerTeam.map((p) => p.id);
 
-    let nextTeam1 = customTeam1 ? customTeam1 : teamOption === "랜덤" ? getRandomTeam(3) : curTeamIds.length === 3 ? curTeamIds : [...team1];
+    let nextTeam1 = customTeam1
+      ? customTeam1
+      : teamOption === "랜덤"
+      ? getRandomTeam(3)
+      : curPlayerTeam.map((p, idx) => {
+          const originalCustom = Array.isArray(team1) ? team1[p.originalIndex ?? idx] : null;
+          if (originalCustom && typeof originalCustom === "object" && originalCustom.id === p.id) {
+            return originalCustom;
+          }
+          return p.id;
+        });
 
     const nextTeam2 = getRandomTeam(3);
 
@@ -153,6 +174,7 @@ const Battle = () => {
             swordFailed: aug.swordFailed,
             swordBonusAtk: aug.swordBonusAtk,
             swordName: aug.swordName,
+            pickedAbility: aug.pickedAbility,
           }));
           return acc;
         }, {})
@@ -242,6 +264,30 @@ const Battle = () => {
     }
   };
 
+  const handleTestSkipNpc = (e) => {
+    e.stopPropagation();
+    const curBattle = battleObj.current;
+    if (!curBattle) return;
+
+    ["npc", "npcBench1", "npcBench2"].forEach((key) => {
+      if (curBattle[key]) {
+        curBattle[key].hp = 0;
+        curBattle[key].faint = true;
+        if (curBattle[key].origin) {
+          curBattle[key].origin.hp = 0;
+          curBattle[key].origin.faint = true;
+        }
+      }
+    });
+
+    const updated = cloneWithMethods(curBattle);
+    battleObj.current = updated;
+    setBattle(updated);
+
+    queueObject.resetQueue();
+    setGameResult("win");
+  };
+
   const handleSelectAugment = (selectedAugment, options = null) => {
     setAugmentModalOpen(false);
     const curBattle = battleObj.current;
@@ -250,65 +296,80 @@ const Battle = () => {
     const teamPokes = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2].filter(Boolean);
     const targetCandidate = options?.targetPokemon || augmentTargetPoke;
     const target = (targetCandidate && teamPokes.find((p) => p && (p.originalIndex === targetCandidate.originalIndex || p.id === targetCandidate.id || p.name === targetCandidate.name))) || curBattle.player;
+    const prevPokeName = target.name || target.origin?.name || "";
+
     target.applyAugment(selectedAugment, curBattle, options);
     setAugmentTargetPoke(target);
 
-    const typeNote = options?.selectedType ? (selectedAugment.id === "teraBlast" ? ` (${options.selectedType} 타입)` : ` (${options.selectedType} 무효)`) : "";
-    const displayAugName = selectedAugment.shortName || selectedAugment.name;
-    const gainText = `[증강] ${target.names} "${displayAugName}"${typeNote} 효과를 얻었다!`;
-
+    const gainText = getAugmentText(selectedAugment, target, true, prevPokeName, options);
     const gainLogText = gainText;
     const followUpItems = [];
 
-    if (selectedAugment.id === "rebellionOrRevolution") {
-      const revAug = target.augments?.find((a) => a.id === "rebellionOrRevolution");
-      const statName = revAug?.revolutionResult === "catk" ? "특수공격" : "공격";
-      const detailText = `${statName}이 2배가 되었다!`;
-      followUpItems.push({
-        id: "rev-stat-doubled-msg",
-        battle: curBattle,
-        text: detailText,
-        noLog: true,
-      });
-    }
+    const isTitanFirst = selectedAugment.id === "legendaryTitan";
+    const isTitanSecond = isTitanSelection;
 
-    if (selectedAugment.id === "swordEnhance") {
-      const swordAug = target.augments?.find((a) => a.id === "swordEnhance");
-      const failed = Boolean(options?.swordFailed ?? swordAug?.swordFailed);
-      const level = Number(options?.swordLevel ?? swordAug?.swordLevel ?? 0);
-      const bonus = Number(options?.swordBonusAtk ?? swordAug?.swordBonusAtk ?? (failed ? 0 : 20 + level * 20));
-      const sName = options?.swordName || swordAug?.swordName || "검";
-      const detailText = failed ? "강화에 실패하였다..." : `[+${level} ${sName}] 강화 성공! 공격과 특수공격이 ${bonus} 증가했다!`;
-      followUpItems.push({
-        id: "sword-enhance-result-msg",
-        battle: curBattle,
-        text: detailText,
-        noLog: true,
-      });
+    if (isTitanFirst) {
+      const titanChoices = [
+        AUGMENT_LIST.find((a) => a.id === "fastStarter"),
+        AUGMENT_LIST.find((a) => a.id === "hugePower"),
+        AUGMENT_LIST.find((a) => a.id === "randomAbility"),
+      ].filter(Boolean);
+      setAugmentChoices(titanChoices);
+      setAugmentTargetPoke(target);
+      setIsTitanSelection(true);
+      setTimeout(() => {
+        setAugmentModalOpen(true);
+      }, 150);
+    } else {
+      setIsTitanSelection(false);
     }
 
     const head = queueObject.queue[0];
     const isStartAugment = Boolean(head?.isBattleStartAugment);
-    if (isStartAugment) {
-      const fastUser = speedCheck(curBattle);
-      const slowUser = fastUser === "player" ? "npc" : "player";
-      applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
-      applyAbilityEffects(curBattle, slowUser, (item) => followUpItems.push(item));
+
+    if (isTitanFirst) {
+      // 전설의 거인 첫 선택 시: 특성 선택 증강까지 모두 완료된 뒤에 배틀 시작 특성이 발동되도록 보류
+      if (isStartAugment) {
+        setIsTitanPendingStart(true);
+      }
+    } else {
+      // 특성 선택(2차) 또는 일반 증강 선택 시: 모든 증강 로직이 끝났으므로 배틀 시작 특성 발동
+      const shouldTriggerStart = isStartAugment || (isTitanSecond && isTitanPendingStart);
+      if (shouldTriggerStart) {
+        const fastUser = speedCheck(curBattle);
+        const slowUser = fastUser === "player" ? "npc" : "player";
+        applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
+        applyAbilityEffects(curBattle, slowUser, (item) => followUpItems.push(item));
+        setIsTitanPendingStart(false);
+      }
     }
 
     const appliedAug = target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
+    const isReplacement = selectedAugment.id === "legendaryTitan" || selectedAugment.id === "rouletteWheel";
+    const logTargetName = isReplacement ? prevPokeName : (target.name || target.names);
+
     const augmentData = {
-      targetName: target.name || target.names,
+      targetName: logTargetName,
       augment: {
         id: appliedAug.id,
         name: appliedAug.name,
         shortName: appliedAug.shortName,
-        desc: appliedAug.desc,
+        desc: getAugmentText(selectedAugment, target, false, prevPokeName, options),
         cost: appliedAug.cost,
       },
     };
 
-    if (queueObject.queue[0]?.isAugment) {
+    if (isTitanSecond) {
+      // 전설의 거인 후속 특성 증강: 헤드(전설의 거인) 바로 뒤에 삽입되고, 그 뒤에 배틀 시작 특성(모래날림 등)이 순차적으로 배치됨
+      const secondItem = {
+        id: "titan-second-" + (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11)),
+        battle: curBattle,
+        text: gainText,
+        logText: gainLogText,
+        augmentData,
+      };
+      queueObject.insertAfterHead([secondItem, ...followUpItems]);
+    } else if (queueObject.queue[0]?.isAugment) {
       queueObject.updateHead(
         (prev) => ({
           ...prev,
@@ -337,14 +398,16 @@ const Battle = () => {
 
   const handleCloseAugment = () => {
     setAugmentModalOpen(false);
+    setIsTitanSelection(false);
     const curBattle = battleObj.current;
     if (!curBattle) return;
 
     const head = queueObject.queue[0];
-    const isStartAugment = Boolean(head?.isBattleStartAugment);
+    const shouldTriggerStart = Boolean(head?.isBattleStartAugment) || isTitanPendingStart;
+    setIsTitanPendingStart(false);
     const followUpItems = [];
 
-    if (isStartAugment) {
+    if (shouldTriggerStart) {
       const fastUser = speedCheck(curBattle);
       const slowUser = fastUser === "player" ? "npc" : "player";
       applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
@@ -413,6 +476,7 @@ const Battle = () => {
                 swordFailed: savedAug?.swordFailed,
                 swordBonusAtk: savedAug?.swordBonusAtk,
                 swordName: savedAug?.swordName,
+                pickedAbility: savedAug?.pickedAbility,
               });
             }
           });
@@ -460,7 +524,7 @@ const Battle = () => {
         return;
       }
       setText(queue[0].text);
-      console.log(queue);
+      consoleLog(queue);
       const player = queue[0].battle.player;
       const turnEnd = queue[0].battle.turn.turnEnd;
       let gameEnd = false;
@@ -479,7 +543,7 @@ const Battle = () => {
         const curB = battleObj.current;
         const target = [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && (p.augments || []).length < 3);
         if (target) {
-          const choices = rollAugments(target, 3);
+          const choices = rollAugments(target, 3, curB);
           if (choices && choices.length > 0) {
             setAugmentChoices(choices);
             setAugmentTargetPoke(target);
@@ -533,7 +597,7 @@ const Battle = () => {
   }, [queueObject.queue]);
 
   const handleDequeue = () => {
-    if (augmentModalOpen || queueObject.queue[0]?.isAugment) return;
+    if (augmentModalOpen || isTitanSelection || isDebugModalOpen || queueObject.queue[0]?.isAugment) return;
     if (queueObject.queue.length > 0) {
       if (battle.turn.textFreeze || queueObject.queue[0]?.waitInput) {
         return;
@@ -743,18 +807,6 @@ const Battle = () => {
               증강
             </AugmentStatusButton>
           )}
-          {bottom === "skill" && testmode && location.state?.fromCustom && (
-            <CustomBackButton
-              onClick={(e) => {
-                e.stopPropagation();
-                queueObject.initQueue();
-                const { team1, team2 } = location.state || {};
-                navigate("/custom", { state: { team1, team2 } });
-              }}
-            >
-              &#8592;
-            </CustomBackButton>
-          )}
         </BOTTOM>
         {gameResult && !isTradeModalOpen && (
           <ModalOverlay>
@@ -940,9 +992,39 @@ const Battle = () => {
               </ModalOverlay>
             );
           })()}
-        {augmentModalOpen && <AugmentModal team={[battleObj.current?.player, battleObj.current?.playerBench1, battleObj.current?.playerBench2].filter(Boolean)} initialTarget={augmentTargetPoke || battleObj.current?.player} augments={augmentChoices} targetPokemon={augmentTargetPoke || battleObj.current?.player} battle={battleObj.current || battle} onSelect={handleSelectAugment} onClose={handleCloseAugment} isTestMode={testmode} />}
+        {augmentModalOpen && <AugmentModal team={isTitanSelection && augmentTargetPoke ? [augmentTargetPoke] : [battleObj.current?.player, battleObj.current?.playerBench1, battleObj.current?.playerBench2].filter(Boolean)} initialTarget={augmentTargetPoke || battleObj.current?.player} augments={augmentChoices} targetPokemon={augmentTargetPoke || battleObj.current?.player} battle={battleObj.current || battle} onSelect={handleSelectAugment} onClose={handleCloseAugment} isTestMode={testmode} isTitanSelection={isTitanSelection} />}
         {isAugmentStatusOpen && <AugmentStatusModal battle={battle} initialPokemon={augmentStatusInitialPoke} onClose={() => setIsAugmentStatusOpen(false)} />}
         {isAugmentCarryModalOpen && <AugmentCarryoverModal battle={battle} round={location.state?.round || defaultOption.round} onConfirm={handleCarryoverConfirm} />}
+        {(testmode || isTestMode) && !gameResult && (
+          <BottomRightActionContainer>
+            <TestBackButton
+              onClick={(e) => {
+                e.stopPropagation();
+                queueObject.initQueue();
+                if (location.state?.fromCustom) {
+                  const { team1, team2 } = location.state || {};
+                  navigate("/custom", { state: { team1, team2 } });
+                } else {
+                  navigate(-1);
+                }
+              }}
+            >
+              뒤로가기
+            </TestBackButton>
+            <TestDebugButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDebugModalOpen(true);
+              }}
+            >
+              디버깅
+            </TestDebugButton>
+            <TestSkipButton onClick={handleTestSkipNpc}>
+              스킵
+            </TestSkipButton>
+          </BottomRightActionContainer>
+        )}
+        {isDebugModalOpen && <DebugLogModal onClose={() => setIsDebugModalOpen(false)} />}
       </BATTLE>
     </>
   );
@@ -1233,35 +1315,77 @@ const AugmentStatusButton = styled.div`
   }
 `;
 
-const CustomBackButton = styled.div`
-  position: absolute;
-  top: 49.5vh;
-  left: 16vw;
-  width: 14vw;
-  height: 6vh;
-  border-radius: 5px;
-  background: linear-gradient(135deg, rgba(20, 30, 40, 0.85), rgba(0, 0, 0, 0.7));
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
+const TestBackButton = styled.div`
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(71, 85, 105, 0.85), rgba(51, 65, 85, 0.85));
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
   font-weight: bold;
   color: #fff;
   cursor: pointer;
-  z-index: 10;
   user-select: none;
-  box-sizing: border-box;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: rgba(100, 255, 218, 0.6);
-  }
-
-  &:active {
-    transform: scale(0.97);
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.95), rgba(71, 85, 105, 0.95));
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: scale(1.05);
+    box-shadow: 0 6px 14px rgba(71, 85, 105, 0.4);
   }
 `;
 
 export default Battle;
+
+const BottomRightActionContainer = styled.div`
+  position: fixed;
+  bottom: 12px;
+  right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 100;
+`;
+
+const TestDebugButton = styled.div`
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.85), rgba(2, 132, 199, 0.85));
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.95), rgba(3, 105, 161, 0.95));
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: scale(1.05);
+    box-shadow: 0 6px 14px rgba(14, 165, 233, 0.4);
+  }
+`;
+
+const TestSkipButton = styled.div`
+  padding: 6px 16px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.85), rgba(185, 28, 28, 0.85));
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(248, 113, 113, 0.95), rgba(220, 38, 38, 0.95));
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: scale(1.05);
+    box-shadow: 0 6px 14px rgba(239, 68, 68, 0.4);
+  }
+`;

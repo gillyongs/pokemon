@@ -4,7 +4,7 @@ import { AUGMENT_LIST } from "../entity/Augment/AugmentData";
  * 포켓몬이 선택 가능한 증강을 무작위(중복 없이) 추첨합니다.
  * 포켓몬당 증강은 최대 3개까지 보유할 수 있습니다.
  */
-export function rollAugments(pokemon, count = 3) {
+export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
   if (!pokemon) return [];
   const currentCount = Array.isArray(pokemon.augments) ? pokemon.augments.length : 0;
   if (currentCount >= 3) return [];
@@ -12,7 +12,7 @@ export function rollAugments(pokemon, count = 3) {
   // 이미 보유한 증강 제외
   const available = AUGMENT_LIST.filter((aug) => {
     if (pokemon.hasAugment?.(aug.id)) return false;
-    if (typeof aug.isEligible === "function" && !aug.isEligible(pokemon)) return false;
+    if (typeof aug.isEligible === "function" && !aug.isEligible(pokemon, battleOrTeam)) return false;
     return true;
   });
   const pool = [...available];
@@ -42,7 +42,7 @@ export function grantRandomAugment(battle, preferredPokemon = null) {
 
   if (team.length === 0) return null;
   const target = team[0];
-  const rolled = rollAugments(target, 1);
+  const rolled = rollAugments(target, 1, battle);
   if (!rolled || rolled.length === 0) return null;
 
   const aug = rolled[0];
@@ -58,7 +58,7 @@ export function grantRandomAugment(battle, preferredPokemon = null) {
  * @param {Array} team
  * @returns {Object} { [pokeKey]: augment[] }
  */
-export function rollTeamAugments(team) {
+export function rollTeamAugments(team, battle = null) {
   if (!Array.isArray(team)) return {};
   const choicesMap = {};
   const globalPickedIds = new Set();
@@ -74,7 +74,7 @@ export function rollTeamAugments(team) {
 
     const available = AUGMENT_LIST.filter((aug) => {
       if (poke.hasAugment?.(aug.id)) return false;
-      if (typeof aug.isEligible === "function" && !aug.isEligible(poke)) return false;
+      if (typeof aug.isEligible === "function" && !aug.isEligible(poke, battle || team, team)) return false;
       return true;
     });
 

@@ -64,7 +64,8 @@ export const switchPokemon = (battle, IN, OUT) => {
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
 
   if (battle[IN]?.tempStatus) {
-    battle[IN].tempStatus.firstTurn = true;
+    battle[IN].tempStatus.firstTurn = true; // 만나자마자
+    battle[IN].tempStatus.turnsOnField = 0; // 슬로스타트
   }
   if (battle?.turn) {
     if (IN === "player") battle.turn.playerSwitched = true;

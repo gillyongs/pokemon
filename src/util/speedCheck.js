@@ -41,6 +41,14 @@ export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, b
     speed *= 2;
     pokemon.log.speedCalculate += " * 2 (쓱쓱)";
   }
+  if (abil === "패스트스타트" && (pokemon.tempStatus?.turnsOnField ?? 0) >= 5) {
+    speed *= 2;
+    pokemon.log.speedCalculate += " * 2 (패스트스타트)";
+  }
+  if (abil === "슬로스타트" && (pokemon.tempStatus?.turnsOnField ?? 0) < 5) {
+    speed *= 0.5;
+    pokemon.log.speedCalculate += " * 0.5 (슬로스타트)";
+  }
   pokemon.log.speedCalculate += " = " + speed;
   return speed;
 };

@@ -9,7 +9,7 @@ import { rollTeamAugments } from "../../../util/augmentRoll";
 import { testmode, subscribeTestMode } from "../../../config/testMode";
 import AugmentStatusModal from "./AugmentStatusModal";
 
-const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialTarget = null, battle = null, onSelect, onClose, isTestMode: propTestMode = null }) => {
+const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialTarget = null, battle = null, onSelect, onClose, isTestMode: propTestMode = null, isTitanSelection = false }) => {
   const [isTestMode, setIsTestMode] = useState(() => {
     if (typeof propTestMode === "boolean") return propTestMode;
     if (typeof window !== "undefined" && typeof window.testmode === "boolean") return window.testmode;
@@ -57,12 +57,14 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
   const checkEligibility = (aug, pokemon) => {
     if (!pokemon) return false;
-    if ((pokemon.augments || []).length >= 3) return false;
+    if (isTitanSelection) return true;
+    const maxLimit = 3;
+    if ((pokemon.augments || []).length >= maxLimit) return false;
     if (pokemon.hasAugment?.(aug.id) || (pokemon.augments || []).some((a) => a.id === aug.id)) {
       return false;
     }
     if (typeof aug.isEligible === "function") {
-      return aug.isEligible(pokemon);
+      return aug.isEligible(pokemon, battle, resolvedTeam);
     }
     return true;
   };
@@ -82,12 +84,21 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     return { allEligible: eligible, allIneligible: ineligible };
   }, [activePokemon]);
 
+  // 레지기가스 선택시 고정 증강
+  const titanFixedChoices = useMemo(() => {
+    return [AUGMENT_LIST.find((a) => a.id === "fastStarter"), AUGMENT_LIST.find((a) => a.id === "hugePower"), AUGMENT_LIST.find((a) => a.id === "randomAbility")].filter(Boolean);
+  }, []);
+
   const [choicesMap] = useState(() => {
-    return rollTeamAugments(resolvedTeam);
+    if (isTitanSelection) {
+      const activeKey = getPokeKey(activePokemon, 0);
+      return { [activeKey]: titanFixedChoices };
+    }
+    return rollTeamAugments(resolvedTeam, battle);
   });
 
   const activeKey = getPokeKey(activePokemon, 0);
-  const currentChoices = choicesMap && choicesMap[activeKey] && choicesMap[activeKey].length > 0 ? choicesMap[activeKey] : augments || [];
+  const currentChoices = isTitanSelection ? titanFixedChoices : choicesMap && choicesMap[activeKey] && choicesMap[activeKey].length > 0 ? choicesMap[activeKey] : augments && augments.length > 0 ? augments : [];
 
   const handleTogglePeek = (e) => {
     e.stopPropagation();
@@ -551,8 +562,8 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                 <HeaderArea>
                   <HeaderTopRow>
                     <TitleGroup>
-                      <Title>증강 선택</Title>
-                      {isTestMode && (
+                      <Title>{isTitanSelection ? "전설의 거인: 특성 증강 선택" : "증강 선택"}</Title>
+                      {isTestMode && !isTitanSelection && (
                         <AllListButton
                           type="button"
                           $active={showAllList}
@@ -568,16 +579,18 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                       )}
                     </TitleGroup>
                     <HeaderRightGroup>
-                      <StatusButton
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsStatusOpen(true);
-                        }}
-                        title="현재 팀 증강 현황 보기"
-                      >
-                        증강 현황
-                      </StatusButton>
+                      {!isTitanSelection && (
+                        <StatusButton
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsStatusOpen(true);
+                          }}
+                          title="현재 팀 증강 현황 보기"
+                        >
+                          증강 현황
+                        </StatusButton>
+                      )}
                       <CloseButton
                         onClick={(e) => {
                           e.stopPropagation();
@@ -591,7 +604,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                   </HeaderTopRow>
                 </HeaderArea>
 
-                {resolvedTeam.length > 0 && (
+                {resolvedTeam.length > 0 && !isTitanSelection && (
                   <EntryContainer>
                     {resolvedTeam.map((poke, idx) => {
                       const isSelected = activePokemon === poke || activePokemon?.id === poke.id;

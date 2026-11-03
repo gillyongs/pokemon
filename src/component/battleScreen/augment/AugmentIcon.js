@@ -6,12 +6,17 @@ import styled from "styled-components";
 export const DEDICATED_AUGMENT_POKEMON = {
   danceOfGarchomp: "0445",
   nameIsSalamence: "0373",
+  fastStarter: "0486",
+  legendaryTitan: "0486",
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
 export const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   nameIsSalamence: { shiftUp: true, offsetY: -5.5, scale: 1.15 },
   "0373": { shiftUp: true, offsetY: -5.5, scale: 1.15 },
+  legendaryTitan: { shiftUp: true, offsetY: -5, scale: 1.15 },
+  fastStarter: { shiftUp: true, offsetY: -5, scale: 1.15 },
+  "0486": { shiftUp: true, offsetY: -5, scale: 1.15 },
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, scale = null, imageOptions = null }) => {
@@ -216,6 +221,22 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="40%" stopColor="#fca5a5" stopOpacity="0.6" />
             <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
           </radialGradient>
+
+          {/* 천하장사 오렌지 머슬 그라데이션 & 글로우 */}
+          <linearGradient id="hugePowerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#ffa726" />
+            <stop offset="35%" stopColor="#ff7043" />
+            <stop offset="100%" stopColor="#f4511e" />
+          </linearGradient>
+          <filter id="hugePowerGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="blur1" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.0" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur1" />
+              <feMergeNode in="blur2" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
 
           {/* 발광 필터 */}
           <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
@@ -544,8 +565,8 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 3. 도박 중독 (입체 주사위 & 회오리 마법 스파크) */}
-        {id === "gamblingAddict" && (
+        {/* 3. 도박 중독 & 랜덤 특성 (입체 주사위 & 회오리 마법 스파크) */}
+        {(id === "gamblingAddict" || id === "randomAbility") && (
           <g filter="url(#glow)">
             {/* 회전하는 소용돌이 오라 */}
             <path d="M14 26 C16 16 28 10 38 12 M50 38 C48 48 36 54 26 52" stroke="url(#prismRing)" strokeWidth="2.5" strokeLinecap="round" />
@@ -560,8 +581,9 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="32" cy="23" r="2" fill="#ffffff" />
             <circle cx="23" cy="33" r="1.5" fill="#ffffff" />
             <circle cx="27" cy="39" r="1.5" fill="#ffffff" />
-            <circle cx="37" cy="34" r="1.5" fill="#ffffff" />
-            <circle cx="41" cy="40" r="1.5" fill="#ffffff" />
+            <circle cx="36.2" cy="39.1" r="1.5" fill="#ffffff" />
+            <circle cx="39" cy="34.5" r="1.5" fill="#ffffff" />
+            <circle cx="41.8" cy="29.9" r="1.5" fill="#ffffff" />
             {/* ✦ 스파클 */}
             <path d="M49 14 Q49 17 52 17 Q49 17 49 20 Q49 17 46 17 Q49 17 49 14 Z" fill="#fef08a" />
             <path d="M14 44 Q14 47 17 47 Q14 47 14 50 Q14 47 11 47 Q14 47 14 44 Z" fill="#38bdf8" />
@@ -2976,6 +2998,23 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             height="68"
           />
         )}
+
+
+        {/* 천하장사 (Huge Power: 주황색 근육 벌크업 실루엣 & 오렌지 발광) */}
+        {id === "hugePower" && (
+          <g filter="url(#hugePowerGlow)">
+            <circle cx="32" cy="32" r="23" fill="#ea580c" opacity="0.15" />
+            <path
+              d="M 32.2 16.7 L 30.1 16.8 L 28.8 17.4 L 27.7 18.3 L 26.7 19.8 L 25.9 21.7 L 25.8 23.3 L 26.0 24.4 L 26.4 25.2 L 26.8 25.7 L 26.8 26.2 L 26.4 26.8 L 23.6 27.0 L 19.5 26.8 L 18.5 26.1 L 18.5 25.1 L 19.2 24.1 L 20.7 23.2 L 22.6 22.6 L 23.9 21.5 L 24.6 19.9 L 24.3 18.1 L 22.6 16.2 L 19.8 15.7 L 17.9 16.1 L 17.1 16.7 L 16.2 17.2 L 14.5 19.0 L 12.8 21.3 L 11.8 23.3 L 11.4 24.4 L 10.8 25.5 L 10.2 26.6 L 9.9 27.8 L 9.2 29.2 L 9.0 32.7 L 9.5 35.4 L 10.6 36.4 L 11.8 37.1 L 12.9 37.3 L 14.0 37.6 L 15.4 38.0 L 17.8 38.0 L 20.0 38.4 L 21.9 39.3 L 23.4 40.6 L 24.0 41.9 L 24.1 43.2 L 24.4 44.7 L 24.9 46.3 L 25.5 47.2 L 26.8 48.3 L 30.8 49.0 L 35.8 48.8 L 37.3 48.0 L 38.4 46.9 L 39.1 45.3 L 39.5 43.7 L 39.6 42.3 L 40.0 41.0 L 41.1 39.8 L 43.0 38.7 L 45.1 38.1 L 47.5 38.0 L 49.3 37.7 L 50.4 37.4 L 51.4 37.2 L 52.6 36.7 L 53.8 35.8 L 54.6 33.9 L 54.6 30.1 L 54.0 28.2 L 53.5 27.1 L 53.1 25.8 L 52.4 24.8 L 52.0 23.7 L 51.3 22.1 L 49.8 19.8 L 47.9 17.6 L 46.8 16.8 L 46.0 16.3 L 44.7 15.7 L 41.9 15.8 L 39.8 17.4 L 38.9 18.9 L 39.0 20.0 L 39.5 21.2 L 40.2 22.1 L 41.6 22.8 L 43.5 23.4 L 44.7 24.4 L 45.3 25.5 L 45.0 26.4 L 43.1 26.9 L 38.7 27.0 L 37.1 26.6 L 36.8 26.1 L 36.9 25.6 L 37.4 25.0 L 37.7 24.1 L 37.7 22.4 L 37.3 20.4 L 36.6 19.0 L 35.6 17.9 L 34.5 17.1 L 32.9 16.8 Z"
+              fill="url(#hugePowerGrad)"
+              stroke="#ff3d00"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+          </g>
+        )}
+
+
 
         {/* 25. 태양불꽃방패 */}
         {id === "sunfireAegis" && (

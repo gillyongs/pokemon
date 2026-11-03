@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
+import { getAugmentText } from "../../../entity/Augment/AugmentData";
 
 // 다음 라운드로 넘길 증강 선택 모달
 
@@ -24,7 +25,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
       allOwnedAugments.push({
         pokeIndex: index,
         pokemon: poke,
-        pokemonName: poke.names || poke.name,
+        pokemonName: poke.name,
         augment: aug,
         uniqueKey: `${index}-${aug.id}-${augIdx}`,
       });
@@ -53,7 +54,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
       setSelectedKeys(next);
     } else {
       if (currentCost + itemCost > maxPoints) {
-        setErrorMessage(`보유 코스트(${maxPoints})를 초과하여 선택할 수 없습니다!`);
+        setErrorMessage("최대치를 초과하여 더이상 선택할 수 없습니다!");
         return;
       }
       const next = new Set(selectedKeys);
@@ -79,6 +80,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           swordFailed: item.augment.swordFailed,
           swordBonusAtk: item.augment.swordBonusAtk,
           swordName: item.augment.swordName,
+          pickedAbility: item.augment.pickedAbility || (item.augment.id === "randomAbility" ? item.pokemon?.abil : undefined),
         });
       }
     });
@@ -90,14 +92,13 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <HeaderArea>
           <Title>다음 라운드 증강 유지</Title>
-          <SubTitle>코스트를 소모하여 원하는 증강을 다음 라운드로 가져가세요!</SubTitle>
+          <SubTitle>*남은 코스트는 이월되지 않습니다.</SubTitle>
         </HeaderArea>
 
         <PointBar>
           <PointText>
-            사용 코스트: <HighlightText>{currentCost}</HighlightText> / {maxPoints} cost
+            사용 코스트: <HighlightText>{currentCost}</HighlightText> / {maxPoints}
           </PointText>
-          <RemainingBadge $full={currentCost === maxPoints}>남은 코스트: {maxPoints - currentCost} cost</RemainingBadge>
         </PointBar>
 
         {errorMessage && <AlertBox>{errorMessage}</AlertBox>}
@@ -111,7 +112,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
               if (pokeAugs.length === 0) return null;
               return (
                 <PokemonSection key={index}>
-                  <PokeSectionTitle>{poke.names || poke.name}</PokeSectionTitle>
+                  <PokeSectionTitle>{poke.name}</PokeSectionTitle>
                   <AugmentGrid>
                     {pokeAugs.map((item) => {
                       const isSelected = selectedKeys.has(item.uniqueKey);
@@ -127,7 +128,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
                             </CardMeta>
                             <CheckIndicator $selected={isSelected}>{isSelected ? "✓" : ""}</CheckIndicator>
                           </CardHeader>
-                          <AugDesc>{item.augment.desc}</AugDesc>
+                          <AugDesc>{getAugmentText(item.augment, item.pokemon)}</AugDesc>
                         </AugmentCard>
                       );
                     })}
@@ -140,7 +141,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
 
         <FooterArea>
           <ConfirmButton onClick={handleComplete}>
-            선택 완료 ({currentCost} / {maxPoints} cost 사용)
+            선택 완료
           </ConfirmButton>
         </FooterArea>
       </ModalContainer>
@@ -214,7 +215,7 @@ const SubTitle = styled.div`
 
 const PointBar = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -234,15 +235,6 @@ const HighlightText = styled.span`
   font-size: 1.05rem;
 `;
 
-const RemainingBadge = styled.span`
-  font-size: 0.78rem;
-  font-weight: bold;
-  padding: 3px 8px;
-  border-radius: 4px;
-  background: ${(props) => (props.$full ? "rgba(100, 255, 218, 0.15)" : "rgba(245, 158, 11, 0.15)")};
-  color: ${(props) => (props.$full ? "#64ffda" : "#fbbf24")};
-  border: 1px solid ${(props) => (props.$full ? "rgba(100, 255, 218, 0.35)" : "rgba(245, 158, 11, 0.35)")};
-`;
 
 const AlertBox = styled.div`
   background: rgba(239, 68, 68, 0.15);

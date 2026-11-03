@@ -110,6 +110,23 @@ export function useQueue() {
     });
   };
 
+  const insertAfterHead = (items = []) => {
+    setQueue((prevQueue) => {
+      if (prevQueue.length === 0) return items.map(cloneWithMethods);
+      const deepCopiedItems = items.map((item) => {
+        const nextItem = { ...item };
+        if (!nextItem.id) {
+          nextItem.id =
+            typeof crypto !== "undefined" && crypto.randomUUID
+              ? crypto.randomUUID()
+              : Math.random().toString(36).substring(2, 11);
+        }
+        return cloneWithMethods(nextItem);
+      });
+      return [prevQueue[0], ...deepCopiedItems, ...prevQueue.slice(1)];
+    });
+  };
+
   const resetQueue = () => {
     setQueue((prev) => (prev.length > 0 ? [] : prev));
   };
@@ -135,6 +152,7 @@ export function useQueue() {
       enqueue,
       dequeue,
       updateHead,
+      insertAfterHead,
       resetQueue,
       initQueue,
       queueCheck,

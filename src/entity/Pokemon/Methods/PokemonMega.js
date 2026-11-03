@@ -26,7 +26,7 @@ export const PokemonMega = {
     enqueue({
       id: "eb794c41-0d86-4f58-9812-5391b3ffcef0",
       battle,
-      text: `${this.name}의 ${this.item}가 반응했다!`,
+      text: josa(`${this.name}의 ${this.item}#{이} 반응했다!`),
     });
 
     // 2. 메가진화 데이터 반영 (상태, 이미지, 스탯, 특성 등 변경 - 이름은 원래 이름 유지)
@@ -65,7 +65,7 @@ export const PokemonMega = {
     enqueue({
       id: "0c2dbb7e-c2bc-4509-b8c1-dcd41ddafc1e",
       battle,
-      text: `${this.names} ${mega.name}로 메가진화했다!`,
+      text: `${this.names} ${josa(`${mega.name}#{으로}`)} 메가진화했다!`,
     });
 
     // 4. 메가진화 후 특성 발동 (가뭄 등 등장 특성)
