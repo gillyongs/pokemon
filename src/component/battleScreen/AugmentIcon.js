@@ -2912,6 +2912,60 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             </g>
           </g>
         )}
+
+        {/* 19. 검 강화하기 (대장간 모루 + 황금 강화 대검 + 대장장이 망치 + +UP 스파크) */}
+        {id === "swordEnhance" && (
+          <g filter="url(#glow)">
+            {/* 배경 타오르는 대장간 열기 오라 */}
+            <circle cx="32" cy="32" r="24" fill="url(#flameGrad)" opacity="0.22" />
+
+            {/* 하단 다크 스틸 모루 (Anvil) */}
+            <path
+              d="M 16 49 L 48 49 L 45 45 L 38 45 L 37 40 L 27 40 L 26 45 L 19 45 Z"
+              fill="#334155"
+              stroke="#94a3b8"
+              strokeWidth="1.1"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M 20 40 L 44 40 L 47 36 L 17 36 Z"
+              fill="#475569"
+              stroke="#cbd5e1"
+              strokeWidth="1.1"
+              strokeLinejoin="round"
+            />
+
+            {/* 중앙 대각선으로 빛나는 강화 성검 */}
+            <g transform="rotate(-35 32 28)">
+              {/* 검신 오라 */}
+              <polygon points="32,5 36,13 35,33 29,33 28,13" fill="#fef08a" opacity="0.45" />
+              {/* 검신 좌/우 베벨 */}
+              <polygon points="32,6 35,12 34.2,33 32,33" fill="url(#prismGrad)" />
+              <polygon points="32,6 29,12 29.8,33 32,33" fill="#ffffff" />
+              <polygon points="32,6 35,12 34.2,33 29.8,33 29,12" fill="none" stroke="#ffffff" strokeWidth="1" strokeLinejoin="round" />
+              {/* 황금 크로스 가드 & 보석 */}
+              <path d="M 23 33 L 41 33 L 39 36.5 L 25 36.5 Z" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.9" strokeLinejoin="round" />
+              <circle cx="32" cy="34.8" r="1.6" fill="#ef4444" stroke="#ffffff" strokeWidth="0.6" />
+              {/* 그립 & 폼멜 */}
+              <rect x="30.3" y="36.5" width="3.4" height="6.5" rx="1" fill="#78350f" stroke="#fde047" strokeWidth="0.7" />
+              <circle cx="32" cy="44.2" r="2.1" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.8" />
+            </g>
+
+            {/* 우측 상단 타격하는 대장장이 강화 망치 */}
+            <g transform="rotate(25 46 20)">
+              <rect x="44.5" y="18" width="3" height="15" rx="1.2" fill="#9a3412" stroke="#fed7aa" strokeWidth="0.7" />
+              <path d="M 39 12 L 53 12 L 54 18.5 L 38 18.5 Z" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="1" strokeLinejoin="round" />
+            </g>
+
+            {/* 타격 지점 강렬한 강화 성공 스파크 & + 아이콘 */}
+            <polygon points="33,19 35,14 36.5,18.5 41,17 37.5,20.5 41,24 36.5,22.5 35,27 33,22.5 28.5,24 32,20.5 28.5,17" fill="#fef08a" stroke="#f97316" strokeWidth="0.6" />
+            <circle cx="34.8" cy="20.5" r="2.2" fill="#ffffff" />
+
+            {/* 좌상단 '+UP' 강화 엠블럼 */}
+            <path d="M 15 15 L 15 21 M 12 18 L 18 18" stroke="#fef08a" strokeWidth="2.4" strokeLinecap="round" />
+            <path d="M 22 14 L 25 18 L 23.2 18 L 23.2 22 L 20.8 22 L 20.8 18 L 19 18 Z" fill="#64ffda" />
+          </g>
+        )}
       </svg>
     </IconFrame>
   );

@@ -95,6 +95,22 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
             item.augment._teraBlastReplacedSkillName ??
             item.pokemon?._teraBlastReplacedSkillName ??
             item.pokemon?.origin?._teraBlastReplacedSkillName,
+          swordLevel:
+            item.augment.swordLevel ??
+            item.pokemon?._swordEnhanceLevel ??
+            item.pokemon?.origin?._swordEnhanceLevel,
+          swordFailed:
+            item.augment.swordFailed ??
+            item.pokemon?._swordEnhanceFailed ??
+            item.pokemon?.origin?._swordEnhanceFailed,
+          swordBonusAtk:
+            item.augment.swordBonusAtk ??
+            item.pokemon?._swordEnhanceBonusAtk ??
+            item.pokemon?.origin?._swordEnhanceBonusAtk,
+          swordName:
+            item.augment.swordName ??
+            item.pokemon?._swordEnhanceName ??
+            item.pokemon?.origin?._swordEnhanceName,
         });
       }
     });

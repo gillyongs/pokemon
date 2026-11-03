@@ -158,6 +158,10 @@ const Battle = () => {
             selectedType: aug.selectedType ?? aug._nullifyType ?? aug._teraBlastType,
             revolutionResult: aug.revolutionResult ?? aug._revolutionResult,
             replacedSkillName: aug.replacedSkillName ?? aug._replacedSkillName ?? aug._teraBlastReplacedSkillName,
+            swordLevel: aug.swordLevel,
+            swordFailed: aug.swordFailed,
+            swordBonusAtk: aug.swordBonusAtk,
+            swordName: aug.swordName,
           }));
           return acc;
         }, {})
@@ -284,6 +288,22 @@ const Battle = () => {
       });
     }
 
+    if (selectedAugment.id === "swordEnhance") {
+      const failed = Boolean(options?.swordFailed ?? target._swordEnhanceFailed);
+      const level = Number(options?.swordLevel ?? target._swordEnhanceLevel ?? 0);
+      const bonus = Number(options?.swordBonusAtk ?? target._swordEnhanceBonusAtk ?? (failed ? 0 : 20 + level * 20));
+      const sName = options?.swordName || target._swordEnhanceName || "검";
+      const detailText = failed
+        ? "검 강화에 실패하여 공격과 특수공격이 오르지 않았다..."
+        : `[+${level} ${sName}] 강화 완료! 공격과 특수공격이 ${bonus} 올라갔다!`;
+      followUpItems.push({
+        id: "sword-enhance-result-msg",
+        battle: curBattle,
+        text: detailText,
+        logText: detailText,
+      });
+    }
+
     const fastUser = speedCheck(curBattle);
     const slowUser = fastUser === "player" ? "npc" : "player";
     applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
@@ -360,6 +380,24 @@ const Battle = () => {
               if (savedAug?.selectedType) {
                 augToApply.selectedType = savedAug.selectedType;
               }
+              if (savedAug?.revolutionResult) {
+                augToApply.revolutionResult = savedAug.revolutionResult;
+              }
+              if (savedAug?.replacedSkillName) {
+                augToApply.replacedSkillName = savedAug.replacedSkillName;
+              }
+              if (savedAug?.swordLevel !== undefined) {
+                augToApply.swordLevel = savedAug.swordLevel;
+              }
+              if (savedAug?.swordFailed !== undefined) {
+                augToApply.swordFailed = savedAug.swordFailed;
+              }
+              if (savedAug?.swordBonusAtk !== undefined) {
+                augToApply.swordBonusAtk = savedAug.swordBonusAtk;
+              }
+              if (savedAug?.swordName !== undefined) {
+                augToApply.swordName = savedAug.swordName;
+              }
               p.applyAugment(augToApply, battleObj.current, {
 
                 replaceSlot: savedAug?.replacedSlot,
@@ -368,6 +406,10 @@ const Battle = () => {
 
                 targetStat: savedAug?.revolutionResult,
                 replacedSkillName: savedAug?.replacedSkillName,
+                swordLevel: savedAug?.swordLevel,
+                swordFailed: savedAug?.swordFailed,
+                swordBonusAtk: savedAug?.swordBonusAtk,
+                swordName: savedAug?.swordName,
 
               });
             }

@@ -5,6 +5,72 @@ import { isAilmentCheck } from "../function/ailment";
 import { speedCheck, speedCalculate } from "./speedCheck";
 import { getWeatherBallType } from "./weatherBall";
 
+export const getAugmentedStat = (pokemon, statKey) => {
+  const baseStatObj = pokemon?.origin?.stat || pokemon?.stat;
+  let val = baseStatObj?.[statKey] ?? 0;
+  if (typeof val !== "number") return 0;
+  if (statKey !== "atk" && statKey !== "catk") return val;
+
+  const augments = pokemon?.augments || [];
+  for (const aug of augments) {
+    const augId = typeof aug === "string" ? aug : aug?.id;
+    if (augId === "swordEnhance") {
+      const failed = Boolean(
+        aug?.swordFailed ?? pokemon?._swordEnhanceFailed ?? pokemon?.origin?._swordEnhanceFailed
+      );
+      const level = Number(
+        aug?.swordLevel ?? pokemon?._swordEnhanceLevel ?? pokemon?.origin?._swordEnhanceLevel ?? 0
+      );
+      const bonusAtk =
+        aug?.swordBonusAtk !== undefined
+          ? Number(aug.swordBonusAtk)
+          : pokemon?._swordEnhanceBonusAtk !== undefined
+          ? Number(pokemon._swordEnhanceBonusAtk)
+          : pokemon?.origin?._swordEnhanceBonusAtk !== undefined
+          ? Number(pokemon.origin._swordEnhanceBonusAtk)
+          : failed
+          ? 0
+          : 20 + level * 20;
+      if (bonusAtk > 0) {
+        val += bonusAtk;
+      }
+    } else if (augId === "infinityEdge") {
+      if (statKey === "atk") {
+        val += 75;
+      }
+    } else if (augId === "voidStaff") {
+      if (statKey === "catk") {
+        val += 95;
+      }
+    } else if (augId === "rabadonsDeathcap") {
+      if (statKey === "catk") {
+        val = Math.round((val + 130) * 1.3);
+      }
+    } else if (augId === "rebellionOrRevolution" || augId === "revolution") {
+      const pick =
+        aug?.revolutionResult ||
+        aug?._revolutionResult ||
+        pokemon?._revolutionResult ||
+        pokemon?.origin?._revolutionResult;
+      if (pick === "atk") {
+        if (statKey === "atk") {
+          val = Math.round(val * 2);
+        } else if (statKey === "catk") {
+          val = Math.max(1, Math.floor(val / 2));
+        }
+      } else if (pick === "catk") {
+        if (statKey === "catk") {
+          val = Math.round(val * 2);
+        } else if (statKey === "atk") {
+          val = Math.max(1, Math.floor(val / 2));
+        }
+      }
+    }
+  }
+
+  return val;
+};
+
 export const damageCalculate = (battle, obj, ai) => {
   // 데미지를 "계산"만 해서 주는 함수
   // battle 객체 내부의 값을 바꾸지 않는다 (log 제외)
@@ -87,8 +153,8 @@ export const damageCalculate = (battle, obj, ai) => {
     if (skill.name === "테라버스트") {
       const atkRank = attackPokemon.tempStatus?.rank?.atk ?? 0;
       const catkRank = attackPokemon.tempStatus?.rank?.catk ?? 0;
-      const currentAtk = (attackPokemon.origin?.stat?.atk ?? 0) * getMultiplier(atkRank);
-      const currentCatk = (attackPokemon.origin?.stat?.catk ?? 0) * getMultiplier(catkRank);
+      const currentAtk = getAugmentedStat(attackPokemon, "atk") * getMultiplier(atkRank);
+      const currentCatk = getAugmentedStat(attackPokemon, "catk") * getMultiplier(catkRank);
       if (currentAtk > currentCatk) {
         attackStat = "atk";
         defenseStat = "def";
@@ -110,7 +176,7 @@ export const damageCalculate = (battle, obj, ai) => {
   // 급소: 시전자에게 불리한 랭크변화만 무시한다 (공격측 공격 다운, 방어측 방어 업)
   // 성스러운칼: 상대방의 랭크변화를 무시한다
 
-  let noRankAtkStat = attackPokemon.origin.stat[attackStat];
+  let noRankAtkStat = getAugmentedStat(attackPokemon, attackStat);
   let rankNumAtk = attackPokemon.tempStatus.rank[attackStat];
   let rankUpAtk = getMultiplier(rankNumAtk);
   let atkStat = noRankAtkStat * rankUpAtk;
@@ -129,7 +195,7 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 방어포켓몬의 방어/특방 능력치
-  let noRankDefStat = defensePokemon.origin.stat[defenseStat];
+  let noRankDefStat = getAugmentedStat(defensePokemon, defenseStat);
   let rankNumDef = defensePokemon.tempStatus.rank[defenseStat];
   let rankUpDef = getMultiplier(rankNumDef);
   let defStat = noRankDefStat * rankUpDef;
@@ -157,9 +223,10 @@ export const damageCalculate = (battle, obj, ai) => {
   // 속임수 ================================================================================================================
 
   if (skill.name === "속임수") {
-    atkStat = defensePokemon.origin.stat.atk * getMultiplier(defensePokemon.tempStatus.rank.atk);
+    const foulPlayBaseAtk = getAugmentedStat(defensePokemon, "atk");
+    atkStat = foulPlayBaseAtk * getMultiplier(defensePokemon.tempStatus.rank.atk);
     if (defensePokemon.abil === "천진") {
-      atkStat = defensePokemon.origin.stat.atk;
+      atkStat = foulPlayBaseAtk;
     }
     // 속임수는 상대방의 공격력을 사용하여 공격한다.
     // 상대방의 랭크업은 적용하되, 상대방의 아이템, 특성, 화상은 적용하지 않는다
@@ -633,8 +700,8 @@ export const confuseDamageCalculate = (battle) => {
   //랭크업 적용됨, 천진은 적용 안됨
   //급소 적용 됨
   const pokemon = battle[battle.turn.atk];
-  let originAtk = pokemon.origin.stat.atk;
-  let originDef = pokemon.origin.stat.def;
+  let originAtk = getAugmentedStat(pokemon, "atk");
+  let originDef = getAugmentedStat(pokemon, "def");
   let rankNumAtk = pokemon.tempStatus.rank.atk;
   let rankNumDef = pokemon.tempStatus.rank.def;
   let rankUpAtk = getMultiplier(rankNumAtk);
