@@ -727,4 +727,55 @@ describe("아수라장 증강 시스템 테스트", () => {
     expect(dragonite.log.damage2).toContain("1.5 (급소) * 1.3 (무한의 대검)");
     expect(ieCritDamage).toBeGreaterThan(0);
   });
+
+  test("몰락한 왕의 검(bladeOfTheRuinedKing): 코스트 5, 적 현재 체력의 9% 추가 데미지 검증", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "bladeOfTheRuinedKing");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("몰락한 왕의 검");
+    expect(aug.cost).toBe(5);
+    expect(aug.desc).toContain("적의 현재 체력의 9%");
+
+    const battle = createBattle(["망나뇽", "배바닐라", "배바닐라"], ["어써러셔", "어써러셔", "어써러셔"]);
+    battle.turn.atk = "player";
+    battle.turn.def = "npc";
+    battle.turn.atkSN = 1;
+    battle.player.turn = { useSkill: battle.player.origin.skill[1], critical: false };
+
+    battle.npc.hp = 200;
+    const baseDamage = damageCalculate(battle, {}, { randNum: 100 });
+
+    battle.player.applyAugment(aug, battle);
+    const botrkDamage = damageCalculate(battle, {}, { randNum: 100 });
+
+    const expectedBonus = Math.floor(200 * 0.09);
+    expect(expectedBonus).toBe(18);
+    expect(botrkDamage).toBe(baseDamage + 18);
+  });
+
+  test("태양불꽃방패(sunfireAegis): 코스트 5, 매 턴 내 HP의 10%만큼 상대에게 데미지", () => {
+    const aug = AUGMENT_LIST.find((a) => a.id === "sunfireAegis");
+    expect(aug).toBeDefined();
+    expect(aug.name).toBe("태양불꽃방패");
+    expect(aug.cost).toBe(5);
+    expect(aug.desc).toBe("매 턴 내 HP의 10%만큼 상대에게 데미지를 줍니다.");
+
+    const battle = createBattle(["어써러셔", "배바닐라", "배바닐라"], ["망나뇽", "어써러셔", "어써러셔"]);
+    battle.player.applyAugment(aug, battle);
+
+    // 어써러셔의 최대 HP (origin.hp)
+    const playerMaxHp = battle.player.origin.hp;
+    const expectedDamage = Math.floor(playerMaxHp * 0.1);
+
+    const initialNpcHp = battle.npc.hp;
+    const queue = [];
+    const enqueue = (item) => queue.push(item);
+
+    // 턴 종료 실행
+    turnEnd(battle, enqueue);
+
+    expect(battle.npc.hp).toBe(initialNpcHp - expectedDamage);
+    const sunfireLog = queue.find((q) => q.text && q.text.includes("태양불꽃방패"));
+    expect(sunfireLog).toBeDefined();
+    expect(sunfireLog.text).toContain("불사르기 데미지를 입었다");
+  });
 });

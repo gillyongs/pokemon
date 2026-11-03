@@ -45,7 +45,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
 
   return (
     <IconFrame $size={size}>
-      <svg viewBox="0 0 64 64" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 64 64" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg" style={{ overflow: "visible" }}>
         <defs>
           {/* 게임 테마 맞춤 틸/스카이블루 그라데이션 */}
           <linearGradient id="prismGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -494,7 +494,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "thornmail" && (
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && (
           <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />
         )}
 
@@ -2965,6 +2965,28 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <path d="M 22 14 L 25 18 L 23.2 18 L 23.2 22 L 20.8 22 L 20.8 18 L 19 18 Z" fill="#64ffda" />
           </g>
         )}
+
+        {/* 24. 몰락한 왕의 검 */}
+        {id === "bladeOfTheRuinedKing" && (
+          <image
+            href="/pokemon/img/augment/bladeOfTheRuinedKing.png"
+            x="-2"
+            y="-2"
+            width="68"
+            height="68"
+          />
+        )}
+
+        {/* 25. 태양불꽃방패 */}
+        {id === "sunfireAegis" && (
+          <image
+            href="/pokemon/img/augment/sunfireAegis.png"
+            x="-2"
+            y="-2"
+            width="68"
+            height="68"
+          />
+        )}
       </svg>
     </IconFrame>
   );
@@ -2984,6 +3006,7 @@ const IconFrame = styled.div`
 
   svg {
     display: block;
+    overflow: visible;
   }
 `;
 

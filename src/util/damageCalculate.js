@@ -725,6 +725,20 @@ export const damageCalculate = (battle, obj, ai) => {
   if (ai && ai.randNum) randomNum = ai.randNum;
   damage = (damage * randomNum) / 100;
   attackPokemon.log.damage2 += " * " + randomNum + "(랜덤값) / 100 = " + Math.floor(damage);
+
+  let finalDamage = Math.floor(damage);
+
+  // [증강] 몰락한 왕의 검: 적의 현재 체력의 9% 만큼 추가 데미지
+  const hasBotRK = attackPokemon?.hasAugment?.("bladeOfTheRuinedKing");
+  if (hasBotRK && finalDamage > 0) {
+    const curDefHp = defensePokemon.hp;
+    const botrkBonus = Math.floor(curDefHp * 0.09);
+    finalDamage += botrkBonus;
+    if (attackPokemon?.log) {
+      attackPokemon.log.damage2 += ` + ${botrkBonus} (몰왕) = ${finalDamage}`;
+    }
+  }
+
   if (!ai) {
     let text = attackPokemon.name + "의 공격";
     if (obj) text += ` (${obj.serial + 1}타)`;
@@ -738,7 +752,7 @@ export const damageCalculate = (battle, obj, ai) => {
     console.log(attackPokemon.log.damage2);
   }
 
-  return Math.floor(damage);
+  return finalDamage;
 };
 
 export const confuseDamageCalculate = (battle) => {

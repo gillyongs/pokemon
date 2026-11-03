@@ -49,6 +49,10 @@ export const turnEnd = (battle, enqueue) => {
   battle.field.weather.handleWeatherDamageTurnEnd(battle, enqueue, fastUser);
   battle.field.weather.handleWeatherDamageTurnEnd(battle, enqueue, slowUser);
 
+  // [증강] 태양불꽃방패 (매 턴 내 HP의 10%만큼 상대에게 데미지)
+  applySunfireAegis(battle, enqueue, fastUser);
+  applySunfireAegis(battle, enqueue, slowUser);
+
   let tempPlayer = battle.player.turn;
   let tempNpc = battle.npc.turn;
 
@@ -142,3 +146,17 @@ export const turnEnd = (battle, enqueue) => {
     //이거 없으면 텍스트 없는게 (enqueue 안한게) 반영이 안됨
   }
 };
+
+function applySunfireAegis(battle, enqueue, user) {
+  const p = battle[user];
+  if (!p || p.faint) return;
+  if (!p.hasAugment?.("sunfireAegis")) return;
+
+  const opponentSide = user === "player" ? "npc" : "player";
+  const opponent = battle[opponentSide];
+  if (!opponent || opponent.faint) return;
+
+  const damage = Math.max(1, Math.floor(p.origin.hp * 0.1));
+  const text = `[증강: 태양불꽃방패] ${opponent.names} 불사르기 데미지를 입었다!`;
+  opponent.getDamage(battle, enqueue, damage, text);
+}

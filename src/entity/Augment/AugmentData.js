@@ -96,6 +96,20 @@ export const AUGMENT_LIST = [
     // damageCalculate.js에 구현
   },
   {
+    id: "bladeOfTheRuinedKing",
+    name: "몰락한 왕의 검",
+    desc: "적의 현재 체력의 9% 만큼 추가 데미지를 입힙니다.",
+    cost: 5,
+    // damageCalculate.js에 구현
+  },
+  {
+    id: "sunfireAegis",
+    name: "태양불꽃방패",
+    desc: "매 턴 내 HP의 10%만큼 상대에게 데미지를 줍니다.",
+    cost: 5,
+    // turnEnd.js에 구현
+  },
+  {
     id: "swordEnhance",
     name: "검 강화하기",
     desc: "검을 강화하여 강화 단계에 따라 공격과 특수공격을 증가시킵니다.",
