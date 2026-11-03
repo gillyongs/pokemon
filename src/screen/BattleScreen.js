@@ -7,9 +7,9 @@ import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../util/recoilState";
 import { testmode, setSelectedNpcAct } from "../config/testMode";
 import TradeInfoModal from "../component/battleScreen/TradeInfoModal";
-import AugmentModal from "../component/battleScreen/AugmentModal";
-import AugmentStatusModal from "../component/battleScreen/AugmentStatusModal";
-import AugmentCarryoverModal from "../component/battleScreen/AugmentCarryoverModal";
+import AugmentModal from "../component/battleScreen/augment/AugmentModal";
+import AugmentStatusModal from "../component/battleScreen/augment/AugmentStatusModal";
+import AugmentCarryoverModal from "../component/battleScreen/augment/AugmentCarryoverModal";
 import { rollAugments, grantRandomAugment } from "../util/augmentRoll";
 import { AUGMENT_LIST } from "../entity/Augment/AugmentData";
 import { generate } from "../entity/Pokemon/PokemonInstance";
@@ -99,9 +99,7 @@ const Battle = () => {
     const { mayhemMode = gameOption.mayhemMode } = location.state || {};
     const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
     const currentBattle = battleObj.current || battle;
-    const teamHasAugments = [currentBattle?.player, currentBattle?.playerBench1, currentBattle?.playerBench2].some(
-      (p) => (p?.augments || []).length > 0
-    );
+    const teamHasAugments = [currentBattle?.player, currentBattle?.playerBench1, currentBattle?.playerBench2].some((p) => (p?.augments || []).length > 0);
 
     if (isMayhem && teamHasAugments) {
       setIsAugmentCarryModalOpen(true);
@@ -133,18 +131,10 @@ const Battle = () => {
     queueObject.initQueue();
     const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round, fromCustom, mayhemMode = gameOption.mayhemMode } = location.state || {};
 
-    const curPlayerTeam = [battleObj.current?.player, battleObj.current?.playerBench1, battleObj.current?.playerBench2]
-      .filter(Boolean)
-      .sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
+    const curPlayerTeam = [battleObj.current?.player, battleObj.current?.playerBench1, battleObj.current?.playerBench2].filter(Boolean).sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
     const curTeamIds = curPlayerTeam.map((p) => p.id);
 
-    let nextTeam1 = customTeam1
-      ? customTeam1
-      : teamOption === "랜덤"
-      ? getRandomTeam(3)
-      : curTeamIds.length === 3
-      ? curTeamIds
-      : [...team1];
+    let nextTeam1 = customTeam1 ? customTeam1 : teamOption === "랜덤" ? getRandomTeam(3) : curTeamIds.length === 3 ? curTeamIds : [...team1];
 
     const nextTeam2 = getRandomTeam(3);
 
@@ -154,10 +144,10 @@ const Battle = () => {
       ? Object.entries(carriedMap).reduce((acc, [idx, augs]) => {
           acc[idx] = (augs || []).map((aug) => ({
             id: aug.id || aug,
-            replacedSlot: aug.replacedSlot ?? aug._danceReplacedSlot ?? aug._salamenceReplacedSlot ?? aug._teraBlastReplacedSlot,
-            selectedType: aug.selectedType ?? aug._nullifyType ?? aug._teraBlastType,
-            revolutionResult: aug.revolutionResult ?? aug._revolutionResult,
-            replacedSkillName: aug.replacedSkillName ?? aug._replacedSkillName ?? aug._teraBlastReplacedSkillName,
+            replacedSlot: aug.replacedSlot,
+            selectedType: aug.selectedType,
+            revolutionResult: aug.revolutionResult,
+            replacedSkillName: aug.replacedSkillName,
             swordLevel: aug.swordLevel,
             swordFailed: aug.swordFailed,
             swordBonusAtk: aug.swordBonusAtk,
@@ -239,7 +229,6 @@ const Battle = () => {
   //   랜드로스             유턴:4
   //   날개치는머리          도발:4
 
-  
   const enqueueBattleStart = (bt, options = {}) => {
     if (!options.skipStartText) {
       queueObject.enqueue({ id: "75857006-b1b6-489c-b77b-bb3bfdcf8d78", battle: bt, text: "배틀시작!" });
@@ -257,16 +246,7 @@ const Battle = () => {
 
     const teamPokes = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2].filter(Boolean);
     const targetCandidate = options?.targetPokemon || augmentTargetPoke;
-    const target =
-      (targetCandidate &&
-        teamPokes.find(
-          (p) =>
-            p &&
-            (p.originalIndex === targetCandidate.originalIndex ||
-              p.id === targetCandidate.id ||
-              p.name === targetCandidate.name)
-        )) ||
-      curBattle.player;
+    const target = (targetCandidate && teamPokes.find((p) => p && (p.originalIndex === targetCandidate.originalIndex || p.id === targetCandidate.id || p.name === targetCandidate.name))) || curBattle.player;
     target.applyAugment(selectedAugment, curBattle, options);
     setAugmentTargetPoke(target);
 
@@ -278,29 +258,29 @@ const Battle = () => {
     const followUpItems = [];
 
     if (selectedAugment.id === "rebellionOrRevolution" || selectedAugment.id === "revolution") {
-      const statName = target._revolutionResult === "catk" ? "특수공격" : "공격";
+      const revAug = target.augments?.find((a) => a.id === "rebellionOrRevolution" || a.id === "revolution");
+      const statName = revAug?.revolutionResult === "catk" ? "특수공격" : "공격";
       const detailText = `${statName}이 2배가 되었다!`;
       followUpItems.push({
         id: "rev-stat-doubled-msg",
         battle: curBattle,
         text: detailText,
-        logText: detailText,
+        noLog: true,
       });
     }
 
     if (selectedAugment.id === "swordEnhance") {
-      const failed = Boolean(options?.swordFailed ?? target._swordEnhanceFailed);
-      const level = Number(options?.swordLevel ?? target._swordEnhanceLevel ?? 0);
-      const bonus = Number(options?.swordBonusAtk ?? target._swordEnhanceBonusAtk ?? (failed ? 0 : 20 + level * 20));
-      const sName = options?.swordName || target._swordEnhanceName || "검";
-      const detailText = failed
-        ? "검 강화에 실패하여 공격과 특수공격이 오르지 않았다..."
-        : `[+${level} ${sName}] 강화 완료! 공격과 특수공격이 ${bonus} 올라갔다!`;
+      const swordAug = target.augments?.find((a) => a.id === "swordEnhance");
+      const failed = Boolean(options?.swordFailed ?? swordAug?.swordFailed);
+      const level = Number(options?.swordLevel ?? swordAug?.swordLevel ?? 0);
+      const bonus = Number(options?.swordBonusAtk ?? swordAug?.swordBonusAtk ?? (failed ? 0 : 20 + level * 20));
+      const sName = options?.swordName || swordAug?.swordName || "검";
+      const detailText = failed ? "강화에 실패하였다..." : `[+${level} ${sName}] 강화 성공! 공격과 특수공격이 ${bonus} 증가했다!`;
       followUpItems.push({
         id: "sword-enhance-result-msg",
         battle: curBattle,
         text: detailText,
-        logText: detailText,
+        noLog: true,
       });
     }
 
@@ -309,6 +289,18 @@ const Battle = () => {
     applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
     applyAbilityEffects(curBattle, slowUser, (item) => followUpItems.push(item));
 
+    const appliedAug = target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
+    const augmentData = {
+      targetName: target.name || target.names,
+      augment: {
+        id: appliedAug.id,
+        name: appliedAug.name,
+        shortName: appliedAug.shortName,
+        desc: appliedAug.desc,
+        cost: appliedAug.cost,
+      },
+    };
+
     if (queueObject.queue[0]?.isAugment) {
       queueObject.updateHead(
         (prev) => ({
@@ -316,6 +308,7 @@ const Battle = () => {
           battle: curBattle,
           text: gainText,
           logText: gainLogText,
+          augmentData,
           isAugment: false,
         }),
         curBattle,
@@ -328,6 +321,7 @@ const Battle = () => {
         battle: curBattle,
         text: gainText,
         logText: gainLogText,
+        augmentData,
       });
       followUpItems.forEach((item) => queueObject.enqueue(item));
     }
@@ -345,7 +339,6 @@ const Battle = () => {
     enqueueBattleStart(curBattle);
     setBattle(cloneWithMethods(curBattle));
   };
-
 
   useEffect(() => {
     let { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round, mayhemMode = gameOption.mayhemMode, carriedAugments } = location.state || {}; // 랜덤 battleObject 가져오기
@@ -373,44 +366,15 @@ const Battle = () => {
             const augId = typeof savedAug === "string" ? savedAug : savedAug?.id;
             const fullAug = AUGMENT_LIST.find((a) => a.id === augId);
             if (fullAug) {
-              const augToApply = { ...fullAug };
-              if (savedAug?.replacedSlot) {
-                augToApply.replacedSlot = savedAug.replacedSlot;
-              }
-              if (savedAug?.selectedType) {
-                augToApply.selectedType = savedAug.selectedType;
-              }
-              if (savedAug?.revolutionResult) {
-                augToApply.revolutionResult = savedAug.revolutionResult;
-              }
-              if (savedAug?.replacedSkillName) {
-                augToApply.replacedSkillName = savedAug.replacedSkillName;
-              }
-              if (savedAug?.swordLevel !== undefined) {
-                augToApply.swordLevel = savedAug.swordLevel;
-              }
-              if (savedAug?.swordFailed !== undefined) {
-                augToApply.swordFailed = savedAug.swordFailed;
-              }
-              if (savedAug?.swordBonusAtk !== undefined) {
-                augToApply.swordBonusAtk = savedAug.swordBonusAtk;
-              }
-              if (savedAug?.swordName !== undefined) {
-                augToApply.swordName = savedAug.swordName;
-              }
-              p.applyAugment(augToApply, battleObj.current, {
-
+              p.applyAugment(fullAug, battleObj.current, {
                 replaceSlot: savedAug?.replacedSlot,
-
                 selectedType: savedAug?.selectedType,
-
                 targetStat: savedAug?.revolutionResult,
                 replacedSkillName: savedAug?.replacedSkillName,
                 swordLevel: savedAug?.swordLevel,
                 swordFailed: savedAug?.swordFailed,
                 swordBonusAtk: savedAug?.swordBonusAtk,
                 swordName: savedAug?.swordName,
-
               });
             }
           });
@@ -420,9 +384,7 @@ const Battle = () => {
 
     if (isMayhem) {
       // 배틀 시작 전에 증강 선택 큐를 먼저 추가
-      const target = [battleObj.current.player, battleObj.current.playerBench1, battleObj.current.playerBench2].find(
-        (p) => p && (p.augments || []).length < 3
-      );
+      const target = [battleObj.current.player, battleObj.current.playerBench1, battleObj.current.playerBench2].find((p) => p && (p.augments || []).length < 3);
       if (target) {
         queueObject.enqueue({
           id: "82c455ab-c426-4986-80c4-f030b3742f94",
@@ -465,7 +427,6 @@ const Battle = () => {
         setBottom(queue[0].bottomMode);
       }
       if (!queue[0].bottomMode && player.faint && turnEnd) {
-
         setBottom("mustSwitch");
       }
 
@@ -475,9 +436,7 @@ const Battle = () => {
 
       if (queue[0].isAugment) {
         const curB = battleObj.current;
-        const target = [curB.player, curB.playerBench1, curB.playerBench2].find(
-          (p) => p && (p.augments || []).length < 3
-        );
+        const target = [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && (p.augments || []).length < 3);
         if (target) {
           const choices = rollAugments(target, 3);
           if (choices && choices.length > 0) {
@@ -594,11 +553,9 @@ const Battle = () => {
     // ----- 이후 UI 처리 -----
     if (last.bottomMode) {
       setBottom(last.bottomMode);
-    }
-    else if (!last.bottomMode && last.battle.player.faint && last.battle.turn.turnEnd) {
+    } else if (!last.bottomMode && last.battle.player.faint && last.battle.turn.turnEnd) {
       setBottom("mustSwitch");
-    }
-    else if (!last.bottomMode && last.battle.turn.uturn) {
+    } else if (!last.bottomMode && last.battle.turn.uturn) {
       setBottom("uturn");
     }
 
@@ -715,11 +672,9 @@ const Battle = () => {
               setIsAugmentStatusOpen(true);
             }}
           >
-            증강 {(() => {
-              const count = [battle?.player, battle?.playerBench1, battle?.playerBench2].reduce(
-                (sum, p) => sum + (p?.augments?.length || 0),
-                0
-              );
+            증강{" "}
+            {(() => {
+              const count = [battle?.player, battle?.playerBench1, battle?.playerBench2].reduce((sum, p) => sum + (p?.augments?.length || 0), 0);
               return count > 0 ? `(${count})` : "";
             })()}
           </AugmentStatusButton>
@@ -920,35 +875,9 @@ const Battle = () => {
               </ModalOverlay>
             );
           })()}
-        {augmentModalOpen && (
-          <AugmentModal
-            team={[
-              battleObj.current?.player,
-              battleObj.current?.playerBench1,
-              battleObj.current?.playerBench2,
-            ].filter(Boolean)}
-            initialTarget={augmentTargetPoke || battleObj.current?.player}
-            augments={augmentChoices}
-            targetPokemon={augmentTargetPoke || battleObj.current?.player}
-            battle={battleObj.current || battle}
-            onSelect={handleSelectAugment}
-            onClose={handleCloseAugment}
-            isTestMode={testmode}
-          />
-        )}
-        {isAugmentStatusOpen && (
-          <AugmentStatusModal
-            battle={battle}
-            onClose={() => setIsAugmentStatusOpen(false)}
-          />
-        )}
-        {isAugmentCarryModalOpen && (
-          <AugmentCarryoverModal
-            battle={battle}
-            round={location.state?.round || defaultOption.round}
-            onConfirm={handleCarryoverConfirm}
-          />
-        )}
+        {augmentModalOpen && <AugmentModal team={[battleObj.current?.player, battleObj.current?.playerBench1, battleObj.current?.playerBench2].filter(Boolean)} initialTarget={augmentTargetPoke || battleObj.current?.player} augments={augmentChoices} targetPokemon={augmentTargetPoke || battleObj.current?.player} battle={battleObj.current || battle} onSelect={handleSelectAugment} onClose={handleCloseAugment} isTestMode={testmode} />}
+        {isAugmentStatusOpen && <AugmentStatusModal battle={battle} onClose={() => setIsAugmentStatusOpen(false)} />}
+        {isAugmentCarryModalOpen && <AugmentCarryoverModal battle={battle} round={location.state?.round || defaultOption.round} onConfirm={handleCarryoverConfirm} />}
       </BATTLE>
     </>
   );

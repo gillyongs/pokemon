@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST, getAugmentLogDesc } from "../../entity/Augment/AugmentData";
+import { AugmentIcon } from "./augment/AugmentIcon";
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -209,29 +208,6 @@ const CloseButton = styled.button`
   }
 `;
 
-const parseAugmentLog = (item) => {
-  if (item.augmentData) {
-    return item.augmentData;
-  }
-  if (item.text && item.text.startsWith("[증강]")) {
-    const match = item.text.match(/^\[증강\]\s*(.+?)\s*["“](.+?)["”]/);
-    if (match) {
-      const targetName = match[1].trim();
-      const augmentName = match[2].trim();
-      const foundAug = AUGMENT_LIST.find((a) => a.name === augmentName || a.shortName === augmentName);
-      const pokes = [item.battle?.player, item.battle?.playerBench1, item.battle?.playerBench2];
-      const targetPoke = pokes.find((p) => p && (p.names === targetName || p.name === targetName));
-      const pokeAug = targetPoke?.augments?.find((a) => a.id === foundAug?.id || a.name === augmentName || a.shortName === augmentName);
-      return {
-        targetName,
-        targetPoke,
-        augment: pokeAug || foundAug || { name: augmentName },
-      };
-    }
-  }
-  return null;
-};
-
 export default function LogModal({ log, onClose }) {
   const listRef = useRef(null);
 
@@ -256,9 +232,8 @@ export default function LogModal({ log, onClose }) {
                 return <TurnIndicator key={index}>{item.text}</TurnIndicator>;
               }
 
-              const augmentData = parseAugmentLog(item);
-              if (augmentData) {
-                const { targetName, targetPoke, augment } = augmentData;
+              if (item.augmentData) {
+                const { targetName, augment } = item.augmentData;
                 return (
                   <AugmentLogCard key={index}>
                     <AugmentHeader>
@@ -276,9 +251,7 @@ export default function LogModal({ log, onClose }) {
                         <AugmentTitleRow>
                           <AugmentName>{augment.shortName || augment.name}</AugmentName>
                         </AugmentTitleRow>
-                        {(augment.desc || augment.logDesc) && (
-                          <AugmentDesc>{getAugmentLogDesc(augment, targetPoke)}</AugmentDesc>
-                        )}
+                        {augment.desc && <AugmentDesc>{augment.desc}</AugmentDesc>}
                       </AugmentInfo>
                     </AugmentBody>
                   </AugmentLogCard>

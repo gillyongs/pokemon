@@ -222,6 +222,7 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 특성 타오르는불꽃에 불꽃 기술이 막힌 경우 리베로가 발동한다
   // 방어로 막으면 특성 발동하지 않음
   // 대타출동 상태일때 불꽃기술 맞으면 특성 발동함
+  // buf (쾌청)은 발동 안함, 도깨비불 (natk)는 발동함
   if (skill.type === "불꽃" && skill.type !== "buf" && def.abil === "타오르는불꽃" && atk.abilObj.feature?.tgg !== true) {
     if (def.tempStatus.flashFire) {
       // 이미 발동된 경우
@@ -248,7 +249,7 @@ export const afterSkillCheck = (bt, enqueue) => {
   if (atk?.hasAugment?.("gamblingAddict") && (skillType === "atk" || skillType === "catk")) {
     if (!random(50)) {
       atk.turn.jumpKickFail = true;
-      enqueue({ id: "88ab9135-e51c-4b30-9b36-58352b21c469", battle: bt, text: "하지만 실패했다!" });
+      enqueue({ id: "88ab9135-e51c-4b30-9b36-58352b21c469", battle: bt, text: "[증강 도박중독] 하지만 실패했다!" });
       return false;
     }
   }

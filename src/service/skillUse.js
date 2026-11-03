@@ -37,7 +37,7 @@ export const skillUse = (bt, enqueue) => {
   // 구애 스킬 고정 처리 (구애 시리즈 또는 무아지경)
   const hasUnbound = atk.hasAugment?.("unboundChoice");
   const isChoiceItem = (atk.item === "구애스카프" || atk.item === "구애머리띠" || atk.item === "구애안경") && !hasUnbound;
-  const isGorillaTactics = atk.abil === "무아지경";
+  const isGorillaTactics = atk.abil === "무아지경" && !hasUnbound;
 
   if (isChoiceItem || isGorillaTactics) {
     atk.tempStatus.onlySkill = skill.name;
@@ -240,6 +240,7 @@ const criticalRate = (input, pokemon = null) => {
       break;
   }
 
+  // 증강 무한의 대검
   if (pokemon?.hasAugment?.("infinityEdge") || pokemon?.augments?.some((a) => a.id === "infinityEdge")) {
     probability += 0.25;
   }

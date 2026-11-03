@@ -156,6 +156,7 @@ class PokemonInstance {
     this.recharge = null; //반동휴식 여부 (파괴광선 등)
     this.augments = [];
     this.log = {
+      getAugmentedStat: null, // 증강으로 인한 능력치 변화
       damage1: null,
       damage2: null,
       speedCalculate: null,
@@ -166,7 +167,7 @@ class PokemonInstance {
   hasAugment(nameOrId) {
     if (!this.augments || !Array.isArray(this.augments)) return false;
     return this.augments.some((aug) => {
-      if (typeof aug === 'string') return aug === nameOrId;
+      if (typeof aug === "string") return aug === nameOrId;
       return aug.id === nameOrId || aug.name === nameOrId;
     });
   }
@@ -175,11 +176,11 @@ class PokemonInstance {
     if (!this.augments) {
       this.augments = [];
     }
-    const augId = typeof augment === 'string' ? augment : augment.id;
+    const augId = typeof augment === "string" ? augment : augment.id;
     if (this.augments.length >= 3) return false;
     if (this.hasAugment(augId)) return false;
 
-    const augObj = typeof augment === 'object' ? { ...augment } : { id: augment };
+    const augObj = typeof augment === "object" ? { ...augment } : { id: augment };
 
     if (Array.isArray(this.augments) && Object.isExtensible(this.augments)) {
       this.augments.push(augObj);
@@ -187,7 +188,7 @@ class PokemonInstance {
       this.augments = [...(this.augments || []), augObj];
     }
 
-    if (typeof augObj === 'object' && augObj.onApply) {
+    if (typeof augObj === "object" && augObj.onApply) {
       augObj.onApply(this, battle, options);
     }
     return true;

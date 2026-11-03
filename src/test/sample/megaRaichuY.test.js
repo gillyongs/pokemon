@@ -89,19 +89,20 @@ describe("Mega Raichu Y (메가라이츄Y) & No Guard (노가드) & Zap Cannon (
     expect(getAccuracy(battle, zapCannon, player)).toBe(100);
   });
 
-  it("should have user-provided core and others in PokemonSkillList (77 total)", () => {
+  it("should have user-provided core and others in PokemonSkillList (75 total)", () => {
     const skills = getSkillListForPokemon("0026");
-    expect(skills.length).toBe(77);
+    expect(skills.length).toBe(75);
 
     const names = skills.map((s) => s.name);
-    // Core moves (9)
+    // Core moves
     expect(names).toContain("전자포");
     expect(names).toContain("기합구슬");
     expect(names).toContain("풀묶기");
     expect(names).toContain("대타출동");
     expect(names).toContain("나쁜음모");
     expect(names).toContain("볼트체인지");
-    expect(names).toContain("앙코르");
+    expect(names).not.toContain("앙코르");
+    expect(names).not.toContain("테라버스트");
     expect(names).toContain("속이기");
     expect(names).toContain("매혹의보이스");
 

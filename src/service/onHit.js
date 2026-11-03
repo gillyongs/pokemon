@@ -118,7 +118,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   }
   // [증강] 가시갑옷: 타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 준다
   if (defPokemon.hasAugment?.("thornmail") && touch && !atkPokemon.faint) {
-    const text = atkPokemon.names + " 가시갑옷 때문에 데미지를 입었다!";
+    const text = "[증강 가시갑옷] " + atkPokemon.names + " 가시갑옷 때문에 데미지를 입었다!";
     atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 6, text);
   }
 };

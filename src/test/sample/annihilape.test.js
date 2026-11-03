@@ -54,7 +54,7 @@ describe("Annihilape (저승갓숭) & Rage Fist (분노의주먹) & Vital Spirit
 
   it("should have user-provided core and others in PokemonSkillList", () => {
     const skills = getSkillListForPokemon("0979");
-    expect(skills.length).toBe(81);
+    expect(skills.length).toBe(79);
 
     const names = skills.map((s) => s.name);
     // Core moves
@@ -66,7 +66,8 @@ describe("Annihilape (저승갓숭) & Rage Fist (분노의주먹) & Vital Spirit
     expect(names).toContain("냉동펀치");
 
     // Standardized moves
-    expect(names).toContain("앙코르");
+    expect(names).not.toContain("앙코르");
+    expect(names).not.toContain("테라버스트");
     expect(names).toContain("깨트리기");
     expect(names).toContain("섀도클로");
   });

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { getAugmentLogDesc } from "../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, team = [], onClose }) => {
   const resolvedTeam =
@@ -71,7 +70,7 @@ const AugmentStatusModal = ({ battle, team = [], onClose }) => {
                 </IconCol>
                 <CardContent>
                   <CardTitle>{aug.shortName || aug.name}</CardTitle>
-                  <CardDescription>{getAugmentLogDesc(aug, activePokemon)}</CardDescription>
+                  <CardDescription>{aug.desc}</CardDescription>
                 </CardContent>
               </AugmentCard>
             ))

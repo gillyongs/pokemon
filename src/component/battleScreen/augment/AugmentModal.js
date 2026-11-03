@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST, getAugmentDesc, getSwordEnhanceTier, getSwordEnhanceProb } from "../../entity/Augment/AugmentData";
-import { ALL_POKEMON_TYPES, TYPE_COLORS, isTypeAlreadyNullified, getTypeEffectText } from "../../util/typeEffectCalculate";
-import { getWeatherBallType } from "../../util/weatherBall";
-import { rollTeamAugments } from "../../util/augmentRoll";
-import { testmode, subscribeTestMode } from "../../config/testMode";
+import { AUGMENT_LIST } from "../../../entity/Augment/AugmentData";
+import { getSwordEnhanceTier, getSwordEnhanceProb } from "../../../entity/Augment/swordEnhance";
+import { ALL_POKEMON_TYPES, TYPE_COLORS, isNoEffect, getTypeEffectText } from "../../../util/typeEffectCalculate";
+import { getWeatherBallType } from "../../../util/weatherBall";
+import { rollTeamAugments } from "../../../util/augmentRoll";
+import { testmode, subscribeTestMode } from "../../../config/testMode";
 import AugmentStatusModal from "./AugmentStatusModal";
 
 const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialTarget = null, battle = null, onSelect, onClose, isTestMode: propTestMode = null }) => {
@@ -478,7 +479,9 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                 <TypeGridContainer>
                   <TypeGrid>
                     {ALL_POKEMON_TYPES.map((tName) => {
-                      const isDisabled = typeSelectAug?.id === "teraBlast" ? false : isTypeAlreadyNullified(activePokemon, tName, battle);
+                      const t1 = activePokemon?.origin?.type1 || activePokemon?.type1;
+                      const t2 = activePokemon?.origin?.type2 || activePokemon?.type2;
+                      const isDisabled = typeSelectAug?.id === "teraBlast" ? false : Boolean(t1 && isNoEffect(tName, t1, t2));
                       const isSelected = selectedType === tName;
                       const typeCol = TYPE_COLORS[tName] || "#64ffda";
                       return (
@@ -638,7 +641,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                               </IconCol>
                               <CardContent>
                                 <CardTitle>{aug.name}</CardTitle>
-                                <CardDescription>{getAugmentDesc(aug, activePokemon)}</CardDescription>
+                                <CardDescription>{aug.desc}</CardDescription>
                               </CardContent>
                             </AugmentCard>
                           );
@@ -662,7 +665,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                                     <CardTitle>{aug.name}</CardTitle>
                                     <IneligibleBadge>선택 불가</IneligibleBadge>
                                   </CardTitleRow>
-                                  <CardDescription>{getAugmentDesc(aug, activePokemon)}</CardDescription>
+                                  <CardDescription>{aug.desc}</CardDescription>
                                 </CardContent>
                               </AugmentCard>
                             ))}
@@ -685,7 +688,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                           </IconCol>
                           <CardContent>
                             <CardTitle>{aug.name}</CardTitle>
-                            <CardDescription>{getAugmentDesc(aug, activePokemon)}</CardDescription>
+                            <CardDescription>{aug.desc}</CardDescription>
                           </CardContent>
                         </AugmentCard>
                       );

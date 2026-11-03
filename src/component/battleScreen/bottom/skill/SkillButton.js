@@ -47,7 +47,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     const { onlySkill } = player.tempStatus;
     const hasUnbound = player.hasAugment?.("unboundChoice");
     const isChoiceLocked = Boolean(player.item?.startsWith("구애") && !hasUnbound);
-    const isGorillaLocked = player.abil === "무아지경";
+    const isGorillaLocked = Boolean(player.abil === "무아지경" && !hasUnbound);
 
     if (onlySkill && (isChoiceLocked || isGorillaLocked) && onlySkill !== skill.name) {
       const lockSource = isGorillaLocked ? "특성 무아지경" : player.item;

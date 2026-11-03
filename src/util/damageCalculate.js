@@ -9,65 +9,91 @@ export const getAugmentedStat = (pokemon, statKey) => {
   const baseStatObj = pokemon?.origin?.stat || pokemon?.stat;
   let val = baseStatObj?.[statKey] ?? 0;
   if (typeof val !== "number") return 0;
-  if (statKey !== "atk" && statKey !== "catk") return val;
+  if (pokemon) {
+    pokemon.log = pokemon.log || {};
+    pokemon.log.getAugmentedStat = `${val}(${statKey})`;
+  }
+  if (statKey !== "atk" && statKey !== "catk") {
+    if (pokemon) pokemon.log.getAugmentedStat += ` = ${val}`;
+    return val;
+  }
 
   const augments = pokemon?.augments || [];
+
+  // 합적용 ==============================================================================
   for (const aug of augments) {
     const augId = typeof aug === "string" ? aug : aug?.id;
+
+    // 검 강화하기
     if (augId === "swordEnhance") {
-      const failed = Boolean(
-        aug?.swordFailed ?? pokemon?._swordEnhanceFailed ?? pokemon?.origin?._swordEnhanceFailed
-      );
-      const level = Number(
-        aug?.swordLevel ?? pokemon?._swordEnhanceLevel ?? pokemon?.origin?._swordEnhanceLevel ?? 0
-      );
-      const bonusAtk =
-        aug?.swordBonusAtk !== undefined
-          ? Number(aug.swordBonusAtk)
-          : pokemon?._swordEnhanceBonusAtk !== undefined
-          ? Number(pokemon._swordEnhanceBonusAtk)
-          : pokemon?.origin?._swordEnhanceBonusAtk !== undefined
-          ? Number(pokemon.origin._swordEnhanceBonusAtk)
-          : failed
-          ? 0
-          : 20 + level * 20;
+      const failed = Boolean(aug?.swordFailed);
+      const level = Number(aug?.swordLevel ?? 0);
+      const bonusAtk = aug?.swordBonusAtk !== undefined ? Number(aug.swordBonusAtk) : failed ? 0 : 20 + level * 20;
       if (bonusAtk > 0) {
         val += bonusAtk;
+        pokemon.log.getAugmentedStat += ` + ${bonusAtk} (검 강화하기)`;
       }
+
+      // 무한의 대검
     } else if (augId === "infinityEdge") {
       if (statKey === "atk") {
         val += 75;
+        pokemon.log.getAugmentedStat += " + 75 (무한의 대검)";
       }
+
+      // 공허의 지팡이
     } else if (augId === "voidStaff") {
       if (statKey === "catk") {
         val += 95;
+        pokemon.log.getAugmentedStat += " + 95 (공허의 지팡이)";
       }
+
+      // 라바돈의 죽음 모자
     } else if (augId === "rabadonsDeathcap") {
       if (statKey === "catk") {
-        val = Math.round((val + 130) * 1.3);
+        val += 130;
+        pokemon.log.getAugmentedStat += " + 130 (라바돈)";
       }
-    } else if (augId === "rebellionOrRevolution" || augId === "revolution") {
-      const pick =
-        aug?.revolutionResult ||
-        aug?._revolutionResult ||
-        pokemon?._revolutionResult ||
-        pokemon?.origin?._revolutionResult;
+    }
+  }
+
+  // 곱적용 =============================================================
+  for (const aug of augments) {
+    const augId = typeof aug === "string" ? aug : aug?.id;
+
+    // 라바돈의 죽음 모자
+    if (augId === "rabadonsDeathcap") {
+      if (statKey === "catk") {
+        val = Math.round(val * 1.3);
+        pokemon.log.getAugmentedStat += " * 1.3 (라바돈)";
+      }
+    }
+    // 실패하면 반역 성공하면 혁명 아닙니까!
+    else if (augId === "rebellionOrRevolution" || augId === "revolution") {
+      const pick = aug?.revolutionResult;
       if (pick === "atk") {
         if (statKey === "atk") {
           val = Math.round(val * 2);
+          pokemon.log.getAugmentedStat += " * 2 (혁명)";
         } else if (statKey === "catk") {
           val = Math.max(1, Math.floor(val / 2));
+          pokemon.log.getAugmentedStat += " / 2 (반역)";
         }
       } else if (pick === "catk") {
         if (statKey === "catk") {
           val = Math.round(val * 2);
+          pokemon.log.getAugmentedStat += " * 2 (혁명)";
         } else if (statKey === "atk") {
           val = Math.max(1, Math.floor(val / 2));
+          pokemon.log.getAugmentedStat += " / 2 (반역)";
         }
       }
     }
   }
 
+  if (pokemon) {
+    pokemon.log.getAugmentedStat += ` = ${val}`;
+  }
   return val;
 };
 
@@ -84,6 +110,16 @@ export const damageCalculate = (battle, obj, ai) => {
   if (skill?.name === "웨더볼") {
     const wType = getWeatherBallType(battle.field?.weather);
     skill = { ...skill, type: wType };
+  }
+  if (skill?.name === "테라버스트") {
+    // 공격과 특공중 더 높은 쪽을 적용.
+    // 공격이 더 높으면 물리기가 된다
+    // 랭크업까진 적용, 아이템이나 특성은 반영하지 않는다.
+    const currentAtk = getAugmentedStat(attackPokemon, "atk") * getMultiplier(attackPokemon.tempStatus.rank.atk);
+    const currentCatk = getAugmentedStat(attackPokemon, "catk") * getMultiplier(attackPokemon.tempStatus.rank.catk);
+    if (currentAtk > currentCatk) {
+      skill = { ...skill, stype: "atk" };
+    }
   }
 
   const atkAbil = attackPokemon.abil;
@@ -149,19 +185,6 @@ export const damageCalculate = (battle, obj, ai) => {
     defenseStat = "cdef";
     if (skill.name === "사이코쇼크") {
       defenseStat = "def";
-    }
-    if (skill.name === "테라버스트") {
-      const atkRank = attackPokemon.tempStatus?.rank?.atk ?? 0;
-      const catkRank = attackPokemon.tempStatus?.rank?.catk ?? 0;
-      const currentAtk = getAugmentedStat(attackPokemon, "atk") * getMultiplier(atkRank);
-      const currentCatk = getAugmentedStat(attackPokemon, "catk") * getMultiplier(catkRank);
-      if (currentAtk > currentCatk) {
-        attackStat = "atk";
-        defenseStat = "def";
-      } else {
-        attackStat = "catk";
-        defenseStat = "cdef";
-      }
     }
   }
 
@@ -240,7 +263,7 @@ export const damageCalculate = (battle, obj, ai) => {
   let defStr = defStat + "(" + defenseStat + ")";
 
   // 공격 (atk) ===================================
-  if (skill.stype === "atk" || (skill.name === "테라버스트" && attackStat === "atk")) {
+  if (skill.stype === "atk") {
     // 바디프레스나 속임수는 '물리기'면 구애머리띠나 화상이 적용된다.
     if (attackPokemon.item === "구애머리띠") {
       atkStat *= 1.5;
@@ -304,7 +327,7 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 특공 (catk) ===================================
-  if (skill.stype === "catk" && !(skill.name === "테라버스트" && attackStat === "atk")) {
+  if (skill.stype === "catk") {
     if (attackPokemon.item === "구애안경") {
       atkStat *= 1.5;
       atkStr += " * 1.5 (구애안경)";
@@ -328,6 +351,7 @@ export const damageCalculate = (battle, obj, ai) => {
         atkStr += ` * 0.5 (${wallName})`;
       }
     }
+
     if (attackPokemon.tempStatus.protosynthesis === "catk") {
       atkStat *= 1.3;
       atkStr += " * 1.3 (고대활성)";
@@ -342,7 +366,7 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
-  // 특방 (cdef) ===================================
+  // 방어 (def) ===================================
   if (defenseStat === "def") {
     if (defensePokemon.tempStatus.protosynthesis === "def") {
       defStat *= 1.3;
@@ -395,7 +419,7 @@ export const damageCalculate = (battle, obj, ai) => {
     const hasVoidStaff = attackPokemon?.hasAugment?.("voidStaff") || attackPokemon?.augments?.some((a) => a.id === "voidStaff");
     if (hasVoidStaff) {
       defStat *= 0.6;
-      defStr += " * 0.6 (공허의 지팡이)";
+      defStr += " * 0.6 (공허의 지팡이 마관)";
     }
   }
 
@@ -557,7 +581,7 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   if (atkAbil === "총대장") {
-    // 총대장은 설명과 달리 기술 데미지를 올려주는게 맞음
+    // 총대장은 능력치가 아니라 기술 데미지를 올려주는게 맞음
     // 대도각참이 속임수 쓰면 상대방 공격력에 자신 총대장 보정을 적용 공격
     // 반대로 상대가 속임수를 쓸땐 대도각참의 총대장으로 올라간 능력치가 반영되지 않음
     let faintedCount = 0;
@@ -618,6 +642,20 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.2 (스카이스킨)";
   }
 
+  // 증강 ==============================================================
+
+  // 도박 중독 증강: 위력 3배 증가
+  if (attackPokemon?.hasAugment?.("gamblingAddict") && (skill.stype === "atk" || skill.stype === "catk")) {
+    damage *= 3;
+    attackPokemon.log.damage1 += " * 3 (도박중독)";
+  }
+
+  // 원펀맨 증강: 공격기술의 위력 999배 증가
+  if (attackPokemon?.hasAugment?.("onePunchMan") && (skill.stype === "atk" || skill.stype === "catk")) {
+    damage *= 999;
+    attackPokemon.log.damage1 += " * 999 (진심펀치)";
+  }
+
   // ======================================================================  [고정 공식] ========================================
   // ===========================================================================================================================
   // ===========================================================================================================================
@@ -668,7 +706,7 @@ export const damageCalculate = (battle, obj, ai) => {
   if (isCritical) {
     const hasIE = attackPokemon?.hasAugment?.("infinityEdge") || attackPokemon?.augments?.some((a) => a.id === "infinityEdge");
     if (hasIE) {
-      damage *= (1.5 * 1.3);
+      damage *= 1.5 * 1.3;
       attackPokemon.log.damage2 += " * 1.5 (급소) * 1.3 (무한의 대검)";
     } else {
       damage *= 1.5;
@@ -687,6 +725,10 @@ export const damageCalculate = (battle, obj, ai) => {
     if (obj) text += ` (${obj.serial + 1}타)`;
 
     console.log(text);
+    if (getAugmentedStat(attackPokemon, attackStat) !== attackPokemon.origin.stat[attackStat]) {
+      console.log(attackPokemon.log.getAugmentedStat);
+    }
+
     console.log(attackPokemon.log.damage1);
     console.log(attackPokemon.log.damage2);
   }
@@ -763,6 +805,8 @@ const getRandomNumber = () => {
 };
 
 const powerCalculate = (battle, skill, obj, ai) => {
+  // 위력이 변하는 기술의 위력 계산
+  // 단순히 위력 n배 같은 보정은 damageCalculate에서 적용
   const atk = battle[battle.turn.atk];
   let power = skill.power;
 
@@ -869,16 +913,6 @@ const powerCalculate = (battle, skill, obj, ai) => {
     if (weather && weather.get() !== null) {
       power = 100;
     }
-  }
-  
-  // 도박 중독 증강: 공격기(물리/특수) 위력 3배
-  if (atk?.hasAugment?.('gamblingAddict') && (skill.stype === 'atk' || skill.stype === 'catk')) {
-    power *= 3;
-  }
-
-  // 원펀맨 증강: 공격기술의 위력 999배 증가
-  if (atk?.hasAugment?.('onePunchMan') && (skill.stype === 'atk' || skill.stype === 'catk')) {
-    power *= 999;
   }
 
   return Math.floor(power);

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { getAugmentLogDesc } from "../../entity/Augment/AugmentData";
+
+// 다음 라운드로 넘길 증강 선택 모달
 
 const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   // 라운드 * 3 값 (1라운드: 3pt, 2라운드: 6pt, 3라운드: 9pt...)
@@ -70,47 +71,14 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           id: item.augment.id,
           name: item.augment.name,
           cost: item.augment.cost,
-          replacedSlot:
-            item.augment.replacedSlot ??
-            item.augment._danceReplacedSlot ??
-            item.augment._salamenceReplacedSlot ??
-            item.augment._teraBlastReplacedSlot ??
-            item.pokemon?._danceReplacedSlot ??
-            item.pokemon?._salamenceReplacedSlot ??
-            item.pokemon?._teraBlastReplacedSlot,
-          selectedType:
-            item.augment.selectedType ??
-            item.augment._nullifyType ??
-            item.augment._teraBlastType ??
-            item.pokemon?._nullifyType ??
-            item.pokemon?._teraBlastType,
-          revolutionResult:
-            item.augment.revolutionResult ??
-            item.augment._revolutionResult ??
-            item.pokemon?._revolutionResult ??
-            item.pokemon?.origin?._revolutionResult,
-          replacedSkillName:
-            item.augment.replacedSkillName ??
-            item.augment._replacedSkillName ??
-            item.augment._teraBlastReplacedSkillName ??
-            item.pokemon?._teraBlastReplacedSkillName ??
-            item.pokemon?.origin?._teraBlastReplacedSkillName,
-          swordLevel:
-            item.augment.swordLevel ??
-            item.pokemon?._swordEnhanceLevel ??
-            item.pokemon?.origin?._swordEnhanceLevel,
-          swordFailed:
-            item.augment.swordFailed ??
-            item.pokemon?._swordEnhanceFailed ??
-            item.pokemon?.origin?._swordEnhanceFailed,
-          swordBonusAtk:
-            item.augment.swordBonusAtk ??
-            item.pokemon?._swordEnhanceBonusAtk ??
-            item.pokemon?.origin?._swordEnhanceBonusAtk,
-          swordName:
-            item.augment.swordName ??
-            item.pokemon?._swordEnhanceName ??
-            item.pokemon?.origin?._swordEnhanceName,
+          replacedSlot: item.augment.replacedSlot,
+          selectedType: item.augment.selectedType,
+          revolutionResult: item.augment.revolutionResult,
+          replacedSkillName: item.augment.replacedSkillName,
+          swordLevel: item.augment.swordLevel,
+          swordFailed: item.augment.swordFailed,
+          swordBonusAtk: item.augment.swordBonusAtk,
+          swordName: item.augment.swordName,
         });
       }
     });
@@ -159,7 +127,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
                             </CardMeta>
                             <CheckIndicator $selected={isSelected}>{isSelected ? "✓" : ""}</CheckIndicator>
                           </CardHeader>
-                          <AugDesc>{getAugmentLogDesc(item.augment, item.pokemon)}</AugDesc>
+                          <AugDesc>{item.augment.desc}</AugDesc>
                         </AugmentCard>
                       );
                     })}
