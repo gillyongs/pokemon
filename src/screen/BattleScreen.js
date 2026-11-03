@@ -6,11 +6,13 @@ import { createBattle } from "../entity/Battle";
 import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../util/recoilState";
 import { testmode, setSelectedNpcAct, subscribeTestMode } from "../config/testMode";
-import TradeInfoModal from "../component/battleScreen/TradeInfoModal";
 import AugmentModal from "../component/battleScreen/augment/AugmentModal";
 import AugmentStatusModal from "../component/battleScreen/augment/AugmentStatusModal";
 import AugmentCarryoverModal from "../component/battleScreen/augment/AugmentCarryoverModal";
-import DebugLogModal from "../component/battleScreen/DebugLogModal";
+import RoundOptionsModal from "../component/battleScreen/RoundOptionsModal";
+import GameResultModal from "../component/battleScreen/GameResultModal";
+import TestingTools from "../component/battleScreen/TestingTools";
+import AfterBattleTradeModal from "../component/battleScreen/AfterBattleTradeModal";
 import { consoleLog } from "../util/consoleLog";
 import { rollAugments } from "../util/augmentRoll";
 import { AUGMENT_LIST, getAugmentText } from "../entity/Augment/AugmentData";
@@ -39,10 +41,6 @@ const Battle = () => {
   const battleObj = useRef(battleOrigin);
   const [battle, setBattle] = useState(battleOrigin);
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
-  const [tradePlayerIdx, setTradePlayerIdx] = useState(null);
-  const [tradeNpcIdx, setTradeNpcIdx] = useState(null);
-  const [tradeInfoPokemon, setTradeInfoPokemon] = useState(null);
-  const [tradeAlertMessage, setTradeAlertMessage] = useState(null);
   const [isRoundOptionsOpen, setIsRoundOptionsOpen] = useState(false);
   const [isDebugModalOpen, setIsDebugModalOpen] = useState(false);
   const [augmentModalOpen, setAugmentModalOpen] = useState(false);
@@ -83,10 +81,6 @@ const Battle = () => {
   const handleRestart = () => {
     setGameResult(null);
     setIsTradeModalOpen(false);
-    setTradePlayerIdx(null);
-    setTradeNpcIdx(null);
-    setTradeInfoPokemon(null);
-    setTradeAlertMessage(null);
     queueObject.initQueue();
     const { team1, team2, isNew, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round, fromCustom } = location.state || {};
     navigate("/battle", { state: { team1, team2, isNew: true, difficulty, teamOption, round, fromCustom }, replace: true });
@@ -96,10 +90,6 @@ const Battle = () => {
     const { teamOption = gameOption.teamOption } = location.state || {};
     // 1. 트레이드 모드인 경우 트레이드 모달을 먼저 띄운다.
     if (teamOption === "트레이드") {
-      setTradePlayerIdx(null);
-      setTradeNpcIdx(null);
-      setTradeInfoPokemon(null);
-      setTradeAlertMessage(null);
       setIsTradeModalOpen(true);
       return;
     }
@@ -137,10 +127,6 @@ const Battle = () => {
     setIsAugmentCarryModalOpen(false);
     setCarriedAugmentsData(null);
     setPendingNextTeam(null);
-    setTradePlayerIdx(null);
-    setTradeNpcIdx(null);
-    setTradeInfoPokemon(null);
-    setTradeAlertMessage(null);
     queueObject.initQueue();
     const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round, fromCustom, mayhemMode = gameOption.mayhemMode } = location.state || {};
 
@@ -196,20 +182,14 @@ const Battle = () => {
     });
   };
 
-  const submitTrade = () => {
+  const submitTrade = (tradePlayerIdx, tradeNpcIdx) => {
     if (tradePlayerIdx === null || tradeNpcIdx === null) return;
     const curBattle = battleObj.current || battle;
     const playerTeamFixed = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2].sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
     const npcTeamFixed = [curBattle.npc, curBattle.npcBench1, curBattle.npcBench2].sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
 
     const playerPoke = playerTeamFixed[tradePlayerIdx];
-    const npcPoke = npcTeamFixed[tradeNpcIdx];
-    const hasPlayerLegendary = playerTeamFixed.some((p) => isLegendary(p?.origin));
-
-    if (hasPlayerLegendary && isLegendary(playerPoke?.origin) !== isLegendary(npcPoke?.origin)) {
-      setTradeAlertMessage("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
-      return;
-    }
+    if (!playerPoke) return;
 
     const { team1 } = location.state || {};
     let nextTeam1 = playerTeamFixed.length === 3 ? playerTeamFixed.map((p) => p.id) : [...team1];
@@ -450,10 +430,6 @@ const Battle = () => {
     setIsTradeModalOpen(false);
     setIsAugmentCarryModalOpen(false);
     setCarriedAugmentsData(null);
-    setTradePlayerIdx(null);
-    setTradeNpcIdx(null);
-    setTradeInfoPokemon(null);
-    setTradeAlertMessage(null);
 
     const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
     battleObj.current = createBattle(team1, team2, { difficulty, round, mayhemMode: isMayhem });
@@ -698,47 +674,13 @@ const Battle = () => {
           >
             Round {location.state?.round || defaultOption.round}
           </RoundIndicator>
-          {isRoundOptionsOpen && (
-            <ModalOverlay
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsRoundOptionsOpen(false);
-              }}
-              style={{ zIndex: 1100, backgroundColor: "rgba(0,0,0,0.5)" }}
-            >
-              <ModalBox onClick={(e) => e.stopPropagation()} style={{ width: "300px", padding: "20px" }}>
-                <h3 style={{ color: "#fff", marginBottom: "20px", marginTop: "0" }}>현재 게임 옵션</h3>
-                <div style={{ color: "#ddd", textAlign: "left", lineHeight: "1.8", fontSize: "1.1rem" }}>
-                  <p>
-                    <strong>난이도:</strong> {location.state?.difficulty || gameOption.difficulty}
-                    {(() => {
-                      const difficulty = location.state?.difficulty || gameOption.difficulty;
-                      const round = location.state?.round || defaultOption.round;
-                      const multiplier = (1.0 + (round - 1) * 0.1).toFixed(1); // PokemonInstance의 배율 공식과 동일
-                      if (difficulty === "노말") return ` (상대 포켓몬 HP 배율 ${multiplier}배)`;
-                      if (difficulty === "하드") return ` (상대 포켓몬 능력치 배율 ${multiplier}배)`;
-                      return "";
-                    })()}
-                  </p>
-                  <p>
-                    <strong>팀 옵션:</strong> {location.state?.teamOption || gameOption.teamOption}
-                  </p>
-                </div>
-                <ModalButtonContainer style={{ marginTop: "20px" }}>
-                  <ModalButton
-                    $primary
-                    $isWin={true}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsRoundOptionsOpen(false);
-                    }}
-                  >
-                    닫기
-                  </ModalButton>
-                </ModalButtonContainer>
-              </ModalBox>
-            </ModalOverlay>
-          )}
+          <RoundOptionsModal
+            isOpen={isRoundOptionsOpen}
+            onClose={() => setIsRoundOptionsOpen(false)}
+            difficulty={location.state?.difficulty || gameOption.difficulty}
+            round={location.state?.round || defaultOption.round}
+            teamOption={location.state?.teamOption || gameOption.teamOption}
+          />
           {testmode &&
             battle?.npc &&
             (() => {
@@ -808,223 +750,35 @@ const Battle = () => {
             </AugmentStatusButton>
           )}
         </BOTTOM>
-        {gameResult && !isTradeModalOpen && (
-          <ModalOverlay>
-            <ModalBox onClick={(e) => e.stopPropagation()}>
-              <ModalTitle $isWin={gameResult === "win"}>{gameResult === "win" ? "승리!" : "패배..."}</ModalTitle>
-              <ModalButtonContainer>
-                <ModalButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate("/");
-                  }}
-                >
-                  메인으로
-                </ModalButton>
-                {gameResult === "win" && (
-                  <ModalButton
-                    $primary
-                    $isWin={gameResult === "win"}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleNextRound();
-                    }}
-                  >
-                    다음 라운드
-                  </ModalButton>
-                )}
-              </ModalButtonContainer>
-            </ModalBox>
-          </ModalOverlay>
-        )}
-
-        {isTradeModalOpen &&
-          (() => {
-            const playerTeamFixed = [battle.player, battle.playerBench1, battle.playerBench2].sort((a, b) => a.originalIndex - b.originalIndex);
-            const npcTeamFixed = [battle.npc, battle.npcBench1, battle.npcBench2].sort((a, b) => a.originalIndex - b.originalIndex);
-
-            const selectedPlayerPoke = tradePlayerIdx !== null ? playerTeamFixed[tradePlayerIdx] : null;
-            const selectedNpcPoke = tradeNpcIdx !== null ? npcTeamFixed[tradeNpcIdx] : null;
-            const hasPlayerLegendary = playerTeamFixed.some((p) => isLegendary(p?.origin));
-            const canTrade = (playerPoke, npcPoke) => !hasPlayerLegendary || isLegendary(playerPoke?.origin) === isLegendary(npcPoke?.origin);
-
-            const isTradeValid = tradePlayerIdx !== null && tradeNpcIdx !== null && canTrade(playerTeamFixed[tradePlayerIdx], npcTeamFixed[tradeNpcIdx]);
-
-            const handlePlayerCardClick = (idx, p) => {
-              if (tradePlayerIdx === idx) {
-                setTradePlayerIdx(null);
-                return;
-              }
-              if (selectedNpcPoke && !canTrade(p, selectedNpcPoke)) {
-                setTradeAlertMessage("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
-                return;
-              }
-              setTradePlayerIdx(idx);
-            };
-
-            const handleNpcCardClick = (idx, p) => {
-              if (tradeNpcIdx === idx) {
-                setTradeNpcIdx(null);
-                return;
-              }
-              if (selectedPlayerPoke && !canTrade(selectedPlayerPoke, p)) {
-                setTradeAlertMessage("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
-                return;
-              }
-              setTradeNpcIdx(idx);
-            };
-
-            return (
-              <ModalOverlay>
-                <ModalBox onClick={(e) => e.stopPropagation()} style={{ width: "95vw", maxWidth: "600px", maxHeight: "95vh", padding: "15px", display: "flex", flexDirection: "column", gap: "15px", justifyContent: "center", boxSizing: "border-box" }}>
-                  <div>
-                    <ModalTitle $isWin={true} style={{ fontSize: "2.4rem", margin: "10px 0 5px", wordBreak: "keep-all" }}>
-                      포켓몬 트레이드
-                    </ModalTitle>
-                    <div style={{ textAlign: "center", color: "#aaa", fontSize: "0.85rem" }}>* 팀 내 초전설 포켓몬은 최대 1마리까지 보유할 수 있습니다.</div>
-                  </div>
-                  <TradeContainer>
-                    <TradeColumn>
-                      <h3 style={{ textAlign: "center", color: "#64ffda", margin: "5px 0" }}>내 엔트리</h3>
-                      {playerTeamFixed.map((p, idx) => {
-                        const isLeg = isLegendary(p?.origin);
-                        const isDisabled = selectedNpcPoke ? !canTrade(p, selectedNpcPoke) : false;
-                        return (
-                          <TradeCard key={idx} $selected={tradePlayerIdx === idx} $disabled={isDisabled} onClick={() => handlePlayerCardClick(idx, p)}>
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "7vh", overflow: "hidden" }}>
-                              <TradeCardImage src={`/pokemon/img/pokemon/${p.origin.pokemon_id}.webp`} />
-                              <TradeCardName>{p.origin.name}</TradeCardName>
-                            </div>
-                            <TradeInfoButton
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setTradeInfoPokemon(p);
-                              }}
-                            >
-                              상세정보
-                            </TradeInfoButton>
-                          </TradeCard>
-                        );
-                      })}
-                    </TradeColumn>
-                    <TradeColumn>
-                      <h3 style={{ textAlign: "center", color: "#ff5252", margin: "5px 0" }}>상대 엔트리</h3>
-                      {npcTeamFixed.map((p, idx) => {
-                        const isLeg = isLegendary(p?.origin);
-                        const isDisabled = selectedPlayerPoke ? !canTrade(selectedPlayerPoke, p) : false;
-                        return (
-                          <TradeCard key={idx} $selected={tradeNpcIdx === idx} $disabled={isDisabled} onClick={() => handleNpcCardClick(idx, p)}>
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "7vh", overflow: "hidden" }}>
-                              <TradeCardImage src={`/pokemon/img/pokemon/${p.origin.pokemon_id}.webp`} />
-                              <TradeCardName>{p.origin.name}</TradeCardName>
-                            </div>
-                            <TradeInfoButton
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setTradeInfoPokemon(p);
-                              }}
-                            >
-                              상세정보
-                            </TradeInfoButton>
-                          </TradeCard>
-                        );
-                      })}
-                    </TradeColumn>
-                  </TradeContainer>
-                  <ModalButtonContainer>
-                    <ModalButton onClick={handleSkipTrade}>건너뛰기</ModalButton>
-                    <ModalButton
-                      $primary
-                      $isWin={true}
-                      onClick={isTradeValid ? submitTrade : undefined}
-                      style={{
-                        backgroundColor: isTradeValid ? "rgba(100, 255, 218, 0.1)" : "rgba(128, 128, 128, 0.1)",
-                        color: isTradeValid ? "#64ffda" : "#888",
-                        borderColor: isTradeValid ? "rgba(100, 255, 218, 0.5)" : "rgba(128, 128, 128, 0.5)",
-                        cursor: isTradeValid ? "pointer" : "not-allowed",
-                      }}
-                    >
-                      교환 및 진행
-                    </ModalButton>
-                  </ModalButtonContainer>
-                </ModalBox>
-                {tradeInfoPokemon && <TradeInfoModal pokemon={tradeInfoPokemon} onClose={() => setTradeInfoPokemon(null)} />}
-                {tradeAlertMessage && (
-                  <ModalOverlay
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setTradeAlertMessage(null);
-                    }}
-                    style={{ zIndex: 1200, backgroundColor: "rgba(0, 0, 0, 0.65)" }}
-                  >
-                    <ModalBox
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        width: "85vw",
-                        maxWidth: "380px",
-                        padding: "28px 24px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "20px",
-                        boxSizing: "border-box",
-                      }}
-                    >
-                      <ModalTitle $isWin={false} style={{ fontSize: "1.8rem", margin: "0", wordBreak: "keep-all" }}>
-                        교환 불가
-                      </ModalTitle>
-                      <div style={{ color: "#e0e0e0", fontSize: "1rem", lineHeight: "1.6", wordBreak: "keep-all" }}>{tradeAlertMessage}</div>
-                      <ModalButtonContainer>
-                        <ModalButton
-                          $primary
-                          $isWin={true}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setTradeAlertMessage(null);
-                          }}
-                          style={{ padding: "12px 0" }}
-                        >
-                          확인
-                        </ModalButton>
-                      </ModalButtonContainer>
-                    </ModalBox>
-                  </ModalOverlay>
-                )}
-              </ModalOverlay>
-            );
-          })()}
+        <GameResultModal
+          gameResult={!isTradeModalOpen ? gameResult : null}
+          onMainMenu={() => navigate("/")}
+          onNextRound={handleNextRound}
+        />
+        <AfterBattleTradeModal
+          isOpen={isTradeModalOpen}
+          battle={battleObj.current || battle}
+          onConfirmTrade={submitTrade}
+          onSkipTrade={handleSkipTrade}
+        />
         {augmentModalOpen && <AugmentModal team={isTitanSelection && augmentTargetPoke ? [augmentTargetPoke] : [battleObj.current?.player, battleObj.current?.playerBench1, battleObj.current?.playerBench2].filter(Boolean)} initialTarget={augmentTargetPoke || battleObj.current?.player} augments={augmentChoices} targetPokemon={augmentTargetPoke || battleObj.current?.player} battle={battleObj.current || battle} onSelect={handleSelectAugment} onClose={handleCloseAugment} isTestMode={testmode} isTitanSelection={isTitanSelection} />}
         {isAugmentStatusOpen && <AugmentStatusModal battle={battle} initialPokemon={augmentStatusInitialPoke} onClose={() => setIsAugmentStatusOpen(false)} />}
         {isAugmentCarryModalOpen && <AugmentCarryoverModal battle={battle} round={location.state?.round || defaultOption.round} onConfirm={handleCarryoverConfirm} />}
-        {(testmode || isTestMode) && !gameResult && (
-          <BottomRightActionContainer>
-            <TestBackButton
-              onClick={(e) => {
-                e.stopPropagation();
-                queueObject.initQueue();
-                if (location.state?.fromCustom) {
-                  const { team1, team2 } = location.state || {};
-                  navigate("/custom", { state: { team1, team2 } });
-                } else {
-                  navigate(-1);
-                }
-              }}
-            >
-              뒤로가기
-            </TestBackButton>
-            <TestDebugButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDebugModalOpen(true);
-              }}
-            >
-              디버깅
-            </TestDebugButton>
-            <TestSkipButton onClick={handleTestSkipNpc}>
-              스킵
-            </TestSkipButton>
-          </BottomRightActionContainer>
-        )}
-        {isDebugModalOpen && <DebugLogModal onClose={() => setIsDebugModalOpen(false)} />}
+        <TestingTools
+          visible={(testmode || isTestMode) && !gameResult}
+          isDebugOpen={isDebugModalOpen}
+          setIsDebugOpen={setIsDebugModalOpen}
+          onBack={() => {
+            queueObject.initQueue();
+            if (location.state?.fromCustom) {
+              const { team1, team2 } = location.state || {};
+              navigate("/custom", { state: { team1, team2 } });
+            } else {
+              navigate(-1);
+            }
+          }}
+          onSkip={handleTestSkipNpc}
+        />
       </BATTLE>
     </>
   );
@@ -1081,157 +835,6 @@ const BOTTOM = styled.div`
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
-`;
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-`;
-
-const ModalBox = styled.div`
-  background: rgba(15, 20, 28, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 45px 40px;
-  text-align: center;
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    inset 0 0 20px rgba(255, 255, 255, 0.05);
-  animation: fadeInScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  min-width: 320px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-
-  @keyframes fadeInScale {
-    0% {
-      transform: scale(0.95);
-      opacity: 0;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-`;
-
-const ModalTitle = styled.h2`
-  font-size: 3.2rem;
-  color: ${(props) => (props.$isWin ? "#64ffda" : "#ff5252")};
-  margin-top: 0;
-  margin-bottom: 35px;
-  font-family: "CustomFont", sans-serif;
-  text-shadow: 0 0 15px ${(props) => (props.$isWin ? "rgba(100, 255, 218, 0.5)" : "rgba(255, 82, 82, 0.5)")};
-  letter-spacing: 2px;
-`;
-
-const ModalButtonContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-`;
-
-const ModalButton = styled.button`
-  flex: 1;
-  padding: 16px 0;
-  font-size: 1.1rem;
-  font-family: "CustomFont", sans-serif;
-  border: 1px solid ${(props) => (props.$primary ? (props.$isWin ? "rgba(100, 255, 218, 0.5)" : "rgba(255, 82, 82, 0.5)") : "rgba(255, 255, 255, 0.2)")};
-  border-radius: 12px;
-  cursor: pointer;
-  background: ${(props) => (props.$primary ? (props.$isWin ? "rgba(100, 255, 218, 0.1)" : "rgba(255, 82, 82, 0.1)") : "rgba(255, 255, 255, 0.05)")};
-  color: ${(props) => (props.$primary ? (props.$isWin ? "#64ffda" : "#ff5252") : "#e0e0e0")};
-  font-weight: bold;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: ${(props) => (props.$primary ? (props.$isWin ? "rgba(100, 255, 218, 0.25)" : "rgba(255, 82, 82, 0.25)") : "rgba(255, 255, 255, 0.15)")};
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px ${(props) => (props.$primary ? (props.$isWin ? "rgba(100, 255, 218, 0.2)" : "rgba(255, 82, 82, 0.2)") : "rgba(0, 0, 0, 0.3)")};
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const TradeCard = styled.div`
-  position: relative;
-  width: 100%;
-  height: 9vh;
-  border-radius: 5px;
-  background-color: ${(props) => (props.$selected ? "rgba(100, 255, 218, 0.15)" : "rgba(0, 0, 0, 0.7)")};
-  overflow: hidden;
-  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
-  opacity: ${(props) => (props.$disabled ? 0.35 : 1)};
-  filter: ${(props) => (props.$disabled ? "grayscale(0.7)" : "none")};
-  border: ${(props) => (props.$selected ? "2px solid #64ffda" : "2px solid transparent")};
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1vh;
-  box-sizing: border-box;
-`;
-
-const TradeCardImage = styled.img`
-  height: 5vh;
-  width: 5vh;
-  object-fit: contain;
-  flex-shrink: 0;
-`;
-
-const TradeCardName = styled.div`
-  font-size: 1.3vh;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  white-space: nowrap;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 0.3vh;
-`;
-
-const TradeContainer = styled.div`
-  display: flex;
-  width: 100%;
-  gap: 2vw;
-  box-sizing: border-box;
-`;
-
-const TradeColumn = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1vh;
-`;
-
-const TradeInfoButton = styled.div`
-  flex-shrink: 0;
-  height: 6vh;
-  padding: 0 1vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 6px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-weight: bold;
-  font-size: 1.8vh;
-  z-index: 5;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.9);
-  }
 `;
 
 const RoundIndicator = styled.div`
@@ -1315,77 +918,4 @@ const AugmentStatusButton = styled.div`
   }
 `;
 
-const TestBackButton = styled.div`
-  padding: 6px 14px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, rgba(71, 85, 105, 0.85), rgba(51, 65, 85, 0.85));
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  font-size: 14px;
-  font-weight: bold;
-  color: #fff;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: linear-gradient(135deg, rgba(100, 116, 139, 0.95), rgba(71, 85, 105, 0.95));
-    border-color: rgba(255, 255, 255, 0.6);
-    transform: scale(1.05);
-    box-shadow: 0 6px 14px rgba(71, 85, 105, 0.4);
-  }
-`;
-
 export default Battle;
-
-const BottomRightActionContainer = styled.div`
-  position: fixed;
-  bottom: 12px;
-  right: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 100;
-`;
-
-const TestDebugButton = styled.div`
-  padding: 6px 14px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.85), rgba(2, 132, 199, 0.85));
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  font-size: 14px;
-  font-weight: bold;
-  color: #fff;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.95), rgba(3, 105, 161, 0.95));
-    border-color: rgba(255, 255, 255, 0.6);
-    transform: scale(1.05);
-    box-shadow: 0 6px 14px rgba(14, 165, 233, 0.4);
-  }
-`;
-
-const TestSkipButton = styled.div`
-  padding: 6px 16px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.85), rgba(185, 28, 28, 0.85));
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  font-size: 14px;
-  font-weight: bold;
-  color: #fff;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: linear-gradient(135deg, rgba(248, 113, 113, 0.95), rgba(220, 38, 38, 0.95));
-    border-color: rgba(255, 255, 255, 0.6);
-    transform: scale(1.05);
-    box-shadow: 0 6px 14px rgba(239, 68, 68, 0.4);
-  }
-`;
