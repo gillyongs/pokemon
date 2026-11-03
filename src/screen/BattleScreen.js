@@ -257,8 +257,8 @@ const Battle = () => {
     const gainLogText = gainText;
     const followUpItems = [];
 
-    if (selectedAugment.id === "rebellionOrRevolution" || selectedAugment.id === "revolution") {
-      const revAug = target.augments?.find((a) => a.id === "rebellionOrRevolution" || a.id === "revolution");
+    if (selectedAugment.id === "rebellionOrRevolution") {
+      const revAug = target.augments?.find((a) => a.id === "rebellionOrRevolution");
       const statName = revAug?.revolutionResult === "catk" ? "특수공격" : "공격";
       const detailText = `${statName}이 2배가 되었다!`;
       followUpItems.push({

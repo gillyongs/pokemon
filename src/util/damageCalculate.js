@@ -69,7 +69,7 @@ export const getAugmentedStat = (pokemon, statKey) => {
       }
     }
     // 실패하면 반역 성공하면 혁명 아닙니까!
-    else if (augId === "rebellionOrRevolution" || augId === "revolution") {
+    else if (augId === "rebellionOrRevolution") {
       const pick = aug?.revolutionResult;
       if (pick === "atk") {
         if (statKey === "atk") {

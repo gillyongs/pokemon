@@ -5,7 +5,6 @@ import styled from "styled-components";
 // 전용 증강별 포켓몬 도감번호 매핑
 export const DEDICATED_AUGMENT_POKEMON = {
   danceOfGarchomp: "0445",
-  danceGarchomp: "0445",
   nameIsSalamence: "0373",
 };
 
@@ -16,7 +15,7 @@ export const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, scale = null, imageOptions = null }) => {
-  const pokeId = pokemonId || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.origin?.pokemon_id && (id === "danceOfGarchomp" || id === "danceGarchomp" || id === "nameIsSalamence") ? pokemon.origin.pokemon_id : null);
+  const pokeId = pokemonId || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.origin?.pokemon_id && (id === "danceOfGarchomp" || id === "nameIsSalamence") ? pokemon.origin.pokemon_id : null);
 
   const augOptions = imageOptions || DEDICATED_AUGMENT_IMAGE_OPTIONS[id] || (pokeId ? DEDICATED_AUGMENT_IMAGE_OPTIONS[pokeId] : null) || {};
 
@@ -849,7 +848,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         )}
 
         {/* 7. H.H.G.G.H.G.G (모든 능력치를 가장 높은 능력치로 통일 - 올스탯 만점 퍼펙트 육각형 레이더 차트) */}
-        {(id === "hhgghgg" || id === "HHGGHGG") && (
+        {id === "hhgghgg" && (
           <g filter="url(#glow)">
             {/* 1. 외곽 서클 가이드 */}
             <circle cx="32" cy="32" r="24.5" stroke="url(#prismRing)" strokeWidth="1.2" strokeDasharray="5 3" strokeOpacity="0.5" />
@@ -906,7 +905,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         )}
 
         {/* 8. 춤춰라 한카리아스 (용의 날개/지느러미 & 소용돌이치는 용의 춤 오라) */}
-        {(id === "danceOfGarchomp" || id === "danceGarchomp") && (
+        {id === "danceOfGarchomp" && (
           <g filter="url(#glow)">
             {/* 용의 기운 소용돌이 테두리 */}
             <path d="M14 36 C10 22 24 12 36 12 C48 12 54 24 50 38 C46 48 34 52 24 50" stroke="#38bdf8" strokeWidth="2" strokeDasharray="14 4" strokeLinecap="round" />
@@ -1789,7 +1788,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         )}
 
         {/* 15. 실패하면 반역 성공하면 혁명 (좌측 빨간 하강 화살표 + 우측 초록 상승 화살표, 높이 30% 축소) */}
-        {(id === "rebellionOrRevolution" || id === "revolution") && (
+        {id === "rebellionOrRevolution" && (
           <g filter="url(#glow)">
             {/* 1. 배경 어두운 원 & 섀도우 림 */}
             <circle cx="32" cy="32" r="29" fill="url(#revDarkBg)" />

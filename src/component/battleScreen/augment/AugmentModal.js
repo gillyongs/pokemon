@@ -131,7 +131,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     e?.stopPropagation();
     if (!selectedAugment || !activePokemon) return;
 
-    if ((selectedAugment.id === "danceOfGarchomp" || selectedAugment.id === "danceGarchomp" || selectedAugment.id === "nameIsSalamence") && activePokemon?.origin?.skill) {
+    if ((selectedAugment.id === "danceOfGarchomp" || selectedAugment.id === "nameIsSalamence") && activePokemon?.origin?.skill) {
       setSkillSelectAug(selectedAugment);
       setSelectedSlot(null);
       return;
