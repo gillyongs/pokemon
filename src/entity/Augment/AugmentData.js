@@ -69,7 +69,7 @@ export const AUGMENT_LIST = [
   {
     id: "thornmail",
     name: "가시갑옷",
-    desc: "타격기술을 받을 때 상대방에게 체력의 1/6 데미지를 줍니다.",
+    desc: "타격기술을 받을 때 상대방에게 HP의 1/6 데미지를 줍니다.",
     cost: 3,
     // onHit.js에 구현
   },
