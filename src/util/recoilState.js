@@ -27,11 +27,13 @@ export const getStoredGameOption = () => {
 export const queueState = atom({
   key: "queueState",
   default: [],
+  dangerouslyAllowMutability: true,
 });
 
 export const logState = atom({
   key: "logState",
   default: [],
+  dangerouslyAllowMutability: true,
 });
 
 export const gameOptionState = atom({

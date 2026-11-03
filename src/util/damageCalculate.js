@@ -9,12 +9,12 @@ export const getAugmentedStat = (pokemon, statKey) => {
   const baseStatObj = pokemon?.origin?.stat || pokemon?.stat;
   let val = baseStatObj?.[statKey] ?? 0;
   if (typeof val !== "number") return 0;
-  if (pokemon) {
-    pokemon.log = pokemon.log || {};
-    pokemon.log.getAugmentedStat = `${val}(${statKey})`;
-  }
+  let logText = `${val}(${statKey})`;
   if (statKey !== "atk" && statKey !== "catk") {
-    if (pokemon) pokemon.log.getAugmentedStat += ` = ${val}`;
+    logText += ` = ${val}`;
+    try {
+      if (pokemon?.log) pokemon.log.getAugmentedStat = logText;
+    } catch (e) {}
     return val;
   }
 
@@ -31,28 +31,28 @@ export const getAugmentedStat = (pokemon, statKey) => {
       const bonusAtk = aug?.swordBonusAtk !== undefined ? Number(aug.swordBonusAtk) : failed ? 0 : 20 + level * 20;
       if (bonusAtk > 0) {
         val += bonusAtk;
-        pokemon.log.getAugmentedStat += ` + ${bonusAtk} (검 강화하기)`;
+        logText += ` + ${bonusAtk} (검 강화하기)`;
       }
 
       // 무한의 대검
     } else if (augId === "infinityEdge") {
       if (statKey === "atk") {
         val += 75;
-        pokemon.log.getAugmentedStat += " + 75 (무한의 대검)";
+        logText += " + 75 (무한의 대검)";
       }
 
       // 공허의 지팡이
     } else if (augId === "voidStaff") {
       if (statKey === "catk") {
         val += 95;
-        pokemon.log.getAugmentedStat += " + 95 (공허의 지팡이)";
+        logText += " + 95 (공허의 지팡이)";
       }
 
       // 라바돈의 죽음 모자
     } else if (augId === "rabadonsDeathcap") {
       if (statKey === "catk") {
         val += 130;
-        pokemon.log.getAugmentedStat += " + 130 (라바돈)";
+        logText += " + 130 (라바돈)";
       }
     }
   }
@@ -65,7 +65,7 @@ export const getAugmentedStat = (pokemon, statKey) => {
     if (augId === "rabadonsDeathcap") {
       if (statKey === "catk") {
         val = Math.round(val * 1.3);
-        pokemon.log.getAugmentedStat += " * 1.3 (라바돈)";
+        logText += " * 1.3 (라바돈)";
       }
     }
     // 실패하면 반역 성공하면 혁명 아닙니까!
@@ -74,26 +74,31 @@ export const getAugmentedStat = (pokemon, statKey) => {
       if (pick === "atk") {
         if (statKey === "atk") {
           val = Math.round(val * 2);
-          pokemon.log.getAugmentedStat += " * 2 (혁명)";
+          logText += " * 2 (혁명)";
         } else if (statKey === "catk") {
           val = Math.max(1, Math.floor(val / 2));
-          pokemon.log.getAugmentedStat += " / 2 (반역)";
+          logText += " / 2 (반역)";
         }
       } else if (pick === "catk") {
         if (statKey === "catk") {
           val = Math.round(val * 2);
-          pokemon.log.getAugmentedStat += " * 2 (혁명)";
+          logText += " * 2 (혁명)";
         } else if (statKey === "atk") {
           val = Math.max(1, Math.floor(val / 2));
-          pokemon.log.getAugmentedStat += " / 2 (반역)";
+          logText += " / 2 (반역)";
         }
       }
     }
   }
 
-  if (pokemon) {
-    pokemon.log.getAugmentedStat += ` = ${val}`;
-  }
+  logText += ` = ${val}`;
+  try {
+    if (pokemon) {
+      if (!pokemon.log) pokemon.log = {};
+      pokemon.log.getAugmentedStat = logText;
+    }
+  } catch (e) {}
+
   return val;
 };
 

@@ -90,24 +90,19 @@ export const turnEnd = (battle, enqueue) => {
 
   // 적을 쓰러뜨리고, turnEnd 마지막에 "증강을 선택하세요", isAugment:true queue 추가
   // (적 포켓몬을 쓰러뜨리고 얻는 증강은 한 라운드에 1회만 가능)
-  if (
-    battle.isMayhem &&
-    !battle.hasKnockoutAugmentThisRound &&
-    (battle.turn?.npcFaintedCount > 0 || battle.turn?.npcFaintedThisTurn)
-  ) {
+  if (battle.isMayhem && !battle.hasKnockoutAugmentThisRound && (battle.turn?.npcFaintedCount > 0 || battle.turn?.npcFaintedThisTurn)) {
     if (battle.turn) {
       battle.turn.npcFaintedCount = 0;
       battle.turn.npcFaintedThisTurn = false;
     }
-    const hasSlot = [battle.player, battle.playerBench1, battle.playerBench2].some(
-      (p) => p && (p.augments || []).length < 3
-    );
+    const hasSlot = [battle.player, battle.playerBench1, battle.playerBench2].some((p) => p && (p.augments || []).length < 3);
     if (hasSlot) {
       battle.hasKnockoutAugmentThisRound = true;
       enqueue({
         id: "122fb584-429d-4b41-9558-755143829687",
         battle: battle,
         text: "증강을 선택하세요.",
+        logText: "증강을 선택하지 않았습니다.",
         isAugment: true,
       });
     }

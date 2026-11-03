@@ -2,13 +2,19 @@ import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 
-const AugmentStatusModal = ({ battle, team = [], onClose }) => {
+const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
   const resolvedTeam =
     team && team.length > 0
       ? team
       : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
 
-  const [activePokemon, setActivePokemon] = useState(resolvedTeam[0] || null);
+  const [activePokemon, setActivePokemon] = useState(() => {
+    if (initialPokemon) {
+      const found = resolvedTeam.find((p) => p === initialPokemon || p?.id === initialPokemon?.id || p?.originalIndex === initialPokemon?.originalIndex);
+      if (found) return found;
+    }
+    return resolvedTeam[0] || null;
+  });
 
   if (!resolvedTeam || resolvedTeam.length === 0) return null;
 

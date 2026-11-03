@@ -47,6 +47,7 @@ const Battle = () => {
   const [augmentTargetPoke, setAugmentTargetPoke] = useState(null);
   const [isInitialBattleStart, setIsInitialBattleStart] = useState(false);
   const [isAugmentStatusOpen, setIsAugmentStatusOpen] = useState(false);
+  const [augmentStatusInitialPoke, setAugmentStatusInitialPoke] = useState(null);
   const [isAugmentCarryModalOpen, setIsAugmentCarryModalOpen] = useState(false);
   const [carriedAugmentsData, setCarriedAugmentsData] = useState(null);
   const [pendingNextTeam, setPendingNextTeam] = useState(null);
@@ -233,10 +234,12 @@ const Battle = () => {
     if (!options.skipStartText) {
       queueObject.enqueue({ id: "75857006-b1b6-489c-b77b-bb3bfdcf8d78", battle: bt, text: "배틀시작!" });
     }
-    const fastUser = speedCheck(bt);
-    const slowUser = fastUser === "player" ? "npc" : "player";
-    applyAbilityEffects(bt, fastUser, queueObject.enqueue);
-    applyAbilityEffects(bt, slowUser, queueObject.enqueue);
+    if (!options.skipAbilities) {
+      const fastUser = speedCheck(bt);
+      const slowUser = fastUser === "player" ? "npc" : "player";
+      applyAbilityEffects(bt, fastUser, queueObject.enqueue);
+      applyAbilityEffects(bt, slowUser, queueObject.enqueue);
+    }
   };
 
   const handleSelectAugment = (selectedAugment, options = null) => {
@@ -284,10 +287,14 @@ const Battle = () => {
       });
     }
 
-    const fastUser = speedCheck(curBattle);
-    const slowUser = fastUser === "player" ? "npc" : "player";
-    applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
-    applyAbilityEffects(curBattle, slowUser, (item) => followUpItems.push(item));
+    const head = queueObject.queue[0];
+    const isStartAugment = Boolean(head?.isBattleStartAugment);
+    if (isStartAugment) {
+      const fastUser = speedCheck(curBattle);
+      const slowUser = fastUser === "player" ? "npc" : "player";
+      applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
+      applyAbilityEffects(curBattle, slowUser, (item) => followUpItems.push(item));
+    }
 
     const appliedAug = target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
     const augmentData = {
@@ -333,10 +340,41 @@ const Battle = () => {
     const curBattle = battleObj.current;
     if (!curBattle) return;
 
-    if (queueObject.queue[0]?.isAugment) {
-      queueObject.dequeue();
+    const head = queueObject.queue[0];
+    const isStartAugment = Boolean(head?.isBattleStartAugment);
+    const followUpItems = [];
+
+    if (isStartAugment) {
+      const fastUser = speedCheck(curBattle);
+      const slowUser = fastUser === "player" ? "npc" : "player";
+      applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
+      applyAbilityEffects(curBattle, slowUser, (item) => followUpItems.push(item));
     }
-    enqueueBattleStart(curBattle);
+
+    const noAugText = "증강을 선택하지 않았습니다.";
+
+    if (head?.isAugment) {
+      queueObject.updateHead(
+        (prev) => ({
+          ...prev,
+          battle: curBattle,
+          text: noAugText,
+          logText: noAugText,
+          isAugment: false,
+        }),
+        curBattle,
+        followUpItems
+      );
+      setText(noAugText);
+    } else {
+      queueObject.enqueue({
+        id: "no-augment-selected-msg",
+        battle: curBattle,
+        text: noAugText,
+        logText: noAugText,
+      });
+      followUpItems.forEach((item) => queueObject.enqueue(item));
+    }
     setBattle(cloneWithMethods(curBattle));
   };
 
@@ -383,14 +421,17 @@ const Battle = () => {
     }
 
     if (isMayhem) {
-      // 배틀 시작 전에 증강 선택 큐를 먼저 추가
+      // 무조건 "배틀시작!"이 먼저 나오고 그 다음에 "증강을 선택하세요"가 나옴
       const target = [battleObj.current.player, battleObj.current.playerBench1, battleObj.current.playerBench2].find((p) => p && (p.augments || []).length < 3);
       if (target) {
+        enqueueBattleStart(battleObj.current, { skipAbilities: true });
         queueObject.enqueue({
           id: "82c455ab-c426-4986-80c4-f030b3742f94",
           battle: battleObj.current,
-          text: "증강을 선택하세요",
+          text: "증강을 선택하세요.",
+          logText: "증강을 선택하지 않았습니다.",
           isAugment: true,
+          isBattleStartAugment: true,
         });
       } else {
         enqueueBattleStart(battleObj.current);
@@ -444,12 +485,24 @@ const Battle = () => {
             setAugmentTargetPoke(target);
             setAugmentModalOpen(true);
           } else {
+            const isStart = Boolean(queue[0]?.isBattleStartAugment);
             queueObject.dequeue();
-            enqueueBattleStart(curB);
+            if (isStart) {
+              const fastUser = speedCheck(curB);
+              const slowUser = fastUser === "player" ? "npc" : "player";
+              applyAbilityEffects(curB, fastUser, queueObject.enqueue);
+              applyAbilityEffects(curB, slowUser, queueObject.enqueue);
+            }
           }
         } else {
+          const isStart = Boolean(queue[0]?.isBattleStartAugment);
           queueObject.dequeue();
-          enqueueBattleStart(curB);
+          if (isStart) {
+            const fastUser = speedCheck(curB);
+            const slowUser = fastUser === "player" ? "npc" : "player";
+            applyAbilityEffects(curB, fastUser, queueObject.enqueue);
+            applyAbilityEffects(curB, slowUser, queueObject.enqueue);
+          }
         }
       }
 
@@ -546,7 +599,7 @@ const Battle = () => {
 
     // battle/text 반영
     battleObj.current = cloneWithMethods(last.battle);
-    setBattle(last.battle);
+    setBattle(battleObj.current);
     if (!last.autoActTurn) {
       setText(last.text);
     }
@@ -665,20 +718,32 @@ const Battle = () => {
         <BOTTOM>
           {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} battleStartBySkillButton={battleStartBySkillButton} textSkip={textSkip} btObj={battleObj.current} />}
           {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
-          {bottom === "info" && <BottomSectionInfo battle={battle} text={text} setText={setText} setBottom={setBottom} bench={bench} />}
-          <AugmentStatusButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsAugmentStatusOpen(true);
-            }}
-          >
-            증강{" "}
-            {(() => {
-              const count = [battle?.player, battle?.playerBench1, battle?.playerBench2].reduce((sum, p) => sum + (p?.augments?.length || 0), 0);
-              return count > 0 ? `(${count})` : "";
-            })()}
-          </AugmentStatusButton>
-          {testmode && location.state?.fromCustom && (
+          {bottom === "info" && (
+            <BottomSectionInfo
+              battle={battle}
+              text={text}
+              setText={setText}
+              setBottom={setBottom}
+              bench={bench}
+              setBench={setBench}
+              onOpenAugmentStatus={(poke) => {
+                setAugmentStatusInitialPoke(poke || null);
+                setIsAugmentStatusOpen(true);
+              }}
+            />
+          )}
+          {bottom === "skill" && (
+            <AugmentStatusButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setAugmentStatusInitialPoke(null);
+                setIsAugmentStatusOpen(true);
+              }}
+            >
+              증강
+            </AugmentStatusButton>
+          )}
+          {bottom === "skill" && testmode && location.state?.fromCustom && (
             <CustomBackButton
               onClick={(e) => {
                 e.stopPropagation();
@@ -876,7 +941,7 @@ const Battle = () => {
             );
           })()}
         {augmentModalOpen && <AugmentModal team={[battleObj.current?.player, battleObj.current?.playerBench1, battleObj.current?.playerBench2].filter(Boolean)} initialTarget={augmentTargetPoke || battleObj.current?.player} augments={augmentChoices} targetPokemon={augmentTargetPoke || battleObj.current?.player} battle={battleObj.current || battle} onSelect={handleSelectAugment} onClose={handleCloseAugment} isTestMode={testmode} />}
-        {isAugmentStatusOpen && <AugmentStatusModal battle={battle} onClose={() => setIsAugmentStatusOpen(false)} />}
+        {isAugmentStatusOpen && <AugmentStatusModal battle={battle} initialPokemon={augmentStatusInitialPoke} onClose={() => setIsAugmentStatusOpen(false)} />}
         {isAugmentCarryModalOpen && <AugmentCarryoverModal battle={battle} round={location.state?.round || defaultOption.round} onConfirm={handleCarryoverConfirm} />}
       </BATTLE>
     </>
