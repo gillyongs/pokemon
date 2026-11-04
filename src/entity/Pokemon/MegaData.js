@@ -82,6 +82,15 @@ export const megaDataList = {
       abil: "천하장사",
     },
   ],
+  // 플라이곤
+  "0330": [
+    {
+      stone: "플라이곤나이트",
+      megaFormId: "0330-m",
+      name: "메가플라이곤",
+      abil: "색안경",
+    },
+  ],
   // 보만다
   "0373": [
     {

@@ -362,6 +362,34 @@ export const AUGMENT_LIST = [
       }
     },
   },
+  // 비상 (메가플라이곤 교체) ===================================================
+  {
+    id: "soaring",
+    name: "비상",
+    desc: "현재 포켓몬을 메가플라이곤과 교체합니다.",
+    cost: "-",
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon, battleOrTeam, team) => !hasPokemonNameOnTeam(pokemon, "플라이곤", battleOrTeam || team),
+    onApply: function (pokemon, battle) {
+      const newPoke = generate("메가플라이곤");
+      newPoke.team = pokemon.team || "player";
+      newPoke.originalIndex = pokemon.originalIndex !== undefined ? pokemon.originalIndex : 0;
+      newPoke.augments = (pokemon.augments || []).filter((a) => a && a.id !== "soaring" && a.cost !== "-");
+      if (battle) {
+        const targetIdx = pokemon.originalIndex;
+        if (battle.player === pokemon || (targetIdx !== undefined && battle.player?.originalIndex === targetIdx)) {
+          battle.player = newPoke;
+        } else if (battle.playerBench1 === pokemon || (targetIdx !== undefined && battle.playerBench1?.originalIndex === targetIdx)) {
+          battle.playerBench1 = newPoke;
+        } else if (battle.playerBench2 === pokemon || (targetIdx !== undefined && battle.playerBench2?.originalIndex === targetIdx)) {
+          battle.playerBench2 = newPoke;
+        }
+      }
+      Object.setPrototypeOf(pokemon, Object.getPrototypeOf(newPoke));
+      Object.assign(pokemon, newPoke);
+    },
+  },
   // 전설의 거인 관련 ==========================================================
   {
     id: "legendaryTitan",
@@ -513,6 +541,9 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     const fromName = prevPokeName || target?.name || "포켓몬";
     const toName = target?.name || "";
     individualDesc = josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+  } else if (id === "soaring") {
+    const fromName = prevPokeName || "포켓몬";
+    individualDesc = josa(`${fromName}#{이} 메가플라이곤으로 교체되었다!`);
   } else if (id === "legendaryTitan") {
     const fromName = prevPokeName || "포켓몬";
     individualDesc = josa(`${fromName}#{이} 레지기가스로 교체되었다!`);

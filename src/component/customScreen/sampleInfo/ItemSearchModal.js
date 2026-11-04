@@ -21,6 +21,7 @@ const EXCLUSIVE_ITEMS = {
   라이츄나이트Y: (p) => isPokemon(p, "라이츄"),
   메타그로스나이트: (p) => isPokemon(p, "메타그로스"),
   보만다나이트: (p) => isPokemon(p, "보만다"),
+  플라이곤나이트: (p) => isPokemon(p, "플라이곤"),
   입치트나이트: (p) => isPokemon(p, "입치트"),
   아쿠스타나이트: (p) => isPokemon(p, "아쿠스타"),
   대짱이나이트: (p) => isPokemon(p, "대짱이"),

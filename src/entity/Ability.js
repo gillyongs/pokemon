@@ -152,6 +152,8 @@ export const abilObject = {
   부유: { text: "땅에서 뜨는 성질 때문에 땅타입의 기술로 공격받지 않는다." },
   // 틀깨기면 무시된다. 압정, 방어적인 필드 효과도 적용된다
 
+  색안경: { text: "효과가 별로인 기술의 위력이 2배가 된다." },
+
   심안: {
     text: "노말타입과 격투타입 기술을 고스트타입에게 맞힐 수 있다. 상대의 회피율 변화를 무시하고 명중률도 떨어지지 않는다.",
   },
@@ -203,9 +205,7 @@ export const changePokemonAbility = (pokemon, abilityName, fallbackText = "") =>
   if (pokemon.origin) {
     pokemon.origin.abil = abilityName;
   }
-  const baseObj = abilObject[abilityName]
-    ? { ...abilObject[abilityName] }
-    : { text: fallbackText || "설명이 없습니다." };
+  const baseObj = abilObject[abilityName] ? { ...abilObject[abilityName] } : { text: fallbackText || "설명이 없습니다." };
   baseObj.name = abilityName;
   pokemon.abilObj = baseObj;
   if (pokemon.origin) {

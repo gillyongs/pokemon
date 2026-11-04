@@ -377,6 +377,9 @@ new PokemonTemplate("브리두라스", "1018", "5V0A", "HC252", "catk", "atk",
     if (searchId === "레지기가스" || searchId === "0486") {
       return regigigasSample;
     }
+    if (searchId === "메가플라이곤" || searchId === "플라이곤" || searchId === "0330" || searchId === "0330-m") {
+      return megaFlygonSample;
+    }
     const exact = this.items.find((item) => item.id === searchId);
     if (exact) return exact;
     return (
@@ -398,6 +401,8 @@ new PokemonTemplate("브리두라스", "1018", "5V0A", "HC252", "catk", "atk",
 }
 
 export const regigigasSample = new PokemonTemplate("레지기가스", "0486", "6V", "HA252", "atk", "catk", "묵사발", "화풀이", "드레인펀치", "냉동펀치", "돌격조끼", "슬로스타트", "물리딜탱");
+
+export const megaFlygonSample = new PokemonTemplate("메가플라이곤", "0330-m", "6V", "AS252", "speed", "catk", "지진", "스케일샷", "용의춤", "유턴", "플라이곤나이트", "색안경", "물리어태커", "특성 색안경과 벌레/드래곤 타입으로 변하며, 반감되는 기술의 위력을 2배로 만듭니다.");
 
 // 싱글턴 객체 생성 (전역에서 사용 가능)
 const sampleList = new SamplePokemonList();

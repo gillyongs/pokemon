@@ -179,7 +179,7 @@ class PokemonInstance {
     }
     const augId = typeof augment === "string" ? augment : augment.id;
     const augObj = typeof augment === "object" ? { ...augment } : { id: augment };
-    const isInstant = augObj.cost === "-" || augId === "legendaryTitan" || augId === "rouletteWheel";
+    const isInstant = augObj.cost === "-" || augId === "legendaryTitan" || augId === "rouletteWheel" || augId === "soaring";
 
     const maxLimit = 3;
     if (this.augments.length >= maxLimit) return false;

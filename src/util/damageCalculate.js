@@ -695,6 +695,11 @@ export const damageCalculate = (battle, obj, ai) => {
   damage *= typeDamage;
   attackPokemon.log.damage2 += " * " + typeDamage + "(상성보정)";
 
+  if (atkAbil === "색안경" && typeDamage < 1 && typeDamage > 0) {
+    damage *= 2;
+    attackPokemon.log.damage2 += " * 2 (색안경)";
+  }
+
   const noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
   if (defensePokemon.item === "슈케열매" && skill.type === "땅" && typeDamage > 1 && !noBerryAbil.includes(atkAbil)) {
     damage *= 0.5;
