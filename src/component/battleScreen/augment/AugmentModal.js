@@ -60,7 +60,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     if (isTitanSelection) return true;
     const maxLimit = 3;
     if ((pokemon.augments || []).length >= maxLimit) return false;
-    if (pokemon.hasAugment?.(aug.id) || (pokemon.augments || []).some((a) => a.id === aug.id)) {
+    if (pokemon.hasAugment?.(aug.id)) {
       return false;
     }
     if (typeof aug.isEligible === "function") {

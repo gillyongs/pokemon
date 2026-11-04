@@ -473,3 +473,99 @@ describe("recovery augment verification", () => {
     expect(enqueued.length).toBe(0);
   });
 });
+
+describe("threeSnails (달팽이 세마리) augment verification", () => {
+  const threeSnails = AUGMENT_LIST.find((a) => a.id === "threeSnails");
+  const skillEffectSearch = require("../Skill/SkillEffect").default;
+
+  test("threeSnails exists in AUGMENT_LIST with cost 5 and correct desc", () => {
+    expect(threeSnails).toBeDefined();
+    expect(threeSnails.name).toBe("달팽이 세마리");
+    expect(threeSnails.cost).toBe(5);
+    expect(threeSnails.desc).toBe("공격 후 적에게 추가 고정 데미지를 입힙니다.");
+  });
+
+  test("triggers fixed damage 10 (초록), 25 (파란), 40 (빨간) based on roll in 공통 skillEffect", () => {
+    const commonEffect = skillEffectSearch("공통");
+
+    const rolls = [
+      { randomVal: 0.1, expectedDmg: 10, expectedColor: "초록" },
+      { randomVal: 0.5, expectedDmg: 25, expectedColor: "파란" },
+      { randomVal: 0.8, expectedDmg: 40, expectedColor: "빨간" },
+    ];
+
+    for (const { randomVal, expectedDmg, expectedColor } of rolls) {
+      jest.spyOn(Math, "random").mockReturnValue(randomVal);
+
+      const atk = generate("한카리아스");
+      atk.applyAugment(threeSnails);
+      atk.turn.useSkill = { name: "지진", stype: "atk" };
+
+      const def = generate("고릴타");
+      const initialHp = def.hp;
+
+      const enqueued = [];
+      const mockEnqueue = (item) => enqueued.push(item);
+      const battle = {
+        turn: { atk: "player", def: "npc" },
+        player: atk,
+        npc: def,
+      };
+
+      commonEffect(battle, mockEnqueue, { name: "공통" });
+
+      expect(def.hp).toBe(initialHp - expectedDmg);
+      const snailLog = enqueued.find((e) => e.text && e.text.includes("[증강 달팽이세마리]"));
+      expect(snailLog).toBeDefined();
+      expect(snailLog.text).toBe(`[증강 달팽이세마리] ${def.names} ${expectedColor} 달팽이 껍질에 맞았다!`);
+
+      jest.restoreAllMocks();
+    }
+  });
+
+  test("does not trigger when skill is non-damaging (natk / buf)", () => {
+    const commonEffect = skillEffectSearch("공통");
+    const atk = generate("한카리아스");
+    atk.applyAugment(threeSnails);
+    atk.turn.useSkill = { name: "칼춤", stype: "natk" };
+
+    const def = generate("고릴타");
+    const initialHp = def.hp;
+    const enqueued = [];
+
+    const battle = {
+      turn: { atk: "player", def: "npc" },
+      player: atk,
+      npc: def,
+    };
+
+    commonEffect(battle, (item) => enqueued.push(item), { name: "공통" });
+
+    expect(def.hp).toBe(initialHp);
+    const snailLog = enqueued.find((e) => e.text && e.text.includes("[증강 달팽이세마리]"));
+    expect(snailLog).toBeUndefined();
+  });
+
+  test("does not trigger when defender is already fainted", () => {
+    const commonEffect = skillEffectSearch("공통");
+    const atk = generate("한카리아스");
+    atk.applyAugment(threeSnails);
+    atk.turn.useSkill = { name: "지진", stype: "atk" };
+
+    const def = generate("고릴타");
+    def.hp = 0;
+    def.faint = true;
+    const enqueued = [];
+
+    const battle = {
+      turn: { atk: "player", def: "npc" },
+      player: atk,
+      npc: def,
+    };
+
+    commonEffect(battle, (item) => enqueued.push(item), { name: "공통" });
+
+    const snailLog = enqueued.find((e) => e.text && e.text.includes("[증강 달팽이세마리]"));
+    expect(snailLog).toBeUndefined();
+  });
+});

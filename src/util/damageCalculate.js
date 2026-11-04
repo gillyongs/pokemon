@@ -430,7 +430,7 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 1.5;
       defStr += " * 1.5 (모래바람+바위)";
     }
-    const hasVoidStaff = attackPokemon?.hasAugment?.("voidStaff") || attackPokemon?.augments?.some((a) => a.id === "voidStaff");
+    const hasVoidStaff = attackPokemon?.hasAugment?.("voidStaff");
     if (hasVoidStaff) {
       defStat *= 0.6;
       defStr += " * 0.6 (공허의 지팡이 마관)";
@@ -723,7 +723,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 급소 =============================================================================
   if (isCritical) {
-    const hasIE = attackPokemon?.hasAugment?.("infinityEdge") || attackPokemon?.augments?.some((a) => a.id === "infinityEdge");
+    const hasIE = attackPokemon?.hasAugment?.("infinityEdge");
     if (hasIE) {
       damage *= 1.5 * 1.3;
       attackPokemon.log.damage2 += " * 1.5 (급소) * 1.3 (무한의 대검)";

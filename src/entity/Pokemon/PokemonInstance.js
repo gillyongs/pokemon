@@ -295,7 +295,7 @@ class PokemonInstance {
     }
 
     // 증강: 회복 (매턴 최대 HP의 1/16만큼 회복)
-    if (this.hasAugment?.("recovery") || (this.augments || []).some((a) => a.id === "recovery" || a === "recovery")) {
+    if (this.hasAugment("recovery")) {
       if (this.hp < this.origin.hp) {
         this.recover(battle, Math.floor(this.origin.hp / 16), enqueue, `[증강 회복] ${this.names} 체력을 조금 회복했다.`);
       }

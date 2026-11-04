@@ -446,6 +446,12 @@ export const AUGMENT_LIST = [
     desc: "매턴 최대 HP의 1/16만큼 회복합니다.",
     cost: 5,
   },
+  {
+    id: "threeSnails",
+    name: "달팽이 세마리",
+    desc: "공격 후 적에게 추가 고정 데미지를 입힙니다.",
+    cost: 5,
+  },
   // 무한 다이맥스 (무한다이노 전용) =============================================
   {
     id: "eternamax",
@@ -454,7 +460,7 @@ export const AUGMENT_LIST = [
     cost: 10,
     shiftUp: false,
     imageOptions: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
-    isEligible: (pokemon) => hasPokemonName(pokemon, "무한다이노") && !(pokemon?.augments || []).some((a) => a?.id === "eternamax" || a === "eternamax"),
+    isEligible: (pokemon) => hasPokemonName(pokemon, "무한다이노") && !pokemon?.hasAugment?.("eternamax"),
     onApply: function (pokemon) {
       applyEternamax(pokemon);
     },

@@ -22,12 +22,37 @@ function skillEffectSearch(name) {
       let skill = atkPokemon.turn.useSkill;
       if (!atkPokemon.faint && skill.feature?.protect !== true) atkPokemon.tempStatus.protectUse = null;
       // 방어 외에 다른 스킬을 사용하였을때 방어 스택 초기화
+
+      // [증강: 달팽이 세마리] 공격 후 적에게 추가 고정 데미지 (10/25/40)
+      const hasThreeSnails = atkPokemon?.hasAugment?.("threeSnails");
+      if (hasThreeSnails && def && !def.faint && (def.hp === undefined || def.hp > 0) && atkPokemon && !atkPokemon.faint) {
+        if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
+          const roll = Math.random();
+          let shellColor = "초록";
+          let shellDamage = 10;
+          if (roll < 1 / 3) {
+            shellColor = "초록";
+            shellDamage = 10;
+          } else if (roll < 2 / 3) {
+            shellColor = "파란";
+            shellDamage = 25;
+          } else {
+            shellColor = "빨간";
+            shellDamage = 40;
+          }
+          const targetName = def.names || def.name;
+          const text = `[증강 달팽이세마리] ${targetName} ${shellColor} 달팽이 껍질에 맞았다!`;
+          def.getDamage(battle, enqueue, shellDamage, text);
+        }
+      }
+
       if (atkPokemon.item === "생명의구슬" && !atkPokemon.faint) {
         if (skill.stype === "atk" || skill.stype === "catk") {
           const text = atkPokemon.name + "의 생명이 조금 깎였다!";
           atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 10, text);
         }
       }
+
       if (def.ailment.freeze && !def.faint) {
         // 얼음치료와 상태이상 부여 이벤트가 동시에 있으면 상태이상 부여가 먼저 발생한다
         // => 상태이상 부여가 실패하고 얼음이 녹아 상태이상이 없는 상태가 된다

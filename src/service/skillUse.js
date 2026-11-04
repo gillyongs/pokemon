@@ -241,7 +241,7 @@ const criticalRate = (input, pokemon = null) => {
   }
 
   // 증강 무한의 대검
-  if (pokemon?.hasAugment?.("infinityEdge") || pokemon?.augments?.some((a) => a.id === "infinityEdge")) {
+  if (pokemon?.hasAugment?.("infinityEdge")) {
     probability += 0.25;
   }
 

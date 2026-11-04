@@ -559,6 +559,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <feDropShadow dx="0" dy="1.5" stdDeviation="2" floodColor="#22c55e" floodOpacity="0.6" />
           </filter>
 
+
           <filter id="tmCyanRingGlow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="1.8" result="blur" />
             <feMerge>
@@ -3190,6 +3191,32 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             width="68"
             height="68"
           />
+        )}
+
+        {/* 28. 달팽이 세마리 */}
+        {id === "threeSnails" && (
+          <g>
+            {/* 세 달팽이 껍질 뒤편의 은은한 원소 아우라 */}
+            <circle cx="32" cy="20" r="14" fill="#22c55e" opacity="0.32" filter="url(#glow)" />
+            <circle cx="21" cy="42" r="14" fill="#3b82f6" opacity="0.32" filter="url(#glow)" />
+            <circle cx="43" cy="42" r="14" fill="#ef4444" opacity="0.32" filter="url(#glow)" />
+
+            <image
+              href="/pokemon/img/augment/threeSnails.png"
+              x="6.5"
+              y="9"
+              width="51"
+              height="45.6"
+            />
+
+            {/* 반짝이는 원소 스파클 */}
+            <path d="M 32 4 Q 32 6.5 34.5 6.5 Q 32 6.5 32 9 Q 32 6.5 29.5 6.5 Q 32 6.5 32 4 Z" fill="#67e8f9" opacity="0.95" />
+            <path d="M 57 20 Q 57 22 59 22 Q 57 22 57 24 Q 57 22 55 22 Q 57 22 57 20 Z" fill="#fef08a" opacity="0.9" />
+            <path d="M 7 22 Q 7 24 9 24 Q 7 24 7 26 Q 7 24 5 24 Q 7 24 7 22 Z" fill="#34d399" opacity="0.9" />
+            <circle cx="18" cy="14" r="0.9" fill="#ffffff" opacity="0.85" />
+            <circle cx="48" cy="14" r="0.9" fill="#ffffff" opacity="0.8" />
+            <circle cx="32" cy="58" r="1.1" fill="#64ffda" opacity="0.85" />
+          </g>
         )}
       </svg>
     </IconFrame>
