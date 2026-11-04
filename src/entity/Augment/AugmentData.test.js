@@ -348,10 +348,10 @@ describe("eternamax (무한 다이맥스) dedicated augment verification", () =>
 describe("nimbleMoves augment and grassy glide priority", () => {
   const nimbleMoves = AUGMENT_LIST.find((a) => a.id === "nimbleMoves");
 
-  test("nimbleMoves exists in AUGMENT_LIST with cost 3", () => {
+  test("nimbleMoves exists in AUGMENT_LIST with cost 7", () => {
     expect(nimbleMoves).toBeDefined();
     expect(nimbleMoves.name).toBe("민첩한 몸놀림");
-    expect(nimbleMoves.cost).toBe(3);
+    expect(nimbleMoves.cost).toBe(7);
     expect(nimbleMoves.desc).toBe("랜덤한 기술 하나에 우선도 +1을 추가합니다.");
   });
 
@@ -422,5 +422,54 @@ describe("nimbleMoves augment and grassy glide priority", () => {
     const enhancedGlide = { name: "그래스슬라이더", nimbleMoves: true, prior: 1, type: "풀", stype: "atk" };
     expect(priCalculate(battleNoGrass, "player", enhancedGlide)).toBe(1);
     expect(priCalculate(battleGrass, "player", enhancedGlide)).toBe(2);
+  });
+});
+
+describe("recovery augment verification", () => {
+  const recovery = AUGMENT_LIST.find((a) => a.id === "recovery");
+
+  test("recovery exists in AUGMENT_LIST with cost 5 and correct desc", () => {
+    expect(recovery).toBeDefined();
+    expect(recovery.name).toBe("회복");
+    expect(recovery.cost).toBe(5);
+    expect(recovery.desc).toBe("매턴 최대 HP의 1/16만큼 회복합니다.");
+  });
+
+  test("recovers 1/16 of max HP in leftOver when HP is not full", () => {
+    const poke = generate("한카리아스");
+    poke.applyAugment(recovery);
+
+    const maxHp = poke.origin.hp;
+    // Set HP to 50%
+    poke.hp = Math.floor(maxHp / 2);
+    const startHp = poke.hp;
+    const healAmount = Math.floor(maxHp / 16);
+
+    const mockBattle = { player: poke };
+    const enqueued = [];
+    const mockEnqueue = (item) => enqueued.push(item);
+
+    poke.leftOver(mockBattle, mockEnqueue);
+
+    expect(poke.hp).toBe(startHp + healAmount);
+    expect(enqueued.length).toBe(1);
+    expect(enqueued[0].text).toContain("조금 회복했다");
+  });
+
+  test("does not recover in leftOver when HP is already full", () => {
+    const poke = generate("한카리아스");
+    poke.applyAugment(recovery);
+
+    const maxHp = poke.origin.hp;
+    poke.hp = maxHp;
+
+    const mockBattle = { player: poke };
+    const enqueued = [];
+    const mockEnqueue = (item) => enqueued.push(item);
+
+    poke.leftOver(mockBattle, mockEnqueue);
+
+    expect(poke.hp).toBe(maxHp);
+    expect(enqueued.length).toBe(0);
   });
 });

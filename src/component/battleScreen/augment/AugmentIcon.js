@@ -531,6 +531,34 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="100%" stopColor="#818cf8" />
           </linearGradient>
 
+          
+          {/* 회복 전용 그라데이션 (에메랄드/그린 테마) */}
+          <linearGradient id="recoveryCrossGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#4ade80" />
+            <stop offset="25%" stopColor="#22c55e" />
+            <stop offset="70%" stopColor="#16a34a" />
+            <stop offset="100%" stopColor="#14532d" />
+          </linearGradient>
+          <linearGradient id="recoveryCrossGradMed" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#86efac" />
+            <stop offset="35%" stopColor="#22c55e" />
+            <stop offset="80%" stopColor="#15803d" />
+            <stop offset="100%" stopColor="#064e3b" />
+          </linearGradient>
+          <linearGradient id="recoveryCrossGradSmall" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#bef264" />
+            <stop offset="40%" stopColor="#4ade80" />
+            <stop offset="100%" stopColor="#16a34a" />
+          </linearGradient>
+          <radialGradient id="healingAura" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#22c55e" stopOpacity="0.45" />
+            <stop offset="60%" stopColor="#10b981" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+          </radialGradient>
+          <filter id="recoveryGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="1.5" stdDeviation="2" floodColor="#22c55e" floodOpacity="0.6" />
+          </filter>
+
           <filter id="tmCyanRingGlow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="1.8" result="blur" />
             <feMerge>
@@ -3101,6 +3129,55 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="21" cy="20" r="1.1" fill="#38bdf8" opacity="0.8" />
             <circle cx="43" cy="38" r="1.2" fill="#67e8f9" opacity="0.75" />
             <circle cx="30" cy="48" r="0.9" fill="#ffffff" opacity="0.8" />
+          </g>
+        )}
+
+                {/* 27. 회복 (3개의 초록 십자가 & 치유 오라 & 스파클) */}
+        {id === "recovery" && (
+          <g filter="url(#recoveryGlow)">
+            {/* 후면 은은한 초록 치유 아우라 */}
+            <ellipse cx="20" cy="31" rx="14" ry="14" fill="url(#healingAura)" />
+            <ellipse cx="38" cy="43" rx="17" ry="17" fill="url(#healingAura)" />
+            <ellipse cx="39" cy="17" rx="10" ry="10" fill="url(#healingAura)" />
+
+            {/* 1. 소형 십자가 (우상단) */}
+            <path
+              d="M 37.1 10.5 L 40.9 10.5 L 40.9 14.1 L 44.5 14.1 L 44.5 17.9 L 40.9 17.9 L 40.9 21.5 L 37.1 21.5 L 37.1 17.9 L 33.5 17.9 L 33.5 14.1 L 37.1 14.1 Z"
+              fill="url(#recoveryCrossGradSmall)"
+              stroke="#064e3b"
+              strokeWidth="1.3"
+              strokeLinejoin="round"
+            />
+            <path d="M 37.6 11.2 L 40.4 11.2 M 34.2 14.6 L 43.8 14.6" stroke="#ecfdf5" strokeWidth="0.7" strokeLinecap="round" opacity="0.9" />
+
+            {/* 2. 중형 십자가 (좌측) */}
+            <path
+              d="M 16.8 20 L 23.2 20 L 23.2 25.8 L 29 25.8 L 29 32.2 L 23.2 32.2 L 23.2 38 L 16.8 38 L 16.8 32.2 L 11 32.2 L 11 25.8 L 16.8 25.8 Z"
+              fill="url(#recoveryCrossGradMed)"
+              stroke="#064e3b"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
+            <path d="M 17.5 21.6 L 22.5 21.6 M 12 26.6 L 28 26.6" stroke="#dcfce7" strokeWidth="0.9" strokeLinecap="round" opacity="0.9" />
+            <path d="M 12 31.4 L 28 31.4 M 17.5 36.4 L 22.5 36.4" stroke="#022c22" strokeWidth="0.8" strokeLinecap="round" opacity="0.6" />
+
+            {/* 3. 대형 십자가 (하단 우측) */}
+            <path
+              d="M 33.7 29 L 42.3 29 L 42.3 36.7 L 50 36.7 L 50 45.3 L 42.3 45.3 L 42.3 53 L 33.7 53 L 33.7 45.3 L 26 45.3 L 26 36.7 L 33.7 36.7 Z"
+              fill="url(#recoveryCrossGrad)"
+              stroke="#064e3b"
+              strokeWidth="1.8"
+              strokeLinejoin="round"
+            />
+            <path d="M 34.6 31.3 L 41.4 31.3 M 27.2 37.5 L 48.8 37.5" stroke="#dcfce7" strokeWidth="1.1" strokeLinecap="round" opacity="0.9" />
+            <path d="M 27.2 44.5 L 48.8 44.5 M 34.6 51.5 L 41.4 51.5" stroke="#022c22" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
+
+            {/* 치유 스파클 & 광원 입자 (초록빛 회복 반짝임) */}
+            <path d="M 10 16 Q 10 18.5 12.5 18.5 Q 10 18.5 10 21 Q 10 18.5 7.5 18.5 Q 10 18.5 10 16 Z" fill="#bef264" opacity="0.85" />
+            <path d="M 54 28 Q 54 30.5 56.5 30.5 Q 54 30.5 54 33 Q 54 30.5 51.5 30.5 Q 54 30.5 54 28 Z" fill="#34d399" opacity="0.9" />
+            <circle cx="28" cy="14" r="1.1" fill="#ecfdf5" opacity="0.85" />
+            <circle cx="16" cy="48" r="1" fill="#86efac" opacity="0.75" />
+            <circle cx="53" cy="48" r="1.2" fill="#6ee7b7" opacity="0.8" />
           </g>
         )}
 

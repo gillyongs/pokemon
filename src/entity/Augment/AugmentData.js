@@ -36,10 +36,10 @@ export const hasHpAtLeast = isHpAtLeast;
  * @returns {number}
  */
 export const compareAugmentNames = (a, b) => {
-  const nameA = typeof a === "string" ? a : (a?.name || "");
-  const nameB = typeof b === "string" ? b : (b?.name || "");
-  const aQuote = nameA.startsWith('"') || nameA.startsWith('“');
-  const bQuote = nameB.startsWith('"') || nameB.startsWith('“');
+  const nameA = typeof a === "string" ? a : a?.name || "";
+  const nameB = typeof b === "string" ? b : b?.name || "";
+  const aQuote = nameA.startsWith('"') || nameA.startsWith("“");
+  const bQuote = nameB.startsWith('"') || nameB.startsWith("“");
 
   if (aQuote && !bQuote) return 1;
   if (!aQuote && bQuote) return -1;
@@ -383,8 +383,7 @@ export const AUGMENT_LIST = [
     cost: "-",
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battleOrTeam, team) =>
-      isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "플라이곤", battleOrTeam || team),
+    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "플라이곤", battleOrTeam || team),
     onApply: function (pokemon, battle) {
       replacePokemon(pokemon, "메가플라이곤", battle, { excludeAugmentId: "soaring" });
     },
@@ -397,8 +396,7 @@ export const AUGMENT_LIST = [
     cost: "-",
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
-    isEligible: (pokemon, battleOrTeam, team) =>
-      isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "레지기가스", battleOrTeam || team),
+    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "레지기가스", battleOrTeam || team),
     onApply: function (pokemon, battle) {
       replacePokemon(pokemon, "레지기가스", battle, { excludeAugmentId: "legendaryTitan" });
     },
@@ -407,7 +405,7 @@ export const AUGMENT_LIST = [
     id: "nimbleMoves",
     name: "민첩한 몸놀림",
     desc: "랜덤한 기술 하나에 우선도 +1을 추가합니다.",
-    cost: 3,
+    cost: 7,
     onApply: function (pokemon, battle, options) {
       if (!pokemon?.origin?.skill) return;
       const validSlots = [1, 2, 3, 4].filter((slot) => pokemon.origin.skill[slot]);
@@ -442,6 +440,12 @@ export const AUGMENT_LIST = [
       this.enhancedSkillName = targetSkill.name;
     },
   },
+  {
+    id: "recovery",
+    name: "회복",
+    desc: "매턴 최대 HP의 1/16만큼 회복합니다.",
+    cost: 5,
+  },
   // 무한 다이맥스 (무한다이노 전용) =============================================
   {
     id: "eternamax",
@@ -450,9 +454,7 @@ export const AUGMENT_LIST = [
     cost: 10,
     shiftUp: false,
     imageOptions: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
-    isEligible: (pokemon) =>
-      hasPokemonName(pokemon, "무한다이노") &&
-      !(pokemon?.augments || []).some((a) => a?.id === "eternamax" || a === "eternamax"),
+    isEligible: (pokemon) => hasPokemonName(pokemon, "무한다이노") && !(pokemon?.augments || []).some((a) => a?.id === "eternamax" || a === "eternamax"),
     onApply: function (pokemon) {
       applyEternamax(pokemon);
     },
@@ -590,9 +592,7 @@ export const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) =>
     newPoke.augments = [];
   } else {
     const excludeId = options?.excludeAugmentId;
-    newPoke.augments = (pokemon.augments || []).filter(
-      (a) => a && (excludeId ? a.id !== excludeId : true) && a.cost !== "-"
-    );
+    newPoke.augments = (pokemon.augments || []).filter((a) => a && (excludeId ? a.id !== excludeId : true) && a.cost !== "-");
   }
 
   // 기존 pokemon 객체 참조를 유지하도록 인스턴스 프로토타입 및 속성 복사
@@ -648,9 +648,7 @@ export const hasPokemonNameOnTeam = (target, keyword, context = null) => {
   const checkBattleMembers = (battleObj, teamSide) => {
     if (!battleObj || typeof battleObj !== "object") return false;
     const isPlayer = teamSide !== "npc";
-    const members = isPlayer
-      ? [battleObj.player, battleObj.playerBench1, battleObj.playerBench2]
-      : [battleObj.npc, battleObj.npcBench1, battleObj.npcBench2];
+    const members = isPlayer ? [battleObj.player, battleObj.playerBench1, battleObj.playerBench2] : [battleObj.npc, battleObj.npcBench1, battleObj.npcBench2];
     return members.filter(Boolean).some((p) => hasPokemonName(p, keyword));
   };
 
