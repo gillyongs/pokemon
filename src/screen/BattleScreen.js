@@ -102,9 +102,11 @@ const Battle = () => {
     const { mayhemMode = gameOption.mayhemMode } = location.state || {};
     const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
     const currentBattle = battleObj.current || battle;
-    const teamHasAugments = [currentBattle?.player, currentBattle?.playerBench1, currentBattle?.playerBench2].some((p) => (p?.augments || []).length > 0);
+    const teamHasSelectableAugments = [currentBattle?.player, currentBattle?.playerBench1, currentBattle?.playerBench2].some(
+      (p) => (p?.augments || []).some((a) => !a.buf)
+    );
 
-    if (isMayhem && teamHasAugments) {
+    if (isMayhem && teamHasSelectableAugments) {
       setIsAugmentCarryModalOpen(true);
       return;
     }
@@ -146,12 +148,29 @@ const Battle = () => {
 
     const nextTeam2 = getRandomTeam(3);
 
+    // 버프는 무조건 같이 넘어감 (carriedMap에 자동 병합)
+    const effectiveCarriedMap = carriedMap ? { ...carriedMap } : { 0: [], 1: [], 2: [] };
+    curPlayerTeam.forEach((p, idx) => {
+      const pIdx = p.originalIndex ?? idx;
+      if (!effectiveCarriedMap[pIdx]) effectiveCarriedMap[pIdx] = [];
+      (p.augments || []).forEach((aug) => {
+        if (aug.buf && !effectiveCarriedMap[pIdx].some((a) => (a.id || a) === aug.id)) {
+          effectiveCarriedMap[pIdx].push({
+            id: aug.id,
+            name: aug.name,
+            cost: aug.cost,
+            buf: true,
+          });
+        }
+      });
+    });
+
     // 함수(onApply, getDesc 등)가 포함된 증강 객체는 history.replaceState에서 DataCloneError를 유발하므로
     // 직렬화 가능한 plain 객체({ id, replacedSlot })로 변환하여 전달
-    const serializedCarried = carriedMap
-      ? Object.entries(carriedMap).reduce((acc, [idx, augs]) => {
+    const serializedCarried = Object.entries(effectiveCarriedMap).reduce((acc, [idx, augs]) => {
           acc[idx] = (augs || []).map((aug) => ({
             id: aug.id || aug,
+            buf: Boolean(aug.buf),
             replacedSlot: aug.replacedSlot,
             selectedType: aug.selectedType,
             revolutionResult: aug.revolutionResult,
@@ -166,8 +185,7 @@ const Battle = () => {
             baseSkillName: aug.baseSkillName,
           }));
           return acc;
-        }, {})
-      : null;
+        }, {});
 
     navigate("/battle", {
       state: {
@@ -281,12 +299,47 @@ const Battle = () => {
     const target = (targetCandidate && teamPokes.find((p) => p && (p.originalIndex === targetCandidate.originalIndex || p.id === targetCandidate.id || p.name === targetCandidate.name))) || curBattle.player;
     const prevPokeName = target.name || target.origin?.name || "";
 
+    const hadEchoBefore = target.hasAugment?.("echoOfHero");
     target.applyAugment(selectedAugment, curBattle, options);
     setAugmentTargetPoke(target);
 
     const gainText = getAugmentText(selectedAugment, target, true, prevPokeName, options);
     const gainLogText = gainText;
     const followUpItems = [];
+
+    // 초보자 3종 세트(회복, 민첩한 몸놀림, 달팽이 세마리) 공명으로 영웅의 메아리 획득 시 큐에 안내 추가 (최초 획득 시에만)
+    if (!hadEchoBefore && target.hasAugment?.("echoOfHero") && selectedAugment.id !== "echoOfHero") {
+      const echoAug = AUGMENT_LIST.find((a) => a.id === "echoOfHero");
+      const echoName = echoAug?.shortName || echoAug?.name || "영웅의 메아리";
+      followUpItems.push({
+        id: "echo-synergy-gain",
+        battle: curBattle,
+        text: `3개의 증강이 공명하여 "영웅의 메아리" 버프를 얻었다!`,
+        logText: `3개의 증강이 공명하여 "영웅의 메아리" 버프를 얻었다!`,
+        augmentData: {
+          targetName: target.name || target.names,
+          augment: {
+            id: echoAug?.id || "echoOfHero",
+            name: echoName,
+            desc: echoAug?.desc || "아군 모든 포켓몬의 공격과 특공을 40% 상승시킨다.",
+            buf: true,
+          },
+        },
+      });
+      followUpItems.push({
+        id: "echo-synergy-effect",
+        battle: curBattle,
+        text: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
+        logText: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
+      });
+    } else if (selectedAugment.id === "echoOfHero") {
+      followUpItems.push({
+        id: "echo-synergy-effect",
+        battle: curBattle,
+        text: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
+        logText: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
+      });
+    }
 
     const isTitanFirst = selectedAugment.id === "legendaryTitan";
     const isTitanSecond = isTitanSelection;
@@ -339,6 +392,7 @@ const Battle = () => {
         shortName: appliedAug.shortName,
         desc: getAugmentText(selectedAugment, target, false, prevPokeName, options),
         cost: appliedAug.cost,
+        buf: Boolean(appliedAug.buf || selectedAugment.buf),
       },
     };
 
@@ -468,7 +522,7 @@ const Battle = () => {
 
     if (isMayhem) {
       // 무조건 "배틀시작!"이 먼저 나오고 그 다음에 "증강을 선택하세요"가 나옴
-      const target = [battleObj.current.player, battleObj.current.playerBench1, battleObj.current.playerBench2].find((p) => p && (p.augments || []).length < 3);
+      const target = [battleObj.current.player, battleObj.current.playerBench1, battleObj.current.playerBench2].find((p) => p && (p.augments || []).filter((a) => !a.buf).length < 3);
       if (target) {
         enqueueBattleStart(battleObj.current, { skipAbilities: true });
         queueObject.enqueue({
@@ -523,7 +577,7 @@ const Battle = () => {
 
       if (queue[0].isAugment) {
         const curB = battleObj.current;
-        const target = [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && (p.augments || []).length < 3);
+        const target = [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && (p.augments || []).filter((a) => !a.buf).length < 3);
         if (target) {
           const choices = rollAugments(target, 3, curB);
           if (choices && choices.length > 0) {

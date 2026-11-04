@@ -173,6 +173,19 @@ class PokemonInstance {
     });
   }
 
+
+  checkEchoOfHeroSynergy(battle) {
+    if (this.hasAugment("recovery") && this.hasAugment("nimbleMoves") && this.hasAugment("threeSnails")) {
+      if (!this.hasAugment("echoOfHero")) {
+        const { AUGMENT_LIST } = require("../Augment/AugmentData");
+        const echoAug = AUGMENT_LIST.find((a) => a.id === "echoOfHero");
+        if (echoAug) {
+          this.applyAugment(echoAug, battle, { isHiddenGrant: true });
+        }
+      }
+    }
+  }
+
   applyAugment(augment, battle, options) {
     if (!this.augments) {
       this.augments = [];
@@ -181,8 +194,18 @@ class PokemonInstance {
     const augObj = typeof augment === "object" ? { ...augment } : { id: augment };
     const isInstant = augObj.cost === "-" || augId === "legendaryTitan" || augId === "rouletteWheel" || augId === "soaring";
 
-    const maxLimit = 3;
-    if (this.augments.length >= maxLimit) return false;
+    const { AUGMENT_LIST } = require("../Augment/AugmentData");
+    const fullAug = AUGMENT_LIST.find((a) => a.id === augId);
+    if (fullAug?.buf || augObj.buf) {
+      augObj.buf = true;
+    }
+    const isBuf = Boolean(augObj.buf);
+
+    // 버프는 증강 3개 제한에 들어가지 않음
+    if (!isBuf) {
+      const normalCount = this.augments.filter((a) => !a.buf).length;
+      if (normalCount >= 3) return false;
+    }
     if (!isInstant && this.hasAugment(augId)) return false;
 
     // 코스트 '-'인 즉발형 증강은 누적되지 않음
@@ -197,6 +220,10 @@ class PokemonInstance {
     if (typeof augObj === "object" && augObj.onApply) {
       augObj.onApply(this, battle, options);
     }
+
+    // 초보자 3종 세트(회복, 민첩한 몸놀림, 달팽이 세마리) 보유 시 숨겨진 4번째 증강 '영웅의 메아리' 획득
+    this.checkEchoOfHeroSynergy(battle);
+
     return true;
   }
 

@@ -569,3 +569,159 @@ describe("threeSnails (달팽이 세마리) augment verification", () => {
     expect(snailLog).toBeUndefined();
   });
 });
+
+describe("echoOfHero (영웅의 메아리) hidden 4th augment verification", () => {
+  const echoOfHero = AUGMENT_LIST.find((a) => a.id === "echoOfHero");
+  const recovery = AUGMENT_LIST.find((a) => a.id === "recovery");
+  const nimbleMoves = AUGMENT_LIST.find((a) => a.id === "nimbleMoves");
+  const threeSnails = AUGMENT_LIST.find((a) => a.id === "threeSnails");
+  const { rollAugments, rollTeamAugments } = require("../../util/augmentRoll");
+  const { getAugmentedStat } = require("../../util/damageCalculate");
+
+  test("echoOfHero properties: buf true, isRandom false, correct desc and buff text", () => {
+    expect(echoOfHero).toBeDefined();
+    expect(echoOfHero.name).toBe("영웅의 메아리");
+    expect(echoOfHero.buf).toBe(true);
+    expect(echoOfHero.isRandom).toBe(false);
+    expect(echoOfHero.desc).toBe("아군 모든 포켓몬의 공격과 특공을 40% 상승시킨다.");
+    expect(getAugmentText(echoOfHero)).toBe("아군 모든 포켓몬의 공격과 특공을 40% 상승시킨다.");
+    const poke = generate("가이오가");
+    expect(getAugmentText(echoOfHero, poke, true)).toBe('3개의 증강이 공명하여 "영웅의 메아리" 버프를 얻었다!');
+    // 일반 버프의 기본 텍스트는 [포켓몬]은 "[이름]" 버프를 얻었다!
+    const genericBuff = { id: "genericBuff", name: "신비한 축복", buf: true, desc: "테스트" };
+    expect(getAugmentText(genericBuff, poke, true)).toBe('가이오가는 "신비한 축복" 버프를 얻었다!');
+  });
+
+  test("forces the remaining 3rd beginner augment when holding 2 of 3 beginner augments", () => {
+    // Test Case 1: has recovery & nimbleMoves -> threeSnails must appear
+    const p1 = generate("한카리아스");
+    p1.applyAugment(recovery);
+    p1.applyAugment(nimbleMoves);
+    for (let i = 0; i < 20; i++) {
+      const rolled = rollAugments(p1, 3);
+      expect(rolled.some((a) => a.id === "threeSnails")).toBe(true);
+    }
+
+    // Test Case 2: has recovery & threeSnails -> nimbleMoves must appear
+    const p2 = generate("한카리아스");
+    p2.applyAugment(recovery);
+    p2.applyAugment(threeSnails);
+    for (let i = 0; i < 20; i++) {
+      const rolled = rollAugments(p2, 3);
+      expect(rolled.some((a) => a.id === "nimbleMoves")).toBe(true);
+    }
+
+    // Test Case 3: has nimbleMoves & threeSnails -> recovery must appear
+    const p3 = generate("한카리아스");
+    p3.applyAugment(nimbleMoves);
+    p3.applyAugment(threeSnails);
+    for (let i = 0; i < 20; i++) {
+      const rolled = rollAugments(p3, 3);
+      expect(rolled.some((a) => a.id === "recovery")).toBe(true);
+    }
+
+    // Test rollTeamAugments with p1
+    const teamChoices = rollTeamAugments([p1]);
+    const choices = teamChoices[p1.originalIndex ?? p1.id ?? 0];
+    expect(choices.some((a) => a.id === "threeSnails")).toBe(true);
+  });
+
+  test("buffs do not count towards 3-limit (normal augment count stays <= 3)", () => {
+    const poke = generate("한카리아스");
+    // 1. Give buff
+    poke.applyAugment(echoOfHero);
+    expect(poke.augments.length).toBe(1);
+    // Normal count is 0, so rolling augments is still possible
+    expect(rollAugments(poke, 3).length).toBe(3);
+
+    // 2. Add 3 normal augments
+    poke.applyAugment(recovery);
+    poke.applyAugment(nimbleMoves);
+    poke.applyAugment(threeSnails);
+    // Total augments = 4 (1 buff + 3 normal)
+    expect(poke.augments.length).toBe(4);
+    expect(poke.augments.filter((a) => !a.buf).length).toBe(3);
+
+    // 3. Trying to add a 4th normal augment should fail
+    const normalAug = AUGMENT_LIST.find((a) => !a.buf && a.id !== "recovery" && a.id !== "nimbleMoves" && a.id !== "threeSnails");
+    const added = poke.applyAugment(normalAug);
+    expect(added).toBe(false);
+    expect(poke.augments.length).toBe(4);
+  });
+
+  test("never appears in random rollAugments or rollTeamAugments", () => {
+    const poke = generate("한카리아스");
+    // Roll 100 times, echoOfHero should never be chosen
+    for (let i = 0; i < 50; i++) {
+      const rolled = rollAugments(poke, 3);
+      expect(rolled.some((a) => a.id === "echoOfHero")).toBe(false);
+    }
+
+    const teamRolled = rollTeamAugments([poke]);
+    const choices = teamRolled[poke.originalIndex ?? poke.id ?? 0] || [];
+    expect(choices.some((a) => a.id === "echoOfHero")).toBe(false);
+  });
+
+  test("automatically gains echoOfHero as 4th augment when having recovery, nimbleMoves, and threeSnails", () => {
+    const poke = generate("한카리아스");
+    expect(poke.augments.length).toBe(0);
+
+    poke.applyAugment(recovery);
+    expect(poke.augments.length).toBe(1);
+    expect(poke.hasAugment("echoOfHero")).toBe(false);
+
+    poke.applyAugment(nimbleMoves);
+    expect(poke.augments.length).toBe(2);
+    expect(poke.hasAugment("echoOfHero")).toBe(false);
+
+    // Apply 3rd augment (threeSnails) -> triggers synergy!
+    poke.applyAugment(threeSnails);
+
+    expect(poke.augments.length).toBe(4);
+    expect(poke.hasAugment("recovery")).toBe(true);
+    expect(poke.hasAugment("nimbleMoves")).toBe(true);
+    expect(poke.hasAugment("threeSnails")).toBe(true);
+    expect(poke.hasAugment("echoOfHero")).toBe(true);
+  });
+
+  test("boosts attack and sp.atk of all allied pokemon by 40%", () => {
+    const p1 = generate("한카리아스"); // base atk: 182, catk: 90
+    const p2 = generate("고릴타"); // base atk: 177, catk: 72
+
+    const baseAtk1 = getAugmentedStat(p1, "atk");
+    const baseCatk1 = getAugmentedStat(p1, "catk");
+    const baseAtk2 = getAugmentedStat(p2, "atk");
+    const baseCatk2 = getAugmentedStat(p2, "catk");
+
+    p1.team = "player";
+    p2.team = "player";
+
+    const battle = {
+      player: p1,
+      playerBench1: p2,
+      playerBench2: null,
+    };
+
+    // Before augment: normal stats
+    expect(getAugmentedStat(p1, "atk", battle)).toBe(baseAtk1);
+    expect(getAugmentedStat(p2, "atk", battle)).toBe(baseAtk2);
+
+    // Give echoOfHero to p1
+    p1.applyAugment(echoOfHero, battle);
+
+    // Both p1 (carrier) and p2 (ally) should have 40% boosted Atk and Sp.Atk!
+    const expectedAtk1 = Math.round(baseAtk1 * 1.4);
+    const expectedCatk1 = Math.round(baseCatk1 * 1.4);
+    const expectedAtk2 = Math.round(baseAtk2 * 1.4);
+    const expectedCatk2 = Math.round(baseCatk2 * 1.4);
+
+    expect(getAugmentedStat(p1, "atk", battle)).toBe(expectedAtk1);
+    expect(getAugmentedStat(p1, "catk", battle)).toBe(expectedCatk1);
+    expect(getAugmentedStat(p2, "atk", battle)).toBe(expectedAtk2);
+    expect(getAugmentedStat(p2, "catk", battle)).toBe(expectedCatk2);
+
+    // Def and Speed should NOT be boosted by echoOfHero
+    expect(getAugmentedStat(p1, "def", battle)).toBe(p1.origin.stat.def);
+    expect(getAugmentedStat(p2, "speed", battle)).toBe(p2.origin.stat.speed);
+  });
+});

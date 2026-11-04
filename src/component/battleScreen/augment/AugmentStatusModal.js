@@ -4,10 +4,7 @@ import { AugmentIcon } from "./AugmentIcon";
 import { getAugmentText } from "../../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
-  const resolvedTeam =
-    team && team.length > 0
-      ? team
-      : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
+  const resolvedTeam = team && team.length > 0 ? team : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
 
   const [activePokemon, setActivePokemon] = useState(() => {
     if (initialPokemon) {
@@ -20,6 +17,13 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
   if (!resolvedTeam || resolvedTeam.length === 0) return null;
 
   const currentAugments = activePokemon?.augments || [];
+  const sortedAugments = [...currentAugments].sort((a, b) => {
+    const isBufA = Boolean(a.buf);
+    const isBufB = Boolean(b.buf);
+    if (isBufA && !isBufB) return 1;
+    if (!isBufA && isBufB) return -1;
+    return 0;
+  });
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -38,14 +42,9 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
             {resolvedTeam.map((poke, idx) => {
               const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
               const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
-              const count = (poke.augments || []).length;
+              const count = (poke.augments || []).filter((a) => !a.buf).length;
               return (
-                <EntryCard
-                  key={poke.originalIndex ?? poke.id ?? idx}
-                  $isSelected={isSelected}
-                  onClick={() => setActivePokemon(poke)}
-                  title={`${poke.name} (보유 증강 ${count}/3)`}
-                >
+                <EntryCard key={poke.originalIndex ?? poke.id ?? idx} $isSelected={isSelected} onClick={() => setActivePokemon(poke)} title={`${poke.name} (보유 증강 ${count}/3)`}>
                   <EntryPokemonImg
                     src={`/pokemon/img/pokemon/${pokeId}.webp`}
                     alt={poke.name}
@@ -62,25 +61,29 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
         )}
 
         <CardContainer>
-          {currentAugments.length === 0 ? (
+          {sortedAugments.length === 0 ? (
             <EmptyChoiceText>보유 중인 증강이 없습니다.</EmptyChoiceText>
           ) : (
-            currentAugments.map((aug, index) => (
-              <AugmentCard key={aug.id || index}>
-                <IconCol>
-                  <IconWrapper>
-                    <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
-                  </IconWrapper>
-                  {aug.cost !== "-" && aug.cost !== undefined && (
-                    <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>
-                  )}
-                </IconCol>
-                <CardContent>
-                  <CardTitle>{aug.shortName || aug.name}</CardTitle>
-                  <CardDescription>{getAugmentText(aug, activePokemon) || aug.desc}</CardDescription>
-                </CardContent>
-              </AugmentCard>
-            ))
+            sortedAugments.map((aug, index) => {
+              const isBuf = Boolean(aug.buf);
+              return (
+                <AugmentCard key={aug.id || index} $isBuff={isBuf}>
+                  <IconCol>
+                    <IconWrapper>
+                      <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
+                    </IconWrapper>
+                    {!isBuf && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                  </IconCol>
+                  <CardContent>
+                    <CardTitleRow>
+                      <CardTitle>{aug.shortName || aug.name}</CardTitle>
+                      {isBuf && <BuffBadge>버프</BuffBadge>}
+                    </CardTitleRow>
+                    <CardDescription>{getAugmentText(aug, activePokemon) || aug.desc}</CardDescription>
+                  </CardContent>
+                </AugmentCard>
+              );
+            })
           )}
         </CardContainer>
 
@@ -225,10 +228,8 @@ const EntryCard = styled.div`
   justify-content: center;
   gap: 4px;
   padding: 8px 4px;
-  background: ${(props) =>
-    props.$isSelected ? "rgba(20, 48, 64, 0.95)" : "rgba(255, 255, 255, 0.05)"};
-  border: ${(props) =>
-    props.$isSelected ? "2px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.12)"};
+  background: ${(props) => (props.$isSelected ? "rgba(20, 48, 64, 0.95)" : "rgba(255, 255, 255, 0.05)")};
+  border: ${(props) => (props.$isSelected ? "2px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.12)")};
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -276,8 +277,7 @@ const EntryCountBadge = styled.span`
   font-size: 0.65rem;
   font-weight: 700;
   color: ${(props) => (props.$hasAugment ? "#64ffda" : "#94a3b8")};
-  background: ${(props) =>
-    props.$hasAugment ? "rgba(100, 255, 218, 0.12)" : "rgba(255, 255, 255, 0.06)"};
+  background: ${(props) => (props.$hasAugment ? "rgba(100, 255, 218, 0.12)" : "rgba(255, 255, 255, 0.06)")};
   padding: 1px 5px;
   border-radius: 4px;
   line-height: 1.2;
@@ -335,9 +335,9 @@ const IconWrapper = styled.div`
 
 const AugmentCard = styled.div`
   width: 100%;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-left: 4px solid #64ffda;
+  background: ${(props) => (props.$isBuff ? "rgba(255, 220, 100, 0.12)" : "rgba(0, 0, 0, 0.45)")};
+  border: 1px solid ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.4)" : "rgba(255, 255, 255, 0.1)")};
+  border-left: 4px solid ${(props) => (props.$isBuff ? "#ffd700" : "#64ffda")};
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;
@@ -351,10 +351,31 @@ const AugmentCard = styled.div`
   }
 
   &:hover {
-    border-color: rgba(100, 255, 218, 0.5);
-    background: rgba(20, 30, 44, 0.75);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border-color: ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.65)" : "rgba(100, 255, 218, 0.5)")};
+    background: ${(props) => (props.$isBuff ? "rgba(255, 220, 100, 0.2)" : "rgba(20, 30, 44, 0.75)")};
+    box-shadow: 0 4px 12px ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.2)" : "rgba(0, 0, 0, 0.4)")};
   }
+`;
+
+const CardTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+`;
+
+const BuffBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.18);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
 `;
 
 const CardContent = styled.div`

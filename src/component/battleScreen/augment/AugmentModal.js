@@ -52,14 +52,17 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     if (targetPokemon && resolvedTeam.some((p) => p === targetPokemon || p.id === targetPokemon.id)) {
       return targetPokemon;
     }
-    return resolvedTeam.find((p) => (p.augments || []).length < 3) || resolvedTeam[0] || null;
+    return resolvedTeam.find((p) => (p.augments || []).filter((a) => !a.buf).length < 3) || resolvedTeam[0] || null;
   });
 
   const checkEligibility = (aug, pokemon) => {
     if (!pokemon) return false;
     if (isTitanSelection) return true;
-    const maxLimit = 3;
-    if ((pokemon.augments || []).length >= maxLimit) return false;
+    const isBuffAug = Boolean(aug.buf);
+    if (!isBuffAug) {
+      const normalAugs = (pokemon.augments || []).filter((a) => !a.buf);
+      if (normalAugs.length >= 3) return false;
+    }
     if (pokemon.hasAugment?.(aug.id)) {
       return false;
     }
@@ -114,7 +117,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
   const handleSelectPokemon = (poke) => {
     if (isPeekMode) setIsPeekMode(false);
-    const isFull = (poke.augments || []).length >= 3;
+    const isFull = (poke.augments || []).filter((a) => !a.buf).length >= 3;
     if (isFull) return;
     if (poke === activePokemon || poke?.id === activePokemon?.id) return;
     setActivePokemon(poke);
@@ -608,7 +611,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                   <EntryContainer>
                     {resolvedTeam.map((poke, idx) => {
                       const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
-                      const isFull = (poke.augments || []).length >= 3;
+                      const isFull = (poke.augments || []).filter((a) => !a.buf).length >= 3;
                       const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
                       return (
                         <EntryCard
@@ -645,15 +648,18 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                         {allEligible.map((aug, index) => {
                           const isCardSelected = selectedAugment?.id === aug.id;
                           return (
-                            <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} onClick={(e) => handleCardClick(e, aug)}>
+                            <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={Boolean(aug.buf)} onClick={(e) => handleCardClick(e, aug)}>
                               <IconCol>
                                 <IconWrapper>
                                   <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                                 </IconWrapper>
-                                {aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                                {!aug.buf && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                               </IconCol>
                               <CardContent>
-                                <CardTitle>{aug.name}</CardTitle>
+                                <CardTitleRow>
+                                  <CardTitle>{aug.name}</CardTitle>
+                                  {aug.buf && <BuffBadge>버프</BuffBadge>}
+                                </CardTitleRow>
                                 <CardDescription>{aug.desc}</CardDescription>
                               </CardContent>
                             </AugmentCard>
@@ -671,11 +677,12 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                                   <IconWrapper>
                                     <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                                   </IconWrapper>
-                                  {aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                                  {!aug.buf && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                                 </IconCol>
                                 <CardContent>
                                   <CardTitleRow>
                                     <CardTitle>{aug.name}</CardTitle>
+                                    {aug.buf && <BuffBadge>버프</BuffBadge>}
                                     <IneligibleBadge>선택 불가</IneligibleBadge>
                                   </CardTitleRow>
                                   <CardDescription>{aug.desc}</CardDescription>
@@ -697,10 +704,13 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             <IconWrapper>
                               <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                             </IconWrapper>
-                            {aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                            {!aug.buf && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                           </IconCol>
                           <CardContent>
-                            <CardTitle>{aug.name}</CardTitle>
+                            <CardTitleRow>
+                              <CardTitle>{aug.name}</CardTitle>
+                              {aug.buf && <BuffBadge>버프</BuffBadge>}
+                            </CardTitleRow>
                             <CardDescription>{aug.desc}</CardDescription>
                           </CardContent>
                         </AugmentCard>
@@ -1085,6 +1095,20 @@ const IneligibleDivider = styled.div`
   }
 `;
 
+const BuffBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.18);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+`;
+
 const IneligibleBadge = styled.span`
   font-size: 0.65rem;
   font-weight: 700;
@@ -1140,9 +1164,9 @@ const IconWrapper = styled.div`
 
 const AugmentCard = styled.div`
   width: 100%;
-  background: ${(props) => (props.$disabled ? "rgba(15, 23, 42, 0.35)" : props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(0, 0, 0, 0.45)")};
-  border: ${(props) => (props.$disabled ? "1px solid rgba(255, 255, 255, 0.06)" : props.$isSelected ? "1.5px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.1)")};
-  border-left: 4px solid ${(props) => (props.$disabled ? "#475569" : props.$isSelected ? "#38bdf8" : "#64ffda")};
+  background: ${(props) => (props.$disabled ? "rgba(15, 23, 42, 0.35)" : props.$isBuff ? (props.$isSelected ? "rgba(50, 42, 16, 0.98)" : "rgba(255, 220, 100, 0.12)") : props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(0, 0, 0, 0.45)")};
+  border: ${(props) => (props.$disabled ? "1px solid rgba(255, 255, 255, 0.06)" : props.$isBuff ? (props.$isSelected ? "1.5px solid #ffd700" : "1px solid rgba(255, 215, 0, 0.4)") : props.$isSelected ? "1.5px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.1)")};
+  border-left: 4px solid ${(props) => (props.$disabled ? "#475569" : props.$isBuff ? "#ffd700" : props.$isSelected ? "#38bdf8" : "#64ffda")};
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;

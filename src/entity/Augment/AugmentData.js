@@ -452,6 +452,27 @@ export const AUGMENT_LIST = [
     desc: "공격 후 적에게 추가 고정 데미지를 입힙니다.",
     cost: 5,
   },
+  {
+    id: "echoOfHero",
+    name: "영웅의 메아리",
+    desc: "아군 모든 포켓몬의 공격과 특공을 40% 상승시킨다.",
+    buf: true,
+    isRandom: false,
+    isEligible: (pokemon) => !pokemon?.hasAugment?.("echoOfHero"),
+    onApply: function (pokemon, battle) {
+      if (battle) {
+        const team =
+          pokemon.team === "npc"
+            ? [battle.npc, battle.npcBench1, battle.npcBench2]
+            : [battle.player, battle.playerBench1, battle.playerBench2];
+        team.filter(Boolean).forEach((p) => {
+          p.hasEchoOfHeroBuff = true;
+        });
+      } else if (pokemon) {
+        pokemon.hasEchoOfHeroBuff = true;
+      }
+    },
+  },
   // 무한 다이맥스 (무한다이노 전용) =============================================
   {
     id: "eternamax",
@@ -763,6 +784,20 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     }
   }
 
+  const foundInList = AUGMENT_LIST.find((a) => a.id === id);
+  const isBuf = Boolean(selectedAugment?.buf || foundInList?.buf);
+  if (isBuf) {
+    if (isTextScreen) {
+      if (id === "echoOfHero") {
+        return `3개의 증강이 공명하여 "영웅의 메아리" 버프를 얻었다!`;
+      }
+      const displayAugName = selectedAugment?.shortName || selectedAugment?.name || foundInList?.shortName || foundInList?.name || "";
+      return `${names} "${displayAugName}" 버프를 얻었다!`;
+    }
+    const applied = target?.augments?.find((a) => a.id === id);
+    return applied?.desc || selectedAugment?.desc || foundInList?.desc || "";
+  }
+
   // 특수 증강인 경우 (individualDesc 가 존재하는 경우)
   if (individualDesc !== null) {
     return isTextScreen ? `[증강] ${individualDesc}` : individualDesc;
@@ -866,3 +901,11 @@ export const getAugmentDesc = (augment, pokemon = null) => {
 };
 
 export { changePokemonAbility, changeAbility };
+
+export const isBuffAugment = (augment) => {
+  if (!augment) return false;
+  if (typeof augment === "object" && augment.buf) return true;
+  const id = typeof augment === "string" ? augment : augment.id;
+  const found = AUGMENT_LIST.find((a) => a.id === id);
+  return Boolean(found?.buf);
+};

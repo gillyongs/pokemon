@@ -1,28 +1,54 @@
 import { AUGMENT_LIST } from "../entity/Augment/AugmentData";
 
+export const BEGINNER_AUGMENT_IDS = ["recovery", "nimbleMoves", "threeSnails"];
+
+export function getForcedBeginnerAugment(pokemon) {
+  if (!pokemon) return null;
+  const owned = BEGINNER_AUGMENT_IDS.filter((id) => pokemon.hasAugment?.(id));
+  if (owned.length === 2) {
+    const missingId = BEGINNER_AUGMENT_IDS.find((id) => !pokemon.hasAugment?.(id));
+    if (missingId) {
+      return AUGMENT_LIST.find((a) => a.id === missingId) || null;
+    }
+  }
+  return null;
+}
+
 /**
  * 포켓몬이 선택 가능한 증강을 무작위(중복 없이) 추첨합니다.
  * 포켓몬당 증강은 최대 3개까지 보유할 수 있습니다.
  */
 export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
   if (!pokemon) return [];
-  const currentCount = Array.isArray(pokemon.augments) ? pokemon.augments.length : 0;
+  const currentCount = Array.isArray(pokemon.augments) ? pokemon.augments.filter((a) => !a.buf).length : 0;
   if (currentCount >= 3) return [];
 
   // 이미 보유한 증강 제외
   const available = AUGMENT_LIST.filter((aug) => {
+    if (aug.buf || aug.isRandom === false) return false;
     if (pokemon.hasAugment?.(aug.id)) return false;
     if (typeof aug.isEligible === "function" && !aug.isEligible(pokemon, battleOrTeam)) return false;
     return true;
   });
-  const pool = [...available];
+  const forced = getForcedBeginnerAugment(pokemon);
   const selected = [];
+  let pool = [...available];
 
-  const pickCount = Math.min(count, pool.length);
+  if (forced && pool.some((a) => a.id === forced.id)) {
+    selected.push(forced);
+    pool = pool.filter((a) => a.id !== forced.id);
+  }
+
+  const pickCount = Math.min(count - selected.length, pool.length);
   for (let i = 0; i < pickCount; i++) {
     const idx = Math.floor(Math.random() * pool.length);
     selected.push(pool[idx]);
     pool.splice(idx, 1);
+  }
+
+  for (let i = selected.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [selected[i], selected[j]] = [selected[j], selected[i]];
   }
 
   return selected;
@@ -37,7 +63,7 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
 export function grantRandomAugment(battle, preferredPokemon = null) {
   if (!battle) return null;
   const team = [preferredPokemon, battle.player, battle.playerBench1, battle.playerBench2].filter(
-    (p, idx, arr) => p && arr.indexOf(p) === idx && (p.augments || []).length < 3
+    (p, idx, arr) => p && arr.indexOf(p) === idx && (p.augments || []).filter((a) => !a.buf).length < 3
   );
 
   if (team.length === 0) return null;
@@ -66,20 +92,28 @@ export function rollTeamAugments(team, battle = null) {
   team.forEach((poke, idx) => {
     if (!poke) return;
     const key = poke.originalIndex ?? poke.id ?? idx;
-    const currentCount = Array.isArray(poke.augments) ? poke.augments.length : 0;
+    const currentCount = Array.isArray(poke.augments) ? poke.augments.filter((a) => !a.buf).length : 0;
     if (currentCount >= 3) {
       choicesMap[key] = [];
       return;
     }
 
     const available = AUGMENT_LIST.filter((aug) => {
+      if (aug.buf || aug.isRandom === false) return false;
       if (poke.hasAugment?.(aug.id)) return false;
       if (typeof aug.isEligible === "function" && !aug.isEligible(poke, battle || team, team)) return false;
       return true;
     });
 
-    const unused = available.filter((a) => !globalPickedIds.has(a.id));
-    const already = available.filter((a) => globalPickedIds.has(a.id));
+    const forced = getForcedBeginnerAugment(poke);
+    const chosen = [];
+    if (forced && available.some((a) => a.id === forced.id)) {
+      chosen.push(forced);
+      globalPickedIds.add(forced.id);
+    }
+
+    const unused = available.filter((a) => !globalPickedIds.has(a.id) && !chosen.some((c) => c.id === a.id));
+    const already = available.filter((a) => globalPickedIds.has(a.id) && !chosen.some((c) => c.id === a.id));
 
     const shuffle = (arr) => {
       const copy = [...arr];
@@ -93,7 +127,6 @@ export function rollTeamAugments(team, battle = null) {
     const shuffledUnused = shuffle(unused);
     const shuffledAlready = shuffle(already);
 
-    const chosen = [];
     while (chosen.length < 3 && shuffledUnused.length > 0) {
       const pick = shuffledUnused.pop();
       chosen.push(pick);
@@ -101,6 +134,11 @@ export function rollTeamAugments(team, battle = null) {
     }
     while (chosen.length < 3 && shuffledAlready.length > 0) {
       chosen.push(shuffledAlready.pop());
+    }
+
+    for (let i = chosen.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [chosen[i], chosen[j]] = [chosen[j], chosen[i]];
     }
 
     choicesMap[key] = chosen;

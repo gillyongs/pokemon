@@ -116,7 +116,7 @@ export const turnEnd = (battle, enqueue) => {
       battle.turn.npcFaintedCount = 0;
       battle.turn.npcFaintedThisTurn = false;
     }
-    const hasSlot = [battle.player, battle.playerBench1, battle.playerBench2].some((p) => p && (p.augments || []).length < 3);
+    const hasSlot = [battle.player, battle.playerBench1, battle.playerBench2].some((p) => p && (p.augments || []).filter((a) => !a.buf).length < 3);
     if (hasSlot) {
       battle.hasKnockoutAugmentThisRound = true;
       enqueue({

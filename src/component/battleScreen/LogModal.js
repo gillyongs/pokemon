@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { AugmentIcon } from "./augment/AugmentIcon";
+import { isBuffAugment } from "../../entity/Augment/AugmentData";
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -92,9 +93,9 @@ const Item = styled.div`
 const AugmentLogCard = styled.div`
   padding: 12px 14px;
   margin-bottom: 12px;
-  background: linear-gradient(135deg, rgba(16, 28, 42, 0.95), rgba(10, 18, 28, 0.98));
-  border: 1px solid rgba(100, 255, 218, 0.35);
-  border-left: 4px solid #64ffda;
+  background: ${(props) => (props.$isBuff ? "linear-gradient(135deg, rgba(38, 32, 12, 0.95), rgba(24, 20, 8, 0.98))" : "linear-gradient(135deg, rgba(16, 28, 42, 0.95), rgba(10, 18, 28, 0.98))")};
+  border: 1px solid ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.45)" : "rgba(100, 255, 218, 0.35)")};
+  border-left: 4px solid ${(props) => (props.$isBuff ? "#ffd700" : "#64ffda")};
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
   display: flex;
@@ -109,13 +110,28 @@ const AugmentHeader = styled.div`
 `;
 
 const AugmentBadge = styled.span`
-  background: rgba(100, 255, 218, 0.15);
-  color: #64ffda;
+  background: ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.2)" : "rgba(100, 255, 218, 0.15)")};
+  color: ${(props) => (props.$isBuff ? "#ffd700" : "#64ffda")};
   font-size: 0.72rem;
   font-weight: 700;
   padding: 2px 7px;
   border-radius: 4px;
-  border: 1px solid rgba(100, 255, 218, 0.35);
+  border: 1px solid ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.5)" : "rgba(100, 255, 218, 0.35)")};
+  letter-spacing: 0.5px;
+`;
+
+const LogBuffBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.18);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
   letter-spacing: 0.5px;
 `;
 
@@ -233,23 +249,30 @@ export default function LogModal({ log, onClose }) {
               }
 
               if (item.augmentData) {
-                const { targetName, augment } = item.augmentData;
+                const targetName = item.augmentData.targetName;
+                const augment = item.augmentData.augment || item.augmentData || {};
+                const augId = augment.id;
+                const isBuff = Boolean(augment.buf || isBuffAugment(augment));
+                const augCost = augment.cost;
+                const augName = augment.shortName || augment.name || augment.augmentName || (isBuff ? "버프" : "증강");
+                const augDesc = augment.desc;
                 return (
-                  <AugmentLogCard key={index}>
+                  <AugmentLogCard key={index} $isBuff={isBuff}>
                     <AugmentHeader>
-                      <AugmentBadge>증강 획득</AugmentBadge>
+                      <AugmentBadge $isBuff={isBuff}>{isBuff ? "버프 획득" : "증강 획득"}</AugmentBadge>
                       <TargetPokemonText>{targetName}에게 적용</TargetPokemonText>
                     </AugmentHeader>
                     <AugmentBody>
                       <AugmentIconCol>
-                        {augment.id && <AugmentIcon id={augment.id} size={36} />}
-                        {augment.cost !== undefined && augment.cost !== "-" && <AugmentCost>{augment.cost ?? 1} cost</AugmentCost>}
+                        {augId && <AugmentIcon id={augId} size={36} />}
+                        {!isBuff && augCost !== undefined && augCost !== "-" && <AugmentCost>{augCost ?? 1} cost</AugmentCost>}
                       </AugmentIconCol>
                       <AugmentInfo>
                         <AugmentTitleRow>
-                          <AugmentName>{augment.shortName || augment.name}</AugmentName>
+                          <AugmentName>{augName}</AugmentName>
+                          {isBuff && <LogBuffBadge>버프</LogBuffBadge>}
                         </AugmentTitleRow>
-                        {augment.desc && <AugmentDesc>{augment.desc}</AugmentDesc>}
+                        {augDesc && <AugmentDesc>{augDesc}</AugmentDesc>}
                       </AugmentInfo>
                     </AugmentBody>
                   </AugmentLogCard>

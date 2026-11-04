@@ -559,6 +559,31 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <feDropShadow dx="0" dy="1.5" stdDeviation="2" floodColor="#22c55e" floodOpacity="0.6" />
           </filter>
 
+          {/* 영웅의 메아리 전용 그라데이션 및 필터 */}
+          <radialGradient id="echoGoldGlow" cx="50%" cy="40%" r="50%">
+            <stop offset="0%" stopColor="#fef08a" stopOpacity="0.65" />
+            <stop offset="45%" stopColor="#f59e0b" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#d97706" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="crownGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#fffbeb" />
+            <stop offset="35%" stopColor="#fde047" />
+            <stop offset="75%" stopColor="#eab308" />
+            <stop offset="100%" stopColor="#b45309" />
+          </linearGradient>
+          <linearGradient id="heroBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="70%" stopColor="#f8fafc" />
+            <stop offset="100%" stopColor="#e2e8f0" />
+          </linearGradient>
+          <filter id="echoGlowFilter" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="1.8" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
 
           <filter id="tmCyanRingGlow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="1.8" result="blur" />
@@ -3216,6 +3241,100 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="18" cy="14" r="0.9" fill="#ffffff" opacity="0.85" />
             <circle cx="48" cy="14" r="0.9" fill="#ffffff" opacity="0.8" />
             <circle cx="32" cy="58" r="1.1" fill="#64ffda" opacity="0.85" />
+          </g>
+        )}
+
+        {/* 29. 영웅의 메아리 (영웅의 형상 & 황금 왕관 & 메아리 파동 링 & X자 광선) */}
+        {id === "echoOfHero" && (
+          <g>
+            {/* 1. 중앙 골드 광채 아우라 */}
+            <circle cx="32" cy="30" r="22" fill="url(#echoGoldGlow)" />
+
+            {/* 2. 대각선 및 8방향 음파 광선 (메이플 원작의 X자 및 십자 광선) */}
+            <g stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" opacity="0.8" filter="url(#echoGlowFilter)">
+              <line x1="12" y1="12" x2="22" y2="22" />
+              <line x1="52" y1="12" x2="42" y2="22" />
+              <line x1="12" y1="50" x2="22" y2="40" />
+              <line x1="52" y1="50" x2="42" y2="40" />
+            </g>
+            <g stroke="#fde047" strokeWidth="1.1" strokeLinecap="round" opacity="0.65" strokeDasharray="3 3">
+              <line x1="32" y1="7" x2="32" y2="13" />
+              <line x1="32" y1="47" x2="32" y2="53" />
+              <line x1="9" y1="30" x2="15" y2="30" />
+              <line x1="49" y1="30" x2="55" y2="30" />
+            </g>
+
+            {/* 3. 동심원 메아리 파동 링 (Concentric Echo Waves) */}
+            <ellipse cx="32" cy="31" rx="20.5" ry="19" stroke="#ffffff" strokeWidth="1.4" strokeDasharray="7 3.5" opacity="0.65" filter="url(#echoGlowFilter)" />
+            <ellipse cx="32" cy="31" rx="15" ry="14" stroke="#facc15" strokeWidth="1.6" strokeDasharray="6 3" opacity="0.85" filter="url(#echoGlowFilter)" />
+            <circle cx="32" cy="27" r="9.5" fill="#fef08a" opacity="0.2" />
+            <circle cx="32" cy="27" r="9.5" stroke="#fef08a" strokeWidth="1.2" opacity="0.8" />
+
+            {/* 4. 황금 왕관 (Golden Crown) */}
+            <g filter="url(#echoGlowFilter)">
+              <path
+                d="M 26 18.5 L 25.5 13.5 L 28.5 15.5 L 32 11 L 35.5 15.5 L 38.5 13.5 L 38 18.5 Z"
+                fill="url(#crownGrad)"
+                stroke="#78350f"
+                strokeWidth="1"
+                strokeLinejoin="round"
+              />
+              <circle cx="25.5" cy="13" r="0.8" fill="#ffffff" />
+              <circle cx="32" cy="10.5" r="1.1" fill="#ffffff" />
+              <circle cx="38.5" cy="13" r="0.8" fill="#ffffff" />
+              <path d="M 27 18 L 37 18" stroke="#fef08a" strokeWidth="0.8" strokeLinecap="round" />
+            </g>
+
+            {/* 5. 중앙 영웅의 형상 (양팔 들어올린 흰색 아바타) */}
+            <g id="heroFigure">
+              {/* 후면 은은한 발광 */}
+              <ellipse cx="32" cy="28" rx="6.5" ry="6.5" fill="#ffffff" opacity="0.3" filter="url(#glow)" />
+
+              {/* 좌측 팔 들어올림 */}
+              <path
+                d="M 28 34 L 23 34 C 21.5 34, 21.5 33, 21.5 30 L 21.5 27.5 C 21.5 26.5, 22.5 26.5, 23.5 26.5 C 24.5 26.5, 24.5 27.5, 24.5 28.5 L 24.5 31 L 28 31 Z"
+                fill="url(#heroBodyGrad)"
+                stroke="#0f172a"
+                strokeWidth="1.3"
+                strokeLinejoin="round"
+              />
+              {/* 우측 팔 들어올림 */}
+              <path
+                d="M 36 34 L 41 34 C 42.5 34, 42.5 33, 42.5 30 L 42.5 27.5 C 42.5 26.5, 41.5 26.5, 40.5 26.5 C 39.5 26.5, 39.5 27.5, 39.5 28.5 L 39.5 31 L 36 31 Z"
+                fill="url(#heroBodyGrad)"
+                stroke="#0f172a"
+                strokeWidth="1.3"
+                strokeLinejoin="round"
+              />
+
+              {/* 몸통과 다리 */}
+              <path
+                d="M 28 31 L 36 31 L 36 43 L 34 43 L 34 49 L 32.5 49 L 32.5 40 L 31.5 40 L 31.5 49 L 30 49 L 30 43 L 28 43 Z"
+                fill="url(#heroBodyGrad)"
+                stroke="#0f172a"
+                strokeWidth="1.3"
+                strokeLinejoin="round"
+              />
+
+              {/* 머리 */}
+              <circle
+                cx="32"
+                cy="24"
+                r="4.8"
+                fill="url(#heroBodyGrad)"
+                stroke="#0f172a"
+                strokeWidth="1.3"
+              />
+              <path d="M 30.5 22.5 Q 32 21.5 33.5 22.5" stroke="#ffffff" strokeWidth="1" strokeLinecap="round" />
+            </g>
+
+            {/* 6. 반짝이는 스파클 */}
+            <path d="M 12 18 Q 12 21 14.5 21 Q 12 21 12 24 Q 12 21 9.5 21 Q 12 21 12 18 Z" fill="#fef08a" opacity="0.9" />
+            <path d="M 52 18 Q 52 21 54.5 21 Q 52 21 52 24 Q 52 21 49.5 21 Q 52 21 52 18 Z" fill="#fef08a" opacity="0.9" />
+            <path d="M 32 5 Q 32 7.5 34 7.5 Q 32 7.5 32 10 Q 32 7.5 30 7.5 Q 32 7.5 32 5 Z" fill="#ffffff" opacity="0.95" />
+            <circle cx="15" cy="40" r="1.1" fill="#fde047" opacity="0.8" />
+            <circle cx="49" cy="40" r="1.1" fill="#fde047" opacity="0.8" />
+            <circle cx="32" cy="55" r="1.2" fill="#64ffda" opacity="0.85" />
           </g>
         )}
       </svg>

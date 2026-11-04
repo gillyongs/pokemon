@@ -22,6 +22,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   const allOwnedAugments = [];
   teamMembers.forEach(({ poke, index }) => {
     (poke.augments || []).forEach((aug, augIdx) => {
+      if (aug.buf) return;
       allOwnedAugments.push({
         pokeIndex: index,
         pokemon: poke,
@@ -66,6 +67,19 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   const handleComplete = () => {
     // 포켓몬별로 선택된 증강 맵핑 { 0: [aug...], 1: [...], 2: [...] }
     const carriedMap = { 0: [], 1: [], 2: [] };
+    // 버프는 무조건 같이 넘어감
+    teamMembers.forEach(({ poke, index }) => {
+      (poke.augments || []).forEach((aug) => {
+        if (aug.buf) {
+          carriedMap[index].push({
+            id: aug.id,
+            name: aug.name,
+            cost: aug.cost,
+            buf: true,
+          });
+        }
+      });
+    });
     allOwnedAugments.forEach((item) => {
       if (selectedKeys.has(item.uniqueKey)) {
         carriedMap[item.pokeIndex].push({

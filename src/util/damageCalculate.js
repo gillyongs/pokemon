@@ -6,7 +6,7 @@ import { speedCheck, speedCalculate } from "./speedCheck";
 import { getWeatherBallType } from "./weatherBall";
 import { consoleLog } from "./consoleLog";
 
-export const getAugmentedStat = (pokemon, statKey) => {
+export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   const baseStatObj = pokemon?.origin?.stat || pokemon?.stat;
   let val = baseStatObj?.[statKey] ?? 0;
   if (typeof val !== "number") return 0;
@@ -92,6 +92,18 @@ export const getAugmentedStat = (pokemon, statKey) => {
     }
   }
 
+  // 영웅의 메아리: 아군 모든 포켓몬의 공격과 특공 40% 상승
+  const hasSelfEcho = pokemon?.hasAugment?.("echoOfHero") || Boolean(pokemon?.hasEchoOfHeroBuff);
+  let hasTeamEcho = hasSelfEcho;
+  if (!hasTeamEcho && battle) {
+    const team = pokemon?.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
+    hasTeamEcho = team.some((p) => p?.hasAugment?.("echoOfHero") || p?.hasEchoOfHeroBuff);
+  }
+  if (hasTeamEcho && (statKey === "atk" || statKey === "catk")) {
+    val = Math.round(val * 1.4);
+    logText += " * 1.4 (영웅의 메아리)";
+  }
+
   logText += ` = ${val}`;
   try {
     if (pokemon) {
@@ -121,8 +133,8 @@ export const damageCalculate = (battle, obj, ai) => {
     // 공격과 특공중 더 높은 쪽을 적용.
     // 공격이 더 높으면 물리기가 된다
     // 랭크업까진 적용, 아이템이나 특성은 반영하지 않는다.
-    const currentAtk = getAugmentedStat(attackPokemon, "atk") * getMultiplier(attackPokemon.tempStatus.rank.atk);
-    const currentCatk = getAugmentedStat(attackPokemon, "catk") * getMultiplier(attackPokemon.tempStatus.rank.catk);
+    const currentAtk = getAugmentedStat(attackPokemon, "atk", battle) * getMultiplier(attackPokemon.tempStatus.rank.atk);
+    const currentCatk = getAugmentedStat(attackPokemon, "catk", battle) * getMultiplier(attackPokemon.tempStatus.rank.catk);
     if (currentAtk > currentCatk) {
       skill = { ...skill, stype: "atk" };
     }
@@ -205,7 +217,7 @@ export const damageCalculate = (battle, obj, ai) => {
   // 급소: 시전자에게 불리한 랭크변화만 무시한다 (공격측 공격 다운, 방어측 방어 업)
   // 성스러운칼: 상대방의 랭크변화를 무시한다
 
-  let noRankAtkStat = getAugmentedStat(attackPokemon, attackStat);
+  let noRankAtkStat = getAugmentedStat(attackPokemon, attackStat, battle);
   let rankNumAtk = attackPokemon.tempStatus.rank[attackStat];
   let rankUpAtk = getMultiplier(rankNumAtk);
   let atkStat = noRankAtkStat * rankUpAtk;
@@ -224,7 +236,7 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 방어포켓몬의 방어/특방 능력치
-  let noRankDefStat = getAugmentedStat(defensePokemon, defenseStat);
+  let noRankDefStat = getAugmentedStat(defensePokemon, defenseStat, battle);
   let rankNumDef = defensePokemon.tempStatus.rank[defenseStat];
   let rankUpDef = getMultiplier(rankNumDef);
   let defStat = noRankDefStat * rankUpDef;
@@ -252,7 +264,7 @@ export const damageCalculate = (battle, obj, ai) => {
   // 속임수 ================================================================================================================
 
   if (skill.name === "속임수") {
-    const foulPlayBaseAtk = getAugmentedStat(defensePokemon, "atk");
+    const foulPlayBaseAtk = getAugmentedStat(defensePokemon, "atk", battle);
     atkStat = foulPlayBaseAtk * getMultiplier(defensePokemon.tempStatus.rank.atk);
     if (defensePokemon.abil === "천진") {
       atkStat = foulPlayBaseAtk;
@@ -758,7 +770,7 @@ export const damageCalculate = (battle, obj, ai) => {
     if (obj) text += ` (${obj.serial + 1}타)`;
 
     consoleLog(text);
-    if (getAugmentedStat(attackPokemon, attackStat) !== attackPokemon.origin.stat[attackStat]) {
+    if (getAugmentedStat(attackPokemon, attackStat, battle) !== attackPokemon.origin.stat[attackStat]) {
       consoleLog(attackPokemon.log.getAugmentedStat);
     }
 
@@ -775,8 +787,8 @@ export const confuseDamageCalculate = (battle) => {
   //랭크업 적용됨, 천진은 적용 안됨
   //급소 적용 됨
   const pokemon = battle[battle.turn.atk];
-  let originAtk = getAugmentedStat(pokemon, "atk");
-  let originDef = getAugmentedStat(pokemon, "def");
+  let originAtk = getAugmentedStat(pokemon, "atk", battle);
+  let originDef = getAugmentedStat(pokemon, "def", battle);
   let rankNumAtk = pokemon.tempStatus.rank.atk;
   let rankNumDef = pokemon.tempStatus.rank.def;
   let rankUpAtk = getMultiplier(rankNumAtk);
