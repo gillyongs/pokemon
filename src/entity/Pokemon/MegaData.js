@@ -175,6 +175,15 @@ export const megaDataList = {
       abil: "적응력",
     },
   ],
+  // 개굴닌자
+  "0658": [
+    {
+      stone: "개굴닌자나이트",
+      megaFormId: "0658-m",
+      name: "메가개굴닌자",
+      abil: "적응력",
+    },
+  ],
   // 플라엣테
   "0670": [
     {

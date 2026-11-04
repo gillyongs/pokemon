@@ -29,6 +29,7 @@ export const catkSkills = [
 
   // 선공기
   new Skill("진공파", "격투", 40, 100, 30, 1, "catk", null, "우선도 +1", []),
+  new Skill("물수리검", "물", 15, 100, 20, 1, "catk", null, "2-5회 동안 연속으로 쓴다. (우선도 +1)", [], { serial: "twoFive" }),
 
   // 랭크 변화 (상대)
   new Skill("바크아웃", "악", 55, 95, 15, 0, "catk", null, "상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "def", value: -1 }], { sound: true }),
