@@ -143,6 +143,13 @@ export const damageCalculate = (battle, obj, ai) => {
   const atkAbil = attackPokemon.abil;
   const defAbil = defensePokemon.abil;
 
+  if (atkAbil === "페어리스킨" && skill?.type === "노말") {
+    skill = { ...skill, originType: "노말", type: "페어리" };
+  }
+  if (atkAbil === "스카이스킨" && skill?.type === "노말") {
+    skill = { ...skill, originType: "노말", type: "비행" };
+  }
+
   const isMustCritical = Boolean(skill?.feature?.mustCritical);
   const isCritical = ai ? isMustCritical : Boolean(attackPokemon.turn.critical);
   // NPC 데미지 계산시엔 확정급소가 아니면 급소 보정을 하지 않는다 (난수 제거)
@@ -666,6 +673,11 @@ export const damageCalculate = (battle, obj, ai) => {
   if (atkAbil === "스카이스킨" && skill.type === "비행" && skill.originType === "노말") {
     damage *= 1.2;
     attackPokemon.log.damage1 += " * 1.2 (스카이스킨)";
+  }
+
+  if (atkAbil === "페어리스킨" && skill.type === "페어리" && (skill.originType === "노말" || skill.type === "노말")) {
+    damage *= 1.2;
+    attackPokemon.log.damage1 += " * 1.2 (페어리스킨)";
   }
 
   // 증강 ==============================================================

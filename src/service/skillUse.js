@@ -18,6 +18,14 @@ export const skillUse = (bt, enqueue) => {
     skill = { ...skill, type: wType };
     atk.turn.useSkill = skill;
   }
+  if (atk.abil === "페어리스킨" && skill?.type === "노말") {
+    skill = { ...skill, originType: "노말", type: "페어리" };
+    atk.turn.useSkill = skill;
+  }
+  if (atk.abil === "스카이스킨" && skill?.type === "노말") {
+    skill = { ...skill, originType: "노말", type: "비행" };
+    atk.turn.useSkill = skill;
+  }
   const skillType = skill.stype;
 
   if (beforeSkillCheck(bt, enqueue) === false) {

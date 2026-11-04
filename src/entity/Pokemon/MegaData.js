@@ -73,6 +73,15 @@ export const megaDataList = {
       abil: "쓱쓱",
     },
   ],
+  // 가디안
+  "0282": [
+    {
+      stone: "가디안나이트",
+      megaFormId: "0282-m",
+      name: "메가가디안",
+      abil: "페어리스킨",
+    },
+  ],
   // 입치트
   "0303": [
     {
