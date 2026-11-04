@@ -128,7 +128,7 @@ const TradeInfoModal = ({ pokemon, onClose }) => {
               <SkillButton key={num} onClick={() => handleSkillClick(skill)}>
                 <img src={`/pokemon/img/type/${skill.type}.svg`} alt={skill.name} style={{ width: "24px", height: "24px", marginRight: "8px", borderRadius: "4px" }} />
                 <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
-                  <span style={{ fontWeight: "bold", fontSize: "0.9rem", color: "#fff", whiteSpace: "nowrap" }}>{skill.name}</span>
+                  <span style={{ fontWeight: "bold", fontSize: "0.9rem", color: "#fff", whiteSpace: "nowrap" }}>{skill.name}{skill.nimbleMoves ? " +1" : ""}</span>
                   <span style={{ fontSize: "0.75rem", color: "#aaa", whiteSpace: "nowrap" }}>PP {skill.pp}/{skill.pp}</span>
                 </div>
               </SkillButton>

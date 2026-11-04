@@ -40,7 +40,7 @@ export const atkSkills = [
   new Skill("드래곤테일", "드래곤", 60, 90, 10, -6, "atk", null, "상대를 튕겨내어 교대할 포켓몬을 끌어낸다. (우선도 -6)", [{ name: "강제교체" }], { touch: true }),
 
   // 선공기
-  new Skill("그래스슬라이더", "풀", 55, 100, 20, "change", "atk", null, "그래스필드일 때 우선도 +1", [], { touch: true }),
+  new Skill("그래스슬라이더", "풀", 55, 100, 20, 0, "atk", null, "그래스필드일 때 우선도 +1", [], { touch: true }),
   new Skill("신속", "노말", 80, 100, 5, 2, "atk", null, "우선도 +2", [], { touch: true }),
   new Skill("얼음뭉치", "얼음", 40, 100, 30, 1, "atk", null, "우선도 +1", []),
   new Skill("야습", "고스트", 40, 100, 30, 1, "atk", null, "우선도 +1", [], { touch: true }),

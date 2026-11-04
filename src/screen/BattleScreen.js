@@ -161,6 +161,9 @@ const Battle = () => {
             swordBonusAtk: aug.swordBonusAtk,
             swordName: aug.swordName,
             pickedAbility: aug.pickedAbility,
+            targetSlot: aug.targetSlot,
+            enhancedSkillName: aug.enhancedSkillName,
+            baseSkillName: aug.baseSkillName,
           }));
           return acc;
         }, {})
@@ -453,6 +456,9 @@ const Battle = () => {
                 swordBonusAtk: savedAug?.swordBonusAtk,
                 swordName: savedAug?.swordName,
                 pickedAbility: savedAug?.pickedAbility,
+                targetSlot: savedAug?.targetSlot,
+                enhancedSkillName: savedAug?.enhancedSkillName,
+                baseSkillName: savedAug?.baseSkillName,
               });
             }
           });

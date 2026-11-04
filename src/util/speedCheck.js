@@ -127,19 +127,21 @@ export const skillSpeedCheck = (battle) => {
 
 // 상황에 따라 우선도가 변하는 스킬
 export const priCalculate = (battle, pokemon, skill) => {
-  if (skill.name === "그래스슬라이더") {
-    if (battle.field.terrain.isGrassField) {
-      return 1;
-    } else return 0;
+  if (!skill) return 0;
+  let prior = typeof skill.prior === "number" ? skill.prior : 0;
+
+  if (skill.name === "그래스슬라이더" && battle?.field?.terrain?.isGrassField) {
+    prior += 1;
   }
 
-  if (battle[pokemon].abil === "질풍날개" && skill.type === "비행") {
-    return skill.prior + 1;
+  const pokeObj = typeof pokemon === "string" ? battle?.[pokemon] : pokemon;
+  if (pokeObj?.abil === "질풍날개" && skill.type === "비행") {
+    prior += 1;
   }
 
   // 짓궂은마음: 변화 기술 우선도 +1
-  if (battle[pokemon].abil === "짓궂은마음" && (skill.stype === "natk" || skill.stype === "buf")) {
-    return skill.prior + 1;
+  if (pokeObj?.abil === "짓궂은마음" && (skill.stype === "natk" || skill.stype === "buf")) {
+    prior += 1;
   }
-  return skill.prior;
+  return prior;
 };

@@ -344,3 +344,83 @@ describe("eternamax (무한 다이맥스) dedicated augment verification", () =>
     expect(eternatus.hp / eternatus.origin.hp).toBeCloseTo(0.5, 1);
   });
 });
+
+describe("nimbleMoves augment and grassy glide priority", () => {
+  const nimbleMoves = AUGMENT_LIST.find((a) => a.id === "nimbleMoves");
+
+  test("nimbleMoves exists in AUGMENT_LIST with cost 3", () => {
+    expect(nimbleMoves).toBeDefined();
+    expect(nimbleMoves.name).toBe("민첩한 몸놀림");
+    expect(nimbleMoves.cost).toBe(3);
+    expect(nimbleMoves.desc).toBe("랜덤한 기술 하나에 우선도 +1을 추가합니다.");
+  });
+
+  test("nimbleMoves adds +1 priority and sets nimbleMoves: true on skill", () => {
+    const garchomp = generate("한카리아스");
+    // Ensure slot 1 is 지진
+    garchomp.origin.skill[1] = { name: "지진", prior: 0, power: 100, type: "땅", stype: "atk" };
+    if (garchomp.skill) garchomp.skill[1] = { ...garchomp.origin.skill[1] };
+
+    garchomp.applyAugment(nimbleMoves, null, { targetSlot: 1 });
+
+    expect(garchomp.origin.skill[1].name).toBe("지진");
+    expect(garchomp.origin.skill[1].nimbleMoves).toBe(true);
+    expect(garchomp.origin.skill[1].prior).toBe(1);
+
+    const text = getAugmentText(nimbleMoves, garchomp, true);
+    expect(text).toBe("[증강] 지진의 우선도가 1 증가했다!");
+
+    const desc = getAugmentText(nimbleMoves, garchomp, false);
+    expect(desc).toBe("지진의 우선도가 1 증가했다!");
+  });
+
+  test("carryover restores the same enhanced skill in next round", () => {
+    const garchomp = generate("한카리아스");
+    garchomp.origin.skill[2] = { name: "스톤에지", prior: 0, power: 100, type: "바위", stype: "atk" };
+    if (garchomp.skill) garchomp.skill[2] = { ...garchomp.origin.skill[2] };
+
+    // Apply first round
+    garchomp.applyAugment(nimbleMoves, null, { targetSlot: 2 });
+    expect(garchomp.origin.skill[2].nimbleMoves).toBe(true);
+    expect(garchomp.origin.skill[2].prior).toBe(1);
+
+    // Simulated new round with carryover options
+    const newGarchomp = generate("한카리아스");
+    newGarchomp.origin.skill[2] = { name: "스톤에지", prior: 0, power: 100, type: "바위", stype: "atk" };
+    if (newGarchomp.skill) newGarchomp.skill[2] = { ...newGarchomp.origin.skill[2] };
+
+    newGarchomp.applyAugment(nimbleMoves, null, {
+      targetSlot: garchomp.augments[0].targetSlot,
+      enhancedSkillName: garchomp.augments[0].enhancedSkillName,
+    });
+
+    expect(newGarchomp.origin.skill[2].name).toBe("스톤에지");
+    expect(newGarchomp.origin.skill[2].nimbleMoves).toBe(true);
+    expect(newGarchomp.origin.skill[2].prior).toBe(1);
+    expect(newGarchomp.augments[0].targetSlot).toBe(2);
+  });
+
+  test("priCalculate with Grassy Glide (base 0, +1 on grass field, +1 with nimbleMoves)", () => {
+    const { priCalculate } = require("../../util/speedCheck");
+    const rillaboom = generate("고릴타");
+    const grassyGlide = { name: "그래스슬라이더", prior: 0, type: "풀", stype: "atk" };
+
+    const battleNoGrass = {
+      field: { terrain: { isGrassField: false } },
+      player: rillaboom,
+    };
+    const battleGrass = {
+      field: { terrain: { isGrassField: true } },
+      player: rillaboom,
+    };
+
+    // 1. Without augment: 0 out of grass field, 1 in grass field
+    expect(priCalculate(battleNoGrass, "player", grassyGlide)).toBe(0);
+    expect(priCalculate(battleGrass, "player", grassyGlide)).toBe(1);
+
+    // 2. With nimbleMoves augment (+1 prior, name becomes "그래스슬라이더 +1")
+    const enhancedGlide = { name: "그래스슬라이더", nimbleMoves: true, prior: 1, type: "풀", stype: "atk" };
+    expect(priCalculate(battleNoGrass, "player", enhancedGlide)).toBe(1);
+    expect(priCalculate(battleGrass, "player", enhancedGlide)).toBe(2);
+  });
+});

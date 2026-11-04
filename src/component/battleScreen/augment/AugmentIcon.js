@@ -508,6 +508,29 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="70%" stopColor="#d4af37" />
             <stop offset="100%" stopColor="#7c5826" />
           </linearGradient>
+          
+          {/* 민첩한 몸놀림 (깃털) 전용 그라데이션 */}
+          <linearGradient id="featherBodyGrad" x1="20%" y1="20%" x2="80%" y2="80%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="45%" stopColor="#f8fafc" />
+            <stop offset="80%" stopColor="#e0f2fe" />
+            <stop offset="100%" stopColor="#c7d2fe" />
+          </linearGradient>
+          <linearGradient id="featherUnderGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#e2e8f0" />
+            <stop offset="50%" stopColor="#cbd5e1" />
+            <stop offset="100%" stopColor="#93c5fd" />
+          </linearGradient>
+          <linearGradient id="quillGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#67e8f9" />
+            <stop offset="40%" stopColor="#bae6fd" />
+            <stop offset="100%" stopColor="#ffffff" />
+          </linearGradient>
+          <linearGradient id="featherEdgeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#818cf8" />
+          </linearGradient>
+
           <filter id="tmCyanRingGlow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="1.8" result="blur" />
             <feMerge>
@@ -3021,6 +3044,65 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         )}
 
 
+
+        {/* 26. 민첩한 몸놀림 (깃털 & 바람 궤적 & 스파클) */}
+        {id === "nimbleMoves" && (
+          <g filter="url(#glow)">
+            {/* 1. 바람 궤적 및 우선도 가속 모션 */}
+            <path d="M 11 38 C 13 25 24 16 38 14" stroke="#38bdf8" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" strokeDasharray="9 4" />
+            <path d="M 22 52 C 34 54 48 48 54 36" stroke="#67e8f9" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.55" strokeDasharray="8 4" />
+
+            {/* 2. 깃털 본체 (상단 깃 & 입체 주름) */}
+            <path
+              d="M 19 46 C 18 41, 19 36, 23 31 C 22 32.5, 22 34, 23.5 35 C 24 29, 28 23, 34 18 C 34 20, 34.5 21.5, 36 22 C 37 18, 42 14, 49 13 C 47 16.5, 45 19, 45 22 C 46 21, 47 21, 48 20.5 C 44.5 25, 41 29, 39 34 C 40.5 33, 42 32.5, 43 32 C 38 38, 32 44, 24 47 Z"
+              fill="url(#featherBodyGrad)"
+              stroke="url(#featherEdgeGrad)"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+
+            {/* 하단 깃 (언더 깃) */}
+            <path
+              d="M 19 46 C 16 43, 17 38, 20 35 C 19.5 37, 20.5 38.5, 22 39 C 21.5 34, 25 28, 30 24 C 29.5 26.5, 31 28, 32.5 29 C 33 24, 38 18, 49 13 C 43.5 19, 37.5 27, 34 33 C 32 37, 27 42, 21 46 Z"
+              fill="url(#featherUnderGrad)"
+              stroke="url(#featherEdgeGrad)"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+
+            {/* 입체 하이라이트 레이어 */}
+            <path
+              d="M 23.5 35 C 25 30, 29 24, 34 19 C 34.5 21, 35.5 22, 36 22.5 C 38 18.5, 43 14.5, 48.5 13.5 C 45 18, 41 24, 38 29 C 33 34, 28 39, 23 43 Z"
+              fill="#ffffff"
+              fillOpacity="0.6"
+            />
+
+            {/* 깃털 빗살 결 디테일 */}
+            <g stroke="#93c5fd" strokeWidth="0.7" strokeLinecap="round" opacity="0.65">
+              <path d="M 27 36 L 23 39" />
+              <path d="M 32 31 L 28 34" />
+              <path d="M 38 25 L 34 28" />
+              <path d="M 43 19 L 39 22" />
+              <path d="M 28 31 L 32 28" />
+              <path d="M 34 25 L 39 22" />
+              <path d="M 40 18 L 44 16" />
+            </g>
+
+            {/* 3. 깃대 (Quill & Rachis) */}
+            <path d="M 14 51 C 16 48.5 18.5 46.5 21 45" stroke="url(#quillGrad)" strokeWidth="2.6" strokeLinecap="round" />
+            <path d="M 14 51 C 16 48.5 18.5 46.5 21 45" stroke="#ffffff" strokeWidth="1.3" strokeLinecap="round" />
+            <path d="M 20 45 C 28 36 36 25 49 13" stroke="url(#quillGrad)" strokeWidth="1.6" strokeLinecap="round" />
+            <path d="M 20 45 C 28 36 36 25 49 13" stroke="#ffffff" strokeWidth="0.8" strokeLinecap="round" />
+
+            {/* 4. 민첩함 스파클 (골드 & 시안) */}
+            <path d="M 52 10 Q 52 13 55 13 Q 52 13 52 16 Q 52 13 49 13 Q 52 13 52 10 Z" fill="#fef08a" />
+            <path d="M 15 24 Q 15 26.5 17.5 26.5 Q 15 26.5 15 29 Q 15 26.5 12.5 26.5 Q 15 26.5 15 24 Z" fill="#67e8f9" />
+            <circle cx="48" cy="23" r="1.3" fill="#ffffff" opacity="0.9" />
+            <circle cx="21" cy="20" r="1.1" fill="#38bdf8" opacity="0.8" />
+            <circle cx="43" cy="38" r="1.2" fill="#67e8f9" opacity="0.75" />
+            <circle cx="30" cy="48" r="0.9" fill="#ffffff" opacity="0.8" />
+          </g>
+        )}
 
         {/* 25. 태양불꽃방패 */}
         {id === "sunfireAegis" && (

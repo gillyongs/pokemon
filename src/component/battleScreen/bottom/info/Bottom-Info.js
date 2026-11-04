@@ -331,7 +331,10 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
                 <SkillRowButton key={skillNumber} onClick={(e) => handleSkillClick(e, skill)}>
                   <SkillTypeImg src={`/pokemon/img/type/${displayType}.svg`} alt={displayType} />
                   <SkillMainInfo>
-                    <SkillNameText>{skill.name}</SkillNameText>
+                    <SkillNameText>
+                      {skill.name}
+                      {skill.nimbleMoves ? " +1" : ""}
+                    </SkillNameText>
                   </SkillMainInfo>
                   <SkillMetaBox>
                     <SkillEffectText>{effectText || ""}</SkillEffectText>

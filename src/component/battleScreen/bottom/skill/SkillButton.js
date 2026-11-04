@@ -122,7 +122,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
       }}
     >
       <ICON src={`/pokemon/img/type/${displayType}.svg`} alt={skill.name} />
-      <NAME skname={skill.name}>{skill.name}</NAME>
+      <NAME skname={skill.name}>{skill.name}{skill.nimbleMoves ? " +1" : ""}</NAME>
       <EFFECT>{getTypeEffectText(battle.player, displayType, battle.npc.type1, battle.npc.type2, skill.stype, skill.name)}</EFFECT>
       <PP>
         {pp}/{skill.pp}

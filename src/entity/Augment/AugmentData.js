@@ -403,6 +403,45 @@ export const AUGMENT_LIST = [
       replacePokemon(pokemon, "레지기가스", battle, { excludeAugmentId: "legendaryTitan" });
     },
   },
+  {
+    id: "nimbleMoves",
+    name: "민첩한 몸놀림",
+    desc: "랜덤한 기술 하나에 우선도 +1을 추가합니다.",
+    cost: 3,
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon?.origin?.skill) return;
+      const validSlots = [1, 2, 3, 4].filter((slot) => pokemon.origin.skill[slot]);
+      if (validSlots.length === 0) return;
+
+      let targetSlot = options?.targetSlot;
+      if (options?.enhancedSkillName) {
+        const foundSlot = validSlots.find((s) => pokemon.origin.skill[s]?.name === options.enhancedSkillName);
+        if (foundSlot) targetSlot = foundSlot;
+      }
+      if (!targetSlot || !pokemon.origin.skill[targetSlot]) {
+        targetSlot = validSlots[Math.floor(Math.random() * validSlots.length)];
+      }
+
+      const targetSkill = pokemon.origin.skill[targetSlot];
+      if (!targetSkill) return;
+
+      const currentPrior = typeof targetSkill.prior === "number" ? targetSkill.prior : 0;
+
+      const enhancedSkill = {
+        ...targetSkill,
+        prior: currentPrior + 1,
+        nimbleMoves: true,
+      };
+
+      pokemon.origin.skill[targetSlot] = enhancedSkill;
+      if (pokemon.skill && pokemon.skill[targetSlot]) {
+        pokemon.skill[targetSlot] = enhancedSkill;
+      }
+
+      this.targetSlot = targetSlot;
+      this.enhancedSkillName = targetSkill.name;
+    },
+  },
   // 무한 다이맥스 (무한다이노 전용) =============================================
   {
     id: "eternamax",
@@ -673,6 +712,12 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   } else if (id === "legendaryTitan") {
     const fromName = prevPokeName || "포켓몬";
     individualDesc = josa(`${fromName}#{이} 레지기가스로 교체되었다!`);
+  } else if (id === "nimbleMoves") {
+    const nimbleAug = target?.augments?.find((a) => a.id === "nimbleMoves") || selectedAugment;
+    const skillName = options?.enhancedSkillName || nimbleAug?.enhancedSkillName;
+    if (skillName) {
+      individualDesc = `${skillName}의 우선도가 1 증가했다!`;
+    }
   } else if (id === "eternamax") {
     individualDesc = josa(`${target?.name || "무한다이노"}#{이} 무한 다이맥스 상태가 되었다!`);
   } else if (id === "swordEnhance") {
