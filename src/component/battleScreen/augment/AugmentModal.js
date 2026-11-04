@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, compareAugmentNames } from "../../../entity/Augment/AugmentData";
 import { getSwordEnhanceTier, getSwordEnhanceProb } from "../../../entity/Augment/swordEnhance";
 import { ALL_POKEMON_TYPES, TYPE_COLORS, isNoEffect, getTypeEffectText } from "../../../util/typeEffectCalculate";
 import { getWeatherBallType } from "../../../util/weatherBall";
@@ -79,8 +79,8 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
         ineligible.push(aug);
       }
     });
-    eligible.sort((a, b) => (a.name || "").localeCompare(b.name || "", "ko"));
-    ineligible.sort((a, b) => (a.name || "").localeCompare(b.name || "", "ko"));
+    eligible.sort(compareAugmentNames);
+    ineligible.sort(compareAugmentNames);
     return { allEligible: eligible, allIneligible: ineligible };
   }, [activePokemon]);
 

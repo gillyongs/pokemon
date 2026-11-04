@@ -5,10 +5,11 @@ const PokemonImage = ({ battle, type }) => {
   const pokemon = type === "npc" ? battle.npc : battle.player;
 
   const isSubstitute = !!pokemon?.tempStatus?.substitute;
+  const isEternamax = !isSubstitute && (pokemon?.origin?.pokemon_id === "0890-m" || pokemon?.pokemon_id === "0890-m");
 
   const imageSrc = isSubstitute ? `/pokemon/img/background/substitute_${type === "npc" ? "front" : "back"}.webp` : `/pokemon/img/pokemon/${pokemon.origin.pokemon_id}.webp`;
 
-  return <StyledPokemonImage className={type} src={imageSrc} alt={`${type} Pokemon`} $isSubstitute={isSubstitute} />;
+  return <StyledPokemonImage className={type} src={imageSrc} alt={`${type} Pokemon`} $isSubstitute={isSubstitute} $isEternamax={isEternamax} />;
 };
 
 export default PokemonImage;
@@ -26,17 +27,17 @@ const breathFlip = keyframes`
 `;
 
 const StyledPokemonImage = styled.img`
-  width: 30vw;
-  height: 30vw;
-  max-width: 120px;
-  max-height: 120px;
+  width: ${({ $isEternamax }) => ($isEternamax ? "60vw" : "30vw")};
+  height: ${({ $isEternamax }) => ($isEternamax ? "60vw" : "30vw")};
+  max-width: ${({ $isEternamax }) => ($isEternamax ? "240px" : "120px")};
+  max-height: ${({ $isEternamax }) => ($isEternamax ? "240px" : "120px")};
   position: absolute;
 
-  ${({ className, $isSubstitute }) =>
+  ${({ className, $isSubstitute, $isEternamax }) =>
     className === "plr"
       ? css`
-          right: 8.5vw;
-          top: -3vh;
+          right: ${$isEternamax ? "1vw" : "8.5vw"};
+          top: ${$isEternamax ? "-17vh" : "-3vh"};
           ${!$isSubstitute &&
           css`
             transform: scaleX(-1);
@@ -50,8 +51,8 @@ const StyledPokemonImage = styled.img`
           animation-delay: 0.3s;
         `
       : css`
-          left: 8.5vw;
-          bottom: -2vh;
+          left: ${$isEternamax ? "3vw" : "8.5vw"};
+          bottom: ${$isEternamax ? "10vh" : "-2vh"};
           animation: ${breath} 3s infinite ease-in-out;
 
           ${$isSubstitute &&

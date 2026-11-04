@@ -7,7 +7,7 @@ import { abilObject } from "../Ability";
 import { AUGMENT_LIST, getAugmentText } from "../Augment/AugmentData";
 import { DEDICATED_AUGMENT_POKEMON } from "../../component/battleScreen/augment/AugmentIcon";
 
-describe("Flygon (플라이곤) & Mega Flygon (메가플라이곤) & Soaring (비상) verification", () => {
+describe("Flygon (플라이곤) & Mega Flygon (메가플라이곤) & '\"메가\" 플라이곤' (soaring) verification", () => {
   test("Flygon and Mega Flygon are NOT in sampleList.items (hidden from Custom selection)", () => {
     const foundInItems = sampleList.items.some(
       (item) => item.id === "플라이곤" || item.id === "메가플라이곤" || item.pokemon_id === "0330" || item.pokemon_id === "0330-m"
@@ -51,25 +51,29 @@ describe("Flygon (플라이곤) & Mega Flygon (메가플라이곤) & Soaring (�
     expect(baseMega.speed).toBe(130);
   });
 
-  test("'비상' (soaring) augment definition and eligibility", () => {
+  test("'\"메가\" 플라이곤' (soaring) augment definition and eligibility", () => {
     const soaring = AUGMENT_LIST.find((a) => a.id === "soaring");
     expect(soaring).toBeDefined();
-    expect(soaring.name).toBe("비상");
+    expect(soaring.name).toBe('"메가" 플라이곤');
     expect(soaring.cost).toBe("-");
 
     // Dedicated icon is 0330-m (Mega Flygon)
     expect(DEDICATED_AUGMENT_POKEMON.soaring).toBe("0330-m");
 
-    // Eligible if no Flygon on team
-    const pikachu = { name: "피카츄" };
+    // Eligible if HP >= 50% and no Flygon on team
+    const pikachu = { name: "피카츄", hp: 100, origin: { hp: 100 } };
     expect(soaring.isEligible(pikachu, [pikachu])).toBe(true);
+
+    // Ineligible if HP < 50%
+    const lowHpPikachu = { name: "피카츄", hp: 49, origin: { hp: 100 } };
+    expect(soaring.isEligible(lowHpPikachu, [lowHpPikachu])).toBe(false);
 
     // Ineligible if Flygon is on team
     const megaFlygon = generate("메가플라이곤");
     expect(soaring.isEligible(pikachu, [pikachu, megaFlygon])).toBe(false);
   });
 
-  test("'비상' (soaring) onApply replaces pokemon with Mega Flygon in battle", () => {
+  test("'\"메가\" 플라이곤' (soaring) onApply replaces pokemon with Mega Flygon in battle", () => {
     const battle = createBattle(["갸라도스", "어써러셔", "어써러셔"], ["코터스", "어써러셔", "어써러셔"]);
     const target = battle.player;
     expect(target.name).toBe("갸라도스");

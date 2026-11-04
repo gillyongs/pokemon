@@ -8,6 +8,44 @@ import { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb } from ".
 
 export { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb };
 
+// 체력 비율 확인 공통 함수
+/**
+ * 포켓몬의 현재 체력이 일정 비율 이상인지 확인하는 공통 함수 (예: 체력 50% 이상)
+ * @param {Object} pokemon - 검사할 포켓몬 인스턴스
+ * @param {number} [ratio=0.5] - 기준 비율 (0.5 또는 50%)
+ * @returns {boolean}
+ */
+export const isHpAtLeast = (pokemon, ratio = 0.5) => {
+  if (!pokemon) return false;
+  const currentHp = typeof pokemon.hp === "number" ? pokemon.hp : pokemon.origin?.hp;
+  const maxHp = pokemon.origin?.hp ?? pokemon.maxHp ?? currentHp;
+  if (typeof currentHp !== "number" || typeof maxHp !== "number" || maxHp <= 0) {
+    return false;
+  }
+  const thresholdRatio = ratio > 1 ? ratio / 100 : ratio;
+  return currentHp >= maxHp * thresholdRatio;
+};
+
+export const hasHpAtLeast = isHpAtLeast;
+
+// 증강 이름 정렬 비교 함수 (" 로 시작하는 항목은 맨 뒤로 배치)
+/**
+ * 증강 목록을 가나다순으로 정렬하되, 큰따옴표(")로 시작하는 증강은 맨 마지막에 배치하는 비교 함수
+ * @param {Object|string} a - 증강 객체 또는 증강 이름
+ * @param {Object|string} b - 증강 객체 또는 증강 이름
+ * @returns {number}
+ */
+export const compareAugmentNames = (a, b) => {
+  const nameA = typeof a === "string" ? a : (a?.name || "");
+  const nameB = typeof b === "string" ? b : (b?.name || "");
+  const aQuote = nameA.startsWith('"') || nameA.startsWith('“');
+  const bQuote = nameB.startsWith('"') || nameB.startsWith('“');
+
+  if (aQuote && !bQuote) return 1;
+  if (!aQuote && bQuote) return -1;
+  return nameA.localeCompare(nameB, "ko");
+};
+
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
   {
@@ -161,38 +199,13 @@ export const AUGMENT_LIST = [
     name: "돌려 돌려 돌림판",
     desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다.",
     cost: "-",
-    isEligible: (pokemon) => {
-      if (!pokemon) return false;
-      const currentHp = typeof pokemon.hp === "number" ? pokemon.hp : pokemon.origin?.hp;
-      const maxHp = pokemon.origin?.hp ?? pokemon.maxHp ?? currentHp;
-      if (typeof currentHp !== "number" || typeof maxHp !== "number" || maxHp <= 0) {
-        return false;
-      }
-      return currentHp >= maxHp / 2;
-    },
+    isEligible: (pokemon) => isHpAtLeast(pokemon, 0.5),
     onApply: function (pokemon, battle) {
-      if (!battle) return;
       const allItems = sampleList.items || [];
       const filtered = allItems.filter((item) => item.id !== pokemon.id);
       if (filtered.length === 0) return;
       const picked = filtered[Math.floor(Math.random() * filtered.length)];
-      const newPoke = generate(picked.id);
-
-      newPoke.team = pokemon.team || "player";
-      newPoke.originalIndex = pokemon.originalIndex !== undefined ? pokemon.originalIndex : 0;
-      newPoke.augments = []; // 돌려 돌려 돌림판 적용 시 증강 초기화
-
-      const targetIdx = pokemon.originalIndex;
-      if (battle.player === pokemon || (targetIdx !== undefined && battle.player?.originalIndex === targetIdx)) {
-        battle.player = newPoke;
-      } else if (battle.playerBench1 === pokemon || (targetIdx !== undefined && battle.playerBench1?.originalIndex === targetIdx)) {
-        battle.playerBench1 = newPoke;
-      } else if (battle.playerBench2 === pokemon || (targetIdx !== undefined && battle.playerBench2?.originalIndex === targetIdx)) {
-        battle.playerBench2 = newPoke;
-      }
-      Object.setPrototypeOf(pokemon, Object.getPrototypeOf(newPoke));
-      Object.assign(pokemon, newPoke);
-      pokemon.augments = []; // 교체된 포켓몬의 증강 목록 초기화
+      replacePokemon(pokemon, picked.id, battle, { resetAugments: true });
     },
   },
   /*
@@ -362,32 +375,18 @@ export const AUGMENT_LIST = [
       }
     },
   },
-  // 비상 (메가플라이곤 교체) ===================================================
+  // "메가" 플라이곤 (메가플라이곤 교체) =========================================
   {
     id: "soaring",
-    name: "비상",
+    name: '"메가" 플라이곤',
     desc: "현재 포켓몬을 메가플라이곤과 교체합니다.",
     cost: "-",
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battleOrTeam, team) => !hasPokemonNameOnTeam(pokemon, "플라이곤", battleOrTeam || team),
+    isEligible: (pokemon, battleOrTeam, team) =>
+      isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "플라이곤", battleOrTeam || team),
     onApply: function (pokemon, battle) {
-      const newPoke = generate("메가플라이곤");
-      newPoke.team = pokemon.team || "player";
-      newPoke.originalIndex = pokemon.originalIndex !== undefined ? pokemon.originalIndex : 0;
-      newPoke.augments = (pokemon.augments || []).filter((a) => a && a.id !== "soaring" && a.cost !== "-");
-      if (battle) {
-        const targetIdx = pokemon.originalIndex;
-        if (battle.player === pokemon || (targetIdx !== undefined && battle.player?.originalIndex === targetIdx)) {
-          battle.player = newPoke;
-        } else if (battle.playerBench1 === pokemon || (targetIdx !== undefined && battle.playerBench1?.originalIndex === targetIdx)) {
-          battle.playerBench1 = newPoke;
-        } else if (battle.playerBench2 === pokemon || (targetIdx !== undefined && battle.playerBench2?.originalIndex === targetIdx)) {
-          battle.playerBench2 = newPoke;
-        }
-      }
-      Object.setPrototypeOf(pokemon, Object.getPrototypeOf(newPoke));
-      Object.assign(pokemon, newPoke);
+      replacePokemon(pokemon, "메가플라이곤", battle, { excludeAugmentId: "soaring" });
     },
   },
   // 전설의 거인 관련 ==========================================================
@@ -398,24 +397,25 @@ export const AUGMENT_LIST = [
     cost: "-",
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
-    isEligible: (pokemon, battleOrTeam, team) => !hasPokemonNameOnTeam(pokemon, "레지기가스", battleOrTeam || team),
+    isEligible: (pokemon, battleOrTeam, team) =>
+      isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "레지기가스", battleOrTeam || team),
     onApply: function (pokemon, battle) {
-      const newPoke = generate("레지기가스");
-      newPoke.team = pokemon.team || "player";
-      newPoke.originalIndex = pokemon.originalIndex !== undefined ? pokemon.originalIndex : 0;
-      newPoke.augments = (pokemon.augments || []).filter((a) => a && a.id !== "legendaryTitan" && a.cost !== "-");
-      if (battle) {
-        const targetIdx = pokemon.originalIndex;
-        if (battle.player === pokemon || (targetIdx !== undefined && battle.player?.originalIndex === targetIdx)) {
-          battle.player = newPoke;
-        } else if (battle.playerBench1 === pokemon || (targetIdx !== undefined && battle.playerBench1?.originalIndex === targetIdx)) {
-          battle.playerBench1 = newPoke;
-        } else if (battle.playerBench2 === pokemon || (targetIdx !== undefined && battle.playerBench2?.originalIndex === targetIdx)) {
-          battle.playerBench2 = newPoke;
-        }
-      }
-      Object.setPrototypeOf(pokemon, Object.getPrototypeOf(newPoke));
-      Object.assign(pokemon, newPoke);
+      replacePokemon(pokemon, "레지기가스", battle, { excludeAugmentId: "legendaryTitan" });
+    },
+  },
+  // 무한 다이맥스 (무한다이노 전용) =============================================
+  {
+    id: "eternamax",
+    name: "무한 다이맥스",
+    desc: "무한 다이맥스 상태가 됩니다.",
+    cost: 10,
+    shiftUp: false,
+    imageOptions: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
+    isEligible: (pokemon) =>
+      hasPokemonName(pokemon, "무한다이노") &&
+      !(pokemon?.augments || []).some((a) => a?.id === "eternamax" || a === "eternamax"),
+    onApply: function (pokemon) {
+      applyEternamax(pokemon);
     },
   },
   {
@@ -457,6 +457,132 @@ export const AUGMENT_LIST = [
     },
   },
 ];
+
+// 무한 다이맥스 변환 함수
+/**
+ * 무한다이노를 무한 다이맥스 상태로 변환하는 함수
+ * 종족값: 255 / 115 / 250 / 125 / 250 / 130
+ * 이미지: 0890-m.webp
+ * 체력 종족값 증가 시 현재 체력 % 비율 유지
+ * @param {Object} pokemon
+ */
+export const applyEternamax = (pokemon) => {
+  if (!pokemon) return;
+
+  const baseStats = {
+    hp: 255,
+    atk: 115,
+    def: 250,
+    catk: 125,
+    cdef: 250,
+    speed: 130,
+  };
+
+  const origin = pokemon.origin || pokemon;
+  const evs = origin.evs || { hp: 4, atk: 0, def: 0, catk: 252, cdef: 0, speed: 252 };
+  const gacha = origin.gacha || "5V0A";
+  const nature = origin.nature || { up: "speed", down: "atk" };
+
+  const gachaStats = {
+    "6V": ["hp", "atk", "def", "catk", "cdef", "speed"],
+    "5V0S": ["hp", "atk", "def", "catk", "cdef"],
+    "5V0A": ["hp", "def", "catk", "cdef", "speed"],
+    "4V0A0S": ["hp", "def", "catk", "cdef"],
+  };
+
+  // 1. HP 계산
+  const evHp = evs.hp ?? 0;
+  const ivHp = gachaStats[gacha]?.includes("hp") !== false ? 31 : 0;
+  const newMaxHp = Math.floor((baseStats.hp * 2 + Math.floor(evHp / 4) + ivHp) / 2) + 60;
+
+  // 현재 체력 비율 유지 (예: 반피면 50% 유지)
+  const oldMaxHp = origin.hp ?? pokemon.hp ?? newMaxHp;
+  const oldHp = typeof pokemon.hp === "number" ? pokemon.hp : oldMaxHp;
+  const hpRatio = oldMaxHp > 0 ? Math.max(0, Math.min(1, oldHp / oldMaxHp)) : 1;
+  const newHp = Math.min(newMaxHp, Math.max(oldHp > 0 ? 1 : 0, Math.round(newMaxHp * hpRatio)));
+
+  origin.hp = newMaxHp;
+  pokemon.hp = newHp;
+
+  // 2. 공격/방어/특공/특방/스피드 계산
+  const newStats = {};
+  ["atk", "def", "catk", "cdef", "speed"].forEach((statKey) => {
+    const baseVal = baseStats[statKey];
+    const evVal = evs[statKey] ?? 0;
+    const hasIv = gachaStats[gacha] ? gachaStats[gacha].includes(statKey) : true;
+    const ivVal = hasIv ? 31 : 0;
+    let val = Math.floor((baseVal * 2 + Math.floor(evVal / 4) + ivVal) / 2) + 5;
+    if (nature?.up === statKey) val = Math.floor(val * 1.1);
+    if (nature?.down === statKey) val = Math.floor(val * 0.9);
+    newStats[statKey] = val;
+  });
+
+  origin.stat = { ...origin.stat, ...newStats };
+  if (pokemon.stat) {
+    pokemon.stat = { ...pokemon.stat, ...newStats };
+  }
+
+  // 3. 이미지 및 ID 변경 (0890-m.webp)
+  origin.pokemon_id = "0890-m";
+  pokemon.pokemon_id = "0890-m";
+  origin.baseStats = baseStats;
+  pokemon.isEternamax = true;
+};
+
+// 포켓몬 교체 공통 함수
+/**
+ * 증강 등에서 포켓몬을 다른 포켓몬으로 교체/변경하는 공통 함수
+ * @param {Object} pokemon - 교체 대상 기존 포켓몬 인스턴스
+ * @param {string|Object} newPokemonOrId - 새로 교체될 포켓몬 ID/이름 또는 인스턴스
+ * @param {Object} [battle] - 현재 배틀 객체 (선택)
+ * @param {Object} [options] - 옵션 ({ resetAugments?: boolean, excludeAugmentId?: string })
+ * @returns {Object} 교체된 포켓몬 인스턴스
+ */
+export const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) => {
+  if (!pokemon) return null;
+  const newPoke = typeof newPokemonOrId === "string" ? generate(newPokemonOrId) : newPokemonOrId;
+  if (!newPoke) return pokemon;
+
+  newPoke.team = pokemon.team || "player";
+  newPoke.originalIndex = pokemon.originalIndex !== undefined ? pokemon.originalIndex : 0;
+
+  // 증강 처리: resetAugments가 true이면 빈 배열, 아니면 즉발/제외 대상 필터링
+  if (options?.resetAugments) {
+    newPoke.augments = [];
+  } else {
+    const excludeId = options?.excludeAugmentId;
+    newPoke.augments = (pokemon.augments || []).filter(
+      (a) => a && (excludeId ? a.id !== excludeId : true) && a.cost !== "-"
+    );
+  }
+
+  // 기존 pokemon 객체 참조를 유지하도록 인스턴스 프로토타입 및 속성 복사
+  Object.setPrototypeOf(pokemon, Object.getPrototypeOf(newPoke));
+  Object.assign(pokemon, newPoke);
+  pokemon.augments = newPoke.augments;
+
+  // 배틀 내 슬롯 교체 (단일 인스턴스 참조 유지)
+  if (battle) {
+    const targetIdx = pokemon.originalIndex;
+    if (battle.player === pokemon || (targetIdx !== undefined && battle.player?.originalIndex === targetIdx)) {
+      battle.player = pokemon;
+    } else if (battle.playerBench1 === pokemon || (targetIdx !== undefined && battle.playerBench1?.originalIndex === targetIdx)) {
+      battle.playerBench1 = pokemon;
+    } else if (battle.playerBench2 === pokemon || (targetIdx !== undefined && battle.playerBench2?.originalIndex === targetIdx)) {
+      battle.playerBench2 = pokemon;
+    } else if (battle.npc === pokemon || (targetIdx !== undefined && battle.npc?.originalIndex === targetIdx)) {
+      battle.npc = pokemon;
+    } else if (battle.npcBench1 === pokemon || (targetIdx !== undefined && battle.npcBench1?.originalIndex === targetIdx)) {
+      battle.npcBench1 = pokemon;
+    } else if (battle.npcBench2 === pokemon || (targetIdx !== undefined && battle.npcBench2?.originalIndex === targetIdx)) {
+      battle.npcBench2 = pokemon;
+    }
+  }
+
+  return pokemon;
+};
+
+export const replacePokemonInBattle = replacePokemon;
 
 // 포켓몬 이름 확인
 export const hasPokemonName = (pokemon, keyword) => {
@@ -547,6 +673,8 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   } else if (id === "legendaryTitan") {
     const fromName = prevPokeName || "포켓몬";
     individualDesc = josa(`${fromName}#{이} 레지기가스로 교체되었다!`);
+  } else if (id === "eternamax") {
+    individualDesc = josa(`${target?.name || "무한다이노"}#{이} 무한 다이맥스 상태가 되었다!`);
   } else if (id === "swordEnhance") {
     const swordAug = target?.augments?.find((a) => a.id === "swordEnhance") || selectedAugment;
     const hasResult = options?.swordFailed !== undefined || options?.swordBonusAtk !== undefined || swordAug?.swordFailed !== undefined || swordAug?.swordBonusAtk !== undefined;

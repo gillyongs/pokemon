@@ -9,6 +9,7 @@ export const DEDICATED_AUGMENT_POKEMON = {
   fastStarter: "0486",
   legendaryTitan: "0486",
   soaring: "0330-m",
+  eternamax: "0890-m",
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
@@ -20,6 +21,8 @@ export const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   "0330-m": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   fastStarter: { shiftUp: true, offsetY: -5, scale: 1.15 },
   "0486": { shiftUp: true, offsetY: -5, scale: 1.15 },
+  eternamax: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
+  "0890-m": { shiftUp: false, offsetY: 2.5, scale: 1.02 },
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, scale = null, imageOptions = null }) => {

@@ -1,5 +1,6 @@
-import { hasPokemonName, hasPokemonNameOnTeam, AUGMENT_LIST, changePokemonAbility } from "./AugmentData";
+import { hasPokemonName, hasPokemonNameOnTeam, AUGMENT_LIST, changePokemonAbility, replacePokemon, replacePokemonInBattle, isHpAtLeast, hasHpAtLeast, compareAugmentNames, applyEternamax, getAugmentText } from "./AugmentData";
 import { generate } from "../Pokemon/PokemonInstance";
+import { DEDICATED_AUGMENT_POKEMON } from "../../component/battleScreen/augment/AugmentIcon";
 
 describe("hasPokemonNameOnTeam & legendaryTitan eligibility", () => {
   const titan = AUGMENT_LIST.find((a) => a.id === "legendaryTitan");
@@ -47,22 +48,25 @@ describe("hasPokemonNameOnTeam & legendaryTitan eligibility", () => {
     expect(titan).toBeDefined();
 
     // 1. 단일 레지기가스인 경우 비적격 (false)
-    expect(titan.isEligible({ name: "레지기가스" })).toBe(false);
+    expect(titan.isEligible({ name: "레지기가스", hp: 100, origin: { hp: 100 } })).toBe(false);
 
-    // 2. 단일 피카츄인 경우 적격 (true)
-    expect(titan.isEligible({ name: "피카츄" })).toBe(true);
+    // 2. 단일 피카츄 (체력 50% 이상)인 경우 적격 (true)
+    expect(titan.isEligible({ name: "피카츄", hp: 100, origin: { hp: 100 } })).toBe(true);
 
-    // 3. 팀에 레지기가스가 포함되어 있으면 피카츄라도 비적격 (false)
-    const teamWithRegi = [{ name: "피카츄" }, { name: "레지기가스" }];
+    // 3. 체력 50% 미만인 경우 비적격 (false)
+    expect(titan.isEligible({ name: "피카츄", hp: 49, origin: { hp: 100 } })).toBe(false);
+
+    // 4. 팀에 레지기가스가 포함되어 있으면 피카츄라도 비적격 (false)
+    const teamWithRegi = [{ name: "피카츄", hp: 100, origin: { hp: 100 } }, { name: "레지기가스" }];
     expect(titan.isEligible(teamWithRegi[0], teamWithRegi)).toBe(false);
 
-    // 4. 팀에 레지기가스가 없으면 적격 (true)
-    const teamWithoutRegi = [{ name: "피카츄" }, { name: "파이리" }];
+    // 5. 팀에 레지기가스가 없고 체력 50% 이상이면 적격 (true)
+    const teamWithoutRegi = [{ name: "피카츄", hp: 100, origin: { hp: 100 } }, { name: "파이리" }];
     expect(titan.isEligible(teamWithoutRegi[0], teamWithoutRegi)).toBe(true);
 
-    // 5. 배틀 벤치에 레지기가스가 있으면 비적격 (false)
+    // 6. 배틀 벤치에 레지기가스가 있으면 비적격 (false)
     const battle = {
-      player: { name: "피카츄", team: "player" },
+      player: { name: "피카츄", team: "player", hp: 100, origin: { hp: 100 } },
       playerBench1: { name: "레지기가스", team: "player" },
       playerBench2: null,
     };
@@ -119,5 +123,224 @@ describe("changePokemonAbility common function", () => {
     expect(regi.abil).toBe("천하장사");
     expect(regi.origin.abil).toBe("천하장사");
     expect(regi.abilObj.name).toBe("천하장사");
+  });
+});
+
+describe("replacePokemon common function in augments", () => {
+  test("replaces pokemon in battle slot and mutates target instance", () => {
+    const gyarados = generate("갸라도스");
+    gyarados.team = "player";
+    gyarados.originalIndex = 0;
+    const battle = {
+      player: gyarados,
+      playerBench1: null,
+      playerBench2: null,
+    };
+
+    replacePokemon(gyarados, "메가플라이곤", battle);
+
+    expect(gyarados.name).toBe("메가플라이곤");
+    expect(battle.player.name).toBe("메가플라이곤");
+    expect(battle.player).toBe(gyarados);
+  });
+
+  test("rouletteWheel onApply replaces pokemon and resets augments", () => {
+    const gyarados = generate("갸라도스");
+    gyarados.team = "player";
+    gyarados.originalIndex = 0;
+    gyarados.augments = [{ id: "thornmail", cost: 3 }];
+    const battle = {
+      player: gyarados,
+      playerBench1: null,
+      playerBench2: null,
+    };
+
+    const roulette = AUGMENT_LIST.find((a) => a.id === "rouletteWheel");
+    roulette.onApply(gyarados, battle);
+
+    expect(gyarados.id).not.toBe("갸라도스");
+    expect(gyarados.augments).toEqual([]);
+    expect(battle.player.id).toBe(gyarados.id);
+  });
+
+  test("legendaryTitan onApply replaces pokemon with 레지기가스", () => {
+    const gyarados = generate("갸라도스");
+    gyarados.team = "player";
+    gyarados.originalIndex = 0;
+    gyarados.augments = [{ id: "thornmail", cost: 3 }, { id: "legendaryTitan", cost: "-" }];
+    const battle = {
+      player: gyarados,
+      playerBench1: null,
+      playerBench2: null,
+    };
+
+    const titan = AUGMENT_LIST.find((a) => a.id === "legendaryTitan");
+    titan.onApply(gyarados, battle);
+
+    expect(gyarados.name).toBe("레지기가스");
+    expect(battle.player.name).toBe("레지기가스");
+    expect(gyarados.augments.some((a) => a.id === "thornmail")).toBe(true);
+    expect(gyarados.augments.some((a) => a.id === "legendaryTitan")).toBe(false);
+  });
+
+  test("soaring onApply replaces pokemon with 메가플라이곤", () => {
+    const gyarados = generate("갸라도스");
+    gyarados.team = "player";
+    gyarados.originalIndex = 0;
+    gyarados.augments = [{ id: "thornmail", cost: 3 }, { id: "soaring", cost: "-" }];
+    const battle = {
+      player: gyarados,
+      playerBench1: null,
+      playerBench2: null,
+    };
+
+    const soaring = AUGMENT_LIST.find((a) => a.id === "soaring");
+    soaring.onApply(gyarados, battle);
+
+    expect(gyarados.name).toBe("메가플라이곤");
+    expect(battle.player.name).toBe("메가플라이곤");
+    expect(gyarados.augments.some((a) => a.id === "thornmail")).toBe(true);
+    expect(gyarados.augments.some((a) => a.id === "soaring")).toBe(false);
+  });
+});
+
+describe("isHpAtLeast common function", () => {
+  test("returns true when current HP is at or above ratio", () => {
+    expect(isHpAtLeast({ hp: 50, maxHp: 100 }, 0.5)).toBe(true);
+    expect(isHpAtLeast({ hp: 80, maxHp: 100 }, 0.5)).toBe(true);
+    expect(isHpAtLeast({ hp: 100, origin: { hp: 100 } }, 0.5)).toBe(true);
+  });
+
+  test("returns false when current HP is below ratio", () => {
+    expect(isHpAtLeast({ hp: 49, maxHp: 100 }, 0.5)).toBe(false);
+    expect(isHpAtLeast({ hp: 0, maxHp: 100 }, 0.5)).toBe(false);
+  });
+
+  test("returns false for invalid inputs or dead pokemon", () => {
+    expect(isHpAtLeast(null)).toBe(false);
+    expect(isHpAtLeast({})).toBe(false);
+    expect(isHpAtLeast({ hp: -10, maxHp: 100 })).toBe(false);
+  });
+
+  test("rouletteWheel, soaring, and legendaryTitan all require HP >= 50%", () => {
+    const roulette = AUGMENT_LIST.find((a) => a.id === "rouletteWheel");
+    const soaring = AUGMENT_LIST.find((a) => a.id === "soaring");
+    const titan = AUGMENT_LIST.find((a) => a.id === "legendaryTitan");
+
+    const healthyPoke = { name: "피카츄", hp: 100, maxHp: 100 };
+    const halfHpPoke = { name: "피카츄", hp: 50, maxHp: 100 };
+    const injuredPoke = { name: "피카츄", hp: 49, maxHp: 100 };
+
+    expect(roulette.isEligible(healthyPoke)).toBe(true);
+    expect(roulette.isEligible(halfHpPoke)).toBe(true);
+    expect(roulette.isEligible(injuredPoke)).toBe(false);
+
+    expect(soaring.isEligible(healthyPoke)).toBe(true);
+    expect(soaring.isEligible(halfHpPoke)).toBe(true);
+    expect(soaring.isEligible(injuredPoke)).toBe(false);
+
+    expect(titan.isEligible(healthyPoke)).toBe(true);
+    expect(titan.isEligible(halfHpPoke)).toBe(true);
+    expect(titan.isEligible(injuredPoke)).toBe(false);
+  });
+});
+
+describe("compareAugmentNames sorting function", () => {
+  test("places items starting with quote (\") at the very end of sorted list", () => {
+    const list = [
+      { name: '"메가" 플라이곤' },
+      { name: "가시갑옷" },
+      { name: "전설의 거인" },
+      { name: "도박 중독" },
+      { name: "천하장사" },
+    ];
+
+    list.sort(compareAugmentNames);
+
+    const sortedNames = list.map((item) => item.name);
+    expect(sortedNames).toEqual([
+      "가시갑옷",
+      "도박 중독",
+      "전설의 거인",
+      "천하장사",
+      '"메가" 플라이곤',
+    ]);
+  });
+
+  test("sorts multiple quoted items among themselves alphabetically", () => {
+    const list = [
+      { name: '"알파" 사파이어' },
+      { name: "가시갑옷" },
+      { name: '"메가" 플라이곤' },
+      { name: "나비춤" },
+    ];
+
+    list.sort(compareAugmentNames);
+
+    const sortedNames = list.map((item) => item.name);
+    // 가나다라마바사아...: '메'(ㅁ)가 '알'(ㅇ)보다 앞섬
+    expect(sortedNames).toEqual([
+      "가시갑옷",
+      "나비춤",
+      '"메가" 플라이곤',
+      '"알파" 사파이어',
+    ]);
+  });
+});
+
+describe("eternamax (무한 다이맥스) dedicated augment verification", () => {
+  const eternamax = AUGMENT_LIST.find((a) => a.id === "eternamax");
+
+  test("augment properties and eligibility", () => {
+    expect(eternamax).toBeDefined();
+    expect(eternamax.name).toBe("무한 다이맥스");
+    expect(eternamax.cost).toBe(10);
+    expect(DEDICATED_AUGMENT_POKEMON.eternamax).toBe("0890-m");
+
+    const eternatus = generate("무한다이노");
+    expect(eternamax.isEligible(eternatus)).toBe(true);
+
+    const pikachu = { name: "피카츄" };
+    expect(eternamax.isEligible(pikachu)).toBe(false);
+
+    // Cannot take twice
+    eternatus.augments = [{ id: "eternamax" }];
+    expect(eternamax.isEligible(eternatus)).toBe(false);
+  });
+
+  test("applies base stats 255/115/250/125/250/130 and sprite 0890-m.webp at full HP", () => {
+    const eternatus = generate("무한다이노");
+    expect(eternatus.origin.pokemon_id).toBe("0890");
+    expect(eternatus.origin.hp).toBe(216);
+
+    eternatus.applyAugment(eternamax);
+
+    expect(eternatus.origin.pokemon_id).toBe("0890-m");
+    expect(eternatus.pokemon_id).toBe("0890-m");
+    expect(eternatus.origin.hp).toBe(331);
+    expect(eternatus.hp).toBe(331); // 100% HP maintained
+
+    // Check calculated stats
+    expect(eternatus.origin.stat.def).toBe(270);
+    expect(eternatus.origin.stat.cdef).toBe(270);
+    expect(eternatus.origin.stat.catk).toBe(177);
+    expect(eternatus.origin.stat.speed).toBe(200);
+    expect(eternatus.origin.stat.atk).toBe(108);
+
+    const text = getAugmentText(eternamax, eternatus, true);
+    expect(text).toContain("무한다이노가 무한 다이맥스 상태가 되었다!");
+  });
+
+  test("maintains current HP percentage ratio when max HP increases (e.g. 50% HP)", () => {
+    const eternatus = generate("무한다이노");
+    // Set to 50% HP (108 / 216)
+    eternatus.hp = 108;
+
+    eternatus.applyAugment(eternamax);
+
+    expect(eternatus.origin.hp).toBe(331);
+    // 331 * 0.5 = 165.5 -> round to 166
+    expect(eternatus.hp).toBe(166);
+    expect(eternatus.hp / eternatus.origin.hp).toBeCloseTo(0.5, 1);
   });
 });
