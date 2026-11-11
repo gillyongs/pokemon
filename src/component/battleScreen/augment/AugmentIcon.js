@@ -75,6 +75,25 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="100%" stopColor="#fef08a" />
           </linearGradient>
 
+                    {/* 하트 전용 그라데이션 */}
+          <linearGradient id="heartPinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ff9a9e" />
+            <stop offset="45%" stopColor="#f6416c" />
+            <stop offset="100%" stopColor="#c31432" />
+          </linearGradient>
+
+          <linearGradient id="heartGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fff3b0" />
+            <stop offset="40%" stopColor="#ffd700" />
+            <stop offset="100%" stopColor="#e67e22" />
+          </linearGradient>
+
+          <radialGradient id="heartSoftGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#ff758c" stopOpacity="0.75" />
+            <stop offset="60%" stopColor="#ff416c" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#ff416c" stopOpacity="0" />
+          </radialGradient>
+
           <linearGradient id="prismRing" x1="0%" y1="100%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#64ffda" />
             <stop offset="50%" stopColor="#38bdf8" />
@@ -1459,6 +1478,117 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             {/* ✦ 스파클 */}
             <path d="M49 14 Q49 17 52 17 Q49 17 49 20 Q49 17 46 17 Q49 17 49 14 Z" fill="#fef08a" />
             <path d="M14 44 Q14 47 17 47 Q14 47 14 50 Q14 47 11 47 Q14 47 14 44 Z" fill="#38bdf8" />
+          </g>
+        )}
+
+        {/* 포켓몬과 결혼한 사람이 있었다 (황금 웨딩 링과 빛나는 루비 하트 & 다이아몬드 스파클) */}
+        {id === "marriedPokemon" && (
+          <g filter="url(#glow)" transform="translate(0, 4.5)">
+            {/* 배경 은은한 하트 오라 */}
+            <circle cx="32" cy="32" r="26" fill="url(#heartSoftGlow)" />
+
+            {/* 황금빛 웨딩 링 (반지) 후면 */}
+            <ellipse
+              cx="32"
+              cy="34"
+              rx="24"
+              ry="11"
+              transform="rotate(-15 32 34)"
+              stroke="url(#heartGoldGrad)"
+              strokeWidth="2.8"
+              fill="none"
+              opacity="0.8"
+            />
+
+            {/* 메인 루비 하트 */}
+            <path
+              d="M32 51 C17 40 9 29.5 9 20.5 A 11.5 11.5 0 0 1 32 16 A 11.5 11.5 0 0 1 55 20.5 C 55 29.5 47 40 32 51 Z"
+              fill="url(#heartPinkGrad)"
+              stroke="#ffffff"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+
+            {/* 하트 좌상단 부드러운 반사광 하이라이트 */}
+            <path
+              d="M17 19.5 C17 15 23 15 27 17 C22 17.5 19 21 17 25 C16.7 22.5 16.8 20.5 17 19.5 Z"
+              fill="#ffffff"
+              fillOpacity="0.55"
+            />
+
+            {/* 황금빛 웨딩 링 (반지) 전면 겹침 입체감 */}
+            <path
+              d="M11 39 C18 45 42 43 51 31"
+              stroke="url(#heartGoldGrad)"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+              fill="none"
+            />
+
+            {/* 웨딩 링 보석/다이아몬드 (상단 우측) */}
+            <polygon points="50,22 53,18 57,20 54,24" fill="#ffffff" stroke="url(#heartGoldGrad)" strokeWidth="1" />
+            {/* 다이아몬드 십자 스파클 */}
+            <path d="M53.5 14 Q53.5 19 58.5 19 Q53.5 19 53.5 24 Q53.5 19 48.5 19 Q53.5 19 53.5 14 Z" fill="#ffffff" />
+            <circle cx="53.5" cy="19" r="1.5" fill="#fef08a" />
+
+            {/* 주변 흩날리는 미니 하트 */}
+            <path
+              d="M13 18 C9 15 7 12 7 9 A 3 3 0 0 1 13 8 A 3 3 0 0 1 19 9 C 19 12 17 15 13 18 Z"
+              fill="url(#heartPinkGrad)"
+              transform="scale(0.65) translate(3, 5)"
+              opacity="0.85"
+            />
+            {/* 좌하단 골드 스파클 */}
+            <path d="M12 43 Q12 46 15 46 Q12 46 12 49 Q12 46 9 46 Q12 46 12 43 Z" fill="#fef08a" />
+          </g>
+        )}
+
+        {/* 인생의 동반자 (다정하게 포개어진 트윈 하트 & 영혼의 유대 스파클) */}
+        {id === "lifePartner" && (
+          <g filter="url(#glow)">
+            {/* 배경 은은한 웜핑크 오라 */}
+            <circle cx="32" cy="32" r="26" fill="url(#heartSoftGlow)" />
+
+            {/* 뒤쪽 골드-코랄 하트 */}
+            <path
+              d="M39 48 C27 39 20 31 20 23 A 9.5 9.5 0 0 1 39 19 A 9.5 9.5 0 0 1 56 23 C 56 31 49 39 39 48 Z"
+              fill="url(#heartGoldGrad)"
+              stroke="#ffffff"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+              opacity="0.95"
+            />
+
+            {/* 앞쪽 루비-로즈 핑크 하트 */}
+            <path
+              d="M26 52 C13 42 6 32 6 23.5 A 10.5 10.5 0 0 1 26 19.5 A 10.5 10.5 0 0 1 46 23.5 C 46 32 39 42 26 52 Z"
+              fill="url(#heartPinkGrad)"
+              stroke="#ffffff"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+
+            {/* 앞쪽 하트 광택 하이라이트 */}
+            <path
+              d="M13 22 C13 18 18 18 22 20 C18 20.5 15 23.5 13 27 C12.8 24.5 12.9 23 13 22 Z"
+              fill="#ffffff"
+              fillOpacity="0.55"
+            />
+
+            {/* 두 하트 사이 중앙 유대 십자 스파클 (영혼의 공명) */}
+            <path d="M36 29 Q36 33 40 33 Q36 33 36 37 Q36 33 32 33 Q36 33 36 29 Z" fill="#ffffff" />
+            <circle cx="36" cy="33" r="1.5" fill="#fef08a" />
+
+            {/* 상단 쁘띠 하트 */}
+            <path
+              d="M48 13 C45 10 43 8 43 6 A 2.2 2.2 0 0 1 48 5 A 2.2 2.2 0 0 1 53 6 C 53 8 51 10 48 13 Z"
+              fill="#ffffff"
+              opacity="0.9"
+            />
+
+            {/* 좌하단/우하단 미세 반짝임 */}
+            <path d="M10 44 Q10 46 12 46 Q10 46 10 48 Q10 46 8 46 Q10 46 10 44 Z" fill="#ffe259" />
+            <path d="M53 43 Q53 45 55 45 Q53 45 53 47 Q53 45 51 45 Q53 45 53 43 Z" fill="#ffffff" />
           </g>
         )}
 

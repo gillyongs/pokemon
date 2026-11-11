@@ -393,7 +393,7 @@ const Battle = () => {
     }
 
     const appliedAug = target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
-    const isReplacement = selectedAugment.id === "legendaryTitan" || selectedAugment.id === "rouletteWheel" || selectedAugment.id === "soaring";
+    const isReplacement = selectedAugment.id === "legendaryTitan" || selectedAugment.id === "rouletteWheel" || selectedAugment.id === "soaring" || selectedAugment.id === "marriedPokemon";
     const logTargetName = isReplacement ? prevPokeName : (target.name || target.names);
 
     const augmentData = {

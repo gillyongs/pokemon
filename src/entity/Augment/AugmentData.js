@@ -250,6 +250,61 @@ export const AUGMENT_LIST = [
   },
 
   // 포켓몬 교체 ============================================================
+  // 포켓몬과 결혼한 사람이 있었다 (메가가디안, 님피아(딜탱), 메가이어롭, 마스카나 중 1 교체 + 인생의 동반자 획득)
+  {
+    id: "marriedPokemon",
+    name: "포켓몬과 결혼한 사람이 있었다",
+    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다. 인생의 동반자 증강을 추가로 획득합니다.",
+    cost: "-",
+    isEligible: (pokemon) => {
+      if (!isHpAtLeast(pokemon, 0.5)) return false;
+      if (pokemon?.hasAugment?.("marriedPokemon")) return false;
+      const excluded = ["마스카나", "가디안", "이어롭", "님피아"];
+      if (excluded.some((name) => hasPokemonName(pokemon, name))) return false;
+      return true;
+    },
+    onApply: function (pokemon, battle) {
+      const candidates = ["메가가디안", "님피아 (특수딜탱)", "메가이어롭", "마스카나"];
+      const available = candidates.filter((id) => {
+        const baseName = id.replace("메가", "").replace(/\s*\(.*?\)/, "");
+        return !hasPokemonNameOnTeam(pokemon, baseName, battle);
+      });
+      const pool = available.length > 0 ? available : candidates;
+      const pickedId = pool[Math.floor(Math.random() * pool.length)];
+      replacePokemon(pokemon, pickedId, battle, { excludeAugmentId: "marriedPokemon" });
+
+      // 인생의 동반자 증강 추가 획득
+      const partnerAug = AUGMENT_LIST.find((a) => a.id === "lifePartner");
+      if (partnerAug) {
+        if (!pokemon.augments) pokemon.augments = [];
+        if (!pokemon.augments.some((a) => a.id === "lifePartner")) {
+          const newAug = { ...partnerAug };
+          pokemon.augments.push(newAug);
+          if (typeof partnerAug.onApply === "function") {
+            partnerAug.onApply(pokemon, battle);
+          }
+        }
+      }
+    },
+  },
+  // 인생의 동반자 (모든 능력치 1.1배 증가)
+  {
+    id: "lifePartner",
+    name: "인생의 동반자",
+    desc: "모든 능력치가 1.1배 증가합니다.",
+    cost: 0,
+    isRandom: false,
+    isEligible: () => false,
+    onApply: function (pokemon, battle) {
+      if (pokemon && pokemon.origin?.hp) {
+        const oldMaxHp = pokemon.origin.hp;
+        pokemon.origin.hp = Math.round(pokemon.origin.hp * 1.1);
+        const hpGain = pokemon.origin.hp - oldMaxHp;
+        pokemon.hp = Math.min(pokemon.origin.hp, (pokemon.hp || oldMaxHp) + hpGain);
+      }
+    },
+  },
+
 
   {
     id: "rouletteWheel",
@@ -828,7 +883,7 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   // 특수 증강 목록 체크 (개별 desc 생성)
   let individualDesc = null;
 
-  if (id === "rouletteWheel") {
+  if (id === "rouletteWheel" || id === "marriedPokemon") {
     const fromName = prevPokeName || target?.name || "포켓몬";
     const toName = target?.name || "";
     individualDesc = josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);

@@ -80,6 +80,10 @@ export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, b
       pokemon.log.speedCalculate += ` * ${mult} (용용 죽겠지)`;
     }
   }
+  if (pokemon?.hasAugment?.("lifePartner")) {
+    speed *= 1.1;
+    pokemon.log.speedCalculate += " * 1.1 (인생의 동반자)";
+  }
   if (battle && pokemon?.hasAugment?.("lastWarrior")) {
     if (isPokemonAlone(pokemon, battle)) {
       speed *= 1.6;

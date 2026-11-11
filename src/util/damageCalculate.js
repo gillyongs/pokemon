@@ -62,6 +62,12 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   for (const aug of augments) {
     const augId = typeof aug === "string" ? aug : aug?.id;
 
+    // 인생의 동반자: 모든 능력치 1.1배
+    if (augId === "lifePartner") {
+      val = Math.round(val * 1.1);
+      logText += " * 1.1 (인생의 동반자)";
+    }
+
     // 라바돈의 죽음 모자
     if (augId === "rabadonsDeathcap") {
       if (statKey === "catk") {
@@ -483,6 +489,16 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
+  // 인생의 동반자: 모든 능력치가 1.1배 증가
+  if (attackPokemon?.hasAugment?.("lifePartner")) {
+    atkStat *= 1.1;
+    atkStr += " * 1.1 (인생의 동반자)";
+  }
+  if (defensePokemon?.hasAugment?.("lifePartner")) {
+    defStat *= 1.1;
+    defStr += " * 1.1 (인생의 동반자)";
+  }
+
   // 라스트 사무라이: 해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 60% 증가
   if (battle && attackPokemon?.hasAugment?.("lastSamurai") && (skill.stype === "atk" || skill.stype === "catk")) {
     if (isPokemonAlone(attackPokemon, battle)) {
@@ -699,6 +715,10 @@ export const damageCalculate = (battle, obj, ai) => {
   if (atkAbil === "맹화" && attackPokemon.hp <= attackPokemon.origin.hp / 3 && skill.type === "불꽃") {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (맹화)";
+  }
+  if (atkAbil === "심록" && attackPokemon.hp <= attackPokemon.origin.hp / 3 && skill.type === "풀") {
+    damage *= 1.5;
+    attackPokemon.log.damage1 += " * 1.5 (심록)";
   }
 
   if (atkAbil === "수포" && skill.type === "물") {
