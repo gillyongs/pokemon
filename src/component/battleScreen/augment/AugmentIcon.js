@@ -10,6 +10,7 @@ export const DEDICATED_AUGMENT_POKEMON = {
   legendaryTitan: "0486",
   soaring: "0330-m",
   eternamax: "0890-m",
+  harmfulBird: "0663",
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
@@ -23,15 +24,18 @@ export const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   "0486": { shiftUp: true, offsetY: -5, scale: 1.15 },
   eternamax: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
   "0890-m": { shiftUp: false, offsetY: 2.5, scale: 1.02 },
+  harmfulBird: { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
+  "0663": { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
 };
 
-export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, scale = null, imageOptions = null }) => {
-  const pokeId = pokemonId || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.origin?.pokemon_id && (id === "danceOfGarchomp" || id === "nameIsSalamence") ? pokemon.origin.pokemon_id : null);
+export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null }) => {
+  const pokeId = pokemonId || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.origin?.pokemon_id && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird") ? pokemon.origin.pokemon_id : null);
 
   const augOptions = imageOptions || DEDICATED_AUGMENT_IMAGE_OPTIONS[id] || (pokeId ? DEDICATED_AUGMENT_IMAGE_OPTIONS[pokeId] : null) || {};
 
   const isShiftUp = shiftUp || augOptions.shiftUp || offsetY !== null;
   const finalOffsetY = offsetY ?? augOptions.offsetY ?? (isShiftUp ? -3.5 : 0);
+  const finalOffsetX = offsetX ?? augOptions.offsetX ?? 0;
   const finalScale = scale ?? augOptions.scale ?? (isShiftUp ? 1.1 : 1);
 
   if (pokeId) {
@@ -42,10 +46,15 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           <DedicatedImg
             src={`/pokemon/img/pokemon/${pokeId}.webp`}
             alt="전용 증강"
+            $offsetX={finalOffsetX}
             $offsetY={finalOffsetY}
             $scale={finalScale}
             onError={(e) => {
-              e.currentTarget.style.display = "none";
+              if (!e.currentTarget.src.endsWith(`/img/pokemon/${pokeId}.webp`)) {
+                e.currentTarget.src = `/img/pokemon/${pokeId}.webp`;
+              } else {
+                e.currentTarget.style.display = "none";
+              }
             }}
           />
           <DedicatedRing />
@@ -3007,7 +3016,10 @@ const DedicatedImg = styled.img`
   z-index: 1;
   user-select: none;
   -webkit-user-drag: none;
-  transform: ${(props) => (props.$offsetY || (props.$scale && props.$scale !== 1) ? `translateY(${props.$offsetY || 0}px) scale(${props.$scale || 1})` : "none")};
+  transform: ${(props) =>
+    props.$offsetX || props.$offsetY || (props.$scale && props.$scale !== 1)
+      ? `translate(${props.$offsetX || 0}px, ${props.$offsetY || 0}px) scale(${props.$scale || 1})`
+      : "none"};
 `;
 
 const DedicatedRing = styled.div`

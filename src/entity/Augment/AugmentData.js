@@ -411,6 +411,15 @@ export const AUGMENT_LIST = [
       }
     },
   },
+  {
+    id: "harmfulBird",
+    name: "저 새는 해로운 새다",
+    desc: "특성 질풍날개가 상시 발동됩니다.",
+    cost: 3,
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
+    isEligible: (pokemon) => hasPokemonName(pokemon, "파이어로") && !pokemon?.hasAugment?.("harmfulBird"),
+  },
   // "메가" 플라이곤 (메가플라이곤 교체) =========================================
   {
     id: "soaring",
