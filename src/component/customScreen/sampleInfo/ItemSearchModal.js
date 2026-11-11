@@ -92,6 +92,7 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
   const hasWaterSkill = skillTypes.includes("물");
   const hasIceSkill = skillTypes.includes("얼음");
   const hasSteelSkill = skillTypes.includes("강철");
+  const hasFairySkill = skillTypes.includes("페어리") || (pokemon.abil === "페어리스킨" && skillTypes.includes("노말"));
 
   // 타입별 데미지 증가 아이템
   if (isAttacker) {
@@ -113,6 +114,11 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
     // 강철타입 & 강철기술 -> 금속코트
     if (types.includes("강철") && hasSteelSkill) {
       add("금속코트");
+    }
+
+    // 페어리타입 & 페어리기술 -> 요정의깃털
+    if (types.includes("페어리") && hasFairySkill) {
+      add("요정의깃털");
     }
   }
 

@@ -599,6 +599,11 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.2 (금속코트)";
   }
 
+  if (skill.type === "페어리" && attackPokemon.item === "요정의깃털") {
+    damage *= 1.2;
+    attackPokemon.log.damage1 += " * 1.2 (요정의깃털)";
+  }
+
   // 특성 ===========================================================================================
 
   if (defAbil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
@@ -725,7 +730,7 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.2 (스카이스킨)";
   }
 
-  if (atkAbil === "페어리스킨" && skill.type === "페어리" && (skill.originType === "노말" || skill.type === "노말")) {
+  if (atkAbil === "페어리스킨" && skill.type === "페어리" && skill.originType === "노말") {
     damage *= 1.2;
     attackPokemon.log.damage1 += " * 1.2 (페어리스킨)";
   }
