@@ -68,6 +68,20 @@ function skillEffectSearch(name) {
           });
         }
       }
+
+      // 길동무 발동 (반동 데미지, 생명의구슬, 필드 효과 등이 처리된 후 발동)
+      if (battle?.turn?.destinyBondUser) {
+        const userName = battle.turn.destinyBondUser;
+        battle.turn.destinyBondUser = null;
+        if (atkPokemon && !atkPokemon.faint) {
+          enqueue({
+            id: "e3a9f6c2-1b7d-4c8e-a5f0-6d2b9c4e8a17",
+            battle,
+            text: userName + ` ${atkPokemon.namess} 길동무로 삼았다!`,
+          });
+          atkPokemon.handleFaint(battle, enqueue);
+        }
+      }
     },
 
     필드파괴: (battle, enqueue, skillEffect) => {
@@ -351,6 +365,12 @@ function skillEffectSearch(name) {
       const ratio = skillEffect?.ratio || 3;
       atkPokemon.getDamage(battle, enqueue, atkPokemon.turn.recentDamageGive / ratio, text);
     },
+    발버둥반동: (battle, enqueue, skillEffect) => {
+      let atkPokemon = battle[battle.turn.atk];
+      if (atkPokemon.faint) return;
+      const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
+      atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 4, text);
+    },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
       if (!isAilmentCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0 && def.abil !== "의기양양" && def.abil !== "불면") {
@@ -617,6 +637,11 @@ function skillEffectSearch(name) {
     자동: (battle, enqueue, skillEffect) => {
       // 역린
       const atk = battle[battle.turn.atk];
+      if (atk.tempStatus.disable && atk.tempStatus.disable === atk.turn?.useSkill?.name) {
+        atk.auto = null;
+        atk.autoSN = null;
+        return;
+      }
       if (atk.auto !== null) {
         return;
       }
@@ -766,6 +791,11 @@ function skillEffectSearch(name) {
     },
     초승달춤: (battle, enqueue, skillEffect) => {
       battle.field[battle.turn.atk].handleLunarDance(battle, enqueue);
+    },
+    길동무: (battle, enqueue, skillEffect) => {
+      const atk = battle[battle.turn.atk];
+      atk.tempStatus.destinyBond = true;
+      enqueue({ id: "b7c2e8a1-4d3f-4e6a-9b1c-2f5d8e7a0c31", battle, text: atk.names + " 상대를 길동무로 삼으려 하고 있다!" });
     },
     목숨걸기: (battle, enqueue, skillEffect) => {
       battle[battle.turn.atk].handleFaint(battle, enqueue);

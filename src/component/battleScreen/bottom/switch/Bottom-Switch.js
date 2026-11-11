@@ -11,6 +11,7 @@ import { switchPlayer, switchBothFaint } from "../../../../service/switch";
 import { turnEnd } from "../../../../service/turnEnd";
 import { attackNpc } from "../../../../service/attack";
 import { npcChoice } from "../../../../npc/npc";
+import { isShadowTagged } from "../../../../util/shadowTag";
 const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueObject, setText, btObj }) => {
   const [selected, setSelected] = useState(null);
   const [logOpen, setLogOpen] = useState(false);
@@ -60,7 +61,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
   } else if (bottom === "switch") {
     // 행동으로 교체를 고른 경우
     handleSwitch = (index) => {
-      if (battle.player.tempStatus.switchLock !== null) {
+      if (battle.player.tempStatus.switchLock !== null || isShadowTagged(battle, "player")) {
         // 교체불가 상태 (마그마스톰)
         // 유턴이나 기절로 인한 교체는 가능
         setText("교체할 수 없다!");

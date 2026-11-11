@@ -5,6 +5,7 @@ import { Skill } from "../Skill.js";
 
 // prettier-ignore
 export const bufSkills = [
+  new Skill("길동무", "고스트", "-", "-", 5, 0, "buf", null, "다음 자신의 행동 전까지 상대의 공격으로 쓰러지면 공격한 상대도 함께 쓰러뜨린다.", [{ name: "길동무" }]),
   new Skill("방어", "노말", "-", "-", 10, 4, "buf", { name: "방어" }, "상대의 공격을 전혀 받지 않는다. 연속으로 쓰면 실패하기 쉽다. (우선도 +4)", [{ name: "방어" }], { protect: true }),
   new Skill("니들가드", "풀", "-", "-", 10, 4, "buf", { name: "방어" }, "상대의 공격을 막고 접촉 공격을 한 상대에게 데미지를 준다. 연속으로 쓰면 실패하기 쉽다. (우선도 +4)", [{ name: "니들가드" }], { protect: true }),
 

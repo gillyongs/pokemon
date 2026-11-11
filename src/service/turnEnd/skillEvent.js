@@ -24,6 +24,10 @@ export function processSkillEffects(battle, enqueue, fastUser, slowUser) {
   // 지옥찌르기 소리 기술 금지
   noSound(battle, enqueue, fastUser);
   noSound(battle, enqueue, slowUser);
+
+  // 저주받은바디 기술 봉인
+  disable(battle, enqueue, fastUser);
+  disable(battle, enqueue, slowUser);
 }
 
 function seed(battle, enqueue, getter, user) {
@@ -85,6 +89,23 @@ function noSound(battle, enqueue, getter) {
     let wakeUpText = skillGetter.names + " 다시 소리 기술을 사용할 수 있게 됐다!";
     skillGetter.tempStatus.noSound = null;
     enqueue({ id: "10facab5-d501-4e07-a21d-ab5d777c55db", battle: battle, text: wakeUpText });
+  }
+}
+
+function disable(battle, enqueue, getter) {
+  const skillGetter = battle[getter];
+  if (skillGetter.faint) return;
+
+  if (skillGetter.tempStatus.disableTurnRemain > 0) {
+    skillGetter.tempStatus.disableTurnRemain--;
+  }
+
+  if (skillGetter.tempStatus.disableTurnRemain === 0) {
+    const disabledSkill = skillGetter.tempStatus.disable;
+    skillGetter.tempStatus.disable = null;
+    skillGetter.tempStatus.disableTurnRemain = null;
+    let wakeUpText = `${skillGetter.name}의 ${disabledSkill} 봉인이 풀렸다!`;
+    enqueue({ id: "3f8a9c1b-7d2e-4f5a-8b3c-9e1d2f3a4b5c", battle: battle, text: wakeUpText });
   }
 }
 

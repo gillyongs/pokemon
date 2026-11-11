@@ -85,11 +85,13 @@ class PokemonInstance {
     this.itemText = this.origin.itemText;
     this.abil = this.origin.abil;
     this.abilObj = this.origin.abilObj;
+    this.origin.skill[5] = { ...skillList.search("발버둥"), skillNumber: 5 };
     this.pp = {
       1: this.origin.skill[1].pp,
       2: this.origin.skill[2].pp,
       3: this.origin.skill[3].pp,
       4: this.origin.skill[4].pp,
+      5: 9999,
     };
     this.ailment = {
       // 기절시 damage.js에서만 초기화된다
@@ -145,7 +147,10 @@ class PokemonInstance {
       flashFire: null, // 타오르는불꽃
       switchLock: null, // 교체불가 (교체불가로 만든 기술명이 들어간다)
       switchLockTurnRemain: null, // 교체불가 남은 턴
+      disable: null, // 저주받은바디/사술묶기로 봉인된 기술명
+      disableTurnRemain: null, // 기술 봉인 남은 턴
       glaiveRush: null, // 대검돌격 디메리트
+      destinyBond: false, // 길동무 상태
       hitCount: 0, // 피격 횟수 (분노의주먹 위력계산) * 교체하면 초기화되게 너프됐음
       firstTurn: true, // 배틀 등장 첫 턴 여부 (속이기, 만나자마자 성공 판정)
       turnsOnField: 0, // 필드에 나온 턴 수 (슬로스타트)
@@ -172,7 +177,6 @@ class PokemonInstance {
       return aug.id === nameOrId || aug.name === nameOrId;
     });
   }
-
 
   checkEchoOfHeroSynergy(battle) {
     if (this.hasAugment("recovery") && this.hasAugment("nimbleMoves") && this.hasAugment("threeSnails")) {

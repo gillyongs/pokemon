@@ -18,11 +18,11 @@ export const skillUse = (bt, enqueue) => {
     skill = { ...skill, type: wType };
     atk.turn.useSkill = skill;
   }
-  if (atk.abil === "페어리스킨" && skill?.type === "노말") {
+  if (atk.abil === "페어리스킨" && skill?.type === "노말" && skill?.name !== "발버둥") {
     skill = { ...skill, originType: "노말", type: "페어리" };
     atk.turn.useSkill = skill;
   }
-  if (atk.abil === "스카이스킨" && skill?.type === "노말") {
+  if (atk.abil === "스카이스킨" && skill?.type === "노말" && skill?.name !== "발버둥") {
     skill = { ...skill, originType: "노말", type: "비행" };
     atk.turn.useSkill = skill;
   }
@@ -36,10 +36,12 @@ export const skillUse = (bt, enqueue) => {
     return;
   }
 
-  // pp 처리
-  atk.pp[skillNumber] -= 1;
-  if (def.abil === "프레셔" && atk.pp[skillNumber] > 0) {
+  // pp 처리 (발버둥은 PP 무제한)
+  if (skill.name !== "발버둥") {
     atk.pp[skillNumber] -= 1;
+    if (def.abil === "프레셔" && atk.pp[skillNumber] > 0) {
+      atk.pp[skillNumber] -= 1;
+    }
   }
 
   // 구애 스킬 고정 처리 (구애 시리즈 또는 무아지경)
@@ -47,7 +49,7 @@ export const skillUse = (bt, enqueue) => {
   const isChoiceItem = (atk.item === "구애스카프" || atk.item === "구애머리띠" || atk.item === "구애안경") && !hasUnbound;
   const isGorillaTactics = atk.abil === "무아지경" && !hasUnbound;
 
-  if (isChoiceItem || isGorillaTactics) {
+  if ((isChoiceItem || isGorillaTactics) && skill.name !== "발버둥") {
     atk.tempStatus.onlySkill = skill.name;
     // 상대방이 기절해서 스킬 실패해도 고정됨
   }
@@ -209,7 +211,7 @@ export const skillUse = (bt, enqueue) => {
       return;
     }
 
-    const noSubstituteSkills = ["가드스왑", "길동무", "날려버리기", "냄새구별", "도발", "멸망의노래", "미라클아이", "봉인", "사슬묶기", "스킬스왑", "앙코르", "역할", "울부짖기", "원념", "원한", "자기암시", "저주", "트집", "하트스왑", "헤롱헤롱", "흑안개"];
+    const noSubstituteSkills = ["가드스왑", "날려버리기", "냄새구별", "도발", "멸망의노래", "미라클아이", "봉인", "사슬묶기", "스킬스왑", "앙코르", "역할", "울부짖기", "원념", "원한", "자기암시", "저주", "트집", "하트스왑", "헤롱헤롱", "흑안개"];
     // 대타출동으로 막을 수 없는 상대방 대상 변화기 (natk)
     // 트릭, 하품, 뽐내기, 전기자석파, 씨뿌리기 등은 실패한다
 

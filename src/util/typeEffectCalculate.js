@@ -33,6 +33,7 @@ export const typeCheck = (skillType, t1, t2, skillName) => {
   // 특성, 아이템등을 반영하지 않고 오직 상성만을 체크
   // field.js: 스텔스록 데미지 계산
   // npc 교체 판단에 사용
+  if (skillName === "발버둥") return 1;
   if (isNoEffect(skillType, t1, t2)) return 0;
   return onlyTypeEffectCalculate(skillType, t1, t2, skillName);
 };
@@ -44,6 +45,7 @@ export const typeCheckOnBattle = (battle, skillType, t1, t2, skillName, defPoke 
   const atk = battle?.[battle?.turn?.atk];
   const def = defPoke || battle?.[battle?.turn?.def];
   const activeSkillName = skillName || atk?.turn?.useSkill?.name || atk?.origin?.skill?.[battle?.turn?.atkSN]?.name;
+  if (activeSkillName === "발버둥") return 1;
 
   // [증강: 무효 겟또다제]
   if (def?.hasAugment?.("nullifyGetto")) {
@@ -90,6 +92,9 @@ export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass, skillN
 
   if (skillClass === "natk" || skillClass === "buf") {
     return;
+  }
+  if (skillName === "발버둥") {
+    return "○ 효과가 있음";
   }
 
   // npc한테 증강 없어서 상관없긴 한데 굳이 뺼 필욘 없으니까...

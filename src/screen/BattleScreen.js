@@ -758,6 +758,11 @@ const Battle = () => {
                       </NpcActionItem>
                     );
                   })}
+                  {validChoices.includes(5) && (
+                    <NpcActionItem key={5} $selected={selectedNpcChoice === 5} $disabled={false} onClick={() => handleNpcActionClick(5)}>
+                      발버둥
+                    </NpcActionItem>
+                  )}
                   {[1, 2].map((num) => {
                     const benchKey = `npcBench${num}`;
                     const benchPoke = battle[benchKey];

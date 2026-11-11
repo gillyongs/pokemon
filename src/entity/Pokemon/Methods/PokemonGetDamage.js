@@ -28,7 +28,7 @@ export const PokemonGetDamage = {
 
   // 기절 처리
   handleFaint(battle, enqueue) {
-    // attackDmage, 초승달춤에서도 사용
+    // attackDmage, 길동무, 초승달춤에서도 사용
     this.hp = 0;
     this.faint = true;
     this.resetAilment();

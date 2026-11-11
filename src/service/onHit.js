@@ -1,6 +1,7 @@
 import { applyAilment } from "../function/ailment";
 import { random } from "../util/randomCheck";
 import { typeCheckOnBattle } from "../util/typeEffectCalculate";
+import { josa } from "josa";
 
 export const applyOnHitEvents = (battle, enqueue, substitute) => {
   // 피격시 발동되는 특성, 아이템 모음
@@ -86,6 +87,23 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
           text: sRockText,
         });
       }
+    }
+  }
+
+  if (defPokemon.abil === "저주받은바디" && !atkPokemon.faint && !atkPokemon.tempStatus.disable && useSkill?.name && useSkill.name !== "발버둥") {
+    if (random(30)) {
+      atkPokemon.tempStatus.disable = useSkill.name;
+      atkPokemon.tempStatus.disableTurnRemain = 4;
+      // 역린은 기술 봉인당하면 끊긴다 (혼란 디메리트 없음)
+      if (atkPokemon.auto !== null) {
+        atkPokemon.auto = null;
+        atkPokemon.autoSN = null;
+      }
+      enqueue({
+        id: "c7b8e1a2-3d4f-4e5a-9b6c-1f2d3e4a5b6c",
+        battle,
+        text: `[특성 저주받은바디] ${atkPokemon.name}의 ${josa(`${useSkill.name}#{가}`)} 봉인되었다!`,
+      });
     }
   }
 

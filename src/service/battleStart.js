@@ -115,8 +115,8 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
 };
 
 function getActionType(act) {
-  // 공격 (1~4)
-  if (typeof act === "number" && act >= 1 && act <= 4) {
+  // 공격 (1~4, 5: 발버둥)
+  if (typeof act === "number" && act >= 1 && act <= 5) {
     return "attack";
   }
 

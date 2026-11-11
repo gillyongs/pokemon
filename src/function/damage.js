@@ -186,7 +186,11 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
         enqueue({ id: "04fa1546-dec5-489e-b336-b23323ed15e9", battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
       }
     }
-
+    // 길동무
+    // handleFaint에서 tempStatus가 초기화되므로 faint 처리 전에 battle.turn에 기록 (발동은 SkillEffect 공통에서 처리)
+    if (defPokemon.tempStatus?.destinyBond && !atkPokemon.faint && battle?.turn) {
+      battle.turn.destinyBondUser = defPokemon.names;
+    }
     defPokemon.handleFaint(battle, enqueue);
 
     // 자기과신
@@ -204,8 +208,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       atkPokemon.rankUp(battle, enqueue, swip, 1, abiltText);
     }
   } else {
-    // 출력 텍스트가 하나도 없을 때
+    // 쓰러지지 않은 경우
     if (defaultText) {
+      // 출력 텍스트가 하나도 없을 때
       enqueue({ id: "463e5193-4b0b-4468-94d2-2c3a7421f6fe", battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
     }
 

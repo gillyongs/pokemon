@@ -28,6 +28,15 @@ export const megaDataList = {
       abil: "가뭄",
     },
   ],
+  // 팬텀
+  "0094": [
+    {
+      stone: "팬텀나이트",
+      megaFormId: "0094-m",
+      name: "메가팬텀",
+      abil: "그림자밟기",
+    },
+  ],
   // 아쿠스타
   "0121": [
     {

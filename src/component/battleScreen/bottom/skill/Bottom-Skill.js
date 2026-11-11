@@ -9,11 +9,50 @@ import LogModal from "../../LogModal";
 
 import styled from "styled-components";
 
+const isSkillUsable = (player, skillIndex) => {
+  const skill = player?.origin?.skill?.[skillIndex];
+  const pp = player?.pp?.[skillIndex];
+  if (!skill) return false;
+  if (pp <= 0) return false;
+
+  const { onlySkill } = player.tempStatus || {};
+  const hasUnbound = player.hasAugment?.("unboundChoice");
+  const isChoiceLocked = Boolean(player.item?.startsWith("구애") && !hasUnbound);
+  const isGorillaLocked = Boolean(player.abil === "무아지경" && !hasUnbound);
+  if (onlySkill && (isChoiceLocked || isGorillaLocked) && onlySkill !== skill.name) {
+    return false;
+  }
+
+  const recentSkill = player.tempStatus?.recentSkillUse?.name;
+  if (recentSkill === skill.name && skill.feature?.noDouble) {
+    return false;
+  }
+
+  if (player.item === "돌격조끼" && (skill.stype === "natk" || skill.stype === "buf")) {
+    return false;
+  }
+
+  if (player.tempStatus?.taunt !== null && (skill.stype === "natk" || skill.stype === "buf")) {
+    return false;
+  }
+
+  if (player.tempStatus?.noSound !== null && skill.feature?.sound) {
+    return false;
+  }
+
+  if (player.tempStatus?.disable && player.tempStatus.disable === skill.name) {
+    return false;
+  }
+
+  return true;
+};
+
 const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, battleStartBySkillButton, textSkip, btObj }) => {
   const [logOpen, setLogOpen] = useState(false);
   const [useMega, setUseMega] = useState(false);
 
   const isMegaEvolveAble = battle.player.isMegaEvolveAble?.(battle);
+  const isAllSkillsDisabled = ![1, 2, 3, 4].some((num) => isSkillUsable(battle.player, num));
 
   return (
     // prettier-ignore
@@ -41,6 +80,22 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
       <SkillButton battle={battle} skillNumber={3} queueObject={queueObject} setText={setText} battleStartBySkillButton={battleStartBySkillButton} />
 
       <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} setText={setText} battleStartBySkillButton={battleStartBySkillButton} />
+
+      {isAllSkillsDisabled && (
+        <StruggleButton
+          $disabled={!queueObject.queueCheck()}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (queueObject.queue.length > 0) {
+              if (battle.turn.textFreeze) return;
+              queueObject.dequeue();
+            }
+            if (!queueObject.queueCheck()) return;
+            battleStartBySkillButton(5);
+          }}>
+          <span>발버둥</span>
+        </StruggleButton>
+      )}
 
       {isMegaEvolveAble && (
         <MegaButton
@@ -105,6 +160,45 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
 };
 
 export default BottomSectionSkill;
+
+const StruggleButton = styled.div`
+  position: absolute;
+  top: 34vh;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24vw;
+  height: 7vh;
+  border-radius: 5px;
+  background: linear-gradient(135deg, rgba(160, 35, 35, 0.92), rgba(70, 15, 15, 0.92));
+  border: 2px solid rgba(255, 110, 110, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
+  z-index: 10;
+  user-select: none;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+
+  ${({ $disabled }) =>
+    !$disabled &&
+    `
+    &:hover {
+      border-color: #ff9999;
+    }
+    &:active {
+      transform: translate(-50%, -50%) scale(0.96);
+    }
+  `}
+
+  @media (max-width: 400px) {
+    font-size: 15px;
+  }
+`;
 
 const MegaButton = styled.div`
   position: absolute;

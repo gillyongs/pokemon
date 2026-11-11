@@ -12,10 +12,10 @@ export const beforeSkillCheck = (bt, enqueue) => {
 
   const atk = bt[bt.turn.atk];
   const useSkill = atk.turn.useSkill;
-  if (atk.tempStatus.glaiveRush) {
-    //대검돌격 후 얼음뭉치로 선공 -> 대검돌격 디메리트 초기화
-    atk.tempStatus.glaiveRush = null;
-  }
+
+  atk.tempStatus.glaiveRush = null; // 대검돌격
+  atk.tempStatus.destinyBond = false; // 길동무
+  //대검돌격 후 얼음뭉치로 선공 -> 대검돌격 디메리트 초기화
 
   // 파괴광선 반동
   // 어지간하면 제일 먼저
@@ -143,6 +143,12 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 상대 선 지옥찌르기를 맞은 턴에 소리 기술을 쓴 경우
   if (skill.feature?.sound && atk.tempStatus.noSound) {
     enqueue({ id: "96f7d192-c54c-4b34-aec3-eec856c67c51", battle: bt, text: atk.names + " 소리 기술을 사용할 수 없다!" });
+    return false;
+  }
+
+  // 사슬묶기로 봉인된 기술을 쓴 경우
+  if (atk.tempStatus.disable && atk.tempStatus.disable === skill.name) {
+    enqueue({ id: "8b4e2f1a-6c9d-4a3e-b5f0-1d2c3b4a5e6f", battle: bt, text: atk.names + " 기술이 봉인되어 있어서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!" });
     return false;
   }
 

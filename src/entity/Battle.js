@@ -34,6 +34,7 @@ class Battle {
       uturn: null, // 플레이어 유턴 사용 여부
       playerSwitched: null, // 이번 턴 플레이어 교체 여부 (속이기 판정용)
       npcSwitched: null, // 이번 턴 NPC 교체 여부 (속이기 판정용)
+      destinyBondUser: null, // 길동무 발동
       //battleStart.js에서 해당 값이 true면 진행을 끊고 교체화면을 띄운다.
       //선 유턴이면 attackNpc를 실행하고 그 외엔 turnEnd를 실행한다
     };

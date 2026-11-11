@@ -1,6 +1,7 @@
 import { npcAiEasy } from "./ai/easy";
 import { npcAiRandom } from "./ai/random";
 import { testmode, selectedNpcAct, setSelectedNpcAct } from "../config/testMode";
+import { isShadowTagged } from "../util/shadowTag";
 
 let before = null;
 export const npcChoice = (battle, actNumber) => {
@@ -39,15 +40,19 @@ export const makeNpcChoice = (battle, actNumber) => {
   if (battle.npcBench1?.faint) arr = arr.filter((v) => v !== "npcBench1");
   if (battle.npcBench2?.faint) arr = arr.filter((v) => v !== "npcBench2");
 
-  if (battle.npc.tempStatus.switchLock !== null) {
-    // 교체불가 상태 (마그마스톰)
+  if (battle.npc.tempStatus.switchLock !== null || isShadowTagged(battle, "npc")) {
+    // 교체불가 상태 (마그마스톰, 그림자밟기)
     arr = arr.filter((v) => v !== "npcBench1");
     arr = arr.filter((v) => v !== "npcBench2");
   }
 
   // 구애시리즈 스킬 고정 처리
   const onlySkill = battle.npc?.tempStatus?.onlySkill;
-  if (onlySkill) {
+  const disable = battle.npc?.tempStatus?.disable;
+  const hasUnbound = battle.npc?.hasAugment?.("unboundChoice");
+  const isChoiceLocked = Boolean(battle.npc?.item?.startsWith("구애") && !hasUnbound);
+  const isGorillaLocked = Boolean(battle.npc?.abil === "무아지경" && !hasUnbound);
+  if (onlySkill && (isChoiceLocked || isGorillaLocked)) {
     skills.forEach((sk, i) => {
       const num = i + 1;
       if (onlySkill === sk?.name) {
@@ -89,6 +94,16 @@ export const makeNpcChoice = (battle, actNumber) => {
     });
   }
 
+  // 저주받은바디로 봉인된 기술 제외
+  if (disable) {
+    skills.forEach((sk, i) => {
+      const num = i + 1;
+      if (sk?.name === disable) {
+        arr = arr.filter((v) => v !== num);
+      }
+    });
+  }
+
   // PP 0 이하 스킬 제외
   const npcPP = [1, 2, 3, 4].map((num) => battle.npc.pp[num]);
   npcPP.forEach((pp, i) => {
@@ -97,5 +112,12 @@ export const makeNpcChoice = (battle, actNumber) => {
       arr = arr.filter((v) => v !== num);
     }
   });
+
+  // 4가지 기술이 전부 사용 불가능한 경우 발버둥(5)을 선택지에 추가
+  const hasUsableSkill = arr.some((v) => typeof v === "number" && v >= 1 && v <= 4);
+  if (!hasUsableSkill) {
+    arr.unshift(5);
+  }
+
   return arr;
 };

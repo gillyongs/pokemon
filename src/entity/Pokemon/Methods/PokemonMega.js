@@ -54,7 +54,7 @@ export const PokemonMega = {
       const type = this.abilObj.feature.type;
 
       Object.values(this.origin.skill).forEach((skill) => {
-        if (skill.type === "노말") {
+        if (skill.type === "노말" && skill.name !== "발버둥") {
           skill.originType = skill.type;
           skill.type = type;
         }

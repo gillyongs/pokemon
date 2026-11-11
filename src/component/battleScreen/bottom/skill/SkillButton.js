@@ -75,6 +75,11 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
       return reject(player.names + " 한동안 소리 기술을 사용할 수 없다!");
     }
 
+    // 저주받은바디로 봉인된 기술 사용
+    if (player.tempStatus.disable && player.tempStatus.disable === skill.name) {
+      return reject("해당 기술은 봉인되어 사용할 수 없다!");
+    }
+
     // 모든 조건 통과 시 전투 시작
     battleStartBySkillButton(skillIndex);
     // battleStart(battle, skillIndex, npcChoice(battle, skillIndex), queueObject);
@@ -122,7 +127,10 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
       }}
     >
       <ICON src={`/pokemon/img/type/${displayType}.svg`} alt={skill.name} />
-      <NAME skname={skill.name}>{skill.name}{skill.nimbleMoves ? " +1" : ""}</NAME>
+      <NAME skname={skill.name}>
+        {skill.name}
+        {skill.nimbleMoves ? " +1" : ""}
+      </NAME>
       <EFFECT>{getTypeEffectText(battle.player, displayType, battle.npc.type1, battle.npc.type2, skill.stype, skill.name)}</EFFECT>
       <PP>
         {pp}/{skill.pp}

@@ -143,10 +143,10 @@ export const damageCalculate = (battle, obj, ai) => {
   const atkAbil = attackPokemon.abil;
   const defAbil = defensePokemon.abil;
 
-  if (atkAbil === "페어리스킨" && skill?.type === "노말") {
+  if (atkAbil === "페어리스킨" && skill?.type === "노말" && skill?.name !== "발버둥") {
     skill = { ...skill, originType: "노말", type: "페어리" };
   }
-  if (atkAbil === "스카이스킨" && skill?.type === "노말") {
+  if (atkAbil === "스카이스킨" && skill?.type === "노말" && skill?.name !== "발버둥") {
     skill = { ...skill, originType: "노말", type: "비행" };
   }
 
@@ -704,7 +704,7 @@ export const damageCalculate = (battle, obj, ai) => {
   attackPokemon.log.damage2 = damage;
 
   // 자속보정 ===============================================================
-  if (skill.type === attackPokemon.type1 || skill.type === attackPokemon.type2) {
+  if (skill.name !== "발버둥" && (skill.type === attackPokemon.type1 || skill.type === attackPokemon.type2)) {
     if (atkAbil === "적응력") {
       damage *= 2;
       attackPokemon.log.damage2 += " * 2 (자속보정+적응력)";
