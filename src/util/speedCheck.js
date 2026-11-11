@@ -151,7 +151,8 @@ export const priCalculate = (battle, pokemon, skill) => {
   }
 
   const pokeObj = typeof pokemon === "string" ? battle?.[pokemon] : pokemon;
-  if (pokeObj?.abil === "질풍날개" && skill.type === "비행") {
+  const isFullHp = Boolean(pokeObj && pokeObj.origin?.hp && pokeObj.hp >= pokeObj.origin.hp);
+  if (pokeObj?.abil === "질풍날개" && skill.type === "비행" && isFullHp) {
     prior += 1;
   }
 
