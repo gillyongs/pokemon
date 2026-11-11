@@ -456,6 +456,19 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
+  // 용 사냥꾼: 드래곤 타입을 상대로 모든 능력치가 1.2배 증가
+  const isDefDragon = defensePokemon?.type1 === "드래곤" || defensePokemon?.type2 === "드래곤";
+  if (attackPokemon?.hasAugment?.("dragonHunter") && isDefDragon) {
+    atkStat *= 1.2;
+    atkStr += " * 1.2 (용 사냥꾼)";
+  }
+
+  const isAtkDragon = attackPokemon?.type1 === "드래곤" || attackPokemon?.type2 === "드래곤";
+  if (defensePokemon?.hasAugment?.("dragonHunter") && isAtkDragon) {
+    defStat *= 1.2;
+    defStr += " * 1.2 (용 사냥꾼)";
+  }
+
   // 위력 ======================================================================================================
 
   let power = powerCalculate(battle, skill, obj, ai);

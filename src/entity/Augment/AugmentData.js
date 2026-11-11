@@ -76,6 +76,18 @@ export const AUGMENT_LIST = [
     cost: 999,
     // damageCalculate.js에 구현
   },
+  {
+    id: "dragonHunter",
+    name: "용 사냥꾼",
+    desc: "드래곤 타입을 상대로 모든 능력치가 1.2배 증가합니다.",
+    cost: 1,
+    isEligible: (pokemon) => {
+      const t1 = pokemon?.type1 || pokemon?.origin?.type1;
+      const t2 = pokemon?.type2 || pokemon?.origin?.type2;
+      return t1 !== "드래곤" && t2 !== "드래곤";
+    },
+    // speedCheck.js(speedCalculate), damageCalculate.js에 구현
+  },
 
   {
     id: "unboundChoice",

@@ -595,6 +595,29 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           <clipPath id="tmCircleClip">
             <circle cx="50.8" cy="50.8" r="44.8" />
           </clipPath>
+          {/* 용 사냥꾼 전용 그라데이션 */}
+          <linearGradient id="dhDragonAura" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f43f5e" />
+            <stop offset="50%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#06b6d4" />
+          </linearGradient>
+          <linearGradient id="dhSwordBlade" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="40%" stopColor="#e2e8f0" />
+            <stop offset="80%" stopColor="#94a3b8" />
+            <stop offset="100%" stopColor="#475569" />
+          </linearGradient>
+          <linearGradient id="dhSwordEdge" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#67e8f9" />
+            <stop offset="50%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#2563eb" />
+          </linearGradient>
+          <linearGradient id="dhSlashGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0" />
+            <stop offset="40%" stopColor="#67e8f9" stopOpacity="0.8" />
+            <stop offset="70%" stopColor="#ffffff" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
+          </linearGradient>
         </defs>
 
         {/* 베이스 배경 원 */}
@@ -603,6 +626,31 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         )}
 
         {/* 1. 억까 방지 (정밀 조준경 + 필중 화살 + 스파클) */}
+        {/* 용 사냥꾼 (용을 잡는 기사 엠블럼 & 발광 아우라 & 스파클) */}
+        {id === "dragonHunter" && (
+          <g>
+            {/* 1. 배후 틸 & 시안 드래곤 마력 아우라 */}
+            <circle cx="32" cy="32" r="22" fill="#38bdf8" opacity="0.18" filter="url(#glow)" />
+            <circle cx="32" cy="22" r="14" fill="#64ffda" opacity="0.15" filter="url(#glow)" />
+
+            {/* 2. 용을 제압하는 기사 엠블럼 이미지 */}
+            <image
+              href="/pokemon/img/augment/dragonHunter.png"
+              x="6.5"
+              y="6.5"
+              width="51"
+              height="51"
+              style={{ filter: "drop-shadow(0 0 3px rgba(100, 255, 218, 0.45))" }}
+            />
+
+            {/* 3. 기사의 검 & 용의 기운을 상징하는 정밀 스파클 */}
+            <path d="M 40 18 Q 40 20.5 42 20.5 Q 40 20.5 40 23 Q 40 20.5 38 20.5 Q 40 20.5 40 18 Z" fill="#ffffff" opacity="0.95" />
+            <path d="M 17 38 Q 17 40 19 40 Q 17 40 17 42 Q 17 40 15 40 Q 17 40 17 38 Z" fill="#64ffda" opacity="0.85" />
+            <circle cx="32" cy="11" r="0.9" fill="#fef08a" opacity="0.9" />
+            <circle cx="50" cy="30" r="1" fill="#38bdf8" opacity="0.75" />
+          </g>
+        )}
+
         {id === "noUnfairMiss" && (
           <g filter="url(#glow)">
             {/* 아치형 외곽 타겟 링 */}

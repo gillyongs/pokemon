@@ -49,6 +49,13 @@ export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, b
     speed *= 0.5;
     pokemon.log.speedCalculate += " * 0.5 (슬로스타트)";
   }
+  if (battle && pokemon?.hasAugment?.("dragonHunter")) {
+    const opponent = pokemon.team === "player" ? battle.npc : (pokemon.team === "npc" ? battle.player : (battle.player === pokemon ? battle.npc : battle.player));
+    if (opponent && (opponent.type1 === "드래곤" || opponent.type2 === "드래곤")) {
+      speed *= 1.2;
+      pokemon.log.speedCalculate += " * 1.2 (용 사냥꾼)";
+    }
+  }
   pokemon.log.speedCalculate += " = " + speed;
   return speed;
 };
