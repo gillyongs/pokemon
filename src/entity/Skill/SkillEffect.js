@@ -916,10 +916,11 @@ function skillEffectSearch(name) {
         return;
       }
       field.tailwind = 4;
+      const teamText = battle.common[user].teamKr;
       enqueue({
         id: "11741873-ba17-40aa-9c9e-f2213707f877",
         battle,
-        text: battle.common[user].teamKr + " 편의 뒤에서 순풍이 불기 시작했다!",
+        text: teamText + " 편의 뒤에서 순풍이 불기 시작했다!",
       });
     },
 

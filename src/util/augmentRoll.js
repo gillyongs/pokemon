@@ -4,7 +4,11 @@ export const BEGINNER_AUGMENT_IDS = AUGMENT_SYNERGY_MAP.echoOfHero;
 
 export function getForcedSynergyAugment(pokemon) {
   if (!pokemon) return null;
-  for (const requiredIds of Object.values(AUGMENT_SYNERGY_MAP)) {
+  for (const [buffId, requiredIds] of Object.entries(AUGMENT_SYNERGY_MAP)) {
+    if (pokemon.hasAugment?.(buffId) || (buffId === "echoOfHero" && pokemon.hasEchoOfHeroBuff)) {
+      continue;
+    }
+    // 영메는 팀 전체니까 따로 관리
     const owned = requiredIds.filter((id) => pokemon.hasAugment?.(id));
     if (owned.length === 2) {
       const missingId = requiredIds.find((id) => !pokemon.hasAugment?.(id));
@@ -67,9 +71,7 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
  */
 export function grantRandomAugment(battle, preferredPokemon = null) {
   if (!battle) return null;
-  const team = [preferredPokemon, battle.player, battle.playerBench1, battle.playerBench2].filter(
-    (p, idx, arr) => p && arr.indexOf(p) === idx && (p.augments || []).filter((a) => !a.buf).length < 3
-  );
+  const team = [preferredPokemon, battle.player, battle.playerBench1, battle.playerBench2].filter((p, idx, arr) => p && arr.indexOf(p) === idx && (p.augments || []).filter((a) => !a.buf).length < 3);
 
   if (team.length === 0) return null;
   const target = team[0];

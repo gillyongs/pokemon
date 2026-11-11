@@ -176,6 +176,7 @@ class PokemonInstance {
     this.recharge = null; //반동휴식 여부 (파괴광선 등)
     this.augments = [];
     this.dragonKillCount = 0;
+    this.mejaiStack = 0;
     this.log = {
       getAugmentedStat: null, // 증강으로 인한 능력치 변화
       damage1: null,
@@ -195,8 +196,14 @@ class PokemonInstance {
 
   checkAugmentSynergies(battle) {
     const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP } = require("../Augment/AugmentData");
+    const team = battle ? (this.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]) : [];
     Object.entries(AUGMENT_SYNERGY_MAP).forEach(([buffId, requiredIds]) => {
-      if (requiredIds.every((reqId) => this.hasAugment(reqId)) && !this.hasAugment(buffId)) {
+      // 영메는 팀 단위 버프이므로 한 명만 얻을 수 있다
+      const alreadyHasEchoOnTeam = buffId === "echoOfHero" && (this.hasEchoOfHeroBuff || team.some((p) => p?.hasAugment?.("echoOfHero") || p?.hasEchoOfHeroBuff));
+      if (this.hasAugment(buffId) || alreadyHasEchoOnTeam) {
+        return;
+      }
+      if (requiredIds.every((reqId) => this.hasAugment(reqId))) {
         const buffAug = AUGMENT_LIST.find((a) => a.id === buffId || a.name === buffId);
         if (buffAug) {
           this.applyAugment(buffAug, battle, { isHiddenGrant: true });
@@ -230,7 +237,7 @@ class PokemonInstance {
       if (normalCount >= 3) return false;
     }
     if (!isInstant && this.hasAugment(augId)) {
-      if (isBuf && options?.dragonKillCount !== undefined) {
+      if (isBuf && (options?.dragonKillCount !== undefined || options?.mejaiStack !== undefined)) {
         const existingBuf = this.augments.find((a) => a.id === augId);
         if (existingBuf && typeof existingBuf.onApply === "function") {
           existingBuf.onApply(this, battle, options);

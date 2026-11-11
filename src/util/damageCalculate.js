@@ -55,6 +55,17 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
         val += 130;
         logText += " + 130 (라바돈)";
       }
+
+      // 메자이의 영혼약탈자: 중첩당 특수공격 +20
+    } else if (augId === "mejaisSoulstealer") {
+      if (statKey === "catk") {
+        const stack = Number(pokemon?.mejaiStack ?? aug?.mejaiStack ?? 0);
+        const bonusCatk = stack * 20;
+        if (bonusCatk > 0) {
+          val += bonusCatk;
+          logText += ` + ${bonusCatk} (메자이 ${stack}중첩)`;
+        }
+      }
     }
   }
 

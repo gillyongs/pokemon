@@ -161,6 +161,7 @@ const Battle = () => {
             cost: aug.cost,
             buf: true,
             dragonKillCount: aug.dragonKillCount ?? p.dragonKillCount ?? 0,
+            mejaiStack: aug.mejaiStack ?? p.mejaiStack ?? 0,
           });
         }
       });
@@ -185,6 +186,7 @@ const Battle = () => {
             enhancedSkillName: aug.enhancedSkillName,
             baseSkillName: aug.baseSkillName,
             dragonKillCount: aug.dragonKillCount,
+            mejaiStack: aug.mejaiStack,
           }));
           return acc;
         }, {});
@@ -314,6 +316,18 @@ const Battle = () => {
     const gainLogText = gainText;
     const followUpItems = [];
 
+    // 증강 선택 후속 안내 텍스트 (afterText가 정의된 경우 출력)
+    const rawAfterText = selectedAugment?.afterText ?? AUGMENT_LIST.find((a) => a.id === selectedAugment?.id)?.afterText;
+    const resolvedAfterText = typeof rawAfterText === "function" ? rawAfterText(target, curBattle) : rawAfterText;
+    if (resolvedAfterText) {
+      followUpItems.push({
+        id: `${selectedAugment.id}-after-${Math.random().toString(36).substring(2, 9)}`,
+        battle: curBattle,
+        text: resolvedAfterText,
+        logText: resolvedAfterText,
+      });
+    }
+
     // 3종 증강 세트 공명으로 시너지 버프 획득 시 큐에 안내 추가 (공통 로직)
     synergyBuffIds.forEach((buffId) => {
       const buffAug = AUGMENT_LIST.find((a) => a.id === buffId || a.name === buffId);
@@ -330,7 +344,7 @@ const Battle = () => {
             augment: {
               id: buffAug?.id || buffId,
               name: buffName,
-              desc: getAugmentText(buffAug || { id: buffId, buf: true }, target, false) || buffAug?.desc || "",
+              desc: buffAug?.desc || "",
               buf: true,
             },
           },
@@ -396,15 +410,18 @@ const Battle = () => {
     const isReplacement = selectedAugment.id === "legendaryTitan" || selectedAugment.id === "rouletteWheel" || selectedAugment.id === "soaring" || selectedAugment.id === "marriedPokemon";
     const logTargetName = isReplacement ? prevPokeName : (target.name || target.names);
 
+    const isSelectedBuf = Boolean(appliedAug.buf || selectedAugment.buf);
     const augmentData = {
       targetName: logTargetName,
       augment: {
         id: appliedAug.id,
         name: appliedAug.name,
         shortName: appliedAug.shortName,
-        desc: getAugmentText(selectedAugment, target, false, prevPokeName, options),
+        desc: isSelectedBuf
+          ? AUGMENT_LIST.find((a) => a.id === appliedAug.id)?.desc || appliedAug.desc || selectedAugment.desc || ""
+          : getAugmentText(selectedAugment, target, false, prevPokeName, options),
         cost: appliedAug.cost,
-        buf: Boolean(appliedAug.buf || selectedAugment.buf),
+        buf: isSelectedBuf,
       },
     };
 
@@ -503,33 +520,36 @@ const Battle = () => {
     const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
     battleObj.current = createBattle(team1, team2, { difficulty, round, mayhemMode: isMayhem });
     if (isMayhem && carriedAugments) {
-      // 이전 라운드에서 선택하여 유지한 증강 복원 (AUGMENT_LIST에서 완전한 객체 매핑)
+      // 이전 라운드에서 선택하여 유지한 증강 복원 (버프 증강을 팀 전체에 먼저 복원한 뒤 일반 증강 복원)
       const teamPokes = [battleObj.current.player, battleObj.current.playerBench1, battleObj.current.playerBench2];
-      teamPokes.forEach((p, idx) => {
-        const targetIdx = p?.originalIndex ?? idx;
-        if (p && Array.isArray(carriedAugments[targetIdx])) {
-          carriedAugments[targetIdx].forEach((savedAug) => {
-            const augId = typeof savedAug === "string" ? savedAug : savedAug?.id;
-            const fullAug = AUGMENT_LIST.find((a) => a.id === augId);
-            if (fullAug) {
-              p.applyAugment(fullAug, battleObj.current, {
-                replaceSlot: savedAug?.replacedSlot,
-                selectedType: savedAug?.selectedType,
-                targetStat: savedAug?.revolutionResult,
-                replacedSkillName: savedAug?.replacedSkillName,
-                swordLevel: savedAug?.swordLevel,
-                swordFailed: savedAug?.swordFailed,
-                swordBonusAtk: savedAug?.swordBonusAtk,
-                swordName: savedAug?.swordName,
-                pickedAbility: savedAug?.pickedAbility,
-                targetSlot: savedAug?.targetSlot,
-                enhancedSkillName: savedAug?.enhancedSkillName,
-                baseSkillName: savedAug?.baseSkillName,
-                dragonKillCount: savedAug?.dragonKillCount,
-              });
-            }
-          });
-        }
+      [true, false].forEach((isBufPass) => {
+        teamPokes.forEach((p, idx) => {
+          const targetIdx = p?.originalIndex ?? idx;
+          if (p && Array.isArray(carriedAugments[targetIdx])) {
+            carriedAugments[targetIdx].forEach((savedAug) => {
+              const augId = typeof savedAug === "string" ? savedAug : savedAug?.id;
+              const fullAug = AUGMENT_LIST.find((a) => a.id === augId);
+              if (fullAug && Boolean(fullAug.buf || savedAug?.buf) === isBufPass) {
+                p.applyAugment(fullAug, battleObj.current, {
+                  replaceSlot: savedAug?.replacedSlot,
+                  selectedType: savedAug?.selectedType,
+                  targetStat: savedAug?.revolutionResult,
+                  replacedSkillName: savedAug?.replacedSkillName,
+                  swordLevel: savedAug?.swordLevel,
+                  swordFailed: savedAug?.swordFailed,
+                  swordBonusAtk: savedAug?.swordBonusAtk,
+                  swordName: savedAug?.swordName,
+                  pickedAbility: savedAug?.pickedAbility,
+                  targetSlot: savedAug?.targetSlot,
+                  enhancedSkillName: savedAug?.enhancedSkillName,
+                  baseSkillName: savedAug?.baseSkillName,
+                  dragonKillCount: savedAug?.dragonKillCount,
+                  mejaiStack: savedAug?.mejaiStack,
+                });
+              }
+            });
+          }
+        });
       });
     }
 

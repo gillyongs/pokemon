@@ -34,6 +34,17 @@ export const PokemonGetDamage = {
     this.resetAilment();
     this.resetTurn();
     this.resetTempStatus();
+
+    // 메자이의 영혼약탈자: 기절 시 중첩 1 감소 (스냅샷 반영을 위해 enqueue 직전에 처리)
+    if (this.hasAugment?.("mejaisSoulstealer")) {
+      const mejaiAug = this.augments?.find((a) => a.id === "mejaisSoulstealer");
+      const curStack = Number(this.mejaiStack ?? mejaiAug?.mejaiStack ?? 0);
+      const nextStack = Math.max(0, curStack - 1);
+      this.mejaiStack = nextStack;
+      if (mejaiAug) {
+        mejaiAug.mejaiStack = nextStack;
+      }
+    }
     enqueue({
       id: "04606dda-a370-46f8-97d6-155e4f7722c2",
       battle,

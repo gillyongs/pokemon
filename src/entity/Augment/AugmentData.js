@@ -249,7 +249,27 @@ export const AUGMENT_LIST = [
     },
   },
 
-  // 포켓몬 교체 ============================================================
+    // 순풍 ====================================================================
+  {
+    id: "tailwind",
+    name: "순풍",
+    desc: "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올리는 순풍을 전개한다.",
+    afterText: "우리 편의 뒤에서 순풍이 불기 시작했다!",
+    cost: "-",
+    isEligible: (pokemon, battle) => {
+      const teamSide = pokemon?.team || "player";
+      if (battle?.field?.[teamSide]?.noClean?.tailwind) return false;
+      if (hasSkill(pokemon, "순풍")) return false;
+      return true;
+    },
+    onApply: function (pokemon, battle) {
+      const team = pokemon?.team || "player";
+      if (battle?.field?.[team]?.noClean) {
+        battle.field[team].noClean.tailwind = 4;
+      }
+    },
+  },
+// 포켓몬 교체 ============================================================
   // 포켓몬과 결혼한 사람이 있었다 (메가가디안, 님피아(딜탱), 메가이어롭, 마스카나 중 1 교체 + 인생의 동반자 획득)
   {
     id: "marriedPokemon",
@@ -258,7 +278,6 @@ export const AUGMENT_LIST = [
     cost: "-",
     isEligible: (pokemon) => {
       if (!isHpAtLeast(pokemon, 0.5)) return false;
-      if (pokemon?.hasAugment?.("marriedPokemon")) return false;
       const excluded = ["마스카나", "가디안", "이어롭", "님피아"];
       if (excluded.some((name) => hasPokemonName(pokemon, name))) return false;
       return true;
@@ -494,7 +513,7 @@ export const AUGMENT_LIST = [
     cost: 3,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
-    isEligible: (pokemon) => hasPokemonName(pokemon, "파이어로") && !pokemon?.hasAugment?.("harmfulBird"),
+    isEligible: (pokemon) => hasPokemonName(pokemon, "파이어로"),
   },
   // "메가" 플라이곤 (메가플라이곤 교체) =========================================
   {
@@ -580,7 +599,6 @@ export const AUGMENT_LIST = [
     synergyEffectText: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
     buf: true,
     isRandom: false,
-    isEligible: (pokemon) => !pokemon?.hasAugment?.("echoOfHero"),
     onApply: function (pokemon, battle) {
       if (battle) {
         const team = pokemon.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
@@ -595,7 +613,7 @@ export const AUGMENT_LIST = [
   {
     id: "dragonDie",
     name: "용용 죽겠지",
-    desc: "드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.\n(현재 쓰러뜨린 드래곤 포켓몬: 0마리)",
+    desc: "드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.",
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "dragonDie");
       const count = Number(pokemon?.dragonKillCount ?? aug?.dragonKillCount ?? 0);
@@ -603,14 +621,12 @@ export const AUGMENT_LIST = [
     },
     buf: true,
     isRandom: false,
-    isEligible: (pokemon) => !pokemon?.hasAugment?.("dragonDie"),
     onApply: function (pokemon, battle, options) {
       const count = Number(options?.dragonKillCount ?? pokemon?.dragonKillCount ?? this.dragonKillCount ?? 0);
       if (pokemon) {
         pokemon.dragonKillCount = count;
       }
       this.dragonKillCount = count;
-      this.desc = `드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.\n(현재 쓰러뜨린 드래곤 포켓몬: ${count}마리)`;
     },
   },
   {
@@ -619,7 +635,25 @@ export const AUGMENT_LIST = [
     desc: "공격 후 적에게 30의 추가 고정 데미지를 입힙니다.",
     buf: true,
     isRandom: false,
-    isEligible: (pokemon) => !pokemon?.hasAugment?.("wujuStyle"),
+  },
+  {
+    id: "mejaisSoulstealer",
+    name: "메자이의 영혼약탈자",
+    desc: "중첩당 20의 특수공격을 얻습니다. 적을 쓰러뜨릴 때마다 중첩을 하나 얻으며 해당 포켓몬이 기절할 때마다 중첩을 하나 잃습니다.",
+    getDesc: (pokemon) => {
+      const aug = pokemon?.augments?.find((a) => a.id === "mejaisSoulstealer");
+      const stack = Number(pokemon?.mejaiStack ?? aug?.mejaiStack ?? 0);
+      return `중첩당 20의 특수공격을 얻습니다. 적을 쓰러뜨릴 때마다 중첩을 하나 얻으며 해당 포켓몬이 기절할 때마다 중첩을 하나 잃습니다.\n(현재 중첩: ${stack})`;
+    },
+    buf: true,
+    isRandom: false,
+    onApply: function (pokemon, battle, options) {
+      const stack = Number(options?.mejaiStack ?? pokemon?.mejaiStack ?? this.mejaiStack ?? 0);
+      if (pokemon) {
+        pokemon.mejaiStack = stack;
+      }
+      this.mejaiStack = stack;
+    },
   },
   // 무한 다이맥스 (무한다이노 전용) =============================================
   {
@@ -629,7 +663,7 @@ export const AUGMENT_LIST = [
     cost: 10,
     shiftUp: false,
     imageOptions: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
-    isEligible: (pokemon) => hasPokemonName(pokemon, "무한다이노") && !pokemon?.hasAugment?.("eternamax"),
+    isEligible: (pokemon) => hasPokemonName(pokemon, "무한다이노"),
     onApply: function (pokemon) {
       applyEternamax(pokemon);
     },
@@ -680,6 +714,7 @@ export const AUGMENT_SYNERGY_MAP = {
   echoOfHero: ["threeSnails", "nimbleMoves", "recovery"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복]
   dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
   wujuStyle: ["lastManStanding", "lastSamurai", "lastWarrior"], // 우주류 검술: [라스트 맨 스탠딩, 라스트 사무라이, 최후의 전사]
+  mejaisSoulstealer: ["rabadonsDeathcap", "voidStaff", "thornmail"], // 메자이의 영혼약탈자: [라바돈의 죽음모자, 공허의 지팡이, 가시갑옷]
 };
 
 // 무한 다이맥스 변환 함수
@@ -883,7 +918,14 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   // 특수 증강 목록 체크 (개별 desc 생성)
   let individualDesc = null;
 
-  if (id === "rouletteWheel" || id === "marriedPokemon") {
+  if (id === "tailwind") {
+    if (isTextScreen) {
+      const pokeName = target?.name || target?.origin?.name || "포켓몬";
+      individualDesc = `${pokeName}의 순풍!`;
+    } else {
+      return selectedAugment.desc || "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올리는 순풍을 전개한다.";
+    }
+  } else if (id === "rouletteWheel" || id === "marriedPokemon") {
     const fromName = prevPokeName || target?.name || "포켓몬";
     const toName = target?.name || "";
     individualDesc = josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);
@@ -974,11 +1016,6 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     return applied?.desc || selectedAugment.desc || "";
   }
 };
-
-// 호환성 별칭 함수
-export const getAugmentGainText = (selectedAugment, target, prevPokeName = "", options = null) => getAugmentText(selectedAugment, target, true, prevPokeName, options);
-
-export const getAugmentLogDesc = (selectedAugment, target, prevPokeName = "", options = null) => getAugmentText(selectedAugment, target, false, prevPokeName, options);
 
 export const getAugmentDesc = (augment, pokemon = null) => {
   if (!augment) return "";

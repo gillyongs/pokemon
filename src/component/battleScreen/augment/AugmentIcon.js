@@ -769,624 +769,67 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
 
-        {/* 최후의 전사 (녹색 마력 섬광 & 번개 대검) */}
+        {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
         {id === "lastWarrior" && (
           <g clipPath="url(#lwClip)">
-            {/* 1. 심층 다크 그린 비네팅 배경 */}
-            <rect x="0" y="0" width="64" height="64" fill="url(#lwBgGrad)" />
-
-            {/* 2. 배경 녹색 마력 화염 & 연기 아우라 */}
-            <path
-              d="M 10 2 C 18 8, 26 2, 30 8 C 34 16, 28 22, 22 24 C 14 26, 6 20, 8 10 Z"
-              fill="#16a34a"
-              opacity="0.35"
-              filter="url(#lwHeavyGlow)"
+            <image
+              href="/pokemon/img/augment/lastWarrior.png"
+              x="1"
+              y="1"
+              width="62"
+              height="62"
+              preserveAspectRatio="xMidYMid slice"
             />
-            <path
-              d="M 34 16 C 42 10, 52 14, 56 22 C 50 28, 44 24, 38 28 Z"
-              fill="#22c55e"
-              opacity="0.38"
-              filter="url(#lwHeavyGlow)"
-            />
-            <circle cx="24" cy="22" r="16" fill="#84cc16" opacity="0.22" filter="url(#lwHeavyGlow)" />
-
-            {/* 3. 대검 손잡이 (그립 & 폼멜) */}
-            <path d="M 43 41 L 55 53 L 51 57 L 39 45 Z" fill="#0c160f" />
-            <line x1="43" y1="44" x2="46" y2="41" stroke="#22c55e" strokeWidth="1" opacity="0.65" />
-            <line x1="46" y1="47" x2="49" y2="44" stroke="#22c55e" strokeWidth="1" opacity="0.65" />
-            <line x1="49" y1="50" x2="52" y2="47" stroke="#22c55e" strokeWidth="1" opacity="0.65" />
-            <line x1="52" y1="53" x2="55" y2="50" stroke="#22c55e" strokeWidth="1" opacity="0.65" />
-            {/* 폼멜 마개 */}
-            <polygon points="53,55 58,57 56,62 51,60" fill="url(#lwBronzeGrad)" stroke="#fde047" strokeWidth="0.6" />
-
-            {/* 4. 브론즈 코등이/칼받침 칼라 (가드 하단/배후의 황금 브론즈 장식) */}
-            <path
-              d="M 27 40 L 33 46 L 38 43 L 32 37 Z"
-              fill="url(#lwBronzeGrad)"
-              stroke="#fef08a"
-              strokeWidth="0.8"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M 43 27 L 49 33 L 46 36 L 40 30 Z"
-              fill="url(#lwBronzeGrad)"
-              stroke="#fef08a"
-              strokeWidth="0.8"
-              strokeLinejoin="round"
-            />
-
-            {/* 5. 대검 칼날 (상단 밝은 면 & 하단 그림자 면) */}
-            {/* (A) 칼날 발광 언더글로우 */}
-            <path
-              d="M 32 25 L 8 4 L 4 10 L 16 23 L 23 30 L 26 34 L 23 38 L 31 46 L 36 41 Z"
-              fill="#bef264"
-              opacity="0.3"
-              filter="url(#lwGlowFilter)"
-            />
-
-            {/* (B) 칼날 상단 경사면 (빛을 강하게 받는 차트리스 옐로그린) */}
-            <path
-              d="M 33 26 L 8 4 L 5 9 L 34 34 Z"
-              fill="url(#lwBladeUpper)"
-              stroke="#d9f99d"
-              strokeWidth="0.6"
-            />
-
-            {/* (C) 칼날 하단 경사면 (톱니 노치 & 딥 에메랄드 그린) */}
-            <path
-              d="M 34 34 L 5 9 L 5 12 L 15 22 L 22 29 L 26 33 L 23 37 L 31 45 L 35 41 Z"
-              fill="url(#lwBladeLower)"
-              stroke="#84cc16"
-              strokeWidth="0.6"
-            />
-
-            {/* (D) 중심 날등 능선(Fuller Ridge) 발광 라인 */}
-            <line x1="5" y1="8.5" x2="34" y2="34" stroke="#ffffff" strokeWidth="1.1" strokeLinecap="round" filter="url(#lwGlowFilter)" />
-            <line x1="5" y1="8.5" x2="34" y2="34" stroke="#fef08a" strokeWidth="0.5" strokeLinecap="round" />
-
-            {/* 6. 다크 아이언 코등이 (가드 Tsuba) */}
-            <polygon
-              points="39,26 48,31 51,39 46,47 38,47 32,41 32,33 36,27"
-              fill="url(#lwGuardGrad)"
-              stroke="#4ade80"
-              strokeWidth="0.8"
-              strokeOpacity="0.5"
-            />
-            {/* 내부 음영 각면 */}
-            <polygon
-              points="39,29 46,33 48,39 44,44 38,44 34,40 34,35 37,30"
-              fill="#08100a"
-              stroke="#1b2e1f"
-              strokeWidth="0.5"
-            />
-
-            {/* 7. 가드 중앙 사각 에메랄드 보석 (Square Glowing Core) */}
-            <polygon
-              points="40.5,32.5 45.5,37.5 40.5,42.5 35.5,37.5"
-              fill="url(#lwGemGrad)"
-              stroke="#bef264"
-              strokeWidth="0.9"
-              filter="url(#lwGlowFilter)"
-            />
-            <polygon
-              points="40.5,34.5 43.5,37.5 40.5,40.5 37.5,37.5"
-              fill="#d9f99d"
-            />
-            <circle cx="40" cy="37" r="1.1" fill="#ffffff" />
-
-            {/* 8. 역동적인 번개 줄기들 (Lightning Arcs & Sparks) */}
-            {/* (A) 우상단으로 뻗어나가는 번개 가지 */}
-            <path
-              d="M 41 26 L 45 21 L 43 17 L 50 13 L 47 10 L 55 5"
-              fill="none"
-              stroke="#bef264"
-              strokeWidth="1.3"
-              strokeLinecap="round"
-              strokeLinejoin="miter"
-              filter="url(#lwGlowFilter)"
-            />
-            <path
-              d="M 45 21 L 52 22 L 56 18"
-              fill="none"
-              stroke="#ecfccb"
-              strokeWidth="0.9"
-              strokeLinecap="round"
-              strokeLinejoin="miter"
-            />
-
-            {/* (B) 칼날 등줄기를 타고 흐르는 고압 번개 */}
-            <path
-              d="M 33 24 L 27 21 L 29 17 L 22 14 L 25 11 L 18 8 L 22 5"
-              fill="none"
-              stroke="#ecfccb"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              strokeLinejoin="miter"
-              filter="url(#lwGlowFilter)"
-            />
-            <path
-              d="M 33 24 L 27 21 L 29 17 L 22 14 L 25 11 L 18 8 L 22 5"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth="0.7"
-              strokeLinecap="round"
-              strokeLinejoin="miter"
-            />
-
-            {/* (C) 하단 칼날 엣지 및 노치 부근 방전 번개 */}
-            <path
-              d="M 16 23 L 13 28 L 18 30 L 14 36 L 19 38 L 17 45"
-              fill="none"
-              stroke="#84cc16"
-              strokeWidth="1.1"
-              strokeLinecap="round"
-              strokeLinejoin="miter"
-            />
-            <path
-              d="M 23 37 L 27 42 L 24 45 L 29 49"
-              fill="none"
-              stroke="#bef264"
-              strokeWidth="1.0"
-              strokeLinecap="round"
-              strokeLinejoin="miter"
-            />
-
-            {/* (D) 가드 보석을 가로지르는 전기 스파크 */}
-            <path
-              d="M 34 33 L 37 36 L 43 35 L 47 40"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth="0.8"
-              opacity="0.95"
-            />
-
-            {/* 9. 스파클 입자들 (Electric Sparks) */}
-            <path d="M 42 16 Q 42 18 44 18 Q 42 18 42 20 Q 42 18 40 18 Q 42 18 42 16 Z" fill="#ffffff" />
-            <path d="M 19 9 Q 19 11 21 11 Q 19 11 19 13 Q 19 11 17 11 Q 19 11 19 9 Z" fill="#ecfccb" />
-            <path d="M 26 36 Q 26 37.5 27.5 37.5 Q 26 37.5 26 39 Q 26 37.5 24.5 37.5 Q 26 37.5 26 36 Z" fill="#fef08a" />
-            <circle cx="53" cy="14" r="1.1" fill="#bef264" />
-            <circle cx="15" cy="34" r="0.9" fill="#bef264" />
-            <circle cx="28" cy="46" r="0.9" fill="#ecfccb" />
-
-            {/* 10. 외곽 라임-에메랄드 링 테두리 */}
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#lwRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bef264" strokeWidth="0.5" strokeOpacity="0.4" />
           </g>
         )}
 
-        {/* 라스트 사무라이 (2번 이미지 참고: 녹색 일격필살 3갈래 광선 베기 & 스타버스트) */}
+        {/* 라스트 사무라이 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
         {id === "lastSamurai" && (
           <g clipPath="url(#lwClip)">
-            {/* 1. 배경 심층 다크 그린 비네트 */}
-            <rect x="0" y="0" width="64" height="64" fill="url(#lsBgGrad)" />
-
-            {/* 2. 대각선 참격 마력 플레어 (배후 소프트 글로우) */}
-            <path
-              d="M 52 23 C 40 28, 22 40, 4 60 L 16 64 C 32 46, 46 32, 55 26 Z"
-              fill="#22c55e"
-              opacity="0.32"
-              filter="url(#lwHeavyGlow)"
+            <image
+              href="/pokemon/img/augment/lastSamurai.png"
+              x="1"
+              y="1"
+              width="62"
+              height="62"
+              preserveAspectRatio="xMidYMid slice"
             />
-            <path
-              d="M 50 24 C 36 20, 22 22, 14 28 C 16 33, 28 27, 48 27 Z"
-              fill="#16a34a"
-              opacity="0.3"
-              filter="url(#lwHeavyGlow)"
-            />
-
-            {/* 3. 3개 참격 궤적 (Alpha Strike Beams) */}
-            {/* (A) 상단 참격 궤적 & 임팩트 구체 (상단 중앙으로 뻗음) */}
-            <path
-              d="M 48 24 C 44 17, 39 13, 35 12"
-              fill="none"
-              stroke="#bef264"
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              filter="url(#lwGlowFilter)"
-            />
-            <path
-              d="M 48 24 C 44 17, 39 13, 35 12"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-            {/* 상단 임팩트 링 & 에너지 볼 */}
-            <circle cx="35" cy="12" r="7.5" fill="#22c55e" opacity="0.35" filter="url(#lwHeavyGlow)" />
-            <circle cx="35" cy="12" r="5" fill="none" stroke="#84cc16" strokeWidth="1.6" opacity="0.85" />
-            <circle cx="35" cy="12" r="3" fill="#bef264" filter="url(#lwGlowFilter)" />
-            <circle cx="35" cy="12" r="1.2" fill="#ffffff" />
-
-            {/* (B) 중단 참격 궤적 & 임팩트 구체 (중좌측으로 뻗음) */}
-            <path
-              d="M 47 25 C 36 21, 23 23, 14 27"
-              fill="none"
-              stroke="#bef264"
-              strokeWidth="3.8"
-              strokeLinecap="round"
-              filter="url(#lwGlowFilter)"
-            />
-            <path
-              d="M 47 25 C 36 21, 23 23, 14 27"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-            />
-            {/* 중단 임팩트 링 & 에너지 볼 */}
-            <circle cx="14" cy="27" r="8.5" fill="#22c55e" opacity="0.35" filter="url(#lwHeavyGlow)" />
-            <circle cx="14" cy="27" r="5.8" fill="none" stroke="#84cc16" strokeWidth="1.8" opacity="0.85" />
-            <circle cx="14" cy="27" r="3.2" fill="#bef264" filter="url(#lwGlowFilter)" />
-            <circle cx="14" cy="27" r="1.3" fill="#ffffff" />
-
-            {/* (C) 메인 거대 참격 빔 (하단 좌측으로 뿜어져 나가는 가장 크고 밝은 궤적) */}
-            <path
-              d="M 49 24 C 38 29, 23 40, 5 60 L 15 64 C 31 46, 44 32, 53 27 Z"
-              fill="url(#lsMainSlashGrad)"
-            />
-            {/* 메인 빔 코어 라인 */}
-            <path
-              d="M 50 25 C 38 30, 24 41, 10 61"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth="2.8"
-              strokeLinecap="round"
-              filter="url(#lwGlowFilter)"
-            />
-            <path
-              d="M 50 25 C 38 30, 24 41, 10 61"
-              fill="none"
-              stroke="#fef08a"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-
-            {/* 4. 참격 발원점 스타버스트 플레어 (우상단 폭발점 cx=50, cy=25) */}
-            {/* 대형 4포인트 십자 렌즈플레어 */}
-            <polygon
-              points="50,11 51.8,23 63,25 51.8,27 50,39 48.2,27 37,25 48.2,23"
-              fill="#ffffff"
-              filter="url(#lwGlowFilter)"
-            />
-            {/* 사선 보조 렌즈플레어 */}
-            <polygon
-              points="43,18 48.5,23.5 56,19 51.5,26.5 57,32 49.5,27.5 44,31 48,25"
-              fill="#ecfccb"
-              opacity="0.85"
-            />
-            {/* 플레어 중심 핵 */}
-            <circle cx="50" cy="25" r="5" fill="#fef08a" opacity="0.9" filter="url(#lwGlowFilter)" />
-            <circle cx="50" cy="25" r="2.5" fill="#ffffff" />
-
-            {/* 5. 비산하는 에너지 스파크 */}
-            <circle cx="43" cy="33" r="1" fill="#ecfccb" />
-            <circle cx="28" cy="36" r="1.1" fill="#bef264" />
-            <circle cx="22" cy="46" r="1" fill="#ffffff" />
-            <circle cx="32" cy="18" r="0.8" fill="#bef264" />
-
-            {/* 6. 외곽 라임-에메랄드 링 테두리 */}
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#lwRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bef264" strokeWidth="0.5" strokeOpacity="0.4" />
           </g>
         )}
 
-        {/* 라스트 맨 스탠딩 (1번 이미지 참고: 서서 버티는 명상 사무라이 & 좌측 공중 부유 녹색 검 & 기운) */}
+        {/* 라스트 맨 스탠딩 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
         {id === "lastManStanding" && (
           <g clipPath="url(#lwClip)">
-            {/* 1. 배경 심층 다크 그린 비네트 */}
-            <rect x="0" y="0" width="64" height="64" fill="url(#lmsBgGrad)" />
-
-            {/* 2. 중앙~배후에서 치솟아오르는 녹색 마력 불꽃 기둥 */}
-            <path
-              d="M 32 4 C 44 14, 52 28, 48 48 C 42 56, 26 56, 18 46 C 14 30, 22 14, 32 4 Z"
-              fill="#15803d"
-              opacity="0.45"
-              filter="url(#lwHeavyGlow)"
+            <image
+              href="/pokemon/img/augment/lastManStanding.png?v=2"
+              x="1"
+              y="1"
+              width="62"
+              height="62"
+              preserveAspectRatio="xMidYMid slice"
             />
-            <path
-              d="M 34 8 C 42 16, 46 26, 44 42 C 38 50, 28 50, 22 42 C 18 28, 26 16, 34 8 Z"
-              fill="#22c55e"
-              opacity="0.55"
-              filter="url(#lwGlowFilter)"
-            />
-            <path
-              d="M 34 11 C 39 18, 42 26, 39 38 C 34 44, 28 44, 25 37 C 22 26, 28 17, 34 11 Z"
-              fill="#84cc16"
-              opacity="0.45"
-            />
-            <path
-              d="M 35 14 C 38 20, 39 27, 36 34 C 32 38, 29 38, 27 33 C 26 25, 30 19, 35 14 Z"
-              fill="#bef264"
-              opacity="0.35"
-            />
-
-            {/* 3. 좌측 공중에 수직으로 떠있는 마력 카타나 (Floating Green Blade) */}
-            {/* 검 주변의 불타는 녹색 오라 랩핑 */}
-            <path
-              d="M 18 7 C 13 15, 23 24, 16 34 C 13 40, 22 44, 18 52 C 23 44, 14 34, 22 22 C 24 16, 21 10, 18 7 Z"
-              fill="#bef264"
-              opacity="0.6"
-              filter="url(#lwGlowFilter)"
-            />
-            <path
-              d="M 18 9 C 15 16, 21 24, 17 33 C 15 38, 20 42, 18 48 C 21 42, 16 33, 20 22 C 22 17, 20 12, 18 9 Z"
-              fill="#ffffff"
-              opacity="0.5"
-            />
-            {/* 카타나 칼날 (약간 휘어진 일본도 형태) */}
-            <path
-              d="M 17.2 11 Q 17.8 24 18.5 35 L 17 35 Q 16.3 24 15.8 11 Z"
-              fill="#0a150e"
-              stroke="#bef264"
-              strokeWidth="0.8"
-            />
-            <line x1="16.5" y1="12" x2="18" y2="34" stroke="#ffffff" strokeWidth="0.5" />
-            {/* 코등이(Tsuba) */}
-            <ellipse cx="17.7" cy="35.5" rx="3" ry="1.2" fill="#0d1f12" stroke="#bef264" strokeWidth="0.8" />
-            {/* 손잡이 & 폼멜 */}
-            <path d="M 17 36.5 L 18 45 L 16.8 45 L 15.8 36.5 Z" fill="#070d09" stroke="#166534" strokeWidth="0.5" />
-            <circle cx="17.4" cy="45.5" r="1.1" fill="#bef264" />
-
-            {/* 4. 명상/대기 중인 무사(사무라이) 실루엣 (Center-Right) */}
-            <g id="samuraiSilhouette">
-              {/* 후면 외곽선 에메랄드 림라이트 */}
-              {/* 머리, 투구 & 뻗친 머리칼/장식 */}
-              <path
-                d="M 37 13 L 43 9 L 41 14 L 46 13 L 42 18 L 47 18 L 41 22 Z"
-                fill="#0b170e"
-                stroke="#84cc16"
-                strokeWidth="0.6"
-              />
-              {/* 두부 & 안면 */}
-              <circle cx="36" cy="18" r="4.2" fill="#07100a" />
-
-              {/* 고글/수평 발광 안대 (Iconic Visor) */}
-              <rect x="32" y="16.8" width="7" height="2.4" rx="1.2" fill="#d9f99d" stroke="#ffffff" strokeWidth="0.6" filter="url(#lwGlowFilter)" />
-              <rect x="33.5" y="17.3" width="4" height="1.4" rx="0.7" fill="#ffffff" />
-
-              {/* 망토 / 목도리 칼라 */}
-              <path
-                d="M 33 21 C 36 19, 41 19, 43 23 C 41 26, 37 25, 33 21 Z"
-                fill="#0e1f13"
-                stroke="#4ade80"
-                strokeWidth="0.6"
-              />
-
-              {/* 상체 & 가슴 (약간 뒤로 젖히며 균형 잡은 모습) */}
-              <path
-                d="M 34 23 L 41 24 L 39 34 L 33 33 Z"
-                fill="#08120b"
-                stroke="#22c55e"
-                strokeWidth="0.6"
-              />
-
-              {/* 앞쪽으로 뻗은 왼팔과 무드라 수인 (검을 향해 집중하는 손) */}
-              <path
-                d="M 33 24 L 28 27 L 24 25 C 23 23, 25 21, 26 23 L 28 25 L 33 23 Z"
-                fill="#0c1b10"
-                stroke="#84cc16"
-                strokeWidth="0.7"
-              />
-              {/* 손가락 포인트 발광 */}
-              <circle cx="24.5" cy="24.5" r="0.8" fill="#bef264" />
-
-              {/* 오른팔 (허리춤 뒤로 꺾임) */}
-              <path
-                d="M 41 24 L 44 28 L 41 33"
-                fill="none"
-                stroke="#08120b"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-
-              {/* 허리 띠 & 뒤로 펄럭이는 도복 자락 */}
-              <path
-                d="M 39 34 C 44 35, 49 37, 54 42 L 51 43 C 46 39, 41 37, 37 36 Z"
-                fill="#0b170e"
-                stroke="#84cc16"
-                strokeWidth="0.6"
-              />
-
-              {/* 앞다리 (학다리/무릎 들어올림 포즈) */}
-              <path
-                d="M 34 33 L 29 38 L 34 44 L 37 41 L 34 37 Z"
-                fill="#08120b"
-                stroke="#4ade80"
-                strokeWidth="0.6"
-              />
-
-              {/* 디딤다리 (수직으로 굳건히 지탱하는 다리) */}
-              <path
-                d="M 38 34 L 41 43 L 38 52 L 39 58 L 37 58 L 36 51 L 38 42 L 35 34 Z"
-                fill="#07100a"
-                stroke="#22c55e"
-                strokeWidth="0.6"
-              />
-            </g>
-
-            {/* 5. 바닥 및 공중에 흩날리는 녹색 마력 룬 입자들 */}
-            <circle cx="24" cy="46" r="1.1" fill="#bef264" opacity="0.8" />
-            <circle cx="28" cy="14" r="0.9" fill="#ecfccb" opacity="0.8" />
-            <circle cx="48" cy="28" r="0.8" fill="#bef264" opacity="0.7" />
-            <circle cx="44" cy="48" r="1.0" fill="#84cc16" opacity="0.8" />
-            <circle cx="15" cy="20" r="0.8" fill="#ffffff" opacity="0.9" />
-
-            {/* 6. 외곽 라임-에메랄드 링 테두리 */}
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#lwRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bef264" strokeWidth="0.5" strokeOpacity="0.4" />
           </g>
         )}
 
-        {/* 우주류 검술 (녹색-청록색 화염 곡도 & 칼등 링) */}
+        {/* 우주류 검술 (원본 일러스트 이미지 + 원형 클리핑 & 라임-그린-시안 링 테두리) */}
         {id === "wujuStyle" && (
           <g clipPath="url(#lwClip)">
-            {/* 1. 심층 다크 에메랄드/틸 배경 */}
-            <rect x="0" y="0" width="64" height="64" fill="url(#wsBgGrad)" />
-
-            {/* 2. 좌측 배후 녹색 화염 기둥 및 오라 */}
-            <path
-              d="M 12 30 C 8 20, 10 12, 16 6 C 22 14, 20 22, 26 14 C 29 20, 24 28, 28 32 C 22 34, 15 34, 12 30 Z"
-              fill="url(#wsFlameGreen)"
-              opacity="0.45"
-              filter="url(#lwHeavyGlow)"
+            <image
+              href="/pokemon/img/augment/wujuStyle.png"
+              x="1"
+              y="1"
+              width="62"
+              height="62"
+              preserveAspectRatio="xMidYMid slice"
             />
-            <path
-              d="M 14 28 C 11 18, 14 11, 18 8 C 22 16, 21 21, 25 16 C 26 21, 23 27, 26 30 C 21 32, 16 31, 14 28 Z"
-              fill="#84cc16"
-              opacity="0.6"
-              filter="url(#lwGlowFilter)"
-            />
-            <path
-              d="M 15 26 C 13 18, 16 12, 19 10 C 21 16, 22 20, 24 17 C 24 22, 21 25, 23 28 Z"
-              fill="#bef264"
-              opacity="0.5"
-            />
-
-            {/* 3. 우측 배후 시안/스카이블루 화염 기둥 및 오라 */}
-            <path
-              d="M 28 32 C 32 20, 36 12, 44 8 C 45 16, 42 22, 50 18 C 55 24, 48 34, 54 38 C 48 42, 36 40, 28 32 Z"
-              fill="url(#wsFlameCyan)"
-              opacity="0.45"
-              filter="url(#lwHeavyGlow)"
-            />
-            <path
-              d="M 30 31 C 34 21, 38 14, 44 11 C 44 18, 43 23, 48 20 C 51 26, 47 33, 51 36 C 45 39, 36 37, 30 31 Z"
-              fill="#06b6d4"
-              opacity="0.6"
-              filter="url(#lwGlowFilter)"
-            />
-            <path
-              d="M 33 29 C 36 21, 40 16, 44 14 C 44 19, 43 24, 47 22 C 49 26, 45 31, 47 34 C 43 36, 37 34, 33 29 Z"
-              fill="#67e8f9"
-              opacity="0.5"
-            />
-            <path
-              d="M 36 27 C 39 21, 42 18, 45 17 C 45 21, 44 24, 46 23 C 47 26, 45 30, 46 32 C 43 33, 39 31, 36 27 Z"
-              fill="#ffffff"
-              opacity="0.55"
-            />
-
-            {/* 4. 하단 칼날 아래로 흐르는 시안-틸 잔류 에너지 미스트 */}
-            <path
-              d="M 16 38 C 24 46, 38 52, 52 46 C 44 54, 28 50, 16 38 Z"
-              fill="#0891b2"
-              opacity="0.4"
-              filter="url(#lwHeavyGlow)"
-            />
-            <path
-              d="M 20 40 C 27 46, 37 49, 48 46 C 41 51, 28 48, 20 40 Z"
-              fill="#22d3ee"
-              opacity="0.5"
-              filter="url(#lwGlowFilter)"
-            />
-
-            {/* 5. 칼날 본체 (우주류 검술 곡도 & 카타나) */}
-            {/* (A) 칼등 상단 단면 (Dark Teal-Green Steel Bevel) */}
-            <path
-              d="M 12 26 C 22 28, 34 36, 48 42 L 53 44.5 L 50.5 44 C 36 40, 24 32.5, 12 28 Z"
-              fill="url(#wsBladeSpine)"
-              stroke="#042f24"
-              strokeWidth="0.5"
-            />
-
-            {/* (B) 칼날 하단 발광 절삭면 (Luminous Razor Cutting Edge) */}
-            <path
-              d="M 12 28 C 24 32.5, 36 40, 50.5 44 L 53 44.5 C 40 47.5, 26 44, 15 36.5 L 12 28 Z"
-              fill="url(#wsBladeEdge)"
-              filter="url(#lwGlowFilter)"
-            />
-            {/* 순백 코어 엣지 하이라이트 */}
-            <path
-              d="M 14 34 C 26 42.5, 39 45.5, 53 44.5"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-            <line x1="12" y1="28" x2="51" y2="44" stroke="#ffffff" strokeWidth="0.7" opacity="0.9" />
-
-            {/* (C) 힐트/칼자루 접속부 (Tang Fitting) */}
-            <polygon
-              points="10,24 14,22.5 15.5,27.5 11.5,29.5"
-              fill="#062218"
-              stroke="#bef264"
-              strokeWidth="0.8"
-            />
-            <rect x="11.5" y="24.5" width="2" height="3" fill="#15803d" />
-
-            {/* (D) 칼등의 상징적인 2개 마력 링 (Master Yi's Iconic Spine Rings) */}
-            {/* 링 1 (좌측) */}
-            <circle
-              cx="18.5"
-              cy="23"
-              r="3.2"
-              fill="none"
-              stroke="url(#wsRingGrad)"
-              strokeWidth="1.3"
-              filter="url(#lwGlowFilter)"
-            />
-            <circle
-              cx="18.5"
-              cy="23"
-              r="2.0"
-              fill="#021610"
-              stroke="#ecfccb"
-              strokeWidth="0.6"
-            />
-            <circle cx="18.5" cy="21.5" r="0.7" fill="#ffffff" />
-
-            {/* 링 2 (우측) */}
-            <circle
-              cx="24.5"
-              cy="26"
-              r="3.2"
-              fill="none"
-              stroke="url(#wsRingGrad)"
-              strokeWidth="1.3"
-              filter="url(#lwGlowFilter)"
-            />
-            <circle
-              cx="24.5"
-              cy="26"
-              r="2.0"
-              fill="#021610"
-              stroke="#ecfccb"
-              strokeWidth="0.6"
-            />
-            <circle cx="24.5" cy="24.5" r="0.7" fill="#ffffff" />
-
-            {/* 6. 전면 전방 불꽃 혓바닥 & 스파크 (Foreground Flame Wisps) */}
-            <path
-              d="M 17 24 C 16 19, 19 18, 18 15 C 20 18, 21 21, 19 25 Z"
-              fill="#bef264"
-              opacity="0.85"
-            />
-            <path
-              d="M 36 36 C 38 29, 43 28, 41 23 C 44 28, 43 33, 40 37 Z"
-              fill="#a5f3fc"
-              opacity="0.85"
-            />
-            <path
-              d="M 45 40 C 47 34, 52 33, 50 28 C 53 33, 51 38, 48 41 Z"
-              fill="#ffffff"
-              opacity="0.9"
-            />
-
-            {/* 7. 공중 및 칼날 주변 부유 마력 입자들 (Sparks & Droplets) */}
-            <circle cx="13" cy="16" r="1.0" fill="#bef264" opacity="0.9" />
-            <circle cx="21" cy="11" r="0.8" fill="#d9f99d" opacity="0.8" />
-            <circle cx="28" cy="19" r="0.9" fill="#86efac" opacity="0.8" />
-            <circle cx="39" cy="16" r="1.1" fill="#67e8f9" opacity="0.9" />
-            <circle cx="48" cy="17" r="0.8" fill="#bae6fd" opacity="0.8" />
-            <circle cx="55" cy="30" r="0.9" fill="#38bdf8" opacity="0.8" />
-            <circle cx="53" cy="44.5" r="1.4" fill="#ffffff" filter="url(#lwGlowFilter)" />
-            <circle cx="44" cy="49" r="0.9" fill="#22d3ee" opacity="0.8" />
-            <circle cx="32" cy="48" r="0.8" fill="#06b6d4" opacity="0.7" />
-            <circle cx="23" cy="43" r="0.8" fill="#4ade80" opacity="0.7" />
-
-            {/* 8. 외곽 라임-그린-시안 링 테두리 */}
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#wsBorderGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#67e8f9" strokeWidth="0.5" strokeOpacity="0.4" />
           </g>
@@ -1478,6 +921,127 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             {/* ✦ 스파클 */}
             <path d="M49 14 Q49 17 52 17 Q49 17 49 20 Q49 17 46 17 Q49 17 49 14 Z" fill="#fef08a" />
             <path d="M14 44 Q14 47 17 47 Q14 47 14 50 Q14 47 11 47 Q14 47 14 44 Z" fill="#38bdf8" />
+          </g>
+        )}
+
+        {/* 순풍 (민첩한 몸놀림 기반 제갈량 깃털부채 백우선 & 가속 모션) */}
+        {id === "tailwind" && (
+          <g>
+            {/* 1. 후면 은은한 하늘빛 오라 & 바람 궤적 (민첩한 몸놀림 스타일) */}
+            <g filter="url(#glow)">
+              <circle cx="34" cy="28" r="18" fill="#38bdf8" fillOpacity="0.18" />
+              <path d="M 9 36 C 11 21 23 11 39 9" stroke="#38bdf8" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.7" strokeDasharray="9 4" />
+              <path d="M 23 55 C 37 57 51 49 57 35" stroke="#67e8f9" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.65" strokeDasharray="8 4" />
+            </g>
+
+            {/* 2. 제갈량 백우선 본체 (선명한 윤곽선과 5갈래 부챗살로 뭉개짐 없이 또렷한 부채꼴) */}
+            <g transform="translate(30.5, 32.5) rotate(42) translate(-32, -32)">
+              {/* (A) 최외곽 좌측 깃털 (-46도) */}
+              <g transform="translate(32, 42) rotate(-46) scale(0.86) translate(-32, -42)">
+                <path
+                  d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z"
+                  fill="url(#featherUnderGrad)"
+                  stroke="#0284c7"
+                  strokeWidth="1.25"
+                  strokeLinejoin="round"
+                />
+                <path d="M 32 40 L 32 12" stroke="#38bdf8" strokeWidth="1.2" strokeLinecap="round" />
+                <path d="M 32 26 L 28.5 23 M 32 20 L 28.5 17 M 32 27 L 35.5 24" stroke="#60a5fa" strokeWidth="0.75" strokeLinecap="round" opacity="0.75" />
+              </g>
+
+              {/* (B) 최외곽 우측 깃털 (+46도) */}
+              <g transform="translate(32, 42) rotate(46) scale(0.86) translate(-32, -42)">
+                <path
+                  d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z"
+                  fill="url(#featherUnderGrad)"
+                  stroke="#0284c7"
+                  strokeWidth="1.25"
+                  strokeLinejoin="round"
+                />
+                <path d="M 32 40 L 32 12" stroke="#38bdf8" strokeWidth="1.2" strokeLinecap="round" />
+                <path d="M 32 26 L 28.5 23 M 32 27 L 35.5 24 M 32 20 L 35.5 17" stroke="#60a5fa" strokeWidth="0.75" strokeLinecap="round" opacity="0.75" />
+              </g>
+
+              {/* (C) 내측 좌측 깃털 (-23도) */}
+              <g transform="translate(32, 42) rotate(-23) scale(0.94) translate(-32, -42)">
+                <path
+                  d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z"
+                  fill="url(#featherBodyGrad)"
+                  stroke="#0284c7"
+                  strokeWidth="1.25"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 32 39 C 30.2 33, 28.2 25, 28 18.5 C 28 15, 29.6 11.5, 32 10.8 C 33.5 11.3, 34.8 13.5, 35.2 16.5 C 33.5 23, 32.5 31, 32 39 Z"
+                  fill="#ffffff"
+                  fillOpacity="0.65"
+                />
+                <path d="M 32 40 L 32 11.5" stroke="#38bdf8" strokeWidth="1.4" strokeLinecap="round" />
+                <path d="M 32 40 L 32 11.5" stroke="#ffffff" strokeWidth="0.65" strokeLinecap="round" />
+                <path d="M 32 27 L 28.3 24 M 32 21 L 28.3 18 M 32 25 L 35.7 22 M 32 19 L 35.5 16" stroke="#93c5fd" strokeWidth="0.75" strokeLinecap="round" opacity="0.85" />
+              </g>
+
+              {/* (D) 내측 우측 깃털 (+23도) */}
+              <g transform="translate(32, 42) rotate(23) scale(0.94) translate(-32, -42)">
+                <path
+                  d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z"
+                  fill="url(#featherBodyGrad)"
+                  stroke="#0284c7"
+                  strokeWidth="1.25"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 32 39 C 30.2 33, 28.2 25, 28 18.5 C 28 15, 29.6 11.5, 32 10.8 C 33.5 11.3, 34.8 13.5, 35.2 16.5 C 33.5 23, 32.5 31, 32 39 Z"
+                  fill="#ffffff"
+                  fillOpacity="0.65"
+                />
+                <path d="M 32 40 L 32 11.5" stroke="#38bdf8" strokeWidth="1.4" strokeLinecap="round" />
+                <path d="M 32 40 L 32 11.5" stroke="#ffffff" strokeWidth="0.65" strokeLinecap="round" />
+                <path d="M 32 27 L 28.3 24 M 32 21 L 28.3 18 M 32 25 L 35.7 22 M 32 19 L 35.5 16" stroke="#93c5fd" strokeWidth="0.75" strokeLinecap="round" opacity="0.85" />
+              </g>
+
+              {/* (E) 정중앙 메인 깃털 (0도) */}
+              <g>
+                <path
+                  d="M 32 42 C 29.3 36, 26.5 27, 26.2 18.5 C 26.1 14, 28.5 9.8, 32 8.8 C 35.5 9.8, 37.9 14, 37.8 18.5 L 35.8 20.2 L 37.5 21.4 C 36.8 28, 34.7 36, 32 42 Z"
+                  fill="url(#featherBodyGrad)"
+                  stroke="#0284c7"
+                  strokeWidth="1.3"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M 32 39 C 30 33, 28 24.5, 27.8 18 C 27.8 14.5, 29.5 10.8, 32 10 C 33.6 10.6, 35 13, 35.4 16 C 33.6 22.5, 32.5 31, 32 39 Z"
+                  fill="#ffffff"
+                  fillOpacity="0.75"
+                />
+                <path d="M 32 41 L 32 10.8" stroke="#38bdf8" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M 32 41 L 32 10.8" stroke="#ffffff" strokeWidth="0.75" strokeLinecap="round" />
+                <path d="M 32 28 L 28 24.5 M 32 22 L 28 18.5 M 32 16 L 29 13.5 M 32 26 L 36 22.5 M 32 19 L 35.5 16" stroke="#93c5fd" strokeWidth="0.8" strokeLinecap="round" opacity="0.9" />
+              </g>
+
+              {/* (F) 부채 손잡이 & 부채목 결속부 (민첩한 몸놀림 깃대 톤으로 무난하고 깔끔하게) */}
+              <path d="M 32 42.5 L 32 54.5" stroke="#0284c7" strokeWidth="3.4" strokeLinecap="round" />
+              <path d="M 32 42.5 L 32 54.5" stroke="#67e8f9" strokeWidth="2.2" strokeLinecap="round" />
+              <path d="M 32 42.5 L 32 54.5" stroke="#ffffff" strokeWidth="0.9" strokeLinecap="round" />
+              <path
+                d="M 27.2 40.2 Q 32 38 36.8 40.2 L 34.4 43.5 Q 32 42.5 29.6 43.5 Z"
+                fill="url(#featherUnderGrad)"
+                stroke="#0284c7"
+                strokeWidth="1.15"
+                strokeLinejoin="round"
+              />
+              <path d="M 28.5 40.8 Q 32 39.2 35.5 40.8" stroke="#ffffff" strokeWidth="0.8" strokeLinecap="round" fill="none" />
+            </g>
+
+            {/* 3. 스파클 파티클 (민첩한 몸놀림과 동일한 골드 & 시안 스파클) */}
+            <g filter="url(#glow)">
+              <path d="M 52 9 Q 52 12 55 12 Q 52 12 52 15 Q 52 12 49 12 Q 52 12 52 9 Z" fill="#fef08a" />
+              <path d="M 13 22 Q 13 24.5 15.5 24.5 Q 13 24.5 13 27 Q 13 24.5 10.5 24.5 Q 13 24.5 13 22 Z" fill="#67e8f9" />
+              <circle cx="51" cy="22" r="1.2" fill="#ffffff" opacity="0.9" />
+              <circle cx="20" cy="15" r="1.1" fill="#38bdf8" opacity="0.85" />
+              <circle cx="45" cy="44" r="1.2" fill="#67e8f9" opacity="0.75" />
+              <circle cx="28" cy="50" r="0.9" fill="#ffffff" opacity="0.8" />
+            </g>
           </g>
         )}
 
@@ -2683,40 +2247,41 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 14. 테라버스트 (업로드 원본 이미지와 100% 동일 형태 + 무지개 그라데이션) */}
+        {/* 14. 테라버스트 (업로드 원본 이미지와 100% 동일 형태 + 원본 민트/에메랄드 단색) */}
         {id === "teraBlast" && (
-          <g filter="url(#glow)">
-            {/* 1. 배경 어두운 원 + 은은한 오라 */}
-            <circle cx="32" cy="32" r="29" fill="url(#teraDarkBg)" />
-            <circle cx="32" cy="32" r="28" fill="url(#teraAuraGlow)" />
-
-            {/* 2. 테라스탈 6각성 메인 바디 (외곽 14포인트 - 내부 세로 6각 홀) */}
+          <g>
+            {/* 1. 테라스탈 6각성 메인 바디 (외곽 18포인트 6각 숄더 + 6각 스파이크 - 내부 세로 6각 홀) */}
             <path
               d="M 32 6
-                 L 39.7 22.7
-                 L 51 18.4
-                 L 42 28.2
-                 L 42 35.8
-                 L 51.1 45.2
-                 L 39.7 41.3
+                 L 35.95 19.4
+                 L 39.7 23.0
+                 L 50.9 18.8
+                 L 41.8 28.0
+                 L 41.8 36.0
+                 L 50.9 45.2
+                 L 39.7 41.0
+                 L 35.95 44.6
                  L 32 58
-                 L 24.3 41.3
-                 L 12.9 45.2
-                 L 22 35.8
-                 L 22 28.2
-                 L 12.9 18.4
-                 L 24.3 22.7 Z
-                 M 32 24.3
-                 L 35.8 27.6
-                 L 35.8 36.4
-                 L 32 39.7
-                 L 28.2 36.4
-                 L 28.2 27.6 Z"
-              fill="url(#teraRainbowExact)"
+                 L 28.05 44.6
+                 L 24.3 41.0
+                 L 13.1 45.2
+                 L 22.2 36.0
+                 L 22.2 28.0
+                 L 13.1 18.8
+                 L 24.3 23.0
+                 L 28.05 19.4 Z
+                 M 32 23.8
+                 L 35.95 27.55
+                 L 35.95 36.45
+                 L 32 40.2
+                 L 28.05 36.45
+                 L 28.05 27.55 Z"
+              fill="#a3e5db"
               fillRule="evenodd"
-              stroke="#ffffff"
-              strokeWidth="1.2"
-              strokeLinejoin="round"
+              stroke="#2fd1ac"
+              strokeWidth="1.25"
+              strokeLinejoin="miter"
+              strokeMiterlimit="5"
             />
           </g>
         )}
@@ -3751,6 +3316,9 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
 
         {/* 25. 태양불꽃방패 */}
         {id === "sunfireAegis" && <image href="/pokemon/img/augment/sunfireAegis.png" x="-2" y="-2" width="68" height="68" />}
+
+        {/* 메자이의 영혼약탈자 */}
+        {id === "mejaisSoulstealer" && <image href="/pokemon/img/augment/mejaisSoulstealer.png" x="-2" y="-2" width="68" height="68" />}
 
         {/* 28. 달팽이 세마리 */}
         {id === "threeSnails" && (

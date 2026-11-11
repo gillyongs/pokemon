@@ -200,7 +200,16 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       const dragonDieAug = atkPokemon.augments?.find((a) => a.id === "dragonDie");
       if (dragonDieAug) {
         dragonDieAug.dragonKillCount = nextCount;
-        dragonDieAug.desc = `드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.\n(현재 쓰러뜨린 드래곤 포켓몬: ${nextCount}마리)`;
+      }
+    }
+
+    // 메자이의 영혼약탈자 버프: 적을 직접 쓰러뜨릴 때마다 중첩 1 증가 (handleFaint 스냅샷에 즉시 반영되도록 직전에 처리)
+    if (atkPokemon.hasAugment?.("mejaisSoulstealer") && !atkPokemon.faint) {
+      const mejaiAug = atkPokemon.augments?.find((a) => a.id === "mejaisSoulstealer");
+      const nextStack = Number(atkPokemon.mejaiStack ?? mejaiAug?.mejaiStack ?? 0) + 1;
+      atkPokemon.mejaiStack = nextStack;
+      if (mejaiAug) {
+        mejaiAug.mejaiStack = nextStack;
       }
     }
 
