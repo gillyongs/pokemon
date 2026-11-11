@@ -1,18 +1,23 @@
-import { AUGMENT_LIST } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP } from "../entity/Augment/AugmentData";
 
-export const BEGINNER_AUGMENT_IDS = ["recovery", "nimbleMoves", "threeSnails"];
+export const BEGINNER_AUGMENT_IDS = AUGMENT_SYNERGY_MAP.echoOfHero;
 
-export function getForcedBeginnerAugment(pokemon) {
+export function getForcedSynergyAugment(pokemon) {
   if (!pokemon) return null;
-  const owned = BEGINNER_AUGMENT_IDS.filter((id) => pokemon.hasAugment?.(id));
-  if (owned.length === 2) {
-    const missingId = BEGINNER_AUGMENT_IDS.find((id) => !pokemon.hasAugment?.(id));
-    if (missingId) {
-      return AUGMENT_LIST.find((a) => a.id === missingId) || null;
+  for (const requiredIds of Object.values(AUGMENT_SYNERGY_MAP)) {
+    const owned = requiredIds.filter((id) => pokemon.hasAugment?.(id));
+    if (owned.length === 2) {
+      const missingId = requiredIds.find((id) => !pokemon.hasAugment?.(id));
+      if (missingId) {
+        const found = AUGMENT_LIST.find((a) => a.id === missingId || a.name === missingId);
+        if (found) return found;
+      }
     }
   }
   return null;
 }
+
+export const getForcedBeginnerAugment = getForcedSynergyAugment;
 
 /**
  * 포켓몬이 선택 가능한 증강을 무작위(중복 없이) 추첨합니다.

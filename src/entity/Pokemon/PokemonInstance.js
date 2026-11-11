@@ -161,6 +161,7 @@ class PokemonInstance {
     this.charge = null; //충전중 여부 (파워풀허브 없이 충전 기술을 썼을때)
     this.recharge = null; //반동휴식 여부 (파괴광선 등)
     this.augments = [];
+    this.dragonKillCount = 0;
     this.log = {
       getAugmentedStat: null, // 증강으로 인한 능력치 변화
       damage1: null,
@@ -178,16 +179,20 @@ class PokemonInstance {
     });
   }
 
-  checkEchoOfHeroSynergy(battle) {
-    if (this.hasAugment("recovery") && this.hasAugment("nimbleMoves") && this.hasAugment("threeSnails")) {
-      if (!this.hasAugment("echoOfHero")) {
-        const { AUGMENT_LIST } = require("../Augment/AugmentData");
-        const echoAug = AUGMENT_LIST.find((a) => a.id === "echoOfHero");
-        if (echoAug) {
-          this.applyAugment(echoAug, battle, { isHiddenGrant: true });
+  checkAugmentSynergies(battle) {
+    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP } = require("../Augment/AugmentData");
+    Object.entries(AUGMENT_SYNERGY_MAP).forEach(([buffId, requiredIds]) => {
+      if (requiredIds.every((reqId) => this.hasAugment(reqId)) && !this.hasAugment(buffId)) {
+        const buffAug = AUGMENT_LIST.find((a) => a.id === buffId || a.name === buffId);
+        if (buffAug) {
+          this.applyAugment(buffAug, battle, { isHiddenGrant: true });
         }
       }
-    }
+    });
+  }
+
+  checkEchoOfHeroSynergy(battle) {
+    this.checkAugmentSynergies(battle);
   }
 
   applyAugment(augment, battle, options) {
@@ -210,7 +215,15 @@ class PokemonInstance {
       const normalCount = this.augments.filter((a) => !a.buf).length;
       if (normalCount >= 3) return false;
     }
-    if (!isInstant && this.hasAugment(augId)) return false;
+    if (!isInstant && this.hasAugment(augId)) {
+      if (isBuf && options?.dragonKillCount !== undefined) {
+        const existingBuf = this.augments.find((a) => a.id === augId);
+        if (existingBuf && typeof existingBuf.onApply === "function") {
+          existingBuf.onApply(this, battle, options);
+        }
+      }
+      return false;
+    }
 
     // 코스트 '-'인 즉발형 증강은 누적되지 않음
     if (!isInstant) {
@@ -225,8 +238,8 @@ class PokemonInstance {
       augObj.onApply(this, battle, options);
     }
 
-    // 초보자 3종 세트(회복, 민첩한 몸놀림, 달팽이 세마리) 보유 시 숨겨진 4번째 증강 '영웅의 메아리' 획득
-    this.checkEchoOfHeroSynergy(battle);
+    // 3종 증강 세트 공명 시너지 체크 (영웅의 메아리, 용용 죽겠지 등)
+    this.checkAugmentSynergies(battle);
 
     return true;
   }

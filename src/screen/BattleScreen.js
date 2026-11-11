@@ -15,7 +15,7 @@ import TestingTools from "../component/battleScreen/TestingTools";
 import AfterBattleTradeModal from "../component/battleScreen/AfterBattleTradeModal";
 import { consoleLog } from "../util/consoleLog";
 import { rollAugments } from "../util/augmentRoll";
-import { AUGMENT_LIST, getAugmentText } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText } from "../entity/Augment/AugmentData";
 import { generate } from "../entity/Pokemon/PokemonInstance";
 import { useQueue } from "../util/useQueue";
 
@@ -160,6 +160,7 @@ const Battle = () => {
             name: aug.name,
             cost: aug.cost,
             buf: true,
+            dragonKillCount: aug.dragonKillCount ?? p.dragonKillCount ?? 0,
           });
         }
       });
@@ -183,6 +184,7 @@ const Battle = () => {
             targetSlot: aug.targetSlot,
             enhancedSkillName: aug.enhancedSkillName,
             baseSkillName: aug.baseSkillName,
+            dragonKillCount: aug.dragonKillCount,
           }));
           return acc;
         }, {});
@@ -299,7 +301,12 @@ const Battle = () => {
     const target = (targetCandidate && teamPokes.find((p) => p && (p.originalIndex === targetCandidate.originalIndex || p.id === targetCandidate.id || p.name === targetCandidate.name))) || curBattle.player;
     const prevPokeName = target.name || target.origin?.name || "";
 
-    const hadEchoBefore = target.hasAugment?.("echoOfHero");
+    const synergyBuffIds = Object.keys(AUGMENT_SYNERGY_MAP);
+    const hadSynergyBefore = {};
+    synergyBuffIds.forEach((buffId) => {
+      hadSynergyBefore[buffId] = Boolean(target.hasAugment?.(buffId));
+    });
+
     target.applyAugment(selectedAugment, curBattle, options);
     setAugmentTargetPoke(target);
 
@@ -307,39 +314,44 @@ const Battle = () => {
     const gainLogText = gainText;
     const followUpItems = [];
 
-    // 초보자 3종 세트(회복, 민첩한 몸놀림, 달팽이 세마리) 공명으로 영웅의 메아리 획득 시 큐에 안내 추가 (최초 획득 시에만)
-    if (!hadEchoBefore && target.hasAugment?.("echoOfHero") && selectedAugment.id !== "echoOfHero") {
-      const echoAug = AUGMENT_LIST.find((a) => a.id === "echoOfHero");
-      const echoName = echoAug?.shortName || echoAug?.name || "영웅의 메아리";
-      followUpItems.push({
-        id: "echo-synergy-gain",
-        battle: curBattle,
-        text: `3개의 증강이 공명하여 "영웅의 메아리" 버프를 얻었다!`,
-        logText: `3개의 증강이 공명하여 "영웅의 메아리" 버프를 얻었다!`,
-        augmentData: {
-          targetName: target.name || target.names,
-          augment: {
-            id: echoAug?.id || "echoOfHero",
-            name: echoName,
-            desc: echoAug?.desc || "아군 모든 포켓몬의 공격과 특공을 40% 상승시킨다.",
-            buf: true,
+    // 3종 증강 세트 공명으로 시너지 버프 획득 시 큐에 안내 추가 (공통 로직)
+    synergyBuffIds.forEach((buffId) => {
+      const buffAug = AUGMENT_LIST.find((a) => a.id === buffId || a.name === buffId);
+      const buffName = buffAug?.shortName || buffAug?.name || buffId;
+      if (!hadSynergyBefore[buffId] && target.hasAugment?.(buffId) && selectedAugment.id !== buffId) {
+        const synergyText = `3개의 증강이 공명하여 "${buffName}" 버프를 얻었다!`;
+        followUpItems.push({
+          id: `${buffId}-synergy-gain`,
+          battle: curBattle,
+          text: synergyText,
+          logText: synergyText,
+          augmentData: {
+            targetName: target.name || target.names,
+            augment: {
+              id: buffAug?.id || buffId,
+              name: buffName,
+              desc: getAugmentText(buffAug || { id: buffId, buf: true }, target, false) || buffAug?.desc || "",
+              buf: true,
+            },
           },
-        },
-      });
-      followUpItems.push({
-        id: "echo-synergy-effect",
-        battle: curBattle,
-        text: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
-        logText: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
-      });
-    } else if (selectedAugment.id === "echoOfHero") {
-      followUpItems.push({
-        id: "echo-synergy-effect",
-        battle: curBattle,
-        text: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
-        logText: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
-      });
-    }
+        });
+        if (buffAug?.synergyEffectText) {
+          followUpItems.push({
+            id: `${buffId}-synergy-effect`,
+            battle: curBattle,
+            text: buffAug.synergyEffectText,
+            logText: buffAug.synergyEffectText,
+          });
+        }
+      } else if (selectedAugment.id === buffId && buffAug?.synergyEffectText) {
+        followUpItems.push({
+          id: `${buffId}-synergy-effect`,
+          battle: curBattle,
+          text: buffAug.synergyEffectText,
+          logText: buffAug.synergyEffectText,
+        });
+      }
+    });
 
     const isTitanFirst = selectedAugment.id === "legendaryTitan";
     const isTitanSecond = isTitanSelection;
@@ -513,6 +525,7 @@ const Battle = () => {
                 targetSlot: savedAug?.targetSlot,
                 enhancedSkillName: savedAug?.enhancedSkillName,
                 baseSkillName: savedAug?.baseSkillName,
+                dragonKillCount: savedAug?.dragonKillCount,
               });
             }
           });

@@ -469,6 +469,27 @@ export const damageCalculate = (battle, obj, ai) => {
     defStr += " * 1.2 (용 사냥꾼)";
   }
 
+  // 용용 죽겠지: 드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승
+  if (attackPokemon?.hasAugment?.("dragonDie")) {
+    const atkDragonKills = Number(attackPokemon.dragonKillCount ?? attackPokemon.augments?.find((a) => a.id === "dragonDie")?.dragonKillCount ?? 0);
+    const atkStacks = Math.floor(atkDragonKills / 2);
+    if (atkStacks > 0) {
+      const atkMult = Number((1 + atkStacks * 0.1).toFixed(2));
+      atkStat *= atkMult;
+      atkStr += ` * ${atkMult} (용용 죽겠지)`;
+    }
+  }
+
+  if (defensePokemon?.hasAugment?.("dragonDie")) {
+    const defDragonKills = Number(defensePokemon.dragonKillCount ?? defensePokemon.augments?.find((a) => a.id === "dragonDie")?.dragonKillCount ?? 0);
+    const defStacks = Math.floor(defDragonKills / 2);
+    if (defStacks > 0) {
+      const defMult = Number((1 + defStacks * 0.1).toFixed(2));
+      defStat *= defMult;
+      defStr += ` * ${defMult} (용용 죽겠지)`;
+    }
+  }
+
   // 위력 ======================================================================================================
 
   let power = powerCalculate(battle, skill, obj, ai);
@@ -705,6 +726,12 @@ export const damageCalculate = (battle, obj, ai) => {
   if (attackPokemon?.hasAugment?.("onePunchMan") && (skill.stype === "atk" || skill.stype === "catk")) {
     damage *= 999;
     attackPokemon.log.damage1 += " * 999 (진심펀치)";
+  }
+
+  // 용살자 증강: 드래곤 타입에게 1.5배 데미지
+  if (attackPokemon?.hasAugment?.("dragonKiller") && isDefDragon && (skill.stype === "atk" || skill.stype === "catk")) {
+    damage *= 1.5;
+    attackPokemon.log.damage1 += " * 1.5 (용살자)";
   }
 
   // ======================================================================  [고정 공식] ========================================

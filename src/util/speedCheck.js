@@ -56,6 +56,15 @@ export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, b
       pokemon.log.speedCalculate += " * 1.2 (용 사냥꾼)";
     }
   }
+  if (pokemon?.hasAugment?.("dragonDie")) {
+    const dragonKills = Number(pokemon.dragonKillCount ?? pokemon.augments?.find((a) => a.id === "dragonDie")?.dragonKillCount ?? 0);
+    const stacks = Math.floor(dragonKills / 2);
+    if (stacks > 0) {
+      const mult = Number((1 + stacks * 0.1).toFixed(2));
+      speed *= mult;
+      pokemon.log.speedCalculate += ` * ${mult} (용용 죽겠지)`;
+    }
+  }
   pokemon.log.speedCalculate += " = " + speed;
   return speed;
 };

@@ -88,6 +88,30 @@ export const AUGMENT_LIST = [
     },
     // speedCheck.js(speedCalculate), damageCalculate.js에 구현
   },
+  {
+    id: "dragonSlayer",
+    name: "드래곤 슬레이어",
+    desc: "드래곤 타입 포켓몬을 쓰러뜨리면 모든 능력이 1랭크 상승합니다.",
+    cost: 3,
+    isEligible: (pokemon) => {
+      const t1 = pokemon?.type1 || pokemon?.origin?.type1;
+      const t2 = pokemon?.type2 || pokemon?.origin?.type2;
+      return t1 !== "드래곤" && t2 !== "드래곤";
+    },
+    // damage.js에 구현
+  },
+  {
+    id: "dragonKiller",
+    name: "용살자",
+    desc: "드래곤 타입에게 1.5배 데미지를 입힙니다.",
+    cost: 3,
+    isEligible: (pokemon) => {
+      const t1 = pokemon?.type1 || pokemon?.origin?.type1;
+      const t2 = pokemon?.type2 || pokemon?.origin?.type2;
+      return t1 !== "드래곤" && t2 !== "드래곤";
+    },
+    // damageCalculate.js에 구현
+  },
 
   {
     id: "unboundChoice",
@@ -468,6 +492,7 @@ export const AUGMENT_LIST = [
     id: "echoOfHero",
     name: "영웅의 메아리",
     desc: "아군 모든 포켓몬의 공격과 특공을 40% 상승시킨다.",
+    synergyEffectText: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
     buf: true,
     isRandom: false,
     isEligible: (pokemon) => !pokemon?.hasAugment?.("echoOfHero"),
@@ -480,6 +505,27 @@ export const AUGMENT_LIST = [
       } else if (pokemon) {
         pokemon.hasEchoOfHeroBuff = true;
       }
+    },
+  },
+  {
+    id: "dragonDie",
+    name: "용용 죽겠지",
+    desc: "드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.\n(현재 쓰러뜨린 드래곤 포켓몬: 0마리)",
+    getDesc: (pokemon) => {
+      const aug = pokemon?.augments?.find((a) => a.id === "dragonDie");
+      const count = Number(pokemon?.dragonKillCount ?? aug?.dragonKillCount ?? 0);
+      return `드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.\n(현재 쓰러뜨린 드래곤 포켓몬: ${count}마리)`;
+    },
+    buf: true,
+    isRandom: false,
+    isEligible: (pokemon) => !pokemon?.hasAugment?.("dragonDie"),
+    onApply: function (pokemon, battle, options) {
+      const count = Number(options?.dragonKillCount ?? pokemon?.dragonKillCount ?? this.dragonKillCount ?? 0);
+      if (pokemon) {
+        pokemon.dragonKillCount = count;
+      }
+      this.dragonKillCount = count;
+      this.desc = `드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.\n(현재 쓰러뜨린 드래곤 포켓몬: ${count}마리)`;
     },
   },
   // 무한 다이맥스 (무한다이노 전용) =============================================
@@ -534,6 +580,13 @@ export const AUGMENT_LIST = [
     },
   },
 ];
+
+// 3개 증강 공명(시너지) 버프 매핑 테이블
+// { [버프 증강 ID]: [조건 증강 ID 목록] }
+export const AUGMENT_SYNERGY_MAP = {
+  echoOfHero: ["threeSnails", "nimbleMoves", "recovery"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복]
+  dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
+};
 
 // 무한 다이맥스 변환 함수
 /**
@@ -797,13 +850,19 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   const isBuf = Boolean(selectedAugment?.buf || foundInList?.buf);
   if (isBuf) {
     if (isTextScreen) {
-      if (id === "echoOfHero") {
-        return `3개의 증강이 공명하여 "영웅의 메아리" 버프를 얻었다!`;
-      }
       const displayAugName = selectedAugment?.shortName || selectedAugment?.name || foundInList?.shortName || foundInList?.name || "";
+      if (AUGMENT_SYNERGY_MAP[id]) {
+        return `3개의 증강이 공명하여 "${displayAugName}" 버프를 얻었다!`;
+      }
       return `${names} "${displayAugName}" 버프를 얻었다!`;
     }
     const applied = target?.augments?.find((a) => a.id === id);
+    if (typeof foundInList?.getDesc === "function") {
+      return foundInList.getDesc(target);
+    }
+    if (typeof applied?.getDesc === "function") {
+      return applied.getDesc(target);
+    }
     return applied?.desc || selectedAugment?.desc || foundInList?.desc || "";
   }
 

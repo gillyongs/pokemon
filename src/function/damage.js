@@ -191,6 +191,19 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     if (defPokemon.tempStatus?.destinyBond && !atkPokemon.faint && battle?.turn) {
       battle.turn.destinyBondUser = defPokemon.names;
     }
+
+    // 용용 죽겠지 버프: 드래곤 타입 포켓몬 처치 횟수 누적 (handleFaint 스냅샷에 즉시 반영되도록 직전에 처리)
+    const isDefDragon = defPokemon.type1 === "드래곤" || defPokemon.type2 === "드래곤" || defPokemon.origin?.type1 === "드래곤" || defPokemon.origin?.type2 === "드래곤";
+    if (atkPokemon.hasAugment?.("dragonDie") && isDefDragon && !atkPokemon.faint) {
+      const nextCount = Number(atkPokemon.dragonKillCount ?? atkPokemon.augments?.find((a) => a.id === "dragonDie")?.dragonKillCount ?? 0) + 1;
+      atkPokemon.dragonKillCount = nextCount;
+      const dragonDieAug = atkPokemon.augments?.find((a) => a.id === "dragonDie");
+      if (dragonDieAug) {
+        dragonDieAug.dragonKillCount = nextCount;
+        dragonDieAug.desc = `드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.\n(현재 쓰러뜨린 드래곤 포켓몬: ${nextCount}마리)`;
+      }
+    }
+
     defPokemon.handleFaint(battle, enqueue);
 
     // 자기과신
@@ -206,6 +219,11 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       }
 
       atkPokemon.rankUp(battle, enqueue, swip, 1, abiltText);
+    }
+
+    // 드래곤 슬레이어 증강: 드래곤 타입 포켓몬을 쓰러뜨리면 모든 능력이 1랭크 상승
+    if (atkPokemon.hasAugment?.("dragonSlayer") && isDefDragon && !atkPokemon.faint) {
+      atkPokemon.rankUp(battle, enqueue, "all", 1, "[증강 드래곤 슬레이어]");
     }
   } else {
     // 쓰러지지 않은 경우
