@@ -1,4 +1,5 @@
 import { getMultiplier } from "../function/rankStat";
+import { getAugmentedStat, getHighestStatInfo } from "./getStat";
 
 export const isPokemonAlone = (pokemon, battle) => {
   if (!pokemon || !battle) return false;
@@ -16,13 +17,35 @@ export const isPokemonAlone = (pokemon, battle) => {
 };
 
 // 스피드 실 수치 계산 함수
-export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, battle = null, abil = pokemon.abil) => {
-  let speed = baseSpeed;
+export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = pokemon.abil, rankOverride = null) => {
+  let speedStatKey = "speed";
+  let speed;
+  let rankNum = pokemon?.tempStatus?.rank?.speed ?? 0;
+
+  if (baseSpeed !== null && baseSpeed !== undefined) {
+    speed = baseSpeed;
+    if (rankOverride !== null && rankOverride !== undefined) {
+      rankNum = rankOverride;
+    }
+  } else if (pokemon?.hasAugment?.("hhgghgg")) {
+    const highest = getHighestStatInfo(pokemon, battle);
+    if (highest) {
+      speedStatKey = highest.statKey;
+      speed = highest.augmented;
+      rankNum = highest.rank;
+    } else {
+      speed = getAugmentedStat(pokemon, "speed", battle);
+    }
+  } else {
+    speed = getAugmentedStat(pokemon, "speed", battle);
+  }
+
   pokemon.log = pokemon.log || {};
-  pokemon.log.speedCalculate = speed;
-  speed *= getMultiplier(pokemon.tempStatus.rank.speed); // 랭크업
-  if (pokemon.tempStatus.rank.speed !== 0) {
-    pokemon.log.speedCalculate += " * " + getMultiplier(pokemon.tempStatus.rank.speed) + " (랭크)";
+  pokemon.log.speedCalculate = speedStatKey !== "speed" ? `${speed}(${speedStatKey})` : speed;
+  const rankMult = getMultiplier(rankNum);
+  speed *= rankMult; // 랭크업
+  if (rankNum !== 0) {
+    pokemon.log.speedCalculate += " * " + rankMult + " (랭크)";
   }
   if (pokemon.ailment.mabi) {
     // 마비에 걸릴시 스피드 절반 감소
@@ -95,9 +118,23 @@ export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, b
 };
 
 export const getExpectedMegaSpeed = (pokemon, battle = null) => {
-  const megaBaseSpeed = pokemon.origin?.megaData?.stat?.speed ?? pokemon.origin.stat.speed;
+  const megaStat = pokemon.origin?.megaData?.stat;
   const megaAbil = pokemon.origin?.megaData?.abil ?? pokemon.abil;
-  return speedCalculate(pokemon, megaBaseSpeed, battle, megaAbil);
+  if (megaStat) {
+    const megaPokemonView = {
+      ...pokemon,
+      origin: { ...pokemon.origin, stat: megaStat },
+    };
+    if (pokemon?.hasAugment?.("hhgghgg")) {
+      const highest = getHighestStatInfo(megaPokemonView, battle);
+      if (highest) {
+        return speedCalculate(pokemon, highest.augmented, battle, megaAbil, highest.rank);
+      }
+    }
+    const megaBaseSpeed = getAugmentedStat(megaPokemonView, "speed", battle);
+    return speedCalculate(pokemon, megaBaseSpeed, battle, megaAbil);
+  }
+  return speedCalculate(pokemon, null, battle, megaAbil);
 };
 
 export const megaSpeedCheck = (battle) => {
@@ -125,8 +162,8 @@ export const speedCheck = (battle) => {
   // battleScreen(맞특성)
   // battleStart(맞교체)
   // turnEnd(필드효과, 상태이상 etc)
-  const playerSpeed = speedCalculate(battle.player, battle.player.origin.stat.speed, battle);
-  const npcSpeed = speedCalculate(battle.npc, battle.npc.origin.stat.speed, battle);
+  const playerSpeed = speedCalculate(battle.player, null, battle);
+  const npcSpeed = speedCalculate(battle.npc, null, battle);
   battle.player.log.speedVS = "Player: " + playerSpeed + " vs NPC: " + npcSpeed;
 
   // 스피드 스탯은 오직 speedCheck에서만 사용한다

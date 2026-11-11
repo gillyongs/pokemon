@@ -1,0 +1,161 @@
+import { getMultiplier } from "../function/rankStat";
+
+export const STAT_KEYS = ["atk", "def", "catk", "cdef", "speed"];
+
+export const STAT_LABELS = {
+  atk: "공격",
+  def: "방어",
+  catk: "특공",
+  cdef: "특방",
+  speed: "스피드",
+};
+
+export const getAugmentedStat = (pokemon, statKey, battle = null) => {
+  const baseStatObj = pokemon?.origin?.stat || pokemon?.stat;
+  let val = baseStatObj?.[statKey] ?? 0;
+  if (typeof val !== "number") return 0;
+  let logText = `${val}(${statKey})`;
+  if (statKey !== "atk" && statKey !== "catk") {
+    logText += ` = ${val}`;
+    try {
+      if (pokemon?.log) pokemon.log.getAugmentedStat = logText;
+    } catch (e) {}
+    return val;
+  }
+
+  const augments = pokemon?.augments || [];
+
+  // 합적용 ==============================================================================
+  for (const aug of augments) {
+    const augId = typeof aug === "string" ? aug : aug?.id;
+
+    // 검 강화하기
+    if (augId === "swordEnhance") {
+      const failed = Boolean(aug?.swordFailed);
+      const level = Number(aug?.swordLevel ?? 0);
+      const bonusAtk = aug?.swordBonusAtk !== undefined ? Number(aug.swordBonusAtk) : failed ? 0 : 20 + level * 20;
+      if (bonusAtk > 0) {
+        val += bonusAtk;
+        logText += ` + ${bonusAtk} (검 강화하기)`;
+      }
+
+      // 무한의 대검
+    } else if (augId === "infinityEdge") {
+      if (statKey === "atk") {
+        val += 75;
+        logText += " + 75 (무한의 대검)";
+      }
+
+      // 공허의 지팡이
+    } else if (augId === "voidStaff") {
+      if (statKey === "catk") {
+        val += 95;
+        logText += " + 95 (공허의 지팡이)";
+      }
+
+      // 라바돈의 죽음 모자
+    } else if (augId === "rabadonsDeathcap") {
+      if (statKey === "catk") {
+        val += 130;
+        logText += " + 130 (라바돈)";
+      }
+
+      // 메자이의 영혼약탈자: 중첩당 특수공격 +20
+    } else if (augId === "mejaisSoulstealer") {
+      if (statKey === "catk") {
+        const stack = Number(pokemon?.mejaiStack ?? aug?.mejaiStack ?? 0);
+        const bonusCatk = stack * 20;
+        if (bonusCatk > 0) {
+          val += bonusCatk;
+          logText += ` + ${bonusCatk} (메자이 ${stack}중첩)`;
+        }
+      }
+    }
+  }
+
+  // 곱적용 =============================================================
+  for (const aug of augments) {
+    const augId = typeof aug === "string" ? aug : aug?.id;
+
+    // 인생의 동반자: 모든 능력치 1.1배
+    if (augId === "lifePartner") {
+      val = Math.round(val * 1.1);
+      logText += " * 1.1 (인생의 동반자)";
+    }
+
+    // 라바돈의 죽음 모자
+    if (augId === "rabadonsDeathcap") {
+      if (statKey === "catk") {
+        val = Math.round(val * 1.3);
+        logText += " * 1.3 (라바돈)";
+      }
+    }
+    // 실패하면 반역 성공하면 혁명 아닙니까!
+    else if (augId === "rebellionOrRevolution") {
+      const pick = aug?.revolutionResult;
+      if (pick === "atk") {
+        if (statKey === "atk") {
+          val = Math.round(val * 2);
+          logText += " * 2 (혁명)";
+        } else if (statKey === "catk") {
+          val = Math.max(1, Math.floor(val / 2));
+          logText += " / 2 (반역)";
+        }
+      } else if (pick === "catk") {
+        if (statKey === "catk") {
+          val = Math.round(val * 2);
+          logText += " * 2 (혁명)";
+        } else if (statKey === "atk") {
+          val = Math.max(1, Math.floor(val / 2));
+          logText += " / 2 (반역)";
+        }
+      }
+    }
+  }
+
+  // 영웅의 메아리: 아군 모든 포켓몬의 공격과 특공 40% 상승
+  const hasSelfEcho = pokemon?.hasAugment?.("echoOfHero") || Boolean(pokemon?.hasEchoOfHeroBuff);
+  let hasTeamEcho = hasSelfEcho;
+  if (!hasTeamEcho && battle) {
+    const team = pokemon?.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
+    hasTeamEcho = team.some((p) => p?.hasAugment?.("echoOfHero") || p?.hasEchoOfHeroBuff);
+  }
+  if (hasTeamEcho && (statKey === "atk" || statKey === "catk")) {
+    val = Math.round(val * 1.4);
+    logText += " * 1.4 (영웅의 메아리)";
+  }
+
+  logText += ` = ${val}`;
+  try {
+    if (pokemon) {
+      if (!pokemon.log) pokemon.log = {};
+      pokemon.log.getAugmentedStat = logText;
+    }
+  } catch (e) {}
+
+  return val;
+};
+
+export const getHighestStatInfo = (pokemon, battle = null) => {
+  const baseStatObj = pokemon?.origin?.stat || pokemon?.stat;
+  if (!baseStatObj) return null;
+
+  let best = null;
+  for (const statKey of STAT_KEYS) {
+    if (typeof baseStatObj[statKey] !== "number") continue;
+    const augmented = getAugmentedStat(pokemon, statKey, battle);
+    const rank = Number(pokemon?.tempStatus?.rank?.[statKey] ?? 0);
+    const effective = augmented * getMultiplier(rank);
+    if (!best || effective > best.effective) {
+      best = {
+        statKey,
+        label: STAT_LABELS[statKey],
+        augmented,
+        rank,
+        effective,
+        displayValue: Math.floor(effective),
+      };
+    }
+  }
+  return best;
+};

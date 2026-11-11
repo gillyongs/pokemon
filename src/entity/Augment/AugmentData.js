@@ -1,6 +1,6 @@
 import { abilObject, noRandomAbil, changePokemonAbility, changeAbility } from "../Ability";
 import { josa } from "josa";
-import { getAugmentedStat } from "../../util/damageCalculate";
+import { getAugmentedStat, getHighestStatInfo } from "../../util/getStat";
 import { getMultiplier } from "../../function/rankStat";
 import sampleList from "../Pokemon/SamplePokemon";
 import { generate } from "../Pokemon/PokemonInstance";
@@ -47,8 +47,8 @@ export const compareAugmentNames = (a, b) => {
   return nameA.localeCompare(nameB, "ko");
 };
 
-// 상호 배타적 능력치 전환 증강 (셋 중 하나를 보유하면 나머지는 등장하지 않음)
-export const STAT_SWAP_AUGMENTS = ["swordAndShield", "specialSwordAndShield", "ksante"];
+// 상호 배타적 능력치 전환 증강 (하나라도 보유하면 나머지는 등장하지 않음)
+export const STAT_SWAP_AUGMENTS = ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"];
 const canPickStatSwapAugment = (pokemon) => !STAT_SWAP_AUGMENTS.some((id) => pokemon?.hasAugment?.(id));
 
 export const AUGMENT_LIST = [
@@ -368,37 +368,14 @@ export const AUGMENT_LIST = [
     isEligible: canPickStatSwapAugment,
     // damageCalculate.js에 구현
   },
-  /*
   {
     id: "hhgghgg",
     name: "H.H.G.G.H.G.G",
-    desc: "가장 높은 능력치로 모든 능력치가 통일됩니다.",
-    cost: 6,
-    getDesc: (pokemon) => {
-      const stat = pokemon?.origin?.stat;
-      if (stat) {
-        const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter((v) => typeof v === "number");
-        if (values.length > 0) {
-          const higher = Math.max(...values);
-          return `가장 높은 능력치(${higher})로 모든 능력치가 통일됩니다.`;
-        }
-      }
-      return "가장 높은 능력치로 모든 능력치가 통일됩니다.";
-    },
-    onApply: (pokemon) => {
-      if (!pokemon?.origin?.stat) return;
-      const stat = pokemon.origin.stat;
-      const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter((v) => typeof v === "number");
-      if (values.length === 0) return;
-      const higher = Math.max(...values);
-      stat.atk = higher;
-      stat.def = higher;
-      stat.catk = higher;
-      stat.cdef = higher;
-      stat.speed = higher;
-    },
+    desc: "항상 가장 높은 값의 능력치를 사용합니다.",
+    cost: 16,
+    isEligible: canPickStatSwapAugment,
+    // damageCalculate.js, speedCheck.js에 구현
   },
-  */
 
   {
     id: "teraBlast",
@@ -947,6 +924,8 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     return getSpecialSwordAndShieldDesc(target, options?.battle || null);
   } else if (id === "ksante" && !isTextScreen && options?.showCurrentStats) {
     return getKsanteDesc(target, options?.battle || null);
+  } else if (id === "hhgghgg" && !isTextScreen && options?.showCurrentStats) {
+    return getHhgghggDesc(target, options?.battle || null);
   }
 
   const foundInList = AUGMENT_LIST.find((a) => a.id === id);
@@ -1020,6 +999,14 @@ const getKsanteDesc = (pokemon, battle = null) => {
   return "방어와 특수방어 중 더 유리한 수치를 사용합니다.";
 };
 
+const getHhgghggDesc = (pokemon, battle = null) => {
+  const highest = getHighestStatInfo(pokemon, battle);
+  if (highest) {
+    return `항상 가장 높은 값의 능력치를 사용합니다. (${highest.label} ${highest.displayValue})`;
+  }
+  return "항상 가장 높은 값의 능력치를 사용합니다.";
+};
+
 export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
   if (!augment) return "";
   const stat = pokemon?.origin?.stat;
@@ -1037,14 +1024,7 @@ export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
   }
 
   if (augment.id === "hhgghgg") {
-    if (stat) {
-      const values = [stat.atk, stat.def, stat.catk, stat.cdef, stat.speed].filter((v) => typeof v === "number");
-      if (values.length > 0) {
-        const higher = Math.max(...values);
-        return `가장 높은 능력치(${higher})로 모든 능력치가 통일됩니다.`;
-      }
-    }
-    return "가장 높은 능력치로 모든 능력치가 통일됩니다.";
+    return getHhgghggDesc(pokemon, battle);
   }
 
   if (augment.id === "teraBlast") {

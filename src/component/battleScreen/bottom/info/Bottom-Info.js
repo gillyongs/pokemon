@@ -4,7 +4,7 @@ import styled from "styled-components";
 import TextBox from "../common/TextBox";
 import { TYPE_COLORS } from "../../../customScreen/sampleInfo/SampleInfoModal";
 import { isOnlyPrioritySkillText } from "../../../customScreen/sampleInfo/SkillSearchModal";
-import { getAugmentedStat } from "../../../../util/damageCalculate";
+import { getAugmentedStat } from "../../../../util/getStat";
 import { getMultiplier } from "../../../../function/rankStat";
 import { getTypeEffectText } from "../../../../util/typeEffectCalculate";
 import { getWeatherBallType } from "../../../../util/weatherBall";
