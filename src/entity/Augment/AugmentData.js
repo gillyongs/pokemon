@@ -112,6 +112,27 @@ export const AUGMENT_LIST = [
     },
     // damageCalculate.js에 구현
   },
+  {
+    id: "lastWarrior",
+    name: "최후의 전사",
+    desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 스피드가 60% 증가합니다.",
+    cost: 6,
+    // speedCheck.js(speedCalculate)에 구현
+  },
+  {
+    id: "lastSamurai",
+    name: "라스트 사무라이",
+    desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 60% 증가합니다.",
+    cost: 5,
+    // damageCalculate.js에 구현
+  },
+  {
+    id: "lastManStanding",
+    name: "라스트 맨 스탠딩",
+    desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 60% 증가합니다.",
+    cost: 3,
+    // damageCalculate.js에 구현
+  },
 
   {
     id: "unboundChoice",
@@ -537,6 +558,14 @@ export const AUGMENT_LIST = [
       this.desc = `드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.\n(현재 쓰러뜨린 드래곤 포켓몬: ${count}마리)`;
     },
   },
+  {
+    id: "wujuStyle",
+    name: "우주류 검술",
+    desc: "공격 후 적에게 30의 추가 고정 데미지를 입힙니다.",
+    buf: true,
+    isRandom: false,
+    isEligible: (pokemon) => !pokemon?.hasAugment?.("wujuStyle"),
+  },
   // 무한 다이맥스 (무한다이노 전용) =============================================
   {
     id: "eternamax",
@@ -595,6 +624,7 @@ export const AUGMENT_LIST = [
 export const AUGMENT_SYNERGY_MAP = {
   echoOfHero: ["threeSnails", "nimbleMoves", "recovery"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복]
   dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
+  wujuStyle: ["lastManStanding", "lastSamurai", "lastWarrior"], // 우주류 검술: [라스트 맨 스탠딩, 라스트 사무라이, 최후의 전사]
 };
 
 // 무한 다이맥스 변환 함수

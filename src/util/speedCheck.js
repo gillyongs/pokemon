@@ -1,5 +1,20 @@
 import { getMultiplier } from "../function/rankStat";
 
+export const isPokemonAlone = (pokemon, battle) => {
+  if (!pokemon || !battle) return false;
+  const teamSide = pokemon.team === "npc" ? "npc" : (pokemon.team === "player" ? "player" : (battle.npc === pokemon ? "npc" : "player"));
+  const teamMembers = teamSide === "npc"
+    ? [battle.npc, battle.npcBench1, battle.npcBench2].filter(Boolean)
+    : [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean);
+  const otherMembers = teamMembers.filter((p) => {
+    if (pokemon.originalIndex !== undefined && p.originalIndex !== undefined) {
+      return p.originalIndex !== pokemon.originalIndex;
+    }
+    return p !== pokemon;
+  });
+  return otherMembers.length > 0 && otherMembers.every((p) => p.faint || p.hp <= 0);
+};
+
 // 스피드 실 수치 계산 함수
 export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, battle = null, abil = pokemon.abil) => {
   let speed = baseSpeed;
@@ -63,6 +78,12 @@ export const speedCalculate = (pokemon, baseSpeed = pokemon.origin.stat.speed, b
       const mult = Number((1 + stacks * 0.1).toFixed(2));
       speed *= mult;
       pokemon.log.speedCalculate += ` * ${mult} (용용 죽겠지)`;
+    }
+  }
+  if (battle && pokemon?.hasAugment?.("lastWarrior")) {
+    if (isPokemonAlone(pokemon, battle)) {
+      speed *= 1.6;
+      pokemon.log.speedCalculate += " * 1.6 (최후의 전사)";
     }
   }
   pokemon.log.speedCalculate += " = " + speed;

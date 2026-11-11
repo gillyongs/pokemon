@@ -46,6 +46,16 @@ function skillEffectSearch(name) {
         }
       }
 
+      // [버프: 우주류 검술] 공격 후 적에게 30의 추가 고정 데미지
+      const hasWujuStyle = atkPokemon?.hasAugment?.("wujuStyle");
+      if (hasWujuStyle && def && !def.faint && (def.hp === undefined || def.hp > 0) && atkPokemon && !atkPokemon.faint) {
+        if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
+          const targetName = def.names || def.name;
+          const text = `[버프 우주류 검술] ${targetName} 30의 추가 고정 데미지를 입었다!`;
+          def.getDamage(battle, enqueue, 30, text);
+        }
+      }
+
       if (atkPokemon.item === "생명의구슬" && !atkPokemon.faint) {
         if (skill.stype === "atk" || skill.stype === "catk") {
           const text = atkPokemon.name + "의 생명이 조금 깎였다!";
