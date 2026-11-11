@@ -80,7 +80,7 @@ export const AUGMENT_LIST = [
     id: "dragonHunter",
     name: "용 사냥꾼",
     desc: "드래곤 타입을 상대로 모든 능력치가 1.2배 증가합니다.",
-    cost: 1,
+    cost: 3,
     isEligible: (pokemon) => {
       const t1 = pokemon?.type1 || pokemon?.origin?.type1;
       const t2 = pokemon?.type2 || pokemon?.origin?.type2;
@@ -473,10 +473,7 @@ export const AUGMENT_LIST = [
     isEligible: (pokemon) => !pokemon?.hasAugment?.("echoOfHero"),
     onApply: function (pokemon, battle) {
       if (battle) {
-        const team =
-          pokemon.team === "npc"
-            ? [battle.npc, battle.npcBench1, battle.npcBench2]
-            : [battle.player, battle.playerBench1, battle.playerBench2];
+        const team = pokemon.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
         team.filter(Boolean).forEach((p) => {
           p.hasEchoOfHeroBuff = true;
         });
