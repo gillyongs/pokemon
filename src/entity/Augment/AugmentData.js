@@ -1,6 +1,7 @@
 import { abilObject, noRandomAbil, changePokemonAbility, changeAbility } from "../Ability";
 import { josa } from "josa";
 import { getAugmentedStat } from "../../util/damageCalculate";
+import { getMultiplier } from "../../function/rankStat";
 import sampleList from "../Pokemon/SamplePokemon";
 import { generate } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
@@ -45,6 +46,10 @@ export const compareAugmentNames = (a, b) => {
   if (!aQuote && bQuote) return -1;
   return nameA.localeCompare(nameB, "ko");
 };
+
+// 상호 배타적 능력치 전환 증강 (셋 중 하나를 보유하면 나머지는 등장하지 않음)
+export const STAT_SWAP_AUGMENTS = ["swordAndShield", "specialSwordAndShield", "ksante"];
+const canPickStatSwapAugment = (pokemon) => !STAT_SWAP_AUGMENTS.some((id) => pokemon?.hasAugment?.(id));
 
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
@@ -249,7 +254,7 @@ export const AUGMENT_LIST = [
     },
   },
 
-    // 순풍 ====================================================================
+  // 순풍 ====================================================================
   {
     id: "tailwind",
     name: "순풍",
@@ -269,7 +274,7 @@ export const AUGMENT_LIST = [
       }
     },
   },
-// 포켓몬 교체 ============================================================
+  // 포켓몬 교체 ============================================================
   // 포켓몬과 결혼한 사람이 있었다 (메가가디안, 님피아(딜탱), 메가이어롭, 마스카나 중 1 교체 + 인생의 동반자 획득)
   {
     id: "marriedPokemon",
@@ -324,7 +329,6 @@ export const AUGMENT_LIST = [
     },
   },
 
-
   {
     id: "rouletteWheel",
     name: "돌려 돌려 돌림판",
@@ -339,75 +343,32 @@ export const AUGMENT_LIST = [
       replacePokemon(pokemon, picked.id, battle, { resetAugments: true });
     },
   },
-  /*
   {
     id: "swordAndShield",
     name: "오른손엔 방패 왼손엔 검",
-    desc: "공격과 방어 중 더 높은 수치로 두 능력치를 통일합니다.",
+    desc: "공격과 방어 중 더 유리한 수치를 사용합니다.",
     cost: 3,
-    getDesc: (pokemon) => {
-      const stat = pokemon?.origin?.stat;
-      if (stat && typeof stat.atk === "number" && typeof stat.def === "number") {
-        const higher = Math.max(stat.atk, stat.def);
-        return `공격(${stat.atk})과 방어(${stat.def}) 중 더 높은 수치(${higher})로 두 능력치를 통일합니다.`;
-      }
-      return "공격과 방어 중 더 높은 수치로 두 능력치를 통일합니다.";
-    },
-    onApply: (pokemon) => {
-      if (!pokemon?.origin?.stat) return;
-      const stat = pokemon.origin.stat;
-      const higher = Math.max(stat.atk, stat.def);
-      stat.atk = higher;
-      stat.def = higher;
-    },
+    isEligible: canPickStatSwapAugment,
+    // damageCalculate.js에 구현
   },
   {
     id: "specialSwordAndShield",
     name: "오른손엔 방패 왼손엔 스태프",
-    desc: "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.",
+    desc: "특공과 특방 중 더 유리한 수치를 사용합니다.",
     cost: 3,
-    getDesc: (pokemon) => {
-      const stat = pokemon?.origin?.stat;
-      if (stat && typeof stat.catk === "number" && typeof stat.cdef === "number") {
-        const higher = Math.max(stat.catk, stat.cdef);
-        return `특공(${stat.catk})과 특방(${stat.cdef}) 중 더 높은 수치(${higher})로 두 능력치를 통일합니다.`;
-      }
-      return "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
-    },
-    onApply: (pokemon) => {
-      if (!pokemon?.origin?.stat) return;
-      const stat = pokemon.origin.stat;
-      const higher = Math.max(stat.catk, stat.cdef);
-      stat.catk = higher;
-      stat.cdef = higher;
-    },
+    isEligible: canPickStatSwapAugment,
+    // damageCalculate.js에 구현
   },
   {
     id: "ksante",
     name: "체력 4700 방어력 329 마저201 인 챔피언👤이 저지불가🚫, 쉴드🛡, 벽🧱 넘기는 거 있고요. 에어본🌪 있고, 심지어 쿨타임은 1️⃣초밖에 안되고 마나🧙♂️는 1️⃣5️⃣ 들고 w는 심지어 변신💫하면 쿨 초기화에다가 패시브는 고정피해🗡가 들어가며 그 다음에 방마저🥋 올리면📈 올릴수록📈 스킬 가속⏰이 생기고! q에 스킬가속⏰이 생기고 스킬 속도🚀가 빨라지고📈 그 다음에 공격력🗡 계수가 있어가지고 W가 그 이익-으아아아악😱",
-    desc: "방어과 특방 중 더 높은 수치로 두 능력치를 통일합니다.",
-    cost: 4,
+    desc: "방어와 특수방어 중 더 유리한 수치를 사용합니다.",
+    cost: 5,
     shortName: "그 긴거",
-    getDesc: (pokemon) => {
-      const stat = pokemon?.origin?.stat;
-      if (stat && typeof stat.def === "number" && typeof stat.cdef === "number") {
-        const higher = Math.max(stat.def, stat.cdef);
-        return `방어(${stat.def})과 특방(${stat.cdef}) 중 더 높은 수치(${higher})로 두 능력치를 통일합니다.`;
-      }
-      return "방어과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
-    },
-    onApply: (pokemon) => {
-      if (!pokemon?.origin?.stat) return;
-      const stat = pokemon.origin.stat;
-      const higher = Math.max(stat.def, stat.cdef);
-      stat.def = higher;
-      stat.cdef = higher;
-      if (pokemon.stat && pokemon.stat !== pokemon.origin.stat) {
-        pokemon.stat.def = higher;
-        pokemon.stat.cdef = higher;
-      }
-    },
+    isEligible: canPickStatSwapAugment,
+    // damageCalculate.js에 구현
   },
+  /*
   {
     id: "hhgghgg",
     name: "H.H.G.G.H.G.G",
@@ -980,6 +941,12 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     if (chosenType) {
       individualDesc = `${names} ${chosenType} 타입 테라버스트를 얻었다!`;
     }
+  } else if (id === "swordAndShield" && !isTextScreen && options?.showCurrentStats) {
+    return getSwordAndShieldDesc(target, options?.battle || null);
+  } else if (id === "specialSwordAndShield" && !isTextScreen && options?.showCurrentStats) {
+    return getSpecialSwordAndShieldDesc(target, options?.battle || null);
+  } else if (id === "ksante" && !isTextScreen && options?.showCurrentStats) {
+    return getKsanteDesc(target, options?.battle || null);
   }
 
   const foundInList = AUGMENT_LIST.find((a) => a.id === id);
@@ -1017,29 +984,56 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   }
 };
 
-export const getAugmentDesc = (augment, pokemon = null) => {
+const getSwordAndShieldDesc = (pokemon, battle = null) => {
+  const stat = pokemon?.origin?.stat || pokemon?.stat;
+  if (stat && typeof stat.atk === "number" && typeof stat.def === "number") {
+    const atkRank = Number(pokemon?.tempStatus?.rank?.atk ?? 0);
+    const defRank = Number(pokemon?.tempStatus?.rank?.def ?? 0);
+    const atkVal = Math.floor(getAugmentedStat(pokemon, "atk", battle) * getMultiplier(atkRank));
+    const defVal = Math.floor(getAugmentedStat(pokemon, "def", battle) * getMultiplier(defRank));
+    return `공격(${atkVal})과 방어(${defVal}) 중 더 유리한 수치를 사용합니다.`;
+  }
+  return "공격과 방어 중 더 유리한 수치를 사용합니다.";
+};
+
+const getSpecialSwordAndShieldDesc = (pokemon, battle = null) => {
+  const stat = pokemon?.origin?.stat || pokemon?.stat;
+  if (stat && typeof stat.catk === "number" && typeof stat.cdef === "number") {
+    const catkRank = Number(pokemon?.tempStatus?.rank?.catk ?? 0);
+    const cdefRank = Number(pokemon?.tempStatus?.rank?.cdef ?? 0);
+    const catkVal = Math.floor(getAugmentedStat(pokemon, "catk", battle) * getMultiplier(catkRank));
+    const cdefVal = Math.floor(getAugmentedStat(pokemon, "cdef", battle) * getMultiplier(cdefRank));
+    return `특공(${catkVal})과 특방(${cdefVal}) 중 더 유리한 수치를 사용합니다.`;
+  }
+  return "특공과 특방 중 더 유리한 수치를 사용합니다.";
+};
+
+const getKsanteDesc = (pokemon, battle = null) => {
+  const stat = pokemon?.origin?.stat || pokemon?.stat;
+  if (stat && typeof stat.def === "number" && typeof stat.cdef === "number") {
+    const defRank = Number(pokemon?.tempStatus?.rank?.def ?? 0);
+    const cdefRank = Number(pokemon?.tempStatus?.rank?.cdef ?? 0);
+    const defVal = Math.floor(getAugmentedStat(pokemon, "def", battle) * getMultiplier(defRank));
+    const cdefVal = Math.floor(getAugmentedStat(pokemon, "cdef", battle) * getMultiplier(cdefRank));
+    return `방어(${defVal})와 특수방어(${cdefVal}) 중 더 유리한 수치를 사용합니다.`;
+  }
+  return "방어와 특수방어 중 더 유리한 수치를 사용합니다.";
+};
+
+export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
   if (!augment) return "";
   const stat = pokemon?.origin?.stat;
 
   if (augment.id === "swordAndShield") {
-    if (stat && typeof stat.atk === "number" && typeof stat.def === "number") {
-      return `공격(${stat.atk})과 방어(${stat.def}) 중 더 높은 수치로 두 능력치를 통일합니다.`;
-    }
-    return "공격과 방어 중 더 높은 수치로 두 능력치를 통일합니다.";
+    return getSwordAndShieldDesc(pokemon, battle);
   }
 
   if (augment.id === "specialSwordAndShield") {
-    if (stat && typeof stat.catk === "number" && typeof stat.cdef === "number") {
-      return `특공(${stat.catk})과 특방(${stat.cdef}) 중 더 높은 수치로 두 능력치를 통일합니다.`;
-    }
-    return "특공과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
+    return getSpecialSwordAndShieldDesc(pokemon, battle);
   }
 
   if (augment.id === "ksante") {
-    if (stat && typeof stat.def === "number" && typeof stat.cdef === "number") {
-      return `방어(${stat.def})과 특방(${stat.cdef}) 중 더 높은 수치로 두 능력치를 통일합니다.`;
-    }
-    return "방어과 특방 중 더 높은 수치로 두 능력치를 통일합니다.";
+    return getKsanteDesc(pokemon, battle);
   }
 
   if (augment.id === "hhgghgg") {

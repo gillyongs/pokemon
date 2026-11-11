@@ -79,7 +79,7 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                       <CardTitle>{aug.shortName || aug.name}</CardTitle>
                       {isBuf && <BuffBadge>버프</BuffBadge>}
                     </CardTitleRow>
-                    <CardDescription>{getAugmentText(aug, activePokemon) || aug.desc}</CardDescription>
+                    <CardDescription>{getAugmentText(aug, activePokemon, false, "", { battle, showCurrentStats: true }) || aug.desc}</CardDescription>
                   </CardContent>
                 </AugmentCard>
               );

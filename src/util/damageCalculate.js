@@ -228,6 +228,46 @@ export const damageCalculate = (battle, obj, ai) => {
     attackStat = "def";
   }
 
+  // 오른손엔 방패 왼손엔 검 (공/방), 왼손엔 스태프 (특공/특방), 그 긴거 (방/특방)
+  // 테라버스트와 동일하게 랭크업(증강 포함)까지 적용한 수치를 비교하며, 속임수는 상대 공격력을 사용하므로 제외
+  if (skill.name !== "속임수") {
+    if (skill.stype === "atk" && attackPokemon?.hasAugment?.("swordAndShield")) {
+      const currentAtk = getAugmentedStat(attackPokemon, "atk", battle) * getMultiplier(attackPokemon.tempStatus.rank.atk);
+      const currentDef = getAugmentedStat(attackPokemon, "def", battle) * getMultiplier(attackPokemon.tempStatus.rank.def);
+      if (skill.name === "바디프레스") {
+        attackStat = currentAtk > currentDef ? "atk" : "def";
+      } else {
+        attackStat = currentDef > currentAtk ? "def" : "atk";
+      }
+    } else if (skill.stype === "catk" && attackPokemon?.hasAugment?.("specialSwordAndShield")) {
+      const currentCatk = getAugmentedStat(attackPokemon, "catk", battle) * getMultiplier(attackPokemon.tempStatus.rank.catk);
+      const currentCdef = getAugmentedStat(attackPokemon, "cdef", battle) * getMultiplier(attackPokemon.tempStatus.rank.cdef);
+      attackStat = currentCdef > currentCatk ? "cdef" : "catk";
+    } else if (skill.name === "바디프레스" && attackPokemon?.hasAugment?.("ksante")) {
+      const currentDef = getAugmentedStat(attackPokemon, "def", battle) * getMultiplier(attackPokemon.tempStatus.rank.def);
+      const currentCdef = getAugmentedStat(attackPokemon, "cdef", battle) * getMultiplier(attackPokemon.tempStatus.rank.cdef);
+      attackStat = currentCdef > currentDef ? "cdef" : "def";
+    }
+  }
+
+  if (skill.stype === "atk" && defensePokemon?.hasAugment?.("swordAndShield")) {
+    const currentAtk = getAugmentedStat(defensePokemon, "atk", battle) * getMultiplier(defensePokemon.tempStatus.rank.atk);
+    const currentDef = getAugmentedStat(defensePokemon, "def", battle) * getMultiplier(defensePokemon.tempStatus.rank.def);
+    defenseStat = currentAtk > currentDef ? "atk" : "def";
+  } else if (defenseStat === "cdef" && defensePokemon?.hasAugment?.("specialSwordAndShield")) {
+    const currentCatk = getAugmentedStat(defensePokemon, "catk", battle) * getMultiplier(defensePokemon.tempStatus.rank.catk);
+    const currentCdef = getAugmentedStat(defensePokemon, "cdef", battle) * getMultiplier(defensePokemon.tempStatus.rank.cdef);
+    defenseStat = currentCatk > currentCdef ? "catk" : "cdef";
+  } else if ((defenseStat === "def" || defenseStat === "cdef") && defensePokemon?.hasAugment?.("ksante")) {
+    const currentDef = getAugmentedStat(defensePokemon, "def", battle) * getMultiplier(defensePokemon.tempStatus.rank.def);
+    const currentCdef = getAugmentedStat(defensePokemon, "cdef", battle) * getMultiplier(defensePokemon.tempStatus.rank.cdef);
+    if (defenseStat === "def") {
+      defenseStat = currentCdef > currentDef ? "cdef" : "def";
+    } else {
+      defenseStat = currentDef > currentCdef ? "def" : "cdef";
+    }
+  }
+
   // 랭크업 ================================================================================================================
   // 랭크변화를 적용후 랭크와 관련된 요소 (천진, 급소, 성스러운칼)를 처리한다
   // 천진: 상대방의 랭크변화를 무시한다.
