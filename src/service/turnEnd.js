@@ -13,14 +13,12 @@ export const turnEnd = (battle, enqueue) => {
   const fastUser = speedCheck(battle);
   const slowUser = fastUser === "player" ? "npc" : "player";
 
-  // 트릭룸 카운트
+  // 트릭룸, 날씨, 필드 카운트
   battle.field.room.handleTrickRoomTurnEnd(battle, enqueue);
-
-  // 날씨 카운트
   battle.field.weather.handleWeatherTurnEnd(battle, enqueue);
-
-  // 필드 카운트
   battle.field.terrain.handleTerrainTurnEnd(battle, enqueue);
+
+  // ====================================================================
 
   // 희망사항
   battle.field[fastUser].handleWishTurnEnd(battle, enqueue);
@@ -46,6 +44,7 @@ export const turnEnd = (battle, enqueue) => {
   processAilment(battle, enqueue, fastUser, slowUser);
 
   // 날씨 데미지 (모래바람)
+  // 모래바람이 종료되는 턴엔 데미지를 입지 않는다.
   battle.field.weather.handleWeatherDamageTurnEnd(battle, enqueue, fastUser);
   battle.field.weather.handleWeatherDamageTurnEnd(battle, enqueue, slowUser);
 
@@ -54,6 +53,7 @@ export const turnEnd = (battle, enqueue) => {
   applySunfireAegis(battle, enqueue, slowUser);
 
   [battle[fastUser], battle[slowUser]].forEach((p) => {
+    // 능력치 증감은 어차피 damageCalculate, speedCalculate에서 처리하므로 그냥 text만 enqueue하면 됨
     if (!p || p.hp <= 0 || p.faint) return;
     p.tempStatus.turnsOnField = (p.tempStatus.turnsOnField || 0) + 1;
     if (p.abil === "패스트스타트" && p.tempStatus.turnsOnField === 5) {
@@ -73,6 +73,7 @@ export const turnEnd = (battle, enqueue) => {
   let tempPlayer = battle.player.turn;
   let tempNpc = battle.npc.turn;
 
+  // 공중날기 처리
   if (tempPlayer.roost) {
     tempPlayer.roost = null;
     battle.player.type1 = battle.player.origin.type1;
@@ -86,6 +87,7 @@ export const turnEnd = (battle, enqueue) => {
 
   Object.keys(tempPlayer).forEach((key) => {
     if (key !== "knockedOutNpcThisTurn") {
+      // 상대를 쓰러뜨렸는지 여부. 턴 종료 후 증강 선택에 사용
       tempPlayer[key] = null;
     }
   });
@@ -93,14 +95,27 @@ export const turnEnd = (battle, enqueue) => {
     tempNpc[key] = null;
   });
 
+  // 첫 턴 여부 false 처리 (속이기, 만나자마자 성공 체크)
+  // 교체/유턴으로 나온 다음턴에 속이기/만나자마자 쓰면 성공하는게 맞으모로 예외처리
+
   const playerSwitched = battle.turn?.playerSwitched || battle.player?.turn?.choice === "playerBench1" || battle.player?.turn?.choice === "playerBench2" || battle.turn?.uturn;
-
   const npcSwitched = battle.turn?.npcSwitched || battle.npc?.turn?.choice === "npcBench1" || battle.npc?.turn?.choice === "npcBench2";
+  if (!playerSwitched) battle.player.tempStatus.firstTurn = false;
+  if (!npcSwitched) battle.npc.tempStatus.firstTurn = false;
 
-  // 첫 턴 여부 (속이기, 만나자마자 성공 체크)
-  // 교체/유턴으로 나온 다음턴에 속이기/만나자마자 쓰면 성공하는게 맞음
-  if (battle.player?.tempStatus && !playerSwitched) battle.player.tempStatus.firstTurn = false;
-  if (battle.npc?.tempStatus && !npcSwitched) battle.npc.tempStatus.firstTurn = false;
+  // 특성 가속: 매 턴 종료 시 스피드 1랭크 상승 (해당 턴 교체 등장 제외)
+  [fastUser, slowUser].forEach((side) => {
+    const p = battle[side];
+    const switchedIn = side === "player" ? playerSwitched : npcSwitched;
+    // 유턴 등 기술로 교체한 턴엔 가속이 발동하지 않음
+    if (!p || p.faint || p.hp <= 0 || switchedIn) return;
+    if (p.abil === "가속") {
+      const canBoost = p.tempStatus.rank.speed < 6;
+      if (canBoost) {
+        p.rankUp(battle, enqueue, "speed", 1, "[특성 가속]");
+      }
+    }
+  });
 
   battle.turn.turnEnd = true;
   if (battle.npc.faint && !battle.player.faint) {

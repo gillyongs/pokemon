@@ -383,6 +383,34 @@ function skillEffectSearch(name) {
         switchNpcAuto(battle, enqueue);
       }
     },
+    배턴터치: (battle, enqueue, skillEffect) => {
+      if (battle.turn.atk === "player" && !battle.player.faint) {
+        const faint1 = battle.playerBench1.faint;
+        const faint2 = battle.playerBench2.faint;
+        if (faint1 && faint2) {
+          // 둘 다 기절했으면 생략
+          // skillCheck에서 체크하니까 그럴 일 없긴 한데 일단 추가
+        } else if (!faint1 && faint2) {
+          switchPlayer(battle, "playerBench1", enqueue, { batonPass: true });
+        } else if (faint1 && !faint2) {
+          switchPlayer(battle, "playerBench2", enqueue, { batonPass: true });
+        } else {
+          battle.turn.uturn = true;
+          battle.turn.batonPass = true;
+          battle.turn.textFreeze = true;
+          enqueue({
+            id: "a4b8f12c-3d9e-4f5a-b821-7e90c3d41a5f",
+            battle,
+            text: "누구로 교체할까?",
+            allowAct: true,
+            bottomMode: "uturn",
+            waitInput: true,
+          });
+        }
+      } else if (battle.turn.atk === "npc") {
+        switchNpcAuto(battle, enqueue, { batonPass: true });
+      }
+    },
     반동: (battle, enqueue, skillEffect) => {
       let atkPokemon = battle[battle.turn.atk];
       if (atkPokemon.abil === "돌머리") return;

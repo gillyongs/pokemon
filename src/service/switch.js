@@ -4,7 +4,7 @@ import { applyFieldEffects } from "./field";
 import { calculatePokemonSwitchScore } from "../npc/ai/easy";
 import { speedCheck } from "../util/speedCheck";
 
-export const switchPlayer = (battle, actNumber, enqueue) => {
+export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
   // 플레이어 교체 함수
   // 사용자가 교체를 골랐을 때 (BattleStart.js)
   // 포켓몬이 쓰러져서 교체할때, 유턴 썼을때 (Bottom-Switch.js) 호출됨
@@ -13,7 +13,7 @@ export const switchPlayer = (battle, actNumber, enqueue) => {
   battle.turn.turnEnd = null;
   let isFaintSwitch = battle.player.faint;
   enqueue({ id: "b83eb420-1c0d-47c1-aa65-c3b7115a7268", battle, text: battle.player.origin.name + " 돌아와!" });
-  switchPokemon(battle, "player", actNumber);
+  switchPokemon(battle, "player", actNumber, options);
   battle.turn.turnEnd = null;
   enqueue({
     id: "d62ecb46-560e-40ad-a16a-e57235acf4e2",
@@ -25,6 +25,10 @@ export const switchPlayer = (battle, actNumber, enqueue) => {
   if (!battle.player.faint) {
     // 장판 데미지에 기절하면 특성 발동 안함
     applyAbilityEffects(battle, "player", enqueue);
+    if (options?.batonPass && !battle.player.faint) {
+      battle.player.checkWhiteHerb?.(battle, enqueue);
+      // 배턴터치로 넘겨받은 랭크다운은 교체 즉시 하양허브로 원복됨
+    }
   } else {
     if (isFaintSwitch) {
       // 배틀 중 기절하거나 유턴으로 교체해 나온 포켓몬이 기절했을 경우엔 턴 종료시까지 대기하지만
@@ -47,7 +51,7 @@ export const switchPlayerForce = (battle, actNumber, enqueue) => {
   }
 };
 
-export const switchNpc = (battle, actNumber, enqueue, force) => {
+export const switchNpc = (battle, actNumber, enqueue, force, options = {}) => {
   // NPC 교체 함수
   // NPC가 교체를 골랐을 때(BattleStart.js), 날려버리기 강제교체(skillEffect.js)에서만 직접 사용
   // 그 외의 경우엔 switchNpcAuto를 호출하여 사용
@@ -64,7 +68,7 @@ export const switchNpc = (battle, actNumber, enqueue, force) => {
       battle,
       text: "상대는 " + battle.npc.origin.namess + " 넣어 버렸다!",
     });
-    switchPokemon(battle, "npc", actNumber);
+    switchPokemon(battle, "npc", actNumber, options);
     enqueue({
       id: "50befd61-7787-45c3-ba72-b3ed7b1892f1",
       battle,
@@ -74,6 +78,9 @@ export const switchNpc = (battle, actNumber, enqueue, force) => {
   applyFieldEffects(battle, "npc", enqueue);
   if (!battle.npc.faint) {
     applyAbilityEffects(battle, "npc", enqueue);
+    if (options?.batonPass && !battle.npc.faint) {
+      battle.npc.checkWhiteHerb?.(battle, enqueue);
+    }
   } else {
     if (battle.turn.turnEnd) {
       extraSwitchWhenTurnEnd(battle, "npc", enqueue);
@@ -98,12 +105,12 @@ const getNpcAutoSwitchTarget = (battle) => {
   return null;
 };
 
-export const switchNpcAuto = (battle, enqueue) => {
+export const switchNpcAuto = (battle, enqueue, options = {}) => {
   // NPC 포켓몬만 쓰러져서 교체할때 (turnEnd.js)
   // 유턴 사용시 (skillEffect.js) 호출됨
   const targetBench = getNpcAutoSwitchTarget(battle);
   if (targetBench) {
-    switchNpc(battle, targetBench, enqueue);
+    switchNpc(battle, targetBench, enqueue, false, options);
   }
 };
 

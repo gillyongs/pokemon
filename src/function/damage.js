@@ -196,7 +196,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
 
     // 용용 죽겠지 버프: 드래곤 타입 포켓몬 처치 횟수 누적 (handleFaint 스냅샷에 즉시 반영되도록 직전에 처리)
-    const isDefDragon = defPokemon.type1 === "드래곤" || defPokemon.type2 === "드래곤" || defPokemon.origin?.type1 === "드래곤" || defPokemon.origin?.type2 === "드래곤";
+    const isDefDragon = defPokemon.type1 === "드래곤" || defPokemon.type2 === "드래곤";
     if (atkPokemon.hasAugment?.("dragonDie") && isDefDragon && !atkPokemon.faint) {
       const nextCount = Number(atkPokemon.dragonKillCount ?? atkPokemon.augments?.find((a) => a.id === "dragonDie")?.dragonKillCount ?? 0) + 1;
       atkPokemon.dragonKillCount = nextCount;

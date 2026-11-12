@@ -1,5 +1,5 @@
 // swapBattleEntities.js
-export const switchPokemon = (battle, IN, OUT) => {
+export const switchPokemon = (battle, IN, OUT, options = {}) => {
   // 교체 함수.
   // 실제 객체의 값을 바꾸고
   // pokemon.tempStatus 값을 초기화한다
@@ -13,6 +13,16 @@ export const switchPokemon = (battle, IN, OUT) => {
   }
 
   const pokemonIn = battle[IN]; //교체로 들어가는 포켓몬
+
+  const batonState = options?.batonPass // 배턴터치
+    ? {
+        rank: { ...pokemonIn.tempStatus.rank },
+        confuse: pokemonIn.tempStatus.confuse, // 혼란 넘기는거 맞음
+        seed: pokemonIn.tempStatus.seed,
+        substitute: pokemonIn.tempStatus.substitute,
+        substituteHp: pokemonIn.tempStatus.substituteHp,
+      }
+    : null;
   if (pokemonIn.abil === "재생력") {
     // 재생력 특성을 지닌 포켓몬은 교체시 체력이 회복
     const hp = pokemonIn.origin.hp;
@@ -62,6 +72,17 @@ export const switchPokemon = (battle, IN, OUT) => {
   pokemonIn.abilObj = pokemonIn.origin.abilObj;
 
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
+
+  if (batonState && battle[IN]?.tempStatus) {
+    Object.assign(battle[IN].tempStatus.rank, batonState.rank);
+    battle[IN].tempStatus.confuse = batonState.confuse;
+    battle[IN].tempStatus.seed = batonState.seed;
+    battle[IN].tempStatus.substitute = batonState.substitute;
+    battle[IN].tempStatus.substituteHp = batonState.substituteHp;
+    if (battle[IN].turn) {
+      battle[IN].turn.substitute = Boolean(batonState.substitute);
+    }
+  }
 
   if (battle[IN]?.tempStatus) {
     battle[IN].tempStatus.firstTurn = true; // 만나자마자

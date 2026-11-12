@@ -152,8 +152,8 @@ export const AUGMENT_LIST = [
     cost: 3,
     weight: 100,
     isEligible: (pokemon) => {
-      const t1 = pokemon?.type1 || pokemon?.origin?.type1;
-      const t2 = pokemon?.type2 || pokemon?.origin?.type2;
+      const t1 = pokemon?.type1;
+      const t2 = pokemon?.type2;
       return t1 !== "드래곤" && t2 !== "드래곤";
     },
     // speedCheck.js(speedCalculate), damageCalculate.js에 구현
@@ -165,8 +165,8 @@ export const AUGMENT_LIST = [
     cost: 3,
     weight: 100,
     isEligible: (pokemon) => {
-      const t1 = pokemon?.type1 || pokemon?.origin?.type1;
-      const t2 = pokemon?.type2 || pokemon?.origin?.type2;
+      const t1 = pokemon?.type1;
+      const t2 = pokemon?.type2;
       return t1 !== "드래곤" && t2 !== "드래곤";
     },
     // damage.js에 구현
@@ -178,8 +178,8 @@ export const AUGMENT_LIST = [
     cost: 3,
     weight: 100,
     isEligible: (pokemon) => {
-      const t1 = pokemon?.type1 || pokemon?.origin?.type1;
-      const t2 = pokemon?.type2 || pokemon?.origin?.type2;
+      const t1 = pokemon?.type1;
+      const t2 = pokemon?.type2;
       return t1 !== "드래곤" && t2 !== "드래곤";
     },
     // damageCalculate.js에 구현

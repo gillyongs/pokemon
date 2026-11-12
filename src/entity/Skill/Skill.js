@@ -15,7 +15,7 @@ export class Skill {
     // natk = 상대방이 기절하면 실패, buf = 상대방이 기절해도 성공
     this.skillEffectList = skillEffectList;
     this.skillEffectList.push({ name: "공통" });
-    const lateAct = ["유턴"];  //공통(생명의구슬)보다 늦게 터지는거
+    const lateAct = ["유턴", "배턴터치"];  //공통(생명의구슬)보다 늦게 터지는거
     const moveItems = this.skillEffectList.filter(item => lateAct.includes(item.name));
     this.skillEffectList = this.skillEffectList.filter(item => !lateAct.includes(item.name));
     this.skillEffectList.push(...moveItems);

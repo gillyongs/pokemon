@@ -87,6 +87,13 @@ function skillRequirementSearch(name) {
       }
       return true;
     },
+    배턴터치: (battle) => {
+      // 교대할 포켓몬이 없으면 실패
+      const side = battle.turn.atk;
+      const bench1Alive = battle[`${side}Bench1`]?.faint !== true;
+      const bench2Alive = battle[`${side}Bench2`]?.faint !== true;
+      return bench1Alive || bench2Alive;
+    },
   };
 
   return functions[name] || null;

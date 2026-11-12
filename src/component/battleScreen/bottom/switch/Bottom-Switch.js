@@ -43,7 +43,9 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
     handleSwitch = (index) => {
       setBottom("skill");
       btObj.turn.uturn = null;
-      switchPlayer(btObj, index, queueObject.enqueue);
+      const isBatonPass = Boolean(btObj.turn.batonPass);
+      btObj.turn.batonPass = null;
+      switchPlayer(btObj, index, queueObject.enqueue, { batonPass: isBatonPass });
       queueObject.dequeue(); // "누구로 교체할까?"를 dequeue를 막아놨기에 직접 해줘야함
       if (
         btObj.turn.fastActUser === "npc" || // npc가 더 빠른 경우 = 이미 행동을 한 경우

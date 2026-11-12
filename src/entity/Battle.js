@@ -32,6 +32,7 @@ class Battle {
       //if (player.faint && turnEnd) { setBottom("mustSwitch");}
       textFreeze: null, // 텍스트가 넘어가지 않게 막음. "누구로 교체할까?"나 "무엇을 할까?" 텍스트 고정
       uturn: null, // 플레이어 유턴 사용 여부
+      batonPass: null, // 플레이어 배턴터치 사용 여부
       playerSwitched: null, // 이번 턴 플레이어 교체 여부 (속이기 판정용)
       npcSwitched: null, // 이번 턴 NPC 교체 여부 (속이기 판정용)
       destinyBondUser: null, // 길동무 발동

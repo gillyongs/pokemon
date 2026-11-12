@@ -18,8 +18,13 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   log = score;
 
   // 일단 안쓰게 해놓은거 (발버둥도 기본 가중치 -999)
-  if (skill.name === "배북" || skill.name === "목숨걸기" || skill.name === "발버둥") {
-    skObj.log.score = skill.name === "발버둥" ? "발버둥" : "미정";
+  if (skill.name === "배북" || skill.name === "목숨걸기" || skill.name === "배턴터치") {
+    skObj.log.score = "미정";
+    return -999;
+  }
+
+  if (skill.name === "발버둥") {
+    skObj.log.score = "발버둥";
     return -999;
   }
 
