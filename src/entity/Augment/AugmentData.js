@@ -277,6 +277,15 @@ export const AUGMENT_LIST = [
     // damageCalculate.js에 구현
   },
   {
+    id: "ludensEcho",
+    name: "루덴의 메아리",
+    desc: "적에게 특수공격의 5%에 해당하는 추가 데미지를 입힙니다.",
+    cost: 5,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
+    isEligible: (pokemon) => isSpecialPokemon(pokemon),
+    // SkillEffect.js에 구현
+  },
+  {
     id: "bladeOfTheRuinedKing",
     name: "몰락한 왕의 검",
     desc: "적의 현재 체력의 9% 만큼 추가 데미지를 입힙니다.",
@@ -903,7 +912,7 @@ export const AUGMENT_SYNERGY_MAP = {
   echoOfHero: ["threeSnails", "nimbleMoves", "recovery"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복]
   dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
   wujuStyle: ["lastManStanding", "lastSamurai", "lastWarrior"], // 우주류 검술: [라스트 맨 스탠딩, 라스트 사무라이, 최후의 전사]
-  mejaisSoulstealer: ["rabadonsDeathcap", "voidStaff", "thornmail"], // 메자이의 영혼약탈자: [라바돈의 죽음모자, 공허의 지팡이, 가시갑옷]
+  mejaisSoulstealer: ["rabadonsDeathcap", "voidStaff", "ludensEcho"], // 메자이의 영혼약탈자: [라바돈의 죽음모자, 공허의 지팡이, 루덴의 메아리]
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
 };
 
@@ -987,9 +996,7 @@ export const syncTeamEchoOfHeroBuff = (battle, fallbackPokemon = null) => {
     return;
   }
   ["player", "npc"].forEach((side) => {
-    const members = (
-      side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]
-    ).filter(Boolean);
+    const members = (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean);
     if (members.length === 0) return;
     const hasHolder = members.some((p) => p?.hasAugment?.("echoOfHero"));
     members.forEach((p) => {

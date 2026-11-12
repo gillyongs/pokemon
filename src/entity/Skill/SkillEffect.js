@@ -3,6 +3,8 @@ import { applyAilment, isAilmentCheck } from "../../function/ailment";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchNpcAuto, switchPlayer, switchPlayerForce } from "../../service/switch";
+import { getAugmentedStat } from "../../util/getStat";
+import { getMultiplier } from "../../function/rankStat";
 
 function isTargetSubstituteBlocked(battle) {
   const defPokemon = battle?.[battle?.turn?.def];
@@ -40,8 +42,7 @@ function skillEffectSearch(name) {
             shellColor = "빨간";
             shellDamage = 40;
           }
-          const targetName = def.names || def.name;
-          const text = `[증강 달팽이세마리] ${targetName} ${shellColor} 달팽이 껍질에 맞았다!`;
+          const text = `[증강 달팽이세마리] ${def.names} ${shellColor} 달팽이 껍질에 맞았다!`;
           def.getDamage(battle, enqueue, shellDamage, text);
         }
       }
@@ -51,8 +52,22 @@ function skillEffectSearch(name) {
       if (hasWujuStyle && def && !def.faint && (def.hp === undefined || def.hp > 0) && atkPokemon && !atkPokemon.faint) {
         if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
           const targetName = def.names || def.name;
-          const text = `[버프 우주류 검술] ${targetName} 30의 추가 고정 데미지를 입었다!`;
+          const text = `[버프 우주류 검술] ${def.name}에게 30의 추가 고정 데미지를 입혔다!`;
           def.getDamage(battle, enqueue, 30, text);
+        }
+      }
+
+      // [증강: 루덴의 메아리] 공격 후 적에게 특수공격의 5%에 해당하는 추가 데미지
+      const hasLudensEcho = atkPokemon?.hasAugment?.("ludensEcho");
+      if (hasLudensEcho && def && !def.faint && (def.hp === undefined || def.hp > 0) && atkPokemon && !atkPokemon.faint) {
+        if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
+          const rankCatk = Number(atkPokemon?.tempStatus?.rank?.catk ?? 0);
+          const curCatk = Math.floor(getAugmentedStat(atkPokemon, "catk", battle) * getMultiplier(rankCatk));
+          const ludenDamage = Math.floor(curCatk * 0.05);
+          if (ludenDamage > 0) {
+            const text = `[증강 루덴의 메아리] ${def.names} 메아리에 맞았다!`;
+            def.getDamage(battle, enqueue, ludenDamage, text);
+          }
         }
       }
 

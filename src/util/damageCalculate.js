@@ -793,6 +793,7 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
+
   if (!ai) {
     let text = attackPokemon.name + "의 공격";
     if (obj) text += ` (${obj.serial + 1}타)`;
