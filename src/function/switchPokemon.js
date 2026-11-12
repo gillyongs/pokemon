@@ -69,8 +69,10 @@ export const switchPokemon = (battle, IN, OUT, options = {}) => {
   }
 
   // 트레이스 특성 초기화
-  pokemonIn.abil = pokemonIn.origin.abil;
-  pokemonIn.abilObj = pokemonIn.origin.abilObj;
+  if (pokemonIn.abil !== pokemonIn.origin.abil) {
+    pokemonIn.abil = pokemonIn.origin.abil;
+    pokemonIn.abilObj = { ...pokemonIn.origin.abilObj };
+  }
 
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
 

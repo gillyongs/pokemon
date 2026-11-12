@@ -30,6 +30,7 @@ class PokemonInstance {
       this.origin.abil = customAbil;
       const baseObj = abilObject[customAbil] ? { ...abilObject[customAbil] } : { text: "설명이 없습니다." };
       baseObj.name = customAbil;
+      baseObj.used = false;
       this.origin.abilObj = baseObj;
     }
     if (customSkills) {
@@ -85,21 +86,8 @@ class PokemonInstance {
     this.item = this.origin.item;
     this.itemText = this.origin.itemText;
     this.abil = this.origin.abil;
-    this.abilObj = this.origin.abilObj;
+    this.abilObj = { ...this.origin.abilObj, used: false };
     this.origin.skill[5] = { ...skillList.search("발버둥"), skillNumber: 5 };
-
-    // 스킨류 특성 (페어리스킨, 스카이스킨 등) 적용: 기본 특성이 스킨류인 경우 노말 기술을 해당 타입으로 변환
-    const skinFeature = this.abilObj?.feature?.skin ? this.abilObj.feature : abilObject[this.abil]?.feature?.skin ? abilObject[this.abil].feature : null;
-    if (skinFeature) {
-      const targetType = skinFeature.type;
-      [1, 2, 3, 4].forEach((slot) => {
-        const sk = this.origin.skill[slot];
-        if (sk && (sk.type === "노말" || sk.originType === "노말") && sk.name !== "발버둥") {
-          sk.originType = sk.originType || sk.type;
-          sk.type = targetType;
-        }
-      });
-    }
 
     this.pp = {
       1: this.origin.skill[1].pp,

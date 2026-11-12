@@ -45,21 +45,9 @@ export const PokemonMega = {
     this.origin.stat.speed = mega.stat.speed;
 
     this.abil = mega.abil;
-    this.abilObj = abilObject[mega.abil] || { name: mega.abil };
+    this.abilObj = { ...(abilObject[mega.abil] || {}), name: mega.abil, used: false };
     this.origin.abil = mega.abil;
-    this.origin.abilObj = this.abilObj;
-
-    // 스킨류 특성 적용
-    if (this.abilObj?.feature?.skin) {
-      const type = this.abilObj.feature.type;
-
-      Object.values(this.origin.skill).forEach((skill) => {
-        if (skill.type === "노말" && skill.name !== "발버둥") {
-          skill.originType = skill.type;
-          skill.type = type;
-        }
-      });
-    }
+    this.origin.abilObj = { ...this.abilObj };
 
     // 3. 메가진화 완료 텍스트 (메가진화 후 이미지/아이콘이 적용된 상태로 큐에 등록)
     enqueue({

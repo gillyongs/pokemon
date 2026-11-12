@@ -1,12 +1,12 @@
 import { useRef } from "react";
 import styled from "styled-components";
 import { getTypeEffectText } from "../../../../util/typeEffectCalculate";
-import { getWeatherBallType } from "../../../../util/weatherBall";
+import { skillTypeCalculate } from "../../../../util/skillTypeCalculate";
 
 const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {
   let pp = battle.player.pp[skillNumber];
   let skill = battle.player.origin.skill[skillNumber];
-  const displayType = skill?.name === "웨더볼" ? getWeatherBallType(battle.field?.weather) : skill?.type;
+  const displayType = skillTypeCalculate(battle, skill, battle.player);
 
   const sn = getNumberText(skillNumber);
 

@@ -89,8 +89,9 @@ class PokemonTemplate {
     this.item = item;
     this.itemText = itemText[item];
     this.abil = abil;
-    this.abilObj = abilObject[abil] ? abilObject[abil] : {}
-    this.abilObj.name = abil
+    this.abilObj = abilObject[abil] ? { ...abilObject[abil] } : {};
+    this.abilObj.name = abil;
+    this.abilObj.used = false;
 
     const pokemon = PokemonData.getDataById(pokemon_id);
     this.no = pokemon.no;

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import styled from "styled-components";
 import { itemText } from "../../../entity/Item";
 import { typeCheck } from "../../../util/typeEffectCalculate";
+import { skillTypeCalculate } from "../../../util/skillTypeCalculate";
 
 export const isPokemon = (pokemon, target) => {
   if (!pokemon || !target) return false;
@@ -87,12 +88,12 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
   }
 
   const skills = [1, 2, 3, 4].map((num) => pokemon.skill?.[num] || pokemon.skill?.[String(num)]).filter(Boolean);
-  const skillTypes = skills.map((sk) => sk.type).filter(Boolean);
+  const skillTypes = skills.map((sk) => skillTypeCalculate(null, sk, pokemon)).filter(Boolean);
   const hasDarkSkill = skillTypes.includes("악");
   const hasWaterSkill = skillTypes.includes("물");
   const hasIceSkill = skillTypes.includes("얼음");
   const hasSteelSkill = skillTypes.includes("강철");
-  const hasFairySkill = skillTypes.includes("페어리") || (pokemon.abil === "페어리스킨" && skillTypes.includes("노말"));
+  const hasFairySkill = skillTypes.includes("페어리");
 
   // 타입별 데미지 증가 아이템
   if (isAttacker) {

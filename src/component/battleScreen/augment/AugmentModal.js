@@ -5,7 +5,7 @@ import { AUGMENT_LIST, compareAugmentNames, getAugmentDesc, isCurseAugment } fro
 import { getSwordEnhanceTier, getSwordEnhanceProb } from "../../../entity/Augment/swordEnhance";
 import { abilObject, noRandomAbil } from "../../../entity/Ability";
 import { ALL_POKEMON_TYPES, TYPE_COLORS, isNoEffect, getTypeEffectText } from "../../../util/typeEffectCalculate";
-import { getWeatherBallType } from "../../../util/weatherBall";
+import { skillTypeCalculate } from "../../../util/skillTypeCalculate";
 import { rollTeamAugments } from "../../../util/augmentRoll";
 import { testmode, subscribeTestMode } from "../../../config/testMode";
 import sampleList from "../../../entity/Pokemon/SamplePokemon";
@@ -1120,7 +1120,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                     const sk = activePokemon?.origin?.skill?.[slot];
                     if (!sk) return null;
                     const currentPp = activePokemon?.pp?.[slot] ?? sk.pp;
-                    const displayType = sk.name === "웨더볼" ? getWeatherBallType(battle?.field?.weather) : sk.type;
+                    const displayType = skillTypeCalculate(battle, sk, activePokemon);
                     const effectText = battle?.npc ? getTypeEffectText(activePokemon, displayType, battle.npc.type1, battle.npc.type2, sk.stype, sk.name) : "";
                     const isSelected = selectedSlot === slot;
                     return (
@@ -1140,7 +1140,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                         <SkillTopRow>
                           <SkillTypeIcon
                             src={`/pokemon/img/type/${displayType}.svg`}
-                            alt={sk.type}
+                            alt={displayType}
                             onError={(e) => {
                               e.currentTarget.style.display = "none";
                             }}

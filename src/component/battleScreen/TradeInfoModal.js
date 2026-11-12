@@ -1,5 +1,6 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { skillTypeCalculate } from '../../util/skillTypeCalculate';
 
 const HexagonGraph = ({ origin }) => {
   const MAX_STAT = 250;
@@ -124,9 +125,10 @@ const TradeInfoModal = ({ pokemon, onClose }) => {
           {[1, 2, 3, 4].map(num => {
             const skill = p.skill[num];
             if (!skill || !skill.name) return null;
+            const displayType = skillTypeCalculate(null, skill, pokemon);
             return (
               <SkillButton key={num} onClick={() => handleSkillClick(skill)}>
-                <img src={`/pokemon/img/type/${skill.type}.svg`} alt={skill.name} style={{ width: "24px", height: "24px", marginRight: "8px", borderRadius: "4px" }} />
+                <img src={`/pokemon/img/type/${displayType}.svg`} alt={skill.name} style={{ width: "24px", height: "24px", marginRight: "8px", borderRadius: "4px" }} />
                 <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
                   <span style={{ fontWeight: "bold", fontSize: "0.9rem", color: "#fff", whiteSpace: "nowrap" }}>{skill.name}{skill.nimbleMoves ? " +1" : ""}</span>
                   <span style={{ fontSize: "0.75rem", color: "#aaa", whiteSpace: "nowrap" }}>PP {skill.pp}/{skill.pp}</span>

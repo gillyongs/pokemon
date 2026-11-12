@@ -4,7 +4,7 @@ import { getMultiplier } from "../function/rankStat";
 import { noNullItem } from "../entity/Item";
 import { isAilmentCheck } from "../function/ailment";
 import { speedCheck, speedCalculate, isPokemonAlone } from "./speedCheck";
-import { getWeatherBallType } from "./weatherBall";
+import { skillTypeCalculate } from "./skillTypeCalculate";
 import { consoleLog } from "./consoleLog";
 import { getAugmentedStat, getHighestStatInfo } from "./getStat";
 
@@ -17,11 +17,9 @@ export const damageCalculate = (battle, obj, ai) => {
   const defensePokemon = battle[battle.turn.def];
 
   const skillNumber = battle.turn.atkSN;
-  let skill = attackPokemon.origin.skill[skillNumber]; // 시전 스킬
-  if (skill?.name === "웨더볼") {
-    const wType = getWeatherBallType(battle.field?.weather);
-    skill = { ...skill, type: wType };
-  }
+  const originSkill = attackPokemon.origin.skill[skillNumber]; // 시전 스킬
+  const calculatedType = skillTypeCalculate(battle, originSkill, attackPokemon);
+  let skill = originSkill && originSkill.type !== calculatedType ? { ...originSkill, type: calculatedType } : originSkill;
   if (skill?.name === "테라버스트") {
     // 공격과 특공중 더 높은 쪽을 적용.
     // 공격이 더 높으면 물리기가 된다
@@ -671,12 +669,13 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 원본이 노말타입인 기술만 데미지 보정이 들어간다
-  if (atkAbil === "스카이스킨" && skill.type === "비행" && skill.originType === "노말") {
+  const originSkillType = originSkill?.originType || originSkill?.type;
+  if (atkAbil === "스카이스킨" && skill.type === "비행" && originSkillType === "노말") {
     damage *= 1.2;
     attackPokemon.log.damage1 += " * 1.2 (스카이스킨)";
   }
 
-  if (atkAbil === "페어리스킨" && skill.type === "페어리" && skill.originType === "노말") {
+  if (atkAbil === "페어리스킨" && skill.type === "페어리" && originSkillType === "노말") {
     damage *= 1.2;
     attackPokemon.log.damage1 += " * 1.2 (페어리스킨)";
   }

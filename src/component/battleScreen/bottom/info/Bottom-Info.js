@@ -8,7 +8,7 @@ import { getAugmentedStat } from "../../../../util/getStat";
 import { hpCalculate } from "../../../../util/hpCalculate";
 import { getMultiplier } from "../../../../function/rankStat";
 import { getTypeEffectText } from "../../../../util/typeEffectCalculate";
-import { getWeatherBallType } from "../../../../util/weatherBall";
+import { skillTypeCalculate } from "../../../../util/skillTypeCalculate";
 import { abilObject } from "../../../../entity/Ability";
 import { itemText as itemTextDict } from "../../../../entity/Item";
 
@@ -270,7 +270,10 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
 
             <MetaRow>
               <MetaLabel>특성:</MetaLabel>
-              <ClickableBadge onClick={handleAbilClick}>{pokemon.abil}</ClickableBadge>
+              <ClickableBadge onClick={handleAbilClick}>
+                {pokemon.abil}
+                {pokemon.abilObj?.used ? " (사용됨)" : ""}
+              </ClickableBadge>
             </MetaRow>
 
             <MetaRow>
@@ -326,7 +329,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
               const skill = pokemon.origin?.skill?.[skillNumber];
               if (!skill || !skill.name) return null;
               const pp = pokemon.pp?.[skillNumber] ?? skill.pp;
-              const displayType = skill.name === "웨더볼" ? getWeatherBallType(battle.field?.weather) : skill.type;
+              const displayType = skillTypeCalculate(battle, skill, pokemon);
               const effectText = getTypeEffectText(pokemon, displayType, battle.npc.type1, battle.npc.type2, skill.stype, skill.name);
 
               return (

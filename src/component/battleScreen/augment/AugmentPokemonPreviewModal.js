@@ -3,6 +3,7 @@ import styled, { keyframes } from "styled-components";
 import { abilObject } from "../../../entity/Ability";
 import { itemText } from "../../../entity/Item";
 import { TYPE_COLORS } from "../../../util/typeEffectCalculate";
+import { skillTypeCalculate } from "../../../util/skillTypeCalculate";
 
 const isOnlyPrioritySkillText = (text) => {
   if (!text || typeof text !== "string") return false;
@@ -239,26 +240,29 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
         </StatsRow>
 
         <SkillsGrid>
-          {skills.map((skill, idx) => (
-            <SkillCardButton key={skill.name || idx} type="button" onClick={(e) => handleSkillClick(e, skill)}>
-              <SkillIcon
-                src={`/pokemon/img/type/${skill.type}.svg`}
-                alt={skill.type}
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-              <SkillMetaCol>
-                <SkillNameText>
-                  {skill.name}
-                  {skill.nimbleMoves ? " +1" : ""}
-                </SkillNameText>
-                <SkillPpText>
-                  PP {skill.pp}/{skill.pp}
-                </SkillPpText>
-              </SkillMetaCol>
-            </SkillCardButton>
-          ))}
+          {skills.map((skill, idx) => {
+            const displayType = skillTypeCalculate(null, skill, { abil: displayAbil });
+            return (
+              <SkillCardButton key={skill.name || idx} type="button" onClick={(e) => handleSkillClick(e, skill)}>
+                <SkillIcon
+                  src={`/pokemon/img/type/${displayType}.svg`}
+                  alt={displayType}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+                <SkillMetaCol>
+                  <SkillNameText>
+                    {skill.name}
+                    {skill.nimbleMoves ? " +1" : ""}
+                  </SkillNameText>
+                  <SkillPpText>
+                    PP {skill.pp}/{skill.pp}
+                  </SkillPpText>
+                </SkillMetaCol>
+              </SkillCardButton>
+            );
+          })}
         </SkillsGrid>
 
         <InfoBox>{infoText}</InfoBox>

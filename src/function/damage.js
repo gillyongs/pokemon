@@ -77,13 +77,11 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   // 특성 "탈" 처리
   let talTrigger = false;
-  if (defPokemon.abil === "탈") {
+  if (defPokemon.abil === "탈" && !defPokemon.abilObj?.used) {
     if (!atkAbilObj.feature?.tgg) {
       //틀깨기
       talTrigger = true;
-      //트레이스 특성때문에 포켓몬 교체시 abil을 origin.abil 값으로 바꾸므로 origin.abil도 바꿔줘야함
-      defPokemon.abil = "탈 (사용됨)";
-      defPokemon.origin.abil = "탈 (사용됨)";
+      defPokemon.abilObj.used = true;
       const talHp = Math.floor(hpCalculate(defPokemon) / 8);
       if (skDamage > talHp) {
         skDamage = talHp;

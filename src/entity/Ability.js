@@ -212,9 +212,10 @@ export const changePokemonAbility = (pokemon, abilityName, fallbackText = "") =>
   }
   const baseObj = abilObject[abilityName] ? { ...abilObject[abilityName] } : { text: fallbackText || "설명이 없습니다." };
   baseObj.name = abilityName;
+  baseObj.used = false;
   pokemon.abilObj = baseObj;
   if (pokemon.origin) {
-    pokemon.origin.abilObj = baseObj;
+    pokemon.origin.abilObj = { ...baseObj };
   }
   return baseObj;
 };
