@@ -699,6 +699,17 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.5 (용살자)";
   }
 
+  // 하이리스크 하이리턴 (버프: 3배, 저주: 0.5배)
+  if (attackPokemon?.hasAugment?.("highRiskBuff") && (skill.stype === "atk" || skill.stype === "catk")) {
+    damage *= 3;
+    attackPokemon.log.damage1 += " * 3 (하이 리턴)";
+  }
+
+  if (attackPokemon?.hasAugment?.("highRiskCurse") && (skill.stype === "atk" || skill.stype === "catk")) {
+    damage *= 0.5;
+    attackPokemon.log.damage1 += " * 0.5 (하이 리스크)";
+  }
+
   // ======================================================================  [고정 공식] ========================================
   // ===========================================================================================================================
   // ===========================================================================================================================

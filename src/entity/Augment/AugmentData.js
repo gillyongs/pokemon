@@ -1,6 +1,7 @@
 import { abilObject, noRandomAbil, changePokemonAbility, changeAbility } from "../Ability";
 import { josa } from "josa";
-import { getAugmentedStat, getHighestStatInfo } from "../../util/getStat";
+import { getAugmentedStat, getHighestStatInfo, STAT_LABELS } from "../../util/getStat";
+import { isPokemonAlone } from "../../util/speedCheck";
 import { getMultiplier } from "../../function/rankStat";
 import sampleList from "../Pokemon/SamplePokemon";
 import { generate } from "../Pokemon/PokemonInstance";
@@ -85,6 +86,32 @@ export const isSpecialPokemon = (pokemon) => {
 // 상호 배타적 능력치 전환 증강 (하나라도 보유하면 나머지는 등장하지 않음)
 export const STAT_SWAP_AUGMENTS = ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"];
 const canPickStatSwapAugment = (pokemon) => !STAT_SWAP_AUGMENTS.some((id) => pokemon?.hasAugment?.(id));
+
+// 도박 중독 시 해금 및 확정 등장하는 도박 증강 ID 목록
+export const GAMBLE_BONUS_AUGMENT_IDS = ["russianRoulette", "oddEven", "doOrDie", "highRiskHighReturn"];
+
+const getBattleFromContext = (battleOrTeam, teamArg = null) => {
+  if (battleOrTeam && typeof battleOrTeam === "object" && !Array.isArray(battleOrTeam) && (battleOrTeam.player || battleOrTeam.npc)) {
+    return battleOrTeam;
+  }
+  if (teamArg && typeof teamArg === "object" && !Array.isArray(teamArg) && (teamArg.player || teamArg.npc)) {
+    return teamArg;
+  }
+  return null;
+};
+
+export const hasGamblingAddict = (pokemon, battleOrTeam = null, teamArg = null) => {
+  const side = pokemon?.team === "npc" ? "npc" : "player";
+  const battle = getBattleFromContext(battleOrTeam, teamArg);
+  const battleMembers = battle
+    ? side === "npc"
+      ? [battle.npc, battle.npcBench1, battle.npcBench2]
+      : [battle.player, battle.playerBench1, battle.playerBench2]
+    : [];
+  const arrayMembers = Array.isArray(teamArg) ? teamArg : Array.isArray(battleOrTeam) ? battleOrTeam : [];
+  const candidates = [pokemon, ...battleMembers, ...arrayMembers].filter(Boolean);
+  return candidates.some((p) => p.hasAugment?.("gamblingAddict"));
+};
 
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
@@ -679,8 +706,156 @@ export const AUGMENT_LIST = [
   {
     id: "gamblingAddict",
     name: "도박 중독",
-    desc: "공격이 1 증가합니다.",
+    desc: "도박과 관련된 증강이 추가로 나오게 됩니다.",
     buf: true,
+    isRandom: false,
+    weight: "-",
+  },
+  // 도박 중독 전용 추가 증강 =================================================
+  {
+    id: "russianRoulette",
+    name: "러시안룰렛",
+    desc: "현재 필드에 나와있는 두 포켓몬 중 하나가 기절합니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon, battleOrTeam, team) => {
+      if (!hasGamblingAddict(pokemon, battleOrTeam, team)) return false;
+      const battle = getBattleFromContext(battleOrTeam, team);
+      if (battle) {
+        if (!battle.player || battle.player.faint || battle.player.hp <= 0) return false;
+        if (!battle.npc || battle.npc.faint || battle.npc.hp <= 0) return false;
+      }
+      return true;
+    },
+    onApply: function (pokemon, battle, options) {
+      if (!battle) return;
+      const side =
+        options?.faintTarget === "player" || options?.faintTarget === "npc"
+          ? options.faintTarget
+          : Math.random() < 0.5
+            ? "player"
+            : "npc";
+      const faintPoke = side === "npc" ? battle.npc : battle.player;
+      if (faintPoke) {
+        faintPoke.hp = 0;
+        if (!options?.deferFaint) {
+          faintPoke.handleFaint?.(battle, options?.enqueue || (() => {}));
+        }
+      }
+      if (options && typeof options === "object") {
+        options.resolvedFaintSide = side;
+        options.resolvedFaintTarget = faintPoke;
+        options.resolvedFaintTargetName = faintPoke?.name || faintPoke?.origin?.name || "";
+      }
+    },
+  },
+  {
+    id: "oddEven",
+    name: "홀짝",
+    desc: "랜덤한 수치의 랭크업을 얻습니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon, battleOrTeam, team) => hasGamblingAddict(pokemon, battleOrTeam, team),
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon) return;
+      const statPool = ["atk", "catk", "cdef", "def", "speed"];
+      const deltaPool = [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6];
+      const chosenStat = statPool.includes(options?.statKey)
+        ? options.statKey
+        : statPool[Math.floor(Math.random() * statPool.length)];
+      let chosenDelta = Number(options?.delta);
+      if (!deltaPool.includes(chosenDelta)) {
+        chosenDelta = deltaPool[Math.floor(Math.random() * deltaPool.length)];
+      }
+      pokemon.rankUp?.(battle, options?.enqueue || (() => {}), chosenStat, chosenDelta, null, false);
+      if (options && typeof options === "object") {
+        options.resolvedStat = chosenStat;
+        options.resolvedDelta = chosenDelta;
+      }
+    },
+  },
+  {
+    id: "doOrDie",
+    name: "이판사판",
+    desc: "10% 확률로 상대 엔트리의 대기중인 포켓몬을 전부 기절시킵니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon, battleOrTeam, team) => {
+      if (!hasGamblingAddict(pokemon, battleOrTeam, team)) return false;
+      const battle = getBattleFromContext(battleOrTeam, team);
+      if (!battle) return false;
+      if (!pokemon || pokemon.faint || pokemon.hp <= 0) return false;
+      if (!isPokemonAlone(pokemon, battle)) return false;
+      const isNpcAlive = (p) => Boolean(p && !p.faint && !(p.hp <= 0));
+      const npcBenchAlive = [battle.npcBench1, battle.npcBench2].some(isNpcAlive);
+      const npcAliveCount = [battle.npc, battle.npcBench1, battle.npcBench2].filter(isNpcAlive).length;
+      return npcBenchAlive && npcAliveCount >= 2;
+    },
+    onApply: function (pokemon, battle, options) {
+      const success = typeof options?.doOrDieSuccess === "boolean" ? options.doOrDieSuccess : Math.random() < 0.1;
+      const faintedNames = [];
+      if (success && battle) {
+        const benches = [battle.npcBench1, battle.npcBench2];
+        benches.forEach((bp) => {
+          if (bp && !bp.faint && !(bp.hp <= 0)) {
+            faintedNames.push(bp.name || bp.origin?.name || "");
+            bp.hp = 0;
+            if (!options?.deferFaint) {
+              bp.handleFaint?.(battle, options?.enqueue || (() => {}));
+            }
+          }
+        });
+      }
+      if (options && typeof options === "object") {
+        options.resolvedSuccess = success;
+        options.resolvedFaintedBenchNames = faintedNames;
+      }
+    },
+  },
+  {
+    id: "highRiskHighReturn",
+    name: "하이리스크 하이리턴",
+    desc: "모든 공격의 데미지가 3배가 되는 버프 또는 절반이 되는 저주를 얻습니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon, battleOrTeam, team) =>
+      hasGamblingAddict(pokemon, battleOrTeam, team) &&
+      !pokemon?.hasAugment?.("highRiskBuff") &&
+      !pokemon?.hasAugment?.("highRiskCurse"),
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon) return;
+      const pickedResult =
+        options?.highRiskResult === "buff" || options?.highRiskResult === "curse"
+          ? options.highRiskResult
+          : Math.random() < 0.5
+            ? "buff"
+            : "curse";
+      const grantedId = pickedResult === "buff" ? "highRiskBuff" : "highRiskCurse";
+      const grantedAug = AUGMENT_LIST.find((a) => a.id === grantedId);
+      if (grantedAug) {
+        pokemon.applyAugment(grantedAug, battle, options);
+      }
+      if (options && typeof options === "object") {
+        options.resolvedHighRiskResult = pickedResult;
+        options.resolvedGrantedId = grantedId;
+        options.resolvedGrantedAug = grantedAug;
+      }
+    },
+  },
+  {
+    id: "highRiskBuff",
+    name: "하이 리턴",
+    desc: "모든 공격의 데미지가 3배가 됩니다.",
+    buf: true,
+    isRandom: false,
+    weight: "-",
+  },
+  {
+    id: "highRiskCurse",
+    name: "하이 리스크",
+    desc: "모든 공격의 데미지가 절반이 됩니다.",
+    buf: true,
+    curse: true,
     isRandom: false,
     weight: "-",
   },
@@ -1003,6 +1178,41 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     } else if (isTextScreen) {
       individualDesc = "공격이 2배, 특수공격이 절반이 되었다!";
     }
+  } else if (id === "russianRoulette") {
+    const faintedName = options?.resolvedFaintTargetName || options?.faintedPokemonName;
+    if (isTextScreen) {
+      individualDesc = faintedName ? `러시안룰렛의 총구가 ${josa(`${faintedName}#{를}`)} 향했다!` : "러시안룰렛의 총구가 멈췄다!";
+    } else {
+      individualDesc = faintedName
+        ? `현재 필드에 나와있는 두 포켓몬 중 ${josa(`${faintedName}#{이}`)} 기절했습니다.`
+        : selectedAugment.desc || "현재 필드에 나와있는 두 포켓몬 중 하나가 기절합니다.";
+    }
+  } else if (id === "oddEven") {
+    const statKey = options?.resolvedStat || options?.statKey;
+    const delta = options?.resolvedDelta ?? options?.delta;
+    const statLabel = STAT_LABELS[statKey];
+    if (!isTextScreen && statLabel && typeof delta === "number" && !Number.isNaN(delta)) {
+      const signed = delta > 0 ? `+${delta}` : `${delta}`;
+      individualDesc = `랜덤한 수치의 랭크업을 얻습니다. (${statLabel} ${signed})`;
+    }
+  } else if (id === "doOrDie") {
+    const success = options?.resolvedSuccess ?? options?.doOrDieSuccess;
+    if (typeof success === "boolean") {
+      if (isTextScreen) {
+        individualDesc = success
+          ? "이판사판 성공! 상대 엔트리의 대기 중인 포켓몬을 전부 기절시킨다!"
+          : "이판사판... 하지만 실패했다!";
+      } else {
+        individualDesc = success
+          ? "이판사판에 성공하여 상대 엔트리의 대기 중인 포켓몬을 전부 기절시켰습니다."
+          : "이판사판에 실패하여 아무 일도 일어나지 않았습니다.";
+      }
+    }
+  } else if (id === "highRiskHighReturn") {
+    const grantedAug = options?.resolvedGrantedAug || (options?.resolvedGrantedId ? AUGMENT_LIST.find((a) => a.id === options.resolvedGrantedId) : null);
+    if (grantedAug) {
+      return getAugmentText(grantedAug, target, isTextScreen, prevPokeName, options);
+    }
   } else if (id === "nullifyGetto") {
     const nullType = options?.selectedType || selectedAugment?.selectedType || target?.augments?.find((a) => a.id === "nullifyGetto")?.selectedType || target?._nullifyType || "";
     if (nullType) {
@@ -1025,12 +1235,16 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   }
 
   const foundInList = AUGMENT_LIST.find((a) => a.id === id);
-  const isBuf = Boolean(selectedAugment?.buf || foundInList?.buf);
+  const isCurse = Boolean(selectedAugment?.curse || foundInList?.curse);
+  const isBuf = Boolean(selectedAugment?.buf || foundInList?.buf || isCurse);
   if (isBuf) {
     if (isTextScreen) {
       const displayAugName = selectedAugment?.shortName || selectedAugment?.name || foundInList?.shortName || foundInList?.name || "";
       if (AUGMENT_SYNERGY_MAP[id]) {
         return `3개의 증강이 공명하여 "${displayAugName}" 버프를 얻었다!`;
+      }
+      if (isCurse) {
+        return `${names} "${displayAugName}" 저주를 얻었다!`;
       }
       return `${names} "${displayAugName}" 버프를 얻었다!`;
     }
@@ -1177,4 +1391,12 @@ export const isBuffAugment = (augment) => {
   const id = typeof augment === "string" ? augment : augment.id;
   const found = AUGMENT_LIST.find((a) => a.id === id);
   return Boolean(found?.buf);
+};
+
+export const isCurseAugment = (augment) => {
+  if (!augment) return false;
+  if (typeof augment === "object" && augment.curse) return true;
+  const id = typeof augment === "string" ? augment : augment.id;
+  const found = AUGMENT_LIST.find((a) => a.id === id);
+  return Boolean(found?.curse);
 };

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { AugmentIcon } from "./augment/AugmentIcon";
-import { isBuffAugment } from "../../entity/Augment/AugmentData";
+import { isBuffAugment, isCurseAugment } from "../../entity/Augment/AugmentData";
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -93,9 +93,14 @@ const Item = styled.div`
 const AugmentLogCard = styled.div`
   padding: 12px 14px;
   margin-bottom: 12px;
-  background: ${(props) => (props.$isBuff ? "linear-gradient(135deg, rgba(38, 32, 12, 0.95), rgba(24, 20, 8, 0.98))" : "linear-gradient(135deg, rgba(16, 28, 42, 0.95), rgba(10, 18, 28, 0.98))")};
-  border: 1px solid ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.45)" : "rgba(100, 255, 218, 0.35)")};
-  border-left: 4px solid ${(props) => (props.$isBuff ? "#ffd700" : "#64ffda")};
+  background: ${(props) =>
+    props.$isCurse
+      ? "linear-gradient(135deg, rgba(48, 16, 18, 0.95), rgba(28, 10, 12, 0.98))"
+      : props.$isBuff
+        ? "linear-gradient(135deg, rgba(38, 32, 12, 0.95), rgba(24, 20, 8, 0.98))"
+        : "linear-gradient(135deg, rgba(16, 28, 42, 0.95), rgba(10, 18, 28, 0.98))"};
+  border: 1px solid ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.45)" : props.$isBuff ? "rgba(255, 215, 0, 0.45)" : "rgba(100, 255, 218, 0.35)")};
+  border-left: 4px solid ${(props) => (props.$isCurse ? "#ef4444" : props.$isBuff ? "#ffd700" : "#64ffda")};
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
   display: flex;
@@ -110,13 +115,13 @@ const AugmentHeader = styled.div`
 `;
 
 const AugmentBadge = styled.span`
-  background: ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.2)" : "rgba(100, 255, 218, 0.15)")};
-  color: ${(props) => (props.$isBuff ? "#ffd700" : "#64ffda")};
+  background: ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.2)" : props.$isBuff ? "rgba(255, 215, 0, 0.2)" : "rgba(100, 255, 218, 0.15)")};
+  color: ${(props) => (props.$isCurse ? "#f87171" : props.$isBuff ? "#ffd700" : "#64ffda")};
   font-size: 0.72rem;
   font-weight: 700;
   padding: 2px 7px;
   border-radius: 4px;
-  border: 1px solid ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.5)" : "rgba(100, 255, 218, 0.35)")};
+  border: 1px solid ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.5)" : props.$isBuff ? "rgba(255, 215, 0, 0.5)" : "rgba(100, 255, 218, 0.35)")};
   letter-spacing: 0.5px;
 `;
 
@@ -131,6 +136,21 @@ const LogBuffBadge = styled.span`
   color: #ffd700;
   background: rgba(255, 215, 0, 0.18);
   border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+`;
+
+const LogCurseBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.5);
   border-radius: 4px;
   letter-spacing: 0.5px;
 `;
@@ -252,25 +272,26 @@ export default function LogModal({ log, onClose }) {
                 const targetName = item.augmentData.targetName;
                 const augment = item.augmentData.augment || item.augmentData || {};
                 const augId = augment.id;
-                const isBuff = Boolean(augment.buf || isBuffAugment(augment));
+                const isCurse = Boolean(augment.curse || isCurseAugment(augment));
+                const isBuff = Boolean((augment.buf || isBuffAugment(augment)) && !isCurse);
                 const augCost = augment.cost;
-                const augName = augment.shortName || augment.name || augment.augmentName || (isBuff ? "버프" : "증강");
+                const augName = augment.shortName || augment.name || augment.augmentName || (isCurse ? "저주" : isBuff ? "버프" : "증강");
                 const augDesc = augment.desc;
                 return (
-                  <AugmentLogCard key={index} $isBuff={isBuff}>
+                  <AugmentLogCard key={index} $isBuff={isBuff} $isCurse={isCurse}>
                     <AugmentHeader>
-                      <AugmentBadge $isBuff={isBuff}>{isBuff ? "버프 획득" : "증강 획득"}</AugmentBadge>
+                      <AugmentBadge $isBuff={isBuff} $isCurse={isCurse}>{isCurse ? "저주 획득" : isBuff ? "버프 획득" : "증강 획득"}</AugmentBadge>
                       <TargetPokemonText>{targetName}에게 적용</TargetPokemonText>
                     </AugmentHeader>
                     <AugmentBody>
                       <AugmentIconCol>
                         {augId && <AugmentIcon id={augId} size={36} />}
-                        {!isBuff && augCost !== undefined && augCost !== "-" && <AugmentCost>{augCost ?? 1} cost</AugmentCost>}
+                        {!isBuff && !isCurse && augCost !== undefined && augCost !== "-" && <AugmentCost>{augCost ?? 1} cost</AugmentCost>}
                       </AugmentIconCol>
                       <AugmentInfo>
                         <AugmentTitleRow>
                           <AugmentName>{augName}</AugmentName>
-                          {isBuff && <LogBuffBadge>버프</LogBuffBadge>}
+                          {isCurse ? <LogCurseBadge>저주</LogCurseBadge> : isBuff && <LogBuffBadge>버프</LogBuffBadge>}
                         </AugmentTitleRow>
                         {augDesc && <AugmentDesc>{augDesc}</AugmentDesc>}
                       </AugmentInfo>

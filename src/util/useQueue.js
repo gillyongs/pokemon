@@ -60,7 +60,7 @@ export function useQueue() {
     return removedItem;
   };
 
-  const updateHead = (updater, curBattle, extraAfterHead = []) => {
+  const updateHead = (updater, curBattle, extraAfterHead = [], options = {}) => {
     setQueue((prevQueue) => {
       if (prevQueue.length === 0) return prevQueue;
       const head = typeof updater === "function" ? updater(prevQueue[0]) : updater;
@@ -76,6 +76,10 @@ export function useQueue() {
         return cloneWithMethods(nextItem);
       });
 
+      if (options?.dropRemaining) {
+        return [deepCopiedHead, ...deepCopiedExtras];
+      }
+
       if (!curBattle) {
         return [deepCopiedHead, ...deepCopiedExtras, ...prevQueue.slice(1)];
       }
@@ -86,14 +90,24 @@ export function useQueue() {
         if ("hasKnockoutAugmentThisRound" in curBattle) {
           nextItemBattle.hasKnockoutAugmentThisRound = curBattle.hasKnockoutAugmentThisRound;
         }
-        const sourceTeam = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2];
-        const targetTeam = [nextItemBattle.player, nextItemBattle.playerBench1, nextItemBattle.playerBench2];
-        sourceTeam.forEach((sPoke, pIdx) => {
-          if (sPoke && targetTeam[pIdx]) {
+        const sourcePlayerTeam = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2];
+        const targetPlayerTeam = [nextItemBattle.player, nextItemBattle.playerBench1, nextItemBattle.playerBench2];
+        sourcePlayerTeam.forEach((sPoke, pIdx) => {
+          if (sPoke && targetPlayerTeam[pIdx]) {
             const clonedPoke = cloneWithMethods(sPoke);
             if (pIdx === 0) nextItemBattle.player = clonedPoke;
             else if (pIdx === 1) nextItemBattle.playerBench1 = clonedPoke;
             else if (pIdx === 2) nextItemBattle.playerBench2 = clonedPoke;
+          }
+        });
+        const sourceNpcTeam = [curBattle.npc, curBattle.npcBench1, curBattle.npcBench2];
+        const targetNpcTeam = [nextItemBattle.npc, nextItemBattle.npcBench1, nextItemBattle.npcBench2];
+        sourceNpcTeam.forEach((sPoke, pIdx) => {
+          if (sPoke && targetNpcTeam[pIdx]) {
+            const clonedPoke = cloneWithMethods(sPoke);
+            if (pIdx === 0) nextItemBattle.npc = clonedPoke;
+            else if (pIdx === 1) nextItemBattle.npcBench1 = clonedPoke;
+            else if (pIdx === 2) nextItemBattle.npcBench2 = clonedPoke;
           }
         });
         const updatedText =

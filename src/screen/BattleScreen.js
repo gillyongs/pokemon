@@ -15,9 +15,10 @@ import TestingTools from "../component/battleScreen/TestingTools";
 import AfterBattleTradeModal from "../component/battleScreen/AfterBattleTradeModal";
 import { consoleLog } from "../util/consoleLog";
 import { rollAugments } from "../util/augmentRoll";
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText, isBuffAugment, isCurseAugment } from "../entity/Augment/AugmentData";
 import { generate } from "../entity/Pokemon/PokemonInstance";
 import { useQueue } from "../util/useQueue";
+import { switchNpcAuto } from "../service/switch";
 
 import PokemonInfo from "../component/battleScreen/top/PokemonInfo";
 import PokemonImage from "../component/battleScreen/top/PokemonImage";
@@ -160,6 +161,7 @@ const Battle = () => {
             name: aug.name,
             cost: aug.cost,
             buf: true,
+            curse: Boolean(aug.curse || isCurseAugment(aug)),
             dragonKillCount: aug.dragonKillCount ?? p.dragonKillCount ?? 0,
             mejaiStack: aug.mejaiStack ?? p.mejaiStack ?? 0,
           });
@@ -173,6 +175,7 @@ const Battle = () => {
           acc[idx] = (augs || []).map((aug) => ({
             id: aug.id || aug,
             buf: Boolean(aug.buf),
+            curse: Boolean(aug.curse),
             replacedSlot: aug.replacedSlot,
             selectedType: aug.selectedType,
             allOrNothingResult: aug.allOrNothingResult,
@@ -298,6 +301,13 @@ const Battle = () => {
     const curBattle = battleObj.current;
     if (!curBattle) return;
 
+    const head = queueObject.queue[0];
+    const isStartAugment = Boolean(head?.isBattleStartAugment);
+    const isKnockoutPrompt = Boolean(head?.isKnockoutAugment || (head?.isAugment && !head?.isBattleStartAugment));
+    if (isKnockoutPrompt) {
+      curBattle.hasKnockoutAugmentThisRound = true;
+    }
+
     const teamPokes = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2].filter(Boolean);
     const targetCandidate = options?.targetPokemon || augmentTargetPoke;
     const target = (targetCandidate && teamPokes.find((p) => p && (p.originalIndex === targetCandidate.originalIndex || p.id === targetCandidate.id || p.name === targetCandidate.name))) || curBattle.player;
@@ -309,18 +319,29 @@ const Battle = () => {
       hadSynergyBefore[buffId] = Boolean(target.hasAugment?.(buffId));
     });
 
-    target.applyAugment(selectedAugment, curBattle, options);
+    const followUpItems = [];
+    const collectEnqueue = (item) => {
+      followUpItems.push(cloneWithMethods(item));
+    };
+    const shouldDeferFaint = selectedAugment?.id === "russianRoulette" || selectedAugment?.id === "doOrDie";
+    const augOptions = {
+      ...(options || {}),
+      enqueue: collectEnqueue,
+      ...(shouldDeferFaint ? { deferFaint: true } : {}),
+    };
+
+    target.applyAugment(selectedAugment, curBattle, augOptions);
     setAugmentTargetPoke(target);
 
-    const gainText = getAugmentText(selectedAugment, target, true, prevPokeName, options);
+    const headBattle = cloneWithMethods(curBattle);
+    const gainText = getAugmentText(selectedAugment, target, true, prevPokeName, augOptions);
     const gainLogText = gainText;
-    const followUpItems = [];
 
     // 증강 선택 후속 안내 텍스트 (afterText가 정의된 경우 출력)
     const rawAfterText = selectedAugment?.afterText ?? AUGMENT_LIST.find((a) => a.id === selectedAugment?.id)?.afterText;
     const resolvedAfterText = typeof rawAfterText === "function" ? rawAfterText(target, curBattle) : rawAfterText;
     if (resolvedAfterText) {
-      followUpItems.push({
+      collectEnqueue({
         id: `${selectedAugment.id}-after-${Math.random().toString(36).substring(2, 9)}`,
         battle: curBattle,
         text: resolvedAfterText,
@@ -334,7 +355,7 @@ const Battle = () => {
       const buffName = buffAug?.shortName || buffAug?.name || buffId;
       if (!hadSynergyBefore[buffId] && target.hasAugment?.(buffId) && selectedAugment.id !== buffId) {
         const synergyText = `3개의 증강이 공명하여 "${buffName}" 버프를 얻었다!`;
-        followUpItems.push({
+        collectEnqueue({
           id: `${buffId}-synergy-gain`,
           battle: curBattle,
           text: synergyText,
@@ -350,7 +371,7 @@ const Battle = () => {
           },
         });
         if (buffAug?.synergyEffectText) {
-          followUpItems.push({
+          collectEnqueue({
             id: `${buffId}-synergy-effect`,
             battle: curBattle,
             text: buffAug.synergyEffectText,
@@ -358,7 +379,7 @@ const Battle = () => {
           });
         }
       } else if (selectedAugment.id === buffId && buffAug?.synergyEffectText) {
-        followUpItems.push({
+        collectEnqueue({
           id: `${buffId}-synergy-effect`,
           battle: curBattle,
           text: buffAug.synergyEffectText,
@@ -386,11 +407,69 @@ const Battle = () => {
       setIsTitanSelection(false);
     }
 
-    const head = queueObject.queue[0];
-    const isStartAugment = Boolean(head?.isBattleStartAugment);
-    const isKnockoutPrompt = Boolean(head?.isKnockoutAugment || (head?.isAugment && !head?.isBattleStartAugment));
-    if (isKnockoutPrompt) {
-      curBattle.hasKnockoutAugmentThisRound = true;
+    let dropRemaining = false;
+    let handledStartAbilities = false;
+
+    // 이판사판 성공 시: 상대 대기중인 포켓몬 일괄 기절 처리
+    if (selectedAugment.id === "doOrDie" && augOptions.resolvedSuccess) {
+      [curBattle.npcBench1, curBattle.npcBench2].forEach((bp) => {
+        if (bp && !bp.faint) {
+          bp.handleFaint?.(curBattle, collectEnqueue);
+        }
+      });
+    }
+
+    // 러시안룰렛 시: 선택된 대상 기절 및 후속 교체 / 승패 / 배틀시작 특성 조정
+    if (selectedAugment.id === "russianRoulette" && augOptions.resolvedFaintTarget) {
+      const faintTarget = augOptions.resolvedFaintTarget;
+      const faintSide = augOptions.resolvedFaintSide;
+      if (faintSide === "player" && curBattle.turn) {
+        curBattle.turn.turnEnd = null;
+      }
+      faintTarget.handleFaint?.(curBattle, collectEnqueue);
+
+      const shouldTriggerStart = isStartAugment || (isTitanSecond && isTitanPendingStart);
+      if (faintSide === "npc") {
+        const hasNpcBench = [curBattle.npcBench1, curBattle.npcBench2].some((p) => p && !p.faint);
+        if (hasNpcBench) {
+          switchNpcAuto(curBattle, collectEnqueue);
+          if (shouldTriggerStart) {
+            applyAbilityEffects(curBattle, "player", collectEnqueue);
+            handledStartAbilities = true;
+            setIsTitanPendingStart(false);
+          }
+        } else {
+          dropRemaining = true;
+          if (shouldTriggerStart) {
+            handledStartAbilities = true;
+            setIsTitanPendingStart(false);
+          }
+        }
+      } else if (faintSide === "player") {
+        dropRemaining = true;
+        const hasPlayerBench = [curBattle.playerBench1, curBattle.playerBench2].some((p) => p && !p.faint);
+        if (hasPlayerBench) {
+          if (shouldTriggerStart) {
+            if (curBattle.npc && !curBattle.npc.faint) {
+              applyAbilityEffects(curBattle, "npc", collectEnqueue);
+            }
+            handledStartAbilities = true;
+            setIsTitanPendingStart(false);
+          }
+          curBattle.turn.turnEnd = true;
+          curBattle.turn.textFreeze = true;
+          collectEnqueue({
+            id: "roulette-must-switch-" + Math.random().toString(36).substring(2, 9),
+            battle: curBattle,
+            text: "누구로 교체 할까?",
+            bottomMode: "mustSwitch",
+            waitInput: true,
+          });
+        } else if (shouldTriggerStart) {
+          handledStartAbilities = true;
+          setIsTitanPendingStart(false);
+        }
+      }
     }
 
     if (isTitanFirst) {
@@ -398,23 +477,24 @@ const Battle = () => {
       if (isStartAugment) {
         setIsTitanPendingStart(true);
       }
-    } else {
+    } else if (!handledStartAbilities) {
       // 특성 선택(2차) 또는 일반 증강 선택 시: 모든 증강 로직이 끝났으므로 배틀 시작 특성 발동
       const shouldTriggerStart = isStartAugment || (isTitanSecond && isTitanPendingStart);
       if (shouldTriggerStart) {
         const fastUser = speedCheck(curBattle);
         const slowUser = fastUser === "player" ? "npc" : "player";
-        applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
-        applyAbilityEffects(curBattle, slowUser, (item) => followUpItems.push(item));
+        applyAbilityEffects(curBattle, fastUser, collectEnqueue);
+        applyAbilityEffects(curBattle, slowUser, collectEnqueue);
         setIsTitanPendingStart(false);
       }
     }
 
-    const appliedAug = target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
+    const appliedAug = augOptions?.resolvedGrantedAug || target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
     const isReplacement = selectedAugment.id === "legendaryTitan" || selectedAugment.id === "rouletteWheel" || selectedAugment.id === "soaring" || selectedAugment.id === "marriedPokemon";
     const logTargetName = isReplacement ? prevPokeName : (target.name || target.names);
 
-    const isSelectedBuf = Boolean(appliedAug.buf || selectedAugment.buf);
+    const isSelectedCurse = Boolean(appliedAug.curse || isCurseAugment(appliedAug));
+    const isSelectedBuf = Boolean(appliedAug.buf || isBuffAugment(appliedAug) || isSelectedCurse);
     const augmentData = {
       targetName: logTargetName,
       augment: {
@@ -423,9 +503,10 @@ const Battle = () => {
         shortName: appliedAug.shortName,
         desc: isSelectedBuf
           ? AUGMENT_LIST.find((a) => a.id === appliedAug.id)?.desc || appliedAug.desc || selectedAugment.desc || ""
-          : getAugmentText(selectedAugment, target, false, prevPokeName, options),
+          : getAugmentText(selectedAugment, target, false, prevPokeName, augOptions),
         cost: appliedAug.cost,
         buf: isSelectedBuf,
+        curse: isSelectedCurse,
       },
     };
 
@@ -433,7 +514,7 @@ const Battle = () => {
       // 전설의 거인 후속 특성 증강: 헤드(전설의 거인) 바로 뒤에 삽입되고, 그 뒤에 배틀 시작 특성(모래날림 등)이 순차적으로 배치됨
       const secondItem = {
         id: "titan-second-" + (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11)),
-        battle: curBattle,
+        battle: headBattle,
         text: gainText,
         logText: gainLogText,
         augmentData,
@@ -443,7 +524,7 @@ const Battle = () => {
       queueObject.updateHead(
         (prev) => ({
           ...prev,
-          battle: curBattle,
+          battle: headBattle,
           text: gainText,
           logText: gainLogText,
           augmentData,
@@ -451,13 +532,14 @@ const Battle = () => {
           isKnockoutAugment: false,
         }),
         curBattle,
-        followUpItems
+        followUpItems,
+        { dropRemaining }
       );
       setText(gainText);
     } else {
       queueObject.enqueue({
         id: "d7391e86-25e9-459f-abc7-588560b20d83",
-        battle: curBattle,
+        battle: headBattle,
         text: gainText,
         logText: gainLogText,
         augmentData,

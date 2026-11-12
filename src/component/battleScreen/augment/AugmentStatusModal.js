@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { getAugmentText } from "../../../entity/Augment/AugmentData";
+import { getAugmentText, isBuffAugment, isCurseAugment } from "../../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
   const resolvedTeam = team && team.length > 0 ? team : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
@@ -18,11 +18,9 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
 
   const currentAugments = activePokemon?.augments || [];
   const sortedAugments = [...currentAugments].sort((a, b) => {
-    const isBufA = Boolean(a.buf);
-    const isBufB = Boolean(b.buf);
-    if (isBufA && !isBufB) return 1;
-    if (!isBufA && isBufB) return -1;
-    return 0;
+    const orderA = isCurseAugment(a) ? 2 : a.buf || isBuffAugment(a) ? 1 : 0;
+    const orderB = isCurseAugment(b) ? 2 : b.buf || isBuffAugment(b) ? 1 : 0;
+    return orderA - orderB;
   });
 
   return (
@@ -65,19 +63,20 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
             <EmptyChoiceText>보유 중인 증강이 없습니다.</EmptyChoiceText>
           ) : (
             sortedAugments.map((aug, index) => {
-              const isBuf = Boolean(aug.buf);
+              const isCurse = Boolean(aug.curse || isCurseAugment(aug));
+              const isBuf = Boolean((aug.buf || isBuffAugment(aug)) && !isCurse);
               return (
-                <AugmentCard key={aug.id || index} $isBuff={isBuf}>
+                <AugmentCard key={aug.id || index} $isBuff={isBuf} $isCurse={isCurse}>
                   <IconCol>
                     <IconWrapper>
                       <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                     </IconWrapper>
-                    {!isBuf && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                    {!isBuf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                   </IconCol>
                   <CardContent>
                     <CardTitleRow>
                       <CardTitle>{aug.shortName || aug.name}</CardTitle>
-                      {isBuf && <BuffBadge>버프</BuffBadge>}
+                      {isCurse ? <CurseBadge>저주</CurseBadge> : isBuf ? <BuffBadge>버프</BuffBadge> : null}
                     </CardTitleRow>
                     <CardDescription>{getAugmentText(aug, activePokemon, false, "", { battle, showCurrentStats: true }) || aug.desc}</CardDescription>
                   </CardContent>
@@ -335,9 +334,9 @@ const IconWrapper = styled.div`
 
 const AugmentCard = styled.div`
   width: 100%;
-  background: ${(props) => (props.$isBuff ? "rgba(255, 220, 100, 0.12)" : "rgba(0, 0, 0, 0.45)")};
-  border: 1px solid ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.4)" : "rgba(255, 255, 255, 0.1)")};
-  border-left: 4px solid ${(props) => (props.$isBuff ? "#ffd700" : "#64ffda")};
+  background: ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.12)" : props.$isBuff ? "rgba(255, 220, 100, 0.12)" : "rgba(0, 0, 0, 0.45)")};
+  border: 1px solid ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.45)" : props.$isBuff ? "rgba(255, 215, 0, 0.4)" : "rgba(255, 255, 255, 0.1)")};
+  border-left: 4px solid ${(props) => (props.$isCurse ? "#ef4444" : props.$isBuff ? "#ffd700" : "#64ffda")};
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;
@@ -351,9 +350,9 @@ const AugmentCard = styled.div`
   }
 
   &:hover {
-    border-color: ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.65)" : "rgba(100, 255, 218, 0.5)")};
-    background: ${(props) => (props.$isBuff ? "rgba(255, 220, 100, 0.2)" : "rgba(20, 30, 44, 0.75)")};
-    box-shadow: 0 4px 12px ${(props) => (props.$isBuff ? "rgba(255, 215, 0, 0.2)" : "rgba(0, 0, 0, 0.4)")};
+    border-color: ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.7)" : props.$isBuff ? "rgba(255, 215, 0, 0.65)" : "rgba(100, 255, 218, 0.5)")};
+    background: ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.2)" : props.$isBuff ? "rgba(255, 220, 100, 0.2)" : "rgba(20, 30, 44, 0.75)")};
+    box-shadow: 0 4px 12px ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.22)" : props.$isBuff ? "rgba(255, 215, 0, 0.2)" : "rgba(0, 0, 0, 0.4)")};
   }
 `;
 
@@ -374,6 +373,20 @@ const BuffBadge = styled.span`
   color: #ffd700;
   background: rgba(255, 215, 0, 0.18);
   border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+`;
+
+const CurseBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.5);
   border-radius: 4px;
   letter-spacing: 0.5px;
 `;

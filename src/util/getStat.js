@@ -70,13 +70,6 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
           logText += ` + ${bonusCatk} (메자이 ${stack}중첩)`;
         }
       }
-
-      // 도박 중독: 공격 +1
-    } else if (augId === "gamblingAddict") {
-      if (statKey === "atk") {
-        val += 1;
-        logText += " + 1 (도박 중독)";
-      }
     }
   }
 

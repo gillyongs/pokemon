@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST, compareAugmentNames, getAugmentDesc } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, compareAugmentNames, getAugmentDesc, isCurseAugment } from "../../../entity/Augment/AugmentData";
 import { getSwordEnhanceTier, getSwordEnhanceProb } from "../../../entity/Augment/swordEnhance";
 import { ALL_POKEMON_TYPES, TYPE_COLORS, isNoEffect, getTypeEffectText } from "../../../util/typeEffectCalculate";
 import { getWeatherBallType } from "../../../util/weatherBall";
@@ -40,7 +40,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
   const [swordFailed, setSwordFailed] = useState(false);
   const [swordAnimKey, setSwordAnimKey] = useState(0);
   const [swordLastResult, setSwordLastResult] = useState(null);
-  const [allOrNothingAug, setAllOrNothingAug] = useState(null);
+  const [rouletteAug, setRouletteAug] = useState(null);
   const [rouletteSpinning, setRouletteSpinning] = useState(false);
   const [rouletteRotation, setRouletteRotation] = useState(0);
   const [rouletteResult, setRouletteResult] = useState(null);
@@ -147,7 +147,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
       clearTimeout(rouletteTimerRef.current);
       rouletteTimerRef.current = null;
     }
-    setAllOrNothingAug(null);
+    setRouletteAug(null);
     setRouletteSpinning(false);
     setRouletteRotation(0);
     setRouletteResult(null);
@@ -193,12 +193,12 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
       return;
     }
 
-    if (selectedAugment.id === "allOrNothing") {
+    if (["allOrNothing", "russianRoulette", "doOrDie", "highRiskHighReturn"].includes(selectedAugment.id)) {
       if (rouletteTimerRef.current) {
         clearTimeout(rouletteTimerRef.current);
         rouletteTimerRef.current = null;
       }
-      setAllOrNothingAug(selectedAugment);
+      setRouletteAug(selectedAugment);
       setRouletteSpinning(false);
       setRouletteRotation(0);
       setRouletteResult(null);
@@ -245,7 +245,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     setSwordLastResult(null);
   };
 
-  const ROULETTE_SLICES = [
+  const ALL_OR_NOTHING_SLICES = [
     { stat: "atk", label: "공격", sub: "2배" },
     { stat: "catk", label: "특공", sub: "2배" },
     { stat: "atk", label: "공격", sub: "2배" },
@@ -254,16 +254,44 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     { stat: "catk", label: "특공", sub: "2배" },
   ];
 
+  const HIGH_RISK_SLICES = [
+    { result: "buff", label: "버프", sub: "3배" },
+    { result: "curse", label: "저주", sub: "절반" },
+    { result: "buff", label: "버프", sub: "3배" },
+    { result: "curse", label: "저주", sub: "절반" },
+    { result: "buff", label: "버프", sub: "3배" },
+    { result: "curse", label: "저주", sub: "절반" },
+  ];
+
   const handleSpinRoulette = (e) => {
     e?.stopPropagation();
-    if (!allOrNothingAug || rouletteSpinning || rouletteResult) return;
+    if (!rouletteAug || rouletteSpinning || rouletteResult) return;
 
-    const pick = Math.random() < 0.5 ? "atk" : "catk";
-    const matchingSlices = pick === "atk" ? [0, 2, 4] : [1, 3, 5];
-    const chosenSliceIdx = matchingSlices[Math.floor(Math.random() * matchingSlices.length)];
-    // 각 60도 칸의 경계에서 10도 이상 떨어진 중앙 영역(10~50도)에 안착시켜 상단 바늘(0도)과 정확히 일치
-    const hitAngle = chosenSliceIdx * 60 + 10 + Math.random() * 40;
-    const alignRotation = (360 - hitAngle) % 360;
+    let pick = null;
+    let hitAngle = 0;
+
+    if (rouletteAug.id === "russianRoulette") {
+      pick = Math.random() < 0.5 ? "player" : "npc";
+      // 우측 반원(0~180도): 상대, 좌측 반원(180~360도): 내 포켓몬
+      hitAngle = pick === "npc" ? 30 + Math.random() * 120 : 210 + Math.random() * 120;
+    } else if (rouletteAug.id === "doOrDie") {
+      pick = Math.random() < 0.1 ? "success" : "fail";
+      // 성공 칸(10%): 72~108도 (경계 6도 여유), 실패 칸(90%): 118~422도
+      hitAngle = pick === "success" ? 78 + Math.random() * 24 : 118 + Math.random() * 304;
+    } else if (rouletteAug.id === "highRiskHighReturn") {
+      pick = Math.random() < 0.5 ? "buff" : "curse";
+      const matchingSlices = pick === "buff" ? [0, 2, 4] : [1, 3, 5];
+      const chosenSliceIdx = matchingSlices[Math.floor(Math.random() * matchingSlices.length)];
+      hitAngle = chosenSliceIdx * 60 + 10 + Math.random() * 40;
+    } else {
+      pick = Math.random() < 0.5 ? "atk" : "catk";
+      const matchingSlices = pick === "atk" ? [0, 2, 4] : [1, 3, 5];
+      const chosenSliceIdx = matchingSlices[Math.floor(Math.random() * matchingSlices.length)];
+      // 각 60도 칸의 경계에서 10도 이상 떨어진 중앙 영역(10~50도)에 안착시켜 상단 바늘(0도)과 정확히 일치
+      hitAngle = chosenSliceIdx * 60 + 10 + Math.random() * 40;
+    }
+
+    const alignRotation = (360 - (hitAngle % 360)) % 360;
     const extraTurns = (5 + Math.floor(Math.random() * 3)) * 360;
     const finalRotation = extraTurns + alignRotation;
 
@@ -280,24 +308,49 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     }, 2950);
   };
 
-  const handleApplyAllOrNothing = (e) => {
+  const handleApplyRoulette = (e) => {
     e?.stopPropagation();
-    if (!allOrNothingAug || !activePokemon || !rouletteResult) return;
-    onSelect(allOrNothingAug, {
-      targetPokemon: activePokemon,
-      targetStat: rouletteResult,
-    });
-    setAllOrNothingAug(null);
+    if (!rouletteAug || !activePokemon || !rouletteResult) return;
+    const payload = { targetPokemon: activePokemon };
+    if (rouletteAug.id === "russianRoulette") {
+      payload.faintTarget = rouletteResult;
+    } else if (rouletteAug.id === "doOrDie") {
+      payload.doOrDieSuccess = rouletteResult === "success";
+    } else if (rouletteAug.id === "highRiskHighReturn") {
+      payload.highRiskResult = rouletteResult;
+    } else {
+      payload.targetStat = rouletteResult;
+    }
+    onSelect(rouletteAug, payload);
+    setRouletteAug(null);
     setRouletteSpinning(false);
     setRouletteRotation(0);
     setRouletteResult(null);
   };
 
-  const handleCancelAllOrNothing = (e) => {
+  const handleCancelRoulette = (e) => {
     e?.stopPropagation();
     if (rouletteSpinning || rouletteResult) return;
-    setAllOrNothingAug(null);
+    setRouletteAug(null);
     setRouletteRotation(0);
+  };
+
+  const getRouletteOutcomeText = () => {
+    if (!rouletteAug || !rouletteResult) return "";
+    if (rouletteAug.id === "russianRoulette") {
+      const targetName =
+        rouletteResult === "npc"
+          ? battle?.npc?.name || battle?.npc?.origin?.name || "상대 포켓몬"
+          : battle?.player?.name || battle?.player?.origin?.name || activePokemon?.name || "내 포켓몬";
+      return `${targetName} 기절!`;
+    }
+    if (rouletteAug.id === "doOrDie") {
+      return rouletteResult === "success" ? "성공! 상대 대기 포켓몬 전부 기절" : "실패...";
+    }
+    if (rouletteAug.id === "highRiskHighReturn") {
+      return rouletteResult === "buff" ? "하이 리턴! 모든 공격 데미지 3배" : "하이 리스크... 모든 공격 데미지 절반";
+    }
+    return rouletteResult === "atk" ? "공격 2배, 특수공격 절반" : "특수공격 2배, 공격 절반";
   };
 
   const renderRouletteSvg = () => {
@@ -305,6 +358,96 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     const cy = 110;
     const r = 98;
     const toRad = (deg) => (deg * Math.PI) / 180;
+    const formatWheelLabel = (name) => {
+      if (!name) return "";
+      return name.length > 8 ? `${name.slice(0, 7)}..` : name;
+    };
+
+    if (rouletteAug?.id === "russianRoulette") {
+      const playerPoke = battle?.player || activePokemon;
+      const npcPoke = battle?.npc;
+      const playerPokeId = playerPoke?.origin?.pokemon_id || playerPoke?.pokemon_id || "0025";
+      const npcPokeId = npcPoke?.origin?.pokemon_id || npcPoke?.pokemon_id || "0000";
+      const playerLabel = formatWheelLabel(playerPoke?.name || playerPoke?.origin?.name || "내 포켓몬");
+      const npcLabel = formatWheelLabel(npcPoke?.name || npcPoke?.origin?.name || "상대");
+
+      return (
+        <svg viewBox="0 0 220 220" width="212" height="212" xmlns="http://www.w3.org/2000/svg">
+          {/* 차분한 다크 메탈 외곽 테두리 */}
+          <circle cx={cx} cy={cy} r="105" fill="#182130" stroke="#475569" strokeWidth="2.5" />
+
+          {/* 좌측 반원 (180~360도): 내 포켓몬 */}
+          <path d={`M ${cx} ${cy} L ${cx} ${cy + r} A ${r} ${r} 0 0 1 ${cx} ${cy - r} Z`} fill="#2b5b9e" stroke="#0f172a" strokeWidth="2" />
+          {/* 우측 반원 (0~180도): 상대 포켓몬 */}
+          <path d={`M ${cx} ${cy} L ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${cx} ${cy + r} Z`} fill="#c94a4a" stroke="#0f172a" strokeWidth="2" />
+
+          {/* 좌측: 내 포켓몬 스프라이트 & 이름 */}
+          <g>
+            <circle cx="60" cy="96" r="23" fill="rgba(15, 23, 42, 0.55)" stroke="rgba(191, 219, 254, 0.45)" strokeWidth="1.2" />
+            <image href={`/pokemon/img/pokemon/${playerPokeId}.webp`} x="42" y="78" width="36" height="36" preserveAspectRatio="xMidYMid meet" />
+            <text x="60" y="133" textAnchor="middle" fill="#f8fafc" fontSize="10" fontWeight="700">
+              {playerLabel}
+            </text>
+          </g>
+
+          {/* 우측: 상대 포켓몬 스프라이트 & 이름 */}
+          <g>
+            <circle cx="160" cy="96" r="23" fill="rgba(15, 23, 42, 0.55)" stroke="rgba(254, 202, 202, 0.45)" strokeWidth="1.2" />
+            <image href={`/pokemon/img/pokemon/${npcPokeId}.webp`} x="142" y="78" width="36" height="36" preserveAspectRatio="xMidYMid meet" />
+            <text x="160" y="133" textAnchor="middle" fill="#f8fafc" fontSize="10" fontWeight="700">
+              {npcLabel}
+            </text>
+          </g>
+
+          {/* 중앙 분할선 및 외곽 링 마감선 */}
+          <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} stroke="#0f172a" strokeWidth="2.5" />
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="#0f172a" strokeWidth="2" />
+        </svg>
+      );
+    }
+
+    if (rouletteAug?.id === "doOrDie") {
+      const startDeg = 72;
+      const endDeg = 108;
+      const x1 = cx + r * Math.sin(toRad(startDeg));
+      const y1 = cy - r * Math.cos(toRad(startDeg));
+      const x2 = cx + r * Math.sin(toRad(endDeg));
+      const y2 = cy - r * Math.cos(toRad(endDeg));
+      const successPath = `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
+      const failPath = `M ${cx} ${cy} L ${x2.toFixed(2)} ${y2.toFixed(2)} A ${r} ${r} 0 1 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z`;
+
+      return (
+        <svg viewBox="0 0 220 220" width="212" height="212" xmlns="http://www.w3.org/2000/svg">
+          <circle cx={cx} cy={cy} r="105" fill="#182130" stroke="#475569" strokeWidth="2.5" />
+          {/* 90% 실패 칸 */}
+          <path d={failPath} fill="#334155" stroke="#0f172a" strokeWidth="2" />
+          {/* 10% 성공 칸 */}
+          <path d={successPath} fill="#0d9488" stroke="#0f172a" strokeWidth="2" />
+
+          <g transform={`rotate(90 ${cx} ${cy})`}>
+            <text x={cx} y={cy - 68} textAnchor="middle" fill="#f8fafc" fontSize="12" fontWeight="800">
+              성공
+            </text>
+            <text x={cx} y={cy - 53} textAnchor="middle" fill="rgba(248,250,252,0.9)" fontSize="10.5" fontWeight="700">
+              10%
+            </text>
+          </g>
+
+          <g>
+            <text x="60" y="106" textAnchor="middle" fill="#e2e8f0" fontSize="15" fontWeight="700">
+              실패
+            </text>
+            <text x="60" y="124" textAnchor="middle" fill="rgba(226,232,240,0.8)" fontSize="12.5" fontWeight="700">
+              90%
+            </text>
+          </g>
+
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="#0f172a" strokeWidth="2" />
+        </svg>
+      );
+    }
+
+    const slices = rouletteAug?.id === "highRiskHighReturn" ? HIGH_RISK_SLICES : ALL_OR_NOTHING_SLICES;
 
     return (
       <svg viewBox="0 0 220 220" width="212" height="212" xmlns="http://www.w3.org/2000/svg">
@@ -312,7 +455,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
         <circle cx={cx} cy={cy} r="105" fill="#182130" stroke="#475569" strokeWidth="2.5" />
 
         {/* 6분할 룰렛 칸 (단색 매트 톤) */}
-        {ROULETTE_SLICES.map((slice, idx) => {
+        {slices.map((slice, idx) => {
           const startDeg = idx * 60;
           const endDeg = (idx + 1) * 60;
           const midDeg = startDeg + 30;
@@ -321,11 +464,18 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
           const x2 = cx + r * Math.sin(toRad(endDeg));
           const y2 = cy - r * Math.cos(toRad(endDeg));
           const d = `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
-          const isAtk = slice.stat === "atk";
+          const fill =
+            rouletteAug?.id === "highRiskHighReturn"
+              ? slice.result === "buff"
+                ? "#0f766e"
+                : "#c94a4a"
+              : slice.stat === "atk"
+                ? "#c94a4a"
+                : "#3a6ec4";
 
           return (
             <g key={idx}>
-              <path d={d} fill={isAtk ? "#c94a4a" : "#3a6ec4"} stroke="#0f172a" strokeWidth="2" />
+              <path d={d} fill={fill} stroke="#0f172a" strokeWidth="2" />
               <g transform={`rotate(${midDeg} ${cx} ${cy})`}>
                 <text x={cx} y={cy - 60} textAnchor="middle" fill="#f8fafc" fontSize="14" fontWeight="700">
                   {slice.label}
@@ -462,11 +612,11 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
       <ModalOverlay $isPeek={isPeekMode} onClick={() => setIsPeekMode((prev) => !prev)}>
         <ModalWrapper onClick={(e) => e.stopPropagation()}>
           <ModalContainer $isPeek={isPeekMode} onClick={handleContainerClick}>
-            {allOrNothingAug ? (
+            {rouletteAug ? (
               <>
                 <HeaderArea>
                   <HeaderTopRow>
-                    <Title>모 아니면 도</Title>
+                    <Title>{rouletteAug.shortName || rouletteAug.name}</Title>
                   </HeaderTopRow>
                 </HeaderArea>
 
@@ -483,17 +633,13 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                     <RouletteHub />
                   </RouletteWheelBox>
 
-                  {rouletteResult && (
-                    <RouletteOutcomeText>
-                      {rouletteResult === "atk" ? "공격 2배, 특수공격 절반" : "특수공격 2배, 공격 절반"}
-                    </RouletteOutcomeText>
-                  )}
+                  {rouletteResult && <RouletteOutcomeText>{getRouletteOutcomeText()}</RouletteOutcomeText>}
                 </RouletteStageContainer>
 
                 <ButtonGroup>
                   {!rouletteResult ? (
                     <>
-                      <ActionButton type="button" $variant="back" disabled={rouletteSpinning} onClick={handleCancelAllOrNothing}>
+                      <ActionButton type="button" $variant="back" disabled={rouletteSpinning} onClick={handleCancelRoulette}>
                         되돌아가기
                       </ActionButton>
                       <ActionButton type="button" $variant="confirm" disabled={rouletteSpinning} onClick={handleSpinRoulette}>
@@ -501,7 +647,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                       </ActionButton>
                     </>
                   ) : (
-                    <ActionButton type="button" $variant="confirm" onClick={handleApplyAllOrNothing}>
+                    <ActionButton type="button" $variant="confirm" onClick={handleApplyRoulette}>
                       확인
                     </ActionButton>
                   )}
@@ -824,18 +970,20 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                       <>
                         {allEligible.map((aug, index) => {
                           const isCardSelected = selectedAugment?.id === aug.id;
+                          const isCurse = Boolean(aug.curse || isCurseAugment(aug));
+                          const isBuff = Boolean(aug.buf && !isCurse);
                           return (
-                            <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={Boolean(aug.buf)} onClick={(e) => handleCardClick(e, aug)}>
+                            <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} onClick={(e) => handleCardClick(e, aug)}>
                               <IconCol>
                                 <IconWrapper>
                                   <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                                 </IconWrapper>
-                                {!aug.buf && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                                {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                               </IconCol>
                               <CardContent>
                                 <CardTitleRow>
                                   <CardTitle>{aug.name}</CardTitle>
-                                  {aug.buf && <BuffBadge>버프</BuffBadge>}
+                                  {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                                 </CardTitleRow>
                                 <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                               </CardContent>
@@ -848,24 +996,28 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             <IneligibleDivider>
                               <span>선택 불가 증강 ({allIneligible.length})</span>
                             </IneligibleDivider>
-                            {allIneligible.map((aug, index) => (
-                              <AugmentCard key={`ineligible-${aug.id || index}`} $isPeek={isPeekMode} $disabled={true} onClick={(e) => e.stopPropagation()} title="이 포켓몬은 해당 증강의 선택 조건을 만족하지 않거나 이미 보유 중입니다.">
-                                <IconCol>
-                                  <IconWrapper>
-                                    <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
-                                  </IconWrapper>
-                                  {!aug.buf && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
-                                </IconCol>
-                                <CardContent>
-                                  <CardTitleRow>
-                                    <CardTitle>{aug.name}</CardTitle>
-                                    {aug.buf && <BuffBadge>버프</BuffBadge>}
-                                    <IneligibleBadge>선택 불가</IneligibleBadge>
-                                  </CardTitleRow>
-                                  <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
-                                </CardContent>
-                              </AugmentCard>
-                            ))}
+                            {allIneligible.map((aug, index) => {
+                              const isCurse = Boolean(aug.curse || isCurseAugment(aug));
+                              const isBuff = Boolean(aug.buf && !isCurse);
+                              return (
+                                <AugmentCard key={`ineligible-${aug.id || index}`} $isPeek={isPeekMode} $disabled={true} $isBuff={isBuff} $isCurse={isCurse} onClick={(e) => e.stopPropagation()} title="이 포켓몬은 해당 증강의 선택 조건을 만족하지 않거나 이미 보유 중입니다.">
+                                  <IconCol>
+                                    <IconWrapper>
+                                      <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
+                                    </IconWrapper>
+                                    {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                                  </IconCol>
+                                  <CardContent>
+                                    <CardTitleRow>
+                                      <CardTitle>{aug.name}</CardTitle>
+                                      {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
+                                      <IneligibleBadge>선택 불가</IneligibleBadge>
+                                    </CardTitleRow>
+                                    <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
+                                  </CardContent>
+                                </AugmentCard>
+                              );
+                            })}
                           </>
                         )}
                       </>
@@ -875,18 +1027,20 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                   ) : (
                     currentChoices.map((aug, index) => {
                       const isCardSelected = selectedAugment?.id === aug.id;
+                      const isCurse = Boolean(aug.curse || isCurseAugment(aug));
+                      const isBuff = Boolean(aug.buf && !isCurse);
                       return (
-                        <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} onClick={(e) => handleCardClick(e, aug)}>
+                        <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} onClick={(e) => handleCardClick(e, aug)}>
                           <IconCol>
                             <IconWrapper>
                               <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                             </IconWrapper>
-                            {!aug.buf && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                            {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                           </IconCol>
                           <CardContent>
                             <CardTitleRow>
                               <CardTitle>{aug.name}</CardTitle>
-                              {aug.buf && <BuffBadge>버프</BuffBadge>}
+                              {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                             </CardTitleRow>
                             <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                           </CardContent>
@@ -1286,6 +1440,20 @@ const BuffBadge = styled.span`
   letter-spacing: 0.5px;
 `;
 
+const CurseBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+`;
+
 const IneligibleBadge = styled.span`
   font-size: 0.65rem;
   font-weight: 700;
@@ -1341,9 +1509,35 @@ const IconWrapper = styled.div`
 
 const AugmentCard = styled.div`
   width: 100%;
-  background: ${(props) => (props.$disabled ? "rgba(15, 23, 42, 0.35)" : props.$isBuff ? (props.$isSelected ? "rgba(50, 42, 16, 0.98)" : "rgba(255, 220, 100, 0.12)") : props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(0, 0, 0, 0.45)")};
-  border: ${(props) => (props.$disabled ? "1px solid rgba(255, 255, 255, 0.06)" : props.$isBuff ? (props.$isSelected ? "1.5px solid #ffd700" : "1px solid rgba(255, 215, 0, 0.4)") : props.$isSelected ? "1.5px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.1)")};
-  border-left: 4px solid ${(props) => (props.$disabled ? "#475569" : props.$isBuff ? "#ffd700" : props.$isSelected ? "#38bdf8" : "#64ffda")};
+  background: ${(props) =>
+    props.$disabled
+      ? "rgba(15, 23, 42, 0.35)"
+      : props.$isCurse
+        ? props.$isSelected
+          ? "rgba(68, 22, 26, 0.96)"
+          : "rgba(239, 68, 68, 0.12)"
+        : props.$isBuff
+          ? props.$isSelected
+            ? "rgba(50, 42, 16, 0.98)"
+            : "rgba(255, 220, 100, 0.12)"
+          : props.$isSelected
+            ? "rgba(22, 45, 64, 0.98)"
+            : "rgba(0, 0, 0, 0.45)"};
+  border: ${(props) =>
+    props.$disabled
+      ? "1px solid rgba(255, 255, 255, 0.06)"
+      : props.$isCurse
+        ? props.$isSelected
+          ? "1.5px solid #ef4444"
+          : "1px solid rgba(239, 68, 68, 0.45)"
+        : props.$isBuff
+          ? props.$isSelected
+            ? "1.5px solid #ffd700"
+            : "1px solid rgba(255, 215, 0, 0.4)"
+          : props.$isSelected
+            ? "1.5px solid #64ffda"
+            : "1px solid rgba(255, 255, 255, 0.1)"};
+  border-left: 4px solid ${(props) => (props.$disabled ? "#475569" : props.$isCurse ? "#ef4444" : props.$isBuff ? "#ffd700" : props.$isSelected ? "#38bdf8" : "#64ffda")};
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;

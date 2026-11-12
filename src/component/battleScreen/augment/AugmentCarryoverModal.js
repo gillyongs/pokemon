@@ -76,6 +76,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
             name: aug.name,
             cost: aug.cost,
             buf: true,
+            curse: Boolean(aug.curse),
             dragonKillCount: aug.dragonKillCount ?? poke.dragonKillCount ?? 0,
             mejaiStack: aug.mejaiStack ?? poke.mejaiStack ?? 0,
           });

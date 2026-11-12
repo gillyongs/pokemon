@@ -1,4 +1,4 @@
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, GAMBLE_BONUS_AUGMENT_IDS, hasGamblingAddict } from "../entity/Augment/AugmentData";
 
 export const BEGINNER_AUGMENT_IDS = AUGMENT_SYNERGY_MAP.echoOfHero;
 
@@ -81,6 +81,20 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
     pool = pool.filter((a) => a.id !== forced.id);
   }
 
+  if (
+    selected.length < count &&
+    hasGamblingAddict(pokemon, battleOrTeam) &&
+    !selected.some((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id))
+  ) {
+    const gamblePool = pool.filter((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id));
+    if (gamblePool.length > 0) {
+      const gIdx = pickWeightedIndex(gamblePool, pokemon, battleOrTeam);
+      const picked = gamblePool[gIdx === -1 ? 0 : gIdx];
+      selected.push(picked);
+      pool = pool.filter((a) => a.id !== picked.id);
+    }
+  }
+
   const pickCount = Math.min(count - selected.length, pool.length);
   for (let i = 0; i < pickCount; i++) {
     const idx = pickWeightedIndex(pool, pokemon, battleOrTeam);
@@ -155,6 +169,29 @@ export function rollTeamAugments(team, battle = null) {
 
     const unused = available.filter((a) => !globalPickedIds.has(a.id) && !chosen.some((c) => c.id === a.id));
     const already = available.filter((a) => globalPickedIds.has(a.id) && !chosen.some((c) => c.id === a.id));
+
+    if (
+      chosen.length < 3 &&
+      hasGamblingAddict(poke, battle || team, team) &&
+      !chosen.some((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id))
+    ) {
+      const gambleUnused = unused.filter((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id));
+      const gambleAlready = already.filter((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id));
+      if (gambleUnused.length > 0) {
+        const gIdx = pickWeightedIndex(gambleUnused, poke, battle || team);
+        const picked = gambleUnused[gIdx === -1 ? 0 : gIdx];
+        chosen.push(picked);
+        globalPickedIds.add(picked.id);
+        const uIdx = unused.findIndex((a) => a.id === picked.id);
+        if (uIdx !== -1) unused.splice(uIdx, 1);
+      } else if (gambleAlready.length > 0) {
+        const gIdx = pickWeightedIndex(gambleAlready, poke, battle || team);
+        const picked = gambleAlready[gIdx === -1 ? 0 : gIdx];
+        chosen.push(picked);
+        const aIdx = already.findIndex((a) => a.id === picked.id);
+        if (aIdx !== -1) already.splice(aIdx, 1);
+      }
+    }
 
     while (chosen.length < 3 && unused.length > 0) {
       const idx = pickWeightedIndex(unused, poke, battle || team);

@@ -752,7 +752,8 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
         {id === "lastWarrior" && (
@@ -3234,6 +3235,129 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="15" cy="40" r="1.1" fill="#fde047" opacity="0.8" />
             <circle cx="49" cy="40" r="1.1" fill="#fde047" opacity="0.8" />
             <circle cx="32" cy="55" r="1.2" fill="#64ffda" opacity="0.85" />
+          </g>
+        )}
+
+        {/* 러시안룰렛 (리볼버 6연발 실린더 & 장전된 붉은 탄환) */}
+        {id === "russianRoulette" && (
+          <g>
+            {/* 외곽 리볼버 실린더 금속 본체 */}
+            <circle cx="32" cy="32" r="18.5" fill="#1e293b" stroke="url(#chainMetal)" strokeWidth="2.2" />
+            <circle cx="32" cy="32" r="16.2" fill="#0f172a" stroke="#475569" strokeWidth="0.9" strokeDasharray="4 4.5" />
+            {/* 플루트(실린더 홈) 노치 포인트 */}
+            <circle cx="32" cy="13.8" r="1.2" fill="#64748b" />
+            <circle cx="47.8" cy="22.9" r="1.2" fill="#64748b" />
+            <circle cx="47.8" cy="41.1" r="1.2" fill="#64748b" />
+            <circle cx="32" cy="50.2" r="1.2" fill="#64748b" />
+            <circle cx="16.2" cy="41.1" r="1.2" fill="#64748b" />
+            <circle cx="16.2" cy="22.9" r="1.2" fill="#64748b" />
+
+            {/* 5개의 빈 약실 */}
+            <circle cx="41.1" cy="26.75" r="3.6" fill="#05080f" stroke="#475569" strokeWidth="1.2" />
+            <circle cx="41.1" cy="37.25" r="3.6" fill="#05080f" stroke="#475569" strokeWidth="1.2" />
+            <circle cx="32" cy="42.5" r="3.6" fill="#05080f" stroke="#475569" strokeWidth="1.2" />
+            <circle cx="22.9" cy="37.25" r="3.6" fill="#05080f" stroke="#475569" strokeWidth="1.2" />
+            <circle cx="22.9" cy="26.75" r="3.6" fill="#05080f" stroke="#475569" strokeWidth="1.2" />
+
+            {/* 12시 방향 장전된 실탄 약실 */}
+            <circle cx="32" cy="21.5" r="4.2" fill="url(#banRedGrad)" stroke="#fca5a5" strokeWidth="1.2" filter="url(#glow)" />
+            <circle cx="32" cy="21.5" r="1.8" fill="#fde047" />
+            <circle cx="32" cy="21.5" r="0.8" fill="#ffffff" />
+
+            {/* 중앙 축 핀 */}
+            <circle cx="32" cy="32" r="3.8" fill="url(#chainMetal)" stroke="#0f172a" strokeWidth="1.2" />
+            <circle cx="32" cy="32" r="1.4" fill="#94a3b8" />
+
+            {/* 조준 십자 눈금 */}
+            <path d="M 32 7 L 32 10.5 M 32 53.5 L 32 57 M 7 32 L 10.5 32 M 53.5 32 L 57 32" stroke="#64ffda" strokeWidth="1.4" strokeLinecap="round" opacity="0.75" />
+            <path d="M 32 7 L 32 11" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+          </g>
+        )}
+
+        {/* 홀짝 (홀 1점 크림슨 패 & 짝 2점 시안 패 대비) */}
+        {id === "oddEven" && (
+          <g>
+            {/* 왼쪽 패: 홀 (1) */}
+            <g transform="translate(22.5, 34) rotate(-11) translate(-22.5, -34)">
+              <rect x="13.5" y="21" width="18" height="26" rx="4" fill="#1e141a" stroke="#f87171" strokeWidth="1.6" />
+              <rect x="15.5" y="23" width="14" height="22" rx="2.6" fill="none" stroke="#ef4444" strokeWidth="0.6" strokeOpacity="0.45" />
+              <circle cx="22.5" cy="34" r="3.4" fill="url(#banRedGrad)" stroke="#fecaca" strokeWidth="0.8" />
+            </g>
+
+            {/* 오른쪽 패: 짝 (2) */}
+            <g transform="translate(41.5, 30) rotate(11) translate(-41.5, -30)">
+              <rect x="32.5" y="17" width="18" height="26" rx="4" fill="#0f2336" stroke="#38bdf8" strokeWidth="1.6" />
+              <rect x="34.5" y="19" width="14" height="22" rx="2.6" fill="none" stroke="#64ffda" strokeWidth="0.6" strokeOpacity="0.45" />
+              <circle cx="37.5" cy="25" r="2.7" fill="#64ffda" stroke="#ffffff" strokeWidth="0.7" />
+              <circle cx="45.5" cy="35" r="2.7" fill="#64ffda" stroke="#ffffff" strokeWidth="0.7" />
+            </g>
+
+            {/* 상하 변동 화살표 힌트 */}
+            <path d="M 27 12 L 32 8 L 37 12" fill="none" stroke="#64ffda" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 27 52 L 32 56 L 37 52" fill="none" stroke="#f87171" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </g>
+        )}
+
+        {/* 이판사판 (절체절명의 황금-크림슨 일격 번개 & 파편) */}
+        {id === "doOrDie" && (
+          <g>
+            {/* 긴장감 도는 동심원 파동 */}
+            <circle cx="32" cy="32" r="22" fill="#ef4444" fillOpacity="0.1" stroke="#f87171" strokeWidth="1.1" strokeDasharray="6 4" strokeOpacity="0.55" />
+            {/* 크림슨 후광 번개 외곽 */}
+            <path d="M 37 9 L 20 32.5 L 30.5 32.5 L 25 55 L 45 27.5 L 34 27.5 Z" fill="url(#banRedGrad)" transform="translate(1.5, 1.5)" opacity="0.65" />
+            {/* 메인 황금-백색 번개 */}
+            <path d="M 37 9 L 20 32.5 L 30.5 32.5 L 25 55 L 45 27.5 L 34 27.5 Z" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="1.1" strokeLinejoin="round" filter="url(#glow)" />
+            {/* 좌우 파쇄 파편 */}
+            <polygon points="12,21 17,18 15,24" fill="#f87171" opacity="0.9" />
+            <polygon points="50,42 46,45 48,39" fill="#fde047" opacity="0.9" />
+            <line x1="11" y1="45" x2="18" y2="39" stroke="#64ffda" strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
+            <line x1="46" y1="19" x2="53" y2="14" stroke="#f87171" strokeWidth="1.4" strokeLinecap="round" opacity="0.85" />
+          </g>
+        )}
+
+        {/* 하이리스크 하이리턴 (상승 황금 화살 & 하강 적색 화살 대비) */}
+        {id === "highRiskHighReturn" && (
+          <g>
+            {/* 대각선 분리선 */}
+            <line x1="15" y1="49" x2="49" y2="15" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.6" />
+            {/* 좌상단 하이 리턴: 상승 황금/시안 화살표 */}
+            <path d="M 21 31 L 21 16" stroke="url(#goldGrad)" strokeWidth="3.2" strokeLinecap="round" />
+            <path d="M 14 23 L 21 14.5 L 28 23" fill="none" stroke="#fef08a" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" filter="url(#glow)" />
+            <path d="M 13 13 Q 13 15.5 15.5 15.5 Q 13 15.5 13 18 Q 13 15.5 10.5 15.5 Q 13 15.5 13 13 Z" fill="#64ffda" />
+            {/* 우하단 하이 리스크: 하강 크림슨 화살표 */}
+            <path d="M 43 33 L 43 48" stroke="url(#banRedGrad)" strokeWidth="3.2" strokeLinecap="round" />
+            <path d="M 36 41 L 43 49.5 L 50 41" fill="none" stroke="#f87171" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="51" cy="51" r="1.4" fill="#ef4444" />
+          </g>
+        )}
+
+        {/* 하이 리턴 (3배 공격 버프: 상승하는 3단 황금-시안 셰브론) */}
+        {id === "highRiskBuff" && (
+          <g filter="url(#glow)">
+            <circle cx="32" cy="34" r="19" fill="#facc15" fillOpacity="0.12" />
+            {/* 3중 상승 셰브론 */}
+            <path d="M 17 45 L 32 32 L 47 45" fill="none" stroke="#f59e0b" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+            <path d="M 16 35 L 32 21.5 L 48 35" fill="none" stroke="url(#goldGrad)" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 18 24.5 L 32 12 L 46 24.5" fill="none" stroke="#fef08a" strokeWidth="3.8" strokeLinecap="round" strokeLinejoin="round" />
+            {/* 상단 코어 다이아 스파클 */}
+            <path d="M 32 6 L 34.5 9.5 L 32 13 L 29.5 9.5 Z" fill="#64ffda" />
+            <circle cx="15" cy="18" r="1.3" fill="#fef08a" />
+            <circle cx="49" cy="18" r="1.3" fill="#64ffda" />
+          </g>
+        )}
+
+        {/* 하이 리스크 (0.5배 데미지 저주: 균열된 붉은 하강 인장) */}
+        {id === "highRiskCurse" && (
+          <g>
+            {/* 붉은 저주 육각 씰 & 내부 균열 */}
+            <polygon points="32,12 49,21.5 49,42.5 32,52 15,42.5 15,21.5" fill="#180509" stroke="url(#banRedGrad)" strokeWidth="1.8" strokeLinejoin="round" />
+            {/* 하강 적색 셰브론 2단 */}
+            <path d="M 21 24 L 32 34 L 43 24" fill="none" stroke="#f87171" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 21 34 L 32 44 L 43 34" fill="none" stroke="url(#banRedGrad)" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
+            {/* 사선 균열 & 저주 불티 */}
+            <path d="M 19 16 L 26 24 L 24 28 M 45 48 L 38 40 L 40 36" fill="none" stroke="#fca5a5" strokeWidth="1.1" strokeLinecap="round" opacity="0.7" />
+            <circle cx="32" cy="16" r="1.3" fill="#ef4444" />
+            <circle cx="32" cy="48.5" r="1.3" fill="#f87171" />
           </g>
         )}
       </svg>

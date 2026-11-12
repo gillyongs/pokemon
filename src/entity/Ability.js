@@ -279,7 +279,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   });
 
   // 위협
-  if (atkAbil === "위협") {
+  if (atkAbil === "위협" && def && !def.faint) {
     const abilText = "[특성 위협]";
     enqueue({ id: "fe000494-7206-4668-890e-33d172b69877", battle: bt, text: `${abilText} ${atk.names} 적을 위협했다!` });
     if (def.tempStatus.substitute) {
@@ -293,7 +293,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   }
 
   // 다운로드
-  if (atkAbil === "다운로드" && def) {
+  if (atkAbil === "다운로드" && def && !def.faint) {
     const abilText = "[특성 다운로드]";
     const statObj = def.origin?.stat || def.stat;
     if (statObj) {
@@ -371,7 +371,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
 
   if (trace) return; // 트레이스로 상대 특성을 배껴왔을때 재귀적으로 해당 함수를 한번 더 실행
 
-  if (atkAbil === "트레이스") {
+  if (atkAbil === "트레이스" && def && !def.faint) {
     if (noTraceAbil.includes(def.abil)) {
       return;
     } else {
@@ -386,7 +386,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     }
   }
 
-  if (def.abil === "트레이스") {
+  if (def && !def.faint && def.abil === "트레이스") {
     // 등장했을때 상대방의 특성을 트레이스하지 못한 경우
     // 이후 트레이스 가능한 특성의 포켓몬이 등장하면 바로 발동한다
     if (noTraceAbil.includes(atk.abil)) {
