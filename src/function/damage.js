@@ -8,6 +8,7 @@ import { applyOnHitEvents } from "../service/onHit.js";
 // skillCheck에서 혼란 자해 데미지
 // 기준: 특성 탈 까짐, 급소 판정 있음
 export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typeText, serialAttackObject) {
+  const isConfuseSelfHit = getDamagePokemon === battle?.turn?.atk;
   const atkPokemon = battle[getDamagePokemon === "npc" ? "player" : "npc"];
   const defPokemon = battle[getDamagePokemon];
   const useSkill = atkPokemon.turn.useSkill;
@@ -62,7 +63,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       // defPokemon.turn.recentDamageGet = actualGiveDamage;
       // 대타출동을 때렸을때 반동, 흡수 (recentDamageGive)는 정상 작동 (대타출동체력으로 계산)
       // 대타출동 상태로 카운터 사용시 실패
-      applyOnHitEvents(battle, enqueue, true);
+      if (!isConfuseSelfHit) {
+        applyOnHitEvents(battle, enqueue, true);
+      }
       // 대타출동 상태일땐 대부분의 피격 이벤트 (ex:울멧)가 발동하지 않음
       // 대타출동 상태일때에도 발생하는 이벤트 처리 (풍선)
       return;
@@ -248,5 +251,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
   }
 
-  applyOnHitEvents(battle, enqueue);
+  if (!isConfuseSelfHit) {
+    applyOnHitEvents(battle, enqueue);
+    // 혼란 자해는 피격 이벤트가 발생하지 않음 (풍선도 안 터짐)
+  }
 }

@@ -47,6 +47,41 @@ export const compareAugmentNames = (a, b) => {
   return nameA.localeCompare(nameB, "ko");
 };
 
+// 역할군 및 능력치 분류 (탱커 / 어태커 / 물리 / 특수)
+export const ATTACKER_ROLES = ["물리어태커", "물리딜탱", "특수어태커", "특수딜탱"];
+export const TANK_ROLES = ["막이", "물리막이", "특수막이"];
+export const EXCLUDED_STAT_TYPE_SKILLS = ["지구던지기", "속임수", "바디프레스"];
+
+export const getPokemonRole = (pokemon) => pokemon?.origin?.role || pokemon?.role || "";
+export const getPokemonBaseStats = (pokemon) => pokemon?.origin?.stat || pokemon?.stat || null;
+export const getPokemonActiveSkills = (pokemon) => {
+  const skills = pokemon?.origin?.skill || pokemon?.skill;
+  if (!skills) return [];
+  if (Array.isArray(skills)) {
+    return skills.slice(0, 4).filter((sk) => sk && sk.name !== "발버둥");
+  }
+  return [1, 2, 3, 4].map((slot) => skills[slot] || skills[String(slot)]).filter((sk) => sk && sk.name !== "발버둥");
+};
+export const isAttackerPokemon = (pokemon) => ATTACKER_ROLES.includes(getPokemonRole(pokemon));
+export const isTankPokemon = (pokemon) => TANK_ROLES.includes(getPokemonRole(pokemon));
+export const isPhysicalPokemon = (pokemon) => {
+  const stat = getPokemonBaseStats(pokemon);
+  if (!stat || typeof stat.atk !== "number" || typeof stat.catk !== "number") return false;
+  if (!(stat.atk > stat.catk)) return false;
+  return getPokemonActiveSkills(pokemon).some((sk) => {
+    const stype = sk?.name === "테라버스트" && stat.atk > stat.catk ? "atk" : sk?.stype;
+    return stype === "atk" && !EXCLUDED_STAT_TYPE_SKILLS.includes(sk?.name);
+  });
+};
+export const isSpecialPokemon = (pokemon) => {
+  const stat = getPokemonBaseStats(pokemon);
+  if (!stat || typeof stat.atk !== "number" || typeof stat.catk !== "number") return false;
+  if (!(stat.catk > stat.atk)) return false;
+  return getPokemonActiveSkills(pokemon).some((sk) => {
+    return sk?.stype === "catk" && !EXCLUDED_STAT_TYPE_SKILLS.includes(sk?.name);
+  });
+};
+
 // 상호 배타적 능력치 전환 증강 (하나라도 보유하면 나머지는 등장하지 않음)
 export const STAT_SWAP_AUGMENTS = ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"];
 const canPickStatSwapAugment = (pokemon) => !STAT_SWAP_AUGMENTS.some((id) => pokemon?.hasAugment?.(id));
@@ -58,6 +93,9 @@ export const AUGMENT_LIST = [
     name: "억까 방지",
     desc: "명중률이 80% 이상인 기술이 절대 빗나가지 않습니다.",
     cost: 1,
+    weight: 100,
+    //명중률이 80~99인 기술이 존재할 때만 등장
+    isEligible: (pokemon) => getPokemonActiveSkills(pokemon).some((sk) => typeof sk?.accur === "number" && sk.accur >= 80 && sk.accur <= 99),
     // accuracyCalculate.js에 구현
   },
   {
@@ -65,6 +103,7 @@ export const AUGMENT_LIST = [
     name: "슬프게 하지 않게 하려고 버텼다!",
     desc: "기절할 공격을 받을 때 10% 확률로 HP 1로 버팁니다.",
     cost: 1,
+    weight: 100,
     // damege.js의 attackDamage에 구현
   },
   {
@@ -72,6 +111,7 @@ export const AUGMENT_LIST = [
     name: "도박 중독",
     desc: "기술 위력이 3배가 되지만 공격 기술이 50% 확률로 실패합니다.",
     cost: 3,
+    weight: 100,
     // damageCalculate.js, skillCheck.js에 구현
   },
   {
@@ -79,6 +119,7 @@ export const AUGMENT_LIST = [
     name: "진심 펀치",
     desc: "공격기술의 위력이 999배 증가합니다.",
     cost: 999,
+    weight: 10,
     // damageCalculate.js에 구현
   },
   {
@@ -86,6 +127,7 @@ export const AUGMENT_LIST = [
     name: "용 사냥꾼",
     desc: "드래곤 타입을 상대로 모든 능력치가 1.2배 증가합니다.",
     cost: 3,
+    weight: 100,
     isEligible: (pokemon) => {
       const t1 = pokemon?.type1 || pokemon?.origin?.type1;
       const t2 = pokemon?.type2 || pokemon?.origin?.type2;
@@ -98,6 +140,7 @@ export const AUGMENT_LIST = [
     name: "드래곤 슬레이어",
     desc: "드래곤 타입 포켓몬을 쓰러뜨리면 모든 능력이 1랭크 상승합니다.",
     cost: 3,
+    weight: 100,
     isEligible: (pokemon) => {
       const t1 = pokemon?.type1 || pokemon?.origin?.type1;
       const t2 = pokemon?.type2 || pokemon?.origin?.type2;
@@ -110,6 +153,7 @@ export const AUGMENT_LIST = [
     name: "용살자",
     desc: "드래곤 타입에게 1.5배 데미지를 입힙니다.",
     cost: 3,
+    weight: 100,
     isEligible: (pokemon) => {
       const t1 = pokemon?.type1 || pokemon?.origin?.type1;
       const t2 = pokemon?.type2 || pokemon?.origin?.type2;
@@ -122,6 +166,7 @@ export const AUGMENT_LIST = [
     name: "최후의 전사",
     desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 스피드가 60% 증가합니다.",
     cost: 6,
+    weight: 100,
     // speedCheck.js(speedCalculate)에 구현
   },
   {
@@ -129,6 +174,7 @@ export const AUGMENT_LIST = [
     name: "라스트 사무라이",
     desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 60% 증가합니다.",
     cost: 5,
+    weight: 100,
     // damageCalculate.js에 구현
   },
   {
@@ -136,6 +182,7 @@ export const AUGMENT_LIST = [
     name: "라스트 맨 스탠딩",
     desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 60% 증가합니다.",
     cost: 3,
+    weight: 100,
     // damageCalculate.js에 구현
   },
 
@@ -144,6 +191,7 @@ export const AUGMENT_LIST = [
     name: "구애받지않는",
     desc: "기술 고정 효과를 받지 않습니다.",
     cost: 3,
+    weight: 300,
     isEligible: (pokemon) => Boolean((pokemon?.item && pokemon.item.startsWith("구애")) || pokemon?.abil === "무아지경"),
     onApply: (pokemon) => {
       if (pokemon?.tempStatus) {
@@ -157,6 +205,7 @@ export const AUGMENT_LIST = [
     name: "할머니의 고추기름",
     desc: "상대 포켓몬의 화상 데미지가 5배로 증가합니다.",
     cost: 3,
+    weight: 100,
     isEligible: (pokemon) => {
       // 화상 부가효과가 있는 기수를 지닌 경우에만 등장
       if (!pokemon?.origin?.skill) return false;
@@ -171,8 +220,9 @@ export const AUGMENT_LIST = [
   {
     id: "thornmail",
     name: "가시갑옷",
-    desc: "타격기술을 받을 때 상대방에게 HP의 1/6 데미지를 줍니다.",
+    desc: "적에게 공격을 받을 때 상대방에게 최대 HP의 1/8 데미지를 입힙니다.",
     cost: 3,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
     // onHit.js에 구현
   },
 
@@ -181,6 +231,8 @@ export const AUGMENT_LIST = [
     name: "무한의 대검",
     desc: "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%",
     cost: 5,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
+    isEligible: (pokemon) => isPhysicalPokemon(pokemon),
     // 공격력 증가 및 치명타 보정은 damageCalculate.js / skillUse.js에 구현
   },
   {
@@ -188,6 +240,8 @@ export const AUGMENT_LIST = [
     name: "라바돈의 죽음모자",
     desc: "특공 + 130\n총 특공이 30% 증가합니다.",
     cost: 5,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
+    isEligible: (pokemon) => isSpecialPokemon(pokemon),
     // damageCalculate.js에 구현
   },
   {
@@ -195,6 +249,8 @@ export const AUGMENT_LIST = [
     name: "공허의 지팡이",
     desc: "특공 + 95\n상대방의 특수방어를 40% 약하게 만듭니다.",
     cost: 5,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
+    isEligible: (pokemon) => isSpecialPokemon(pokemon),
     // damageCalculate.js에 구현
   },
   {
@@ -202,6 +258,8 @@ export const AUGMENT_LIST = [
     name: "몰락한 왕의 검",
     desc: "적의 현재 체력의 9% 만큼 추가 데미지를 입힙니다.",
     cost: 5,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
+    isEligible: (pokemon) => isPhysicalPokemon(pokemon),
     // damageCalculate.js에 구현
   },
   {
@@ -209,6 +267,7 @@ export const AUGMENT_LIST = [
     name: "태양불꽃방패",
     desc: "매 턴 내 HP의 10%만큼 상대에게 데미지를 줍니다.",
     cost: 5,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
     // turnEnd.js에 구현
   },
   {
@@ -216,6 +275,7 @@ export const AUGMENT_LIST = [
     name: "검 강화하기",
     desc: "검을 강화하여 강화 단계에 따라 공격과 특수공격을 획득합니다.",
     cost: 1,
+    weight: 80,
     onApply: function (pokemon, battle, options) {
       if (!pokemon) return;
       const level = Number(options?.swordLevel ?? 0);
@@ -233,9 +293,10 @@ export const AUGMENT_LIST = [
 
   {
     id: "nullifyGetto",
-    name: "무효~ 초★럭키-다!",
+    name: "이 공격 무효일세",
     desc: "해당 포켓몬에게 무효 타입을 하나 추가합니다.",
     cost: 5,
+    weight: 100,
     onApply: function (pokemon, battle, options) {
       this.selectedType = options?.selectedType;
     },
@@ -246,7 +307,8 @@ export const AUGMENT_LIST = [
     id: "rebellionOrRevolution",
     name: "실패하면 반역 성공하면 혁명 아닙니까!",
     desc: "공격과 특수공격 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.",
-    cost: 7,
+    cost: 12,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     onApply: function (pokemon, battle, options) {
       if (!pokemon) return;
       const pick = options?.targetStat || (Math.random() < 0.5 ? "atk" : "catk");
@@ -261,6 +323,7 @@ export const AUGMENT_LIST = [
     desc: "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올리는 순풍을 전개한다.",
     afterText: "우리 편의 뒤에서 순풍이 불기 시작했다!",
     cost: "-",
+    weight: 100,
     isEligible: (pokemon, battle) => {
       const teamSide = pokemon?.team || "player";
       if (battle?.field?.[teamSide]?.noClean?.tailwind) return false;
@@ -281,6 +344,7 @@ export const AUGMENT_LIST = [
     name: "포켓몬과 결혼한 사람이 있었다",
     desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다. 인생의 동반자 증강을 추가로 획득합니다.",
     cost: "-",
+    weight: 40,
     isEligible: (pokemon) => {
       if (!isHpAtLeast(pokemon, 0.5)) return false;
       const excluded = ["마스카나", "가디안", "이어롭", "님피아"];
@@ -318,6 +382,7 @@ export const AUGMENT_LIST = [
     desc: "모든 능력치가 1.1배 증가합니다.",
     cost: 0,
     isRandom: false,
+    weight: "-",
     isEligible: () => false,
     onApply: function (pokemon, battle) {
       if (pokemon && pokemon.origin?.hp) {
@@ -334,6 +399,7 @@ export const AUGMENT_LIST = [
     name: "돌려 돌려 돌림판",
     desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다.",
     cost: "-",
+    weight: 100,
     isEligible: (pokemon) => isHpAtLeast(pokemon, 0.5),
     onApply: function (pokemon, battle) {
       const allItems = sampleList.items || [];
@@ -348,7 +414,8 @@ export const AUGMENT_LIST = [
     name: "오른손엔 방패 왼손엔 검",
     desc: "공격과 방어 중 더 유리한 수치를 사용합니다.",
     cost: 3,
-    isEligible: canPickStatSwapAugment,
+    weight: 100,
+    isEligible: (pokemon) => canPickStatSwapAugment(pokemon) && isPhysicalPokemon(pokemon),
     // damageCalculate.js에 구현
   },
   {
@@ -356,7 +423,8 @@ export const AUGMENT_LIST = [
     name: "오른손엔 방패 왼손엔 스태프",
     desc: "특공과 특방 중 더 유리한 수치를 사용합니다.",
     cost: 3,
-    isEligible: canPickStatSwapAugment,
+    weight: 100,
+    isEligible: (pokemon) => canPickStatSwapAugment(pokemon) && isSpecialPokemon(pokemon),
     // damageCalculate.js에 구현
   },
   {
@@ -364,6 +432,7 @@ export const AUGMENT_LIST = [
     name: "체력 4700 방어력 329 마저201 인 챔피언👤이 저지불가🚫, 쉴드🛡, 벽🧱 넘기는 거 있고요. 에어본🌪 있고, 심지어 쿨타임은 1️⃣초밖에 안되고 마나🧙♂️는 1️⃣5️⃣ 들고 w는 심지어 변신💫하면 쿨 초기화에다가 패시브는 고정피해🗡가 들어가며 그 다음에 방마저🥋 올리면📈 올릴수록📈 스킬 가속⏰이 생기고! q에 스킬가속⏰이 생기고 스킬 속도🚀가 빨라지고📈 그 다음에 공격력🗡 계수가 있어가지고 W가 그 이익-으아아아악😱",
     desc: "방어와 특수방어 중 더 유리한 수치를 사용합니다.",
     cost: 5,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
     shortName: "그 긴거",
     isEligible: canPickStatSwapAugment,
     // damageCalculate.js에 구현
@@ -373,6 +442,7 @@ export const AUGMENT_LIST = [
     name: "H.H.G.G.H.G.G",
     desc: "항상 가장 높은 값의 능력치를 사용합니다.",
     cost: 16,
+    weight: 20,
     isEligible: canPickStatSwapAugment,
     // damageCalculate.js, speedCheck.js에 구현
   },
@@ -382,6 +452,7 @@ export const AUGMENT_LIST = [
     name: "테라버스트",
     desc: "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.",
     cost: 1,
+    weight: 100,
     onApply: function (pokemon, battle, options) {
       if (!pokemon?.origin?.skill) return;
       const slot = Number(options?.replaceSlot) || 4;
@@ -410,9 +481,10 @@ export const AUGMENT_LIST = [
   // 특정 포켓몬 전용 증강 ==========================================================================
   {
     id: "nameIsSalamence",
-    name: "그리고 쓰는 기술은 지진이 있다",
-    desc: "보  만  다  !!\n  지   진",
+    name: "보 만 다 지 진 !!",
+    desc: '지니고 있는 기술 중 하나를 "지진"으로 변경합니다.',
     cost: 0,
+    weight: 300,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -5.5, scale: 1.15 },
     isEligible: (pokemon) => hasPokemonName(pokemon, "보만다") && !hasSkill(pokemon, "지진"),
@@ -432,6 +504,7 @@ export const AUGMENT_LIST = [
     name: "춤춰라 한카리아스",
     desc: '지니고 있는 기술 중 하나를 "용의춤"으로 변경합니다.',
     cost: 0,
+    weight: 300,
     isEligible: (pokemon) => hasPokemonName(pokemon, "한카리아스") && !hasSkill(pokemon, "용의춤"),
     onApply: function (pokemon, battle, options) {
       if (!pokemon?.origin?.skill) return;
@@ -449,6 +522,7 @@ export const AUGMENT_LIST = [
     name: "저 새는 해로운 새다",
     desc: "특성 질풍날개가 상시 발동됩니다.",
     cost: 3,
+    weight: 500,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
     isEligible: (pokemon) => hasPokemonName(pokemon, "파이어로"),
@@ -459,6 +533,7 @@ export const AUGMENT_LIST = [
     name: '"메가" 플라이곤',
     desc: "현재 포켓몬을 메가플라이곤과 교체합니다.",
     cost: "-",
+    weight: 50,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
     isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "플라이곤", battleOrTeam || team),
@@ -472,6 +547,7 @@ export const AUGMENT_LIST = [
     name: "전설의 거인",
     desc: "현재 포켓몬을 레지기가스와 교체합니다. 특성과 관련된 증강을 추가로 획득합니다.",
     cost: "-",
+    weight: 50,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
     isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "레지기가스", battleOrTeam || team),
@@ -484,6 +560,7 @@ export const AUGMENT_LIST = [
     name: "민첩한 몸놀림",
     desc: "랜덤한 기술 하나에 우선도 +1을 추가합니다.",
     cost: 7,
+    weight: 100,
     onApply: function (pokemon, battle, options) {
       if (!pokemon?.origin?.skill) return;
       const validSlots = [1, 2, 3, 4].filter((slot) => pokemon.origin.skill[slot]);
@@ -523,12 +600,14 @@ export const AUGMENT_LIST = [
     name: "회복",
     desc: "매턴 최대 HP의 1/16만큼 회복합니다.",
     cost: 5,
+    weight: 100,
   },
   {
     id: "threeSnails",
     name: "달팽이 세마리",
     desc: "공격 후 적에게 추가 고정 데미지를 입힙니다.",
     cost: 5,
+    weight: 100,
   },
   {
     id: "echoOfHero",
@@ -537,6 +616,7 @@ export const AUGMENT_LIST = [
     synergyEffectText: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
     buf: true,
     isRandom: false,
+    weight: "-",
     onApply: function (pokemon, battle) {
       if (battle) {
         const team = pokemon.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
@@ -559,6 +639,7 @@ export const AUGMENT_LIST = [
     },
     buf: true,
     isRandom: false,
+    weight: "-",
     onApply: function (pokemon, battle, options) {
       const count = Number(options?.dragonKillCount ?? pokemon?.dragonKillCount ?? this.dragonKillCount ?? 0);
       if (pokemon) {
@@ -573,6 +654,7 @@ export const AUGMENT_LIST = [
     desc: "공격 후 적에게 30의 추가 고정 데미지를 입힙니다.",
     buf: true,
     isRandom: false,
+    weight: "-",
   },
   {
     id: "mejaisSoulstealer",
@@ -585,6 +667,7 @@ export const AUGMENT_LIST = [
     },
     buf: true,
     isRandom: false,
+    weight: "-",
     onApply: function (pokemon, battle, options) {
       const stack = Number(options?.mejaiStack ?? pokemon?.mejaiStack ?? this.mejaiStack ?? 0);
       if (pokemon) {
@@ -599,6 +682,7 @@ export const AUGMENT_LIST = [
     name: "무한 다이맥스",
     desc: "무한 다이맥스 상태가 됩니다.",
     cost: 10,
+    weight: 500,
     shiftUp: false,
     imageOptions: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
     isEligible: (pokemon) => hasPokemonName(pokemon, "무한다이노"),
@@ -609,9 +693,10 @@ export const AUGMENT_LIST = [
   {
     id: "hugePower",
     name: "천하장사",
-    desc: "현재 포켓몬의 특성을 천하장사로 변경합니다.\n물리기술의 위력이 2배가 됩니다.",
+    desc: "현재 포켓몬의 특성을 천하장사로 변경합니다.\n(물리기술의 위력이 2배가 됩니다.)",
     cost: 7,
-    isEligible: (pokemon) => pokemon?.abil !== "천하장사",
+    weight: 100,
+    isEligible: (pokemon) => pokemon?.abil !== "천하장사" && isPhysicalPokemon(pokemon),
     onApply: (pokemon) => {
       changePokemonAbility(pokemon, "천하장사");
     },
@@ -619,8 +704,9 @@ export const AUGMENT_LIST = [
   {
     id: "fastStarter",
     name: "패스트스타트",
-    desc: "현재 포켓몬의 특성을 패스트스타트로 변경합니다.\n전투에 나오고 5턴 뒤 공격과 스피드가 2배가 됩니다.",
+    desc: "현재 포켓몬의 특성을 패스트스타트로 변경합니다.\n(전투에 나오고 5턴 뒤 공격과 스피드가 2배가 됩니다.)",
     cost: 1,
+    weight: 100,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
     isEligible: (pokemon) => hasPokemonName(pokemon, "레지기가스"),
@@ -630,9 +716,10 @@ export const AUGMENT_LIST = [
   },
   {
     id: "randomAbility",
-    name: "랜덤 특성",
+    name: "특성 야바위",
     desc: "현재 포켓몬의 특성을 랜덤으로 변경합니다.",
-    cost: 3,
+    cost: 1,
+    weight: 100,
     onApply: function (pokemon, battle, options) {
       const picked =
         options?.pickedAbility ||
