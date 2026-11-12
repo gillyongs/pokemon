@@ -15,7 +15,7 @@ import TestingTools from "../component/battleScreen/TestingTools";
 import AfterBattleTradeModal from "../component/battleScreen/AfterBattleTradeModal";
 import { consoleLog } from "../util/consoleLog";
 import { rollAugments } from "../util/augmentRoll";
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText, isBuffAugment, isCurseAugment } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText, isBuffAugment, isCurseAugment, syncTeamEchoOfHeroBuff } from "../entity/Augment/AugmentData";
 import { generate } from "../entity/Pokemon/PokemonInstance";
 import { useQueue } from "../util/useQueue";
 import { switchNpcAuto } from "../service/switch";
@@ -239,6 +239,7 @@ const Battle = () => {
     } else if (curBattle.playerBench2 === playerPoke) {
       curBattle.playerBench2 = newPoke;
     }
+    syncTeamEchoOfHeroBuff(curBattle, newPoke);
 
     setBattle(cloneWithMethods(curBattle));
     setIsTradeModalOpen(false);

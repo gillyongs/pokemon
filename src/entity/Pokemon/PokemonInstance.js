@@ -171,6 +171,7 @@ class PokemonInstance {
       turnsOnField: 0, // 필드에 나온 턴 수 (슬로스타트)
     };
     this.faint = null; //기절 여부
+    this.isMega = false; //메가진화 여부
     this.auto = null; //자동 행동 여부 (역린)
     this.autoSN = null;
     this.charge = null; //충전중 여부 (파워풀허브 없이 충전 기술을 썼을때)
@@ -223,7 +224,7 @@ class PokemonInstance {
     }
     const augId = typeof augment === "string" ? augment : augment.id;
     const augObj = typeof augment === "object" ? { ...augment } : { id: augment };
-    const isInstant = augObj.cost === "-" || augId === "legendaryTitan" || augId === "rouletteWheel" || augId === "soaring";
+    const isInstant = augObj.cost === "-" || augId === "legendaryTitan" || augId === "rouletteWheel" || augId === "soaring" || augId === "marriedPokemon";
 
     const { AUGMENT_LIST } = require("../Augment/AugmentData");
     const fullAug = AUGMENT_LIST.find((a) => a.id === augId);

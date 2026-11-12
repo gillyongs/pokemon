@@ -103,11 +103,7 @@ const getBattleFromContext = (battleOrTeam, teamArg = null) => {
 export const hasGamblingAddict = (pokemon, battleOrTeam = null, teamArg = null) => {
   const side = pokemon?.team === "npc" ? "npc" : "player";
   const battle = getBattleFromContext(battleOrTeam, teamArg);
-  const battleMembers = battle
-    ? side === "npc"
-      ? [battle.npc, battle.npcBench1, battle.npcBench2]
-      : [battle.player, battle.playerBench1, battle.playerBench2]
-    : [];
+  const battleMembers = battle ? (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]) : [];
   const arrayMembers = Array.isArray(teamArg) ? teamArg : Array.isArray(battleOrTeam) ? battleOrTeam : [];
   const candidates = [pokemon, ...battleMembers, ...arrayMembers].filter(Boolean);
   return candidates.some((p) => p.hasAugment?.("gamblingAddict"));
@@ -386,7 +382,7 @@ export const AUGMENT_LIST = [
       });
       const pool = available.length > 0 ? available : candidates;
       const pickedId = pool[Math.floor(Math.random() * pool.length)];
-      replacePokemon(pokemon, pickedId, battle, { excludeAugmentId: "marriedPokemon" });
+      replacePokemon(pokemon, pickedId, battle, { resetAugments: true });
 
       // 인생의 동반자 증강 추가 획득
       const partnerAug = AUGMENT_LIST.find((a) => a.id === "lifePartner");
@@ -554,18 +550,18 @@ export const AUGMENT_LIST = [
     imageOptions: { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
     isEligible: (pokemon) => hasPokemonName(pokemon, "파이어로"),
   },
-  // "메가" 플라이곤 (메가플라이곤 교체) =========================================
+  // "메가" 플라이곤 (플라이곤 교체 -> 직접 메가진화) =========================================
   {
     id: "soaring",
     name: '"메가" 플라이곤',
-    desc: "현재 포켓몬을 메가플라이곤과 교체합니다.",
+    desc: "현재 포켓몬을 플라이곤과 교체합니다.",
     cost: "-",
     weight: 50,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
     isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "플라이곤", battleOrTeam || team),
     onApply: function (pokemon, battle) {
-      replacePokemon(pokemon, "메가플라이곤", battle, { excludeAugmentId: "soaring" });
+      replacePokemon(pokemon, "플라이곤", battle, { resetAugments: true });
     },
   },
   // 전설의 거인 관련 ==========================================================
@@ -579,7 +575,7 @@ export const AUGMENT_LIST = [
     imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
     isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "레지기가스", battleOrTeam || team),
     onApply: function (pokemon, battle) {
-      replacePokemon(pokemon, "레지기가스", battle, { excludeAugmentId: "legendaryTitan" });
+      replacePokemon(pokemon, "레지기가스", battle, { resetAugments: true });
     },
   },
   {
@@ -729,12 +725,7 @@ export const AUGMENT_LIST = [
     },
     onApply: function (pokemon, battle, options) {
       if (!battle) return;
-      const side =
-        options?.faintTarget === "player" || options?.faintTarget === "npc"
-          ? options.faintTarget
-          : Math.random() < 0.5
-            ? "player"
-            : "npc";
+      const side = options?.faintTarget === "player" || options?.faintTarget === "npc" ? options.faintTarget : Math.random() < 0.5 ? "player" : "npc";
       const faintPoke = side === "npc" ? battle.npc : battle.player;
       if (faintPoke) {
         faintPoke.hp = 0;
@@ -760,9 +751,7 @@ export const AUGMENT_LIST = [
       if (!pokemon) return;
       const statPool = ["atk", "catk", "cdef", "def", "speed"];
       const deltaPool = [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6];
-      const chosenStat = statPool.includes(options?.statKey)
-        ? options.statKey
-        : statPool[Math.floor(Math.random() * statPool.length)];
+      const chosenStat = statPool.includes(options?.statKey) ? options.statKey : statPool[Math.floor(Math.random() * statPool.length)];
       let chosenDelta = Number(options?.delta);
       if (!deltaPool.includes(chosenDelta)) {
         chosenDelta = deltaPool[Math.floor(Math.random() * deltaPool.length)];
@@ -818,18 +807,10 @@ export const AUGMENT_LIST = [
     desc: "모든 공격의 데미지가 3배가 되는 버프 또는 절반이 되는 저주를 얻습니다.",
     cost: "-",
     weight: 100,
-    isEligible: (pokemon, battleOrTeam, team) =>
-      hasGamblingAddict(pokemon, battleOrTeam, team) &&
-      !pokemon?.hasAugment?.("highRiskBuff") &&
-      !pokemon?.hasAugment?.("highRiskCurse"),
+    isEligible: (pokemon, battleOrTeam, team) => hasGamblingAddict(pokemon, battleOrTeam, team) && !pokemon?.hasAugment?.("highRiskBuff") && !pokemon?.hasAugment?.("highRiskCurse"),
     onApply: function (pokemon, battle, options) {
       if (!pokemon) return;
-      const pickedResult =
-        options?.highRiskResult === "buff" || options?.highRiskResult === "curse"
-          ? options.highRiskResult
-          : Math.random() < 0.5
-            ? "buff"
-            : "curse";
+      const pickedResult = options?.highRiskResult === "buff" || options?.highRiskResult === "curse" ? options.highRiskResult : Math.random() < 0.5 ? "buff" : "curse";
       const grantedId = pickedResult === "buff" ? "highRiskBuff" : "highRiskCurse";
       const grantedAug = AUGMENT_LIST.find((a) => a.id === grantedId);
       if (grantedAug) {
@@ -997,6 +978,30 @@ export const applyEternamax = (pokemon) => {
   pokemon.isEternamax = true;
 };
 
+// 팀 내 영웅의 메아리(hasEchoOfHeroBuff) 플래그 동기화 함수
+export const syncTeamEchoOfHeroBuff = (battle, fallbackPokemon = null) => {
+  if (!battle) {
+    if (fallbackPokemon && !fallbackPokemon.hasAugment?.("echoOfHero")) {
+      delete fallbackPokemon.hasEchoOfHeroBuff;
+    }
+    return;
+  }
+  ["player", "npc"].forEach((side) => {
+    const members = (
+      side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]
+    ).filter(Boolean);
+    if (members.length === 0) return;
+    const hasHolder = members.some((p) => p?.hasAugment?.("echoOfHero"));
+    members.forEach((p) => {
+      if (hasHolder) {
+        p.hasEchoOfHeroBuff = true;
+      } else {
+        delete p.hasEchoOfHeroBuff;
+      }
+    });
+  });
+};
+
 // 포켓몬 교체 공통 함수
 /**
  * 증강 등에서 포켓몬을 다른 포켓몬으로 교체/변경하는 공통 함수
@@ -1014,36 +1019,54 @@ export const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) =>
   newPoke.team = pokemon.team || "player";
   newPoke.originalIndex = pokemon.originalIndex !== undefined ? pokemon.originalIndex : 0;
 
-  // 증강 처리: resetAugments가 true이면 빈 배열, 아니면 즉발/제외 대상 필터링
-  if (options?.resetAugments) {
+  // 포켓몬 교체 시 기본적으로 해당 포켓몬의 증강, 버프, 저주를 전부 초기화 (resetAugments === false 인 경우만 유지)
+  const shouldResetAugments = options?.resetAugments !== false;
+  if (shouldResetAugments) {
     newPoke.augments = [];
   } else {
     const excludeId = options?.excludeAugmentId;
     newPoke.augments = (pokemon.augments || []).filter((a) => a && (excludeId ? a.id !== excludeId : true) && a.cost !== "-");
   }
 
+  // 이전 포켓몬에 남아 있던 동적 속성(hasEchoOfHeroBuff, isEternamax, _nullifyType 등)까지 모두 제거
+  Object.keys(pokemon).forEach((key) => {
+    if (!Object.prototype.hasOwnProperty.call(newPoke, key)) {
+      delete pokemon[key];
+    }
+  });
+
   // 기존 pokemon 객체 참조를 유지하도록 인스턴스 프로토타입 및 속성 복사
   Object.setPrototypeOf(pokemon, Object.getPrototypeOf(newPoke));
   Object.assign(pokemon, newPoke);
   pokemon.augments = newPoke.augments;
+  pokemon.isMega = false;
+  delete pokemon.isEternamax;
 
   // 배틀 내 슬롯 교체 (단일 인스턴스 참조 유지)
   if (battle) {
     const targetIdx = pokemon.originalIndex;
-    if (battle.player === pokemon || (targetIdx !== undefined && battle.player?.originalIndex === targetIdx)) {
-      battle.player = pokemon;
-    } else if (battle.playerBench1 === pokemon || (targetIdx !== undefined && battle.playerBench1?.originalIndex === targetIdx)) {
-      battle.playerBench1 = pokemon;
-    } else if (battle.playerBench2 === pokemon || (targetIdx !== undefined && battle.playerBench2?.originalIndex === targetIdx)) {
-      battle.playerBench2 = pokemon;
-    } else if (battle.npc === pokemon || (targetIdx !== undefined && battle.npc?.originalIndex === targetIdx)) {
-      battle.npc = pokemon;
-    } else if (battle.npcBench1 === pokemon || (targetIdx !== undefined && battle.npcBench1?.originalIndex === targetIdx)) {
-      battle.npcBench1 = pokemon;
-    } else if (battle.npcBench2 === pokemon || (targetIdx !== undefined && battle.npcBench2?.originalIndex === targetIdx)) {
-      battle.npcBench2 = pokemon;
+    const isNpc = pokemon.team === "npc";
+    if (!isNpc) {
+      if (battle.player === pokemon || (targetIdx !== undefined && battle.player?.originalIndex === targetIdx)) {
+        battle.player = pokemon;
+      } else if (battle.playerBench1 === pokemon || (targetIdx !== undefined && battle.playerBench1?.originalIndex === targetIdx)) {
+        battle.playerBench1 = pokemon;
+      } else if (battle.playerBench2 === pokemon || (targetIdx !== undefined && battle.playerBench2?.originalIndex === targetIdx)) {
+        battle.playerBench2 = pokemon;
+      }
+    } else {
+      if (battle.npc === pokemon || (targetIdx !== undefined && battle.npc?.originalIndex === targetIdx)) {
+        battle.npc = pokemon;
+      } else if (battle.npcBench1 === pokemon || (targetIdx !== undefined && battle.npcBench1?.originalIndex === targetIdx)) {
+        battle.npcBench1 = pokemon;
+      } else if (battle.npcBench2 === pokemon || (targetIdx !== undefined && battle.npcBench2?.originalIndex === targetIdx)) {
+        battle.npcBench2 = pokemon;
+      }
     }
   }
+
+  // 교체된 포켓몬이 영웅의 메아리 보유자였던 경우 팀 잔여 hasEchoOfHeroBuff 플래그 정리
+  syncTeamEchoOfHeroBuff(battle, pokemon);
 
   return pokemon;
 };
@@ -1140,7 +1163,7 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     individualDesc = josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);
   } else if (id === "soaring") {
     const fromName = prevPokeName || "포켓몬";
-    individualDesc = josa(`${fromName}#{이} 메가플라이곤으로 교체되었다!`);
+    individualDesc = josa(`${fromName}#{이} 플라이곤으로 교체되었다!`);
   } else if (id === "legendaryTitan") {
     const fromName = prevPokeName || "포켓몬";
     individualDesc = josa(`${fromName}#{이} 레지기가스로 교체되었다!`);
@@ -1183,9 +1206,7 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     if (isTextScreen) {
       individualDesc = faintedName ? `러시안룰렛의 총구가 ${josa(`${faintedName}#{를}`)} 향했다!` : "러시안룰렛의 총구가 멈췄다!";
     } else {
-      individualDesc = faintedName
-        ? `현재 필드에 나와있는 두 포켓몬 중 ${josa(`${faintedName}#{이}`)} 기절했습니다.`
-        : selectedAugment.desc || "현재 필드에 나와있는 두 포켓몬 중 하나가 기절합니다.";
+      individualDesc = faintedName ? `현재 필드에 나와있는 두 포켓몬 중 ${josa(`${faintedName}#{이}`)} 기절했습니다.` : selectedAugment.desc || "현재 필드에 나와있는 두 포켓몬 중 하나가 기절합니다.";
     }
   } else if (id === "oddEven") {
     const statKey = options?.resolvedStat || options?.statKey;
@@ -1199,13 +1220,9 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     const success = options?.resolvedSuccess ?? options?.doOrDieSuccess;
     if (typeof success === "boolean") {
       if (isTextScreen) {
-        individualDesc = success
-          ? "이판사판 성공! 상대 엔트리의 대기 중인 포켓몬을 전부 기절시킨다!"
-          : "이판사판... 하지만 실패했다!";
+        individualDesc = success ? "이판사판 성공! 상대 엔트리의 대기 중인 포켓몬을 전부 기절시킨다!" : "이판사판... 하지만 실패했다!";
       } else {
-        individualDesc = success
-          ? "이판사판에 성공하여 상대 엔트리의 대기 중인 포켓몬을 전부 기절시켰습니다."
-          : "이판사판에 실패하여 아무 일도 일어나지 않았습니다.";
+        individualDesc = success ? "이판사판에 성공하여 상대 엔트리의 대기 중인 포켓몬을 전부 기절시켰습니다." : "이판사판에 실패하여 아무 일도 일어나지 않았습니다.";
       }
     }
   } else if (id === "highRiskHighReturn") {
