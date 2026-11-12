@@ -130,6 +130,7 @@ class PokemonInstance {
       useSkill: null, //이번턴 사용한 (사용할) 스킬
       substitute: null, // 이번 턴에 대타출동 상태였는지 여부. 대타출동을 깨뜨린 공격의 부가효과도 막기 위함
       lastHitSubstitute: null, // 직전 타격이 대타에 맞았는지 여부 (연속기 타격별 판정용)
+      knockedOutNpcThisTurn: null, // 이번 턴 공격기로 상대 포켓몬을 쓰러뜨렸는지 여부
     };
     this.tempStatus = {
       //교체시 초기화

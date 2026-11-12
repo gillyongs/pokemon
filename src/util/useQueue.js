@@ -83,6 +83,9 @@ export function useQueue() {
       const rest = prevQueue.slice(1).map((item) => {
         if (!item.battle) return item;
         const nextItemBattle = cloneWithMethods(item.battle);
+        if ("hasKnockoutAugmentThisRound" in curBattle) {
+          nextItemBattle.hasKnockoutAugmentThisRound = curBattle.hasKnockoutAugmentThisRound;
+        }
         const sourceTeam = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2];
         const targetTeam = [nextItemBattle.player, nextItemBattle.playerBench1, nextItemBattle.playerBench2];
         sourceTeam.forEach((sPoke, pIdx) => {

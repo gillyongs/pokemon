@@ -388,6 +388,10 @@ const Battle = () => {
 
     const head = queueObject.queue[0];
     const isStartAugment = Boolean(head?.isBattleStartAugment);
+    const isKnockoutPrompt = Boolean(head?.isKnockoutAugment || (head?.isAugment && !head?.isBattleStartAugment));
+    if (isKnockoutPrompt) {
+      curBattle.hasKnockoutAugmentThisRound = true;
+    }
 
     if (isTitanFirst) {
       // 전설의 거인 첫 선택 시: 특성 선택 증강까지 모두 완료된 뒤에 배틀 시작 특성이 발동되도록 보류
@@ -444,6 +448,7 @@ const Battle = () => {
           logText: gainLogText,
           augmentData,
           isAugment: false,
+          isKnockoutAugment: false,
         }),
         curBattle,
         followUpItems
@@ -464,11 +469,15 @@ const Battle = () => {
 
   const handleCloseAugment = () => {
     setAugmentModalOpen(false);
+    const wasTitanSelection = isTitanSelection;
     setIsTitanSelection(false);
     const curBattle = battleObj.current;
     if (!curBattle) return;
 
     const head = queueObject.queue[0];
+    if (!wasTitanSelection && (head?.isKnockoutAugment || (head?.isAugment && !head?.isBattleStartAugment))) {
+      curBattle.hasKnockoutAugmentThisRound = false;
+    }
     const shouldTriggerStart = Boolean(head?.isBattleStartAugment) || isTitanPendingStart;
     setIsTitanPendingStart(false);
     const followUpItems = [];
@@ -490,6 +499,7 @@ const Battle = () => {
           text: noAugText,
           logText: noAugText,
           isAugment: false,
+          isKnockoutAugment: false,
         }),
         curBattle,
         followUpItems
@@ -717,7 +727,7 @@ const Battle = () => {
 
       // 교체 선택 화면(mustSwitch/uturn)에서 멈추는 경우, 해당 항목은 큐에 남겨둔다.
       // (일반 흐름처럼 Bottom-Switch의 handleSwitch가 직접 dequeue 한다)
-      const isInputPending = cur.waitInput || cur.bottomMode === "mustSwitch" || cur.bottomMode === "uturn" || condition1 || condition2;
+      const isInputPending = cur.waitInput || cur.isAugment || cur.bottomMode === "mustSwitch" || cur.bottomMode === "uturn" || condition1 || condition2;
       const keepInQueue = isInputPending && !condition3 && !condition4;
       if (!keepInQueue) queueObject.dequeue();
 

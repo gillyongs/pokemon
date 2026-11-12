@@ -50,12 +50,6 @@ export const PokemonGetDamage = {
       battle,
       text: `${this.names} 쓰러졌다!`,
     });
-
-    // 상대 포켓몬이 쓰러진 횟수를 기록 (turnEnd에서 증강 선택 큐 추가용)
-    if (this.team === "npc" && battle?.turn) {
-      battle.turn.npcFaintedCount = (battle.turn.npcFaintedCount || 0) + 1;
-      battle.turn.npcFaintedThisTurn = true;
-    }
   },
 
   tryBerry(battle, enqueue) {

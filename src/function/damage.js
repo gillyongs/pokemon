@@ -216,6 +216,11 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       }
     }
 
+    // 공격기로 적 포켓몬을 쓰러뜨린 경우 기록 (턴 종료까지 해당 포켓몬 생존 시 증강 선택용)
+    if (!isConfuseSelfHit && !defPokemon.faint && defPokemon.team === "npc" && battle?.turn?.atk === "player" && !atkPokemon.faint && atkPokemon.turn) {
+      atkPokemon.turn.knockedOutNpcThisTurn = true;
+    }
+
     defPokemon.handleFaint(battle, enqueue);
 
     // 자기과신

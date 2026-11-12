@@ -85,7 +85,9 @@ export const turnEnd = (battle, enqueue) => {
   }
 
   Object.keys(tempPlayer).forEach((key) => {
-    tempPlayer[key] = null;
+    if (key !== "knockedOutNpcThisTurn") {
+      tempPlayer[key] = null;
+    }
   });
   Object.keys(tempNpc).forEach((key) => {
     tempNpc[key] = null;
@@ -109,27 +111,32 @@ export const turnEnd = (battle, enqueue) => {
     switchNpcAuto(battle, enqueue);
   }
 
-  // 적을 쓰러뜨리고, turnEnd 마지막에 "증강을 선택하세요", isAugment:true queue 추가
-  // (적 포켓몬을 쓰러뜨리고 얻는 증강은 한 라운드에 1회만 가능)
-  if (battle.isMayhem && !battle.hasKnockoutAugmentThisRound && (battle.turn?.npcFaintedCount > 0 || battle.turn?.npcFaintedThisTurn)) {
-    if (battle.turn) {
-      battle.turn.npcFaintedCount = 0;
-      battle.turn.npcFaintedThisTurn = false;
+  // 공격기로 적을 쓰러뜨리고 턴 종료까지 해당 포켓몬이 기절하지 않은 경우, turnEnd 마지막에 "증강을 선택하세요", isAugment:true queue 추가
+  // (적 포켓몬을 쓰러뜨리고 얻는 증강은 실제로 증강을 선택했을 때만 해당 라운드 1회 제한이 소모됨)
+  const playerTeam = [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean);
+  const hasSurvivingKnockoutAttacker = playerTeam.some((p) => Boolean(p.turn?.knockedOutNpcThisTurn) && !p.faint && p.hp > 0);
+  playerTeam.forEach((p) => {
+    if (p.turn && "knockedOutNpcThisTurn" in p.turn) {
+      p.turn.knockedOutNpcThisTurn = null;
     }
-    const hasSlot = [battle.player, battle.playerBench1, battle.playerBench2].some((p) => p && (p.augments || []).filter((a) => !a.buf).length < 3);
+  });
+  if (battle.turn) {
+    battle.turn.npcFaintedCount = 0;
+    battle.turn.npcFaintedThisTurn = false;
+  }
+
+  if (battle.isMayhem && !battle.hasKnockoutAugmentThisRound && hasSurvivingKnockoutAttacker) {
+    const hasSlot = playerTeam.some((p) => (p.augments || []).filter((a) => !a.buf).length < 3);
     if (hasSlot) {
-      battle.hasKnockoutAugmentThisRound = true;
       enqueue({
         id: "122fb584-429d-4b41-9558-755143829687",
         battle: battle,
         text: "증강을 선택하세요.",
         logText: "증강을 선택하지 않았습니다.",
         isAugment: true,
+        isKnockoutAugment: true,
       });
     }
-  } else if (battle.turn) {
-    battle.turn.npcFaintedCount = 0;
-    battle.turn.npcFaintedThisTurn = false;
   }
 
   if (battle.player.faint) {
