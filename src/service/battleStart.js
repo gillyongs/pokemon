@@ -18,7 +18,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
   });
   battle.turnCount += 1;
 
-  battle.resetTurn();
+  battle.resetBattleTurn();
   battle.player.turn.choice = actNumber;
   battle.npc.turn.choice = npcActNumber;
 

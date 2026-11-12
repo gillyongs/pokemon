@@ -133,6 +133,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   // 최근 기록
   atkPokemon.turn.recentDamageGive = actualGiveDamage; // 반동, 흡수
   defPokemon.turn.recentDamageGet = actualGiveDamage; // 카운터
+  if (actualGiveDamage > 0 && defPokemon.turn) {
+    defPokemon.turn.damagedThisTurn = true; // 워모그
+  }
   defPokemon.tempStatus.hitCount = (defPokemon.tempStatus.hitCount || 0) + 1; // 분노의주먹
 
   // ================= 텍스트 처리 =================

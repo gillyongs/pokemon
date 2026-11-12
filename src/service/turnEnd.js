@@ -7,8 +7,6 @@ export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
   // 화상딜, 독딜, 날개쉬기 타입복구, NPC 기절시 교체
   // turnEnd를 trigger로 사용하여 모든 이벤트가 끝나야 교체화면이 나오게 함
-  // player.temp의 프로퍼티들은 여기서 초기화된다.
-  // battle.turn은 turnEnd 때문에 턴 시작할때 (battleStart.js)에서 초기화된다
 
   const fastUser = speedCheck(battle);
   const slowUser = fastUser === "player" ? "npc" : "player";
@@ -36,6 +34,10 @@ export const turnEnd = (battle, enqueue) => {
   // 아이템 (먹밥)
   battle[fastUser].leftOver(battle, enqueue);
   battle[slowUser].leftOver(battle, enqueue);
+
+  // [증강] 워모그의 갑옷 (매 턴 최대 HP의 3% 회복, 데미지를 입지 않은 경우 2배)
+  applyWarmogsArmor(battle, enqueue, fastUser);
+  applyWarmogsArmor(battle, enqueue, slowUser);
 
   // 기술 (씨뿌리기, 마그마스톰, 도발, 하품, 역린)
   processSkillEffects(battle, enqueue, fastUser, slowUser);
@@ -85,16 +87,6 @@ export const turnEnd = (battle, enqueue) => {
     battle.npc.type2 = battle.npc.origin.type2;
   }
 
-  Object.keys(tempPlayer).forEach((key) => {
-    if (key !== "knockedOutNpcThisTurn") {
-      // 상대를 쓰러뜨렸는지 여부. 턴 종료 후 증강 선택에 사용
-      tempPlayer[key] = null;
-    }
-  });
-  Object.keys(tempNpc).forEach((key) => {
-    tempNpc[key] = null;
-  });
-
   // 첫 턴 여부 false 처리 (속이기, 만나자마자 성공 체크)
   // 교체/유턴으로 나온 다음턴에 속이기/만나자마자 쓰면 성공하는게 맞으모로 예외처리
 
@@ -130,15 +122,6 @@ export const turnEnd = (battle, enqueue) => {
   // (적 포켓몬을 쓰러뜨리고 얻는 증강은 실제로 증강을 선택했을 때만 해당 라운드 1회 제한이 소모됨)
   const playerTeam = [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean);
   const hasSurvivingKnockoutAttacker = playerTeam.some((p) => Boolean(p.turn?.knockedOutNpcThisTurn) && !p.faint && p.hp > 0);
-  playerTeam.forEach((p) => {
-    if (p.turn && "knockedOutNpcThisTurn" in p.turn) {
-      p.turn.knockedOutNpcThisTurn = null;
-    }
-  });
-  if (battle.turn) {
-    battle.turn.npcFaintedCount = 0;
-    battle.turn.npcFaintedThisTurn = false;
-  }
 
   if (battle.isMayhem && !battle.hasKnockoutAugmentThisRound && hasSurvivingKnockoutAttacker) {
     const hasSlot = playerTeam.some((p) => (p.augments || []).filter((a) => !a.buf).length < 3);
@@ -184,6 +167,10 @@ export const turnEnd = (battle, enqueue) => {
     });
     //이거 없으면 텍스트 없는게 (enqueue 안한게) 반영이 안됨
   }
+
+  // 주의: turnEnd 내부 로직(roost, choice, switchedIn, knockedOutNpcThisTurn, turnEnd/textFreeze 등)과
+  // 마지막 enqueue의 battle 스냅샷 복사가 모두 끝난 뒤 에러가 나지 않도록 반드시 turnEnd 최대한 마지막에 호출할 것
+  battle.resetBattleTurn();
 };
 
 function applySunfireAegis(battle, enqueue, user) {
@@ -198,4 +185,16 @@ function applySunfireAegis(battle, enqueue, user) {
   const damage = Math.max(1, Math.floor(p.origin.hp * 0.1));
   const text = `[증강: 태양불꽃방패] ${opponent.names} 불사르기 데미지를 입었다!`;
   opponent.getDamage(battle, enqueue, damage, text);
+}
+
+function applyWarmogsArmor(battle, enqueue, user) {
+  const p = battle[user];
+  if (!p || p.faint || p.hp <= 0 || p.hp >= p.origin.hp) return;
+  if (!p.hasAugment?.("warmogsArmor")) return;
+
+  const undamaged = !p.turn?.damagedThisTurn;
+  const ratio = undamaged ? 0.06 : 0.03;
+  const heal = Math.max(1, Math.floor(p.origin.hp * ratio));
+  const text = undamaged ? `[증강: 워모그의 갑옷] ${p.names} 체력을 크게 회복했다!` : `[증강: 워모그의 갑옷] ${p.names} 체력을 조금 회복했다!`;
+  p.recover(battle, heal, enqueue, text);
 }

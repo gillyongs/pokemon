@@ -59,11 +59,14 @@ class Battle {
     this.hasKnockoutAugmentThisRound = false; // 해당 라운드 적 처치 증강 획득 여부 (최대 1회)
   }
 
-  // 턴 시작시 turn 초기화
-  resetTurn() {
+  // 턴 초기화 (battle.turn 및 필드/벤치 포켓몬 6마리의 turn 전부 초기화)
+  resetBattleTurn() {
     const t = this.turn;
     Object.keys(t).forEach((key) => {
       t[key] = null;
+    });
+    [this.player, this.playerBench1, this.playerBench2, this.npc, this.npcBench1, this.npcBench2].forEach((p) => {
+      p?.resetTurn?.();
     });
   }
 }

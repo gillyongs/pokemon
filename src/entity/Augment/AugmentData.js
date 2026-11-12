@@ -133,7 +133,7 @@ export const AUGMENT_LIST = [
     id: "lifeIsOneShot",
     name: "인생은 한방",
     desc: "기술 위력이 3배가 되지만 공격 기술이 50% 확률로 실패합니다.",
-    cost: 3,
+    cost: 1,
     weight: 100,
     // damageCalculate.js, skillCheck.js에 구현
   },
@@ -149,7 +149,7 @@ export const AUGMENT_LIST = [
     id: "dragonHunter",
     name: "용 사냥꾼",
     desc: "드래곤 타입을 상대로 모든 능력치가 1.2배 증가합니다.",
-    cost: 3,
+    cost: 1,
     weight: 100,
     isEligible: (pokemon) => {
       const t1 = pokemon?.type1;
@@ -175,7 +175,7 @@ export const AUGMENT_LIST = [
     id: "dragonKiller",
     name: "용살자",
     desc: "드래곤 타입에게 1.5배 데미지를 입힙니다.",
-    cost: 3,
+    cost: 1,
     weight: 100,
     isEligible: (pokemon) => {
       const t1 = pokemon?.type1;
@@ -196,7 +196,7 @@ export const AUGMENT_LIST = [
     id: "lastSamurai",
     name: "라스트 사무라이",
     desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 60% 증가합니다.",
-    cost: 5,
+    cost: 3,
     weight: 100,
     // damageCalculate.js에 구현
   },
@@ -204,7 +204,7 @@ export const AUGMENT_LIST = [
     id: "lastManStanding",
     name: "라스트 맨 스탠딩",
     desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 60% 증가합니다.",
-    cost: 3,
+    cost: 2,
     weight: 100,
     // damageCalculate.js에 구현
   },
@@ -213,7 +213,7 @@ export const AUGMENT_LIST = [
     id: "unboundChoice",
     name: "구애받지않는",
     desc: "기술 고정 효과를 받지 않습니다.",
-    cost: 3,
+    cost: 1,
     weight: 300,
     isEligible: (pokemon) => Boolean((pokemon?.item && pokemon.item.startsWith("구애")) || pokemon?.abil === "무아지경"),
     onApply: (pokemon) => {
@@ -252,7 +252,7 @@ export const AUGMENT_LIST = [
   {
     id: "infinityEdge",
     name: "무한의 대검",
-    desc: "급소 확률이 25% 증가합니다. 공격이 급소에 맞았을때 데미지가 30% 추가로 증가합니다.",
+    desc: `급소 확률이 25% 증가합니다.\n공격이 급소에 맞았을때 데미지가 30% 추가로 증가합니다.`,
     cost: 5,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     // 치명타 보정은 damageCalculate.js / skillUse.js에 구현
@@ -260,7 +260,7 @@ export const AUGMENT_LIST = [
   {
     id: "rabadonsDeathcap",
     name: "라바돈의 죽음모자",
-    desc: "총 특공이 30% 증가합니다.",
+    desc: "특수공격이 30% 증가합니다.",
     cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     isEligible: (pokemon) => isSpecialPokemon(pokemon),
@@ -278,8 +278,8 @@ export const AUGMENT_LIST = [
   {
     id: "ludensEcho",
     name: "루덴의 메아리",
-    desc: "적에게 특수공격의 5%에 해당하는 추가 데미지를 입힙니다.",
-    cost: 5,
+    desc: "공격 후 적에게 특수공격의 5%에 해당하는 추가 고정 데미지를 입힙니다.",
+    cost: 4,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     isEligible: (pokemon) => isSpecialPokemon(pokemon),
     // SkillEffect.js에 구현
@@ -288,8 +288,8 @@ export const AUGMENT_LIST = [
     id: "bladeOfTheRuinedKing",
     name: "몰락한 왕의 검",
     desc: "적의 현재 체력의 9% 만큼 추가 데미지를 입힙니다.",
-    cost: 5,
-    weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
+    cost: 3,
+    weight: 100,
     // damageCalculate.js에 구현
   },
   {
@@ -304,7 +304,15 @@ export const AUGMENT_LIST = [
     id: "sunfireAegis",
     name: "태양불꽃방패",
     desc: "매 턴 내 HP의 10%만큼 상대에게 데미지를 줍니다.",
-    cost: 5,
+    cost: 3,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
+    // turnEnd.js에 구현
+  },
+  {
+    id: "warmogsArmor",
+    name: "워모그의 갑옷",
+    desc: "매 턴 최대 HP의 3%만큼 회복합니다.\n데미지를 입지 않은 경우 2배로 회복합니다.",
+    cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
     // turnEnd.js에 구현
   },
@@ -313,7 +321,7 @@ export const AUGMENT_LIST = [
     name: "검 강화하기",
     desc: "검을 강화하여 강화 단계에 따라 공격과 특수공격을 획득합니다.",
     cost: 1,
-    weight: 80,
+    weight: 50,
     onApply: function (pokemon, battle, options) {
       if (!pokemon) return;
       const level = Number(options?.swordLevel ?? 0);
@@ -333,7 +341,7 @@ export const AUGMENT_LIST = [
     id: "nullifyGetto",
     name: "이 공격 무효일세",
     desc: "해당 포켓몬에게 무효 타입을 하나 추가합니다.",
-    cost: 5,
+    cost: 3,
     weight: 100,
     onApply: function (pokemon, battle, options) {
       this.selectedType = options?.selectedType;
@@ -558,12 +566,12 @@ export const AUGMENT_LIST = [
   {
     id: "harmfulBird",
     name: "저 새는 해로운 새다",
-    desc: "특성 질풍날개가 상시 발동됩니다.",
+    desc: "특성 질풍날개의 HP 조건이 삭제됩니다.",
     cost: 3,
     weight: 500,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
-    isEligible: (pokemon) => hasPokemonName(pokemon, "파이어로"),
+    isEligible: (pokemon) => hasPokemonName(pokemon, "파이어로") && pokemon?.abil === "질풍날개",
   },
   // "메가" 플라이곤 (플라이곤 교체 -> 직접 메가진화) =========================================
   {
@@ -636,7 +644,7 @@ export const AUGMENT_LIST = [
   {
     id: "recovery",
     name: "회복",
-    desc: "매턴 최대 HP의 1/16만큼 회복합니다.",
+    desc: "매 턴 최대 HP의 1/16만큼 회복합니다.",
     cost: 5,
     weight: 100,
   },
@@ -717,11 +725,11 @@ export const AUGMENT_LIST = [
   {
     id: "practiceMakesCritical",
     name: "연습이 치명타를 낳는다",
-    desc: "공격 시마다 스택이 쌓이고 스택마다 급소 확률이 1% 상승합니다.",
+    desc: "공격 시 스택이 쌓이고 스택 당 급소 확률이 1% 증가합니다.",
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "practiceMakesCritical");
       const stack = Number(pokemon?.practiceCritStack ?? aug?.practiceCritStack ?? 0);
-      return `공격 시마다 스택이 쌓이고 스택마다 급소 확률이 1% 상승합니다.\n(현재 중첩: ${stack} / 급소 확률 +${stack}%)`;
+      return `공격 시 스택이 쌓이고 스택 당 급소 확률이 1% 증가합니다.\n(현재 중첩: ${stack} / 급소 확률 +${stack}%)`;
     },
     buf: true,
     isRandom: false,
@@ -1390,18 +1398,6 @@ export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
 
   if (augment.id === "teraBlast") {
     return "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.";
-  }
-
-  if (augment.id === "rabadonsDeathcap") {
-    return "총 특공이 30% 증가합니다.";
-  }
-
-  if (augment.id === "voidStaff") {
-    return "상대방의 특수방어를 40% 약하게 만듭니다.";
-  }
-
-  if (augment.id === "infinityEdge") {
-    return "급소 확률이 25% 증가합니다. 공격이 급소에 맞았을때 데미지가 30% 추가로 증가합니다.";
   }
 
   if (augment.id === "swordEnhance") {

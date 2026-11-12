@@ -6,6 +6,9 @@ export const PokemonGetDamage = {
     // turnEnd: 상태이상(독, 화상), 씨뿌리기, 마그마스톰
     // skillEffect: 생구, 무릎차기 빗나감, 반동, 대다출동
     const actualDamage = this._applyDamage(Math.floor(damageValue));
+    if (actualDamage > 0 && this.turn) {
+      this.turn.damagedThisTurn = true; // 워모그
+    }
 
     if (text) {
       enqueue({ id: "7ca5ce1a-303b-4665-b41d-48905926319b", battle, text });

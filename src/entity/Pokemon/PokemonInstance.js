@@ -131,6 +131,7 @@ class PokemonInstance {
       substitute: null, // 이번 턴에 대타출동 상태였는지 여부. 대타출동을 깨뜨린 공격의 부가효과도 막기 위함
       lastHitSubstitute: null, // 직전 타격이 대타에 맞았는지 여부 (연속기 타격별 판정용)
       knockedOutNpcThisTurn: null, // 이번 턴 공격기로 상대 포켓몬을 쓰러뜨렸는지 여부
+      damagedThisTurn: null, // 이번 턴 데미지 받았는지 여부 (워모그)
     };
     this.tempStatus = {
       //교체시 초기화
@@ -362,7 +363,7 @@ class PokemonInstance {
       }
     }
 
-    // 증강: 회복 (매턴 최대 HP의 1/16만큼 회복)
+    // 증강: 회복 (매 턴 최대 HP의 1/16만큼 회복)
     if (this.hasAugment("recovery")) {
       if (this.hp < this.origin.hp) {
         this.recover(battle, Math.floor(this.origin.hp / 16), enqueue, `[증강 회복] ${this.names} 체력을 조금 회복했다.`);
