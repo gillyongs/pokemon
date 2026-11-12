@@ -38,11 +38,11 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
       }
       queueObject.dequeue(); // "누구로 교체할까?"를 dequeue를 막아놨기에 직접 해줘야함
     };
-  } else if (bottom === "uturn") {
+  } else if (bottom === "switchBySkill") {
     // 유턴 사용시 교체 화면
     handleSwitch = (index) => {
       setBottom("skill");
-      btObj.turn.uturn = null;
+      btObj.turn.switchBySkill = null;
       const isBatonPass = Boolean(btObj.turn.batonPass);
       btObj.turn.batonPass = null;
       switchPlayer(btObj, index, queueObject.enqueue, { batonPass: isBatonPass });

@@ -287,7 +287,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
             type="button"
             onClick={() => {
               setText(" 누구로 교체할까?");
-              setBottom(battle.player.faint ? "mustSwitch" : battle.turn.uturn ? "uturn" : "switch");
+              setBottom(battle.player.faint ? "mustSwitch" : battle.turn.switchBySkill ? "switchBySkill" : "switch");
             }}
           >
             뒤로가기

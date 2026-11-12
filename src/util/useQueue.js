@@ -7,7 +7,7 @@ export function useQueue() {
   const [log, setLog] = useRecoilState(logState);
 
   // item = {battle, text, allowAct=true, autoActTurn=true, noLog=true, onlyLog=true, bottomMode, waitInput}
-  // bottomMode: 화면 하단 UI(bottom)의 모드를 지정 ("skill" | "mustSwitch" | "uturn" | "auto")
+  // bottomMode: 화면 하단 UI(bottom)의 모드를 지정 ("skill" | "mustSwitch" | "switchBySkill" | "auto")
   // waitInput: 유저의 입력(기술/교체 선택 등)을 기다리기 위해 큐 진행을 멈춰야 하는 아이템인지 여부 (true/false)
 
   // allowAct: 행동 (기술버튼, 교체버튼) 잠금 해제

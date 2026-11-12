@@ -98,7 +98,7 @@ export const turnEnd = (battle, enqueue) => {
   // 첫 턴 여부 false 처리 (속이기, 만나자마자 성공 체크)
   // 교체/유턴으로 나온 다음턴에 속이기/만나자마자 쓰면 성공하는게 맞으모로 예외처리
 
-  const playerSwitched = battle.turn?.playerSwitched || battle.player?.turn?.choice === "playerBench1" || battle.player?.turn?.choice === "playerBench2" || battle.turn?.uturn;
+  const playerSwitched = battle.turn?.playerSwitched || battle.player?.turn?.choice === "playerBench1" || battle.player?.turn?.choice === "playerBench2" || battle.turn?.switchBySkill;
   const npcSwitched = battle.turn?.npcSwitched || battle.npc?.turn?.choice === "npcBench1" || battle.npc?.turn?.choice === "npcBench2";
   if (!playerSwitched) battle.player.tempStatus.firstTurn = false;
   if (!npcSwitched) battle.npc.tempStatus.firstTurn = false;

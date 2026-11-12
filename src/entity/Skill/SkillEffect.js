@@ -365,9 +365,9 @@ function skillEffectSearch(name) {
           switchPlayer(battle, "playerBench2", enqueue);
         } else {
           // 둘다 기절하지 않았으면 교체 화면을 보여준다
-          battle.turn.uturn = true;
+          battle.turn.switchBySkill = true;
           // battlStart.js에서 이를 기준으로 함수를 끊고
-          // battleScrren.js에서 useEffect(setBottom("uturn"))으로 교체화면을 띄운다
+          // battleScrren.js에서 useEffect(setBottom("switchBySkill"))으로 교체화면을 띄운다
 
           battle.turn.textFreeze = true; // 텍스트가 넘어가지 않게 처리
           enqueue({
@@ -375,7 +375,7 @@ function skillEffectSearch(name) {
             battle,
             text: "누구로 교체할까?",
             allowAct: true, // 교체 가능하게
-            bottomMode: "uturn",
+            bottomMode: "switchBySkill",
             waitInput: true,
           });
         }
@@ -395,7 +395,7 @@ function skillEffectSearch(name) {
         } else if (faint1 && !faint2) {
           switchPlayer(battle, "playerBench2", enqueue, { batonPass: true });
         } else {
-          battle.turn.uturn = true;
+          battle.turn.switchBySkill = true;
           battle.turn.batonPass = true;
           battle.turn.textFreeze = true;
           enqueue({
@@ -403,7 +403,7 @@ function skillEffectSearch(name) {
             battle,
             text: "누구로 교체할까?",
             allowAct: true,
-            bottomMode: "uturn",
+            bottomMode: "switchBySkill",
             waitInput: true,
           });
         }

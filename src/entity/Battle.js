@@ -31,7 +31,7 @@ class Battle {
       // 플레이어가 쓰러졌을때 남은 이벤트(turnend) 마친 다음에 교체 화면이 나오게 하기위해 쓰는 변수
       //if (player.faint && turnEnd) { setBottom("mustSwitch");}
       textFreeze: null, // 텍스트가 넘어가지 않게 막음. "누구로 교체할까?"나 "무엇을 할까?" 텍스트 고정
-      uturn: null, // 플레이어 유턴 사용 여부
+      switchBySkill: null, // 기술 효과로 인한 플레이어 교체 대기 여부
       batonPass: null, // 플레이어 배턴터치 사용 여부
       playerSwitched: null, // 이번 턴 플레이어 교체 여부 (속이기 판정용)
       npcSwitched: null, // 이번 턴 NPC 교체 여부 (속이기 판정용)
@@ -53,13 +53,7 @@ class Battle {
       },
     };
 
-    // this.player.ailment.poison = true;
-    // this.playerBench1.ailment.poison = true;
-    // this.playerBench2.ailment.poison = true;
-    // this.npc.ailment.poison = true;
-    // this.npcBench1.ailment.poison = true;
-    // this.npcBench2.ailment.poison = true;
-    this.turnCount = 1;
+    this.turnCount = 1; // "N번째 턴" 로그용
     this.megaUsed = { player: false, npc: false }; // 해당 배틀 메가진화 사용 여부
     this.megaTrigger = { player: false, npc: false }; // 해당 턴 메가진화 선택 여부
     this.hasKnockoutAugmentThisRound = false; // 해당 라운드 적 처치 증강 획득 여부 (최대 1회)

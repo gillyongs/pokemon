@@ -697,8 +697,8 @@ const Battle = () => {
         setBottom("mustSwitch");
       }
 
-      if (!queue[0].bottomMode && queue[0].battle.turn.uturn) {
-        setBottom("uturn");
+      if (!queue[0].bottomMode && queue[0].battle.turn.switchBySkill) {
+        setBottom("switchBySkill");
       }
 
       if (queue[0].isAugment) {
@@ -804,13 +804,13 @@ const Battle = () => {
       const turnEnd = b.turn.turnEnd;
 
       const condition1 = playerFaint && turnEnd;
-      const condition2 = b.turn.uturn;
+      const condition2 = b.turn.switchBySkill;
       const condition3 = npcFaint && npcFaint1 && npcFaint2;
       const condition4 = playerFaint && playerFaint1 && playerFaint2;
 
-      // 교체 선택 화면(mustSwitch/uturn)에서 멈추는 경우, 해당 항목은 큐에 남겨둔다.
+      // 교체 선택 화면(mustSwitch/switchBySkill)에서 멈추는 경우, 해당 항목은 큐에 남겨둔다.
       // (일반 흐름처럼 Bottom-Switch의 handleSwitch가 직접 dequeue 한다)
-      const isInputPending = cur.waitInput || cur.isAugment || cur.bottomMode === "mustSwitch" || cur.bottomMode === "uturn" || condition1 || condition2;
+      const isInputPending = cur.waitInput || cur.isAugment || cur.bottomMode === "mustSwitch" || cur.bottomMode === "switchBySkill" || condition1 || condition2;
       const keepInQueue = isInputPending && !condition3 && !condition4;
       if (!keepInQueue) queueObject.dequeue();
 
@@ -834,8 +834,8 @@ const Battle = () => {
       setBottom(last.bottomMode);
     } else if (!last.bottomMode && last.battle.player.faint && last.battle.turn.turnEnd) {
       setBottom("mustSwitch");
-    } else if (!last.bottomMode && last.battle.turn.uturn) {
-      setBottom("uturn");
+    } else if (!last.bottomMode && last.battle.turn.switchBySkill) {
+      setBottom("switchBySkill");
     }
 
     // 승/패 체크
@@ -914,7 +914,7 @@ const Battle = () => {
         </TOP>
         <BOTTOM>
           {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} battleStartBySkillButton={battleStartBySkillButton} textSkip={textSkip} btObj={battleObj.current} />}
-          {(bottom === "switch" || bottom === "mustSwitch" || bottom === "uturn") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
+          {(bottom === "switch" || bottom === "mustSwitch" || bottom === "switchBySkill") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleObj.current} />}
           {bottom === "info" && (
             <BottomSectionInfo
               battle={battle}
