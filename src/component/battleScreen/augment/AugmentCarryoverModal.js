@@ -77,8 +77,9 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
             cost: aug.cost,
             buf: true,
             curse: Boolean(aug.curse),
-            dragonKillCount: aug.dragonKillCount ?? poke.dragonKillCount ?? 0,
-            mejaiStack: aug.mejaiStack ?? poke.mejaiStack ?? 0,
+            dragonKillCount: aug.dragonKillCount ?? poke.dragonKillCount ?? 0, // 용용죽겠지
+            mejaiStack: aug.mejaiStack ?? poke.mejaiStack ?? 0, // 메자이
+            practiceCritStack: aug.practiceCritStack ?? poke.practiceCritStack ?? 0, // 윤탈
           });
         }
       });
@@ -160,9 +161,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
         </CardScrollArea>
 
         <FooterArea>
-          <ConfirmButton onClick={handleComplete}>
-            선택 완료
-          </ConfirmButton>
+          <ConfirmButton onClick={handleComplete}>선택 완료</ConfirmButton>
         </FooterArea>
       </ModalContainer>
     </ModalOverlay>
@@ -254,7 +253,6 @@ const HighlightText = styled.span`
   color: #64ffda;
   font-size: 1.05rem;
 `;
-
 
 const AlertBox = styled.div`
   background: rgba(239, 68, 68, 0.15);

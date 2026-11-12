@@ -3,6 +3,7 @@ import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { AUGMENT_LIST, compareAugmentNames, getAugmentDesc, isCurseAugment } from "../../../entity/Augment/AugmentData";
 import { getSwordEnhanceTier, getSwordEnhanceProb } from "../../../entity/Augment/swordEnhance";
+import { abilObject, noRandomAbil } from "../../../entity/Ability";
 import { ALL_POKEMON_TYPES, TYPE_COLORS, isNoEffect, getTypeEffectText } from "../../../util/typeEffectCalculate";
 import { getWeatherBallType } from "../../../util/weatherBall";
 import { rollTeamAugments } from "../../../util/augmentRoll";
@@ -52,13 +53,95 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
   const [rouletteSpinning, setRouletteSpinning] = useState(false);
   const [rouletteRotation, setRouletteRotation] = useState(0);
   const [rouletteResult, setRouletteResult] = useState(null);
+  const [slotReelItems, setSlotReelItems] = useState([]);
+  const [slotOffsetY, setSlotOffsetY] = useState(0);
+  const [slotTransitionEnabled, setSlotTransitionEnabled] = useState(false);
+  const [oddEvenStatItems, setOddEvenStatItems] = useState([]);
+  const [oddEvenDeltaItems, setOddEvenDeltaItems] = useState([]);
+  const [oddEvenStatOffsetY, setOddEvenStatOffsetY] = useState(0);
+  const [oddEvenDeltaOffsetY, setOddEvenDeltaOffsetY] = useState(0);
+  const [oddEvenStatSettled, setOddEvenStatSettled] = useState(false);
   const rouletteTimerRef = useRef(null);
+  const oddEvenStatTimerRef = useRef(null);
+  const slotRafRef = useRef(null);
+
+  const SLOT_ROW_HEIGHT = 54;
+
+  const ODD_EVEN_STAT_LIST = [
+    { key: "atk", label: "공격" },
+    { key: "catk", label: "특수공격" },
+    { key: "def", label: "방어" },
+    { key: "cdef", label: "특수방어" },
+    { key: "speed", label: "스피드" },
+  ];
+  const ODD_EVEN_POS_DELTAS = [1, 2, 3, 4, 5, 6];
+  const ODD_EVEN_NEG_DELTAS = [-1, -2, -3, -4, -5, -6];
+
+  const formatDeltaText = (val) => (val > 0 ? `+${val}` : `${val}`);
+
+  const getRandomAbilityPool = (pokemon) => {
+    const currentAbil = pokemon?.abil;
+    return Object.keys(abilObject).filter((a) => !noRandomAbil.includes(a) && a !== currentAbil);
+  };
+
+  const pickRandomFrom = (arr, exclude = null) => {
+    const filtered = exclude ? arr.filter((x) => x !== exclude) : arr;
+    const source = filtered.length > 0 ? filtered : arr;
+    return source[Math.floor(Math.random() * source.length)] || "";
+  };
+
+  const buildInitialAbilityReel = (pokemon) => {
+    const pool = getRandomAbilityPool(pokemon);
+    const centerAbil = pokemon?.abil || pickRandomFrom(pool);
+    const topAbil = pickRandomFrom(pool, centerAbil);
+    const bottomAbil = pickRandomFrom(pool, centerAbil);
+    return [topAbil, centerAbil, bottomAbil];
+  };
+
+  const buildInitialOddEvenReels = () => {
+    const centerStat = ODD_EVEN_STAT_LIST[Math.floor(Math.random() * ODD_EVEN_STAT_LIST.length)];
+    const otherStats = ODD_EVEN_STAT_LIST.filter((s) => s.key !== centerStat.key);
+    const topStat = otherStats[Math.floor(Math.random() * otherStats.length)];
+    const bottomPool = otherStats.filter((s) => s.key !== topStat.key);
+    const bottomStat = bottomPool[Math.floor(Math.random() * bottomPool.length)] || topStat;
+
+    const centerDelta = ODD_EVEN_POS_DELTAS[Math.floor(Math.random() * ODD_EVEN_POS_DELTAS.length)];
+    const topDelta = ODD_EVEN_NEG_DELTAS[Math.floor(Math.random() * ODD_EVEN_NEG_DELTAS.length)];
+    const negRest = ODD_EVEN_NEG_DELTAS.filter((d) => d !== topDelta);
+    const bottomDelta = negRest[Math.floor(Math.random() * negRest.length)] ?? topDelta;
+
+    return {
+      statItems: [topStat, centerStat, bottomStat],
+      deltaItems: [topDelta, centerDelta, bottomDelta],
+    };
+  };
+
+  const clearSlotTimers = () => {
+    if (rouletteTimerRef.current) {
+      clearTimeout(rouletteTimerRef.current);
+      rouletteTimerRef.current = null;
+    }
+    if (oddEvenStatTimerRef.current) {
+      clearTimeout(oddEvenStatTimerRef.current);
+      oddEvenStatTimerRef.current = null;
+    }
+    if (slotRafRef.current) {
+      cancelAnimationFrame(slotRafRef.current);
+      slotRafRef.current = null;
+    }
+  };
+
+  const resetOddEvenReels = () => {
+    setOddEvenStatItems([]);
+    setOddEvenDeltaItems([]);
+    setOddEvenStatOffsetY(0);
+    setOddEvenDeltaOffsetY(0);
+    setOddEvenStatSettled(false);
+  };
 
   useEffect(() => {
     return () => {
-      if (rouletteTimerRef.current) {
-        clearTimeout(rouletteTimerRef.current);
-      }
+      clearSlotTimers();
     };
   }, []);
 
@@ -169,14 +252,15 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     setSwordLevel(0);
     setSwordFailed(false);
     setSwordLastResult(null);
-    if (rouletteTimerRef.current) {
-      clearTimeout(rouletteTimerRef.current);
-      rouletteTimerRef.current = null;
-    }
+    clearSlotTimers();
     setRouletteAug(null);
     setRouletteSpinning(false);
     setRouletteRotation(0);
     setRouletteResult(null);
+    setSlotReelItems([]);
+    setSlotOffsetY(0);
+    setSlotTransitionEnabled(false);
+    resetOddEvenReels();
   };
 
   const handleCardClick = (e, aug) => {
@@ -219,15 +303,33 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
       return;
     }
 
-    if (["allOrNothing", "russianRoulette", "doOrDie", "highRiskHighReturn"].includes(selectedAugment.id)) {
-      if (rouletteTimerRef.current) {
-        clearTimeout(rouletteTimerRef.current);
-        rouletteTimerRef.current = null;
-      }
+    if (["allOrNothing", "russianRoulette", "doOrDie", "highRiskHighReturn", "randomAbility", "oddEven"].includes(selectedAugment.id)) {
+      clearSlotTimers();
       setRouletteAug(selectedAugment);
       setRouletteSpinning(false);
       setRouletteRotation(0);
       setRouletteResult(null);
+      if (selectedAugment.id === "randomAbility") {
+        setSlotReelItems(buildInitialAbilityReel(activePokemon));
+        setSlotOffsetY(0);
+        setSlotTransitionEnabled(false);
+        resetOddEvenReels();
+      } else if (selectedAugment.id === "oddEven") {
+        const init = buildInitialOddEvenReels();
+        setOddEvenStatItems(init.statItems);
+        setOddEvenDeltaItems(init.deltaItems);
+        setOddEvenStatOffsetY(0);
+        setOddEvenDeltaOffsetY(0);
+        setOddEvenStatSettled(false);
+        setSlotTransitionEnabled(false);
+        setSlotReelItems([]);
+        setSlotOffsetY(0);
+      } else {
+        setSlotReelItems([]);
+        setSlotOffsetY(0);
+        setSlotTransitionEnabled(false);
+        resetOddEvenReels();
+      }
       return;
     }
 
@@ -293,6 +395,131 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     e?.stopPropagation();
     if (!rouletteAug || rouletteSpinning || rouletteResult) return;
 
+    if (rouletteAug.id === "randomAbility") {
+      const pool = getRandomAbilityPool(activePokemon);
+      if (pool.length === 0) return;
+      const picked = pool[Math.floor(Math.random() * pool.length)];
+
+      const currentWindow = slotReelItems.length >= 3 ? [slotReelItems[0], slotReelItems[1], slotReelItems[2]] : buildInitialAbilityReel(activePokemon);
+
+      const totalSpinSteps = 44;
+      const reel = new Array(totalSpinSteps + 3);
+      reel[0] = pickRandomFrom(pool, picked);
+      reel[1] = picked;
+      for (let i = 2; i < totalSpinSteps; i++) {
+        reel[i] = pickRandomFrom(pool, reel[i - 1]);
+      }
+      reel[totalSpinSteps] = currentWindow[0];
+      reel[totalSpinSteps + 1] = currentWindow[1];
+      reel[totalSpinSteps + 2] = currentWindow[2];
+
+      const startOffsetY = -totalSpinSteps * SLOT_ROW_HEIGHT;
+
+      setSlotTransitionEnabled(false);
+      setSlotReelItems(reel);
+      setSlotOffsetY(startOffsetY);
+      setRouletteSpinning(true);
+
+      if (slotRafRef.current) {
+        cancelAnimationFrame(slotRafRef.current);
+      }
+      slotRafRef.current = requestAnimationFrame(() => {
+        slotRafRef.current = requestAnimationFrame(() => {
+          setSlotTransitionEnabled(true);
+          setSlotOffsetY(0);
+          slotRafRef.current = null;
+        });
+      });
+
+      if (rouletteTimerRef.current) {
+        clearTimeout(rouletteTimerRef.current);
+      }
+      rouletteTimerRef.current = setTimeout(() => {
+        setRouletteSpinning(false);
+        setRouletteResult(picked);
+        rouletteTimerRef.current = null;
+      }, 3150);
+      return;
+    }
+
+    if (rouletteAug.id === "oddEven") {
+      const pickedStat = ODD_EVEN_STAT_LIST[Math.floor(Math.random() * ODD_EVEN_STAT_LIST.length)];
+      const allDeltas = [...ODD_EVEN_NEG_DELTAS, ...ODD_EVEN_POS_DELTAS];
+      const pickedDelta = allDeltas[Math.floor(Math.random() * allDeltas.length)];
+
+      const fallbackInit = buildInitialOddEvenReels();
+      const curStatWin = oddEvenStatItems.length >= 3 ? oddEvenStatItems.slice(0, 3) : fallbackInit.statItems;
+      const curDeltaWin = oddEvenDeltaItems.length >= 3 ? oddEvenDeltaItems.slice(0, 3) : fallbackInit.deltaItems;
+
+      // 스탯 릴 구성 (36칸 아래로 회전)
+      const statSteps = 36;
+      const statReel = new Array(statSteps + 3);
+      const pickOtherStat = (excludeKey) => {
+        const candidates = ODD_EVEN_STAT_LIST.filter((s) => s.key !== excludeKey);
+        return candidates[Math.floor(Math.random() * candidates.length)];
+      };
+      statReel[0] = pickOtherStat(pickedStat.key);
+      statReel[1] = pickedStat;
+      for (let i = 2; i < statSteps; i++) {
+        statReel[i] = pickOtherStat(statReel[i - 1].key);
+      }
+      statReel[statSteps] = curStatWin[0];
+      statReel[statSteps + 1] = curStatWin[1];
+      statReel[statSteps + 2] = curStatWin[2];
+
+      // 수치 릴 구성 (+ / - 번갈아 등장하도록 패리티 맞춤)
+      const targetIsPos = pickedDelta > 0;
+      const winCenterIsPos = curDeltaWin[1] > 0;
+      const deltaSteps = targetIsPos === winCenterIsPos ? 44 : 45;
+      const needPosAt = (idx) => (idx % 2 === 1 ? targetIsPos : !targetIsPos);
+      const pickSignDelta = (isPos, excludeVal = null) => {
+        const pool = isPos ? ODD_EVEN_POS_DELTAS : ODD_EVEN_NEG_DELTAS;
+        const filtered = excludeVal !== null ? pool.filter((d) => d !== excludeVal) : pool;
+        const source = filtered.length > 0 ? filtered : pool;
+        return source[Math.floor(Math.random() * source.length)];
+      };
+
+      const deltaReel = new Array(deltaSteps + 3);
+      deltaReel[0] = pickSignDelta(needPosAt(0));
+      deltaReel[1] = pickedDelta;
+      for (let i = 2; i < deltaSteps; i++) {
+        deltaReel[i] = pickSignDelta(needPosAt(i), deltaReel[i - 2]);
+      }
+      deltaReel[deltaSteps] = curDeltaWin[0];
+      deltaReel[deltaSteps + 1] = curDeltaWin[1];
+      deltaReel[deltaSteps + 2] = curDeltaWin[2];
+
+      setSlotTransitionEnabled(false);
+      setOddEvenStatSettled(false);
+      setOddEvenStatItems(statReel);
+      setOddEvenDeltaItems(deltaReel);
+      setOddEvenStatOffsetY(-statSteps * SLOT_ROW_HEIGHT);
+      setOddEvenDeltaOffsetY(-deltaSteps * SLOT_ROW_HEIGHT);
+      setRouletteSpinning(true);
+
+      clearSlotTimers();
+      slotRafRef.current = requestAnimationFrame(() => {
+        slotRafRef.current = requestAnimationFrame(() => {
+          setSlotTransitionEnabled(true);
+          setOddEvenStatOffsetY(0);
+          setOddEvenDeltaOffsetY(0);
+          slotRafRef.current = null;
+        });
+      });
+
+      oddEvenStatTimerRef.current = setTimeout(() => {
+        setOddEvenStatSettled(true);
+        oddEvenStatTimerRef.current = null;
+      }, 2650);
+
+      rouletteTimerRef.current = setTimeout(() => {
+        setRouletteSpinning(false);
+        setRouletteResult({ statKey: pickedStat.key, statLabel: pickedStat.label, delta: pickedDelta });
+        rouletteTimerRef.current = null;
+      }, 3300);
+      return;
+    }
+
     let pick = null;
     let hitAngle = 0;
 
@@ -344,6 +571,11 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
       payload.doOrDieSuccess = rouletteResult === "success";
     } else if (rouletteAug.id === "highRiskHighReturn") {
       payload.highRiskResult = rouletteResult;
+    } else if (rouletteAug.id === "randomAbility") {
+      payload.pickedAbility = rouletteResult;
+    } else if (rouletteAug.id === "oddEven") {
+      payload.statKey = rouletteResult.statKey;
+      payload.delta = rouletteResult.delta;
     } else {
       payload.targetStat = rouletteResult;
     }
@@ -352,13 +584,22 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     setRouletteSpinning(false);
     setRouletteRotation(0);
     setRouletteResult(null);
+    setSlotReelItems([]);
+    setSlotOffsetY(0);
+    setSlotTransitionEnabled(false);
+    resetOddEvenReels();
   };
 
   const handleCancelRoulette = (e) => {
     e?.stopPropagation();
     if (rouletteSpinning || rouletteResult) return;
+    clearSlotTimers();
     setRouletteAug(null);
     setRouletteRotation(0);
+    setSlotReelItems([]);
+    setSlotOffsetY(0);
+    setSlotTransitionEnabled(false);
+    resetOddEvenReels();
   };
 
   const getRouletteOutcomeText = () => {
@@ -375,6 +616,13 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     }
     if (rouletteAug.id === "highRiskHighReturn") {
       return rouletteResult === "buff" ? "하이 리턴! 모든 공격 데미지 3배" : "하이 리스크... 모든 공격 데미지 절반";
+    }
+    if (rouletteAug.id === "randomAbility") {
+      const prevAbil = activePokemon?.abil;
+      return prevAbil ? `${prevAbil} → ${rouletteResult}` : `획득 특성: ${rouletteResult}`;
+    }
+    if (rouletteAug.id === "oddEven") {
+      return `${rouletteResult.statLabel} ${formatDeltaText(rouletteResult.delta)} 랭크!`;
     }
     return rouletteResult === "atk" ? "공격 2배, 특수공격 절반" : "특수공격 2배, 공격 절반";
   };
@@ -646,21 +894,148 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                   </HeaderTopRow>
                 </HeaderArea>
 
-                <RouletteStageContainer>
-                  <RouletteWheelBox>
-                    <RoulettePointer aria-hidden="true">
-                      <svg viewBox="0 0 20 18" width="18" height="16" xmlns="http://www.w3.org/2000/svg">
-                        <polygon points="10,17 1,1 19,1" fill="#f8fafc" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
-                      </svg>
-                    </RoulettePointer>
-                    <RouletteDisc style={{ transform: `rotate(${rouletteRotation}deg)` }}>
-                      {renderRouletteSvg()}
-                    </RouletteDisc>
-                    <RouletteHub />
-                  </RouletteWheelBox>
+                {rouletteAug.id === "oddEven" ? (
+                  <AbilitySlotStage>
+                    <OddEvenPairRow>
+                      {/* 좌측: 스탯 룰렛 */}
+                      <AbilitySlotFrame $compact>
+                        <AbilitySlotViewport>
+                          <AbilitySlotCenterHighlight $settled={Boolean(rouletteResult) || oddEvenStatSettled} />
+                          <AbilitySlotTrack
+                            style={{
+                              transform: `translateY(${oddEvenStatOffsetY}px)`,
+                              transition: slotTransitionEnabled ? "transform 2.6s cubic-bezier(0.08, 0.9, 0.14, 1)" : "none",
+                            }}
+                          >
+                            {oddEvenStatItems.map((item, idx) => {
+                              const isCenterRest = (!rouletteSpinning || oddEvenStatSettled) && idx === 1;
+                              const isWinner = (Boolean(rouletteResult) || oddEvenStatSettled) && idx === 1;
+                              return (
+                                <AbilitySlotRow key={`stat-${item.key}-${idx}`} $compact $isCenter={isCenterRest} $isWinner={isWinner} $isSpinning={rouletteSpinning && !oddEvenStatSettled}>
+                                  {item.label}
+                                </AbilitySlotRow>
+                              );
+                            })}
+                          </AbilitySlotTrack>
+                          <AbilitySlotFadeOverlay />
+                        </AbilitySlotViewport>
 
-                  {rouletteResult && <RouletteOutcomeText>{getRouletteOutcomeText()}</RouletteOutcomeText>}
-                </RouletteStageContainer>
+                        <AbilitySlotPointerLeft aria-hidden="true">
+                          <svg viewBox="0 0 24 20" width="24" height="20" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="2,2 22,10 2,18" fill="#f8f1d8" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+                            <circle cx="7" cy="10" r="2.5" fill="#64748b" stroke="#0f172a" strokeWidth="1" />
+                          </svg>
+                        </AbilitySlotPointerLeft>
+                        <AbilitySlotPointerRight aria-hidden="true">
+                          <svg viewBox="0 0 24 20" width="24" height="20" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="22,2 2,10 22,18" fill="#f8f1d8" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+                            <circle cx="17" cy="10" r="2.5" fill="#64748b" stroke="#0f172a" strokeWidth="1" />
+                          </svg>
+                        </AbilitySlotPointerRight>
+                      </AbilitySlotFrame>
+
+                      {/* 우측: 수치 룰렛 (+1, -6, ...) */}
+                      <AbilitySlotFrame $compact>
+                        <AbilitySlotViewport>
+                          <AbilitySlotCenterHighlight $settled={Boolean(rouletteResult)} />
+                          <AbilitySlotTrack
+                            style={{
+                              transform: `translateY(${oddEvenDeltaOffsetY}px)`,
+                              transition: slotTransitionEnabled ? "transform 3.25s cubic-bezier(0.08, 0.9, 0.14, 1)" : "none",
+                            }}
+                          >
+                            {oddEvenDeltaItems.map((val, idx) => {
+                              const isCenterRest = !rouletteSpinning && idx === 1;
+                              const isWinner = Boolean(rouletteResult) && isCenterRest;
+                              return (
+                                <AbilitySlotRow key={`delta-${val}-${idx}`} $compact $isCenter={isCenterRest} $isWinner={isWinner} $isSpinning={rouletteSpinning} $deltaSign={val > 0 ? "pos" : "neg"}>
+                                  {formatDeltaText(val)}
+                                </AbilitySlotRow>
+                              );
+                            })}
+                          </AbilitySlotTrack>
+                          <AbilitySlotFadeOverlay />
+                        </AbilitySlotViewport>
+
+                        <AbilitySlotPointerLeft aria-hidden="true">
+                          <svg viewBox="0 0 24 20" width="24" height="20" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="2,2 22,10 2,18" fill="#f8f1d8" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+                            <circle cx="7" cy="10" r="2.5" fill="#64748b" stroke="#0f172a" strokeWidth="1" />
+                          </svg>
+                        </AbilitySlotPointerLeft>
+                        <AbilitySlotPointerRight aria-hidden="true">
+                          <svg viewBox="0 0 24 20" width="24" height="20" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="22,2 2,10 22,18" fill="#f8f1d8" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+                            <circle cx="17" cy="10" r="2.5" fill="#64748b" stroke="#0f172a" strokeWidth="1" />
+                          </svg>
+                        </AbilitySlotPointerRight>
+                      </AbilitySlotFrame>
+                    </OddEvenPairRow>
+
+                    {rouletteResult && <RouletteOutcomeText>{getRouletteOutcomeText()}</RouletteOutcomeText>}
+                  </AbilitySlotStage>
+                ) : rouletteAug.id === "randomAbility" ? (
+                  <AbilitySlotStage>
+                    <AbilitySlotFrame>
+                      <AbilitySlotViewport>
+                        <AbilitySlotCenterHighlight $settled={Boolean(rouletteResult)} />
+                        <AbilitySlotTrack
+                          style={{
+                            transform: `translateY(${slotOffsetY}px)`,
+                            transition: slotTransitionEnabled ? "transform 3.1s cubic-bezier(0.08, 0.9, 0.14, 1)" : "none",
+                          }}
+                        >
+                          {slotReelItems.map((abilName, idx) => {
+                            const isCenterRest = !rouletteSpinning && idx === 1;
+                            const isWinner = Boolean(rouletteResult) && isCenterRest;
+                            return (
+                              <AbilitySlotRow key={`${abilName}-${idx}`} $isCenter={isCenterRest} $isWinner={isWinner} $isSpinning={rouletteSpinning}>
+                                {abilName}
+                              </AbilitySlotRow>
+                            );
+                          })}
+                        </AbilitySlotTrack>
+                        <AbilitySlotFadeOverlay />
+                      </AbilitySlotViewport>
+
+                      <AbilitySlotPointerLeft aria-hidden="true">
+                        <svg viewBox="0 0 28 24" width="28" height="24" xmlns="http://www.w3.org/2000/svg">
+                          <polygon points="2,2 26,12 2,22" fill="#f8f1d8" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+                          <circle cx="8" cy="12" r="3" fill="#64748b" stroke="#0f172a" strokeWidth="1" />
+                        </svg>
+                      </AbilitySlotPointerLeft>
+                      <AbilitySlotPointerRight aria-hidden="true">
+                        <svg viewBox="0 0 28 24" width="28" height="24" xmlns="http://www.w3.org/2000/svg">
+                          <polygon points="26,2 2,12 26,22" fill="#f8f1d8" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+                          <circle cx="20" cy="12" r="3" fill="#64748b" stroke="#0f172a" strokeWidth="1" />
+                        </svg>
+                      </AbilitySlotPointerRight>
+                    </AbilitySlotFrame>
+
+                    {rouletteResult && (
+                      <>
+                        <RouletteOutcomeText>{getRouletteOutcomeText()}</RouletteOutcomeText>
+                        {abilObject[rouletteResult]?.text && <AbilitySlotDescText>{abilObject[rouletteResult].text}</AbilitySlotDescText>}
+                      </>
+                    )}
+                  </AbilitySlotStage>
+                ) : (
+                  <RouletteStageContainer>
+                    <RouletteWheelBox>
+                      <RoulettePointer aria-hidden="true">
+                        <svg viewBox="0 0 20 18" width="18" height="16" xmlns="http://www.w3.org/2000/svg">
+                          <polygon points="10,17 1,1 19,1" fill="#f8fafc" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+                        </svg>
+                      </RoulettePointer>
+                      <RouletteDisc style={{ transform: `rotate(${rouletteRotation}deg)` }}>
+                        {renderRouletteSvg()}
+                      </RouletteDisc>
+                      <RouletteHub />
+                    </RouletteWheelBox>
+
+                    {rouletteResult && <RouletteOutcomeText>{getRouletteOutcomeText()}</RouletteOutcomeText>}
+                  </RouletteStageContainer>
+                )}
 
                 <ButtonGroup>
                   {!rouletteResult ? (
@@ -2244,4 +2619,185 @@ const RouletteOutcomeText = styled.div`
   color: #f8fafc;
   text-align: center;
   margin-top: 2px;
+`;
+
+const AbilitySlotStage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 0 12px;
+`;
+
+const OddEvenPairRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+`;
+
+const AbilitySlotFrame = styled.div`
+  position: relative;
+  width: ${(props) => (props.$compact ? "auto" : "min(340px, 100%)")};
+  flex: ${(props) => (props.$compact ? "1 1 0" : "none")};
+  max-width: ${(props) => (props.$compact ? "184px" : "none")};
+  min-width: 0;
+  padding: ${(props) => (props.$compact ? "8px" : "10px")};
+  border-radius: 14px;
+  background: linear-gradient(180deg, #b8564d 0%, #8e3b35 100%);
+  border: 2px solid #2b1817;
+  box-shadow:
+    inset 0 2px 3px rgba(255, 220, 200, 0.28),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.45),
+    0 10px 22px rgba(0, 0, 0, 0.55);
+`;
+
+const AbilitySlotViewport = styled.div`
+  position: relative;
+  width: 100%;
+  height: 162px;
+  overflow: hidden;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #121822 0%, #273242 50%, #121822 100%);
+  border: 2px solid #0b0f17;
+  box-shadow:
+    inset 0 10px 18px rgba(0, 0, 0, 0.72),
+    inset 0 -10px 18px rgba(0, 0, 0, 0.72);
+`;
+
+const AbilitySlotCenterHighlight = styled.div`
+  position: absolute;
+  top: 54px;
+  left: 0;
+  right: 0;
+  height: 54px;
+  pointer-events: none;
+  z-index: 1;
+  background: ${(props) =>
+    props.$settled
+      ? "linear-gradient(90deg, rgba(253, 224, 71, 0.06) 0%, rgba(253, 224, 71, 0.16) 50%, rgba(253, 224, 71, 0.06) 100%)"
+      : "linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.02) 100%)"};
+  border-top: 1px solid ${(props) => (props.$settled ? "rgba(253, 224, 71, 0.45)" : "rgba(255, 255, 255, 0.14)")};
+  border-bottom: 1px solid ${(props) => (props.$settled ? "rgba(253, 224, 71, 0.45)" : "rgba(255, 255, 255, 0.14)")};
+  transition: all 0.25s ease;
+`;
+
+const AbilitySlotTrack = styled.div`
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+`;
+
+const AbilitySlotRow = styled.div`
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: ${(props) => (props.$compact ? "0 20px" : "0 34px")};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  user-select: none;
+  font-size: ${(props) =>
+    props.$compact
+      ? props.$isWinner
+        ? "1.18rem"
+        : props.$isCenter
+          ? "1.08rem"
+          : props.$isSpinning
+            ? "1.04rem"
+            : "0.88rem"
+      : props.$isWinner
+        ? "1.32rem"
+        : props.$isCenter
+          ? "1.2rem"
+          : props.$isSpinning
+            ? "1.14rem"
+            : "0.95rem"};
+  color: ${(props) => {
+    if (props.$deltaSign === "pos") {
+      return props.$isWinner ? "#6ee7b7" : props.$isCenter || props.$isSpinning ? "#86efac" : "rgba(134, 239, 172, 0.48)";
+    }
+    if (props.$deltaSign === "neg") {
+      return props.$isWinner ? "#fca5a5" : props.$isCenter || props.$isSpinning ? "#f87171" : "rgba(248, 113, 113, 0.48)";
+    }
+    return props.$isWinner ? "#fef08a" : props.$isCenter || props.$isSpinning ? "#f8fafc" : "rgba(226, 232, 240, 0.45)";
+  }};
+  text-shadow: ${(props) => {
+    if (props.$isWinner && props.$deltaSign === "pos") {
+      return "0 0 12px rgba(110, 231, 183, 0.65), 0 2px 4px rgba(0, 0, 0, 0.9)";
+    }
+    if (props.$isWinner && props.$deltaSign === "neg") {
+      return "0 0 12px rgba(248, 113, 113, 0.65), 0 2px 4px rgba(0, 0, 0, 0.9)";
+    }
+    return props.$isWinner
+      ? "0 0 12px rgba(253, 224, 71, 0.65), 0 2px 4px rgba(0, 0, 0, 0.9)"
+      : "0 2px 4px rgba(0, 0, 0, 0.85)";
+  }};
+  transform: ${(props) => (props.$isWinner ? "scale(1.04)" : "scale(1)")};
+  transition:
+    color 0.2s ease,
+    font-size 0.2s ease,
+    transform 0.2s ease;
+`;
+
+const AbilitySlotFadeOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 14, 20, 0.78) 0%,
+    rgba(10, 14, 20, 0.22) 30%,
+    rgba(10, 14, 20, 0) 40%,
+    rgba(10, 14, 20, 0) 60%,
+    rgba(10, 14, 20, 0.22) 70%,
+    rgba(10, 14, 20, 0.78) 100%
+  );
+`;
+
+const AbilitySlotPointerLeft = styled.div`
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+`;
+
+const AbilitySlotPointerRight = styled.div`
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+`;
+
+const AbilitySlotDescText = styled.div`
+  max-width: 340px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #cbd5e1;
+  text-align: center;
 `;

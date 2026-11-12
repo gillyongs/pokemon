@@ -174,8 +174,34 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   // ================= 후처리 =================
 
+  let executedByCollector = false;
+
+  if (defPokemon.hp > 0) {
+    // 쓰러지지 않은 경우
+    if (defaultText) {
+      // 출력 텍스트가 하나도 없을 때
+      enqueue({ id: "463e5193-4b0b-4468-94d2-2c3a7421f6fe", battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
+      defaultText = false;
+    }
+
+    // [증강] 징수의 총: 상대 포켓몬의 체력이 5% 이하일 경우 처형
+    if (!isConfuseSelfHit && atkPokemon.hasAugment?.("collector") && !atkPokemon.faint && defPokemon.hp <= defPokemon.origin.hp * 0.05) {
+      executedByCollector = true;
+      defPokemon.hp = 0;
+      enqueue({ id: "5d3c74a2-8e14-4d9a-b7c1-904c011ec702", battle, text: `[증강 징수의 총] ${defPokemon.names} 처형당했다!` });
+    }
+
+    if (defPokemon.hp > 0) {
+      const noBerrySkill = useSkill.name === "탁쳐서떨구기";
+      // 탁떨을 맞고 반피 이하가 되면 열매를 먹기 전에 떨군다
+      if (!noBerrySkill) {
+        defPokemon.tryBerry(battle, enqueue);
+      }
+    }
+  }
+
   if (defPokemon.hp <= 0) {
-    if (useSkill.feature?.oneShot) {
+    if (useSkill.feature?.oneShot && !executedByCollector) {
       //일격기 성공 텍스트
       enqueue({ id: "7b865133-6bb6-456d-b080-dceacb589196", battle, text: "일격필살!" });
     }
@@ -241,18 +267,6 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     // 드래곤 슬레이어 증강: 드래곤 타입 포켓몬을 쓰러뜨리면 모든 능력이 1랭크 상승
     if (atkPokemon.hasAugment?.("dragonSlayer") && isDefDragon && !atkPokemon.faint) {
       atkPokemon.rankUp(battle, enqueue, "all", 1, "[증강 드래곤 슬레이어]");
-    }
-  } else {
-    // 쓰러지지 않은 경우
-    if (defaultText) {
-      // 출력 텍스트가 하나도 없을 때
-      enqueue({ id: "463e5193-4b0b-4468-94d2-2c3a7421f6fe", battle, text: (commonText || "") + defPokemon.name + "에게 데미지를 주었다!" });
-    }
-
-    const noBerrySkill = useSkill.name === "탁쳐서떨구기";
-    // 탁떨을 맞고 반피 이하가 되면 열매를 먹기 전에 떨군다
-    if (!noBerrySkill) {
-      defPokemon.tryBerry(battle, enqueue);
     }
   }
 

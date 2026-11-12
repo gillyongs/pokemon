@@ -177,8 +177,9 @@ class PokemonInstance {
     this.charge = null; //충전중 여부 (파워풀허브 없이 충전 기술을 썼을때)
     this.recharge = null; //반동휴식 여부 (파괴광선 등)
     this.augments = [];
-    this.dragonKillCount = 0;
-    this.mejaiStack = 0;
+    this.dragonKillCount = 0; // 용용죽겠지
+    this.mejaiStack = 0; // 메자이
+    this.practiceCritStack = 0; // 윤탈
     this.log = {
       getAugmentedStat: null, // 증강으로 인한 능력치 변화
       damage1: null,
@@ -239,7 +240,7 @@ class PokemonInstance {
       if (normalCount >= 3) return false;
     }
     if (!isInstant && this.hasAugment(augId)) {
-      if (isBuf && (options?.dragonKillCount !== undefined || options?.mejaiStack !== undefined)) {
+      if (isBuf && (options?.dragonKillCount !== undefined || options?.mejaiStack !== undefined || options?.practiceCritStack !== undefined)) {
         const existingBuf = this.augments.find((a) => a.id === augId);
         if (existingBuf && typeof existingBuf.onApply === "function") {
           existingBuf.onApply(this, battle, options);

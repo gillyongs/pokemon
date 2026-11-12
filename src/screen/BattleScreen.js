@@ -164,6 +164,7 @@ const Battle = () => {
             curse: Boolean(aug.curse || isCurseAugment(aug)),
             dragonKillCount: aug.dragonKillCount ?? p.dragonKillCount ?? 0,
             mejaiStack: aug.mejaiStack ?? p.mejaiStack ?? 0,
+            practiceCritStack: aug.practiceCritStack ?? p.practiceCritStack ?? 0,
           });
         }
       });
@@ -190,6 +191,7 @@ const Battle = () => {
             baseSkillName: aug.baseSkillName,
             dragonKillCount: aug.dragonKillCount,
             mejaiStack: aug.mejaiStack,
+            practiceCritStack: aug.practiceCritStack,
           }));
           return acc;
         }, {});
@@ -638,6 +640,7 @@ const Battle = () => {
                   baseSkillName: savedAug?.baseSkillName,
                   dragonKillCount: savedAug?.dragonKillCount,
                   mejaiStack: savedAug?.mejaiStack,
+                  practiceCritStack: savedAug?.practiceCritStack,
                 });
               }
             });

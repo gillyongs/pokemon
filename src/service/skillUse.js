@@ -97,6 +97,16 @@ export const skillUse = (bt, enqueue) => {
   if (skillType === "atk" || skillType === "catk") {
     //공격기 (물리 or 특수)
 
+    // [버프] 연습이 치명타를 낳는다: 공격 시마다 스택 1 누적
+    if (atk.hasAugment?.("practiceMakesCritical")) {
+      const practiceAug = atk.augments?.find((a) => a.id === "practiceMakesCritical");
+      const nextStack = Number(atk.practiceCritStack ?? practiceAug?.practiceCritStack ?? 0) + 1;
+      atk.practiceCritStack = nextStack;
+      if (practiceAug) {
+        practiceAug.practiceCritStack = nextStack;
+      }
+    }
+
     let cri = atk.tempStatus.rank.critical;
     for (const effect of skill.skillEffectList) {
       if (effect.name === "급소") {
@@ -245,6 +255,15 @@ const criticalRate = (input, pokemon = null) => {
   // 증강 무한의 대검
   if (pokemon?.hasAugment?.("infinityEdge")) {
     probability += 0.25;
+  }
+
+  // 버프 연습이 치명타를 낳는다: 스택당 급소 확률 1% 상승
+  if (pokemon?.hasAugment?.("practiceMakesCritical")) {
+    const practiceAug = pokemon.augments?.find((a) => a.id === "practiceMakesCritical");
+    const stack = Number(pokemon.practiceCritStack ?? practiceAug?.practiceCritStack ?? 0);
+    if (stack > 0) {
+      probability += stack * 0.01;
+    }
   }
 
   if (probability >= 1) return true;

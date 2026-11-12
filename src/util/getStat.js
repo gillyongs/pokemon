@@ -39,27 +39,6 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
         logText += ` + ${bonusAtk} (검 강화하기)`;
       }
 
-      // 무한의 대검
-    } else if (augId === "infinityEdge") {
-      if (statKey === "atk") {
-        val += 75;
-        logText += " + 75 (무한의 대검)";
-      }
-
-      // 공허의 지팡이
-    } else if (augId === "voidStaff") {
-      if (statKey === "catk") {
-        val += 95;
-        logText += " + 95 (공허의 지팡이)";
-      }
-
-      // 라바돈의 죽음 모자
-    } else if (augId === "rabadonsDeathcap") {
-      if (statKey === "catk") {
-        val += 130;
-        logText += " + 130 (라바돈)";
-      }
-
       // 메자이의 영혼약탈자: 중첩당 특수공격 +20
     } else if (augId === "mejaisSoulstealer") {
       if (statKey === "catk") {

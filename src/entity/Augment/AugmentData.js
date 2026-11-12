@@ -252,17 +252,16 @@ export const AUGMENT_LIST = [
   {
     id: "infinityEdge",
     name: "무한의 대검",
-    desc: "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%",
+    desc: "급소 확률이 25% 증가합니다. 공격이 급소에 맞았을때 데미지가 30% 추가로 증가합니다.",
     cost: 5,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
-    isEligible: (pokemon) => isPhysicalPokemon(pokemon),
-    // 공격력 증가 및 치명타 보정은 damageCalculate.js / skillUse.js에 구현
+    // 치명타 보정은 damageCalculate.js / skillUse.js에 구현
   },
   {
     id: "rabadonsDeathcap",
     name: "라바돈의 죽음모자",
-    desc: "특공 + 130\n총 특공이 30% 증가합니다.",
-    cost: 5,
+    desc: "총 특공이 30% 증가합니다.",
+    cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     isEligible: (pokemon) => isSpecialPokemon(pokemon),
     // damageCalculate.js에 구현
@@ -270,8 +269,8 @@ export const AUGMENT_LIST = [
   {
     id: "voidStaff",
     name: "공허의 지팡이",
-    desc: "특공 + 95\n상대방의 특수방어를 40% 약하게 만듭니다.",
-    cost: 5,
+    desc: "상대방의 특수방어를 40% 약하게 만듭니다.",
+    cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     isEligible: (pokemon) => isSpecialPokemon(pokemon),
     // damageCalculate.js에 구현
@@ -291,8 +290,15 @@ export const AUGMENT_LIST = [
     desc: "적의 현재 체력의 9% 만큼 추가 데미지를 입힙니다.",
     cost: 5,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
-    isEligible: (pokemon) => isPhysicalPokemon(pokemon),
     // damageCalculate.js에 구현
+  },
+  {
+    id: "collector",
+    name: "징수의 총",
+    desc: "상대 포켓몬의 체력이 5% 이하일 경우 처형합니다.",
+    cost: 3,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
+    // damage.js에 구현
   },
   {
     id: "sunfireAegis",
@@ -709,6 +715,26 @@ export const AUGMENT_LIST = [
     },
   },
   {
+    id: "practiceMakesCritical",
+    name: "연습이 치명타를 낳는다",
+    desc: "공격 시마다 스택이 쌓이고 스택마다 급소 확률이 1% 상승합니다.",
+    getDesc: (pokemon) => {
+      const aug = pokemon?.augments?.find((a) => a.id === "practiceMakesCritical");
+      const stack = Number(pokemon?.practiceCritStack ?? aug?.practiceCritStack ?? 0);
+      return `공격 시마다 스택이 쌓이고 스택마다 급소 확률이 1% 상승합니다.\n(현재 중첩: ${stack} / 급소 확률 +${stack}%)`;
+    },
+    buf: true,
+    isRandom: false,
+    weight: "-",
+    onApply: function (pokemon, battle, options) {
+      const stack = Number(options?.practiceCritStack ?? pokemon?.practiceCritStack ?? this.practiceCritStack ?? 0);
+      if (pokemon) {
+        pokemon.practiceCritStack = stack;
+      }
+      this.practiceCritStack = stack;
+    },
+  },
+  {
     id: "gamblingAddict",
     name: "도박 중독",
     desc: "도박과 관련된 증강이 추가로 나오게 됩니다.",
@@ -913,6 +939,7 @@ export const AUGMENT_SYNERGY_MAP = {
   dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
   wujuStyle: ["lastManStanding", "lastSamurai", "lastWarrior"], // 우주류 검술: [라스트 맨 스탠딩, 라스트 사무라이, 최후의 전사]
   mejaisSoulstealer: ["rabadonsDeathcap", "voidStaff", "ludensEcho"], // 메자이의 영혼약탈자: [라바돈의 죽음모자, 공허의 지팡이, 루덴의 메아리]
+  practiceMakesCritical: ["infinityEdge", "bladeOfTheRuinedKing", "collector"], // 연습이 치명타를 낳는다: [무한의 대검, 몰락한 왕의 검, 징수의 총]
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
 };
 
@@ -1366,15 +1393,15 @@ export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
   }
 
   if (augment.id === "rabadonsDeathcap") {
-    return "특공 + 130\n총 특공이 30% 증가합니다.";
+    return "총 특공이 30% 증가합니다.";
   }
 
   if (augment.id === "voidStaff") {
-    return "특공 + 95\n상대방의 특수방어를 40% 약하게 만듭니다.";
+    return "상대방의 특수방어를 40% 약하게 만듭니다.";
   }
 
   if (augment.id === "infinityEdge") {
-    return "공격력 🗡️ 75\n치명타 확률 💥 25%\n치명타 피해량 ➕💥 30%";
+    return "급소 확률이 25% 증가합니다. 공격이 급소에 맞았을때 데미지가 30% 추가로 증가합니다.";
   }
 
   if (augment.id === "swordEnhance") {

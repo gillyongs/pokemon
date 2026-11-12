@@ -752,7 +752,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -3157,6 +3157,12 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
 
         {/* 루덴의 메아리 */}
         {id === "ludensEcho" && <image href="/pokemon/img/augment/ludensEcho.png" x="-2" y="-2" width="68" height="68" />}
+
+        {/* 징수의 총 */}
+        {id === "collector" && <image href="/pokemon/img/augment/collector.png" x="-2" y="-2" width="68" height="68" />}
+
+        {/* 연습이 치명타를 낳는다 */}
+        {id === "practiceMakesCritical" && <image href="/pokemon/img/augment/practiceMakesCritical.png" x="-2" y="-2" width="68" height="68" />}
 
         {/* 28. 달팽이 세마리 */}
         {id === "threeSnails" && (
