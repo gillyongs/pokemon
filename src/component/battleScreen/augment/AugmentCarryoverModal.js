@@ -90,7 +90,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           cost: item.augment.cost,
           replacedSlot: item.augment.replacedSlot,
           selectedType: item.augment.selectedType,
-          revolutionResult: item.augment.revolutionResult,
+          allOrNothingResult: item.augment.allOrNothingResult,
           replacedSkillName: item.augment.replacedSkillName,
           swordLevel: item.augment.swordLevel,
           swordFailed: item.augment.swordFailed,

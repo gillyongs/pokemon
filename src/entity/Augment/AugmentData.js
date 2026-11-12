@@ -107,8 +107,8 @@ export const AUGMENT_LIST = [
     // damege.js의 attackDamage에 구현
   },
   {
-    id: "gamblingAddict",
-    name: "도박 중독",
+    id: "lifeIsOneShot",
+    name: "인생은 한방",
     desc: "기술 위력이 3배가 되지만 공격 기술이 50% 확률로 실패합니다.",
     cost: 3,
     weight: 100,
@@ -304,15 +304,15 @@ export const AUGMENT_LIST = [
   },
 
   {
-    id: "rebellionOrRevolution",
-    name: "실패하면 반역 성공하면 혁명 아닙니까!",
+    id: "allOrNothing",
+    name: "모 아니면 도",
     desc: "공격과 특수공격 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.",
-    cost: 12,
+    cost: 7,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     onApply: function (pokemon, battle, options) {
       if (!pokemon) return;
       const pick = options?.targetStat || (Math.random() < 0.5 ? "atk" : "catk");
-      this.revolutionResult = pick;
+      this.allOrNothingResult = pick;
     },
   },
 
@@ -676,6 +676,14 @@ export const AUGMENT_LIST = [
       this.mejaiStack = stack;
     },
   },
+  {
+    id: "gamblingAddict",
+    name: "도박 중독",
+    desc: "공격이 1 증가합니다.",
+    buf: true,
+    isRandom: false,
+    weight: "-",
+  },
   // 무한 다이맥스 (무한다이노 전용) =============================================
   {
     id: "eternamax",
@@ -740,6 +748,7 @@ export const AUGMENT_SYNERGY_MAP = {
   dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
   wujuStyle: ["lastManStanding", "lastSamurai", "lastWarrior"], // 우주류 검술: [라스트 맨 스탠딩, 라스트 사무라이, 최후의 전사]
   mejaisSoulstealer: ["rabadonsDeathcap", "voidStaff", "thornmail"], // 메자이의 영혼약탈자: [라바돈의 죽음모자, 공허의 지팡이, 가시갑옷]
+  gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
 };
 
 // 무한 다이맥스 변환 함수
@@ -984,9 +993,9 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
       const pokeName = target?.name || "포켓몬";
       individualDesc = `${pokeName}의 특성이 ${josa(`${abilName}#{으로}`)} 바뀌었다!`;
     }
-  } else if (id === "rebellionOrRevolution") {
-    const revAug = target?.augments?.find((a) => a.id === "rebellionOrRevolution") || selectedAugment;
-    const pick = options?.targetStat || revAug?.revolutionResult;
+  } else if (id === "allOrNothing") {
+    const revAug = target?.augments?.find((a) => a.id === "allOrNothing") || selectedAugment;
+    const pick = options?.targetStat || revAug?.allOrNothingResult || revAug?.revolutionResult;
     if (pick === "atk") {
       individualDesc = "공격이 2배, 특수공격이 절반이 되었다!";
     } else if (pick === "catk") {
@@ -1134,7 +1143,7 @@ export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
     return "검을 강화하여 강화 단계에 따라 공격과 특수공격을 증가시킵니다.";
   }
 
-  if (augment.id === "rebellionOrRevolution" || augment.id === "revolution") {
+  if (augment.id === "allOrNothing") {
     if (stat && typeof stat.atk === "number" && typeof stat.catk === "number") {
       const atk = getAugmentedStat ? getAugmentedStat(pokemon, "atk") : stat.atk;
       const catk = getAugmentedStat ? getAugmentedStat(pokemon, "catk") : stat.catk;

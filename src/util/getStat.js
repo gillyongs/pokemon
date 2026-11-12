@@ -70,6 +70,13 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
           logText += ` + ${bonusCatk} (메자이 ${stack}중첩)`;
         }
       }
+
+      // 도박 중독: 공격 +1
+    } else if (augId === "gamblingAddict") {
+      if (statKey === "atk") {
+        val += 1;
+        logText += " + 1 (도박 중독)";
+      }
     }
   }
 
@@ -90,24 +97,24 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
         logText += " * 1.3 (라바돈)";
       }
     }
-    // 실패하면 반역 성공하면 혁명 아닙니까!
-    else if (augId === "rebellionOrRevolution") {
-      const pick = aug?.revolutionResult;
+    // 모 아니면 도
+    else if (augId === "allOrNothing") {
+      const pick = aug?.allOrNothingResult ?? aug?.revolutionResult;
       if (pick === "atk") {
         if (statKey === "atk") {
           val = Math.round(val * 2);
-          logText += " * 2 (혁명)";
+          logText += " * 2 (모 아니면 도)";
         } else if (statKey === "catk") {
           val = Math.max(1, Math.floor(val / 2));
-          logText += " / 2 (반역)";
+          logText += " / 2 (모 아니면 도)";
         }
       } else if (pick === "catk") {
         if (statKey === "catk") {
           val = Math.round(val * 2);
-          logText += " * 2 (혁명)";
+          logText += " * 2 (모 아니면 도)";
         } else if (statKey === "atk") {
           val = Math.max(1, Math.floor(val / 2));
-          logText += " / 2 (반역)";
+          logText += " / 2 (모 아니면 도)";
         }
       }
     }

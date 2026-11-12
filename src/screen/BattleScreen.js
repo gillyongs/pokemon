@@ -175,7 +175,7 @@ const Battle = () => {
             buf: Boolean(aug.buf),
             replacedSlot: aug.replacedSlot,
             selectedType: aug.selectedType,
-            revolutionResult: aug.revolutionResult,
+            allOrNothingResult: aug.allOrNothingResult,
             replacedSkillName: aug.replacedSkillName,
             swordLevel: aug.swordLevel,
             swordFailed: aug.swordFailed,
@@ -533,7 +533,7 @@ const Battle = () => {
                 p.applyAugment(fullAug, battleObj.current, {
                   replaceSlot: savedAug?.replacedSlot,
                   selectedType: savedAug?.selectedType,
-                  targetStat: savedAug?.revolutionResult,
+                  targetStat: savedAug?.allOrNothingResult ?? savedAug?.revolutionResult,
                   replacedSkillName: savedAug?.replacedSkillName,
                   swordLevel: savedAug?.swordLevel,
                   swordFailed: savedAug?.swordFailed,

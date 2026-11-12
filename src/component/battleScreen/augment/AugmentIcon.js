@@ -75,7 +75,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="100%" stopColor="#fef08a" />
           </linearGradient>
 
-                    {/* 하트 전용 그라데이션 */}
+          {/* 하트 전용 그라데이션 */}
           <linearGradient id="heartPinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#ff9a9e" />
             <stop offset="45%" stopColor="#f6416c" />
@@ -295,23 +295,6 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="60%" stopColor="rgba(239, 68, 68, 0)" />
             <stop offset="85%" stopColor="rgba(239, 68, 68, 0.35)" />
             <stop offset="100%" stopColor="rgba(239, 68, 68, 0)" />
-          </radialGradient>
-
-          {/* 실패하면 반역 성공하면 혁명 화살표 그라데이션 */}
-          <linearGradient id="redArrowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#b91c1c" />
-            <stop offset="50%" stopColor="#ef4444" />
-            <stop offset="100%" stopColor="#f87171" />
-          </linearGradient>
-          <linearGradient id="greenArrowGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-            <stop offset="0%" stopColor="#15803d" />
-            <stop offset="50%" stopColor="#22c55e" />
-            <stop offset="100%" stopColor="#86efac" />
-          </linearGradient>
-          <radialGradient id="revDarkBg" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#131b2e" />
-            <stop offset="70%" stopColor="#0a0f1d" />
-            <stop offset="100%" stopColor="#03060c" />
           </radialGradient>
 
           {/* 무효화 하늘색 X 심볼 그라데이션 */}
@@ -774,14 +757,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
         {id === "lastWarrior" && (
           <g clipPath="url(#lwClip)">
-            <image
-              href="/pokemon/img/augment/lastWarrior.png"
-              x="1"
-              y="1"
-              width="62"
-              height="62"
-              preserveAspectRatio="xMidYMid slice"
-            />
+            <image href="/pokemon/img/augment/lastWarrior.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#lwRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bef264" strokeWidth="0.5" strokeOpacity="0.4" />
           </g>
@@ -790,14 +766,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {/* 라스트 사무라이 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
         {id === "lastSamurai" && (
           <g clipPath="url(#lwClip)">
-            <image
-              href="/pokemon/img/augment/lastSamurai.png"
-              x="1"
-              y="1"
-              width="62"
-              height="62"
-              preserveAspectRatio="xMidYMid slice"
-            />
+            <image href="/pokemon/img/augment/lastSamurai.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#lwRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bef264" strokeWidth="0.5" strokeOpacity="0.4" />
           </g>
@@ -806,14 +775,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {/* 라스트 맨 스탠딩 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
         {id === "lastManStanding" && (
           <g clipPath="url(#lwClip)">
-            <image
-              href="/pokemon/img/augment/lastManStanding.png?v=2"
-              x="1"
-              y="1"
-              width="62"
-              height="62"
-              preserveAspectRatio="xMidYMid slice"
-            />
+            <image href="/pokemon/img/augment/lastManStanding.png?v=2" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#lwRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bef264" strokeWidth="0.5" strokeOpacity="0.4" />
           </g>
@@ -822,14 +784,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {/* 우주류 검술 (원본 일러스트 이미지 + 원형 클리핑 & 라임-그린-시안 링 테두리) */}
         {id === "wujuStyle" && (
           <g clipPath="url(#lwClip)">
-            <image
-              href="/pokemon/img/augment/wujuStyle.png"
-              x="1"
-              y="1"
-              width="62"
-              height="62"
-              preserveAspectRatio="xMidYMid slice"
-            />
+            <image href="/pokemon/img/augment/wujuStyle.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#wsBorderGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#67e8f9" strokeWidth="0.5" strokeOpacity="0.4" />
           </g>
@@ -899,8 +854,8 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 3. 도박 중독 & 랜덤 특성 (입체 주사위 & 회오리 마법 스파크) */}
-        {(id === "gamblingAddict" || id === "randomAbility") && (
+        {/* 3. 인생은 한방 & 모 아니면 도 & 랜덤 특성 & 도박 중독 (입체 주사위 & 회오리 마법 스파크) */}
+        {(id === "lifeIsOneShot" || id === "allOrNothing" || id === "randomAbility" || id === "gamblingAddict") && (
           <g filter="url(#glow)">
             {/* 회전하는 소용돌이 오라 */}
             <path d="M14 26 C16 16 28 10 38 12 M50 38 C48 48 36 54 26 52" stroke="url(#prismRing)" strokeWidth="2.5" strokeLinecap="round" />
@@ -938,44 +893,22 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <g transform="translate(30.5, 32.5) rotate(42) translate(-32, -32)">
               {/* (A) 최외곽 좌측 깃털 (-46도) */}
               <g transform="translate(32, 42) rotate(-46) scale(0.86) translate(-32, -42)">
-                <path
-                  d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z"
-                  fill="url(#featherUnderGrad)"
-                  stroke="#0284c7"
-                  strokeWidth="1.25"
-                  strokeLinejoin="round"
-                />
+                <path d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z" fill="url(#featherUnderGrad)" stroke="#0284c7" strokeWidth="1.25" strokeLinejoin="round" />
                 <path d="M 32 40 L 32 12" stroke="#38bdf8" strokeWidth="1.2" strokeLinecap="round" />
                 <path d="M 32 26 L 28.5 23 M 32 20 L 28.5 17 M 32 27 L 35.5 24" stroke="#60a5fa" strokeWidth="0.75" strokeLinecap="round" opacity="0.75" />
               </g>
 
               {/* (B) 최외곽 우측 깃털 (+46도) */}
               <g transform="translate(32, 42) rotate(46) scale(0.86) translate(-32, -42)">
-                <path
-                  d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z"
-                  fill="url(#featherUnderGrad)"
-                  stroke="#0284c7"
-                  strokeWidth="1.25"
-                  strokeLinejoin="round"
-                />
+                <path d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z" fill="url(#featherUnderGrad)" stroke="#0284c7" strokeWidth="1.25" strokeLinejoin="round" />
                 <path d="M 32 40 L 32 12" stroke="#38bdf8" strokeWidth="1.2" strokeLinecap="round" />
                 <path d="M 32 26 L 28.5 23 M 32 27 L 35.5 24 M 32 20 L 35.5 17" stroke="#60a5fa" strokeWidth="0.75" strokeLinecap="round" opacity="0.75" />
               </g>
 
               {/* (C) 내측 좌측 깃털 (-23도) */}
               <g transform="translate(32, 42) rotate(-23) scale(0.94) translate(-32, -42)">
-                <path
-                  d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z"
-                  fill="url(#featherBodyGrad)"
-                  stroke="#0284c7"
-                  strokeWidth="1.25"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M 32 39 C 30.2 33, 28.2 25, 28 18.5 C 28 15, 29.6 11.5, 32 10.8 C 33.5 11.3, 34.8 13.5, 35.2 16.5 C 33.5 23, 32.5 31, 32 39 Z"
-                  fill="#ffffff"
-                  fillOpacity="0.65"
-                />
+                <path d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z" fill="url(#featherBodyGrad)" stroke="#0284c7" strokeWidth="1.25" strokeLinejoin="round" />
+                <path d="M 32 39 C 30.2 33, 28.2 25, 28 18.5 C 28 15, 29.6 11.5, 32 10.8 C 33.5 11.3, 34.8 13.5, 35.2 16.5 C 33.5 23, 32.5 31, 32 39 Z" fill="#ffffff" fillOpacity="0.65" />
                 <path d="M 32 40 L 32 11.5" stroke="#38bdf8" strokeWidth="1.4" strokeLinecap="round" />
                 <path d="M 32 40 L 32 11.5" stroke="#ffffff" strokeWidth="0.65" strokeLinecap="round" />
                 <path d="M 32 27 L 28.3 24 M 32 21 L 28.3 18 M 32 25 L 35.7 22 M 32 19 L 35.5 16" stroke="#93c5fd" strokeWidth="0.75" strokeLinecap="round" opacity="0.85" />
@@ -983,18 +916,8 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
 
               {/* (D) 내측 우측 깃털 (+23도) */}
               <g transform="translate(32, 42) rotate(23) scale(0.94) translate(-32, -42)">
-                <path
-                  d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z"
-                  fill="url(#featherBodyGrad)"
-                  stroke="#0284c7"
-                  strokeWidth="1.25"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M 32 39 C 30.2 33, 28.2 25, 28 18.5 C 28 15, 29.6 11.5, 32 10.8 C 33.5 11.3, 34.8 13.5, 35.2 16.5 C 33.5 23, 32.5 31, 32 39 Z"
-                  fill="#ffffff"
-                  fillOpacity="0.65"
-                />
+                <path d="M 32 42 C 29.5 36, 26.8 27, 26.5 19 C 26.4 14.5, 28.6 10.5, 32 9.5 C 35.4 10.5, 37.6 14.5, 37.5 19 L 35.6 20.5 L 37.2 21.6 C 36.6 28, 34.5 36, 32 42 Z" fill="url(#featherBodyGrad)" stroke="#0284c7" strokeWidth="1.25" strokeLinejoin="round" />
+                <path d="M 32 39 C 30.2 33, 28.2 25, 28 18.5 C 28 15, 29.6 11.5, 32 10.8 C 33.5 11.3, 34.8 13.5, 35.2 16.5 C 33.5 23, 32.5 31, 32 39 Z" fill="#ffffff" fillOpacity="0.65" />
                 <path d="M 32 40 L 32 11.5" stroke="#38bdf8" strokeWidth="1.4" strokeLinecap="round" />
                 <path d="M 32 40 L 32 11.5" stroke="#ffffff" strokeWidth="0.65" strokeLinecap="round" />
                 <path d="M 32 27 L 28.3 24 M 32 21 L 28.3 18 M 32 25 L 35.7 22 M 32 19 L 35.5 16" stroke="#93c5fd" strokeWidth="0.75" strokeLinecap="round" opacity="0.85" />
@@ -1002,18 +925,8 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
 
               {/* (E) 정중앙 메인 깃털 (0도) */}
               <g>
-                <path
-                  d="M 32 42 C 29.3 36, 26.5 27, 26.2 18.5 C 26.1 14, 28.5 9.8, 32 8.8 C 35.5 9.8, 37.9 14, 37.8 18.5 L 35.8 20.2 L 37.5 21.4 C 36.8 28, 34.7 36, 32 42 Z"
-                  fill="url(#featherBodyGrad)"
-                  stroke="#0284c7"
-                  strokeWidth="1.3"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M 32 39 C 30 33, 28 24.5, 27.8 18 C 27.8 14.5, 29.5 10.8, 32 10 C 33.6 10.6, 35 13, 35.4 16 C 33.6 22.5, 32.5 31, 32 39 Z"
-                  fill="#ffffff"
-                  fillOpacity="0.75"
-                />
+                <path d="M 32 42 C 29.3 36, 26.5 27, 26.2 18.5 C 26.1 14, 28.5 9.8, 32 8.8 C 35.5 9.8, 37.9 14, 37.8 18.5 L 35.8 20.2 L 37.5 21.4 C 36.8 28, 34.7 36, 32 42 Z" fill="url(#featherBodyGrad)" stroke="#0284c7" strokeWidth="1.3" strokeLinejoin="round" />
+                <path d="M 32 39 C 30 33, 28 24.5, 27.8 18 C 27.8 14.5, 29.5 10.8, 32 10 C 33.6 10.6, 35 13, 35.4 16 C 33.6 22.5, 32.5 31, 32 39 Z" fill="#ffffff" fillOpacity="0.75" />
                 <path d="M 32 41 L 32 10.8" stroke="#38bdf8" strokeWidth="1.5" strokeLinecap="round" />
                 <path d="M 32 41 L 32 10.8" stroke="#ffffff" strokeWidth="0.75" strokeLinecap="round" />
                 <path d="M 32 28 L 28 24.5 M 32 22 L 28 18.5 M 32 16 L 29 13.5 M 32 26 L 36 22.5 M 32 19 L 35.5 16" stroke="#93c5fd" strokeWidth="0.8" strokeLinecap="round" opacity="0.9" />
@@ -1023,13 +936,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
               <path d="M 32 42.5 L 32 54.5" stroke="#0284c7" strokeWidth="3.4" strokeLinecap="round" />
               <path d="M 32 42.5 L 32 54.5" stroke="#67e8f9" strokeWidth="2.2" strokeLinecap="round" />
               <path d="M 32 42.5 L 32 54.5" stroke="#ffffff" strokeWidth="0.9" strokeLinecap="round" />
-              <path
-                d="M 27.2 40.2 Q 32 38 36.8 40.2 L 34.4 43.5 Q 32 42.5 29.6 43.5 Z"
-                fill="url(#featherUnderGrad)"
-                stroke="#0284c7"
-                strokeWidth="1.15"
-                strokeLinejoin="round"
-              />
+              <path d="M 27.2 40.2 Q 32 38 36.8 40.2 L 34.4 43.5 Q 32 42.5 29.6 43.5 Z" fill="url(#featherUnderGrad)" stroke="#0284c7" strokeWidth="1.15" strokeLinejoin="round" />
               <path d="M 28.5 40.8 Q 32 39.2 35.5 40.8" stroke="#ffffff" strokeWidth="0.8" strokeLinecap="round" fill="none" />
             </g>
 
@@ -1052,42 +959,16 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="32" cy="32" r="26" fill="url(#heartSoftGlow)" />
 
             {/* 황금빛 웨딩 링 (반지) 후면 */}
-            <ellipse
-              cx="32"
-              cy="34"
-              rx="24"
-              ry="11"
-              transform="rotate(-15 32 34)"
-              stroke="url(#heartGoldGrad)"
-              strokeWidth="2.8"
-              fill="none"
-              opacity="0.8"
-            />
+            <ellipse cx="32" cy="34" rx="24" ry="11" transform="rotate(-15 32 34)" stroke="url(#heartGoldGrad)" strokeWidth="2.8" fill="none" opacity="0.8" />
 
             {/* 메인 루비 하트 */}
-            <path
-              d="M32 51 C17 40 9 29.5 9 20.5 A 11.5 11.5 0 0 1 32 16 A 11.5 11.5 0 0 1 55 20.5 C 55 29.5 47 40 32 51 Z"
-              fill="url(#heartPinkGrad)"
-              stroke="#ffffff"
-              strokeWidth="1.2"
-              strokeLinejoin="round"
-            />
+            <path d="M32 51 C17 40 9 29.5 9 20.5 A 11.5 11.5 0 0 1 32 16 A 11.5 11.5 0 0 1 55 20.5 C 55 29.5 47 40 32 51 Z" fill="url(#heartPinkGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
 
             {/* 하트 좌상단 부드러운 반사광 하이라이트 */}
-            <path
-              d="M17 19.5 C17 15 23 15 27 17 C22 17.5 19 21 17 25 C16.7 22.5 16.8 20.5 17 19.5 Z"
-              fill="#ffffff"
-              fillOpacity="0.55"
-            />
+            <path d="M17 19.5 C17 15 23 15 27 17 C22 17.5 19 21 17 25 C16.7 22.5 16.8 20.5 17 19.5 Z" fill="#ffffff" fillOpacity="0.55" />
 
             {/* 황금빛 웨딩 링 (반지) 전면 겹침 입체감 */}
-            <path
-              d="M11 39 C18 45 42 43 51 31"
-              stroke="url(#heartGoldGrad)"
-              strokeWidth="2.8"
-              strokeLinecap="round"
-              fill="none"
-            />
+            <path d="M11 39 C18 45 42 43 51 31" stroke="url(#heartGoldGrad)" strokeWidth="2.8" strokeLinecap="round" fill="none" />
 
             {/* 웨딩 링 보석/다이아몬드 (상단 우측) */}
             <polygon points="50,22 53,18 57,20 54,24" fill="#ffffff" stroke="url(#heartGoldGrad)" strokeWidth="1" />
@@ -1096,12 +977,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="53.5" cy="19" r="1.5" fill="#fef08a" />
 
             {/* 주변 흩날리는 미니 하트 */}
-            <path
-              d="M13 18 C9 15 7 12 7 9 A 3 3 0 0 1 13 8 A 3 3 0 0 1 19 9 C 19 12 17 15 13 18 Z"
-              fill="url(#heartPinkGrad)"
-              transform="scale(0.65) translate(3, 5)"
-              opacity="0.85"
-            />
+            <path d="M13 18 C9 15 7 12 7 9 A 3 3 0 0 1 13 8 A 3 3 0 0 1 19 9 C 19 12 17 15 13 18 Z" fill="url(#heartPinkGrad)" transform="scale(0.65) translate(3, 5)" opacity="0.85" />
             {/* 좌하단 골드 스파클 */}
             <path d="M12 43 Q12 46 15 46 Q12 46 12 49 Q12 46 9 46 Q12 46 12 43 Z" fill="#fef08a" />
           </g>
@@ -1114,41 +990,20 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="32" cy="32" r="26" fill="url(#heartSoftGlow)" />
 
             {/* 뒤쪽 골드-코랄 하트 */}
-            <path
-              d="M39 48 C27 39 20 31 20 23 A 9.5 9.5 0 0 1 39 19 A 9.5 9.5 0 0 1 56 23 C 56 31 49 39 39 48 Z"
-              fill="url(#heartGoldGrad)"
-              stroke="#ffffff"
-              strokeWidth="1.2"
-              strokeLinejoin="round"
-              opacity="0.95"
-            />
+            <path d="M39 48 C27 39 20 31 20 23 A 9.5 9.5 0 0 1 39 19 A 9.5 9.5 0 0 1 56 23 C 56 31 49 39 39 48 Z" fill="url(#heartGoldGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" opacity="0.95" />
 
             {/* 앞쪽 루비-로즈 핑크 하트 */}
-            <path
-              d="M26 52 C13 42 6 32 6 23.5 A 10.5 10.5 0 0 1 26 19.5 A 10.5 10.5 0 0 1 46 23.5 C 46 32 39 42 26 52 Z"
-              fill="url(#heartPinkGrad)"
-              stroke="#ffffff"
-              strokeWidth="1.2"
-              strokeLinejoin="round"
-            />
+            <path d="M26 52 C13 42 6 32 6 23.5 A 10.5 10.5 0 0 1 26 19.5 A 10.5 10.5 0 0 1 46 23.5 C 46 32 39 42 26 52 Z" fill="url(#heartPinkGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
 
             {/* 앞쪽 하트 광택 하이라이트 */}
-            <path
-              d="M13 22 C13 18 18 18 22 20 C18 20.5 15 23.5 13 27 C12.8 24.5 12.9 23 13 22 Z"
-              fill="#ffffff"
-              fillOpacity="0.55"
-            />
+            <path d="M13 22 C13 18 18 18 22 20 C18 20.5 15 23.5 13 27 C12.8 24.5 12.9 23 13 22 Z" fill="#ffffff" fillOpacity="0.55" />
 
             {/* 두 하트 사이 중앙 유대 십자 스파클 (영혼의 공명) */}
             <path d="M36 29 Q36 33 40 33 Q36 33 36 37 Q36 33 32 33 Q36 33 36 29 Z" fill="#ffffff" />
             <circle cx="36" cy="33" r="1.5" fill="#fef08a" />
 
             {/* 상단 쁘띠 하트 */}
-            <path
-              d="M48 13 C45 10 43 8 43 6 A 2.2 2.2 0 0 1 48 5 A 2.2 2.2 0 0 1 53 6 C 53 8 51 10 48 13 Z"
-              fill="#ffffff"
-              opacity="0.9"
-            />
+            <path d="M48 13 C45 10 43 8 43 6 A 2.2 2.2 0 0 1 48 5 A 2.2 2.2 0 0 1 53 6 C 53 8 51 10 48 13 Z" fill="#ffffff" opacity="0.9" />
 
             {/* 좌하단/우하단 미세 반짝임 */}
             <path d="M10 44 Q10 46 12 46 Q10 46 10 48 Q10 46 8 46 Q10 46 10 44 Z" fill="#ffe259" />
@@ -2223,27 +2078,6 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             {/* 억까방지와 동일한 스파클 장식 */}
             <path d="M48 16 Q48 19 51 19 Q48 19 48 22 Q48 19 45 19 Q48 19 48 16 Z" fill="#fef08a" />
             <path d="M16 48 Q16 50.5 18.5 50.5 Q16 50.5 16 53 Q16 50.5 13.5 50.5 Q16 50.5 16 48 Z" fill="#67e8f9" />
-          </g>
-        )}
-
-        {/* 15. 실패하면 반역 성공하면 혁명 (좌측 빨간 하강 화살표 + 우측 초록 상승 화살표, 높이 30% 축소) */}
-        {id === "rebellionOrRevolution" && (
-          <g filter="url(#glow)">
-            {/* 1. 배경 어두운 원 & 섀도우 림 */}
-            <circle cx="32" cy="32" r="29" fill="url(#revDarkBg)" />
-            <circle cx="32" cy="32" r="27.5" fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="0.8" strokeDasharray="3 2" />
-
-            {/* 좌우 은은한 색상 오라 */}
-            <ellipse cx="24.5" cy="32" rx="11" ry="18" fill="#ef4444" fillOpacity="0.14" />
-            <ellipse cx="39.5" cy="32" rx="11" ry="18" fill="#22c55e" fillOpacity="0.14" />
-
-            {/* 2. 좌측 빨간 하강 화살표 (▼, 중앙 밀집) */}
-            <path d="M 20.5 16 L 28.5 16 L 28.5 35 L 32.5 35 L 24.5 48 L 16.5 35 L 20.5 35 Z" fill="url(#redArrowGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
-            <circle cx="24.5" cy="48.5" r="1.3" fill="#fecaca" />
-
-            {/* 3. 우측 초록 상승 화살표 (▲, 중앙 밀집) */}
-            <path d="M 39.5 16 L 47.5 29 L 43.5 29 L 43.5 48 L 35.5 48 L 35.5 29 L 31.5 29 Z" fill="url(#greenArrowGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
-            <circle cx="39.5" cy="15.5" r="1.3" fill="#bbf7d0" />
           </g>
         )}
 
@@ -3457,10 +3291,7 @@ const DedicatedImg = styled.img`
   z-index: 1;
   user-select: none;
   -webkit-user-drag: none;
-  transform: ${(props) =>
-    props.$offsetX || props.$offsetY || (props.$scale && props.$scale !== 1)
-      ? `translate(${props.$offsetX || 0}px, ${props.$offsetY || 0}px) scale(${props.$scale || 1})`
-      : "none"};
+  transform: ${(props) => (props.$offsetX || props.$offsetY || (props.$scale && props.$scale !== 1) ? `translate(${props.$offsetX || 0}px, ${props.$offsetY || 0}px) scale(${props.$scale || 1})` : "none")};
 `;
 
 const DedicatedRing = styled.div`

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { AUGMENT_LIST, compareAugmentNames, getAugmentDesc } from "../../../entity/Augment/AugmentData";
@@ -40,6 +40,19 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
   const [swordFailed, setSwordFailed] = useState(false);
   const [swordAnimKey, setSwordAnimKey] = useState(0);
   const [swordLastResult, setSwordLastResult] = useState(null);
+  const [allOrNothingAug, setAllOrNothingAug] = useState(null);
+  const [rouletteSpinning, setRouletteSpinning] = useState(false);
+  const [rouletteRotation, setRouletteRotation] = useState(0);
+  const [rouletteResult, setRouletteResult] = useState(null);
+  const rouletteTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (rouletteTimerRef.current) {
+        clearTimeout(rouletteTimerRef.current);
+      }
+    };
+  }, []);
 
   const resolvedTeam = team && team.length > 0 ? team : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
 
@@ -130,6 +143,14 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     setSwordLevel(0);
     setSwordFailed(false);
     setSwordLastResult(null);
+    if (rouletteTimerRef.current) {
+      clearTimeout(rouletteTimerRef.current);
+      rouletteTimerRef.current = null;
+    }
+    setAllOrNothingAug(null);
+    setRouletteSpinning(false);
+    setRouletteRotation(0);
+    setRouletteResult(null);
   };
 
   const handleCardClick = (e, aug) => {
@@ -172,6 +193,18 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
       return;
     }
 
+    if (selectedAugment.id === "allOrNothing") {
+      if (rouletteTimerRef.current) {
+        clearTimeout(rouletteTimerRef.current);
+        rouletteTimerRef.current = null;
+      }
+      setAllOrNothingAug(selectedAugment);
+      setRouletteSpinning(false);
+      setRouletteRotation(0);
+      setRouletteResult(null);
+      return;
+    }
+
     onSelect(selectedAugment, { targetPokemon: activePokemon });
   };
 
@@ -210,6 +243,105 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     setSwordLevel(0);
     setSwordFailed(false);
     setSwordLastResult(null);
+  };
+
+  const ROULETTE_SLICES = [
+    { stat: "atk", label: "공격", sub: "2배" },
+    { stat: "catk", label: "특공", sub: "2배" },
+    { stat: "atk", label: "공격", sub: "2배" },
+    { stat: "catk", label: "특공", sub: "2배" },
+    { stat: "atk", label: "공격", sub: "2배" },
+    { stat: "catk", label: "특공", sub: "2배" },
+  ];
+
+  const handleSpinRoulette = (e) => {
+    e?.stopPropagation();
+    if (!allOrNothingAug || rouletteSpinning || rouletteResult) return;
+
+    const pick = Math.random() < 0.5 ? "atk" : "catk";
+    const matchingSlices = pick === "atk" ? [0, 2, 4] : [1, 3, 5];
+    const chosenSliceIdx = matchingSlices[Math.floor(Math.random() * matchingSlices.length)];
+    // 각 60도 칸의 경계에서 10도 이상 떨어진 중앙 영역(10~50도)에 안착시켜 상단 바늘(0도)과 정확히 일치
+    const hitAngle = chosenSliceIdx * 60 + 10 + Math.random() * 40;
+    const alignRotation = (360 - hitAngle) % 360;
+    const extraTurns = (5 + Math.floor(Math.random() * 3)) * 360;
+    const finalRotation = extraTurns + alignRotation;
+
+    setRouletteSpinning(true);
+    setRouletteRotation(finalRotation);
+
+    if (rouletteTimerRef.current) {
+      clearTimeout(rouletteTimerRef.current);
+    }
+    rouletteTimerRef.current = setTimeout(() => {
+      setRouletteSpinning(false);
+      setRouletteResult(pick);
+      rouletteTimerRef.current = null;
+    }, 2950);
+  };
+
+  const handleApplyAllOrNothing = (e) => {
+    e?.stopPropagation();
+    if (!allOrNothingAug || !activePokemon || !rouletteResult) return;
+    onSelect(allOrNothingAug, {
+      targetPokemon: activePokemon,
+      targetStat: rouletteResult,
+    });
+    setAllOrNothingAug(null);
+    setRouletteSpinning(false);
+    setRouletteRotation(0);
+    setRouletteResult(null);
+  };
+
+  const handleCancelAllOrNothing = (e) => {
+    e?.stopPropagation();
+    if (rouletteSpinning || rouletteResult) return;
+    setAllOrNothingAug(null);
+    setRouletteRotation(0);
+  };
+
+  const renderRouletteSvg = () => {
+    const cx = 110;
+    const cy = 110;
+    const r = 98;
+    const toRad = (deg) => (deg * Math.PI) / 180;
+
+    return (
+      <svg viewBox="0 0 220 220" width="212" height="212" xmlns="http://www.w3.org/2000/svg">
+        {/* 차분한 다크 메탈 외곽 테두리 */}
+        <circle cx={cx} cy={cy} r="105" fill="#182130" stroke="#475569" strokeWidth="2.5" />
+
+        {/* 6분할 룰렛 칸 (단색 매트 톤) */}
+        {ROULETTE_SLICES.map((slice, idx) => {
+          const startDeg = idx * 60;
+          const endDeg = (idx + 1) * 60;
+          const midDeg = startDeg + 30;
+          const x1 = cx + r * Math.sin(toRad(startDeg));
+          const y1 = cy - r * Math.cos(toRad(startDeg));
+          const x2 = cx + r * Math.sin(toRad(endDeg));
+          const y2 = cy - r * Math.cos(toRad(endDeg));
+          const d = `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
+          const isAtk = slice.stat === "atk";
+
+          return (
+            <g key={idx}>
+              <path d={d} fill={isAtk ? "#c94a4a" : "#3a6ec4"} stroke="#0f172a" strokeWidth="2" />
+              <g transform={`rotate(${midDeg} ${cx} ${cy})`}>
+                <text x={cx} y={cy - 60} textAnchor="middle" fill="#f8fafc" fontSize="14" fontWeight="700">
+                  {slice.label}
+                </text>
+                <text x={cx} y={cy - 42} textAnchor="middle" fill="rgba(248,250,252,0.9)" fontSize="13" fontWeight="700">
+                  {slice.sub}
+                </text>
+              </g>
+            </g>
+          );
+        })}
+
+        {/* 외곽 링 마감선 */}
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#0f172a" strokeWidth="2" />
+      </svg>
+    );
   };
 
   const renderSwordSvg = (level, failed) => {
@@ -330,7 +462,52 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
       <ModalOverlay $isPeek={isPeekMode} onClick={() => setIsPeekMode((prev) => !prev)}>
         <ModalWrapper onClick={(e) => e.stopPropagation()}>
           <ModalContainer $isPeek={isPeekMode} onClick={handleContainerClick}>
-            {swordEnhanceAug ? (
+            {allOrNothingAug ? (
+              <>
+                <HeaderArea>
+                  <HeaderTopRow>
+                    <Title>모 아니면 도</Title>
+                  </HeaderTopRow>
+                </HeaderArea>
+
+                <RouletteStageContainer>
+                  <RouletteWheelBox>
+                    <RoulettePointer aria-hidden="true">
+                      <svg viewBox="0 0 20 18" width="18" height="16" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="10,17 1,1 19,1" fill="#f8fafc" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+                      </svg>
+                    </RoulettePointer>
+                    <RouletteDisc style={{ transform: `rotate(${rouletteRotation}deg)` }}>
+                      {renderRouletteSvg()}
+                    </RouletteDisc>
+                    <RouletteHub />
+                  </RouletteWheelBox>
+
+                  {rouletteResult && (
+                    <RouletteOutcomeText>
+                      {rouletteResult === "atk" ? "공격 2배, 특수공격 절반" : "특수공격 2배, 공격 절반"}
+                    </RouletteOutcomeText>
+                  )}
+                </RouletteStageContainer>
+
+                <ButtonGroup>
+                  {!rouletteResult ? (
+                    <>
+                      <ActionButton type="button" $variant="back" disabled={rouletteSpinning} onClick={handleCancelAllOrNothing}>
+                        되돌아가기
+                      </ActionButton>
+                      <ActionButton type="button" $variant="confirm" disabled={rouletteSpinning} onClick={handleSpinRoulette}>
+                        {rouletteSpinning ? "돌아가는 중..." : "룰렛 돌리기"}
+                      </ActionButton>
+                    </>
+                  ) : (
+                    <ActionButton type="button" $variant="confirm" onClick={handleApplyAllOrNothing}>
+                      확인
+                    </ActionButton>
+                  )}
+                </ButtonGroup>
+              </>
+            ) : swordEnhanceAug ? (
               <>
                 <HeaderArea>
                   <HeaderTopRow>
@@ -1429,20 +1606,26 @@ const ActionButton = styled.button`
   ${(props) =>
     props.$variant === "back"
       ? `
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #cbd5e1;
-    cursor: pointer;
+    background: ${props.disabled ? "rgba(255, 255, 255, 0.04)" : "rgba(255, 255, 255, 0.08)"};
+    border: ${props.disabled ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(255, 255, 255, 0.2)"};
+    color: ${props.disabled ? "#64748b" : "#cbd5e1"};
+    cursor: ${props.disabled ? "not-allowed" : "pointer"};
+    opacity: ${props.disabled ? 0.55 : 1};
 
     &:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: #ffffff;
-      border-color: rgba(255, 255, 255, 0.35);
-      transform: translateY(-1px);
+      ${
+        !props.disabled &&
+        `
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.35);
+        transform: translateY(-1px);
+      `
+      }
     }
 
     &:active {
-      transform: translateY(1px);
+      ${!props.disabled && `transform: translateY(1px);`}
     }
   `
       : `
@@ -1691,4 +1874,83 @@ const SwordProbBadge = styled.div`
   color: ${(props) => (props.$failed ? "#fca5a5" : props.$prob >= 60 ? "#64ffda" : props.$prob >= 30 ? "#fde047" : "#fb923c")};
   background: rgba(15, 23, 42, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.12);
+`;
+
+const RouletteStageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 0 10px;
+`;
+
+const RouletteWheelBox = styled.div`
+  position: relative;
+  width: 212px;
+  height: 212px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55));
+`;
+
+const RoulettePointer = styled.div`
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+`;
+
+const RouletteDisc = styled.div`
+  width: 212px;
+  height: 212px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  transition: transform 2.9s cubic-bezier(0.1, 0.88, 0.16, 1);
+  will-change: transform;
+`;
+
+const RouletteHub = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  z-index: 3;
+  background: #1e293b;
+  border: 2.5px solid #94a3b8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #e2e8f0;
+  }
+`;
+
+const RouletteOutcomeText = styled.div`
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #f8fafc;
+  text-align: center;
+  margin-top: 2px;
 `;

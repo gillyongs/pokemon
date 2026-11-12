@@ -681,10 +681,10 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 증강 ==============================================================
 
-  // 도박 중독 증강: 위력 3배 증가
-  if (attackPokemon?.hasAugment?.("gamblingAddict") && (skill.stype === "atk" || skill.stype === "catk")) {
+  // 인생은 한방 증강: 위력 3배 증가
+  if (attackPokemon?.hasAugment?.("lifeIsOneShot") && (skill.stype === "atk" || skill.stype === "catk")) {
     damage *= 3;
-    attackPokemon.log.damage1 += " * 3 (도박중독)";
+    attackPokemon.log.damage1 += " * 3 (인생은 한방)";
   }
 
   // 원펀맨 증강: 공격기술의 위력 999배 증가
