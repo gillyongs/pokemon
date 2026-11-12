@@ -1,3 +1,4 @@
+import { hpCalculate } from "./hpCalculate";
 import { typeCheckOnBattle } from "./typeEffectCalculate";
 import { getMultiplier } from "../function/rankStat";
 import { noNullItem } from "../entity/Item";
@@ -53,7 +54,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
   if (skill.feature.oneShot) {
     //일격기
-    return defensePokemon.origin.hp;
+    return hpCalculate(defensePokemon);
   }
   if (skill.name === "카타스트로피" || skill.name === "자연의분노") {
     // 현재 체력의 절반을 깎는 스킬
@@ -545,7 +546,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 특성 ===========================================================================================
 
-  if (defAbil === "멀티스케일" && defensePokemon.hp === defensePokemon.origin.hp) {
+  if (defAbil === "멀티스케일" && defensePokemon.hp === hpCalculate(defensePokemon)) {
     if (noTggAtk) {
       damage *= 0.5;
       attackPokemon.log.damage1 += " * 0.5 (멀티스케일)";
@@ -632,21 +633,22 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.5 (타오르는불꽃)";
   }
 
-  if (atkAbil === "급류" && attackPokemon.hp <= attackPokemon.origin.hp / 3 && skill.type === "물") {
+  const atkMaxHp = hpCalculate(attackPokemon);
+  if (atkAbil === "급류" && attackPokemon.hp <= atkMaxHp / 3 && skill.type === "물") {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (급류)";
   }
 
-  if (atkAbil === "벌레의알림" && attackPokemon.hp <= attackPokemon.origin.hp / 3 && skill.type === "벌레") {
+  if (atkAbil === "벌레의알림" && attackPokemon.hp <= atkMaxHp / 3 && skill.type === "벌레") {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (벌레의알림)";
   }
 
-  if (atkAbil === "맹화" && attackPokemon.hp <= attackPokemon.origin.hp / 3 && skill.type === "불꽃") {
+  if (atkAbil === "맹화" && attackPokemon.hp <= atkMaxHp / 3 && skill.type === "불꽃") {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (맹화)";
   }
-  if (atkAbil === "심록" && attackPokemon.hp <= attackPokemon.origin.hp / 3 && skill.type === "풀") {
+  if (atkAbil === "심록" && attackPokemon.hp <= atkMaxHp / 3 && skill.type === "풀") {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (심록)";
   }
@@ -919,13 +921,13 @@ const powerCalculate = (battle, skill, obj, ai) => {
   }
   if (skill.feature?.hpScale) {
     // 체력비례 데미지
-    power = (power * atk.hp) / atk.origin.hp;
+    power = (power * atk.hp) / (hpCalculate(atk) || 1);
   }
   if (skill.name === "묵사발") {
     // 상대의 남은 HP 비례 (최대 120, 최소 1)
     const defPoke = battle[battle.turn.def];
     const curHp = defPoke?.hp ?? 1;
-    const maxHp = defPoke?.origin?.hp || curHp;
+    const maxHp = hpCalculate(defPoke) || curHp;
     power = Math.max(1, Math.floor(120 * (curHp / maxHp)));
   }
   if (skill.name === "객기" && (atk.ailment.burn || atk.ailment.mabi || atk.ailment.poison || atk.ailment.mpoison)) {

@@ -1,3 +1,4 @@
+import { hpCalculate } from "../util/hpCalculate";
 import skillRequirementSearch from "../entity/Skill/SkillRequirement";
 import { random } from "../util/randomCheck";
 import { confuseDamageCalculate } from "../util/damageCalculate";
@@ -210,7 +211,7 @@ export const afterSkillCheck = (bt, enqueue) => {
       // 펀치글러브 착용 시 접촉 판정이 사라져 피해 없음
       const isTouch = Boolean(skill.feature?.touch && atk.item !== "펀치글러브");
       if (def.turn?.spikyShield && isTouch && !atk.faint) {
-        const spikyDmg = Math.floor(atk.origin.hp / 8);
+        const spikyDmg = Math.floor(hpCalculate(atk) / 8);
         const spikyText = `${atk.names} 가시에 찔려 데미지를 입었다!`;
         atk.getDamage(bt, enqueue, spikyDmg, spikyText);
       }

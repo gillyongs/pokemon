@@ -1,3 +1,4 @@
+import { hpCalculate } from "../../util/hpCalculate";
 import sampleList from "./SamplePokemon";
 import { PokemonRecover } from "./Methods/PokemonRecover";
 import { PokemonAbil } from "./Methods/PokemonAbil.js";
@@ -181,8 +182,10 @@ class PokemonInstance {
     this.dragonKillCount = 0; // 용용죽겠지
     this.mejaiStack = 0; // 메자이
     this.practiceCritStack = 0; // 윤탈
+    this.giantBonusHp = 0; // 거인의 흡수
     this.log = {
       getAugmentedStat: null, // 증강으로 인한 능력치 변화
+      hpCalculate: null, // 증강으로 인한 최대 HP 변화
       damage1: null,
       damage2: null,
       speedCalculate: null,
@@ -241,7 +244,7 @@ class PokemonInstance {
       if (normalCount >= 3) return false;
     }
     if (!isInstant && this.hasAugment(augId)) {
-      if (isBuf && (options?.dragonKillCount !== undefined || options?.mejaiStack !== undefined || options?.practiceCritStack !== undefined)) {
+      if (isBuf && (options?.dragonKillCount !== undefined || options?.mejaiStack !== undefined || options?.practiceCritStack !== undefined || options?.giantBonusHp !== undefined)) {
         const existingBuf = this.augments.find((a) => a.id === augId);
         if (existingBuf && typeof existingBuf.onApply === "function") {
           existingBuf.onApply(this, battle, options);
@@ -346,27 +349,28 @@ class PokemonInstance {
 
   leftOver(battle, enqueue) {
     if (this.faint) return;
+    const maxHp = hpCalculate(this);
 
     if (this.item === "먹다남은음식") {
-      if (this.hp < this.origin.hp) {
-        this.recover(battle, Math.floor(this.origin.hp / 16), enqueue, `${this.names} 먹다남은음식으로 인해 조금 회복했다.`);
+      if (this.hp < maxHp) {
+        this.recover(battle, Math.floor(maxHp / 16), enqueue, `${this.names} 먹다남은음식으로 인해 조금 회복했다.`);
       }
     } else if (this.item === "검은진흙") {
       const isPoison = this.type1 === "독" || this.type2 === "독";
       if (isPoison) {
-        if (this.hp < this.origin.hp) {
-          this.recover(battle, Math.floor(this.origin.hp / 16), enqueue, `${this.names} 검은진흙으로 인해 조금 회복했다.`);
+        if (this.hp < maxHp) {
+          this.recover(battle, Math.floor(maxHp / 16), enqueue, `${this.names} 검은진흙으로 인해 조금 회복했다.`);
         }
       } else {
         const text = `${this.names} 검은진흙으로 인해 데미지를 입었다!`;
-        this.getDamage(battle, enqueue, Math.floor(this.origin.hp / 8), text);
+        this.getDamage(battle, enqueue, Math.floor(maxHp / 8), text);
       }
     }
 
     // 증강: 회복 (매 턴 최대 HP의 1/16만큼 회복)
     if (this.hasAugment("recovery")) {
-      if (this.hp < this.origin.hp) {
-        this.recover(battle, Math.floor(this.origin.hp / 16), enqueue, `[증강 회복] ${this.names} 체력을 조금 회복했다.`);
+      if (this.hp < maxHp) {
+        this.recover(battle, Math.floor(maxHp / 16), enqueue, `[증강 회복] ${this.names} 체력을 조금 회복했다.`);
       }
     }
   }

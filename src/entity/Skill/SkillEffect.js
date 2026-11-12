@@ -1,3 +1,4 @@
+import { hpCalculate } from "../../util/hpCalculate";
 import { random } from "../../util/randomCheck";
 import { applyAilment, isAilmentCheck } from "../../function/ailment";
 import { josa } from "josa";
@@ -74,7 +75,7 @@ function skillEffectSearch(name) {
       if (atkPokemon.item === "생명의구슬" && !atkPokemon.faint) {
         if (skill.stype === "atk" || skill.stype === "catk") {
           const text = atkPokemon.name + "의 생명이 조금 깎였다!";
-          atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 10, text);
+          atkPokemon.getDamage(battle, enqueue, hpCalculate(atkPokemon) / 10, text);
         }
       }
 
@@ -281,17 +282,17 @@ function skillEffectSearch(name) {
       let atkPokemon = battle[battle.turn.atk];
       if (atkPokemon.turn.jumpKickFail) {
         const text = atkPokemon.names + " 의욕이 넘쳐 땅에 부딪쳤다!";
-        atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 2, text);
+        atkPokemon.getDamage(battle, enqueue, hpCalculate(atkPokemon) / 2, text);
       }
     },
     회복: (battle, enqueue, skillEffect) => {
       const skillUser = battle[battle.turn.atk];
-      const hp = skillUser.origin.hp;
+      const hp = hpCalculate(skillUser);
       skillUser.recover(battle, Math.floor(hp / 2), enqueue);
     },
     아침햇살: (battle, enqueue, skillEffect) => {
       const skillUser = battle[battle.turn.atk];
-      const hp = skillUser.origin.hp;
+      const hp = hpCalculate(skillUser);
       let value = hp / 2;
       if (battle.field.weather.get() === null) {
         value = hp / 2;
@@ -422,7 +423,7 @@ function skillEffectSearch(name) {
       let atkPokemon = battle[battle.turn.atk];
       if (atkPokemon.faint) return;
       const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
-      atkPokemon.getDamage(battle, enqueue, atkPokemon.origin.hp / 4, text);
+      atkPokemon.getDamage(battle, enqueue, hpCalculate(atkPokemon) / 4, text);
     },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
@@ -731,7 +732,7 @@ function skillEffectSearch(name) {
     배북: (battle, enqueue, skillEffect) => {
       const atk = battle.turn.atk;
       const atkPokemon = battle[atk];
-      const needHp = Math.floor(atkPokemon.origin.hp / 2);
+      const needHp = Math.floor(hpCalculate(atkPokemon) / 2);
 
       if (atkPokemon.hp <= needHp || atkPokemon.tempStatus.rank.atk >= 6) {
         enqueue({
@@ -749,7 +750,7 @@ function skillEffectSearch(name) {
     대타출동: (battle, enqueue, skillEffect) => {
       const atk = battle.turn.atk;
       const atkPokemon = battle[atk];
-      const needHp = Math.floor(atkPokemon.origin.hp / 4);
+      const needHp = Math.floor(hpCalculate(atkPokemon) / 4);
 
       if (atkPokemon.tempStatus.substitute !== null || atkPokemon.hp <= needHp) {
         enqueue({
@@ -808,7 +809,7 @@ function skillEffectSearch(name) {
       const def = battle[battle.turn.def];
       const text = josa(`${def.name}#{으로}`) + "부터 체력을 흡수했다!";
 
-      if (atk.hp !== atk.origin.hp) {
+      if (atk.hp !== hpCalculate(atk)) {
         const ratio = skillEffect.ratio;
         atk.recover(battle, Math.floor(atk.turn.recentDamageGive * ratio), enqueue, text);
       }
@@ -860,7 +861,7 @@ function skillEffectSearch(name) {
       const atkPokemon = battle[battle.turn.atk];
       if (atkPokemon.turn.steelBeamRecoilDone) return;
       atkPokemon.turn.steelBeamRecoilDone = true;
-      const damage = Math.ceil(atkPokemon.origin.hp / 2);
+      const damage = Math.ceil(hpCalculate(atkPokemon) / 2);
       const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
       atkPokemon.getDamage(battle, enqueue, damage, text);
     },
@@ -874,7 +875,7 @@ function skillEffectSearch(name) {
       const skillUser = battle[battle.turn.atk];
       const wishObj = {
         name: skillUser.name,
-        amount: Math.floor(skillUser.origin.hp / 2),
+        amount: Math.floor(hpCalculate(skillUser) / 2),
         turnRemain: 1,
       };
       battle.field[battle.turn.atk].handleWish(battle, enqueue, wishObj);

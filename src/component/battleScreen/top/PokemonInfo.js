@@ -1,3 +1,4 @@
+import { hpCalculate } from "../../../util/hpCalculate";
 import React from "react";
 import styled from "styled-components";
 import HpBar from "../HpBar";
@@ -19,7 +20,7 @@ const PokemonInfo = ({ battle, type }) => {
         ) : null
       )}
 
-      <HpBar hp={pokemon.hp} maxHp={pokemon.origin.hp} />
+      <HpBar hp={pokemon.hp} maxHp={hpCalculate(pokemon)} />
     </INFO>
   );
 };

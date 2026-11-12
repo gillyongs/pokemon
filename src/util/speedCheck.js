@@ -1,3 +1,4 @@
+import { hpCalculate } from "./hpCalculate";
 import { getMultiplier } from "../function/rankStat";
 import { getAugmentedStat, getHighestStatInfo } from "./getStat";
 
@@ -213,7 +214,8 @@ export const priCalculate = (battle, pokemon, skill) => {
   }
 
   const pokeObj = typeof pokemon === "string" ? battle?.[pokemon] : pokemon;
-  const isFullHp = Boolean(pokeObj && pokeObj.origin?.hp && pokeObj.hp >= pokeObj.origin.hp);
+  const pokeMaxHp = hpCalculate(pokeObj);
+  const isFullHp = Boolean(pokeObj && pokeMaxHp > 0 && pokeObj.hp >= pokeMaxHp);
   const hasHarmfulBird = Boolean(pokeObj?.hasAugment?.("harmfulBird"));
   if (pokeObj?.abil === "질풍날개" && skill.type === "비행" && (isFullHp || hasHarmfulBird)) {
     prior += 1;

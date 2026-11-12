@@ -1,3 +1,4 @@
+import { hpCalculate } from "../../../../util/hpCalculate";
 import styled from "styled-components";
 import HpBar from "../../HpBar";
 
@@ -11,7 +12,7 @@ const BenchPokemon = ({ battle, index, selected, handleSelected, setBench, setBo
       </PokemonName>
       <PokemonImage className={`${index}`} src={`/pokemon/img/pokemon/${pokemon.origin.pokemon_id}.webp`} alt={`bench2`} />
       <SwitchHpBar>
-        <HpBar hp={pokemon.hp} maxHp={pokemon.origin.hp} />
+        <HpBar hp={pokemon.hp} maxHp={hpCalculate(pokemon)} />
       </SwitchHpBar>
 
       {Object.entries(pokemon.ailment).map(([key, value]) =>

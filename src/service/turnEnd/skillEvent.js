@@ -1,3 +1,4 @@
+import { hpCalculate } from "../../util/hpCalculate";
 import { applyAilment } from "../../function/ailment";
 
 export function processSkillEffects(battle, enqueue, fastUser, slowUser) {
@@ -37,7 +38,7 @@ function seed(battle, enqueue, getter, user) {
 
   // 씨뿌리기
   if (skillGetter.tempStatus.seed) {
-    const dmg = skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.origin.hp / 8));
+    const dmg = skillGetter.getDamage(battle, enqueue, Math.floor(hpCalculate(skillGetter) / 8));
     skillUser.recover(battle, Math.floor(dmg), enqueue, `씨뿌리기가 ${skillGetter.name}의 체력을 빼앗는다!`);
   }
 }
@@ -55,7 +56,7 @@ export function switchLock(battle, enqueue, getter) {
       skillGetter.tempStatus.switchLockTurnRemain = null;
       enqueue({ id: "8c6a1aa2-f25d-45bf-bbe3-f5aea20fdb22", battle, text: `${skillGetter.names} ${skillName}에게서 벗어났다!` });
     } else {
-      skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.origin.hp / 8), `${skillGetter.names} ${skillName}의 데미지를 입고 있다.`);
+      skillGetter.getDamage(battle, enqueue, Math.floor(hpCalculate(skillGetter) / 8), `${skillGetter.names} ${skillName}의 데미지를 입고 있다.`);
     }
   }
 }

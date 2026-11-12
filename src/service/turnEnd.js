@@ -1,3 +1,4 @@
+import { hpCalculate } from "../util/hpCalculate";
 import { switchNpcAuto } from "./switch";
 import { speedCheck } from "../util/speedCheck";
 import { processSkillEffects } from "./turnEnd/skillEvent";
@@ -53,6 +54,10 @@ export const turnEnd = (battle, enqueue) => {
   // [증강] 태양불꽃방패 (매 턴 내 HP의 10%만큼 상대에게 데미지)
   applySunfireAegis(battle, enqueue, fastUser);
   applySunfireAegis(battle, enqueue, slowUser);
+
+  // [증강] 거인의 흡수 (매 턴 상대에게 최대 HP의 1% 데미지 + 해당 수치만큼 추가 HP 획득, 회복 X)
+  applyGiantAbsorption(battle, enqueue, fastUser);
+  applyGiantAbsorption(battle, enqueue, slowUser);
 
   [battle[fastUser], battle[slowUser]].forEach((p) => {
     // 능력치 증감은 어차피 damageCalculate, speedCalculate에서 처리하므로 그냥 text만 enqueue하면 됨
@@ -182,19 +187,47 @@ function applySunfireAegis(battle, enqueue, user) {
   const opponent = battle[opponentSide];
   if (!opponent || opponent.faint) return;
 
-  const damage = Math.max(1, Math.floor(p.origin.hp * 0.1));
+  const damage = Math.max(1, Math.floor(hpCalculate(p) * 0.1));
   const text = `[증강: 태양불꽃방패] ${opponent.names} 불사르기 데미지를 입었다!`;
+  opponent.getDamage(battle, enqueue, damage, text);
+}
+
+function applyGiantAbsorption(battle, enqueue, user) {
+  const p = battle[user];
+  if (!p || p.faint || p.hp <= 0) return;
+  if (!p.hasAugment?.("giantAbsorption")) return;
+
+  const opponentSide = user === "player" ? "npc" : "player";
+  const opponent = battle[opponentSide];
+  if (!opponent || opponent.faint || opponent.hp <= 0) return;
+
+  const damage = Math.max(1, Math.floor(hpCalculate(p) * 0.01));
+  const gain = Math.min(opponent.hp, damage);
+
+  // 체력 최대치(giantBonusHp)만 늘리고 현재 HP는 회복하지 않음 (텍스트 enqueue 스냅샷에 즉시 반영되도록 데미지 전 처리)
+  if (gain > 0) {
+    const giantAug = p.augments?.find((a) => a.id === "giantAbsorption");
+    const nextBonus = Number(p.giantBonusHp ?? giantAug?.giantBonusHp ?? 0) + gain;
+    p.giantBonusHp = nextBonus;
+    p._appliedGiantBonusHp = nextBonus;
+    if (giantAug) {
+      giantAug.giantBonusHp = nextBonus;
+    }
+  }
+
+  const text = `[증강 거인의흡수] ${p.names} ${opponent.name}의 체력을 흡수했다!`;
   opponent.getDamage(battle, enqueue, damage, text);
 }
 
 function applyWarmogsArmor(battle, enqueue, user) {
   const p = battle[user];
-  if (!p || p.faint || p.hp <= 0 || p.hp >= p.origin.hp) return;
+  const maxHp = hpCalculate(p);
+  if (!p || p.faint || p.hp <= 0 || p.hp >= maxHp) return;
   if (!p.hasAugment?.("warmogsArmor")) return;
 
   const undamaged = !p.turn?.damagedThisTurn;
   const ratio = undamaged ? 0.06 : 0.03;
-  const heal = Math.max(1, Math.floor(p.origin.hp * ratio));
+  const heal = Math.max(1, Math.floor(maxHp * ratio));
   const text = undamaged ? `[증강: 워모그의 갑옷] ${p.names} 체력을 크게 회복했다!` : `[증강: 워모그의 갑옷] ${p.names} 체력을 조금 회복했다!`;
   p.recover(battle, heal, enqueue, text);
 }

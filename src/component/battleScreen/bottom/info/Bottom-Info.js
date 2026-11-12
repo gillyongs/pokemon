@@ -5,6 +5,7 @@ import TextBox from "../common/TextBox";
 import { TYPE_COLORS } from "../../../customScreen/sampleInfo/SampleInfoModal";
 import { isOnlyPrioritySkillText } from "../../../customScreen/sampleInfo/SkillSearchModal";
 import { getAugmentedStat } from "../../../../util/getStat";
+import { hpCalculate } from "../../../../util/hpCalculate";
 import { getMultiplier } from "../../../../function/rankStat";
 import { getTypeEffectText } from "../../../../util/typeEffectCalculate";
 import { getWeatherBallType } from "../../../../util/weatherBall";
@@ -57,7 +58,7 @@ const HexagonGraph = ({ pokemon }) => {
 
   const getStatInfo = (stat) => {
     if (stat === "hp") {
-      const base = pokemon?.origin?.hp ?? 0;
+      const base = hpCalculate(pokemon);
       return { val: base, baseVal: base, rank: 0 };
     }
     const rank = Number(pokemon?.tempStatus?.rank?.[stat] ?? 0);
@@ -160,7 +161,8 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
   };
 
   const statusText = getPokemonStatusText(pokemon);
-  const hpRatio = Math.max(0, (pokemon.hp || 0) / (pokemon.origin?.hp || 1));
+  const maxHp = hpCalculate(pokemon);
+  const hpRatio = Math.max(0, (pokemon.hp || 0) / (maxHp || 1));
   let hpColor = "#4ade80";
   if (hpRatio <= 0.25) hpColor = "#ef4444";
   else if (hpRatio <= 0.5) hpColor = "#facc15";
@@ -202,7 +204,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
   const handleStatClick = (e) => {
     e.stopPropagation();
     clickCountRef.current = 0;
-    const hp = pokemon.origin?.hp ?? 0;
+    const hp = maxHp;
     const getStatSummary = (stat) => {
       const rank = Number(pokemon?.tempStatus?.rank?.[stat] ?? 0);
       const mult = getMultiplier(rank);
@@ -248,7 +250,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
             <HpBarTrack>
               <HpBarFill style={{ width: `${hpRatio * 100}%`, backgroundColor: hpColor }} />
               <HpBarLabel>
-                {pokemon.hp}/{pokemon.origin.hp}
+                {pokemon.hp}/{maxHp}
               </HpBarLabel>
             </HpBarTrack>
           </SpriteBox>

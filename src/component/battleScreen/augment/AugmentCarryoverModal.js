@@ -80,6 +80,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
             dragonKillCount: aug.dragonKillCount ?? poke.dragonKillCount ?? 0, // 용용죽겠지
             mejaiStack: aug.mejaiStack ?? poke.mejaiStack ?? 0, // 메자이
             practiceCritStack: aug.practiceCritStack ?? poke.practiceCritStack ?? 0, // 윤탈
+            giantBonusHp: aug.giantBonusHp ?? poke.giantBonusHp ?? 0, // 거인의 흡수
           });
         }
       });

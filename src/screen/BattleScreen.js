@@ -165,6 +165,7 @@ const Battle = () => {
             dragonKillCount: aug.dragonKillCount ?? p.dragonKillCount ?? 0,
             mejaiStack: aug.mejaiStack ?? p.mejaiStack ?? 0,
             practiceCritStack: aug.practiceCritStack ?? p.practiceCritStack ?? 0,
+            giantBonusHp: aug.giantBonusHp ?? p.giantBonusHp ?? 0,
           });
         }
       });
@@ -192,6 +193,7 @@ const Battle = () => {
             dragonKillCount: aug.dragonKillCount,
             mejaiStack: aug.mejaiStack,
             practiceCritStack: aug.practiceCritStack,
+            giantBonusHp: aug.giantBonusHp,
           }));
           return acc;
         }, {});
@@ -641,6 +643,8 @@ const Battle = () => {
                   dragonKillCount: savedAug?.dragonKillCount,
                   mejaiStack: savedAug?.mejaiStack,
                   practiceCritStack: savedAug?.practiceCritStack,
+                  giantBonusHp: savedAug?.giantBonusHp,
+                  isCarryover: true,
                 });
               }
             });

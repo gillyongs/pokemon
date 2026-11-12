@@ -1,3 +1,4 @@
+import { hpCalculate } from "../../util/hpCalculate";
 import { damageCalculate } from "../../util/damageCalculate";
 import { priCalculate } from "../../util/speedCheck";
 import { typeCheck } from "../../util/typeEffectCalculate";
@@ -395,7 +396,8 @@ function calculateTypeScore(bt, index, log) {
     }
   }
 
-  let score = Math.floor((pokemon.origin.hp * pokemon.origin.stat[defStat]) / result / 1000);
-  log[index] = `${pokemon.origin.hp} * ${pokemon.origin.stat[defStat]} / ${result} / 1000 = ${score}`;
+  const maxHp = hpCalculate(pokemon);
+  let score = Math.floor((maxHp * pokemon.origin.stat[defStat]) / result / 1000);
+  log[index] = `${maxHp} * ${pokemon.origin.stat[defStat]} / ${result} / 1000 = ${score}`;
   return score;
 }

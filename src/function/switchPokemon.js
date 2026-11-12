@@ -1,3 +1,4 @@
+import { hpCalculate } from "../util/hpCalculate";
 // swapBattleEntities.js
 export const switchPokemon = (battle, IN, OUT, options = {}) => {
   // 교체 함수.
@@ -25,7 +26,7 @@ export const switchPokemon = (battle, IN, OUT, options = {}) => {
     : null;
   if (pokemonIn.abil === "재생력") {
     // 재생력 특성을 지닌 포켓몬은 교체시 체력이 회복
-    const hp = pokemonIn.origin.hp;
+    const hp = hpCalculate(pokemonIn);
     pokemonIn.recoverNoText(battle, Math.floor(hp / 3), pokemonIn);
   }
   if (pokemonIn.abil === "자연회복") {

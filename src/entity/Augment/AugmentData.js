@@ -1,3 +1,4 @@
+import { hpCalculate } from "../../util/hpCalculate";
 import { abilObject, noRandomAbil, changePokemonAbility, changeAbility } from "../Ability";
 import { josa } from "josa";
 import { getAugmentedStat, getHighestStatInfo, STAT_LABELS } from "../../util/getStat";
@@ -19,8 +20,8 @@ export { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb };
  */
 export const isHpAtLeast = (pokemon, ratio = 0.5) => {
   if (!pokemon) return false;
-  const currentHp = typeof pokemon.hp === "number" ? pokemon.hp : pokemon.origin?.hp;
-  const maxHp = pokemon.origin?.hp ?? pokemon.maxHp ?? currentHp;
+  const maxHp = hpCalculate(pokemon) || pokemon.maxHp || pokemon.hp;
+  const currentHp = typeof pokemon.hp === "number" ? pokemon.hp : maxHp;
   if (typeof currentHp !== "number" || typeof maxHp !== "number" || maxHp <= 0) {
     return false;
   }
@@ -303,7 +304,7 @@ export const AUGMENT_LIST = [
   {
     id: "sunfireAegis",
     name: "태양불꽃방패",
-    desc: "매 턴 내 HP의 10%만큼 상대에게 데미지를 줍니다.",
+    desc: "매 턴 내 최대 HP의 10%만큼 상대에게 데미지를 입힙니다.",
     cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
     // turnEnd.js에 구현
@@ -430,12 +431,13 @@ export const AUGMENT_LIST = [
     isRandom: false,
     weight: "-",
     isEligible: () => false,
-    onApply: function (pokemon, battle) {
-      if (pokemon && pokemon.origin?.hp) {
-        const oldMaxHp = pokemon.origin.hp;
-        pokemon.origin.hp = Math.round(pokemon.origin.hp * 1.1);
-        const hpGain = pokemon.origin.hp - oldMaxHp;
-        pokemon.hp = Math.min(pokemon.origin.hp, (pokemon.hp || oldMaxHp) + hpGain);
+    onApply: function (pokemon) {
+      if (pokemon && pokemon.origin?.hp && !pokemon._appliedLifePartnerHp) {
+        const baseHp = pokemon.origin.hp;
+        const newMaxHp = hpCalculate(pokemon);
+        const hpGain = Math.max(0, Math.round(baseHp * 1.1) - baseHp);
+        pokemon.hp = Math.min(newMaxHp, (pokemon.hp || baseHp) + hpGain);
+        pokemon._appliedLifePartnerHp = true;
       }
     },
   },
@@ -743,6 +745,39 @@ export const AUGMENT_LIST = [
     },
   },
   {
+    id: "giantAbsorption",
+    name: "거인의 흡수",
+    desc: "매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치 만큼 추가 HP를 얻습니다.",
+    getDesc: (pokemon) => {
+      const aug = pokemon?.augments?.find((a) => a.id === "giantAbsorption");
+      const bonusHp = Number(pokemon?.giantBonusHp ?? aug?.giantBonusHp ?? 0);
+      return `매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치 만큼 추가 HP를 얻습니다.\n(현재 추가 HP: +${bonusHp})`;
+    },
+    buf: true,
+    isRandom: false,
+    weight: "-",
+    onApply: function (pokemon, battle, options) {
+      const bonusHp = Number(options?.giantBonusHp ?? pokemon?.giantBonusHp ?? this.giantBonusHp ?? 0);
+      if (pokemon) {
+        const hadPrevApplied = Number(pokemon._appliedGiantBonusHp ?? 0) > 0;
+        const prevMaxHp = hpCalculate(pokemon);
+        pokemon.giantBonusHp = bonusHp;
+        this.giantBonusHp = bonusHp;
+        const existingAug = pokemon.augments?.find((a) => a.id === "giantAbsorption");
+        if (existingAug) {
+          existingAug.giantBonusHp = bonusHp;
+        }
+        const newMaxHp = hpCalculate(pokemon);
+        if (options?.isCarryover && !hadPrevApplied && bonusHp > 0 && pokemon.hp === prevMaxHp) {
+          pokemon.hp = newMaxHp;
+        }
+        pokemon._appliedGiantBonusHp = bonusHp;
+      } else {
+        this.giantBonusHp = bonusHp;
+      }
+    },
+  },
+  {
     id: "gamblingAddict",
     name: "도박 중독",
     desc: "도박과 관련된 증강이 추가로 나오게 됩니다.",
@@ -949,6 +984,7 @@ export const AUGMENT_SYNERGY_MAP = {
   mejaisSoulstealer: ["rabadonsDeathcap", "voidStaff", "ludensEcho"], // 메자이의 영혼약탈자: [라바돈의 죽음모자, 공허의 지팡이, 루덴의 메아리]
   practiceMakesCritical: ["infinityEdge", "bladeOfTheRuinedKing", "collector"], // 연습이 치명타를 낳는다: [무한의 대검, 몰락한 왕의 검, 징수의 총]
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
+  giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패]
 };
 
 // 무한 다이맥스 변환 함수
@@ -989,12 +1025,13 @@ export const applyEternamax = (pokemon) => {
   const newMaxHp = Math.floor((baseStats.hp * 2 + Math.floor(evHp / 4) + ivHp) / 2) + 60;
 
   // 현재 체력 비율 유지 (예: 반피면 50% 유지)
-  const oldMaxHp = origin.hp ?? pokemon.hp ?? newMaxHp;
+  const oldMaxHp = hpCalculate(pokemon) || origin.hp || pokemon.hp || newMaxHp;
   const oldHp = typeof pokemon.hp === "number" ? pokemon.hp : oldMaxHp;
-  const hpRatio = oldMaxHp > 0 ? Math.max(0, Math.min(1, oldHp / oldMaxHp)) : 1;
-  const newHp = Math.min(newMaxHp, Math.max(oldHp > 0 ? 1 : 0, Math.round(newMaxHp * hpRatio)));
-
   origin.hp = newMaxHp;
+  const effectiveNewMaxHp = hpCalculate(pokemon) || newMaxHp;
+  const hpRatio = oldMaxHp > 0 ? Math.max(0, Math.min(1, oldHp / oldMaxHp)) : 1;
+  const newHp = Math.min(effectiveNewMaxHp, Math.max(oldHp > 0 ? 1 : 0, Math.round(effectiveNewMaxHp * hpRatio)));
+
   pokemon.hp = newHp;
 
   // 2. 공격/방어/특공/특방/스피드 계산

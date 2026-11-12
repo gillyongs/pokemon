@@ -1,3 +1,4 @@
+import { hpCalculate } from "../util/hpCalculate";
 import { typeCheck } from "../util/typeEffectCalculate";
 import { applyAilment, isAilmentCheck } from "../function/ailment";
 export const applyFieldEffects = (bt, atks, enqueue) => {
@@ -15,9 +16,11 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
   const atk = bt[atks];
   const def = bt[defs];
 
+  const maxHp = hpCalculate(atk);
+
   //초승달춤
   if (bt.field[atks].noClean.lunarDance) {
-    const isFullHP = atk.hp === atk.origin.hp;
+    const isFullHP = atk.hp === maxHp;
     const noStatus = !isAilmentCheck(atk);
 
     const isFullPP = [1, 2, 3, 4].every((n) => atk.pp[n] === atk.origin.skill[n].pp);
@@ -33,7 +36,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
       atk.pp[3] = atk.origin.skill[3].pp;
       atk.pp[4] = atk.origin.skill[4].pp;
       // 메타몽 나오면 로직 고려해봐야겠는데
-      atk.recover(bt, atk.origin.hp, enqueue, atk.name + "의 체력과 상태이상과 PP가 회복됐다!");
+      atk.recover(bt, maxHp, enqueue, atk.name + "의 체력과 상태이상과 PP가 회복됐다!");
     }
   }
 
@@ -42,13 +45,13 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     //교체로 나온 포켓몬한테 치유할게 없으면 필드에 남는다
     //치유소원 발동하고 스텔스록이 터진다
     //공중판정 없음
-    if (atk.hp === atk.origin.hp && !isAilmentCheck(atk)) {
+    if (atk.hp === maxHp && !isAilmentCheck(atk)) {
       // 회복할게 없는 경우
     } else {
       enqueue({ id: "97d16ba0-522e-4226-8fd6-50ae8a5cf09a", battle: bt, text: "치유소원이 " + atk.name + "에게 전해졌다!" });
       bt.field[atks].noClean.healingWish = null;
       atk.resetAilment(); // 상태이상 회복
-      atk.recover(bt, atk.origin.hp, enqueue, atk.name + "의 체력과 상태이상이 회복됐다!");
+      atk.recover(bt, maxHp, enqueue, atk.name + "의 체력과 상태이상이 회복됐다!");
     }
   }
 
@@ -61,7 +64,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
     // 공중 판정 안받음 (풍선도)
     const text = atk.name + "에게 뾰족한 바위가 박혔다!";
     const typeDamage = typeCheck("바위", atk.type1, atk.type2);
-    atk.getDamage(bt, enqueue, Math.floor((atk.origin.hp / 8) * typeDamage), text);
+    atk.getDamage(bt, enqueue, Math.floor((maxHp / 8) * typeDamage), text);
     if (atk.faint) {
       return;
     }
@@ -76,7 +79,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
   if (spikes) {
     // 압정뿌리기 (1스택 1/8, 2스택 1/6, 3스택 1/4)
     const ratio = spikes >= 3 ? 1 / 4 : spikes === 2 ? 1 / 6 : 1 / 8;
-    atk.getDamage(bt, enqueue, Math.floor(atk.origin.hp * ratio), atk.name + "에게 뾰족한 가시가 박혔다!");
+    atk.getDamage(bt, enqueue, Math.floor(maxHp * ratio), atk.name + "에게 뾰족한 가시가 박혔다!");
     if (atk.faint) {
       return;
     }
