@@ -217,11 +217,10 @@ class PokemonInstance {
       this.augments = [];
     }
     const augId = typeof augment === "string" ? augment : augment.id;
-    const augObj = typeof augment === "object" ? { ...augment } : { id: augment };
-    const isInstant = augObj.cost === "-" || augId === "legendaryTitan" || augId === "rouletteWheel" || augId === "soaring" || augId === "marriedPokemon";
-
     const { AUGMENT_LIST } = require("../Augment/AugmentData");
     const fullAug = AUGMENT_LIST.find((a) => a.id === augId);
+    const augObj = typeof augment === "object" ? { ...(fullAug || {}), ...augment } : { ...(fullAug || {}), id: augment };
+    const isInstant = augObj.cost === "-";
     if (fullAug?.buf || augObj.buf) {
       augObj.buf = true;
     }

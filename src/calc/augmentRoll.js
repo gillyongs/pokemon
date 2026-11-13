@@ -1,4 +1,12 @@
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, GAMBLE_BONUS_AUGMENT_IDS, hasGamblingAddict } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, GAMBLE_BONUS_AUGMENT_IDS, hasGamblingAddict, MUTUALLY_EXCLUSIVE_MAP } from "../entity/Augment/AugmentData";
+
+
+export function filterExclusiveAugments(pool, pickedId) {
+  if (!pickedId || !Array.isArray(pool)) return pool;
+  const blockedIds = MUTUALLY_EXCLUSIVE_MAP[pickedId];
+  if (!blockedIds || blockedIds.size === 0) return pool;
+  return pool.filter((aug) => !blockedIds.has(aug.id));
+}
 
 export const BEGINNER_AUGMENT_IDS = AUGMENT_SYNERGY_MAP.echoOfHero;
 
@@ -97,20 +105,14 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
   const selected = [];
   let pool = [...available];
 
-  const filterReplacements = () => {
-    pool = pool.filter((a) => !REPLACEMENT_AUGMENT_IDS.includes(a.id));
+  const filterExclusives = (pickedId) => {
+    pool = filterExclusiveAugments(pool, pickedId);
   };
 
   if (forced && pool.some((a) => a.id === forced.id)) {
     selected.push(forced);
     pool = pool.filter((a) => a.id !== forced.id);
-    if (REPLACEMENT_AUGMENT_IDS.includes(forced.id)) {
-      filterReplacements();
-    }
-  }
-
-  if (selected.some((a) => REPLACEMENT_AUGMENT_IDS.includes(a.id))) {
-    filterReplacements();
+    filterExclusives(forced.id);
   }
 
   if (
@@ -124,9 +126,7 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
       const picked = gamblePool[gIdx === -1 ? 0 : gIdx];
       selected.push(picked);
       pool = pool.filter((a) => a.id !== picked.id);
-      if (REPLACEMENT_AUGMENT_IDS.includes(picked.id)) {
-        filterReplacements();
-      }
+      filterExclusives(picked.id);
     }
   }
 
@@ -136,9 +136,7 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
     const picked = pool[idx];
     selected.push(picked);
     pool.splice(idx, 1);
-    if (REPLACEMENT_AUGMENT_IDS.includes(picked.id)) {
-      filterReplacements();
-    }
+    filterExclusives(picked.id);
   }
 
   for (let i = selected.length - 1; i > 0; i--) {
@@ -202,13 +200,13 @@ export function rollTeamAugments(team, battle = null) {
     let unused = available.filter((a) => !globalPickedIds.has(a.id) && !chosen.some((c) => c.id === a.id));
     let already = available.filter((a) => globalPickedIds.has(a.id) && !chosen.some((c) => c.id === a.id));
 
-    const filterReplacements = () => {
-      unused = unused.filter((a) => !REPLACEMENT_AUGMENT_IDS.includes(a.id));
-      already = already.filter((a) => !REPLACEMENT_AUGMENT_IDS.includes(a.id));
+    const filterExclusives = (pickedId) => {
+      unused = filterExclusiveAugments(unused, pickedId);
+      already = filterExclusiveAugments(already, pickedId);
     };
 
-    if (chosen.some((a) => REPLACEMENT_AUGMENT_IDS.includes(a.id))) {
-      filterReplacements();
+    if (chosen.length > 0) {
+      chosen.forEach((c) => filterExclusives(c.id));
     }
 
     if (
@@ -225,18 +223,14 @@ export function rollTeamAugments(team, battle = null) {
         globalPickedIds.add(picked.id);
         const uIdx = unused.findIndex((a) => a.id === picked.id);
         if (uIdx !== -1) unused.splice(uIdx, 1);
-        if (REPLACEMENT_AUGMENT_IDS.includes(picked.id)) {
-          filterReplacements();
-        }
+        filterExclusives(picked.id);
       } else if (gambleAlready.length > 0) {
         const gIdx = pickWeightedIndex(gambleAlready, poke, battle || team);
         const picked = gambleAlready[gIdx === -1 ? 0 : gIdx];
         chosen.push(picked);
         const aIdx = already.findIndex((a) => a.id === picked.id);
         if (aIdx !== -1) already.splice(aIdx, 1);
-        if (REPLACEMENT_AUGMENT_IDS.includes(picked.id)) {
-          filterReplacements();
-        }
+        filterExclusives(picked.id);
       }
     }
 
@@ -246,18 +240,14 @@ export function rollTeamAugments(team, battle = null) {
       const [pick] = unused.splice(idx, 1);
       chosen.push(pick);
       globalPickedIds.add(pick.id);
-      if (REPLACEMENT_AUGMENT_IDS.includes(pick.id)) {
-        filterReplacements();
-      }
+      filterExclusives(pick.id);
     }
     while (chosen.length < 3 && already.length > 0) {
       const idx = pickWeightedIndex(already, poke, battle || team);
       if (idx === -1) break;
       const [pick] = already.splice(idx, 1);
       chosen.push(pick);
-      if (REPLACEMENT_AUGMENT_IDS.includes(pick.id)) {
-        filterReplacements();
-      }
+      filterExclusives(pick.id);
     }
 
     for (let i = chosen.length - 1; i > 0; i--) {

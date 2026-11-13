@@ -182,7 +182,8 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     if (!pokemon) return false;
     if (isTitanSelection) return true;
     const isBuffAug = Boolean(aug.buf);
-    if (!isBuffAug) {
+    const isInstant = aug.cost === "-";
+    if (!isBuffAug && !isInstant) {
       const normalAugs = (pokemon.augments || []).filter((a) => !a.buf);
       if (normalAugs.length >= 3) return false;
     }
@@ -241,7 +242,8 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
   const handleSelectPokemon = (poke) => {
     if (isPeekMode) setIsPeekMode(false);
     const isFull = (poke.augments || []).filter((a) => !a.buf).length >= 3;
-    if (isFull) return;
+    const isFainted = Boolean(poke.faint || poke.hp <= 0);
+    if (isFull && !isFainted) return;
     if (poke === activePokemon || poke?.id === activePokemon?.id) return;
     setActivePokemon(poke);
     setPreviewInfo(null);
@@ -1326,17 +1328,19 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                     {resolvedTeam.map((poke, idx) => {
                       const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
                       const isFull = (poke.augments || []).filter((a) => !a.buf).length >= 3;
+                      const isFainted = Boolean(poke.faint || poke.hp <= 0);
+                      const isSelectable = !isFull || isFainted;
                       const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
                       return (
                         <EntryCard
                           key={getPokeKey(poke, idx)}
                           $isSelected={isSelected}
-                          $disabled={isFull}
+                          $disabled={!isSelectable}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleSelectPokemon(poke);
                           }}
-                          title={isFull ? `${poke.name} (증강 3개 보유 완료)` : poke.name}
+                          title={!isSelectable ? `${poke.name} (증강 3개 보유 완료)` : poke.name}
                         >
                           <EntryPokemonImg
                             src={`/pokemon/img/pokemon/${pokeId}.webp`}

@@ -1,4 +1,5 @@
 import { hpCalculate } from "../../../calc/hpCalculate";
+
 export const PokemonRecover = {
   _doRecover(battle, recoverValue, { enqueue, text, silent = false } = {}) {
     if (this.hp <= 0) return; // 이미 기절했으면 무시
@@ -42,5 +43,27 @@ export const PokemonRecover = {
     // 회복 텍스트가 화면에 뜨지 않는 경우
     // ex: 특성 재생력
     this._doRecover(battle, recoverValue, { silent: true });
+  },
+
+  handleResurrection(battle, recoverValue = 0.5, enqueue, option = {}) {
+    const maxHp = hpCalculate(this);
+    const targetHp = recoverValue <= 1 ? Math.max(1, Math.floor(maxHp * recoverValue)) : Math.min(maxHp, Math.floor(recoverValue));
+
+    this.faint = false;
+    this.hp = targetHp;
+
+    this.resetAilment();
+    this.resetTurn();
+    this.resetTempStatus();
+
+    if (enqueue && !option.silent) {
+      enqueue({
+        id: "resurrection-on-pokemonRecover",
+        battle,
+        text: option.text ?? `${this.names} 다시 싸울 수 있게 되었다!`,
+      });
+    }
+
+    return targetHp;
   },
 };

@@ -178,6 +178,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </radialGradient>
 
           {/* 유희왕 공방 스왑 오브 그라데이션 */}
+          
           <radialGradient id="yugiohAtkOrb" cx="35%" cy="35%" r="65%">
             <stop offset="0%" stopColor="#fed7aa" />
             <stop offset="40%" stopColor="#f97316" />
@@ -754,6 +755,11 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="0%" stopColor="#84cc16" />
             <stop offset="50%" stopColor="#10b981" />
             <stop offset="100%" stopColor="#06b6d4" />
+          </linearGradient>
+          <linearGradient id="fullRestoreBottleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#34d399" />
+            <stop offset="40%" stopColor="#059669" />
+            <stop offset="100%" stopColor="#064e3b" />
           </linearGradient>
         </defs>
 
@@ -3379,6 +3385,154 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <path d="M 19 16 L 26 24 L 24 28 M 45 48 L 38 40 L 40 36" fill="none" stroke="#fca5a5" strokeWidth="1.1" strokeLinecap="round" opacity="0.7" />
             <circle cx="32" cy="16" r="1.3" fill="#ef4444" />
             <circle cx="32" cy="48.5" r="1.3" fill="#f87171" />
+          </g>
+        )}
+
+        {/* 기력의 조각 (황금 다이아몬드 크리스털 샤드 & 스파클) */}
+        {id === "revivePiece" && (
+          <g filter="url(#glow)">
+            {/* 후광 앰버/골드 오라 */}
+            <circle cx="32" cy="32" r="18" fill="#facc15" fillOpacity="0.18" />
+            {/* 메인 다이아몬드 크리스털 샤드 (마름모) */}
+            {/* 상단 좌측 패싯 (하이라이트) */}
+            <polygon points="32,12 32,32 17,32" fill="#fef08a" />
+            {/* 상단 우측 패싯 (가장 밝은 면) */}
+            <polygon points="32,12 47,32 32,32" fill="#fffbeb" />
+            {/* 하단 좌측 패싯 (중간 톤) */}
+            <polygon points="17,32 32,32 32,52" fill="#f59e0b" />
+            {/* 하단 우측 패싯 (그림자 면) */}
+            <polygon points="32,32 47,32 32,52" fill="#d97706" />
+            {/* 크리스털 내부 코어 */}
+            <polygon points="32,20 41,32 32,44 23,32" fill="#fef08a" fillOpacity="0.75" />
+            {/* 중앙 빛줄기 라인 */}
+            <line x1="32" y1="12" x2="32" y2="52" stroke="#ffffff" strokeWidth="1.2" opacity="0.9" />
+            <line x1="17" y1="32" x2="47" y2="32" stroke="#ffffff" strokeWidth="1.2" opacity="0.9" />
+            {/* 외곽선 */}
+            <polygon points="32,12 47,32 32,52 17,32" fill="none" stroke="#fef08a" strokeWidth="1.4" strokeLinejoin="round" />
+            {/* ✦ 스파클 */}
+            <path d="M 16 16 Q 16 19 19 19 Q 16 19 16 22 Q 16 19 13 19 Q 16 19 16 16 Z" fill="#ffffff" />
+            <path d="M 48 18 Q 48 21 51 21 Q 48 21 48 24 Q 48 21 45 21 Q 48 21 48 18 Z" fill="#fef08a" />
+            <circle cx="48" cy="46" r="1.3" fill="#ffffff" opacity="0.85" />
+            <circle cx="15" cy="45" r="1.2" fill="#fde047" opacity="0.8" />
+          </g>
+        )}
+
+        {/* 기력의 덩어리 (기력의 조각 기반 육망성 크리스털 & 스파클) */}
+        {id === "maxRevive" && (
+          <g filter="url(#glow)">
+            {/* 후광 앰버/골드 오라 */}
+            <circle cx="32" cy="32" r="21" fill="#facc15" fillOpacity="0.2" />
+
+            {/* 메인 육망성 크리스털 샤드 (6방향 12패싯) */}
+            {/* 1. 상단 뿔: 좌측(하이라이트), 우측(가장 밝은 면) */}
+            <polygon points="32,10 25.7,21 32,32" fill="#fef08a" />
+            <polygon points="32,10 38.3,21 32,32" fill="#fffbeb" />
+
+            {/* 2. 우상단 뿔: 상단(가장 밝은 면), 하단(하이라이트) */}
+            <polygon points="51,21 38.3,21 32,32" fill="#fffbeb" />
+            <polygon points="51,21 32,32 44.7,32" fill="#fef08a" />
+
+            {/* 3. 우하단 뿔: 상단(중간 톤 골든 앰버), 하단(그림자 면) */}
+            <polygon points="51,43 44.7,32 32,32" fill="#f59e0b" />
+            <polygon points="51,43 32,32 38.3,43" fill="#d97706" />
+
+            {/* 4. 하단 뿔: 우측(그림자 면), 좌측(중간 톤) */}
+            <polygon points="32,54 38.3,43 32,32" fill="#d97706" />
+            <polygon points="32,54 32,32 25.7,43" fill="#f59e0b" />
+
+            {/* 5. 좌하단 뿔: 하단(그림자 면), 상단(중간 톤) */}
+            <polygon points="13,43 32,32 25.7,43" fill="#d97706" />
+            <polygon points="13,43 19.3,32 32,32" fill="#f59e0b" />
+
+            {/* 6. 좌상단 뿔: 하단(화사한 골드), 상단(하이라이트) */}
+            <polygon points="13,21 32,32 19.3,32" fill="#fde047" />
+            <polygon points="13,21 25.7,21 32,32" fill="#fef08a" />
+
+            {/* 크리스털 내부 코어 (내부 육각 다이아몬드 코어) */}
+            <polygon points="32,22 37.7,26.5 42,32 37.7,37.5 32,42 26.3,37.5 22,32 26.3,26.5" fill="#fef08a" fillOpacity="0.8" />
+            <circle cx="32" cy="32" r="2.2" fill="#ffffff" fillOpacity="0.95" />
+
+            {/* 중앙 빛줄기 라인 (3대 능선 축) */}
+            <line x1="32" y1="10" x2="32" y2="54" stroke="#ffffff" strokeWidth="1.3" opacity="0.92" strokeLinecap="round" />
+            <line x1="13" y1="21" x2="51" y2="43" stroke="#ffffff" strokeWidth="1.3" opacity="0.92" strokeLinecap="round" />
+            <line x1="13" y1="43" x2="51" y2="21" stroke="#ffffff" strokeWidth="1.3" opacity="0.92" strokeLinecap="round" />
+
+            {/* 육망성 외곽선 (기력의 조각과 동일 스트로크) */}
+            <polygon points="32,10 38.3,21 51,21 44.7,32 51,43 38.3,43 32,54 25.7,43 13,43 19.3,32 13,21 25.7,21" fill="none" stroke="#fef08a" strokeWidth="1.4" strokeLinejoin="round" />
+
+            {/* ✦ 스파클 (기력의 조각 동일 구성) */}
+            <path d="M 16 14 Q 16 17 19 17 Q 16 17 16 20 Q 16 17 13 17 Q 16 17 16 14 Z" fill="#ffffff" />
+            <path d="M 48 16 Q 48 19 51 19 Q 48 19 48 22 Q 48 19 45 19 Q 48 19 48 16 Z" fill="#fef08a" />
+            <circle cx="49" cy="48" r="1.3" fill="#ffffff" opacity="0.85" />
+            <circle cx="14" cy="48" r="1.2" fill="#fde047" opacity="0.8" />
+          </g>
+        )}
+
+        {/* 회복약 (포켓몬 공식 회복약 스프레이 디스펜서 & 에메랄드 힐링 아우라) */}
+        {id === "fullRestore" && (
+          <g filter="url(#glow)">
+            {/* 에메랄드 치유 아우라 헤일로 */}
+            <circle cx="32" cy="33" r="23" fill="#10b981" fillOpacity="0.14" />
+            <circle cx="32" cy="33" r="17" fill="#34d399" fillOpacity="0.1" />
+
+            {/* 전체 스프레이 용기 바닥 그림자 */}
+            <ellipse cx="32" cy="54" rx="16" ry="4.5" fill="#000000" fillOpacity="0.3" />
+
+            {/* 스프레이 보틀 본체 (외곽선 그룹) */}
+            <g stroke="#221e14" strokeWidth="1.3" strokeLinejoin="round" strokeLinecap="round">
+              {/* 1. 하단 베이스 받침대 (Bottom Base Plinth) */}
+              <polygon points="16,47 28,53 47,43.5 47,39.5 28,49 16,43" fill="#aba685" />
+              <polygon points="16,43 28,49 28,53 16,47" fill="#cfcaa6" />
+              <polygon points="28,49 47,39.5 47,43.5 28,53" fill="#9e9976" />
+              <polygon points="16,43 28,49 47,39.5 45,38 28,47 17.5,41.8" fill="#f7f5e8" />
+
+              {/* 2. 약액 용기 우측 후면 기둥 */}
+              <polygon points="40,31 47,27.5 47,39.5 40,43" fill="#aba685" />
+              <polygon points="44,27 47,25.5 47,30 44,31.5" fill="#cfcaa6" />
+
+              {/* 3. 중앙 녹색 약액 창 (Liquid Window & Green Medicine) */}
+              <polygon points="17.5,31.5 28,36.8 28,47 17.5,41.8" fill="#86efac" />
+              <polygon points="28,36.8 40.5,30.5 40.5,40.7 28,47" fill="#15803d" />
+              <polygon points="28,38 40.5,31.8 40.5,40.7 28,47" fill="#16a34a" />
+
+              {/* 4. 본체 중상단 케이싱 (Upper Body Casing & Grip Slots) */}
+              <polygon points="16,31 28,37 47,27.5 47,26.5 28,36 16,30" fill="#635f44" />
+              <polygon points="16,23 28,29 28,37 16,31" fill="#ebe9af" />
+              <polygon points="28,29 45,20.5 47,27.5 28,37" fill="#b4b17e" />
+
+              {/* 그립 홈 (Finger Grip Ribs on Right Face) */}
+              <polygon points="33,28 35,27 35,32.5 33,33.5" fill="#8a8661" />
+              <line x1="33" y1="28" x2="33" y2="33.5" stroke="#f7f5e8" strokeWidth="0.7" />
+              <polygon points="37.5,25.8 39.5,24.8 39.5,30.3 37.5,31.3" fill="#8a8661" />
+              <line x1="37.5" y1="25.8" x2="37.5" y2="31.3" stroke="#f7f5e8" strokeWidth="0.7" />
+
+              {/* 5. 상단 펌프 헤드 & 노즐 버튼 */}
+              <polygon points="32,10.5 42,15.5 45,20.5 35,16" fill="#aba685" />
+              <polygon points="19.5,15.5 28.5,20 28.5,28.5 19.5,24" fill="#ebe9af" />
+              <polygon points="28.5,20 38,15.2 38,23.8 28.5,28.5" fill="#cfcaa6" />
+              <polygon points="19.5,15.5 29,11 38,15.2 28.5,20" fill="#fcfbf2" />
+
+              {/* 노즐 분사구 구멍 */}
+              <ellipse cx="23.5" cy="18" rx="1.1" ry="1.4" fill="#221e14" />
+
+              {/* 펌프 분리 홈 */}
+              <path d="M 32 12.5 L 34 16 L 33 21" fill="none" stroke="#221e14" strokeWidth="1.3" />
+            </g>
+
+            {/* 6. 하이라이트 & 디테일 레이어 */}
+            <polygon points="32,36 36.5,33.8 34,42 29.5,44.2" fill="#ffffff" fillOpacity="0.45" />
+            <line x1="18.5" y1="32.5" x2="27.5" y2="37" stroke="#ffffff" strokeWidth="1.0" opacity="0.6" strokeLinecap="round" />
+            <path d="M 20 15.5 L 29 11 L 37.5 15.2" fill="none" stroke="#ffffff" strokeWidth="1.1" opacity="0.75" strokeLinecap="round" />
+            <line x1="28.5" y1="20" x2="28.5" y2="28.5" stroke="#ffffff" strokeWidth="0.9" opacity="0.6" />
+            <line x1="28" y1="29" x2="28" y2="37" stroke="#ffffff" strokeWidth="0.9" opacity="0.5" />
+
+            {/* 7. ✦ 힐링 스파클 & 에메랄드 버블 */}
+            <path d="M 11 15 Q 11 17.5 13.5 17.5 Q 11 17.5 11 20 Q 11 17.5 8.5 17.5 Q 11 17.5 11 15 Z" fill="#6ee7b7" />
+            <path d="M 52 24 Q 52 26.5 54.5 26.5 Q 52 26.5 52 29 Q 52 26.5 49.5 26.5 Q 52 26.5 52 24 Z" fill="#34d399" />
+            <circle cx="14" cy="27" r="1.3" fill="#a7f3d0" opacity="0.9" />
+            <circle cx="51" cy="43" r="1.2" fill="#6ee7b7" opacity="0.85" />
+            <circle cx="12" cy="43" r="1.0" fill="#34d399" opacity="0.8" />
+            <circle cx="21" cy="8" r="0.9" fill="#ffffff" opacity="0.9" />
           </g>
         )}
       </svg>

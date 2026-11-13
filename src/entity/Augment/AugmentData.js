@@ -1011,6 +1011,48 @@ export const AUGMENT_LIST = [
       this.pickedAbility = picked;
     },
   },
+  {
+    id: "revivePiece",
+    name: "기력의 조각",
+    desc: "기절한 포켓몬의 HP를 절반 회복하고 부활시킵니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon) => Boolean(pokemon && (pokemon.faint || pokemon.hp <= 0)),
+    onApply: function (pokemon, battle, options) {
+      pokemon.handleResurrection(battle, 0.5, options?.enqueue, options);
+    },
+  },
+  {
+    id: "maxRevive",
+    name: "기력의 덩어리",
+    desc: "기절한 포켓몬의 HP를 전부 회복하고 부활시킵니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon) => Boolean(pokemon && (pokemon.faint || pokemon.hp <= 0)),
+    onApply: function (pokemon, battle, options) {
+      pokemon.handleResurrection(battle, 1.0, options?.enqueue, options);
+    },
+  },
+  {
+    id: "fullRestore",
+    name: "회복약",
+    desc: "해당 포켓몬의 HP를 모두 회복하고 모든 상태이상을 치료합니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon) => {
+      if (!pokemon || pokemon.faint || pokemon.hp <= 0) return false;
+      const maxHp = hpCalculate(pokemon);
+      const isLowHp = pokemon.hp <= maxHp * 0.5;
+      const hasAilment = Boolean(pokemon.ailment && Object.values(pokemon.ailment).some((v) => v !== null));
+      return isLowHp || hasAilment;
+    },
+    onApply: function (pokemon) {
+      if (!pokemon) return;
+      pokemon.hp = hpCalculate(pokemon);
+      pokemon.resetAilment();
+      pokemon.tempStatus.confuse = null;
+    },
+  },
 ];
 
 // 3개 증강 공명(시너지) 버프 매핑 테이블
@@ -1024,6 +1066,29 @@ export const AUGMENT_SYNERGY_MAP = {
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
   giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패]
 };
+
+// 동시에 2개 이상 등장하지 않는 상호 배타적 증강 그룹 목록 (배열 안의 배열 형태)
+export const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
+  // 1. 부활 아이템: 기력의 조각과 기력의 덩어리는 동시에 나오지 않음
+  ["revivePiece", "maxRevive"],
+
+  // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
+  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump"],
+
+  // 3. 물리 / 특수 대칭형 스탯 전환 증강
+  ["swordAndShield", "specialSwordAndShield"],
+];
+
+// O(1) 배타 조회를 위한 맵: { [augId]: Set([배타_증강_ID들]) }
+export const MUTUALLY_EXCLUSIVE_MAP = MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS.reduce((acc, group) => {
+  group.forEach((id) => {
+    if (!acc[id]) acc[id] = new Set();
+    group.forEach((otherId) => {
+      if (id !== otherId) acc[id].add(otherId);
+    });
+  });
+  return acc;
+}, {});
 
 // 무한 다이맥스 변환 함수
 /**
@@ -1313,6 +1378,27 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     if (abilName) {
       const pokeName = target?.name || "포켓몬";
       individualDesc = `${pokeName}의 특성이 ${josa(`${abilName}#{으로}`)} 바뀌었다!`;
+    }
+  } else if (id === "revivePiece") {
+    const revivedName = target?.name || target?.origin?.name || "포켓몬";
+    if (isTextScreen) {
+      individualDesc = `${revivedName}에게 기력의 조각을 사용했다!`;
+    } else {
+      individualDesc = `${josa(`${revivedName}#{이}`)} HP를 절반 회복하고 부활했습니다.`;
+    }
+  } else if (id === "maxRevive") {
+    const revivedName = target?.name || target?.origin?.name || "포켓몬";
+    if (isTextScreen) {
+      individualDesc = `${revivedName}에게 기력의 덩어리를 사용했다!`;
+    } else {
+      individualDesc = `${josa(`${revivedName}#{이}`)} HP를 최대로 회복하고 부활했습니다.`;
+    }
+  } else if (id === "fullRestore") {
+    const pokeName = target?.name || target?.origin?.name || "포켓몬";
+    if (isTextScreen) {
+      individualDesc = josa(`${pokeName}#{은} 회복약으로 건강해졌다!`);
+    } else {
+      individualDesc = `${josa(`${pokeName}#{이}`)} 체력과 상태이상을 모두 회복했습니다.`;
     }
   } else if (id === "allOrNothing") {
     const revAug = target?.augments?.find((a) => a.id === "allOrNothing") || selectedAugment;

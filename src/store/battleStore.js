@@ -72,14 +72,7 @@ export const useBattleStore = createStore((set, get) => ({
   },
 
   initBattleRound: ({ locationState, gameOption, queueObject }) => {
-    const {
-      team1,
-      team2,
-      difficulty = gameOption.difficulty,
-      round = defaultOption.round,
-      mayhemMode = gameOption.mayhemMode,
-      carriedAugments,
-    } = locationState || {};
+    const { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round, mayhemMode = gameOption.mayhemMode, carriedAugments } = locationState || {};
 
     queueObject.initQueue();
     set({
@@ -135,9 +128,7 @@ export const useBattleStore = createStore((set, get) => ({
 
     if (isMayhem) {
       // 무조건 "배틀시작!"이 먼저 나오고 그 다음에 "증강을 선택하세요"가 나옴
-      const target = [nextBattle.player, nextBattle.playerBench1, nextBattle.playerBench2].find(
-        (p) => p && (p.augments || []).filter((a) => !a.buf).length < 3
-      );
+      const target = [nextBattle.player, nextBattle.playerBench1, nextBattle.playerBench2].find((p) => p && (p.augments || []).filter((a) => !a.buf).length < 3);
       if (target) {
         get().enqueueBattleStart(nextBattle, queueObject, { skipAbilities: true });
         queueObject.enqueue({
@@ -192,9 +183,7 @@ export const useBattleStore = createStore((set, get) => ({
 
       if (queue[0].isAugment) {
         const curB = get().battleLive;
-        const target = [curB.player, curB.playerBench1, curB.playerBench2].find(
-          (p) => p && (p.augments || []).filter((a) => !a.buf).length < 3
-        );
+        const target = [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && (p.augments || []).filter((a) => !a.buf).length < 3);
         if (target) {
           const choices = rollAugments(target, 3, curB);
           if (choices && choices.length > 0) {
@@ -328,10 +317,7 @@ export const useBattleStore = createStore((set, get) => ({
 
     const teamPokes = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2].filter(Boolean);
     const targetCandidate = options?.targetPokemon || augmentTargetPoke;
-    const target =
-      (targetCandidate &&
-        teamPokes.find((p) => p && (p.originalIndex === targetCandidate.originalIndex || p.id === targetCandidate.id || p.name === targetCandidate.name))) ||
-      curBattle.player;
+    const target = (targetCandidate && teamPokes.find((p) => p && (p.originalIndex === targetCandidate.originalIndex || p.id === targetCandidate.id || p.name === targetCandidate.name))) || curBattle.player;
     const prevPokeName = target.name || target.origin?.name || "";
 
     const synergyBuffIds = Object.keys(AUGMENT_SYNERGY_MAP);
@@ -411,11 +397,7 @@ export const useBattleStore = createStore((set, get) => ({
     const isTitanSecond = isTitanSelection;
 
     if (isTitanFirst) {
-      const titanChoices = [
-        AUGMENT_LIST.find((a) => a.id === "fastStarter"),
-        AUGMENT_LIST.find((a) => a.id === "hugePower"),
-        AUGMENT_LIST.find((a) => a.id === "randomAbility"),
-      ].filter(Boolean);
+      const titanChoices = [AUGMENT_LIST.find((a) => a.id === "fastStarter"), AUGMENT_LIST.find((a) => a.id === "hugePower"), AUGMENT_LIST.find((a) => a.id === "randomAbility")].filter(Boolean);
       set({
         augmentChoices: titanChoices,
         augmentTargetPoke: target,
@@ -507,11 +489,7 @@ export const useBattleStore = createStore((set, get) => ({
     }
 
     const appliedAug = augOptions?.resolvedGrantedAug || target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
-    const isReplacement =
-      selectedAugment.id === "legendaryTitan" ||
-      selectedAugment.id === "rouletteWheel" ||
-      selectedAugment.id === "soaring" ||
-      selectedAugment.id === "marriedPokemon";
+    const isReplacement = selectedAugment.id === "legendaryTitan" || selectedAugment.id === "rouletteWheel" || selectedAugment.id === "soaring" || selectedAugment.id === "marriedPokemon";
     const logTargetName = isReplacement ? prevPokeName : target.name || target.names;
 
     const isSelectedCurse = Boolean(appliedAug.curse || isCurseAugment(appliedAug));
@@ -522,9 +500,7 @@ export const useBattleStore = createStore((set, get) => ({
         id: appliedAug.id,
         name: appliedAug.name,
         shortName: appliedAug.shortName,
-        desc: isSelectedBuf
-          ? AUGMENT_LIST.find((a) => a.id === appliedAug.id)?.desc || appliedAug.desc || selectedAugment.desc || ""
-          : getAugmentText(selectedAugment, target, false, prevPokeName, augOptions),
+        desc: isSelectedBuf ? AUGMENT_LIST.find((a) => a.id === appliedAug.id)?.desc || appliedAug.desc || selectedAugment.desc || "" : getAugmentText(selectedAugment, target, false, prevPokeName, augOptions),
         cost: appliedAug.cost,
         buf: isSelectedBuf,
         curse: isSelectedCurse,
@@ -623,9 +599,7 @@ export const useBattleStore = createStore((set, get) => ({
     const { mayhemMode = gameOption.mayhemMode } = locationState || {};
     const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
     const currentBattle = get().battleLive || get().battle;
-    const teamHasSelectableAugments = [currentBattle?.player, currentBattle?.playerBench1, currentBattle?.playerBench2].some((p) =>
-      (p?.augments || []).some((a) => !a.buf)
-    );
+    const teamHasSelectableAugments = [currentBattle?.player, currentBattle?.playerBench1, currentBattle?.playerBench2].some((p) => (p?.augments || []).some((a) => !a.buf));
 
     if (isMayhem && teamHasSelectableAugments) {
       set({ isAugmentCarryModalOpen: true });
@@ -643,31 +617,22 @@ export const useBattleStore = createStore((set, get) => ({
     });
     queueObject.initQueue();
 
-    const {
-      team1,
-      difficulty = gameOption.difficulty,
-      teamOption = gameOption.teamOption,
-      round = defaultOption.round,
-      fromCustom,
-      mayhemMode = gameOption.mayhemMode,
-    } = locationState || {};
+    const { team1, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round, fromCustom, mayhemMode = gameOption.mayhemMode } = locationState || {};
 
     const curBattle = get().battleLive;
-    const curPlayerTeam = [curBattle?.player, curBattle?.playerBench1, curBattle?.playerBench2]
-      .filter(Boolean)
-      .sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
+    const curPlayerTeam = [curBattle?.player, curBattle?.playerBench1, curBattle?.playerBench2].filter(Boolean).sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
 
     let nextTeam1 = customTeam1
       ? customTeam1
       : teamOption === "랜덤"
-      ? getRandomTeam(3)
-      : curPlayerTeam.map((p, idx) => {
-          const originalCustom = Array.isArray(team1) ? team1[p.originalIndex ?? idx] : null;
-          if (originalCustom && typeof originalCustom === "object" && originalCustom.id === p.id) {
-            return originalCustom;
-          }
-          return p.id;
-        });
+        ? getRandomTeam(3)
+        : curPlayerTeam.map((p, idx) => {
+            const originalCustom = Array.isArray(team1) ? team1[p.originalIndex ?? idx] : null;
+            if (originalCustom && typeof originalCustom === "object" && originalCustom.id === p.id) {
+              return originalCustom;
+            }
+            return p.id;
+          });
 
     const nextTeam2 = getRandomTeam(3);
 
@@ -736,12 +701,8 @@ export const useBattleStore = createStore((set, get) => ({
   submitTrade: ({ tradePlayerIdx, tradeNpcIdx, locationState, gameOption, queueObject, navigate }) => {
     if (tradePlayerIdx === null || tradeNpcIdx === null) return;
     const curBattle = get().battleLive || get().battle;
-    const playerTeamFixed = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2].sort(
-      (a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0)
-    );
-    const npcTeamFixed = [curBattle.npc, curBattle.npcBench1, curBattle.npcBench2].sort(
-      (a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0)
-    );
+    const playerTeamFixed = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2].sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
+    const npcTeamFixed = [curBattle.npc, curBattle.npcBench1, curBattle.npcBench2].sort((a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0));
 
     const playerPoke = playerTeamFixed[tradePlayerIdx];
     if (!playerPoke) return;
@@ -783,7 +744,6 @@ export const useBattleStore = createStore((set, get) => ({
         curBattle[key].faint = true;
         if (curBattle[key].origin) {
           curBattle[key].origin.hp = 0;
-          curBattle[key].origin.faint = true;
         }
       }
     });
