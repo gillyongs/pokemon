@@ -395,6 +395,9 @@ new PokemonTemplate("미라이돈", "1008", "5V0A", "CS252", "catk", "atk",
 new PokemonTemplate("브리두라스", "1018", "5V0A", "HC252", "catk", "atk",
   "용성군", "러스터캐논", "울부짖기", "스텔스록", "자뭉열매", "지구력", "특수딜탱"),
 
+new PokemonTemplate("라티오스", "0381", "5V0A", "CS252", "speed", "atk",
+  "용성군", "러스터퍼지", "파동탄", "10만볼트", "구애스카프", "부유", "특수어태커"),
+
   // 체력 공격력 방어력 특공 특방 스피드
     ];
   }
@@ -409,6 +412,9 @@ new PokemonTemplate("브리두라스", "1018", "5V0A", "HC252", "catk", "atk",
     }
     if (searchId === "기기기어르" || searchId === "0601") {
       return klinklangSample;
+    }
+    if (searchId === "라티오스" || searchId === "0381") {
+      return this.items.find((item) => item.id === "라티오스") || null;
     }
     if (searchId === "잉어킹" || searchId === "0129-g") {
       return magikarpSample;

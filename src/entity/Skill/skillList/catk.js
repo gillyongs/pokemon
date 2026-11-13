@@ -37,6 +37,7 @@ export const catkSkills = [
   new Skill("얼어붙은바람", "얼음", 55, 95, 15, 0, "catk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
   new Skill("머드샷", "땅", 55, 95, 15, 0, "catk", null, "상대의 스피드를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "speed", target: "def", value: -1 }], {}),
   new Skill("루미나콜리전", "에스퍼", 80, 100, 10, 0, "catk", null, "상대의 특수방어를 2랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "cdef", target: "def", value: -2 }], {}),
+  new Skill("러스터퍼지", "에스퍼", 95, 100, 5, 0, "catk", null, "50% 확률로 상대의 특수방어를 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 50, stat: "cdef", target: "def", value: -1 }], {}),
   
   new Skill("문포스", "페어리", 95, 100, 15, 0, "catk", null, "30% 확률로 상대의 특수공격을 1랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 30, stat: "catk", target: "def", value: -1 }], {}),
   new Skill("파멸의빛", "페어리", 140, 90, 5, 0, "catk", null, "자신도 대상에게 준 피해의 ½만큼 반동 피해를 받는다.", [{ name: "반동", ratio: 2 }], { rebound: true }),
