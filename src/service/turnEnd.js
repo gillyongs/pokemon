@@ -3,7 +3,6 @@ import { switchNpcAuto } from "./switch";
 import { speedCheck } from "../calc/speedCheck";
 import { applyAilment } from "./ailment";
 
-
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
   // 화상딜, 독딜, 날개쉬기 타입복구, NPC 기절시 교체
@@ -73,6 +72,15 @@ export const turnEnd = (battle, enqueue) => {
       enqueue({
         battle,
         text: `[특성: 슬로스타트] ${p.names} 마침내 제 힘을 낼 수 있게 되었다!`,
+      });
+    }
+    if (p.abil === "기어메이킹") {
+      p.gearStack = (p.gearStack || 0) + 1;
+      const visualStack = Math.min(p.gearStack, 7);
+      p.img_id = `0601-${visualStack}`;
+      enqueue({
+        battle,
+        text: `[특성: 기어메이킹] ${p.name}의 새로운 ${p.gearStack}번째 기어가 맞물렸다!`,
       });
     }
   });
@@ -231,7 +239,6 @@ function applyWarmogsArmor(battle, enqueue, user) {
   const text = undamaged ? `[증강: 워모그의 갑옷] ${p.names} 체력을 크게 회복했다!` : `[증강: 워모그의 갑옷] ${p.names} 체력을 조금 회복했다!`;
   p.recover(battle, heal, enqueue, text);
 }
-
 
 function processSkillEffects(battle, enqueue, fastUser, slowUser) {
   // 씨뿌리기

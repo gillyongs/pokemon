@@ -58,6 +58,7 @@ export const bufSkills = [
   new Skill("코스믹파워", "에스퍼", "-", "-", 20, 0, "buf", null, "자신의 방어와 특수방어를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "def", value: 1 }, { stat: "cdef", value: 1 }] }]),
 
   // 3랭업 이상
+  new Skill("기어체인지", "강철", "-", "-", 10, 0, "buf", null, "자신의 공격을 1랭크, 스피드를 2랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "atk", value: 1 }, { stat: "speed", value: 2 }] }]),
   new Skill("나비춤", "벌레", "-", "-", 20, 0, "buf", null, "자신의 특수공격, 특수방어, 스피드를 1랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{ stat: "catk", value: 1 }, { stat: "cdef", value: 1 }, { stat: "speed", value: 1 }] }]),
   new Skill("껍질깨기", "노말", "-", "-", 15, 0, "buf", null, "자신의 방어와 특수방어를 1랭크 떨어뜨리고 공격과 특수공격, 스피드를 2랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "def", value: -1}, {stat: "cdef", value: -1}, {stat: "atk", value: 2}, {stat: "catk", value: 2}, {stat: "speed", value: 2}] }], {}),
   new Skill("지오컨트롤", "페어리", "-", "-", 10, 0, "buf", null, "1턴째에 에너지를 흡수하여 2턴째에 특수공격, 특수방어, 스피드를 2랭크 올린다.", [{ name: "랭크다수변화", probability: 100, target: "atk", stats: [{stat: "catk", value: 2}, {stat: "cdef", value: 2}, {stat: "speed", value: 2}] }], { charge: { text: " 파워를 모으고 있다!", head: "names" } }),

@@ -15,12 +15,13 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   let val = baseStatObj?.[statKey] ?? 0;
   if (typeof val !== "number") return 0;
   let logText = `${val}(${statKey})`;
-  if (statKey !== "atk" && statKey !== "catk") {
-    logText += ` = ${val}`;
-    try {
-      if (pokemon?.log) pokemon.log.getAugmentedStat = logText;
-    } catch (e) {}
-    return val;
+
+  // 기기기어르 기어메이킹 / 기어 중첩: 중첩 * 20 만큼 HP 제외 모든 능력치(atk, def, catk, cdef, speed) 상승
+  const gearStack = Number(pokemon?.gearStack || 0);
+  if (gearStack > 0 && STAT_KEYS.includes(statKey)) {
+    const gearBonus = gearStack * 20;
+    val += gearBonus;
+    logText += ` + ${gearBonus} (기어 ${gearStack}중첩)`;
   }
 
   const augments = pokemon?.augments || [];
@@ -30,7 +31,7 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     const augId = typeof aug === "string" ? aug : aug?.id;
 
     // 검 강화하기
-    if (augId === "swordEnhance") {
+    if (augId === "swordEnhance" && statKey === "atk") {
       const failed = Boolean(aug?.swordFailed);
       const level = Number(aug?.swordLevel ?? 0);
       const bonusAtk = aug?.swordBonusAtk !== undefined ? Number(aug.swordBonusAtk) : failed ? 0 : 20 + level * 20;
@@ -40,14 +41,12 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
       }
 
       // 메자이의 영혼약탈자: 중첩당 특수공격 +20
-    } else if (augId === "mejaisSoulstealer") {
-      if (statKey === "catk") {
-        const stack = Number(pokemon?.mejaiStack ?? aug?.mejaiStack ?? 0);
-        const bonusCatk = stack * 20;
-        if (bonusCatk > 0) {
-          val += bonusCatk;
-          logText += ` + ${bonusCatk} (메자이 ${stack}중첩)`;
-        }
+    } else if (augId === "mejaisSoulstealer" && statKey === "catk") {
+      const stack = Number(pokemon?.mejaiStack ?? aug?.mejaiStack ?? 0);
+      const bonusCatk = stack * 20;
+      if (bonusCatk > 0) {
+        val += bonusCatk;
+        logText += ` + ${bonusCatk} (메자이 ${stack}중첩)`;
       }
     }
   }

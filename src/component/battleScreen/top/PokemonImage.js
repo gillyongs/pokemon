@@ -7,7 +7,8 @@ const PokemonImage = ({ battle, type }) => {
   const isSubstitute = !!pokemon?.tempStatus?.substitute;
   const isEternamax = !isSubstitute && (pokemon?.origin?.pokemon_id === "0890-m" || pokemon?.pokemon_id === "0890-m");
 
-  const imageSrc = isSubstitute ? `/pokemon/img/background/substitute_${type === "npc" ? "front" : "back"}.webp` : `/pokemon/img/pokemon/${pokemon.origin.pokemon_id}.webp`;
+  const pokeImgId = pokemon?.img_id || pokemon?.origin?.pokemon_id || pokemon?.pokemon_id;
+  const imageSrc = isSubstitute ? `/pokemon/img/background/substitute_${type === "npc" ? "front" : "back"}.webp` : `/pokemon/img/pokemon/${pokeImgId}.webp`;
 
   return <StyledPokemonImage className={type} src={imageSrc} alt={`${type} Pokemon`} $isSubstitute={isSubstitute} $isEternamax={isEternamax} />;
 };

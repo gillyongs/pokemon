@@ -89,7 +89,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
 
   const isMegaView = hasMegaForm && showMegaForm;
   const displayName = isMegaView ? pokemon.megaData.name : pokemon.name;
-  const displayPokemonId = isMegaView ? pokemon.megaData.pokemon_id : pokemon.pokemon_id;
+  const displayPokemonId = isMegaView ? pokemon.megaData.pokemon_id : pokemon.img_id || pokemon.pokemon_id;
   const displayType1 = isMegaView ? pokemon.megaData.type1 : pokemon.type1;
   const displayType2 = isMegaView ? pokemon.megaData.type2 : pokemon.type2;
   const displayAbil = isMegaView ? pokemon.megaData.abil : pokemon.abil;
@@ -186,7 +186,6 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
             <NameRow>
               <PokemonName>{displayName}</PokemonName>
               {isMegaView && <MegaIcon src="/pokemon/img/background/mega.webp" alt="mega" />}
-              {pokemon.role && <RoleBadge>{pokemon.role}</RoleBadge>}
             </NameRow>
 
             <MetaRow>
@@ -503,17 +502,6 @@ const MegaIcon = styled.img`
   height: 18px;
   object-fit: contain;
   flex-shrink: 0;
-`;
-
-const RoleBadge = styled.span`
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #cbd5e1;
-  background: rgba(255, 255, 255, 0.09);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 5px;
-  padding: 1px 6px;
-  white-space: nowrap;
 `;
 
 const MetaRow = styled.div`

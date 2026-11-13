@@ -794,10 +794,9 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
-
   if (!ai) {
     let text = attackPokemon.name + "의 공격";
-    if (obj) text += ` (${obj.serial + 1}타)`;
+    if (obj) text += ` (${obj.serial}타)`;
 
     consoleLog(text);
     if (getAugmentedStat(attackPokemon, attackStat, battle) !== attackPokemon.origin.stat[attackStat]) {

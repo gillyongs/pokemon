@@ -246,7 +246,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
         )}
         <TopRow>
           <SpriteBox>
-            <SpriteImg src={`/pokemon/img/pokemon/${pokemon.origin.pokemon_id}.webp`} alt={pokemon.origin.name} />
+            <SpriteImg src={`/pokemon/img/pokemon/${pokemon?.img_id || pokemon?.origin?.pokemon_id}.webp`} alt={pokemon.origin.name} />
             <HpBarTrack>
               <HpBarFill style={{ width: `${hpRatio * 100}%`, backgroundColor: hpColor }} />
               <HpBarLabel>

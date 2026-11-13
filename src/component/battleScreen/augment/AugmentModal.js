@@ -15,6 +15,7 @@ import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 const AUGMENT_POKEMON_PREVIEW_MAP = {
   soaring: "플라이곤",
   legendaryTitan: "레지기가스",
+  klinklangGear: "기기기어르",
 };
 
 const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialTarget = null, battle = null, onSelect, onClose, isTestMode: propTestMode = null, isTitanSelection = false }) => {
@@ -605,10 +606,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
   const getRouletteOutcomeText = () => {
     if (!rouletteAug || !rouletteResult) return "";
     if (rouletteAug.id === "russianRoulette") {
-      const targetName =
-        rouletteResult === "npc"
-          ? battle?.npc?.name || battle?.npc?.origin?.name || "상대 포켓몬"
-          : battle?.player?.name || battle?.player?.origin?.name || activePokemon?.name || "내 포켓몬";
+      const targetName = rouletteResult === "npc" ? battle?.npc?.name || battle?.npc?.origin?.name || "상대 포켓몬" : battle?.player?.name || battle?.player?.origin?.name || activePokemon?.name || "내 포켓몬";
       return `${targetName} 기절!`;
     }
     if (rouletteAug.id === "doOrDie") {
@@ -738,14 +736,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
           const x2 = cx + r * Math.sin(toRad(endDeg));
           const y2 = cy - r * Math.cos(toRad(endDeg));
           const d = `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
-          const fill =
-            rouletteAug?.id === "highRiskHighReturn"
-              ? slice.result === "buff"
-                ? "#0f766e"
-                : "#c94a4a"
-              : slice.stat === "atk"
-                ? "#c94a4a"
-                : "#3a6ec4";
+          const fill = rouletteAug?.id === "highRiskHighReturn" ? (slice.result === "buff" ? "#0f766e" : "#c94a4a") : slice.stat === "atk" ? "#c94a4a" : "#3a6ec4";
 
           return (
             <g key={idx}>
@@ -1027,9 +1018,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                           <polygon points="10,17 1,1 19,1" fill="#f8fafc" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
                         </svg>
                       </RoulettePointer>
-                      <RouletteDisc style={{ transform: `rotate(${rouletteRotation}deg)` }}>
-                        {renderRouletteSvg()}
-                      </RouletteDisc>
+                      <RouletteDisc style={{ transform: `rotate(${rouletteRotation}deg)` }}>{renderRouletteSvg()}</RouletteDisc>
                       <RouletteHub />
                     </RouletteWheelBox>
 
@@ -1382,22 +1371,18 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                                 </IconWrapper>
                                 {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                               </IconCol>
-                              <CardContent>
+                              <CardContent $hasPreview={Boolean(previewSample)}>
                                 <CardTitleRow>
                                   <CardTitle>{aug.name}</CardTitle>
                                   {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
-                                  {previewSample && (
-                                    <PreviewInfoButton
-                                      type="button"
-                                      onClick={(e) => handleOpenPreview(e, aug.id)}
-                                      title={`${previewSample.megaData?.name || previewSample.name} 상세 정보 보기`}
-                                    >
-                                      포켓몬 정보
-                                    </PreviewInfoButton>
-                                  )}
                                 </CardTitleRow>
                                 <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                               </CardContent>
+                              {previewSample && (
+                                <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={`${previewSample.megaData?.name || previewSample.name} 상세 정보 보기`}>
+                                  포켓몬 정보
+                                </PreviewInfoButton>
+                              )}
                             </AugmentCard>
                           );
                         })}
@@ -1419,23 +1404,19 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                                     </IconWrapper>
                                     {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                                   </IconCol>
-                                  <CardContent>
+                                  <CardContent $hasPreview={Boolean(previewSample)}>
                                     <CardTitleRow>
                                       <CardTitle>{aug.name}</CardTitle>
                                       {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                                       <IneligibleBadge>선택 불가</IneligibleBadge>
-                                      {previewSample && (
-                                        <PreviewInfoButton
-                                          type="button"
-                                          onClick={(e) => handleOpenPreview(e, aug.id)}
-                                          title={`${previewSample.megaData?.name || previewSample.name} 상세 정보 보기`}
-                                        >
-                                          포켓몬 정보
-                                        </PreviewInfoButton>
-                                      )}
                                     </CardTitleRow>
                                     <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                                   </CardContent>
+                                  {previewSample && (
+                                    <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={`${previewSample.megaData?.name || previewSample.name} 상세 정보 보기`}>
+                                      포켓몬 정보
+                                    </PreviewInfoButton>
+                                  )}
                                 </AugmentCard>
                               );
                             })}
@@ -1459,22 +1440,18 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             </IconWrapper>
                             {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                           </IconCol>
-                          <CardContent>
+                          <CardContent $hasPreview={Boolean(previewSample)}>
                             <CardTitleRow>
                               <CardTitle>{aug.name}</CardTitle>
                               {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
-                              {previewSample && (
-                                <PreviewInfoButton
-                                  type="button"
-                                  onClick={(e) => handleOpenPreview(e, aug.id)}
-                                  title={`${previewSample.megaData?.name || previewSample.name} 상세 정보 보기`}
-                                >
-                                  포켓몬 정보
-                                </PreviewInfoButton>
-                              )}
                             </CardTitleRow>
                             <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                           </CardContent>
+                          {previewSample && (
+                            <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={`${previewSample.megaData?.name || previewSample.name} 상세 정보 보기`}>
+                              포켓몬 정보
+                            </PreviewInfoButton>
+                          )}
                         </AugmentCard>
                       );
                     })
@@ -1912,7 +1889,10 @@ const CardTitleRow = styled.div`
 `;
 
 const PreviewInfoButton = styled.button`
-  margin-left: auto;
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  z-index: 2;
   background: rgba(56, 189, 248, 0.14);
   border: 1px solid rgba(56, 189, 248, 0.45);
   border-radius: 5px;
@@ -1941,6 +1921,8 @@ const PreviewInfoButton = styled.button`
   }
 
   @media (max-width: 480px) {
+    right: 8px;
+    bottom: 6px;
     font-size: 0.68rem;
     padding: 2px 7px;
   }
@@ -1981,35 +1963,10 @@ const IconWrapper = styled.div`
 `;
 
 const AugmentCard = styled.div`
+  position: relative;
   width: 100%;
-  background: ${(props) =>
-    props.$disabled
-      ? "rgba(15, 23, 42, 0.35)"
-      : props.$isCurse
-        ? props.$isSelected
-          ? "rgba(68, 22, 26, 0.96)"
-          : "rgba(239, 68, 68, 0.12)"
-        : props.$isBuff
-          ? props.$isSelected
-            ? "rgba(50, 42, 16, 0.98)"
-            : "rgba(255, 220, 100, 0.12)"
-          : props.$isSelected
-            ? "rgba(22, 45, 64, 0.98)"
-            : "rgba(0, 0, 0, 0.45)"};
-  border: ${(props) =>
-    props.$disabled
-      ? "1px solid rgba(255, 255, 255, 0.06)"
-      : props.$isCurse
-        ? props.$isSelected
-          ? "1.5px solid #ef4444"
-          : "1px solid rgba(239, 68, 68, 0.45)"
-        : props.$isBuff
-          ? props.$isSelected
-            ? "1.5px solid #ffd700"
-            : "1px solid rgba(255, 215, 0, 0.4)"
-          : props.$isSelected
-            ? "1.5px solid #64ffda"
-            : "1px solid rgba(255, 255, 255, 0.1)"};
+  background: ${(props) => (props.$disabled ? "rgba(15, 23, 42, 0.35)" : props.$isCurse ? (props.$isSelected ? "rgba(68, 22, 26, 0.96)" : "rgba(239, 68, 68, 0.12)") : props.$isBuff ? (props.$isSelected ? "rgba(50, 42, 16, 0.98)" : "rgba(255, 220, 100, 0.12)") : props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(0, 0, 0, 0.45)")};
+  border: ${(props) => (props.$disabled ? "1px solid rgba(255, 255, 255, 0.06)" : props.$isCurse ? (props.$isSelected ? "1.5px solid #ef4444" : "1px solid rgba(239, 68, 68, 0.45)") : props.$isBuff ? (props.$isSelected ? "1.5px solid #ffd700" : "1px solid rgba(255, 215, 0, 0.4)") : props.$isSelected ? "1.5px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.1)")};
   border-left: 4px solid ${(props) => (props.$disabled ? "#475569" : props.$isCurse ? "#ef4444" : props.$isBuff ? "#ffd700" : props.$isSelected ? "#38bdf8" : "#64ffda")};
   border-radius: 8px;
   padding: 12px 14px;
@@ -2057,6 +2014,14 @@ const CardContent = styled.div`
   text-align: left;
   flex: 1;
   min-width: 0;
+  ${(props) =>
+    props.$hasPreview &&
+    `
+    padding-right: 76px;
+    @media (max-width: 480px) {
+      padding-right: 68px;
+    }
+  `}
 `;
 
 const CardTitle = styled.h3`
@@ -2676,10 +2641,7 @@ const AbilitySlotCenterHighlight = styled.div`
   height: 54px;
   pointer-events: none;
   z-index: 1;
-  background: ${(props) =>
-    props.$settled
-      ? "linear-gradient(90deg, rgba(253, 224, 71, 0.06) 0%, rgba(253, 224, 71, 0.16) 50%, rgba(253, 224, 71, 0.06) 100%)"
-      : "linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.02) 100%)"};
+  background: ${(props) => (props.$settled ? "linear-gradient(90deg, rgba(253, 224, 71, 0.06) 0%, rgba(253, 224, 71, 0.16) 50%, rgba(253, 224, 71, 0.06) 100%)" : "linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.02) 100%)")};
   border-top: 1px solid ${(props) => (props.$settled ? "rgba(253, 224, 71, 0.45)" : "rgba(255, 255, 255, 0.14)")};
   border-bottom: 1px solid ${(props) => (props.$settled ? "rgba(253, 224, 71, 0.45)" : "rgba(255, 255, 255, 0.14)")};
   transition: all 0.25s ease;
@@ -2705,22 +2667,7 @@ const AbilitySlotRow = styled.div`
   font-weight: 800;
   letter-spacing: 0.03em;
   user-select: none;
-  font-size: ${(props) =>
-    props.$compact
-      ? props.$isWinner
-        ? "1.18rem"
-        : props.$isCenter
-          ? "1.08rem"
-          : props.$isSpinning
-            ? "1.04rem"
-            : "0.88rem"
-      : props.$isWinner
-        ? "1.32rem"
-        : props.$isCenter
-          ? "1.2rem"
-          : props.$isSpinning
-            ? "1.14rem"
-            : "0.95rem"};
+  font-size: ${(props) => (props.$compact ? (props.$isWinner ? "1.18rem" : props.$isCenter ? "1.08rem" : props.$isSpinning ? "1.04rem" : "0.88rem") : props.$isWinner ? "1.32rem" : props.$isCenter ? "1.2rem" : props.$isSpinning ? "1.14rem" : "0.95rem")};
   color: ${(props) => {
     if (props.$deltaSign === "pos") {
       return props.$isWinner ? "#6ee7b7" : props.$isCenter || props.$isSpinning ? "#86efac" : "rgba(134, 239, 172, 0.48)";
@@ -2737,9 +2684,7 @@ const AbilitySlotRow = styled.div`
     if (props.$isWinner && props.$deltaSign === "neg") {
       return "0 0 12px rgba(248, 113, 113, 0.65), 0 2px 4px rgba(0, 0, 0, 0.9)";
     }
-    return props.$isWinner
-      ? "0 0 12px rgba(253, 224, 71, 0.65), 0 2px 4px rgba(0, 0, 0, 0.9)"
-      : "0 2px 4px rgba(0, 0, 0, 0.85)";
+    return props.$isWinner ? "0 0 12px rgba(253, 224, 71, 0.65), 0 2px 4px rgba(0, 0, 0, 0.9)" : "0 2px 4px rgba(0, 0, 0, 0.85)";
   }};
   transform: ${(props) => (props.$isWinner ? "scale(1.04)" : "scale(1)")};
   transition:
@@ -2753,15 +2698,7 @@ const AbilitySlotFadeOverlay = styled.div`
   inset: 0;
   z-index: 3;
   pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(10, 14, 20, 0.78) 0%,
-    rgba(10, 14, 20, 0.22) 30%,
-    rgba(10, 14, 20, 0) 40%,
-    rgba(10, 14, 20, 0) 60%,
-    rgba(10, 14, 20, 0.22) 70%,
-    rgba(10, 14, 20, 0.78) 100%
-  );
+  background: linear-gradient(180deg, rgba(10, 14, 20, 0.78) 0%, rgba(10, 14, 20, 0.22) 30%, rgba(10, 14, 20, 0) 40%, rgba(10, 14, 20, 0) 60%, rgba(10, 14, 20, 0.22) 70%, rgba(10, 14, 20, 0.78) 100%);
 `;
 
 const AbilitySlotPointerLeft = styled.div`

@@ -11,6 +11,11 @@ import { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb } from ".
 
 export { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb };
 
+export const getReplacementAugmentWeight = (pokemon) => {
+  const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
+  return Math.round(300 / (count + 1));
+};
+
 // 체력 비율 확인 공통 함수
 /**
  * 포켓몬의 현재 체력이 일정 비율 이상인지 확인하는 공통 함수 (예: 체력 50% 이상)
@@ -384,79 +389,6 @@ export const AUGMENT_LIST = [
       }
     },
   },
-  // 포켓몬 교체 ============================================================
-  // 포켓몬과 결혼한 사람이 있었다 (메가가디안, 님피아(딜탱), 메가이어롭, 마스카나 중 1 교체 + 인생의 동반자 획득)
-  {
-    id: "marriedPokemon",
-    name: "포켓몬과 결혼한 사람이 있었다",
-    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다. 인생의 동반자 증강을 추가로 획득합니다.",
-    cost: "-",
-    weight: 40,
-    isEligible: (pokemon) => {
-      if (!isHpAtLeast(pokemon, 0.5)) return false;
-      const excluded = ["마스카나", "가디안", "이어롭", "님피아"];
-      if (excluded.some((name) => hasPokemonName(pokemon, name))) return false;
-      return true;
-    },
-    onApply: function (pokemon, battle) {
-      const candidates = ["메가가디안", "님피아 (특수딜탱)", "메가이어롭", "마스카나"];
-      const available = candidates.filter((id) => {
-        const baseName = id.replace("메가", "").replace(/\s*\(.*?\)/, "");
-        return !hasPokemonNameOnTeam(pokemon, baseName, battle);
-      });
-      const pool = available.length > 0 ? available : candidates;
-      const pickedId = pool[Math.floor(Math.random() * pool.length)];
-      replacePokemon(pokemon, pickedId, battle, { resetAugments: true });
-
-      // 인생의 동반자 증강 추가 획득
-      const partnerAug = AUGMENT_LIST.find((a) => a.id === "lifePartner");
-      if (partnerAug) {
-        if (!pokemon.augments) pokemon.augments = [];
-        if (!pokemon.augments.some((a) => a.id === "lifePartner")) {
-          const newAug = { ...partnerAug };
-          pokemon.augments.push(newAug);
-          if (typeof partnerAug.onApply === "function") {
-            partnerAug.onApply(pokemon, battle);
-          }
-        }
-      }
-    },
-  },
-  // 인생의 동반자 (모든 능력치 1.1배 증가)
-  {
-    id: "lifePartner",
-    name: "인생의 동반자",
-    desc: "모든 능력치가 1.1배 증가합니다.",
-    cost: 0,
-    isRandom: false,
-    weight: "-",
-    isEligible: () => false,
-    onApply: function (pokemon) {
-      if (pokemon && pokemon.origin?.hp && !pokemon._appliedLifePartnerHp) {
-        const baseHp = pokemon.origin.hp;
-        const newMaxHp = hpCalculate(pokemon);
-        const hpGain = Math.max(0, Math.round(baseHp * 1.1) - baseHp);
-        pokemon.hp = Math.min(newMaxHp, (pokemon.hp || baseHp) + hpGain);
-        pokemon._appliedLifePartnerHp = true;
-      }
-    },
-  },
-
-  {
-    id: "rouletteWheel",
-    name: "돌려 돌려 돌림판",
-    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다.",
-    cost: "-",
-    weight: 100,
-    isEligible: (pokemon) => isHpAtLeast(pokemon, 0.5),
-    onApply: function (pokemon, battle) {
-      const allItems = sampleList.items || [];
-      const filtered = allItems.filter((item) => item.id !== pokemon.id);
-      if (filtered.length === 0) return;
-      const picked = filtered[Math.floor(Math.random() * filtered.length)];
-      replacePokemon(pokemon, picked.id, battle, { resetAugments: true });
-    },
-  },
   {
     id: "swordAndShield",
     name: "오른손엔 방패 왼손엔 검",
@@ -526,7 +458,128 @@ export const AUGMENT_LIST = [
     },
   },
 
-  // 특정 포켓몬 전용 증강 ==========================================================================
+  // 포켓몬 교체 증강 ==============================================================================
+
+  {
+    id: "rouletteWheel",
+    name: "돌려 돌려 돌림판",
+    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다.",
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    // 가중치 기본 300, 증강이 많을수록 감소 (300 / 1+n)
+    isEligible: (pokemon) => isHpAtLeast(pokemon, 0.5),
+    onApply: function (pokemon, battle) {
+      const allItems = sampleList.items || [];
+      const filtered = allItems.filter((item) => item.id !== pokemon.id);
+      if (filtered.length === 0) return;
+      const picked = filtered[Math.floor(Math.random() * filtered.length)];
+      replacePokemon(pokemon, picked.id, battle, { resetAugments: true });
+    },
+  },
+
+  {
+    id: "marriedPokemon",
+    name: "포켓몬과 결혼한 사람이 있었다",
+    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다. 인생의 동반자 증강을 추가로 획득합니다.",
+    // 메가가디안, 님피아(딜탱), 메가이어롭, 마스카나 중 1 교체 + 인생의 동반자 획득
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    isEligible: (pokemon) => {
+      if (!isHpAtLeast(pokemon, 0.5)) return false;
+      const excluded = ["마스카나", "가디안", "이어롭", "님피아"];
+      if (excluded.some((name) => hasPokemonName(pokemon, name))) return false;
+      return true;
+    },
+    onApply: function (pokemon, battle) {
+      const candidates = ["메가가디안", "님피아 (특수딜탱)", "메가이어롭", "마스카나"];
+      const available = candidates.filter((id) => {
+        const baseName = id.replace("메가", "").replace(/\s*\(.*?\)/, "");
+        return !hasPokemonNameOnTeam(pokemon, baseName, battle);
+      });
+      const pool = available.length > 0 ? available : candidates;
+      const pickedId = pool[Math.floor(Math.random() * pool.length)];
+      replacePokemon(pokemon, pickedId, battle, { resetAugments: true });
+
+      // 인생의 동반자 증강 추가 획득
+      const partnerAug = AUGMENT_LIST.find((a) => a.id === "lifePartner");
+      if (partnerAug) {
+        if (!pokemon.augments) pokemon.augments = [];
+        if (!pokemon.augments.some((a) => a.id === "lifePartner")) {
+          const newAug = { ...partnerAug };
+          pokemon.augments.push(newAug);
+          if (typeof partnerAug.onApply === "function") {
+            partnerAug.onApply(pokemon, battle);
+          }
+        }
+      }
+    },
+  },
+  // 인생의 동반자 (모든 능력치 1.1배 증가)
+  {
+    id: "lifePartner",
+    name: "인생의 동반자",
+    desc: "모든 능력치가 1.1배 증가합니다.",
+    cost: 0,
+    isRandom: false,
+    weight: "-",
+    isEligible: () => false,
+    onApply: function (pokemon) {
+      if (pokemon && pokemon.origin?.hp && !pokemon._appliedLifePartnerHp) {
+        const baseHp = pokemon.origin.hp;
+        const newMaxHp = hpCalculate(pokemon);
+        const hpGain = Math.max(0, Math.round(baseHp * 1.1) - baseHp);
+        pokemon.hp = Math.min(newMaxHp, (pokemon.hp || baseHp) + hpGain);
+        pokemon._appliedLifePartnerHp = true;
+      }
+    },
+  },
+
+  {
+    id: "soaring",
+    name: '"메가" 플라이곤',
+    desc: "현재 포켓몬을 메가진화가 가능한 플라이곤과 교체합니다.",
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "플라이곤", battleOrTeam || team),
+    onApply: function (pokemon, battle) {
+      replacePokemon(pokemon, "플라이곤", battle, { resetAugments: true });
+    },
+  },
+  {
+    id: "legendaryTitan",
+    name: "전설의 거인",
+    desc: "현재 포켓몬을 레지기가스와 교체합니다. 특성과 관련된 증강을 추가로 획득합니다.",
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
+    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "레지기가스", battleOrTeam || team),
+    onApply: function (pokemon, battle) {
+      replacePokemon(pokemon, "레지기가스", battle, { resetAugments: true });
+    },
+  },
+  {
+    id: "klinklangGear",
+    name: "기기기기기기기기기기어르",
+    desc: "조금 특별한 기기기어르와 교체합니다.\n매 턴마다 기어가 늘어나며 능력치가 상승합니다.",
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "기기기어르", battleOrTeam || team),
+    onApply: function (pokemon, battle) {
+      const newPoke = replacePokemon(pokemon, "기기기어르", battle, { resetAugments: true });
+      if (newPoke) {
+        newPoke.gearStack = 0;
+        newPoke.img_id = null;
+      }
+    },
+  },
+
+  // 특정 포켓몬 전용 증강 =============================================================================
+  // =================================================================================================
   {
     id: "nameIsSalamence",
     name: "보 만 다 지 진 !!",
@@ -574,34 +627,6 @@ export const AUGMENT_LIST = [
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
     isEligible: (pokemon) => hasPokemonName(pokemon, "파이어로") && pokemon?.abil === "질풍날개",
-  },
-  // "메가" 플라이곤 (플라이곤 교체 -> 직접 메가진화) =========================================
-  {
-    id: "soaring",
-    name: '"메가" 플라이곤',
-    desc: "현재 포켓몬을 플라이곤과 교체합니다.",
-    cost: "-",
-    weight: 50,
-    shiftUp: true,
-    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "플라이곤", battleOrTeam || team),
-    onApply: function (pokemon, battle) {
-      replacePokemon(pokemon, "플라이곤", battle, { resetAugments: true });
-    },
-  },
-  // 전설의 거인 관련 ==========================================================
-  {
-    id: "legendaryTitan",
-    name: "전설의 거인",
-    desc: "현재 포켓몬을 레지기가스와 교체합니다. 특성과 관련된 증강을 추가로 획득합니다.",
-    cost: "-",
-    weight: 50,
-    shiftUp: true,
-    imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
-    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "레지기가스", battleOrTeam || team),
-    onApply: function (pokemon, battle) {
-      replacePokemon(pokemon, "레지기가스", battle, { resetAugments: true });
-    },
   },
   {
     id: "nimbleMoves",
@@ -1246,6 +1271,9 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   } else if (id === "legendaryTitan") {
     const fromName = prevPokeName || "포켓몬";
     individualDesc = josa(`${fromName}#{이} 레지기가스로 교체되었다!`);
+  } else if (id === "klinklangGear") {
+    const fromName = prevPokeName || "포켓몬";
+    individualDesc = josa(`${fromName}#{이} 기기기어르로 교체되었다!`);
   } else if (id === "nimbleMoves") {
     const nimbleAug = target?.augments?.find((a) => a.id === "nimbleMoves") || selectedAugment;
     const skillName = options?.enhancedSkillName || nimbleAug?.enhancedSkillName;

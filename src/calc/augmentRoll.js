@@ -2,8 +2,28 @@ import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, GAMBLE_BONUS_AUGMENT_IDS, hasGamblin
 
 export const BEGINNER_AUGMENT_IDS = AUGMENT_SYNERGY_MAP.echoOfHero;
 
+export const REPLACEMENT_AUGMENT_IDS = [
+  "klinklangGear",
+  "legendaryTitan",
+  "marriedPokemon",
+  "rouletteWheel",
+  "soaring",
+];
+
+export function getReplacementAugmentWeight(pokemon) {
+  const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
+  return Math.round(300 / (count + 1));
+}
+
 export function getAugmentWeight(aug, pokemon = null, battleOrTeam = null) {
   if (!aug || aug.weight === "-" || aug.buf || aug.isRandom === false) return 0;
+
+  // 포켓몬 교체 증강 (기기기어르, 전설의 거인, 결혼, 돌림판, 비상 등):
+  // 기본 가중치 300, (지닌 증강/버프 개수 + 1)로 나눔
+  if (REPLACEMENT_AUGMENT_IDS.includes(aug.id)) {
+    return getReplacementAugmentWeight(pokemon);
+  }
+
   const rawWeight =
     typeof aug.weight === "function"
       ? aug.weight(pokemon, battleOrTeam)
@@ -76,9 +96,20 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
   const selected = [];
   let pool = [...available];
 
+  const filterReplacements = () => {
+    pool = pool.filter((a) => !REPLACEMENT_AUGMENT_IDS.includes(a.id));
+  };
+
   if (forced && pool.some((a) => a.id === forced.id)) {
     selected.push(forced);
     pool = pool.filter((a) => a.id !== forced.id);
+    if (REPLACEMENT_AUGMENT_IDS.includes(forced.id)) {
+      filterReplacements();
+    }
+  }
+
+  if (selected.some((a) => REPLACEMENT_AUGMENT_IDS.includes(a.id))) {
+    filterReplacements();
   }
 
   if (
@@ -92,15 +123,21 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
       const picked = gamblePool[gIdx === -1 ? 0 : gIdx];
       selected.push(picked);
       pool = pool.filter((a) => a.id !== picked.id);
+      if (REPLACEMENT_AUGMENT_IDS.includes(picked.id)) {
+        filterReplacements();
+      }
     }
   }
 
-  const pickCount = Math.min(count - selected.length, pool.length);
-  for (let i = 0; i < pickCount; i++) {
+  while (selected.length < count && pool.length > 0) {
     const idx = pickWeightedIndex(pool, pokemon, battleOrTeam);
     if (idx === -1) break;
-    selected.push(pool[idx]);
+    const picked = pool[idx];
+    selected.push(picked);
     pool.splice(idx, 1);
+    if (REPLACEMENT_AUGMENT_IDS.includes(picked.id)) {
+      filterReplacements();
+    }
   }
 
   for (let i = selected.length - 1; i > 0; i--) {
@@ -111,12 +148,6 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
   return selected;
 }
 
-/**
- * 플레이어 팀에서 증강 슬롯(<3)이 남아있는 포켓몬에게 랜덤 증강 1개를 즉시 부여합니다.
- * @param {object} battle
- * @param {object} preferredPokemon
- * @returns {{ target: object, augment: object } | null}
- */
 export function grantRandomAugment(battle, preferredPokemon = null) {
   if (!battle) return null;
   const team = [preferredPokemon, battle.player, battle.playerBench1, battle.playerBench2].filter((p, idx, arr) => p && arr.indexOf(p) === idx && (p.augments || []).filter((a) => !a.buf).length < 3);
@@ -167,8 +198,17 @@ export function rollTeamAugments(team, battle = null) {
       globalPickedIds.add(forced.id);
     }
 
-    const unused = available.filter((a) => !globalPickedIds.has(a.id) && !chosen.some((c) => c.id === a.id));
-    const already = available.filter((a) => globalPickedIds.has(a.id) && !chosen.some((c) => c.id === a.id));
+    let unused = available.filter((a) => !globalPickedIds.has(a.id) && !chosen.some((c) => c.id === a.id));
+    let already = available.filter((a) => globalPickedIds.has(a.id) && !chosen.some((c) => c.id === a.id));
+
+    const filterReplacements = () => {
+      unused = unused.filter((a) => !REPLACEMENT_AUGMENT_IDS.includes(a.id));
+      already = already.filter((a) => !REPLACEMENT_AUGMENT_IDS.includes(a.id));
+    };
+
+    if (chosen.some((a) => REPLACEMENT_AUGMENT_IDS.includes(a.id))) {
+      filterReplacements();
+    }
 
     if (
       chosen.length < 3 &&
@@ -184,12 +224,18 @@ export function rollTeamAugments(team, battle = null) {
         globalPickedIds.add(picked.id);
         const uIdx = unused.findIndex((a) => a.id === picked.id);
         if (uIdx !== -1) unused.splice(uIdx, 1);
+        if (REPLACEMENT_AUGMENT_IDS.includes(picked.id)) {
+          filterReplacements();
+        }
       } else if (gambleAlready.length > 0) {
         const gIdx = pickWeightedIndex(gambleAlready, poke, battle || team);
         const picked = gambleAlready[gIdx === -1 ? 0 : gIdx];
         chosen.push(picked);
         const aIdx = already.findIndex((a) => a.id === picked.id);
         if (aIdx !== -1) already.splice(aIdx, 1);
+        if (REPLACEMENT_AUGMENT_IDS.includes(picked.id)) {
+          filterReplacements();
+        }
       }
     }
 
@@ -199,12 +245,18 @@ export function rollTeamAugments(team, battle = null) {
       const [pick] = unused.splice(idx, 1);
       chosen.push(pick);
       globalPickedIds.add(pick.id);
+      if (REPLACEMENT_AUGMENT_IDS.includes(pick.id)) {
+        filterReplacements();
+      }
     }
     while (chosen.length < 3 && already.length > 0) {
       const idx = pickWeightedIndex(already, poke, battle || team);
       if (idx === -1) break;
       const [pick] = already.splice(idx, 1);
       chosen.push(pick);
+      if (REPLACEMENT_AUGMENT_IDS.includes(pick.id)) {
+        filterReplacements();
+      }
     }
 
     for (let i = chosen.length - 1; i > 0; i--) {
