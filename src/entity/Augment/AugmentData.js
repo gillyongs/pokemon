@@ -561,9 +561,22 @@ export const AUGMENT_LIST = [
     },
   },
   {
+    id: "magikarpJump",
+    name: "튀어올라라! 잉어킹",
+    desc: "현재 포켓몬을 조금 많이 특별한 잉어킹과 교체합니다.",
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -4.5, scale: 1.35 },
+    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "잉어킹", battleOrTeam || team),
+    onApply: function (pokemon, battle) {
+      replacePokemon(pokemon, "잉어킹", battle, { resetAugments: true });
+    },
+  },
+  {
     id: "klinklangGear",
     name: "기기기기기기기기기기어르",
-    desc: "조금 특별한 기기기어르와 교체합니다.\n매 턴마다 기어가 늘어나며 능력치가 상승합니다.",
+    desc: "현재 포켓몬을 조금 특별한 기기기어르와 교체합니다.",
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
@@ -1271,6 +1284,9 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   } else if (id === "legendaryTitan") {
     const fromName = prevPokeName || "포켓몬";
     individualDesc = josa(`${fromName}#{이} 레지기가스로 교체되었다!`);
+  } else if (id === "magikarpJump") {
+    const fromName = prevPokeName || "포켓몬";
+    individualDesc = josa(`${fromName}#{이} 잉어킹으로 교체되었다!`);
   } else if (id === "klinklangGear") {
     const fromName = prevPokeName || "포켓몬";
     individualDesc = josa(`${fromName}#{이} 기기기어르로 교체되었다!`);

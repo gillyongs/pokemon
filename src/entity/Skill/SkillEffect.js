@@ -972,6 +972,13 @@ function skillEffectSearch(name) {
       });
     },
 
+        튀어오르기: (battle, enqueue) => {
+      enqueue({
+        id: "splash-nothing",
+        battle,
+        text: "그러나 아무 일도 일어나지 않았다!",
+      });
+    },
     벽부수기: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const field = battle.field[def].noClean;

@@ -410,6 +410,9 @@ new PokemonTemplate("브리두라스", "1018", "5V0A", "HC252", "catk", "atk",
     if (searchId === "기기기어르" || searchId === "0601") {
       return klinklangSample;
     }
+    if (searchId === "잉어킹" || searchId === "0129-g") {
+      return magikarpSample;
+    }
     const exact = this.items.find((item) => item.id === searchId);
     if (exact) return exact;
     return (
@@ -433,6 +436,8 @@ new PokemonTemplate("브리두라스", "1018", "5V0A", "HC252", "catk", "atk",
 export const regigigasSample = new PokemonTemplate("레지기가스", "0486", "6V", "HA252", "atk", "catk", "묵사발", "화풀이", "드레인펀치", "냉동펀치", "돌격조끼", "슬로스타트", "물리딜탱", "선택 시 특성과 관련된 증강을 추가로 획득합니다.");
 
 export const megaFlygonSample = new PokemonTemplate("플라이곤", "0330", "6V", "AS252", "speed", "catk", "지진", "스케일샷", "용의춤", "유턴", "플라이곤나이트", "부유", "물리어태커", "메가진화 시 벌레/드래곤 타입으로 변하며, 특성 색안경은 반감되는 기술의 위력을 2배로 만듭니다.");
+
+export const magikarpSample = new PokemonTemplate("잉어킹", "0129-g", "6V", "H28 C252 S228", "speed", "atk", "튀어오르기", "튀어오르기", "튀어오르기", "튀어오르기", "잉어킹나이트", "최강의잉어킹", "특수어태커", `모든 능력치가 999로 고정됩니다.\n기술만 어떻게든 바꾼다면...?`);
 
 export const klinklangSample = new PokemonTemplate("기기기어르", "0601", "6V", "HA252", "atk", "catk", "기어소서", "기어체인지", "와일드볼트", "방어", "먹다남은음식", "기어메이킹", "물리딜탱", "매 턴마다 기어를 추가하여 능력치가 조금씩 오릅니다.");
 

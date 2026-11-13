@@ -168,6 +168,17 @@ class PokemonTemplate {
       console.error(this.id + " 성격처리오류");
     }
 
+    // 최강의잉어킹 특성: 체력을 제외한 모든 능력치가 999로 고정
+    if (this.abil === "최강의잉어킹") {
+      this.stat = {
+        atk: 999,
+        def: 999,
+        catk: 999,
+        cdef: 999,
+        speed: 999,
+      };
+    }
+
     const targetMega = getMegaData(this.pokemon_id, this.item);
     if (targetMega) {
       const megaPokemon = PokemonData.getDataById(targetMega.megaFormId);

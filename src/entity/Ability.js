@@ -196,10 +196,11 @@ export const abilObject = {
 
   패스트스타트: { text: "전투에 나오고 5턴 뒤 공격과 스피드가 2배가 된다." },
   기어메이킹: { text: "매 턴마다 기어를 추가하여 능력치가 조금씩 오른다." },
+  최강의잉어킹: { text: "체력을 제외한 모든 능력치가 999로 고정됩니다." },
 };
 
 // 아수라장(증강) 전용 특성 목록
-export const augmentAbill = ["패스트스타트", "기어메이킹"];
+export const augmentAbill = ["패스트스타트", "기어메이킹", "최강의잉어킹"];
 export const augmentAbil = augmentAbill;
 
 // 트레이스로 베낄 수 없는 특성 (기본 불가 특성 + 아수라장 전용 특성)

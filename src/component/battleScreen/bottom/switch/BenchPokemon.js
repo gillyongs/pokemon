@@ -56,9 +56,12 @@ const BenchWrapper = styled.div`
   width: 96vw;
   height: 11vh;
   left: 2vw;
-  border-radius: 5px; /* 모서리 둥글게 */
-  background-color: rgba(0, 0, 0, 0.7);
-  overflow: hidden; /* 넘치는 부분 숨김 */
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.75);
+  box-sizing: border-box;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  transition: all 0.2s ease;
 
   &.playerBench1 {
     top: 31vh;
@@ -73,7 +76,9 @@ const BenchWrapper = styled.div`
   }
 
   &.selected {
-    background-color: rgb(27, 228, 68);
+    background-color: rgba(22, 45, 64, 0.95);
+    border: 2px solid #64ffda;
+    box-shadow: 0 0 14px rgba(100, 255, 218, 0.45), inset 0 0 8px rgba(100, 255, 218, 0.15);
   }
 `;
 
@@ -83,6 +88,8 @@ const PokemonName = styled.div`
   width: 300px;
   left: 21vh;
   top: 1.5vh;
+  color: #ffffff;
+  font-weight: 700;
 `;
 
 const BenchMegaBadge = styled.img`
@@ -110,12 +117,31 @@ const PokemonButton = styled.div`
   position: absolute;
   height: 8vh;
   width: 15vh;
-  top: 2vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 6px;
+  top: 1.5vh;
+  background-color: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid #64ffda;
+  border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(100, 255, 218, 0.35);
+  transition: all 0.2s ease;
+  user-select: none;
+  z-index: 10;
+
+  &:hover {
+    background-color: #64ffda;
+    color: #0f172a;
+    box-shadow: 0 0 14px rgba(100, 255, 218, 0.6);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
 
   &.switch {
     left: 6vh;

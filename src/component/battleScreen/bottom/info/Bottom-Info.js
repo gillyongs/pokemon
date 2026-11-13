@@ -64,11 +64,7 @@ const HexagonGraph = ({ pokemon }) => {
     const rank = Number(pokemon?.tempStatus?.rank?.[stat] ?? 0);
     const mult = getMultiplier(rank);
     let baseVal = 0;
-    if (stat === "atk" || stat === "catk") {
-      baseVal = getAugmentedStat(pokemon, stat);
-    } else {
-      baseVal = pokemon?.origin?.stat?.[stat] ?? 0;
-    }
+    baseVal = getAugmentedStat(pokemon, stat);
     const val = Math.floor(baseVal * mult);
     return { val, baseVal, rank };
   };
@@ -208,7 +204,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
     const getStatSummary = (stat) => {
       const rank = Number(pokemon?.tempStatus?.rank?.[stat] ?? 0);
       const mult = getMultiplier(rank);
-      const base = stat === "atk" || stat === "catk" ? getAugmentedStat(pokemon, stat) : (pokemon?.origin?.stat?.[stat] ?? 0);
+      const base = getAugmentedStat(pokemon, stat);
       const finalVal = Math.floor(base * mult);
       const rankStr = rank !== 0 ? `(${rank > 0 ? `+${rank}` : rank})` : "";
       return `${finalVal}${rankStr}`;

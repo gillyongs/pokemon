@@ -16,6 +16,7 @@ const AUGMENT_POKEMON_PREVIEW_MAP = {
   soaring: "플라이곤",
   legendaryTitan: "레지기가스",
   klinklangGear: "기기기어르",
+  magikarpJump: "잉어킹",
 };
 
 const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialTarget = null, battle = null, onSelect, onClose, isTestMode: propTestMode = null, isTitanSelection = false }) => {
@@ -1371,16 +1372,16 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                                 </IconWrapper>
                                 {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                               </IconCol>
-                              <CardContent $hasPreview={Boolean(previewSample)}>
+                              <CardContent $hasPreview={isCardSelected && Boolean(previewSample)}>
                                 <CardTitleRow>
                                   <CardTitle>{aug.name}</CardTitle>
                                   {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                                 </CardTitleRow>
                                 <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                               </CardContent>
-                              {previewSample && (
-                                <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={`${previewSample.megaData?.name || previewSample.name} 상세 정보 보기`}>
-                                  포켓몬 정보
+                              {isCardSelected && previewSample && (
+                                <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={`${previewSample.megaData?.name || previewSample.name} 상세정보 보기`}>
+                                  상세정보
                                 </PreviewInfoButton>
                               )}
                             </AugmentCard>
@@ -1395,7 +1396,6 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             {allIneligible.map((aug, index) => {
                               const isCurse = Boolean(aug.curse || isCurseAugment(aug));
                               const isBuff = Boolean(aug.buf && !isCurse);
-                              const previewSample = getPreviewSample(aug.id);
                               return (
                                 <AugmentCard key={`ineligible-${aug.id || index}`} $isPeek={isPeekMode} $disabled={true} $isBuff={isBuff} $isCurse={isCurse} onClick={(e) => e.stopPropagation()} title="이 포켓몬은 해당 증강의 선택 조건을 만족하지 않거나 이미 보유 중입니다.">
                                   <IconCol>
@@ -1404,7 +1404,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                                     </IconWrapper>
                                     {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                                   </IconCol>
-                                  <CardContent $hasPreview={Boolean(previewSample)}>
+                                  <CardContent>
                                     <CardTitleRow>
                                       <CardTitle>{aug.name}</CardTitle>
                                       {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
@@ -1412,11 +1412,6 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                                     </CardTitleRow>
                                     <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                                   </CardContent>
-                                  {previewSample && (
-                                    <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={`${previewSample.megaData?.name || previewSample.name} 상세 정보 보기`}>
-                                      포켓몬 정보
-                                    </PreviewInfoButton>
-                                  )}
                                 </AugmentCard>
                               );
                             })}
@@ -1440,16 +1435,16 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             </IconWrapper>
                             {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                           </IconCol>
-                          <CardContent $hasPreview={Boolean(previewSample)}>
+                          <CardContent $hasPreview={isCardSelected && Boolean(previewSample)}>
                             <CardTitleRow>
                               <CardTitle>{aug.name}</CardTitle>
                               {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                             </CardTitleRow>
                             <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                           </CardContent>
-                          {previewSample && (
-                            <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={`${previewSample.megaData?.name || previewSample.name} 상세 정보 보기`}>
-                              포켓몬 정보
+                          {isCardSelected && previewSample && (
+                            <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={`${previewSample.megaData?.name || previewSample.name} 상세정보 보기`}>
+                              상세정보
                             </PreviewInfoButton>
                           )}
                         </AugmentCard>
@@ -1891,40 +1886,44 @@ const CardTitleRow = styled.div`
 const PreviewInfoButton = styled.button`
   position: absolute;
   right: 12px;
-  bottom: 8px;
-  z-index: 2;
-  background: rgba(56, 189, 248, 0.14);
-  border: 1px solid rgba(56, 189, 248, 0.45);
-  border-radius: 5px;
-  color: #7dd3fc;
-  font-size: 0.72rem;
+  top: 10px;
+  bottom: 10px;
+  z-index: 5;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1.5px solid #64ffda;
+  border-radius: 6px;
+  color: #64ffda;
+  font-size: 0.82rem;
   font-weight: 700;
   font-family: inherit;
-  padding: 3px 8px;
+  padding: 0 14px;
   cursor: pointer;
   pointer-events: auto;
   transition: all 0.2s ease;
   user-select: none;
   white-space: nowrap;
-  flex-shrink: 0;
-  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(100, 255, 218, 0.35);
+  animation: ${fadeIn} 0.15s ease-out;
 
   &:hover {
-    background: rgba(56, 189, 248, 0.28);
-    border-color: #64ffda;
-    color: #ffffff;
-    box-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
+    background: #64ffda;
+    color: #0f172a;
+    box-shadow: 0 0 14px rgba(100, 255, 218, 0.6);
   }
 
   &:active {
-    transform: translateY(1px);
+    transform: scale(0.97);
   }
 
   @media (max-width: 480px) {
     right: 8px;
-    bottom: 6px;
-    font-size: 0.68rem;
-    padding: 2px 7px;
+    top: 8px;
+    bottom: 8px;
+    font-size: 0.74rem;
+    padding: 0 8px;
   }
 `;
 
@@ -2017,9 +2016,9 @@ const CardContent = styled.div`
   ${(props) =>
     props.$hasPreview &&
     `
-    padding-right: 76px;
+    padding-right: 88px;
     @media (max-width: 480px) {
-      padding-right: 68px;
+      padding-right: 74px;
     }
   `}
 `;

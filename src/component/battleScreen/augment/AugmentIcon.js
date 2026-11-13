@@ -12,6 +12,7 @@ export const DEDICATED_AUGMENT_POKEMON = {
   eternamax: "0890-m",
   harmfulBird: "0663",
   klinklangGear: "0601",
+  magikarpJump: "0129-g",
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
@@ -29,6 +30,8 @@ export const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   "0663": { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
   klinklangGear: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0601": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  magikarpJump: { shiftUp: true, offsetY: -4.5, scale: 1.35 },
+  "0129-g": { shiftUp: true, offsetY: -4.5, scale: 1.35 },
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null }) => {

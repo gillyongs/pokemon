@@ -16,6 +16,13 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   if (typeof val !== "number") return 0;
   let logText = `${val}(${statKey})`;
 
+  // 최강의잉어킹 특성: 체력을 제외한 모든 능력치(공격, 방어, 특공, 특방, 스피드) 999 고정
+  const hasStrongestMagikarp = pokemon?.abil === "최강의잉어킹" || pokemon?.origin?.abil === "최강의잉어킹";
+  if (hasStrongestMagikarp && STAT_KEYS.includes(statKey)) {
+    val = 999;
+    logText = `999(${statKey}: 최강의잉어킹)`;
+  }
+
   // 기기기어르 기어메이킹 / 기어 중첩: 중첩 * 20 만큼 HP 제외 모든 능력치(atk, def, catk, cdef, speed) 상승
   const gearStack = Number(pokemon?.gearStack || 0);
   if (gearStack > 0 && STAT_KEYS.includes(statKey)) {
