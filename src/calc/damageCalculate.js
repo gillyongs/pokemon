@@ -384,17 +384,17 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
-  // 용 사냥꾼: 드래곤 타입을 상대로 모든 능력치가 1.2배 증가
+  // 용 사냥꾼: 드래곤 타입을 상대로 모든 능력치가 1.5배 증가
   const isDefDragon = defensePokemon?.type1 === "드래곤" || defensePokemon?.type2 === "드래곤";
   if (attackPokemon?.hasAugment?.("dragonHunter") && isDefDragon) {
-    atkStat *= 1.2;
-    atkStr += " * 1.2 (용 사냥꾼)";
+    atkStat *= 1.5;
+    atkStr += " * 1.5 (용 사냥꾼)";
   }
 
   const isAtkDragon = attackPokemon?.type1 === "드래곤" || attackPokemon?.type2 === "드래곤";
   if (defensePokemon?.hasAugment?.("dragonHunter") && isAtkDragon) {
-    defStat *= 1.2;
-    defStr += " * 1.2 (용 사냥꾼)";
+    defStat *= 1.5;
+    defStr += " * 1.5 (용 사냥꾼)";
   }
 
   // 용용 죽겠지: 드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승
@@ -682,10 +682,10 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 증강 ==============================================================
 
-  // 인생은 한방 증강: 위력 3배 증가
+  // 인생은 한방 증강: 위력 10배 증가
   if (attackPokemon?.hasAugment?.("lifeIsOneShot") && (skill.stype === "atk" || skill.stype === "catk")) {
-    damage *= 3;
-    attackPokemon.log.damage1 += " * 3 (인생은 한방)";
+    damage *= 10;
+    attackPokemon.log.damage1 += " * 10 (인생은 한방)";
   }
 
   // 원펀맨 증강: 공격기술의 위력 999배 증가
@@ -783,11 +783,11 @@ export const damageCalculate = (battle, obj, ai) => {
 
   let finalDamage = Math.floor(damage);
 
-  // [증강] 몰락한 왕의 검: 적의 현재 체력의 9% 만큼 추가 데미지
+  // [증강] 몰락한 왕의 검: 적의 현재 체력의 15% 만큼 추가 데미지
   const hasBotRK = attackPokemon?.hasAugment?.("bladeOfTheRuinedKing");
   if (hasBotRK && finalDamage > 0) {
     const curDefHp = defensePokemon.hp;
-    const botrkBonus = Math.floor(curDefHp * 0.09);
+    const botrkBonus = Math.floor(curDefHp * 0.15);
     finalDamage += botrkBonus;
     if (attackPokemon?.log) {
       attackPokemon.log.damage2 += ` + ${botrkBonus} (몰왕) = ${finalDamage}`;

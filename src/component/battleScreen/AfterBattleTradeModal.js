@@ -183,7 +183,7 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
           </ModalButton>
         </ModalButtonContainer>
       </ModalBox>
-      {tradeInfoPokemon && <TradeInfoModal pokemon={tradeInfoPokemon} onClose={() => setTradeInfoPokemon(null)} />}
+      {tradeInfoPokemon && <TradeInfoModal pokemon={tradeInfoPokemon} battle={battle} onClose={() => setTradeInfoPokemon(null)} />}
       {tradeAlertMessage && (
         <ModalOverlay
           onClick={(e) => {

@@ -158,7 +158,10 @@ function skillEffectSearch(name) {
     },
 
     화상: (battle, enqueue, skillEffect) => {
-      if (random(100 - skillEffect.probability)) {
+      const atkPokemon = battle[battle.turn?.atk];
+      const chiliMult = atkPokemon?.hasAugment?.("grandmasChiliOil") ? 3 : 1;
+      const prob = Math.min(100, (skillEffect.probability || 10) * chiliMult);
+      if (random(100 - prob)) {
         return;
       }
       if (isTargetSubstituteBlocked(battle)) {
@@ -229,7 +232,10 @@ function skillEffectSearch(name) {
     트라이어택: (battle, enqueue, skillEffect) => {
       // 20% 확률로 상태이상을 걸고,
       // 상태이상이 걸릴때 각각 33% 확률로 화상 마비 얼음중 하나가 결정
-      if (random(100 - skillEffect.probability)) {
+      const atkPokemon = battle[battle.turn?.atk];
+      const chiliMult = atkPokemon?.hasAugment?.("grandmasChiliOil") ? 3 : 1;
+      const prob = Math.min(100, (skillEffect.probability || 20) * chiliMult);
+      if (random(100 - prob)) {
         return;
       }
       if (isTargetSubstituteBlocked(battle)) {

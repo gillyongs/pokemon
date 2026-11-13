@@ -115,7 +115,9 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
     touch = false;
   }
   if (defPokemon.abil === "불꽃몸" && touch && !atkPokemon.faint) {
-    if (random(30)) {
+    const chiliMult = defPokemon.hasAugment?.("grandmasChiliOil") ? 3 : 1;
+    const flameBodyChance = Math.min(100, 30 * chiliMult);
+    if (random(flameBodyChance)) {
       applyAilment("화상", battle, battle.turn.atk, enqueue, false, `[특성 불꽃몸] ${atkPokemon.names} 화상을 입었다!`);
     }
   }

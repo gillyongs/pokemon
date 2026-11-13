@@ -197,7 +197,7 @@ function applySunfireAegis(battle, enqueue, user) {
   if (!opponent || opponent.faint) return;
 
   const damage = Math.max(1, Math.floor(hpCalculate(p) * 0.1));
-  const text = `[증강: 태양불꽃방패] ${opponent.names} 불사르기 데미지를 입었다!`;
+  const text = `[증강 태양불꽃방패] ${opponent.names} 불사르기 데미지를 입었다!`;
   opponent.getDamage(battle, enqueue, damage, text);
 }
 
@@ -237,7 +237,7 @@ function applyWarmogsArmor(battle, enqueue, user) {
   const undamaged = !p.turn?.damagedThisTurn;
   const ratio = undamaged ? 0.06 : 0.03;
   const heal = Math.max(1, Math.floor(maxHp * ratio));
-  const text = undamaged ? `[증강: 워모그의 갑옷] ${p.names} 체력을 크게 회복했다!` : `[증강: 워모그의 갑옷] ${p.names} 체력을 조금 회복했다!`;
+  const text = undamaged ? `[증강 워모그의 갑옷] ${p.names} 체력을 크게 회복했다!` : `[증강 워모그의 갑옷] ${p.names} 체력을 조금 회복했다!`;
   p.recover(battle, heal, enqueue, text);
 }
 
@@ -404,13 +404,14 @@ function applyStatusDamage(battle, enqueue, user) {
   if (p.ailment.burn) {
     const opponentSide = user === "player" ? "npc" : "player";
     const opponent = battle[opponentSide];
+    const opponentTeam = opponentSide === "player" ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [battle.npc, battle.npcBench1, battle.npcBench2].filter(Boolean);
 
     // [증강] 할머니의 고추기름
-    const hasChiliOil = Boolean(opponent?.hasAugment?.("grandmasChiliOil"));
+    const hasChiliOil = Boolean(opponent?.hasAugment?.("grandmasChiliOil") || opponentTeam.some((poke) => poke?.hasAugment?.("grandmasChiliOil")));
 
     const baseBurn = Math.max(1, Math.floor(maxHp / 16));
     const burnDamage = hasChiliOil ? baseBurn * 5 : baseBurn;
-    const text = hasChiliOil ? `[증강: 할머니의 고추기름] ${p.names} 극심한 화상 데미지를 입었다!` : `${p.names} 화상 데미지를 입었다!`;
+    const text = hasChiliOil ? `[증강 할머니의 고추기름] ${p.names} 극심한 화상 데미지를 입었다!` : `${p.names} 화상 데미지를 입었다!`;
 
     p.getDamage(battle, enqueue, burnDamage, text);
   }

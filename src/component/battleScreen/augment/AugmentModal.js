@@ -1063,7 +1063,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                   <HeaderTopRow>
                     <Title>검 강화하기</Title>
                   </HeaderTopRow>
-                  <SubTitleText>{activePokemon?.name ? `${activePokemon.name}에게 부여할 검을 강화하세요! (실패 시 공격력 +0)` : "검을 강화하여 공격력을 높이세요! (실패 시 공격력 +0)"}</SubTitleText>
+                  <SubTitleText>{activePokemon?.name ? `${activePokemon.name}의 검을 강화하세요! (실패 시 공격/특공 +0)` : "검을 강화하여 공격과 특수공격을 높이세요! (실패 시 +0)"}</SubTitleText>
                 </HeaderArea>
 
                 <SwordEnhanceContainer>
@@ -1338,7 +1338,8 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                   <EntryContainer>
                     {resolvedTeam.map((poke, idx) => {
                       const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
-                      const isFull = (poke.augments || []).filter((a) => isNormalAugment(a)).length >= 3;
+                      const count = (poke.augments || []).filter((a) => isNormalAugment(a)).length;
+                      const isFull = count >= 3;
                       const isFainted = Boolean(poke.faint || poke.hp <= 0);
                       const isSelectable = !isFull || isFainted;
                       const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
@@ -1351,7 +1352,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             e.stopPropagation();
                             handleSelectPokemon(poke);
                           }}
-                          title={!isSelectable ? `${poke.name} (증강 3개 보유 완료)` : poke.name}
+                          title={!isSelectable ? `${poke.name} (보유 증강 3/3 완료)` : `${poke.name} (보유 증강 ${count}/3)`}
                         >
                           <EntryPokemonImg
                             src={`/pokemon/img/pokemon/${pokeId}.webp`}
@@ -1361,7 +1362,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             }}
                           />
                           <EntryPokemonName>{poke.name}</EntryPokemonName>
-                          {isFull && <EntryFullBadge>3/3</EntryFullBadge>}
+                          <EntryCountBadge $hasAugment={count > 0} $isFull={isFull}>{count}/3</EntryCountBadge>
                         </EntryCard>
                       );
                     })}
@@ -1399,17 +1400,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                               </CardContent>
                               {isCardSelected && hasPreview && (
                                 <CardPreviewOverlay>
-                                  <PreviewInfoButton
-                                    type="button"
-                                    onClick={(e) => handleOpenPreview(e, aug.id)}
-                                    title={
-                                      previewSample
-                                        ? (aug.id === "eternamax" || aug.id === "blackNight"
-                                            ? "무한다이맥스 / 무한다이노 상세정보 보기"
-                                            : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`)
-                                        : `${synergyData?.title || "시너지"} 공명 상세정보 보기`
-                                    }
-                                  >
+                                  <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : `${synergyData?.title || "시너지"} 공명 상세정보 보기`}>
                                     상세정보
                                   </PreviewInfoButton>
                                 </CardPreviewOverlay>
@@ -1478,17 +1469,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                           </CardContent>
                           {isCardSelected && hasPreview && (
                             <CardPreviewOverlay>
-                              <PreviewInfoButton
-                                type="button"
-                                onClick={(e) => handleOpenPreview(e, aug.id)}
-                                title={
-                                  previewSample
-                                    ? (aug.id === "eternamax" || aug.id === "blackNight"
-                                        ? "무한다이맥스 / 무한다이노 상세정보 보기"
-                                        : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`)
-                                    : `${synergyData?.title || "시너지"} 공명 상세정보 보기`
-                                }
-                              >
+                              <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : `${synergyData?.title || "시너지"} 공명 상세정보 보기`}>
                                 상세정보
                               </PreviewInfoButton>
                             </CardPreviewOverlay>
@@ -1515,14 +1496,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
       {isStatusOpen && <AugmentStatusModal battle={battle} team={resolvedTeam} onClose={() => setIsStatusOpen(false)} />}
       {previewInfo && <AugmentPokemonPreviewModal augmentId={previewInfo.augmentId} pokemon={previewInfo.pokemon} onClose={() => setPreviewInfo(null)} />}
-      {synergyPreviewInfo && (
-        <AugmentSynergyPreviewModal
-          synergy={synergyPreviewInfo.synergy}
-          activeAugmentId={synergyPreviewInfo.augmentId}
-          activePokemon={activePokemon}
-          onClose={() => setSynergyPreviewInfo(null)}
-        />
-      )}
+      {synergyPreviewInfo && <AugmentSynergyPreviewModal synergy={synergyPreviewInfo.synergy} activeAugmentId={synergyPreviewInfo.augmentId} activePokemon={activePokemon} onClose={() => setSynergyPreviewInfo(null)} />}
     </>
   );
 };
@@ -1787,14 +1761,14 @@ const EntryPokemonName = styled.span`
   }
 `;
 
-const EntryFullBadge = styled.span`
+const EntryCountBadge = styled.span`
   font-size: 0.65rem;
   font-weight: 700;
-  color: #f87171;
-  background: rgba(239, 68, 68, 0.2);
-  padding: 1px 4px;
+  color: ${(props) => (props.$isFull ? "#f87171" : props.$hasAugment ? "#64ffda" : "#94a3b8")};
+  background: ${(props) => (props.$isFull ? "rgba(239, 68, 68, 0.2)" : props.$hasAugment ? "rgba(100, 255, 218, 0.12)" : "rgba(255, 255, 255, 0.06)")};
+  padding: 1px 5px;
   border-radius: 4px;
-  line-height: 1;
+  line-height: 1.2;
 `;
 
 const CardContainer = styled.div`
@@ -1980,13 +1954,17 @@ const PreviewInfoButton = styled.button`
   transition: all 0.2s ease;
   user-select: none;
   white-space: nowrap;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 14px rgba(100, 255, 218, 0.4);
+  box-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.85),
+    0 0 14px rgba(100, 255, 218, 0.4);
   animation: ${fadeIn} 0.15s ease-out;
 
   &:hover {
     background: #64ffda;
     color: #0f172a;
-    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.9), 0 0 18px rgba(100, 255, 218, 0.7);
+    box-shadow:
+      0 4px 22px rgba(0, 0, 0, 0.9),
+      0 0 18px rgba(100, 255, 218, 0.7);
     transform: scale(1.04);
   }
 
@@ -2039,54 +2017,9 @@ const IconWrapper = styled.div`
 const AugmentCard = styled.div`
   position: relative;
   width: 100%;
-  background: ${(props) =>
-    props.$disabled
-      ? "rgba(15, 23, 42, 0.35)"
-      : props.$isCurse
-        ? props.$isSelected
-          ? "rgba(68, 22, 26, 0.96)"
-          : "rgba(239, 68, 68, 0.12)"
-        : props.$isSynergy
-          ? props.$isSelected
-            ? "rgba(50, 42, 16, 0.98)"
-            : "rgba(255, 215, 0, 0.12)"
-          : props.$isBuff
-            ? props.$isSelected
-              ? "rgba(14, 45, 68, 0.98)"
-              : "rgba(56, 189, 248, 0.12)"
-            : props.$isSelected
-              ? "rgba(22, 45, 64, 0.98)"
-              : "rgba(0, 0, 0, 0.45)"};
-  border: ${(props) =>
-    props.$disabled
-      ? "1px solid rgba(255, 255, 255, 0.06)"
-      : props.$isCurse
-        ? props.$isSelected
-          ? "1.5px solid #ef4444"
-          : "1px solid rgba(239, 68, 68, 0.45)"
-        : props.$isSynergy
-          ? props.$isSelected
-            ? "1.5px solid #ffd700"
-            : "1px solid rgba(255, 215, 0, 0.4)"
-          : props.$isBuff
-            ? props.$isSelected
-              ? "1.5px solid #38bdf8"
-              : "1px solid rgba(56, 189, 248, 0.45)"
-            : props.$isSelected
-              ? "1.5px solid #64ffda"
-              : "1px solid rgba(255, 255, 255, 0.1)"};
-  border-left: 4px solid ${(props) =>
-    props.$disabled
-      ? "#475569"
-      : props.$isCurse
-        ? "#ef4444"
-        : props.$isSynergy
-          ? "#ffd700"
-          : props.$isBuff
-            ? "#38bdf8"
-            : props.$isSelected
-              ? "#38bdf8"
-              : "#64ffda"};
+  background: ${(props) => (props.$disabled ? "rgba(15, 23, 42, 0.35)" : props.$isCurse ? (props.$isSelected ? "rgba(68, 22, 26, 0.96)" : "rgba(239, 68, 68, 0.12)") : props.$isSynergy ? (props.$isSelected ? "rgba(50, 42, 16, 0.98)" : "rgba(255, 215, 0, 0.12)") : props.$isBuff ? (props.$isSelected ? "rgba(14, 45, 68, 0.98)" : "rgba(56, 189, 248, 0.12)") : props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(0, 0, 0, 0.45)")};
+  border: ${(props) => (props.$disabled ? "1px solid rgba(255, 255, 255, 0.06)" : props.$isCurse ? (props.$isSelected ? "1.5px solid #ef4444" : "1px solid rgba(239, 68, 68, 0.45)") : props.$isSynergy ? (props.$isSelected ? "1.5px solid #ffd700" : "1px solid rgba(255, 215, 0, 0.4)") : props.$isBuff ? (props.$isSelected ? "1.5px solid #38bdf8" : "1px solid rgba(56, 189, 248, 0.45)") : props.$isSelected ? "1.5px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.1)")};
+  border-left: 4px solid ${(props) => (props.$disabled ? "#475569" : props.$isCurse ? "#ef4444" : props.$isSynergy ? "#ffd700" : props.$isBuff ? "#38bdf8" : props.$isSelected ? "#38bdf8" : "#64ffda")};
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;
@@ -2098,16 +2031,7 @@ const AugmentCard = styled.div`
   filter: ${(props) => (props.$disabled ? "grayscale(0.65)" : "none")};
   transition: all 0.2s ease;
   box-sizing: border-box;
-  box-shadow: ${(props) =>
-    props.$isSelected
-      ? props.$isCurse
-        ? "0 0 14px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.15)"
-        : props.$isSynergy
-          ? "0 0 14px rgba(255, 215, 0, 0.45), inset 0 0 8px rgba(255, 215, 0, 0.15)"
-          : props.$isBuff
-            ? "0 0 14px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.15)"
-            : "0 0 14px rgba(100, 255, 218, 0.45), inset 0 0 8px rgba(100, 255, 218, 0.15)"
-      : "none"};
+  box-shadow: ${(props) => (props.$isSelected ? (props.$isCurse ? "0 0 14px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.15)" : props.$isSynergy ? "0 0 14px rgba(255, 215, 0, 0.45), inset 0 0 8px rgba(255, 215, 0, 0.15)" : props.$isBuff ? "0 0 14px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.15)" : "0 0 14px rgba(100, 255, 218, 0.45), inset 0 0 8px rgba(100, 255, 218, 0.15)") : "none")};
 
   @media (max-width: 480px) {
     padding: 10px 10px;
@@ -2118,63 +2042,15 @@ const AugmentCard = styled.div`
     `
     &:hover {
       transform: ${props.$isPeek ? "none" : "translateY(-2px)"};
-      border-color: ${
-        props.$isSelected
-          ? props.$isCurse
-            ? "#ef4444"
-            : props.$isSynergy
-              ? "#ffd700"
-              : props.$isBuff
-                ? "#38bdf8"
-                : "#64ffda"
-          : props.$isCurse
-            ? "rgba(239, 68, 68, 0.7)"
-            : props.$isSynergy
-              ? "rgba(255, 215, 0, 0.7)"
-              : props.$isBuff
-                ? "rgba(56, 189, 248, 0.7)"
-                : "rgba(100, 255, 218, 0.5)"
-      };
+      border-color: ${props.$isSelected ? (props.$isCurse ? "#ef4444" : props.$isSynergy ? "#ffd700" : props.$isBuff ? "#38bdf8" : "#64ffda") : props.$isCurse ? "rgba(239, 68, 68, 0.7)" : props.$isSynergy ? "rgba(255, 215, 0, 0.7)" : props.$isBuff ? "rgba(56, 189, 248, 0.7)" : "rgba(100, 255, 218, 0.5)"};
       border-left: 4px solid ${props.$isCurse ? "#ef4444" : props.$isSynergy ? "#ffd700" : props.$isBuff ? "#38bdf8" : "#64ffda"};
-      background: ${
-        props.$isSelected
-          ? props.$isCurse
-            ? "rgba(68, 22, 26, 0.98)"
-            : props.$isSynergy
-              ? "rgba(50, 42, 16, 0.98)"
-              : props.$isBuff
-                ? "rgba(14, 45, 68, 0.98)"
-                : "rgba(22, 45, 64, 0.98)"
-          : props.$isCurse
-            ? "rgba(68, 22, 26, 0.3)"
-            : props.$isSynergy
-              ? "rgba(50, 42, 16, 0.3)"
-              : props.$isBuff
-                ? "rgba(14, 45, 68, 0.3)"
-                : "rgba(20, 30, 44, 0.75)"
-      };
-      box-shadow: 0 4px 12px ${
-        props.$isCurse
-          ? "rgba(239, 68, 68, 0.25)"
-          : props.$isSynergy
-            ? "rgba(255, 215, 0, 0.25)"
-            : props.$isBuff
-              ? "rgba(56, 189, 248, 0.25)"
-              : "rgba(0, 0, 0, 0.4)"
-      };
+      background: ${props.$isSelected ? (props.$isCurse ? "rgba(68, 22, 26, 0.98)" : props.$isSynergy ? "rgba(50, 42, 16, 0.98)" : props.$isBuff ? "rgba(14, 45, 68, 0.98)" : "rgba(22, 45, 64, 0.98)") : props.$isCurse ? "rgba(68, 22, 26, 0.3)" : props.$isSynergy ? "rgba(50, 42, 16, 0.3)" : props.$isBuff ? "rgba(14, 45, 68, 0.3)" : "rgba(20, 30, 44, 0.75)"};
+      box-shadow: 0 4px 12px ${props.$isCurse ? "rgba(239, 68, 68, 0.25)" : props.$isSynergy ? "rgba(255, 215, 0, 0.25)" : props.$isBuff ? "rgba(56, 189, 248, 0.25)" : "rgba(0, 0, 0, 0.4)"};
 
       ${IconWrapper} {
         transform: ${props.$isPeek ? "none" : "scale(1.05)"};
         filter: drop-shadow(
-          0 0 6px ${
-            props.$isCurse
-              ? "rgba(239, 68, 68, 0.5)"
-              : props.$isSynergy
-                ? "rgba(255, 215, 0, 0.5)"
-                : props.$isBuff
-                  ? "rgba(56, 189, 248, 0.5)"
-                  : "rgba(100, 255, 218, 0.4)"
-          }
+          0 0 6px ${props.$isCurse ? "rgba(239, 68, 68, 0.5)" : props.$isSynergy ? "rgba(255, 215, 0, 0.5)" : props.$isBuff ? "rgba(56, 189, 248, 0.5)" : "rgba(100, 255, 218, 0.4)"}
         );
       }
     }

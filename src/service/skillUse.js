@@ -271,6 +271,11 @@ const criticalRate = (input, pokemon = null) => {
     probability += 0.25;
   }
 
+  // 증강 징수의 총: 급소 확률 25% 증가
+  if (pokemon?.hasAugment?.("collector")) {
+    probability += 0.25;
+  }
+
   // 버프 연습이 치명타를 낳는다: 스택당 급소 확률 1% 상승
   if (pokemon?.hasAugment?.("practiceMakesCritical")) {
     const practiceAug = pokemon.augments?.find((a) => a.id === "practiceMakesCritical");

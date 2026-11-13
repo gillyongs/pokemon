@@ -22,14 +22,14 @@ export const REPLACEMENT_AUGMENT_IDS = [
 
 export function getReplacementAugmentWeight(pokemon) {
   const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
-  return Math.round(300 / (count + 1));
+  return Math.round(200 / (count + 1));
 }
 
 export function getAugmentWeight(aug, pokemon = null, battleOrTeam = null) {
   if (!aug || aug.weight === "-" || !isNormalAugment(aug) || aug.isRandom === false) return 0;
 
   // 포켓몬 교체 증강 (기기기어르, 전설의 거인, 결혼, 돌림판, 비상 등):
-  // 기본 가중치 300, (지닌 증강/버프 개수 + 1)로 나눔
+  // 기본 가중치 200, (지닌 증강/버프 개수 + 1)로 나눔
   if (REPLACEMENT_AUGMENT_IDS.includes(aug.id)) {
     return getReplacementAugmentWeight(pokemon);
   }

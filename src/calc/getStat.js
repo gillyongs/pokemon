@@ -37,11 +37,11 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   for (const aug of augments) {
     const augId = typeof aug === "string" ? aug : aug?.id;
 
-    // 검 강화하기
-    if (augId === "swordEnhance" && statKey === "atk") {
-      const failed = Boolean(aug?.swordFailed);
-      const level = Number(aug?.swordLevel ?? 0);
-      const bonusAtk = aug?.swordBonusAtk !== undefined ? Number(aug.swordBonusAtk) : failed ? 0 : 20 + level * 20;
+    // 검 강화하기: 공격 및 특수공격 모두 증가
+    if (augId === "swordEnhance" && (statKey === "atk" || statKey === "catk")) {
+      const failed = Boolean(aug?.swordFailed ?? pokemon?.swordFailed);
+      const level = Number(aug?.swordLevel ?? pokemon?.swordLevel ?? 0);
+      const bonusAtk = aug?.swordBonusAtk !== undefined ? Number(aug.swordBonusAtk) : pokemon?.swordBonusAtk !== undefined ? Number(pokemon.swordBonusAtk) : failed ? 0 : 20 + level * 20;
       if (bonusAtk > 0) {
         val += bonusAtk;
         logText += ` + ${bonusAtk} (검 강화하기)`;

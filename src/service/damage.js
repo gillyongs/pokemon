@@ -120,8 +120,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
       actualGiveDamage -= 1;
     } else if (defPokemon.hasAugment?.("mandoocornEndure")) {
-      // 10% 확률로 HP 1로 버팀
-      if (Math.random() < 0.1) {
+      // 30% 확률로 HP 1로 버팀
+      if (Math.random() < 0.3) {
         defPokemon.hp = 1;
         actualGiveDamage = prevHp - 1;
         mandooTextTrigger = true;

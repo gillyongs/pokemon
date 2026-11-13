@@ -34,7 +34,6 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   });
 
   const [selectedKeys, setSelectedKeys] = useState(new Set());
-  const [errorMessage, setErrorMessage] = useState("");
 
   // 현재 선택된 총 포인트 계산
   const currentCost = allOwnedAugments.reduce((sum, item) => {
@@ -44,27 +43,31 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
     return sum;
   }, 0);
 
-  const toggleSelect = (item) => {
-    setErrorMessage("");
-    const isSelected = selectedKeys.has(item.uniqueKey);
-    const itemCost = item.augment.cost ?? 1;
+  const isCostOver = currentCost > maxPoints;
 
-    if (isSelected) {
-      const next = new Set(selectedKeys);
+  const toggleSelect = (item) => {
+    const next = new Set(selectedKeys);
+    if (next.has(item.uniqueKey)) {
       next.delete(item.uniqueKey);
-      setSelectedKeys(next);
     } else {
-      if (currentCost + itemCost > maxPoints) {
-        setErrorMessage("최대치를 초과하여 더이상 선택할 수 없습니다!");
-        return;
-      }
-      const next = new Set(selectedKeys);
       next.add(item.uniqueKey);
-      setSelectedKeys(next);
+    }
+    setSelectedKeys(next);
+  };
+
+  const isAllSelected = allOwnedAugments.length > 0 && allOwnedAugments.every((item) => selectedKeys.has(item.uniqueKey));
+
+  const handleToggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedKeys(new Set());
+    } else {
+      const allKeys = new Set(allOwnedAugments.map((item) => item.uniqueKey));
+      setSelectedKeys(allKeys);
     }
   };
 
   const handleComplete = () => {
+    if (isCostOver) return;
     // 포켓몬별로 선택된 증강 맵핑 { 0: [aug...], 1: [...], 2: [...] }
     const carriedMap = { 0: [], 1: [], 2: [] };
     // 영구 버프/저주/시너지 및 스택은 무조건 같이 넘어감
@@ -133,13 +136,18 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           <SubTitle>*남은 코스트는 이월되지 않습니다.</SubTitle>
         </HeaderArea>
 
-        <PointBar>
+        <PointBar $isOver={isCostOver}>
           <PointText>
-            사용 코스트: <HighlightText>{currentCost}</HighlightText> / {maxPoints}
+            사용 코스트: <HighlightText $isOver={isCostOver}>{currentCost}</HighlightText> / {maxPoints}
           </PointText>
+          {allOwnedAugments.length > 0 && (
+            <SelectAllButton type="button" onClick={handleToggleSelectAll}>
+              {isAllSelected ? "전체 해제" : "전체 선택"}
+            </SelectAllButton>
+          )}
         </PointBar>
 
-        {errorMessage && <AlertBox>{errorMessage}</AlertBox>}
+        {isCostOver && <AlertBox>최대 코스트({maxPoints})를 초과하여 선택 완료할 수 없습니다!</AlertBox>}
 
         <CardScrollArea>
           {allOwnedAugments.length === 0 ? (
@@ -178,7 +186,9 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
         </CardScrollArea>
 
         <FooterArea>
-          <ConfirmButton onClick={handleComplete}>선택 완료</ConfirmButton>
+          <ConfirmButton type="button" onClick={handleComplete} disabled={isCostOver}>
+            선택 완료
+          </ConfirmButton>
         </FooterArea>
       </ModalContainer>
     </ModalOverlay>
@@ -251,13 +261,14 @@ const SubTitle = styled.div`
 
 const PointBar = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 8px 12px;
+  border: 1px solid ${(props) => (props.$isOver ? "rgba(239, 68, 68, 0.5)" : "rgba(255, 255, 255, 0.1)")};
+  padding: 8px 14px;
   border-radius: 8px;
   margin-bottom: 10px;
+  transition: border-color 0.2s ease;
 `;
 
 const PointText = styled.span`
@@ -267,8 +278,28 @@ const PointText = styled.span`
 `;
 
 const HighlightText = styled.span`
-  color: #64ffda;
+  color: ${(props) => (props.$isOver ? "#ef4444" : "#64ffda")};
   font-size: 1.05rem;
+  font-weight: bold;
+  transition: color 0.2s ease;
+`;
+
+const SelectAllButton = styled.button`
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(100, 255, 218, 0.15);
+    border-color: rgba(100, 255, 218, 0.5);
+    color: #64ffda;
+  }
 `;
 
 const AlertBox = styled.div`
@@ -415,8 +446,17 @@ const ConfirmButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: rgba(100, 255, 218, 0.25);
     box-shadow: 0 4px 14px rgba(100, 255, 218, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: rgba(100, 255, 218, 0.04);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #64748b;
+    box-shadow: none;
   }
 `;

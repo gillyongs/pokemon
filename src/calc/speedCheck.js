@@ -92,8 +92,8 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
   if (battle && pokemon?.hasAugment?.("dragonHunter")) {
     const opponent = pokemon.team === "player" ? battle.npc : (pokemon.team === "npc" ? battle.player : (battle.player === pokemon ? battle.npc : battle.player));
     if (opponent && (opponent.type1 === "드래곤" || opponent.type2 === "드래곤")) {
-      speed *= 1.2;
-      pokemon.log.speedCalculate += " * 1.2 (용 사냥꾼)";
+      speed *= 1.5;
+      pokemon.log.speedCalculate += " * 1.5 (용 사냥꾼)";
     }
   }
   if (pokemon?.hasAugment?.("dragonDie")) {

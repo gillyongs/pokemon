@@ -137,7 +137,7 @@
 - **계산 순서**:
   1. 기초 스피드: `hhgghgg` 보유 시 `getHighestStatInfo`의 최댓값 스탯/랭크 사용, 아니면 `getAugmentedStat(pokemon, "speed", battle)`.
   2. 랭크 배율(`getMultiplier(rank)`), 마비(`* 0.5`), 구애스카프(`* 1.5`), 고대활성/쿼크차지(`* 1.5`), 곡예(`* 2`), 순풍(`* 2`), 쓱쓱(`* 2`), 패스트스타트 5턴 후(`* 2`), 슬로스타트 5턴 미만(`* 0.5`).
-  3. 증강 배율: `dragonHunter` (상대가 드래곤일 때 `* 1.2`), `dragonDie` (`1 + Math.floor(dragonKillCount / 2) * 0.1`), `lifePartner` (`* 1.1`), `lastWarrior` (혼자 남았을 때 `* 1.6`).
+  3. 증강 배율: `dragonHunter` (상대가 드래곤일 때 `* 1.5`), `dragonDie` (`1 + Math.floor(dragonKillCount / 2) * 0.1`), `lifePartner` (`* 1.1`), `lastWarrior` (혼자 남았을 때 `* 1.6`).
 
 ### 3.4 데미지 계산: `damageCalculate(battle, skillNumber, options)` (`src/calc/damageCalculate.js`)
 - **주요 스탯 치환 증강 처리**:
@@ -148,7 +148,7 @@
 - **주요 증강 데미지 보정**:
   - `voidStaff` (공허의 지팡이): 특수 공격 시 상대 `cdef * 0.6` + 단일 고스트 무효 관통(`typeEffectCalculate.js`).
   - `dragonHunter`, `dragonDie`, `lifePartner`, `lastSamurai` (혼자 남았을 때 공격/특공 `* 1.6`), `lastManStanding` (혼자 남았을 때 방어/특방 `* 1.6`).
-  - `infinityEdge` (무한의 대검: 급소 확률 +50%, 급소 데미지 증가), `practiceMakesCritical` (스택당 급소 확률 +1%), `bladeOfTheRuinedKing` (적 현재 체력 9% 추가 피해), `highRiskBuff` (`* 3`), `highRiskCurse` (`* 0.5`).
+  - `infinityEdge` (무한의 대검: 급소 확률 +50%, 급소 데미지 증가), `practiceMakesCritical` (스택당 급소 확률 +1%), `bladeOfTheRuinedKing` (적 현재 체력 15% 추가 피해), `highRiskBuff` (`* 3`), `highRiskCurse` (`* 0.5`).
 - **고정 추가 피해 후처리 (`src/service/damage.js` 내 `attackDamage`)**:
   - `threeSnails` (달팽이 세마리), `wujuStyle` (우주류 검술), `ludensEcho` (루덴의 메아리), `collector` (징수의 총: 피격 후 남은 체력이 `hpCalculate(defPokemon) * 0.05` 이하이면 즉시 처형).
 
