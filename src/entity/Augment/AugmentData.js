@@ -550,7 +550,7 @@ export const AUGMENT_LIST = [
   {
     id: "legendaryTitan",
     name: "전설의 거인",
-    desc: "현재 포켓몬을 레지기가스와 교체합니다. 특성과 관련된 증강을 추가로 획득합니다.",
+    desc: `현재 포켓몬을 레지기가스와 교체합니다.\n특성과 관련된 증강을 추가로 획득합니다.`,
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
@@ -587,6 +587,24 @@ export const AUGMENT_LIST = [
       if (newPoke) {
         newPoke.gearStack = 0;
         newPoke.img_id = null;
+      }
+    },
+  },
+  {
+    id: "blackNight",
+    name: "가라르의 미래를 지키기 위해 지금부터 블랙 나이트를 일으킬 거란다!",
+    shortName: "블랙 나이트",
+    desc: "현재 포켓몬을 무한다이노와 교체합니다.\n무한다이맥스 증강을 추가로 획득합니다.\n( 코스트 10 )",
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    shiftUp: false,
+    imageOptions: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
+    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "무한다이노", battleOrTeam || team),
+    onApply: function (pokemon, battle, options) {
+      const newPoke = replacePokemon(pokemon, "무한다이노", battle, { resetAugments: true });
+      const eternamaxAug = AUGMENT_LIST.find((a) => a.id === "eternamax");
+      if (eternamaxAug && newPoke) {
+        newPoke.applyAugment(eternamaxAug, battle, options);
       }
     },
   },
@@ -1073,7 +1091,7 @@ export const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   ["revivePiece", "maxRevive"],
 
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
-  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump"],
+  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight"],
 
   // 3. 물리 / 특수 대칭형 스탯 전환 증강
   ["swordAndShield", "specialSwordAndShield"],
@@ -1355,6 +1373,9 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   } else if (id === "klinklangGear") {
     const fromName = prevPokeName || "포켓몬";
     individualDesc = josa(`${fromName}#{이} 기기기어르로 교체되었다!`);
+  } else if (id === "blackNight") {
+    const fromName = prevPokeName || "포켓몬";
+    individualDesc = josa(`${fromName}#{이} 무한다이노로 교체되었다!`);
   } else if (id === "nimbleMoves") {
     const nimbleAug = target?.augments?.find((a) => a.id === "nimbleMoves") || selectedAugment;
     const skillName = options?.enhancedSkillName || nimbleAug?.enhancedSkillName;

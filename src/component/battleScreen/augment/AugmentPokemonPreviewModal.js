@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { abilObject } from "../../../entity/Ability";
 import { itemText } from "../../../entity/Item";
@@ -18,7 +18,8 @@ const getDefaultInfoText = (pokemon) => {
 };
 
 const PreviewHexagonGraph = ({ hp, stat }) => {
-  const MAX_STAT = 250;
+  const maxVal = Math.max(250, hp ?? 0, ...Object.values(stat || {}));
+  const MAX_STAT = Math.max(250, Math.ceil(maxVal / 50) * 50);
   const width = 140;
   const height = 140;
   const cx = width / 2;
@@ -78,23 +79,54 @@ const PreviewHexagonGraph = ({ hp, stat }) => {
 const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
   const hasMegaForm = Boolean(pokemon?.megaData);
   const [showMegaForm, setShowMegaForm] = useState(hasMegaForm);
+
+  const isEternatusPokemon = pokemon?.pokemon_id === "0890" || pokemon?.name === "무한다이노" || augmentId === "blackNight" || augmentId === "eternamax";
+
+  const eternamaxData = useMemo(() => {
+    if (!isEternatusPokemon) return null;
+    return {
+      name: "무한다이맥스",
+      pokemon_id: "0890-m",
+      type1: "독",
+      type2: "드래곤",
+      abil: "프레셔",
+      hp: 331,
+      stat: {
+        atk: 108,
+        def: 270,
+        catk: 177,
+        cdef: 270,
+        speed: 200,
+      },
+    };
+  }, [isEternatusPokemon]);
+
+  const [showEternamaxForm, setShowEternamaxForm] = useState(() => Boolean(isEternatusPokemon));
   const [infoText, setInfoText] = useState(() => getDefaultInfoText(pokemon));
 
   useEffect(() => {
     setShowMegaForm(Boolean(pokemon?.megaData));
+    setShowEternamaxForm(Boolean(isEternatusPokemon));
     setInfoText(getDefaultInfoText(pokemon));
-  }, [pokemon, augmentId]);
+  }, [pokemon, augmentId, isEternatusPokemon]);
 
   if (!pokemon) return null;
 
   const isMegaView = hasMegaForm && showMegaForm;
-  const displayName = isMegaView ? pokemon.megaData.name : pokemon.name;
-  const displayPokemonId = isMegaView ? pokemon.megaData.pokemon_id : pokemon.img_id || pokemon.pokemon_id;
-  const displayType1 = isMegaView ? pokemon.megaData.type1 : pokemon.type1;
-  const displayType2 = isMegaView ? pokemon.megaData.type2 : pokemon.type2;
-  const displayAbil = isMegaView ? pokemon.megaData.abil : pokemon.abil;
-  const displayHp = pokemon.hp;
-  const displayStat = (isMegaView ? pokemon.megaData.stat : pokemon.stat) || {};
+  const isEternamaxView = Boolean(eternamaxData) && showEternamaxForm;
+
+  const displayName = isMegaView ? pokemon.megaData.name : isEternamaxView ? eternamaxData.name : pokemon.name;
+
+  const displayPokemonId = isMegaView ? pokemon.megaData.pokemon_id : isEternamaxView ? eternamaxData.pokemon_id : pokemon.img_id || pokemon.pokemon_id;
+
+  const displayType1 = isMegaView ? pokemon.megaData.type1 : isEternamaxView ? eternamaxData.type1 : pokemon.type1;
+
+  const displayType2 = isMegaView ? pokemon.megaData.type2 : isEternamaxView ? eternamaxData.type2 : pokemon.type2;
+
+  const displayAbil = isMegaView ? pokemon.megaData.abil : isEternamaxView ? eternamaxData.abil : pokemon.abil;
+
+  const displayHp = isEternamaxView ? eternamaxData.hp : pokemon.hp;
+  const displayStat = isMegaView ? pokemon.megaData.stat : isEternamaxView ? eternamaxData.stat : pokemon.stat || {};
   const displayItem = pokemon.item;
   const skills = [1, 2, 3, 4].map((num) => pokemon.skill?.[num]).filter((s) => s && s.name);
 
@@ -167,6 +199,31 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
               }}
             >
               플라이곤 (진화 전)
+            </FormToggleButton>
+          </FormToggleRow>
+        )}
+
+        {Boolean(eternamaxData) && (
+          <FormToggleRow>
+            <FormToggleButton
+              type="button"
+              $active={showEternamaxForm}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowEternamaxForm(true);
+              }}
+            >
+              무한다이맥스 (변환)
+            </FormToggleButton>
+            <FormToggleButton
+              type="button"
+              $active={!showEternamaxForm}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowEternamaxForm(false);
+              }}
+            >
+              무한다이노 (기본)
             </FormToggleButton>
           </FormToggleRow>
         )}

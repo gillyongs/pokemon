@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
+import { AUGMENT_POKEMON_PREVIEW_MAP } from "./AugmentModal";
+import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
+import sampleList from "../../../entity/Pokemon/SamplePokemon";
 import { getAugmentText, isBuffAugment, isCurseAugment } from "../../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
+  const [previewInfo, setPreviewInfo] = useState(null);
   const resolvedTeam = team && team.length > 0 ? team : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
 
   const [activePokemon, setActivePokemon] = useState(() => {
@@ -80,6 +84,27 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                     </CardTitleRow>
                     <CardDescription>{getAugmentText(aug, activePokemon, false, "", { battle, showCurrentStats: true }) || aug.desc}</CardDescription>
                   </CardContent>
+                  {(() => {
+                    const sampleKey = AUGMENT_POKEMON_PREVIEW_MAP[aug.id];
+                    const previewSample = sampleKey ? sampleList.getDataById(sampleKey) : null;
+                    if (!previewSample) return null;
+                    return (
+                      <PreviewInfoButton
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewInfo({ augmentId: aug.id, pokemon: previewSample });
+                        }}
+                        title={
+                          aug.id === "eternamax" || aug.id === "blackNight"
+                            ? "무한다이맥스 / 무한다이노 상세정보 보기"
+                            : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`
+                        }
+                      >
+                        상세정보
+                      </PreviewInfoButton>
+                    );
+                  })()}
                 </AugmentCard>
               );
             })
@@ -92,6 +117,13 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
           </CloseActionButton>
         </ButtonGroup>
       </ModalContainer>
+      {previewInfo && (
+        <AugmentPokemonPreviewModal
+          augmentId={previewInfo.augmentId}
+          pokemon={previewInfo.pokemon}
+          onClose={() => setPreviewInfo(null)}
+        />
+      )}
     </ModalOverlay>
   );
 };
@@ -487,5 +519,31 @@ const CloseActionButton = styled.button`
 
   &:active {
     transform: translateY(1px);
+  }
+`;
+
+
+const PreviewInfoButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  background: rgba(100, 255, 218, 0.12);
+  border: 1px solid rgba(100, 255, 218, 0.4);
+  border-radius: 6px;
+  color: #64ffda;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  margin-left: auto;
+  align-self: center;
+
+  &:hover {
+    background: rgba(100, 255, 218, 0.25);
+    border-color: #64ffda;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(100, 255, 218, 0.35);
   }
 `;

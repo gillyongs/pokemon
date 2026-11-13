@@ -12,11 +12,13 @@ import sampleList from "../../../entity/Pokemon/SamplePokemon";
 import AugmentStatusModal from "./AugmentStatusModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 
-const AUGMENT_POKEMON_PREVIEW_MAP = {
+export const AUGMENT_POKEMON_PREVIEW_MAP = {
   soaring: "플라이곤",
   legendaryTitan: "레지기가스",
   klinklangGear: "기기기어르",
   magikarpJump: "잉어킹",
+  blackNight: "무한다이노",
+  eternamax: "무한다이노",
 };
 
 const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialTarget = null, battle = null, onSelect, onClose, isTestMode: propTestMode = null, isTitanSelection = false }) => {
@@ -1376,7 +1378,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                                 </IconWrapper>
                                 {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                               </IconCol>
-                              <CardContent $hasPreview={isCardSelected && Boolean(previewSample)}>
+                              <CardContent>
                                 <CardTitleRow>
                                   <CardTitle>{aug.name}</CardTitle>
                                   {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
@@ -1384,9 +1386,15 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                                 <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                               </CardContent>
                               {isCardSelected && previewSample && (
-                                <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={`${previewSample.megaData?.name || previewSample.name} 상세정보 보기`}>
-                                  상세정보
-                                </PreviewInfoButton>
+                                <CardPreviewOverlay>
+                                  <PreviewInfoButton
+                                    type="button"
+                                    onClick={(e) => handleOpenPreview(e, aug.id)}
+                                    title={aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`}
+                                  >
+                                    상세정보
+                                  </PreviewInfoButton>
+                                </CardPreviewOverlay>
                               )}
                             </AugmentCard>
                           );
@@ -1439,7 +1447,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             </IconWrapper>
                             {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                           </IconCol>
-                          <CardContent $hasPreview={isCardSelected && Boolean(previewSample)}>
+                          <CardContent>
                             <CardTitleRow>
                               <CardTitle>{aug.name}</CardTitle>
                               {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
@@ -1447,9 +1455,15 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                           </CardContent>
                           {isCardSelected && previewSample && (
-                            <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={`${previewSample.megaData?.name || previewSample.name} 상세정보 보기`}>
-                              상세정보
-                            </PreviewInfoButton>
+                            <CardPreviewOverlay>
+                              <PreviewInfoButton
+                                type="button"
+                                onClick={(e) => handleOpenPreview(e, aug.id)}
+                                title={aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`}
+                              >
+                                상세정보
+                              </PreviewInfoButton>
+                            </CardPreviewOverlay>
                           )}
                         </AugmentCard>
                       );
@@ -1887,35 +1901,43 @@ const CardTitleRow = styled.div`
   }
 `;
 
-const PreviewInfoButton = styled.button`
+const CardPreviewOverlay = styled.div`
   position: absolute;
-  right: 12px;
-  top: 10px;
-  bottom: 10px;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 5;
-  background: rgba(15, 23, 42, 0.9);
+  pointer-events: none;
+`;
+
+const PreviewInfoButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  min-width: 96px;
+  padding: 14px 26px;
+  background: rgba(15, 23, 42, 0.96);
   border: 1.5px solid #64ffda;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #64ffda;
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   font-weight: 700;
   font-family: inherit;
-  padding: 0 14px;
   cursor: pointer;
   pointer-events: auto;
   transition: all 0.2s ease;
   user-select: none;
   white-space: nowrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 10px rgba(100, 255, 218, 0.35);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 14px rgba(100, 255, 218, 0.4);
   animation: ${fadeIn} 0.15s ease-out;
 
   &:hover {
     background: #64ffda;
     color: #0f172a;
-    box-shadow: 0 0 14px rgba(100, 255, 218, 0.6);
+    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.9), 0 0 18px rgba(100, 255, 218, 0.7);
+    transform: scale(1.04);
   }
 
   &:active {
@@ -1923,11 +1945,10 @@ const PreviewInfoButton = styled.button`
   }
 
   @media (max-width: 480px) {
-    right: 8px;
-    top: 8px;
-    bottom: 8px;
-    font-size: 0.74rem;
-    padding: 0 8px;
+    min-height: 44px;
+    min-width: 84px;
+    font-size: 0.86rem;
+    padding: 10px 18px;
   }
 `;
 
@@ -2017,14 +2038,6 @@ const CardContent = styled.div`
   text-align: left;
   flex: 1;
   min-width: 0;
-  ${(props) =>
-    props.$hasPreview &&
-    `
-    padding-right: 88px;
-    @media (max-width: 480px) {
-      padding-right: 74px;
-    }
-  `}
 `;
 
 const CardTitle = styled.h3`
@@ -2033,6 +2046,7 @@ const CardTitle = styled.h3`
   font-weight: 700;
   color: #ffffff;
   word-break: keep-all;
+  white-space: pre-line;
   line-height: 1.3;
 
   @media (max-width: 480px) {

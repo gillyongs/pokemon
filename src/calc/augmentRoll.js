@@ -17,6 +17,7 @@ export const REPLACEMENT_AUGMENT_IDS = [
   "rouletteWheel",
   "soaring",
   "magikarpJump",
+  "blackNight",
 ];
 
 export function getReplacementAugmentWeight(pokemon) {
