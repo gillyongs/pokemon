@@ -1,4 +1,4 @@
-import { getMultiplier } from "../function/rankStat";
+import { getMultiplier } from "./rankStat";
 
 export const STAT_KEYS = ["atk", "def", "catk", "cdef", "speed"];
 

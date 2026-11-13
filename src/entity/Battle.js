@@ -37,7 +37,7 @@ class Battle {
       npcSwitched: null, // 이번 턴 NPC 교체 여부 (속이기 판정용)
       destinyBondUser: null, // 길동무 발동
       //battleStart.js에서 해당 값이 true면 진행을 끊고 교체화면을 띄운다.
-      //선 유턴이면 attackNpc를 실행하고 그 외엔 turnEnd를 실행한다
+      //선 유턴이면 skillUseNpc를 실행하고 그 외엔 turnEnd를 실행한다
     };
     //turnEnd 같은 변수때문에 턴이 시작될때 = battleStart.js에서 초기화된다
     this.field = new Field();

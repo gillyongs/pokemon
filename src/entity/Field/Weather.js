@@ -1,6 +1,6 @@
-import { hpCalculate } from "../../util/hpCalculate";
+import { hpCalculate } from "../../calc/hpCalculate";
 // Weather.js
-import { speedCheck } from "../../util/speedCheck";
+import { speedCheck } from "../../calc/speedCheck";
 
 export class Weather {
   #type = null; // 현재 날씨: "쾌청", "비", null

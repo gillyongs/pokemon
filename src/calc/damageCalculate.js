@@ -1,11 +1,11 @@
 import { hpCalculate } from "./hpCalculate";
 import { typeCheckOnBattle } from "./typeEffectCalculate";
-import { getMultiplier } from "../function/rankStat";
+import { getMultiplier } from "./rankStat";
 import { noNullItem } from "../entity/Item";
-import { isAilmentCheck } from "../function/ailment";
+import { isAilmentCheck } from "../service/ailment";
 import { speedCheck, speedCalculate, isPokemonAlone } from "./speedCheck";
 import { skillTypeCalculate } from "./skillTypeCalculate";
-import { consoleLog } from "./consoleLog";
+import { consoleLog } from "../util/consoleLog";
 import { getAugmentedStat, getHighestStatInfo } from "./getStat";
 
 export const damageCalculate = (battle, obj, ai) => {

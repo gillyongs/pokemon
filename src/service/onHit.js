@@ -1,7 +1,7 @@
-import { hpCalculate } from "../util/hpCalculate";
-import { applyAilment } from "../function/ailment";
+import { hpCalculate } from "../calc/hpCalculate";
+import { applyAilment } from "./ailment";
 import { random } from "../util/randomCheck";
-import { typeCheckOnBattle } from "../util/typeEffectCalculate";
+import { typeCheckOnBattle } from "../calc/typeEffectCalculate";
 import { josa } from "josa";
 
 export const applyOnHitEvents = (battle, enqueue, substitute) => {

@@ -1,7 +1,7 @@
-import { speedCheck, skillSpeedCheck, megaSpeedCheck } from "../util/speedCheck";
+import { speedCheck, skillSpeedCheck, megaSpeedCheck } from "../calc/speedCheck";
 import { turnEnd } from "./turnEnd";
 import { switchNpc, switchPlayer } from "./switch";
-import { attackNpc, attackPlayer } from "./attack";
+import { skillUse } from "./skillUse";
 
 export const battleStart = (battle, actNumber, npcActNumber, queueObject, options = {}) => {
   // 턴을 시작하는 함수
@@ -73,7 +73,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
   ) {
     battle.turn.fastActUser = "player"; // 교체도 먼저 행동한 것으로 간주
     switchPlayer(battle, actNumber, enqueue);
-    attackNpc(battle, actNumber, npcActNumber, enqueue);
+    skillUseNpc(battle, actNumber, npcActNumber, enqueue);
   } else if (
     // npc만 교체
     isSwitch(npcActNumber) &&
@@ -81,7 +81,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
   ) {
     battle.turn.fastActUser = "npc"; // 교체도 먼저 행동한 것으로 간주
     switchNpc(battle, npcActNumber, enqueue);
-    attackPlayer(battle, actNumber, npcActNumber, enqueue);
+    skillUsePlayer(battle, actNumber, npcActNumber, enqueue);
     if (battle.turn.switchBySkill) {
       return;
     }
@@ -95,16 +95,16 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
 
     if (fastUser === "player") {
       // 플레이어 선공
-      attackPlayer(battle, actNumber, npcActNumber, enqueue);
+      skillUsePlayer(battle, actNumber, npcActNumber, enqueue);
       if (battle.turn.switchBySkill) return;
-      // 유턴으로 교체시 교체화면을 띄우고 거기서 남은 함수 (attackNpc, turnEnd)를 실행한다
+      // 유턴으로 교체시 교체화면을 띄우고 거기서 남은 함수 (skillUseNpc, turnEnd)를 실행한다
       if (battle[battle.turn.def].faint !== true) {
-        attackNpc(battle, actNumber, npcActNumber, enqueue);
+        skillUseNpc(battle, actNumber, npcActNumber, enqueue);
       }
     } else {
-      attackNpc(battle, actNumber, npcActNumber, enqueue);
+      skillUseNpc(battle, actNumber, npcActNumber, enqueue);
       if (battle[battle.turn.def].faint !== true) {
-        attackPlayer(battle, actNumber, npcActNumber, enqueue);
+        skillUsePlayer(battle, actNumber, npcActNumber, enqueue);
         if (battle.turn.switchBySkill) return;
         // 유턴으로 교체시 교체화면을 띄우고 거기서 남은 함수 (turnEnd)를 실행한다
       }
@@ -141,3 +141,21 @@ function isSwitch(act) {
   if (string === "switch") return true;
   return false;
 }
+
+
+export const skillUsePlayer = (bt, actNumber, npcActNumber, enqueue) => {
+  // skillUse로 들어가기 전에 넣어야 할 변수를 처리한다
+  bt.turn.atk = "player";
+  bt.turn.def = "npc";
+  bt.turn.atkSN = actNumber;
+  bt.turn.defSN = npcActNumber;
+  skillUse(bt, enqueue);
+};
+
+export const skillUseNpc = (bt, actNumber, npcActNumber, enqueue) => {
+  bt.turn.atk = "npc";
+  bt.turn.def = "player";
+  bt.turn.atkSN = npcActNumber;
+  bt.turn.defSN = actNumber;
+  skillUse(bt, enqueue);
+};

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import sampleList from "../entity/Pokemon/SamplePokemon";
 import { defaultOption } from "../config/defaultOption";
-import { gameOptionState } from "../util/recoilState";
+import { gameOptionState } from "../store/recoilState";
 import SampleInfoModal from "../component/customScreen/sampleInfo/SampleInfoModal";
 import FilterModal from "../component/customScreen/FilterModal";
 import GameOptionModal from "../component/customScreen/GameOptionModal";
@@ -15,8 +15,8 @@ import {
   resolveSlotPokemonData,
   isValidTeamArray,
   exportTeamToFile,
-} from "../util/customEntryUtil";
-import { fillRandomTeam, getRandomPokemonForSlot } from "../util/randomTeam";
+} from "../calc/customEntryUtil";
+import { fillRandomTeam, getRandomPokemonForSlot } from "../calc/randomTeam";
 import { testmode } from "../config/testMode";
 
 const CustomScreen = () => {

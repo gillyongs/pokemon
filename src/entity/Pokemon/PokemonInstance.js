@@ -1,4 +1,4 @@
-import { hpCalculate } from "../../util/hpCalculate";
+import { hpCalculate } from "../../calc/hpCalculate";
 import sampleList from "./SamplePokemon";
 import { PokemonRecover } from "./Methods/PokemonRecover";
 import { PokemonAbil } from "./Methods/PokemonAbil.js";
@@ -121,10 +121,11 @@ class PokemonInstance {
       lastHitSubstitute: null, // 직전 타격이 대타에 맞았는지 여부 (연속기 타격별 판정용)
       knockedOutNpcThisTurn: null, // 이번 턴 공격기로 상대 포켓몬을 쓰러뜨렸는지 여부
       damagedThisTurn: null, // 이번 턴 데미지 받았는지 여부 (워모그)
+      skillLaunched: null, // 이번 턴 기술이 실제로 시전 단계(afterSkillCheck 발동부)에 진입했는지 여부
     };
     this.tempStatus = {
       //교체시 초기화
-      //switchPokemon.js에서 초기화된다
+      //switch.js(switchPokemon)에서 초기화된다
       rank: {
         // 랭크업
         atk: 0,

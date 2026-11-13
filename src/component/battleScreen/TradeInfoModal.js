@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { skillTypeCalculate } from '../../util/skillTypeCalculate';
+import { skillTypeCalculate } from '../../calc/skillTypeCalculate';
 
 const HexagonGraph = ({ origin }) => {
   const MAX_STAT = 250;

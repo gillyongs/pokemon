@@ -4,11 +4,11 @@ import styled from "styled-components";
 import TextBox from "../common/TextBox";
 import { TYPE_COLORS } from "../../../customScreen/sampleInfo/SampleInfoModal";
 import { isOnlyPrioritySkillText } from "../../../customScreen/sampleInfo/SkillSearchModal";
-import { getAugmentedStat } from "../../../../util/getStat";
-import { hpCalculate } from "../../../../util/hpCalculate";
-import { getMultiplier } from "../../../../function/rankStat";
-import { getTypeEffectText } from "../../../../util/typeEffectCalculate";
-import { skillTypeCalculate } from "../../../../util/skillTypeCalculate";
+import { getAugmentedStat } from "../../../../calc/getStat";
+import { hpCalculate } from "../../../../calc/hpCalculate";
+import { getMultiplier } from "../../../../calc/rankStat";
+import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
+import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { abilObject } from "../../../../entity/Ability";
 import { itemText as itemTextDict } from "../../../../entity/Item";
 

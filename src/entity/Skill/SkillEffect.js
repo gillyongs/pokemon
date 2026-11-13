@@ -1,11 +1,11 @@
-import { hpCalculate } from "../../util/hpCalculate";
+import { hpCalculate } from "../../calc/hpCalculate";
 import { random } from "../../util/randomCheck";
-import { applyAilment, isAilmentCheck } from "../../function/ailment";
+import { applyAilment, isAilmentCheck } from "../../service/ailment";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchNpcAuto, switchPlayer, switchPlayerForce } from "../../service/switch";
-import { getAugmentedStat } from "../../util/getStat";
-import { getMultiplier } from "../../function/rankStat";
+import { getAugmentedStat } from "../../calc/getStat";
+import { getMultiplier } from "../../calc/rankStat";
 
 function isTargetSubstituteBlocked(battle) {
   const defPokemon = battle?.[battle?.turn?.def];
@@ -626,6 +626,7 @@ function skillEffectSearch(name) {
       const def = battle.turn.def;
       const defPokemon = battle[def];
       const atkPokemon = battle[battle.turn.atk];
+      if (atkPokemon.faint) return;
       if (defPokemon.abil === "둔감" && !atkPokemon?.abilObj?.feature?.tgg) {
         enqueue({
           id: "ffce1bdf-4b5b-4da4-bb49-6ec64b3d713c",
@@ -852,15 +853,18 @@ function skillEffectSearch(name) {
       enqueue({ id: "b7c2e8a1-4d3f-4e6a-9b1c-2f5d8e7a0c31", battle, text: atk.names + " 상대를 길동무로 삼으려 하고 있다!" });
     },
     목숨걸기: (battle, enqueue, skillEffect) => {
+      if (battle[battle.turn.atk].faint) return;
       battle[battle.turn.atk].handleFaint(battle, enqueue);
     },
     자폭: (battle, enqueue, skillEffect) => {
+      if (battle[battle.turn.atk].faint) return;
       battle[battle.turn.atk].handleFaint(battle, enqueue);
     },
     철제광선반동: (battle, enqueue, skillEffect) => {
       const atkPokemon = battle[battle.turn.atk];
-      if (atkPokemon.turn.steelBeamRecoilDone) return;
-      atkPokemon.turn.steelBeamRecoilDone = true;
+      if (atkPokemon.faint) return;
+
+
       const damage = Math.ceil(hpCalculate(atkPokemon) / 2);
       const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
       atkPokemon.getDamage(battle, enqueue, damage, text);

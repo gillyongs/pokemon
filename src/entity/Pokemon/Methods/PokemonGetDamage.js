@@ -1,4 +1,4 @@
-import { hpCalculate } from "../../../util/hpCalculate";
+import { hpCalculate } from "../../../calc/hpCalculate";
 export const PokemonGetDamage = {
   getDamage(battle, enqueue, damageValue, text) {
     // 기준 = 급소 없음, 탈 안 까임, 멀스 적용 안됨

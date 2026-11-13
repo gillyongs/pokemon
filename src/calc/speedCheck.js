@@ -1,5 +1,5 @@
 import { hpCalculate } from "./hpCalculate";
-import { getMultiplier } from "../function/rankStat";
+import { getMultiplier } from "./rankStat";
 import { getAugmentedStat, getHighestStatInfo } from "./getStat";
 import { skillTypeCalculate } from "./skillTypeCalculate";
 

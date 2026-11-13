@@ -1,5 +1,5 @@
-import { hpCalculate } from "../../util/hpCalculate";
-import { speedCheck } from "../../util/speedCheck";
+import { hpCalculate } from "../../calc/hpCalculate";
+import { speedCheck } from "../../calc/speedCheck";
 
 export class Terrain {
   #type = null; // 그래스필드, 일렉트릭필드

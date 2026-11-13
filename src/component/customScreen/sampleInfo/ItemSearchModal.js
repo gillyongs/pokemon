@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
 import { itemText } from "../../../entity/Item";
-import { typeCheck } from "../../../util/typeEffectCalculate";
-import { skillTypeCalculate } from "../../../util/skillTypeCalculate";
+import { typeCheck } from "../../../calc/typeEffectCalculate";
+import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 
 export const isPokemon = (pokemon, target) => {
   if (!pokemon || !target) return false;

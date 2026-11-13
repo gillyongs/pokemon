@@ -46,7 +46,7 @@
   - 조건부 실패 체크: `src/entity/Skill/SkillRequirement.js` (예: 연속 방어 카운트, HP/랭크 제한 등)
   - 기술 발동 효과: `src/entity/Skill/SkillEffect.js` (예: `니들가드`의 `turn.protect = true`, `turn.spikyShield = true`)
   - 피격/방어 상호작용: `src/service/skillCheck.js` (예: 니들가드로 상대 접촉기 차단 시 1/8 가시 피해)
-  - 도감 기술 풀 등록: `src/skill/PokemonSkillList.js`의 `core` 및 `others` 배열에 등록하고 `UNIMPLEMENTED_SKILLS`에서 제거.
+  - 도감 기술 풀 등록: `src/entity/Skill/PokemonSkillList.js`의 `core` 및 `others` 배열에 등록하고 `UNIMPLEMENTED_SKILLS`에서 제거.
   - **포켓몬 기술 풀(CORE 및 배울 수 있는 기술) 수집 원칙**:
     - 상세 추출 로직 및 워크플로우: `public/txt/md/PKMNCHAMPS_SKILL_EXTRACTION_GUIDE.md` 참조
     - `https://pkmnchamps.com/pokedex/{도감번호}` (예: `https://pkmnchamps.com/pokedex/212`)를 조회하여 데이터가 있으면 이를 우선적으로 가져옵니다.
@@ -110,7 +110,7 @@ new Pokemon("0970", "0970-m", "메가킬라플로르", 625, 83, 90, 105, 150, 96
      },
    ],
    ```
-2. **기술 별칭 매핑 (`src/skill/PokemonSkillList.js`)**:
+2. **기술 별칭 매핑 (`src/entity/Skill/PokemonSkillList.js`)**:
    `POKEMON_SKILL_ALIASES` 객체에 메가진화 이름을 폼 ID로 연결합니다:
    ```javascript
    메가킬라플로르: "0970-m",

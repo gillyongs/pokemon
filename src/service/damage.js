@@ -1,6 +1,6 @@
-import { hpCalculate } from "../util/hpCalculate";
+import { hpCalculate } from "../calc/hpCalculate";
 import { josa } from "josa";
-import { applyOnHitEvents } from "../service/onHit.js";
+import { applyOnHitEvents } from "./onHit.js";
 
 // ====================== 공격 데미지 ======================
 

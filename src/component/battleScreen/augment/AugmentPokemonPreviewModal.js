@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import { abilObject } from "../../../entity/Ability";
 import { itemText } from "../../../entity/Item";
-import { TYPE_COLORS } from "../../../util/typeEffectCalculate";
-import { skillTypeCalculate } from "../../../util/skillTypeCalculate";
+import { TYPE_COLORS } from "../../../calc/typeEffectCalculate";
+import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 
 const isOnlyPrioritySkillText = (text) => {
   if (!text || typeof text !== "string") return false;

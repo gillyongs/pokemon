@@ -1,7 +1,7 @@
-import { hpCalculate } from "../../util/hpCalculate";
+import { hpCalculate } from "../../calc/hpCalculate";
 import { aiItemScore } from "../../entity/Item";
-import { damageCalculate } from "../../util/damageCalculate";
-import { getAccuracy } from "../../function/accuracyCalculate";
+import { damageCalculate } from "../../calc/damageCalculate";
+import { getAccuracy } from "../../calc/accuracyCalculate";
 import { statusAbleCheck } from "./easy";
 
 export const calculateSkillScore = (bt, sn, skObj, isAttack) => {

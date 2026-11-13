@@ -6,12 +6,12 @@ import SwitchButton from "../common/SwitchButton";
 import LogButton from "../common/LogButton";
 import BenchPokemon from "./BenchPokemon";
 import LogModal from "../../LogModal";
-import { battleStart } from "../../../../service/battleStart";
+import { battleStart, skillUseNpc } from "../../../../service/battleStart";
 import { switchPlayer, switchBothFaint } from "../../../../service/switch";
 import { turnEnd } from "../../../../service/turnEnd";
-import { attackNpc } from "../../../../service/attack";
+
 import { npcChoice } from "../../../../npc/npc";
-import { isShadowTagged } from "../../../../util/shadowTag";
+import { isShadowTagged } from "../../../../calc/shadowTag";
 const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueObject, setText, btObj }) => {
   const [selected, setSelected] = useState(null);
   const [logOpen, setLogOpen] = useState(false);
@@ -56,7 +56,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
         // 플레이어가 더 빠른 경우
         // 교체를 진행 하고 npc 행동 재개
         // battleStart.js에서 플레이어가 유턴을 쓰면 그냥 리턴 떄려버리고 여기서 마저 진행하는 구조
-        attackNpc(btObj, btObj.player.turn.choice, btObj.npc.turn.choice, queueObject.enqueue);
+        skillUseNpc(btObj, btObj.player.turn.choice, btObj.npc.turn.choice, queueObject.enqueue);
         turnEnd(btObj, queueObject.enqueue);
       }
     };

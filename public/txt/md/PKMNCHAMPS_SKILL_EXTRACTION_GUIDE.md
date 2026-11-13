@@ -1,6 +1,6 @@
 # pkmnchamps 기반 기술 목록(core / others) 추출 및 갱신 가이드
 
-이 문서는 `https://pkmnchamps.com`의 도감(`/pokedex/{id}`) 및 실전 배틀 통계(`/stats/{id}`) 데이터를 기반으로, 신규/기존 포켓몬의 주력 기술(`core`)과 배울 수 있는 기술(`others`)을 추출하고 프로젝트의 `src/skill/PokemonSkillList.js`에 적용하는 전체 로직과 워크플로우를 정리한 문서입니다.
+이 문서는 `https://pkmnchamps.com`의 도감(`/pokedex/{id}`) 및 실전 배틀 통계(`/stats/{id}`) 데이터를 기반으로, 신규/기존 포켓몬의 주력 기술(`core`)과 배울 수 있는 기술(`others`)을 추출하고 프로젝트의 `src/entity/Skill/PokemonSkillList.js`에 적용하는 전체 로직과 워크플로우를 정리한 문서입니다.
 
 ---
 
@@ -52,7 +52,7 @@ pkmnchamps는 Next.js (App Router) 기반의 웹 애플리케이션으로, 도�
 
 ## 3. 핵심 기술명 표준 통일 규칙 (★필수 준수)
 
-프로젝트 코드베이스(`src/entity/Skill/skillList/`, `src/skill/PokemonSkillList.js`, `SamplePokemon.js` 등) 전반에서 기술명을 사용할 때는 **반드시 아래 표준 명칭**으로 일관되게 사용해야 합니다.
+프로젝트 코드베이스(`src/entity/Skill/skillList/`, `src/entity/Skill/PokemonSkillList.js`, `SamplePokemon.js` 등) 전반에서 기술명을 사용할 때는 **반드시 아래 표준 명칭**으로 일관되게 사용해야 합니다.
 
 | 표준 기술명 (사용 O) | 구 명칭 / 오표기 (사용 X) | 비고 |
 | :--- | :--- | :--- |
@@ -157,7 +157,7 @@ function buildPokemonSkills(pokemonId, regionForm = "") {
 
 ## 6. PokemonSkillList.js 및 시스템 연동
 
-생성된 데이터는 `src/skill/PokemonSkillList.js`에 다음과 같이 등록됩니다.
+생성된 데이터는 `src/entity/Skill/PokemonSkillList.js`에 다음과 같이 등록됩니다.
 
 1. **`POKEMON_SKILLS`에 등록**:
    - 일반형 키 (예: `"0428"`, `"0768"`)

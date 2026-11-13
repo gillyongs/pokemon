@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import styled from "styled-components";
-import { getTypeEffectText } from "../../../../util/typeEffectCalculate";
-import { skillTypeCalculate } from "../../../../util/skillTypeCalculate";
+import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
+import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 
 const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {
   let pp = battle.player.pp[skillNumber];

@@ -1,4 +1,4 @@
-import { getStatName, getStatName2, getMultiplier } from "../../../function/rankStat";
+import { getStatName, getStatName2, getMultiplier } from "../../../calc/rankStat";
 export const PokemonRank = {
   // 부가효과(skillEffect.js), 끈적끈적네트(field.js), 메테오빔(skillUse.js)
   // 위협/불굴의검/방패(ability.js), 자기과신(damage.js), 지구력(onHit.js) 에서 사용

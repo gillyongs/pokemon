@@ -1,4 +1,4 @@
-import { hpCalculate } from "../../../../util/hpCalculate";
+import { hpCalculate } from "../../../../calc/hpCalculate";
 import styled from "styled-components";
 import HpBar from "../../HpBar";
 

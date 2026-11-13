@@ -1,9 +1,9 @@
-import { hpCalculate } from "../util/hpCalculate";
+import { hpCalculate } from "../calc/hpCalculate";
 import skillRequirementSearch from "../entity/Skill/SkillRequirement";
 import { random } from "../util/randomCheck";
-import { confuseDamageCalculate } from "../util/damageCalculate";
-import { getAccuracy } from "../function/accuracyCalculate";
-import { attackDamage } from "../function/damage";
+import { confuseDamageCalculate } from "../calc/damageCalculate";
+import { getAccuracy } from "../calc/accuracyCalculate";
+import { attackDamage } from "./damage";
 import { josa } from "josa";
 
 export const beforeSkillCheck = (bt, enqueue) => {
@@ -161,6 +161,9 @@ export const afterSkillCheck = (bt, enqueue) => {
 
   // ==================================================================================================================
 
+  // 기술 시전 직전 체크 통과: 이후 단계(방어/무효/빗나감 포함)부터는 기술이 발동된 것으로 간주
+  atk.turn.skillLaunched = true;
+
   if (atk.abil === "리베로" || atk.abil === "변환자재") {
     if (skill.type === atk.type1 && atk.type2 === null) {
       //사용자 타입이랑 스킬 타입 같으면 발동 안함
@@ -230,7 +233,7 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 방어로 막으면 특성 발동하지 않음
   // 대타출동 상태일때 불꽃기술 맞으면 특성 발동함
   // buf (쾌청)은 발동 안함, 도깨비불 (natk)는 발동함
-  if (skill.type === "불꽃" && skill.type !== "buf" && def.abil === "타오르는불꽃" && atk.abilObj.feature?.tgg !== true) {
+  if (skill.type === "불꽃" && skill.stype !== "buf" && def.abil === "타오르는불꽃" && atk.abilObj.feature?.tgg !== true) {
     if (def.tempStatus.flashFire) {
       // 이미 발동된 경우
       enqueue({ id: "84be829f-283f-46ef-b787-a0114ade9edb", battle: bt, text: "[특성 타오르는불꽃] " + def.name + "에겐 효과가 없는 것 같다..." });

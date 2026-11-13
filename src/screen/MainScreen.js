@@ -5,8 +5,8 @@ import { useRecoilValue } from "recoil";
 import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
 import { defaultOption } from "../config/defaultOption";
 import { testmode, subscribeTestMode } from "../config/testMode";
-import { gameOptionState } from "../util/recoilState";
-import { getRandomTeam } from "../util/randomTeam";
+import { gameOptionState } from "../store/recoilState";
+import { getRandomTeam } from "../calc/randomTeam";
 
 const MainScreen = () => {
   const navigate = useNavigate();

@@ -1,4 +1,4 @@
-import { getStatName } from "../../../function/rankStat.js";
+import { getStatName } from "../../../calc/rankStat.js";
 import { changePokemonAbility } from "../../Ability.js";
 export const PokemonAbil = {
   changeAbility(abilityName, fallbackText) {

@@ -1,6 +1,6 @@
-import { hpCalculate } from "../util/hpCalculate";
-import { typeCheck } from "../util/typeEffectCalculate";
-import { applyAilment, isAilmentCheck } from "../function/ailment";
+import { hpCalculate } from "../calc/hpCalculate";
+import { typeCheck } from "../calc/typeEffectCalculate";
+import { applyAilment, isAilmentCheck } from "./ailment";
 export const applyFieldEffects = (bt, atks, enqueue) => {
   //교체해서 나올때 장판(스텔스록, 독압정) 체크
   //switch.js에서 호출

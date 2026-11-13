@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
-import { getSkillListForPokemon } from "../../../skill/PokemonSkillList";
+import { getSkillListForPokemon } from "../../../entity/Skill/PokemonSkillList";
 import skillList from "../../../entity/Skill/skillList";
 import { TYPE_COLORS } from "./SampleInfoModal";
 

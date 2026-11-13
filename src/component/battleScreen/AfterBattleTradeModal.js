@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { isLegendary } from "../../util/randomTeam";
+import { isLegendary } from "../../calc/randomTeam";
 import TradeInfoModal from "./TradeInfoModal";
 
 const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) => {

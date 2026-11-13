@@ -1,8 +1,8 @@
-import { switchPokemon } from "../function/switchPokemon";
+import { hpCalculate } from "../calc/hpCalculate";
 import { applyAbilityEffects } from "../entity/Ability";
 import { applyFieldEffects } from "./field";
 import { calculatePokemonSwitchScore } from "../npc/ai/easy";
-import { speedCheck } from "../util/speedCheck";
+import { speedCheck } from "../calc/speedCheck";
 
 export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
   // 플레이어 교체 함수
@@ -186,5 +186,104 @@ const extraSwitchWhenTurnEnd = (battle, user, enqueue) => {
   }
   if (user === "npc") {
     switchNpcAuto(battle, enqueue);
+  }
+};
+
+// ===================================================================================================
+
+export const switchPokemon = (battle, IN, OUT, options = {}) => {
+  // 교체 함수.
+  // 실제 객체의 값을 바꾸고
+  // pokemon.tempStatus 값을 초기화한다
+
+  //IN: player or npc
+  //OUT: playerBench1,2 // npcBench1,2
+
+  if (!battle || !battle[IN] || !battle[OUT]) {
+    console.error("Invalid battle object or keys");
+    return;
+  }
+
+  const pokemonIn = battle[IN]; //교체로 들어가는 포켓몬
+
+  const batonState = options?.batonPass // 배턴터치
+    ? {
+        rank: { ...pokemonIn.tempStatus.rank },
+        confuse: pokemonIn.tempStatus.confuse, // 혼란 넘기는거 맞음
+        seed: pokemonIn.tempStatus.seed,
+        substitute: pokemonIn.tempStatus.substitute,
+        substituteHp: pokemonIn.tempStatus.substituteHp,
+      }
+    : null;
+  if (pokemonIn.abil === "재생력") {
+    // 재생력 특성을 지닌 포켓몬은 교체시 체력이 회복
+    const hp = hpCalculate(pokemonIn);
+    pokemonIn.recoverNoText(battle, Math.floor(hp / 3), pokemonIn);
+  }
+  if (pokemonIn.abil === "자연회복") {
+    // 자연회복 특성을 지닌 포켓몬은 교체시 상태이상을 회복
+    Object.keys(pokemonIn.ailment).forEach((key) => {
+      pokemonIn.ailment[key] = null;
+    });
+  }
+  if (pokemonIn.ailment.mpoison && pokemonIn.ailment.mpoison > 1) {
+    pokemonIn.ailment.mpoison = 1;
+    //맹독 스탯 초기화
+  }
+
+  let op = IN === "player" ? "npc" : "player";
+  if (battle[op].tempStatus.switchLock !== null) {
+    battle[op].tempStatus.switchLock = null;
+    battle[op].tempStatus.switchLockTurnRemain = null;
+    // 마그마스톰 등으로 상대를 구속 후 교체하면 구속 효과가 풀린다
+    // 물론 상대방은 해당 턴에 교체할 수 없다
+  }
+
+  const ts = pokemonIn.tempStatus;
+
+  Object.keys(ts).forEach((key) => {
+    if (key !== "rank") {
+      ts[key] = null;
+    } else {
+      Object.keys(ts.rank).forEach((key) => {
+        ts.rank[key] = 0;
+      });
+    }
+  });
+  // 리베로 타입 초기화 (메가진화 포켓몬은 메가진화 타입 유지)
+  if (pokemonIn.isMega && pokemonIn.origin?.megaData) {
+    pokemonIn.type1 = pokemonIn.origin.megaData.type1;
+    pokemonIn.type2 = pokemonIn.origin.megaData.type2;
+  } else {
+    pokemonIn.type1 = pokemonIn.origin.type1;
+    pokemonIn.type2 = pokemonIn.origin.type2;
+  }
+
+  // 트레이스 특성 초기화
+  if (pokemonIn.abil !== pokemonIn.origin.abil) {
+    pokemonIn.abil = pokemonIn.origin.abil;
+    pokemonIn.abilObj = { ...pokemonIn.origin.abilObj };
+  }
+
+  [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
+
+  if (batonState && battle[IN]?.tempStatus) {
+    Object.assign(battle[IN].tempStatus.rank, batonState.rank);
+    battle[IN].tempStatus.confuse = batonState.confuse;
+    battle[IN].tempStatus.seed = batonState.seed;
+    battle[IN].tempStatus.substitute = batonState.substitute;
+    battle[IN].tempStatus.substituteHp = batonState.substituteHp;
+    if (battle[IN].turn) {
+      battle[IN].turn.substitute = Boolean(batonState.substitute);
+    }
+  }
+
+  if (battle[IN]?.tempStatus) {
+    battle[IN].tempStatus.firstTurn = true; // 만나자마자
+    battle[IN].tempStatus.turnsOnField = 0; // 슬로스타트
+  }
+  if (battle?.turn) {
+    if (IN === "player") battle.turn.playerSwitched = true;
+    if (IN === "npc") battle.turn.npcSwitched = true;
   }
 };

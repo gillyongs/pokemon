@@ -1,4 +1,4 @@
-import { hpCalculate } from "../../util/hpCalculate";
+import { hpCalculate } from "../../calc/hpCalculate";
 export class userField {
   constructor(team) {
     this.team = team; // player or npc

@@ -1,4 +1,4 @@
-import { hpCalculate } from "../../../util/hpCalculate";
+import { hpCalculate } from "../../../calc/hpCalculate";
 export const PokemonRecover = {
   _doRecover(battle, recoverValue, { enqueue, text, silent = false } = {}) {
     if (this.hp <= 0) return; // 이미 기절했으면 무시

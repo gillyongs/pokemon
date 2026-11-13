@@ -3,16 +3,16 @@ import { createBattle } from "../entity/Battle";
 import { defaultOption } from "../config/defaultOption";
 import { setSelectedNpcAct } from "../config/testMode";
 import { consoleLog } from "../util/consoleLog";
-import { rollAugments } from "../util/augmentRoll";
+import { rollAugments } from "../calc/augmentRoll";
 import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText, isBuffAugment, isCurseAugment, syncTeamEchoOfHeroBuff } from "../entity/Augment/AugmentData";
 import { generate } from "../entity/Pokemon/PokemonInstance";
 import { switchNpcAuto } from "../service/switch";
-import { speedCheck } from "../util/speedCheck";
+import { speedCheck } from "../calc/speedCheck";
 import { battleStart } from "../service/battleStart";
 import { npcChoice } from "../npc/npc";
 import { cloneWithMethods } from "../util/cloneWithMethods";
 import { applyAbilityEffects } from "../entity/Ability";
-import { getRandomTeam } from "../util/randomTeam";
+import { getRandomTeam } from "../calc/randomTeam";
 
 const initialBattle = createBattle(["갸라도스", "어써러셔", "어써러셔"], ["코터스", "어써러셔", "어써러셔"]);
 

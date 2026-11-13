@@ -1,9 +1,9 @@
-import { hpCalculate } from "../../util/hpCalculate";
+import { hpCalculate } from "../../calc/hpCalculate";
 import { abilObject, noRandomAbil, changePokemonAbility, changeAbility } from "../Ability";
 import { josa } from "josa";
-import { getAugmentedStat, getHighestStatInfo, STAT_LABELS } from "../../util/getStat";
-import { isPokemonAlone } from "../../util/speedCheck";
-import { getMultiplier } from "../../function/rankStat";
+import { getAugmentedStat, getHighestStatInfo, STAT_LABELS } from "../../calc/getStat";
+import { isPokemonAlone } from "../../calc/speedCheck";
+import { getMultiplier } from "../../calc/rankStat";
 import sampleList from "../Pokemon/SamplePokemon";
 import { generate } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
@@ -239,7 +239,7 @@ export const AUGMENT_LIST = [
         return Array.isArray(sk.skillEffectList) && sk.skillEffectList.some((eff) => eff.name === "화상" || eff.name === "트라이어택");
       });
     },
-    // ailmentEvent.js에 구현
+    // turnEnd.js에 구현
   },
   {
     id: "thornmail",

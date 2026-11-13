@@ -1,9 +1,9 @@
-import { hpCalculate } from "../../util/hpCalculate";
-import { damageCalculate } from "../../util/damageCalculate";
-import { priCalculate } from "../../util/speedCheck";
-import { typeCheck } from "../../util/typeEffectCalculate";
+import { hpCalculate } from "../../calc/hpCalculate";
+import { damageCalculate } from "../../calc/damageCalculate";
+import { priCalculate } from "../../calc/speedCheck";
+import { typeCheck } from "../../calc/typeEffectCalculate";
 import { cloneWithMethods } from "../../util/cloneWithMethods";
-import { getAccuracy } from "../../function/accuracyCalculate";
+import { getAccuracy } from "../../calc/accuracyCalculate";
 import { calculateSkillScore } from "./calculateSkillScore";
 import { consoleLog } from "../../util/consoleLog";
 

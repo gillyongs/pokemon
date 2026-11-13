@@ -1,6 +1,6 @@
 import { useRecoilState } from "recoil";
 import { queueState, logState } from "./recoilState";
-import { cloneWithMethods } from "./cloneWithMethods";
+import { cloneWithMethods } from "../util/cloneWithMethods";
 
 export function useQueue() {
   const [queue, setQueue] = useRecoilState(queueState);

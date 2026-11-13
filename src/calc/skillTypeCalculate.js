@@ -1,5 +1,4 @@
 import { abilObject } from "../entity/Ability";
-import { getWeatherBallType } from "./weatherBall";
 
 export const skillTypeCalculate = (battle, skill, pokemon = null) => {
   if (!skill) return null;
@@ -13,10 +12,12 @@ export const skillTypeCalculate = (battle, skill, pokemon = null) => {
 
   // 웨더볼: 날씨가 있는 경우 날씨에 따라 타입 결정
   if (skill.name === "웨더볼") {
-    const weatherType = getWeatherBallType(battle?.field?.weather);
-    if (weatherType !== "노말") {
-      return weatherType;
-    }
+    const weather = battle?.field?.weather;
+    if (weather?.isSunny) return "불꽃";
+    if (weather?.isRainy) return "물";
+    if (weather?.isSandstorm) return "바위";
+    const w = typeof weather?.get === "function" ? weather.get() : weather?.get;
+    if (w === "설경" || w === "눈") return "얼음";
     type = "노말";
   }
 

@@ -3,7 +3,7 @@ import PokemonData from "../entity/Pokemon/PokemonData";
 import skillList from "../entity/Skill/skillList";
 import { getAbilityListForPokemon } from "../component/customScreen/sampleInfo/AbilSearchModal";
 import { getItemListForPokemon } from "../component/customScreen/sampleInfo/ItemSearchModal";
-import { getSkillListForPokemon } from "../skill/PokemonSkillList";
+import { getSkillListForPokemon } from "../entity/Skill/PokemonSkillList";
 import { STAT_KEYS, getNatureInfo, normalizeGacha, calculateStat } from "../component/customScreen/sampleInfo/StatAdjustmentModal";
 
 export const WEATHER_ABILITIES = ["잔비", "가뭄", "진홍빛고동", "모래날림"];
