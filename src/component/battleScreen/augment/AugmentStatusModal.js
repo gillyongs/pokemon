@@ -3,11 +3,19 @@ import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { AUGMENT_POKEMON_PREVIEW_MAP } from "./AugmentModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
+import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import sampleList from "../../../entity/Pokemon/SamplePokemon";
-import { getAugmentText, isBuffAugment, isCurseAugment } from "../../../entity/Augment/AugmentData";
+import { getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
   const [previewInfo, setPreviewInfo] = useState(null);
+  const [synergyPreviewInfo, setSynergyPreviewInfo] = useState(null);
+  const [selectedAugId, setSelectedAugId] = useState(null);
+
+  const handleCardClick = (e, aug) => {
+    e.stopPropagation();
+    setSelectedAugId((prev) => (prev === aug.id ? null : aug.id));
+  };
   const resolvedTeam = team && team.length > 0 ? team : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
 
   const [activePokemon, setActivePokemon] = useState(() => {
@@ -22,9 +30,17 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
 
   const currentAugments = activePokemon?.augments || [];
   const sortedAugments = [...currentAugments].sort((a, b) => {
-    const orderA = isCurseAugment(a) ? 2 : a.buf || isBuffAugment(a) ? 1 : 0;
-    const orderB = isCurseAugment(b) ? 2 : b.buf || isBuffAugment(b) ? 1 : 0;
-    return orderA - orderB;
+    // 0: 일반 증강, 1: 시너지, 2: 버프, 3: 디버프
+    const getOrder = (aug) => {
+      if (isCurseAugment(aug)) return 3;
+      if (isBuffAugment(aug)) return 2;
+      if (isSynergyAugment(aug)) return 1;
+      return 0;
+    };
+    const orderA = getOrder(a);
+    const orderB = getOrder(b);
+    if (orderA !== orderB) return orderA - orderB;
+    return (a.name || "").localeCompare(b.name || "");
   });
 
   return (
@@ -44,9 +60,12 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
             {resolvedTeam.map((poke, idx) => {
               const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
               const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
-              const count = (poke.augments || []).filter((a) => !a.buf).length;
+              const count = (poke.augments || []).filter((a) => isNormalAugment(a)).length;
               return (
-                <EntryCard key={poke.originalIndex ?? poke.id ?? idx} $isSelected={isSelected} onClick={() => setActivePokemon(poke)} title={`${poke.name} (보유 증강 ${count}/3)`}>
+                <EntryCard key={poke.originalIndex ?? poke.id ?? idx} $isSelected={isSelected} onClick={() => {
+                  setActivePokemon(poke);
+                  setSelectedAugId(null);
+                }} title={`${poke.name} (보유 증강 ${count}/3)`}>
                   <EntryPokemonImg
                     src={`/pokemon/img/pokemon/${pokeId}.webp`}
                     alt={poke.name}
@@ -62,49 +81,65 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
           </EntryContainer>
         )}
 
-        <CardContainer>
+        <CardContainer onClick={() => setSelectedAugId(null)}>
           {sortedAugments.length === 0 ? (
             <EmptyChoiceText>보유 중인 증강이 없습니다.</EmptyChoiceText>
           ) : (
             sortedAugments.map((aug, index) => {
-              const isCurse = Boolean(aug.curse || isCurseAugment(aug));
-              const isBuf = Boolean((aug.buf || isBuffAugment(aug)) && !isCurse);
+              const isCardSelected = selectedAugId === aug.id;
+              const isCurse = isCurseAugment(aug);
+              const isSynergy = isSynergyAugment(aug);
+              const isBuff = isBuffAugment(aug);
+              const sampleKey = AUGMENT_POKEMON_PREVIEW_MAP[aug.id];
+              const previewSample = sampleKey ? sampleList.getDataById(sampleKey) : null;
+              const synergyData = getAugmentSynergyInfo(aug.id);
+              const hasPreview = Boolean(previewSample || synergyData);
               return (
-                <AugmentCard key={aug.id || index} $isBuff={isBuf} $isCurse={isCurse}>
+                <AugmentCard
+                  key={aug.id || index}
+                  $isSelected={isCardSelected}
+                  $isBuff={isBuff}
+                  $isCurse={isCurse}
+                  $isSynergy={isSynergy}
+                  onClick={(e) => handleCardClick(e, aug)}
+                >
                   <IconCol>
                     <IconWrapper>
                       <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                     </IconWrapper>
-                    {!isBuf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                    {!isBuff && !isCurse && !isSynergy && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                   </IconCol>
                   <CardContent>
                     <CardTitleRow>
                       <CardTitle>{aug.shortName || aug.name}</CardTitle>
-                      {isCurse ? <CurseBadge>저주</CurseBadge> : isBuf ? <BuffBadge>버프</BuffBadge> : null}
+                      {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                     </CardTitleRow>
                     <CardDescription>{getAugmentText(aug, activePokemon, false, "", { battle, showCurrentStats: true }) || aug.desc}</CardDescription>
                   </CardContent>
-                  {(() => {
-                    const sampleKey = AUGMENT_POKEMON_PREVIEW_MAP[aug.id];
-                    const previewSample = sampleKey ? sampleList.getDataById(sampleKey) : null;
-                    if (!previewSample) return null;
-                    return (
+                  {isCardSelected && hasPreview && (
+                    <CardPreviewOverlay>
                       <PreviewInfoButton
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setPreviewInfo({ augmentId: aug.id, pokemon: previewSample });
+                          if (previewSample) {
+                            setPreviewInfo({ augmentId: aug.id, pokemon: previewSample });
+                          } else if (synergyData) {
+                            setSynergyPreviewInfo({ augmentId: aug.id, synergy: synergyData });
+                          }
                         }}
                         title={
-                          aug.id === "eternamax" || aug.id === "blackNight"
-                            ? "무한다이맥스 / 무한다이노 상세정보 보기"
-                            : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`
+                          previewSample
+                            ? (aug.id === "eternamax" || aug.id === "blackNight"
+                                ? "무한다이맥스 / 무한다이노 상세정보 보기"
+                                : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`)
+                            : `${synergyData?.title || "시너지"} 공명 상세정보 보기`
                         }
                       >
                         상세정보
                       </PreviewInfoButton>
-                    );
-                  })()}
+                    </CardPreviewOverlay>
+                  )}
                 </AugmentCard>
               );
             })
@@ -122,6 +157,14 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
           augmentId={previewInfo.augmentId}
           pokemon={previewInfo.pokemon}
           onClose={() => setPreviewInfo(null)}
+        />
+      )}
+      {synergyPreviewInfo && (
+        <AugmentSynergyPreviewModal
+          synergy={synergyPreviewInfo.synergy}
+          activeAugmentId={synergyPreviewInfo.augmentId}
+          activePokemon={activePokemon}
+          onClose={() => setSynergyPreviewInfo(null)}
         />
       )}
     </ModalOverlay>
@@ -365,10 +408,52 @@ const IconWrapper = styled.div`
 `;
 
 const AugmentCard = styled.div`
+  position: relative;
   width: 100%;
-  background: ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.12)" : props.$isBuff ? "rgba(255, 220, 100, 0.12)" : "rgba(0, 0, 0, 0.45)")};
-  border: 1px solid ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.45)" : props.$isBuff ? "rgba(255, 215, 0, 0.4)" : "rgba(255, 255, 255, 0.1)")};
-  border-left: 4px solid ${(props) => (props.$isCurse ? "#ef4444" : props.$isBuff ? "#ffd700" : "#64ffda")};
+  cursor: pointer;
+  user-select: none;
+  background: ${(props) =>
+    props.$isCurse
+      ? props.$isSelected
+        ? "rgba(68, 22, 26, 0.96)"
+        : "rgba(239, 68, 68, 0.12)"
+      : props.$isSynergy
+        ? props.$isSelected
+          ? "rgba(50, 42, 16, 0.98)"
+          : "rgba(255, 215, 0, 0.12)"
+        : props.$isBuff
+          ? props.$isSelected
+            ? "rgba(14, 45, 68, 0.98)"
+            : "rgba(56, 189, 248, 0.12)"
+          : props.$isSelected
+            ? "rgba(22, 45, 64, 0.98)"
+            : "rgba(0, 0, 0, 0.45)"};
+  border: ${(props) =>
+    props.$isCurse
+      ? props.$isSelected
+        ? "1.5px solid #ef4444"
+        : "1px solid rgba(239, 68, 68, 0.45)"
+      : props.$isSynergy
+        ? props.$isSelected
+          ? "1.5px solid #ffd700"
+          : "1px solid rgba(255, 215, 0, 0.4)"
+        : props.$isBuff
+          ? props.$isSelected
+            ? "1.5px solid #38bdf8"
+            : "1px solid rgba(56, 189, 248, 0.45)"
+          : props.$isSelected
+            ? "1.5px solid #64ffda"
+            : "1px solid rgba(255, 255, 255, 0.1)"};
+  border-left: 4px solid ${(props) =>
+    props.$isCurse
+      ? "#ef4444"
+      : props.$isSynergy
+        ? "#ffd700"
+        : props.$isBuff
+          ? "#38bdf8"
+          : props.$isSelected
+            ? "#38bdf8"
+            : "#64ffda"};
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;
@@ -376,15 +461,84 @@ const AugmentCard = styled.div`
   align-items: center;
   box-sizing: border-box;
   transition: all 0.2s ease;
+  box-shadow: ${(props) =>
+    props.$isSelected
+      ? props.$isCurse
+        ? "0 0 14px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.15)"
+        : props.$isSynergy
+          ? "0 0 14px rgba(255, 215, 0, 0.45), inset 0 0 8px rgba(255, 215, 0, 0.15)"
+          : props.$isBuff
+            ? "0 0 14px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.15)"
+            : "0 0 14px rgba(100, 255, 218, 0.45), inset 0 0 8px rgba(100, 255, 218, 0.15)"
+      : "none"};
 
   @media (max-width: 480px) {
     padding: 10px 10px;
   }
 
   &:hover {
-    border-color: ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.7)" : props.$isBuff ? "rgba(255, 215, 0, 0.65)" : "rgba(100, 255, 218, 0.5)")};
-    background: ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.2)" : props.$isBuff ? "rgba(255, 220, 100, 0.2)" : "rgba(20, 30, 44, 0.75)")};
-    box-shadow: 0 4px 12px ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.22)" : props.$isBuff ? "rgba(255, 215, 0, 0.2)" : "rgba(0, 0, 0, 0.4)")};
+    transform: translateY(-2px);
+    border-color: ${(props) =>
+      props.$isSelected
+        ? props.$isCurse
+          ? "#ef4444"
+          : props.$isSynergy
+            ? "#ffd700"
+            : props.$isBuff
+              ? "#38bdf8"
+              : "#64ffda"
+        : props.$isCurse
+          ? "rgba(239, 68, 68, 0.7)"
+          : props.$isSynergy
+            ? "rgba(255, 215, 0, 0.7)"
+            : props.$isBuff
+              ? "rgba(56, 189, 248, 0.7)"
+              : "rgba(100, 255, 218, 0.5)"};
+    border-left: 4px solid ${(props) => (props.$isCurse ? "#ef4444" : props.$isSynergy ? "#ffd700" : props.$isBuff ? "#38bdf8" : "#64ffda")};
+    background: ${(props) =>
+      props.$isSelected
+        ? props.$isCurse
+          ? "rgba(68, 22, 26, 0.98)"
+          : props.$isSynergy
+            ? "rgba(50, 42, 16, 0.98)"
+            : props.$isBuff
+              ? "rgba(14, 45, 68, 0.98)"
+              : "rgba(22, 45, 64, 0.98)"
+        : props.$isCurse
+          ? "rgba(68, 22, 26, 0.25)"
+          : props.$isSynergy
+            ? "rgba(50, 42, 16, 0.25)"
+            : props.$isBuff
+              ? "rgba(14, 45, 68, 0.25)"
+              : "rgba(20, 30, 44, 0.75)"};
+    box-shadow: 0 4px 12px
+      ${(props) =>
+        props.$isCurse
+          ? "rgba(239, 68, 68, 0.25)"
+          : props.$isSynergy
+            ? "rgba(255, 215, 0, 0.25)"
+            : props.$isBuff
+              ? "rgba(56, 189, 248, 0.25)"
+              : "rgba(0, 0, 0, 0.4)"};
+
+    ${IconWrapper} {
+      transform: scale(1.05);
+      filter: drop-shadow(
+        0 0 6px
+          ${(props) =>
+            props.$isCurse
+              ? "rgba(239, 68, 68, 0.5)"
+              : props.$isSynergy
+                ? "rgba(255, 215, 0, 0.5)"
+                : props.$isBuff
+                  ? "rgba(56, 189, 248, 0.5)"
+                  : "rgba(100, 255, 218, 0.4)"}
+      );
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 `;
 
@@ -396,6 +550,20 @@ const CardTitleRow = styled.div`
 `;
 
 const BuffBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+`;
+
+const SynergyBadge = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -523,27 +691,53 @@ const CloseActionButton = styled.button`
 `;
 
 
+const CardPreviewOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+`;
+
 const PreviewInfoButton = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 10px;
-  background: rgba(100, 255, 218, 0.12);
-  border: 1px solid rgba(100, 255, 218, 0.4);
-  border-radius: 6px;
+  min-height: 52px;
+  min-width: 96px;
+  padding: 14px 26px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1.5px solid #64ffda;
+  border-radius: 8px;
   color: #64ffda;
-  font-size: 0.76rem;
+  font-size: 0.95rem;
   font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
-  white-space: nowrap;
+  pointer-events: auto;
   transition: all 0.2s ease;
-  margin-left: auto;
-  align-self: center;
+  user-select: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 14px rgba(100, 255, 218, 0.4);
+  animation: ${fadeIn} 0.15s ease-out;
 
   &:hover {
-    background: rgba(100, 255, 218, 0.25);
-    border-color: #64ffda;
-    color: #ffffff;
-    box-shadow: 0 0 8px rgba(100, 255, 218, 0.35);
+    background: #64ffda;
+    color: #0f172a;
+    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.9), 0 0 18px rgba(100, 255, 218, 0.7);
+    transform: scale(1.04);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  @media (max-width: 480px) {
+    min-height: 44px;
+    min-width: 84px;
+    font-size: 0.86rem;
+    padding: 10px 18px;
   }
 `;

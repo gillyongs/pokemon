@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { getAugmentText } from "../../../entity/Augment/AugmentData";
+import { getAugmentText, isBuffAugment, isCurseAugment, isNormalAugment, isSynergyAugment } from "../../../entity/Augment/AugmentData";
 
 // 다음 라운드로 넘길 증강 선택 모달
 
@@ -22,7 +22,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   const allOwnedAugments = [];
   teamMembers.forEach(({ poke, index }) => {
     (poke.augments || []).forEach((aug, augIdx) => {
-      if (aug.buf) return;
+      if (!isNormalAugment(aug)) return;
       allOwnedAugments.push({
         pokeIndex: index,
         pokemon: poke,
@@ -67,23 +67,39 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
   const handleComplete = () => {
     // 포켓몬별로 선택된 증강 맵핑 { 0: [aug...], 1: [...], 2: [...] }
     const carriedMap = { 0: [], 1: [], 2: [] };
-    // 버프는 무조건 같이 넘어감
+    // 영구 버프/저주/시너지 및 스택은 무조건 같이 넘어감
     teamMembers.forEach(({ poke, index }) => {
       (poke.augments || []).forEach((aug) => {
-        if (aug.buf) {
+        const isBuf = isBuffAugment(aug);
+        const isCurse = isCurseAugment(aug);
+        const isSyn = isSynergyAugment(aug);
+        if (isBuf || isCurse || isSyn) {
           carriedMap[index].push({
             id: aug.id,
             name: aug.name,
             cost: aug.cost,
-            buf: true,
-            curse: Boolean(aug.curse),
-            dragonKillCount: aug.dragonKillCount ?? poke.dragonKillCount ?? 0, // 용용죽겠지
-            mejaiStack: aug.mejaiStack ?? poke.mejaiStack ?? 0, // 메자이
-            practiceCritStack: aug.practiceCritStack ?? poke.practiceCritStack ?? 0, // 윤탈
-            giantBonusHp: aug.giantBonusHp ?? poke.giantBonusHp ?? 0, // 거인의 흡수
+            buf: isBuf,
+            curse: isCurse,
+            synergy: isSyn,
+            isForced: Boolean(aug.isForced),
+            dragonKillCount: aug.dragonKillCount ?? poke.dragonKillCount ?? 0,
+            mejaiStack: aug.mejaiStack ?? poke.mejaiStack ?? 0,
+            practiceCritStack: aug.practiceCritStack ?? poke.practiceCritStack ?? 0,
+            giantBonusHp: aug.giantBonusHp ?? poke.giantBonusHp ?? 0,
           });
         }
       });
+      // 비활성화 상태여도 누적 스택이 남아있다면 메타데이터로 다음 라운드에 전달
+      if ((poke.dragonKillCount || poke.mejaiStack || poke.practiceCritStack || poke.giantBonusHp) && !carriedMap[index].some((a) => a.synergy || isSynergyAugment(a))) {
+        carriedMap[index].push({
+          id: "__synergy_stacks__",
+          isStackMeta: true,
+          dragonKillCount: poke.dragonKillCount || 0,
+          mejaiStack: poke.mejaiStack || 0,
+          practiceCritStack: poke.practiceCritStack || 0,
+          giantBonusHp: poke.giantBonusHp || 0,
+        });
+      }
     });
     allOwnedAugments.forEach((item) => {
       if (selectedKeys.has(item.uniqueKey)) {

@@ -137,7 +137,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "lifeIsOneShot",
-    name: "인생은 한방",
+    name: "인생은 한방 🎲",
     desc: "기술 위력이 3배가 되지만 공격 기술이 50% 확률로 실패합니다.",
     cost: 1,
     weight: 100,
@@ -153,7 +153,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "dragonHunter",
-    name: "용 사냥꾼",
+    name: "용 사냥꾼 🐉",
     desc: "드래곤 타입을 상대로 모든 능력치가 1.2배 증가합니다.",
     cost: 1,
     weight: 100,
@@ -166,7 +166,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "dragonSlayer",
-    name: "드래곤 슬레이어",
+    name: "드래곤 슬레이어 🐉",
     desc: "드래곤 타입 포켓몬을 쓰러뜨리면 모든 능력이 1랭크 상승합니다.",
     cost: 3,
     weight: 100,
@@ -179,7 +179,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "dragonKiller",
-    name: "용살자",
+    name: "용살자 🐉",
     desc: "드래곤 타입에게 1.5배 데미지를 입힙니다.",
     cost: 1,
     weight: 100,
@@ -192,7 +192,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "lastWarrior",
-    name: "최후의 전사",
+    name: "최후의 전사 ⚔️",
     desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 스피드가 60% 증가합니다.",
     cost: 6,
     weight: 100,
@@ -200,7 +200,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "lastSamurai",
-    name: "라스트 사무라이",
+    name: "라스트 사무라이 ⚔️",
     desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 60% 증가합니다.",
     cost: 3,
     weight: 100,
@@ -208,7 +208,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "lastManStanding",
-    name: "라스트 맨 스탠딩",
+    name: "라스트 맨 스탠딩 ⚔️",
     desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 60% 증가합니다.",
     cost: 2,
     weight: 100,
@@ -248,7 +248,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "thornmail",
-    name: "가시갑옷",
+    name: "가시갑옷 🛡️",
     desc: "적에게 공격을 받을 때 상대방에게 최대 HP의 1/8 데미지를 입힙니다.",
     cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
@@ -257,7 +257,7 @@ export const AUGMENT_LIST = [
 
   {
     id: "infinityEdge",
-    name: "무한의 대검",
+    name: "무한의 대검 💥",
     desc: `급소 확률이 25% 증가합니다.\n공격이 급소에 맞았을때 데미지가 30% 추가로 증가합니다.`,
     cost: 5,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
@@ -265,7 +265,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "rabadonsDeathcap",
-    name: "라바돈의 죽음모자",
+    name: "라바돈의 죽음모자 🪄",
     desc: "특수공격이 30% 증가합니다.",
     cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
@@ -274,7 +274,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "voidStaff",
-    name: "공허의 지팡이",
+    name: "공허의 지팡이 🪄",
     desc: "상대방의 특수방어를 40% 약하게 만듭니다.",
     cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
@@ -283,7 +283,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "ludensEcho",
-    name: "루덴의 메아리",
+    name: "루덴의 메아리 🪄",
     desc: "공격 후 적에게 특수공격의 5%에 해당하는 추가 고정 데미지를 입힙니다.",
     cost: 4,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
@@ -292,7 +292,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "bladeOfTheRuinedKing",
-    name: "몰락한 왕의 검",
+    name: "몰락한 왕의 검 💥",
     desc: "적의 현재 체력의 9% 만큼 추가 데미지를 입힙니다.",
     cost: 3,
     weight: 100,
@@ -300,7 +300,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "collector",
-    name: "징수의 총",
+    name: "징수의 총 💥",
     desc: "상대 포켓몬의 체력이 5% 이하일 경우 처형합니다.",
     cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
@@ -308,7 +308,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "sunfireAegis",
-    name: "태양불꽃방패",
+    name: "태양불꽃방패 🛡️",
     desc: "매 턴 내 최대 HP의 10%만큼 상대에게 데미지를 입힙니다.",
     cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
@@ -316,7 +316,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "warmogsArmor",
-    name: "워모그의 갑옷",
+    name: "워모그의 갑옷 🛡️",
     desc: "매 턴 최대 HP의 3%만큼 회복합니다.\n데미지를 입지 않은 경우 2배로 회복합니다.",
     cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
@@ -357,7 +357,7 @@ export const AUGMENT_LIST = [
 
   {
     id: "allOrNothing",
-    name: "모 아니면 도",
+    name: "모 아니면 도 🎲",
     desc: "공격과 특수공격 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.",
     cost: 7,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
@@ -661,7 +661,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "nimbleMoves",
-    name: "민첩한 몸놀림",
+    name: "민첩한 몸놀림 🍁",
     desc: "랜덤한 기술 하나에 우선도 +1을 추가합니다.",
     cost: 7,
     weight: 100,
@@ -701,24 +701,24 @@ export const AUGMENT_LIST = [
   },
   {
     id: "recovery",
-    name: "회복",
+    name: "회복 🍁",
     desc: "매 턴 최대 HP의 1/16만큼 회복합니다.",
     cost: 5,
     weight: 100,
   },
   {
     id: "threeSnails",
-    name: "달팽이 세마리",
+    name: "달팽이 세마리 🍁",
     desc: "공격 후 적에게 추가 고정 데미지를 입힙니다.",
     cost: 5,
     weight: 100,
   },
   {
     id: "echoOfHero",
-    name: "영웅의 메아리",
+    name: "영웅의 메아리 🍁",
     desc: "아군 모든 포켓몬의 공격과 특공을 40% 상승시킨다.",
     synergyEffectText: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
-    buf: true,
+    synergy: true,
     isRandom: false,
     weight: "-",
     onApply: function (pokemon, battle) {
@@ -734,14 +734,14 @@ export const AUGMENT_LIST = [
   },
   {
     id: "dragonDie",
-    name: "용용 죽겠지",
+    name: "용용 죽겠지 🐉",
     desc: "드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.",
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "dragonDie");
       const count = Number(pokemon?.dragonKillCount ?? aug?.dragonKillCount ?? 0);
       return `드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.\n(현재 쓰러뜨린 드래곤 포켓몬: ${count}마리)`;
     },
-    buf: true,
+    synergy: true,
     isRandom: false,
     weight: "-",
     onApply: function (pokemon, battle, options) {
@@ -754,22 +754,22 @@ export const AUGMENT_LIST = [
   },
   {
     id: "wujuStyle",
-    name: "우주류 검술",
+    name: "우주류 검술 ⚔️",
     desc: "공격 후 적에게 30의 추가 고정 데미지를 입힙니다.",
-    buf: true,
+    synergy: true,
     isRandom: false,
     weight: "-",
   },
   {
     id: "mejaisSoulstealer",
-    name: "메자이의 영혼약탈자",
+    name: "메자이의 영혼약탈자 🪄",
     desc: "중첩당 20의 특수공격을 얻습니다. 적을 쓰러뜨릴 때마다 중첩을 하나 얻으며 해당 포켓몬이 기절할 때마다 중첩을 하나 잃습니다.",
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "mejaisSoulstealer");
       const stack = Number(pokemon?.mejaiStack ?? aug?.mejaiStack ?? 0);
       return `중첩당 20의 특수공격을 얻습니다. 적을 쓰러뜨릴 때마다 중첩을 하나 얻으며 해당 포켓몬이 기절할 때마다 중첩을 하나 잃습니다.\n(현재 중첩: ${stack})`;
     },
-    buf: true,
+    synergy: true,
     isRandom: false,
     weight: "-",
     onApply: function (pokemon, battle, options) {
@@ -782,14 +782,14 @@ export const AUGMENT_LIST = [
   },
   {
     id: "practiceMakesCritical",
-    name: "연습이 치명타를 낳는다",
+    name: "연습이 치명타를 낳는다 🎯",
     desc: "공격 시 스택이 쌓이고 스택 당 급소 확률이 1% 증가합니다.",
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "practiceMakesCritical");
       const stack = Number(pokemon?.practiceCritStack ?? aug?.practiceCritStack ?? 0);
       return `공격 시 스택이 쌓이고 스택 당 급소 확률이 1% 증가합니다.\n(현재 중첩: ${stack} / 급소 확률 +${stack}%)`;
     },
-    buf: true,
+    synergy: true,
     isRandom: false,
     weight: "-",
     onApply: function (pokemon, battle, options) {
@@ -802,14 +802,14 @@ export const AUGMENT_LIST = [
   },
   {
     id: "giantAbsorption",
-    name: "거인의 흡수",
+    name: "거인의 흡수 🛡️",
     desc: "매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치 만큼 추가 HP를 얻습니다.",
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "giantAbsorption");
       const bonusHp = Number(pokemon?.giantBonusHp ?? aug?.giantBonusHp ?? 0);
       return `매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치 만큼 추가 HP를 얻습니다.\n(현재 추가 HP: +${bonusHp})`;
     },
-    buf: true,
+    synergy: true,
     isRandom: false,
     weight: "-",
     onApply: function (pokemon, battle, options) {
@@ -835,9 +835,9 @@ export const AUGMENT_LIST = [
   },
   {
     id: "gamblingAddict",
-    name: "도박 중독",
+    name: "도박 중독 🎲",
     desc: "도박과 관련된 증강이 추가로 나오게 됩니다.",
-    buf: true,
+    synergy: true,
     isRandom: false,
     weight: "-",
   },
@@ -938,7 +938,7 @@ export const AUGMENT_LIST = [
   {
     id: "highRiskHighReturn",
     name: "하이리스크 하이리턴",
-    desc: "모든 공격의 데미지가 3배가 되는 버프 또는 절반이 되는 저주를 얻습니다.",
+    desc: "모든 공격의 데미지가 3배가 되는 버프 또는 절반이 되는 디버프를 얻습니다.",
     cost: "-",
     weight: 100,
     isEligible: (pokemon, battleOrTeam, team) => hasGamblingAddict(pokemon, battleOrTeam, team) && !pokemon?.hasAugment?.("highRiskBuff") && !pokemon?.hasAugment?.("highRiskCurse"),
@@ -969,7 +969,6 @@ export const AUGMENT_LIST = [
     id: "highRiskCurse",
     name: "하이 리스크",
     desc: "모든 공격의 데미지가 절반이 됩니다.",
-    buf: true,
     curse: true,
     isRandom: false,
     weight: "-",
@@ -1014,7 +1013,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "randomAbility",
-    name: "특성 야바위",
+    name: "특성 야바위 🎲",
     desc: "현재 포켓몬의 특성을 랜덤으로 변경합니다.",
     cost: 1,
     weight: 100,
@@ -1083,6 +1082,83 @@ export const AUGMENT_SYNERGY_MAP = {
   practiceMakesCritical: ["infinityEdge", "bladeOfTheRuinedKing", "collector"], // 연습이 치명타를 낳는다: [무한의 대검, 몰락한 왕의 검, 징수의 총]
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
   giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패]
+};
+
+export const SYNERGY_INFO_MAP = {
+  echoOfHero: {
+    emoji: "🍁",
+    theme: "모험가 초보자",
+    title: "영웅의 메아리",
+    desc: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가합니다.",
+  },
+  dragonDie: {
+    emoji: "🐉",
+    theme: "드래곤 슬레이어",
+    title: "용용 죽겠지",
+    desc: "드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.",
+  },
+  wujuStyle: {
+    emoji: "⚔️",
+    theme: "우주류 검술",
+    title: "우주류 검술",
+    desc: "공격 후 적에게 30의 추가 고정 데미지를 입힙니다.",
+  },
+  mejaisSoulstealer: {
+    emoji: "🪄",
+    theme: "마법 공명",
+    title: "메자이의 영혼약탈자",
+    desc: "중첩당 20의 특수공격을 얻습니다. 적을 쓰러뜨릴 때마다 중첩을 얻습니다.",
+  },
+  practiceMakesCritical: {
+    emoji: "🎯",
+    theme: "치명타 숙련",
+    title: "연습이 치명타를 낳는다",
+    desc: "공격 시 스택이 쌓이고 스택당 급소 확률이 1% 증가합니다.",
+  },
+  gamblingAddict: {
+    emoji: "🎲",
+    theme: "도박 본능",
+    title: "도박 중독",
+    desc: "도박과 관련된 증강이 추가로 등장하게 됩니다.",
+  },
+  giantAbsorption: {
+    emoji: "🛡️",
+    theme: "거인의 요새",
+    title: "거인의 흡수",
+    desc: "매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치만큼 추가 HP를 얻습니다.",
+  },
+};
+
+/**
+ * 주어진 증강 ID가 속한 시너지 정보를 반환 (시너지 버프 본인이거나 3대 조건 증강 중 하나인 경우)
+ * @param {string} augId
+ */
+export const getAugmentSynergyInfo = (augId) => {
+  if (!augId) return null;
+  for (const [buffId, requiredIds] of Object.entries(AUGMENT_SYNERGY_MAP)) {
+    if (buffId === augId || requiredIds.includes(augId)) {
+      const buffAugment = AUGMENT_LIST.find((a) => a.id === buffId);
+      const requiredAugments = requiredIds.map((id) => AUGMENT_LIST.find((a) => a.id === id)).filter(Boolean);
+      const meta = SYNERGY_INFO_MAP[buffId] || {
+        emoji: "✨",
+        theme: "시너지",
+        title: buffAugment?.name || "시너지",
+        desc: buffAugment?.desc || "",
+      };
+      return {
+        buffId,
+        buffAugment,
+        requiredIds,
+        requiredAugments,
+        emoji: meta.emoji,
+        theme: meta.theme,
+        title: meta.title,
+        desc: meta.desc,
+        isBuffItself: buffId === augId,
+      };
+    }
+  }
+  return null;
 };
 
 // 동시에 2개 이상 등장하지 않는 상호 배타적 증강 그룹 목록 (배열 안의 배열 형태)
@@ -1482,16 +1558,18 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   }
 
   const foundInList = AUGMENT_LIST.find((a) => a.id === id);
-  const isCurse = Boolean(selectedAugment?.curse || foundInList?.curse);
-  const isBuf = Boolean(selectedAugment?.buf || foundInList?.buf || isCurse);
-  if (isBuf) {
+  const isCurse = isCurseAugment(selectedAugment) || isCurseAugment(foundInList);
+  const isSynergy = isSynergyAugment(selectedAugment) || isSynergyAugment(foundInList);
+  const isBuf = isBuffAugment(selectedAugment) || isBuffAugment(foundInList);
+  if (isCurse || isSynergy || isBuf) {
     if (isTextScreen) {
-      const displayAugName = selectedAugment?.shortName || selectedAugment?.name || foundInList?.shortName || foundInList?.name || "";
-      if (AUGMENT_SYNERGY_MAP[id]) {
-        return `3개의 증강이 공명하여 "${displayAugName}" 버프를 얻었다!`;
+      const rawName = selectedAugment?.shortName || selectedAugment?.name || foundInList?.shortName || foundInList?.name || "";
+      const displayAugName = stripEmoji(rawName);
+      if (isSynergy) {
+        return `3개의 증강이 공명하여 "${displayAugName}" 시너지가 활성화되었다!`;
       }
       if (isCurse) {
-        return `${names} "${displayAugName}" 저주를 얻었다!`;
+        return `${names} "${displayAugName}" 디버프를 얻었다!`;
       }
       return `${names} "${displayAugName}" 버프를 얻었다!`;
     }
@@ -1512,7 +1590,8 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
 
   // 일반 증강인 경우
   if (isTextScreen) {
-    const displayAugName = selectedAugment.shortName || selectedAugment.name;
+    const rawName = selectedAugment.shortName || selectedAugment.name;
+    const displayAugName = stripEmoji(rawName);
     return `[증강] ${names} "${displayAugName}" 효과를 얻었다!`;
   } else {
     const applied = target?.augments?.find((a) => a.id === id);
@@ -1620,12 +1699,13 @@ export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
 
 export { changePokemonAbility, changeAbility };
 
-export const isBuffAugment = (augment) => {
+export const isSynergyAugment = (augment) => {
   if (!augment) return false;
-  if (typeof augment === "object" && augment.buf) return true;
+  if (typeof augment === "object" && augment.synergy) return true;
   const id = typeof augment === "string" ? augment : augment.id;
+  if (id && AUGMENT_SYNERGY_MAP && Boolean(AUGMENT_SYNERGY_MAP[id])) return true;
   const found = AUGMENT_LIST.find((a) => a.id === id);
-  return Boolean(found?.buf);
+  return Boolean(found?.synergy || (id && AUGMENT_SYNERGY_MAP && Boolean(AUGMENT_SYNERGY_MAP[id])));
 };
 
 export const isCurseAugment = (augment) => {
@@ -1634,4 +1714,24 @@ export const isCurseAugment = (augment) => {
   const id = typeof augment === "string" ? augment : augment.id;
   const found = AUGMENT_LIST.find((a) => a.id === id);
   return Boolean(found?.curse);
+};
+
+export const isBuffAugment = (augment) => {
+  if (!augment) return false;
+  if (isCurseAugment(augment)) return false;
+  if (isSynergyAugment(augment)) return false;
+  if (typeof augment === "object" && augment.buf) return true;
+  const id = typeof augment === "string" ? augment : augment.id;
+  const found = AUGMENT_LIST.find((a) => a.id === id);
+  return Boolean(found?.buf);
+};
+
+export const isNormalAugment = (augment) => {
+  if (!augment) return false;
+  return !isCurseAugment(augment) && !isBuffAugment(augment) && !isSynergyAugment(augment);
+};
+
+export const stripEmoji = (str) => {
+  if (typeof str !== "string") return str;
+  return str.replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").trim();
 };

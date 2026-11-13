@@ -191,18 +191,65 @@ class PokemonInstance {
   }
 
   checkAugmentSynergies(battle) {
-    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP } = require("../Augment/AugmentData");
+    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, syncTeamEchoOfHeroBuff } = require("../Augment/AugmentData");
     const team = battle ? (this.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]) : [];
-    Object.entries(AUGMENT_SYNERGY_MAP).forEach(([buffId, requiredIds]) => {
-      // 영메는 팀 단위 버프이므로 한 명만 얻을 수 있다
-      const alreadyHasEchoOnTeam = buffId === "echoOfHero" && (this.hasEchoOfHeroBuff || team.some((p) => p?.hasAugment?.("echoOfHero") || p?.hasEchoOfHeroBuff));
-      if (this.hasAugment(buffId) || alreadyHasEchoOnTeam) {
+
+    Object.entries(AUGMENT_SYNERGY_MAP).forEach(([synergyId, requiredIds]) => {
+      const existingAug = (this.augments || []).find((a) => (typeof a === "string" ? a === synergyId : a.id === synergyId));
+      if (existingAug?.isForced) {
+        // testMode 등에서 직접 선택된 시너지는 조건 없이 무조건 활성화 유지
+        if (synergyId === "echoOfHero" && typeof syncTeamEchoOfHeroBuff === "function") {
+          syncTeamEchoOfHeroBuff(battle, this);
+        }
         return;
       }
-      if (requiredIds.every((reqId) => this.hasAugment(reqId))) {
-        const buffAug = AUGMENT_LIST.find((a) => a.id === buffId || a.name === buffId);
-        if (buffAug) {
-          this.applyAugment(buffAug, battle, { isHiddenGrant: true });
+
+      const hasAllConditions = requiredIds.every((reqId) => this.hasAugment(reqId));
+      const hasSynergyNow = Boolean(existingAug);
+
+      if (hasAllConditions) {
+        // 활성화 조건 만족: 아직 활성화되지 않았다면 추가
+        if (!hasSynergyNow) {
+          // 영메는 팀 단위 버프이므로 한 명만 활성화
+          const alreadyHasEchoOnTeam = synergyId === "echoOfHero" && team.some((p) => p !== this && (p?.hasAugment?.("echoOfHero") || p?.hasEchoOfHeroBuff));
+          if (alreadyHasEchoOnTeam) return;
+
+          const synergyAug = AUGMENT_LIST.find((a) => a.id === synergyId);
+          if (synergyAug) {
+            const augObj = { ...synergyAug, id: synergyId, synergy: true };
+            delete augObj.buf;
+            delete augObj.curse;
+            if (synergyId === "dragonDie") augObj.dragonKillCount = Number(this.dragonKillCount || 0);
+            if (synergyId === "mejaisSoulstealer") augObj.mejaiStack = Number(this.mejaiStack || 0);
+            if (synergyId === "practiceMakesCritical") augObj.practiceCritStack = Number(this.practiceCritStack || 0);
+            if (synergyId === "giantAbsorption") augObj.giantBonusHp = Number(this.giantBonusHp || 0);
+            if (!this.augments) this.augments = [];
+            this.augments.push(augObj);
+            if (typeof augObj.onApply === "function") {
+              augObj.onApply(this, battle, {
+                isHiddenGrant: true,
+                isCarryover: true,
+                dragonKillCount: this.dragonKillCount,
+                mejaiStack: this.mejaiStack,
+                practiceCritStack: this.practiceCritStack,
+                giantBonusHp: this.giantBonusHp,
+              });
+            }
+            if (synergyId === "echoOfHero" && typeof syncTeamEchoOfHeroBuff === "function") {
+              syncTeamEchoOfHeroBuff(battle, this);
+            }
+          }
+        }
+      } else {
+        // 활성화 조건 불만족: 기존에 활성화되어 있었다면 비활성화 (제거만 하고 스택/중첩은 유지)
+        if (hasSynergyNow) {
+          this.augments = (this.augments || []).filter((a) => (typeof a === "string" ? a !== synergyId : a.id !== synergyId));
+          if (synergyId === "echoOfHero") {
+            delete this.hasEchoOfHeroBuff;
+            if (typeof syncTeamEchoOfHeroBuff === "function") {
+              syncTeamEchoOfHeroBuff(battle, this);
+            }
+          }
         }
       }
     });
@@ -212,27 +259,48 @@ class PokemonInstance {
     this.checkAugmentSynergies(battle);
   }
 
+  removeAugment(nameOrId, battle) {
+    if (!this.augments || !Array.isArray(this.augments)) return null;
+    const targetId = typeof nameOrId === "object" ? nameOrId?.id : nameOrId;
+    const index = this.augments.findIndex((a) => (typeof a === "string" ? a === targetId : a.id === targetId || a.name === targetId));
+    if (index === -1) return null;
+    const [removed] = this.augments.splice(index, 1);
+    this.checkAugmentSynergies(battle);
+    return removed;
+  }
+
   applyAugment(augment, battle, options) {
     if (!this.augments) {
       this.augments = [];
     }
     const augId = typeof augment === "string" ? augment : augment.id;
-    const { AUGMENT_LIST } = require("../Augment/AugmentData");
+    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, isCurseAugment, isBuffAugment, isSynergyAugment, isNormalAugment } = require("../Augment/AugmentData");
     const fullAug = AUGMENT_LIST.find((a) => a.id === augId);
     const augObj = typeof augment === "object" ? { ...(fullAug || {}), ...augment } : { ...(fullAug || {}), id: augment };
     const isInstant = augObj.cost === "-";
-    if (fullAug?.buf || augObj.buf) {
-      augObj.buf = true;
-    }
-    const isBuf = Boolean(augObj.buf);
 
-    // 버프는 증강 3개 제한에 들어가지 않음
-    if (!isBuf) {
-      const normalCount = this.augments.filter((a) => !a.buf).length;
+    if (fullAug?.curse || augObj.curse || isCurseAugment(augObj)) {
+      augObj.curse = true;
+      delete augObj.buf;
+      delete augObj.synergy;
+    } else if (fullAug?.synergy || augObj.synergy || isSynergyAugment(augObj) || AUGMENT_SYNERGY_MAP?.[augId]) {
+      augObj.synergy = true;
+      augObj.isForced = true; // 직접 선택되거나 적용된 시너지는 조건 없이 무조건 활성화
+      delete augObj.buf;
+      delete augObj.curse;
+    } else if (fullAug?.buf || augObj.buf || isBuffAugment(augObj)) {
+      augObj.buf = true;
+      delete augObj.curse;
+      delete augObj.synergy;
+    }
+
+    // 일반 증강만 3개 슬롯 제한 적용 (버프, 저주, 시너지는 슬롯 제한 없음)
+    if (isNormalAugment(augObj)) {
+      const normalCount = this.augments.filter((a) => isNormalAugment(a)).length;
       if (normalCount >= 3) return false;
     }
     if (!isInstant && this.hasAugment(augId)) {
-      if (isBuf && (options?.dragonKillCount !== undefined || options?.mejaiStack !== undefined || options?.practiceCritStack !== undefined || options?.giantBonusHp !== undefined)) {
+      if ((augObj.buf || augObj.synergy) && (options?.dragonKillCount !== undefined || options?.mejaiStack !== undefined || options?.practiceCritStack !== undefined || options?.giantBonusHp !== undefined)) {
         const existingBuf = this.augments.find((a) => a.id === augId);
         if (existingBuf && typeof existingBuf.onApply === "function") {
           existingBuf.onApply(this, battle, options);
@@ -254,7 +322,7 @@ class PokemonInstance {
       augObj.onApply(this, battle, options);
     }
 
-    // 3종 증강 세트 공명 시너지 체크 (영웅의 메아리, 용용 죽겠지 등)
+    // 3종 증강 세트 공명 시너지 체크 (조건 충족 시 활성화, 미충족 시 비활성화)
     this.checkAugmentSynergies(battle);
 
     return true;

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { AugmentIcon } from "./augment/AugmentIcon";
-import { isBuffAugment, isCurseAugment } from "../../entity/Augment/AugmentData";
+import { isBuffAugment, isCurseAugment, isSynergyAugment } from "../../entity/Augment/AugmentData";
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -96,11 +96,27 @@ const AugmentLogCard = styled.div`
   background: ${(props) =>
     props.$isCurse
       ? "linear-gradient(135deg, rgba(48, 16, 18, 0.95), rgba(28, 10, 12, 0.98))"
-      : props.$isBuff
+      : props.$isSynergy
         ? "linear-gradient(135deg, rgba(38, 32, 12, 0.95), rgba(24, 20, 8, 0.98))"
-        : "linear-gradient(135deg, rgba(16, 28, 42, 0.95), rgba(10, 18, 28, 0.98))"};
-  border: 1px solid ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.45)" : props.$isBuff ? "rgba(255, 215, 0, 0.45)" : "rgba(100, 255, 218, 0.35)")};
-  border-left: 4px solid ${(props) => (props.$isCurse ? "#ef4444" : props.$isBuff ? "#ffd700" : "#64ffda")};
+        : props.$isBuff
+          ? "linear-gradient(135deg, rgba(14, 34, 52, 0.95), rgba(8, 20, 32, 0.98))"
+          : "linear-gradient(135deg, rgba(16, 28, 42, 0.95), rgba(10, 18, 28, 0.98))"};
+  border: 1px solid ${(props) =>
+    props.$isCurse
+      ? "rgba(239, 68, 68, 0.45)"
+      : props.$isSynergy
+        ? "rgba(255, 215, 0, 0.45)"
+        : props.$isBuff
+          ? "rgba(56, 189, 248, 0.45)"
+          : "rgba(100, 255, 218, 0.35)"};
+  border-left: 4px solid ${(props) =>
+    props.$isCurse
+      ? "#ef4444"
+      : props.$isSynergy
+        ? "#ffd700"
+        : props.$isBuff
+          ? "#38bdf8"
+          : "#64ffda"};
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
   display: flex;
@@ -115,17 +131,53 @@ const AugmentHeader = styled.div`
 `;
 
 const AugmentBadge = styled.span`
-  background: ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.2)" : props.$isBuff ? "rgba(255, 215, 0, 0.2)" : "rgba(100, 255, 218, 0.15)")};
-  color: ${(props) => (props.$isCurse ? "#f87171" : props.$isBuff ? "#ffd700" : "#64ffda")};
+  background: ${(props) =>
+    props.$isCurse
+      ? "rgba(239, 68, 68, 0.2)"
+      : props.$isSynergy
+        ? "rgba(255, 215, 0, 0.2)"
+        : props.$isBuff
+          ? "rgba(56, 189, 248, 0.2)"
+          : "rgba(100, 255, 218, 0.15)"};
+  color: ${(props) =>
+    props.$isCurse
+      ? "#f87171"
+      : props.$isSynergy
+        ? "#ffd700"
+        : props.$isBuff
+          ? "#38bdf8"
+          : "#64ffda"};
   font-size: 0.72rem;
   font-weight: 700;
   padding: 2px 7px;
   border-radius: 4px;
-  border: 1px solid ${(props) => (props.$isCurse ? "rgba(239, 68, 68, 0.5)" : props.$isBuff ? "rgba(255, 215, 0, 0.5)" : "rgba(100, 255, 218, 0.35)")};
+  border: 1px solid ${(props) =>
+    props.$isCurse
+      ? "rgba(239, 68, 68, 0.5)"
+      : props.$isSynergy
+        ? "rgba(255, 215, 0, 0.5)"
+        : props.$isBuff
+          ? "rgba(56, 189, 248, 0.5)"
+          : "rgba(100, 255, 218, 0.35)"};
   letter-spacing: 0.5px;
 `;
 
 const LogBuffBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+`;
+
+const LogSynergyBadge = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -272,26 +324,28 @@ export default function LogModal({ log, onClose }) {
                 const targetName = item.augmentData.targetName;
                 const augment = item.augmentData.augment || item.augmentData || {};
                 const augId = augment.id;
-                const isCurse = Boolean(augment.curse || isCurseAugment(augment));
-                const isBuff = Boolean((augment.buf || isBuffAugment(augment)) && !isCurse);
+                const isCurse = isCurseAugment(augment);
+                const isSynergy = isSynergyAugment(augment);
+                const isBuff = isBuffAugment(augment);
                 const augCost = augment.cost;
-                const augName = augment.shortName || augment.name || augment.augmentName || (isCurse ? "저주" : isBuff ? "버프" : "증강");
+                const augName = augment.shortName || augment.name || augment.augmentName || (isCurse ? "디버프" : isSynergy ? "시너지" : isBuff ? "버프" : "증강");
                 const augDesc = augment.desc;
+                const badgeText = isCurse ? "디버프 획득" : isSynergy ? "시너지 활성화" : isBuff ? "버프 획득" : "증강 획득";
                 return (
-                  <AugmentLogCard key={index} $isBuff={isBuff} $isCurse={isCurse}>
+                  <AugmentLogCard key={index} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy}>
                     <AugmentHeader>
-                      <AugmentBadge $isBuff={isBuff} $isCurse={isCurse}>{isCurse ? "저주 획득" : isBuff ? "버프 획득" : "증강 획득"}</AugmentBadge>
+                      <AugmentBadge $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy}>{badgeText}</AugmentBadge>
                       <TargetPokemonText>{targetName}에게 적용</TargetPokemonText>
                     </AugmentHeader>
                     <AugmentBody>
                       <AugmentIconCol>
                         {augId && <AugmentIcon id={augId} size={36} />}
-                        {!isBuff && !isCurse && augCost !== undefined && augCost !== "-" && <AugmentCost>{augCost ?? 1} cost</AugmentCost>}
+                        {!isBuff && !isCurse && !isSynergy && augCost !== undefined && augCost !== "-" && <AugmentCost>{augCost ?? 1} cost</AugmentCost>}
                       </AugmentIconCol>
                       <AugmentInfo>
                         <AugmentTitleRow>
                           <AugmentName>{augName}</AugmentName>
-                          {isCurse ? <LogCurseBadge>저주</LogCurseBadge> : isBuff && <LogBuffBadge>버프</LogBuffBadge>}
+                          {isCurse ? <LogCurseBadge>디버프</LogCurseBadge> : isSynergy ? <LogSynergyBadge>시너지</LogSynergyBadge> : isBuff ? <LogBuffBadge>버프</LogBuffBadge> : null}
                         </AugmentTitleRow>
                         {augDesc && <AugmentDesc>{augDesc}</AugmentDesc>}
                       </AugmentInfo>

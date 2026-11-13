@@ -2,6 +2,7 @@ import { hpCalculate } from "../calc/hpCalculate";
 import { switchNpcAuto } from "./switch";
 import { speedCheck } from "../calc/speedCheck";
 import { applyAilment } from "./ailment";
+import { isNormalAugment } from "../entity/Augment/AugmentData";
 
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
@@ -137,7 +138,7 @@ export const turnEnd = (battle, enqueue) => {
   const hasSurvivingKnockoutAttacker = playerTeam.some((p) => Boolean(p.turn?.knockedOutNpcThisTurn) && !p.faint && p.hp > 0);
 
   if (battle.isMayhem && !battle.hasKnockoutAugmentThisRound && hasSurvivingKnockoutAttacker) {
-    const hasSlot = playerTeam.some((p) => (p.augments || []).filter((a) => !a.buf).length < 3);
+    const hasSlot = playerTeam.some((p) => (p.augments || []).filter((a) => isNormalAugment(a)).length < 3);
     if (hasSlot) {
       enqueue({
         id: "122fb584-429d-4b41-9558-755143829687",

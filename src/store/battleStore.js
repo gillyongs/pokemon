@@ -4,7 +4,7 @@ import { defaultOption } from "../config/defaultOption";
 import { setSelectedNpcAct } from "../config/testMode";
 import { consoleLog } from "../util/consoleLog";
 import { rollAugments } from "../calc/augmentRoll";
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText, isBuffAugment, isCurseAugment, syncTeamEchoOfHeroBuff } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, syncTeamEchoOfHeroBuff, stripEmoji } from "../entity/Augment/AugmentData";
 import { generate } from "../entity/Pokemon/PokemonInstance";
 import { switchNpcAuto } from "../service/switch";
 import { speedCheck } from "../calc/speedCheck";
@@ -90,16 +90,66 @@ export const useBattleStore = createStore((set, get) => ({
     set({ battleLive: nextBattle, battle: nextBattle });
 
     if (isMayhem && carriedAugments) {
-      // 이전 라운드에서 선택하여 유지한 증강 복원 (버프 증강을 팀 전체에 먼저 복원한 뒤 일반 증강 복원)
+      // 이전 라운드에서 선택하여 유지한 증강 복원
       const teamPokes = [nextBattle.player, nextBattle.playerBench1, nextBattle.playerBench2];
+
+      // 1. 포켓몬 객체에 스택 필드 선복원 (시너지 조건 만족 시 즉시 기존 누적 스택 반영)
+      teamPokes.forEach((p, idx) => {
+        const targetIdx = p?.originalIndex ?? idx;
+        if (p && Array.isArray(carriedAugments[targetIdx])) {
+          carriedAugments[targetIdx].forEach((savedAug) => {
+            if (savedAug?.dragonKillCount !== undefined) {
+              p.dragonKillCount = Math.max(Number(p.dragonKillCount || 0), Number(savedAug.dragonKillCount || 0));
+            }
+            if (savedAug?.mejaiStack !== undefined) {
+              p.mejaiStack = Math.max(Number(p.mejaiStack || 0), Number(savedAug.mejaiStack || 0));
+            }
+            if (savedAug?.practiceCritStack !== undefined) {
+              p.practiceCritStack = Math.max(Number(p.practiceCritStack || 0), Number(savedAug.practiceCritStack || 0));
+            }
+            if (savedAug?.giantBonusHp !== undefined) {
+              p.giantBonusHp = Math.max(Number(p.giantBonusHp || 0), Number(savedAug.giantBonusHp || 0));
+            }
+          });
+        }
+      });
+
+      // 2. 버프/저주 복원 후 일반 증강 복원 (일반 증강이 복원되면서 checkAugmentSynergies에 의해 시너지가 스택을 유지하며 활성화됨)
       [true, false].forEach((isBufPass) => {
         teamPokes.forEach((p, idx) => {
           const targetIdx = p?.originalIndex ?? idx;
           if (p && Array.isArray(carriedAugments[targetIdx])) {
             carriedAugments[targetIdx].forEach((savedAug) => {
+              if (savedAug?.isStackMeta || savedAug?.id === "__synergy_stacks__") return;
               const augId = typeof savedAug === "string" ? savedAug : savedAug?.id;
               const fullAug = AUGMENT_LIST.find((a) => a.id === augId);
-              if (fullAug && Boolean(fullAug.buf || savedAug?.buf) === isBufPass) {
+              if (fullAug && isSynergyAugment(fullAug)) {
+                if (savedAug?.isForced && isBufPass) {
+                  p.applyAugment(fullAug, nextBattle, {
+                    replaceSlot: savedAug?.replacedSlot,
+                    selectedType: savedAug?.selectedType,
+                    targetStat: savedAug?.allOrNothingResult ?? savedAug?.revolutionResult,
+                    replacedSkillName: savedAug?.replacedSkillName,
+                    swordLevel: savedAug?.swordLevel,
+                    swordFailed: savedAug?.swordFailed,
+                    swordBonusAtk: savedAug?.swordBonusAtk,
+                    swordName: savedAug?.swordName,
+                    pickedAbility: savedAug?.pickedAbility,
+                    targetSlot: savedAug?.targetSlot,
+                    enhancedSkillName: savedAug?.enhancedSkillName,
+                    baseSkillName: savedAug?.baseSkillName,
+                    dragonKillCount: savedAug?.dragonKillCount ?? p.dragonKillCount,
+                    mejaiStack: savedAug?.mejaiStack ?? p.mejaiStack,
+                    practiceCritStack: savedAug?.practiceCritStack ?? p.practiceCritStack,
+                    giantBonusHp: savedAug?.giantBonusHp ?? p.giantBonusHp,
+                    isForced: true,
+                    isCarryover: true,
+                  });
+                }
+                return;
+              }
+              const isBufOrCurse = fullAug ? Boolean(isBuffAugment(fullAug) || isCurseAugment(fullAug)) : Boolean(savedAug?.buf || savedAug?.curse);
+              if (fullAug && isBufOrCurse === isBufPass) {
                 p.applyAugment(fullAug, nextBattle, {
                   replaceSlot: savedAug?.replacedSlot,
                   selectedType: savedAug?.selectedType,
@@ -113,10 +163,10 @@ export const useBattleStore = createStore((set, get) => ({
                   targetSlot: savedAug?.targetSlot,
                   enhancedSkillName: savedAug?.enhancedSkillName,
                   baseSkillName: savedAug?.baseSkillName,
-                  dragonKillCount: savedAug?.dragonKillCount,
-                  mejaiStack: savedAug?.mejaiStack,
-                  practiceCritStack: savedAug?.practiceCritStack,
-                  giantBonusHp: savedAug?.giantBonusHp,
+                  dragonKillCount: savedAug?.dragonKillCount ?? p.dragonKillCount,
+                  mejaiStack: savedAug?.mejaiStack ?? p.mejaiStack,
+                  practiceCritStack: savedAug?.practiceCritStack ?? p.practiceCritStack,
+                  giantBonusHp: savedAug?.giantBonusHp ?? p.giantBonusHp,
                   isCarryover: true,
                 });
               }
@@ -128,7 +178,7 @@ export const useBattleStore = createStore((set, get) => ({
 
     if (isMayhem) {
       // 무조건 "배틀시작!"이 먼저 나오고 그 다음에 "증강을 선택하세요"가 나옴
-      const target = [nextBattle.player, nextBattle.playerBench1, nextBattle.playerBench2].find((p) => p && (p.augments || []).filter((a) => !a.buf).length < 3);
+      const target = [nextBattle.player, nextBattle.playerBench1, nextBattle.playerBench2].find((p) => p && (p.augments || []).filter((a) => isNormalAugment(a)).length < 3);
       if (target) {
         get().enqueueBattleStart(nextBattle, queueObject, { skipAbilities: true });
         queueObject.enqueue({
@@ -183,7 +233,7 @@ export const useBattleStore = createStore((set, get) => ({
 
       if (queue[0].isAugment) {
         const curB = get().battleLive;
-        const target = [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && (p.augments || []).filter((a) => !a.buf).length < 3);
+        const target = [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && (p.augments || []).filter((a) => isNormalAugment(a)).length < 3);
         if (target) {
           const choices = rollAugments(target, 3, curB);
           if (choices && choices.length > 0) {
@@ -357,9 +407,9 @@ export const useBattleStore = createStore((set, get) => ({
 
     synergyBuffIds.forEach((buffId) => {
       const buffAug = AUGMENT_LIST.find((a) => a.id === buffId || a.name === buffId);
-      const buffName = buffAug?.shortName || buffAug?.name || buffId;
+      const buffName = stripEmoji(buffAug?.shortName || buffAug?.name || buffId);
       if (!hadSynergyBefore[buffId] && target.hasAugment?.(buffId) && selectedAugment.id !== buffId) {
-        const synergyText = `3개의 증강이 공명하여 "${buffName}" 버프를 얻었다!`;
+        const synergyText = `3개의 증강이 공명하여 "${buffName}" 시너지가 활성화되었다!`;
         collectEnqueue({
           id: `${buffId}-synergy-gain`,
           battle: curBattle,
@@ -369,9 +419,9 @@ export const useBattleStore = createStore((set, get) => ({
             targetName: target.name || target.names,
             augment: {
               id: buffAug?.id || buffId,
-              name: buffName,
+              name: buffAug?.name || buffName,
               desc: buffAug?.desc || "",
-              buf: true,
+              synergy: true,
             },
           },
         });
@@ -493,17 +543,19 @@ export const useBattleStore = createStore((set, get) => ({
     const logTargetName = isReplacement ? prevPokeName : target.name || target.names;
 
     const isSelectedCurse = Boolean(appliedAug.curse || isCurseAugment(appliedAug));
-    const isSelectedBuf = Boolean(appliedAug.buf || isBuffAugment(appliedAug) || isSelectedCurse);
+    const isSelectedSynergy = Boolean(appliedAug.synergy || isSynergyAugment(appliedAug));
+    const isSelectedBuf = Boolean((appliedAug.buf || isBuffAugment(appliedAug)) && !isSelectedCurse && !isSelectedSynergy);
     const augmentData = {
       targetName: logTargetName,
       augment: {
         id: appliedAug.id,
         name: appliedAug.name,
         shortName: appliedAug.shortName,
-        desc: isSelectedBuf ? AUGMENT_LIST.find((a) => a.id === appliedAug.id)?.desc || appliedAug.desc || selectedAugment.desc || "" : getAugmentText(selectedAugment, target, false, prevPokeName, augOptions),
+        desc: isSelectedBuf || isSelectedCurse || isSelectedSynergy ? AUGMENT_LIST.find((a) => a.id === appliedAug.id)?.desc || appliedAug.desc || selectedAugment.desc || "" : getAugmentText(selectedAugment, target, false, prevPokeName, augOptions),
         cost: appliedAug.cost,
         buf: isSelectedBuf,
         curse: isSelectedCurse,
+        synergy: isSelectedSynergy,
       },
     };
 
@@ -599,7 +651,7 @@ export const useBattleStore = createStore((set, get) => ({
     const { mayhemMode = gameOption.mayhemMode } = locationState || {};
     const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
     const currentBattle = get().battleLive || get().battle;
-    const teamHasSelectableAugments = [currentBattle?.player, currentBattle?.playerBench1, currentBattle?.playerBench2].some((p) => (p?.augments || []).some((a) => !a.buf));
+    const teamHasSelectableAugments = [currentBattle?.player, currentBattle?.playerBench1, currentBattle?.playerBench2].some((p) => (p?.augments || []).some((a) => isNormalAugment(a)));
 
     if (isMayhem && teamHasSelectableAugments) {
       set({ isAugmentCarryModalOpen: true });
@@ -641,13 +693,18 @@ export const useBattleStore = createStore((set, get) => ({
       const pIdx = p.originalIndex ?? idx;
       if (!effectiveCarriedMap[pIdx]) effectiveCarriedMap[pIdx] = [];
       (p.augments || []).forEach((aug) => {
-        if (aug.buf && !effectiveCarriedMap[pIdx].some((a) => (a.id || a) === aug.id)) {
+        const isBuf = isBuffAugment(aug);
+        const isCurse = isCurseAugment(aug);
+        const isSyn = isSynergyAugment(aug);
+        if ((isBuf || isCurse || isSyn) && !effectiveCarriedMap[pIdx].some((a) => (a.id || a) === aug.id)) {
           effectiveCarriedMap[pIdx].push({
             id: aug.id,
             name: aug.name,
             cost: aug.cost,
-            buf: true,
-            curse: Boolean(aug.curse || isCurseAugment(aug)),
+            buf: isBuf,
+            curse: isCurse,
+            synergy: isSyn,
+            isForced: Boolean(aug.isForced),
             dragonKillCount: aug.dragonKillCount ?? p.dragonKillCount ?? 0,
             mejaiStack: aug.mejaiStack ?? p.mejaiStack ?? 0,
             practiceCritStack: aug.practiceCritStack ?? p.practiceCritStack ?? 0,
@@ -655,6 +712,17 @@ export const useBattleStore = createStore((set, get) => ({
           });
         }
       });
+      // 비활성화 상태여도 누적 스택이 있다면 보존
+      if ((p.dragonKillCount || p.mejaiStack || p.practiceCritStack || p.giantBonusHp) && !effectiveCarriedMap[pIdx].some((a) => a.synergy || isSynergyAugment(a))) {
+        effectiveCarriedMap[pIdx].push({
+          id: "__synergy_stacks__",
+          isStackMeta: true,
+          dragonKillCount: p.dragonKillCount || 0,
+          mejaiStack: p.mejaiStack || 0,
+          practiceCritStack: p.practiceCritStack || 0,
+          giantBonusHp: p.giantBonusHp || 0,
+        });
+      }
     });
 
     const serializedCarried = Object.entries(effectiveCarriedMap).reduce((acc, [idx, augs]) => {
@@ -662,8 +730,12 @@ export const useBattleStore = createStore((set, get) => ({
         id: aug.id || aug,
         buf: Boolean(aug.buf),
         curse: Boolean(aug.curse),
+        synergy: Boolean(aug.synergy),
+        isForced: Boolean(aug.isForced),
+        isStackMeta: Boolean(aug.isStackMeta),
         replacedSlot: aug.replacedSlot,
         selectedType: aug.selectedType,
+        targetStat: aug.targetStat ?? aug.allOrNothingResult ?? aug.revolutionResult,
         allOrNothingResult: aug.allOrNothingResult,
         replacedSkillName: aug.replacedSkillName,
         swordLevel: aug.swordLevel,

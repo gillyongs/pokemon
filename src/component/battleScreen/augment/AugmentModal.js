@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST, compareAugmentNames, getAugmentDesc, isCurseAugment } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, compareAugmentNames, getAugmentDesc, isCurseAugment, isBuffAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
 import { getSwordEnhanceTier, getSwordEnhanceProb } from "../../../entity/Augment/swordEnhance";
 import { abilObject, noRandomAbil } from "../../../entity/Ability";
 import { ALL_POKEMON_TYPES, TYPE_COLORS, isNoEffect, getTypeEffectText } from "../../../calc/typeEffectCalculate";
@@ -11,6 +11,7 @@ import { testmode, subscribeTestMode } from "../../../config/testMode";
 import sampleList from "../../../entity/Pokemon/SamplePokemon";
 import AugmentStatusModal from "./AugmentStatusModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
+import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 
 export const AUGMENT_POKEMON_PREVIEW_MAP = {
   soaring: "플라이곤",
@@ -43,6 +44,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
   const [isPeekMode, setIsPeekMode] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [previewInfo, setPreviewInfo] = useState(null);
+  const [synergyPreviewInfo, setSynergyPreviewInfo] = useState(null);
   const [skillSelectAug, setSkillSelectAug] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [typeSelectAug, setTypeSelectAug] = useState(null);
@@ -167,6 +169,12 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     const sample = getPreviewSample(augId);
     if (sample) {
       setPreviewInfo({ augmentId: augId, pokemon: sample });
+      return;
+    }
+    const synergy = getAugmentSynergyInfo(augId);
+    if (synergy) {
+      setSynergyPreviewInfo({ augmentId: augId, synergy });
+      return;
     }
   };
 
@@ -177,16 +185,16 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     if (targetPokemon && resolvedTeam.some((p) => p === targetPokemon || p.id === targetPokemon.id)) {
       return targetPokemon;
     }
-    return resolvedTeam.find((p) => (p.augments || []).filter((a) => !a.buf).length < 3) || resolvedTeam[0] || null;
+    return resolvedTeam.find((p) => (p.augments || []).filter((a) => isNormalAugment(a)).length < 3) || resolvedTeam[0] || null;
   });
 
   const checkEligibility = (aug, pokemon) => {
     if (!pokemon) return false;
     if (isTitanSelection) return true;
-    const isBuffAug = Boolean(aug.buf);
+    const isSpecialAug = isBuffAugment(aug) || isCurseAugment(aug) || isSynergyAugment(aug);
     const isInstant = aug.cost === "-";
-    if (!isBuffAug && !isInstant) {
-      const normalAugs = (pokemon.augments || []).filter((a) => !a.buf);
+    if (!isSpecialAug && !isInstant) {
+      const normalAugs = (pokemon.augments || []).filter((a) => isNormalAugment(a));
       if (normalAugs.length >= 3) return false;
     }
     if (pokemon.hasAugment?.(aug.id)) {
@@ -243,12 +251,13 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
   const handleSelectPokemon = (poke) => {
     if (isPeekMode) setIsPeekMode(false);
-    const isFull = (poke.augments || []).filter((a) => !a.buf).length >= 3;
+    const isFull = (poke.augments || []).filter((a) => isNormalAugment(a)).length >= 3;
     const isFainted = Boolean(poke.faint || poke.hp <= 0);
     if (isFull && !isFainted) return;
     if (poke === activePokemon || poke?.id === activePokemon?.id) return;
     setActivePokemon(poke);
     setPreviewInfo(null);
+    setSynergyPreviewInfo(null);
     setSelectedAugment(null); // 다른 포켓몬 선택 시 증강 선택 상태 초기화
     setTypeSelectAug(null);
     setSelectedType(null);
@@ -390,11 +399,11 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
   const HIGH_RISK_SLICES = [
     { result: "buff", label: "버프", sub: "3배" },
-    { result: "curse", label: "저주", sub: "절반" },
+    { result: "curse", label: "디버프", sub: "절반" },
     { result: "buff", label: "버프", sub: "3배" },
-    { result: "curse", label: "저주", sub: "절반" },
+    { result: "curse", label: "디버프", sub: "절반" },
     { result: "buff", label: "버프", sub: "3배" },
-    { result: "curse", label: "저주", sub: "절반" },
+    { result: "curse", label: "디버프", sub: "절반" },
   ];
 
   const handleSpinRoulette = (e) => {
@@ -1329,7 +1338,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                   <EntryContainer>
                     {resolvedTeam.map((poke, idx) => {
                       const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
-                      const isFull = (poke.augments || []).filter((a) => !a.buf).length >= 3;
+                      const isFull = (poke.augments || []).filter((a) => isNormalAugment(a)).length >= 3;
                       const isFainted = Boolean(poke.faint || poke.hp <= 0);
                       const isSelectable = !isFull || isFainted;
                       const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
@@ -1367,30 +1376,39 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                       <>
                         {allEligible.map((aug, index) => {
                           const isCardSelected = selectedAugment?.id === aug.id;
-                          const isCurse = Boolean(aug.curse || isCurseAugment(aug));
-                          const isBuff = Boolean(aug.buf && !isCurse);
+                          const isCurse = isCurseAugment(aug);
+                          const isSynergy = isSynergyAugment(aug);
+                          const isBuff = isBuffAugment(aug);
                           const previewSample = getPreviewSample(aug.id);
+                          const synergyData = getAugmentSynergyInfo(aug.id);
+                          const hasPreview = Boolean(previewSample || synergyData);
                           return (
-                            <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} onClick={(e) => handleCardClick(e, aug)}>
+                            <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => handleCardClick(e, aug)}>
                               <IconCol>
                                 <IconWrapper>
                                   <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                                 </IconWrapper>
-                                {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                                {!isBuff && !isCurse && !isSynergy && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                               </IconCol>
                               <CardContent>
                                 <CardTitleRow>
                                   <CardTitle>{aug.name}</CardTitle>
-                                  {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
+                                  {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                                 </CardTitleRow>
                                 <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                               </CardContent>
-                              {isCardSelected && previewSample && (
+                              {isCardSelected && hasPreview && (
                                 <CardPreviewOverlay>
                                   <PreviewInfoButton
                                     type="button"
                                     onClick={(e) => handleOpenPreview(e, aug.id)}
-                                    title={aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`}
+                                    title={
+                                      previewSample
+                                        ? (aug.id === "eternamax" || aug.id === "blackNight"
+                                            ? "무한다이맥스 / 무한다이노 상세정보 보기"
+                                            : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`)
+                                        : `${synergyData?.title || "시너지"} 공명 상세정보 보기`
+                                    }
                                   >
                                     상세정보
                                   </PreviewInfoButton>
@@ -1406,20 +1424,21 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                               <span>선택 불가 증강 ({allIneligible.length})</span>
                             </IneligibleDivider>
                             {allIneligible.map((aug, index) => {
-                              const isCurse = Boolean(aug.curse || isCurseAugment(aug));
-                              const isBuff = Boolean(aug.buf && !isCurse);
+                              const isCurse = isCurseAugment(aug);
+                              const isSynergy = isSynergyAugment(aug);
+                              const isBuff = isBuffAugment(aug);
                               return (
-                                <AugmentCard key={`ineligible-${aug.id || index}`} $isPeek={isPeekMode} $disabled={true} $isBuff={isBuff} $isCurse={isCurse} onClick={(e) => e.stopPropagation()} title="이 포켓몬은 해당 증강의 선택 조건을 만족하지 않거나 이미 보유 중입니다.">
+                                <AugmentCard key={`ineligible-${aug.id || index}`} $isPeek={isPeekMode} $disabled={true} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => e.stopPropagation()} title="이 포켓몬은 해당 증강의 선택 조건을 만족하지 않거나 이미 보유 중입니다.">
                                   <IconCol>
                                     <IconWrapper>
                                       <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                                     </IconWrapper>
-                                    {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                                    {!isBuff && !isCurse && !isSynergy && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                                   </IconCol>
                                   <CardContent>
                                     <CardTitleRow>
                                       <CardTitle>{aug.name}</CardTitle>
-                                      {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
+                                      {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                                       <IneligibleBadge>선택 불가</IneligibleBadge>
                                     </CardTitleRow>
                                     <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
@@ -1436,30 +1455,39 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                   ) : (
                     currentChoices.map((aug, index) => {
                       const isCardSelected = selectedAugment?.id === aug.id;
-                      const isCurse = Boolean(aug.curse || isCurseAugment(aug));
-                      const isBuff = Boolean(aug.buf && !isCurse);
+                      const isCurse = isCurseAugment(aug);
+                      const isSynergy = isSynergyAugment(aug);
+                      const isBuff = isBuffAugment(aug);
                       const previewSample = getPreviewSample(aug.id);
+                      const synergyData = getAugmentSynergyInfo(aug.id);
+                      const hasPreview = Boolean(previewSample || synergyData);
                       return (
-                        <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} onClick={(e) => handleCardClick(e, aug)}>
+                        <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => handleCardClick(e, aug)}>
                           <IconCol>
                             <IconWrapper>
                               <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                             </IconWrapper>
-                            {!aug.buf && !isCurse && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
+                            {!isBuff && !isCurse && !isSynergy && aug.cost !== "-" && aug.cost !== undefined && <CostBadge $isLong={String(aug.cost).length >= 3}>{aug.cost ?? 1} cost</CostBadge>}
                           </IconCol>
                           <CardContent>
                             <CardTitleRow>
                               <CardTitle>{aug.name}</CardTitle>
-                              {isCurse ? <CurseBadge>저주</CurseBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
+                              {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                             </CardTitleRow>
                             <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                           </CardContent>
-                          {isCardSelected && previewSample && (
+                          {isCardSelected && hasPreview && (
                             <CardPreviewOverlay>
                               <PreviewInfoButton
                                 type="button"
                                 onClick={(e) => handleOpenPreview(e, aug.id)}
-                                title={aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`}
+                                title={
+                                  previewSample
+                                    ? (aug.id === "eternamax" || aug.id === "blackNight"
+                                        ? "무한다이맥스 / 무한다이노 상세정보 보기"
+                                        : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`)
+                                    : `${synergyData?.title || "시너지"} 공명 상세정보 보기`
+                                }
                               >
                                 상세정보
                               </PreviewInfoButton>
@@ -1487,6 +1515,14 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
       {isStatusOpen && <AugmentStatusModal battle={battle} team={resolvedTeam} onClose={() => setIsStatusOpen(false)} />}
       {previewInfo && <AugmentPokemonPreviewModal augmentId={previewInfo.augmentId} pokemon={previewInfo.pokemon} onClose={() => setPreviewInfo(null)} />}
+      {synergyPreviewInfo && (
+        <AugmentSynergyPreviewModal
+          synergy={synergyPreviewInfo.synergy}
+          activeAugmentId={synergyPreviewInfo.augmentId}
+          activePokemon={activePokemon}
+          onClose={() => setSynergyPreviewInfo(null)}
+        />
+      )}
     </>
   );
 };
@@ -1855,6 +1891,20 @@ const BuffBadge = styled.span`
   padding: 1px 6px;
   font-size: 0.72rem;
   font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+`;
+
+const SynergyBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: #ffd700;
   background: rgba(255, 215, 0, 0.18);
   border: 1px solid rgba(255, 215, 0, 0.5);
@@ -1989,9 +2039,54 @@ const IconWrapper = styled.div`
 const AugmentCard = styled.div`
   position: relative;
   width: 100%;
-  background: ${(props) => (props.$disabled ? "rgba(15, 23, 42, 0.35)" : props.$isCurse ? (props.$isSelected ? "rgba(68, 22, 26, 0.96)" : "rgba(239, 68, 68, 0.12)") : props.$isBuff ? (props.$isSelected ? "rgba(50, 42, 16, 0.98)" : "rgba(255, 220, 100, 0.12)") : props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(0, 0, 0, 0.45)")};
-  border: ${(props) => (props.$disabled ? "1px solid rgba(255, 255, 255, 0.06)" : props.$isCurse ? (props.$isSelected ? "1.5px solid #ef4444" : "1px solid rgba(239, 68, 68, 0.45)") : props.$isBuff ? (props.$isSelected ? "1.5px solid #ffd700" : "1px solid rgba(255, 215, 0, 0.4)") : props.$isSelected ? "1.5px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.1)")};
-  border-left: 4px solid ${(props) => (props.$disabled ? "#475569" : props.$isCurse ? "#ef4444" : props.$isBuff ? "#ffd700" : props.$isSelected ? "#38bdf8" : "#64ffda")};
+  background: ${(props) =>
+    props.$disabled
+      ? "rgba(15, 23, 42, 0.35)"
+      : props.$isCurse
+        ? props.$isSelected
+          ? "rgba(68, 22, 26, 0.96)"
+          : "rgba(239, 68, 68, 0.12)"
+        : props.$isSynergy
+          ? props.$isSelected
+            ? "rgba(50, 42, 16, 0.98)"
+            : "rgba(255, 215, 0, 0.12)"
+          : props.$isBuff
+            ? props.$isSelected
+              ? "rgba(14, 45, 68, 0.98)"
+              : "rgba(56, 189, 248, 0.12)"
+            : props.$isSelected
+              ? "rgba(22, 45, 64, 0.98)"
+              : "rgba(0, 0, 0, 0.45)"};
+  border: ${(props) =>
+    props.$disabled
+      ? "1px solid rgba(255, 255, 255, 0.06)"
+      : props.$isCurse
+        ? props.$isSelected
+          ? "1.5px solid #ef4444"
+          : "1px solid rgba(239, 68, 68, 0.45)"
+        : props.$isSynergy
+          ? props.$isSelected
+            ? "1.5px solid #ffd700"
+            : "1px solid rgba(255, 215, 0, 0.4)"
+          : props.$isBuff
+            ? props.$isSelected
+              ? "1.5px solid #38bdf8"
+              : "1px solid rgba(56, 189, 248, 0.45)"
+            : props.$isSelected
+              ? "1.5px solid #64ffda"
+              : "1px solid rgba(255, 255, 255, 0.1)"};
+  border-left: 4px solid ${(props) =>
+    props.$disabled
+      ? "#475569"
+      : props.$isCurse
+        ? "#ef4444"
+        : props.$isSynergy
+          ? "#ffd700"
+          : props.$isBuff
+            ? "#38bdf8"
+            : props.$isSelected
+              ? "#38bdf8"
+              : "#64ffda"};
   border-radius: 8px;
   padding: 12px 14px;
   display: flex;
@@ -2003,7 +2098,16 @@ const AugmentCard = styled.div`
   filter: ${(props) => (props.$disabled ? "grayscale(0.65)" : "none")};
   transition: all 0.2s ease;
   box-sizing: border-box;
-  box-shadow: ${(props) => (props.$isSelected ? "0 0 14px rgba(100, 255, 218, 0.45), inset 0 0 8px rgba(100, 255, 218, 0.15)" : "none")};
+  box-shadow: ${(props) =>
+    props.$isSelected
+      ? props.$isCurse
+        ? "0 0 14px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.15)"
+        : props.$isSynergy
+          ? "0 0 14px rgba(255, 215, 0, 0.45), inset 0 0 8px rgba(255, 215, 0, 0.15)"
+          : props.$isBuff
+            ? "0 0 14px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.15)"
+            : "0 0 14px rgba(100, 255, 218, 0.45), inset 0 0 8px rgba(100, 255, 218, 0.15)"
+      : "none"};
 
   @media (max-width: 480px) {
     padding: 10px 10px;
@@ -2014,14 +2118,64 @@ const AugmentCard = styled.div`
     `
     &:hover {
       transform: ${props.$isPeek ? "none" : "translateY(-2px)"};
-      border-color: ${props.$isSelected ? "#64ffda" : "rgba(100, 255, 218, 0.5)"};
-      border-left: 4px solid #64ffda;
-      background: ${props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(20, 30, 44, 0.75)"};
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      border-color: ${
+        props.$isSelected
+          ? props.$isCurse
+            ? "#ef4444"
+            : props.$isSynergy
+              ? "#ffd700"
+              : props.$isBuff
+                ? "#38bdf8"
+                : "#64ffda"
+          : props.$isCurse
+            ? "rgba(239, 68, 68, 0.7)"
+            : props.$isSynergy
+              ? "rgba(255, 215, 0, 0.7)"
+              : props.$isBuff
+                ? "rgba(56, 189, 248, 0.7)"
+                : "rgba(100, 255, 218, 0.5)"
+      };
+      border-left: 4px solid ${props.$isCurse ? "#ef4444" : props.$isSynergy ? "#ffd700" : props.$isBuff ? "#38bdf8" : "#64ffda"};
+      background: ${
+        props.$isSelected
+          ? props.$isCurse
+            ? "rgba(68, 22, 26, 0.98)"
+            : props.$isSynergy
+              ? "rgba(50, 42, 16, 0.98)"
+              : props.$isBuff
+                ? "rgba(14, 45, 68, 0.98)"
+                : "rgba(22, 45, 64, 0.98)"
+          : props.$isCurse
+            ? "rgba(68, 22, 26, 0.3)"
+            : props.$isSynergy
+              ? "rgba(50, 42, 16, 0.3)"
+              : props.$isBuff
+                ? "rgba(14, 45, 68, 0.3)"
+                : "rgba(20, 30, 44, 0.75)"
+      };
+      box-shadow: 0 4px 12px ${
+        props.$isCurse
+          ? "rgba(239, 68, 68, 0.25)"
+          : props.$isSynergy
+            ? "rgba(255, 215, 0, 0.25)"
+            : props.$isBuff
+              ? "rgba(56, 189, 248, 0.25)"
+              : "rgba(0, 0, 0, 0.4)"
+      };
 
       ${IconWrapper} {
         transform: ${props.$isPeek ? "none" : "scale(1.05)"};
-        filter: drop-shadow(0 0 6px rgba(100, 255, 218, 0.4));
+        filter: drop-shadow(
+          0 0 6px ${
+            props.$isCurse
+              ? "rgba(239, 68, 68, 0.5)"
+              : props.$isSynergy
+                ? "rgba(255, 215, 0, 0.5)"
+                : props.$isBuff
+                  ? "rgba(56, 189, 248, 0.5)"
+                  : "rgba(100, 255, 218, 0.4)"
+          }
+        );
       }
     }
 

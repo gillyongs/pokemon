@@ -1,4 +1,4 @@
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, GAMBLE_BONUS_AUGMENT_IDS, hasGamblingAddict, MUTUALLY_EXCLUSIVE_MAP } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, GAMBLE_BONUS_AUGMENT_IDS, hasGamblingAddict, MUTUALLY_EXCLUSIVE_MAP, isNormalAugment } from "../entity/Augment/AugmentData";
 
 
 export function filterExclusiveAugments(pool, pickedId) {
@@ -26,7 +26,7 @@ export function getReplacementAugmentWeight(pokemon) {
 }
 
 export function getAugmentWeight(aug, pokemon = null, battleOrTeam = null) {
-  if (!aug || aug.weight === "-" || aug.buf || aug.isRandom === false) return 0;
+  if (!aug || aug.weight === "-" || !isNormalAugment(aug) || aug.isRandom === false) return 0;
 
   // 포켓몬 교체 증강 (기기기어르, 전설의 거인, 결혼, 돌림판, 비상 등):
   // 기본 가중치 300, (지닌 증강/버프 개수 + 1)로 나눔
@@ -92,12 +92,12 @@ export const getForcedBeginnerAugment = getForcedSynergyAugment;
  */
 export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
   if (!pokemon) return [];
-  const currentCount = Array.isArray(pokemon.augments) ? pokemon.augments.filter((a) => !a.buf).length : 0;
+  const currentCount = Array.isArray(pokemon.augments) ? pokemon.augments.filter((a) => isNormalAugment(a)).length : 0;
   if (currentCount >= 3) return [];
 
   // 이미 보유한 증강 제외
   const available = AUGMENT_LIST.filter((aug) => {
-    if (aug.buf || aug.isRandom === false || aug.weight === "-" || getAugmentWeight(aug, pokemon, battleOrTeam) <= 0) return false;
+    if (!isNormalAugment(aug) || aug.isRandom === false || aug.weight === "-" || getAugmentWeight(aug, pokemon, battleOrTeam) <= 0) return false;
     if (pokemon.hasAugment?.(aug.id)) return false;
     if (typeof aug.isEligible === "function" && !aug.isEligible(pokemon, battleOrTeam)) return false;
     return true;
@@ -150,7 +150,7 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
 
 export function grantRandomAugment(battle, preferredPokemon = null) {
   if (!battle) return null;
-  const team = [preferredPokemon, battle.player, battle.playerBench1, battle.playerBench2].filter((p, idx, arr) => p && arr.indexOf(p) === idx && (p.augments || []).filter((a) => !a.buf).length < 3);
+  const team = [preferredPokemon, battle.player, battle.playerBench1, battle.playerBench2].filter((p, idx, arr) => p && arr.indexOf(p) === idx && (p.augments || []).filter((a) => isNormalAugment(a)).length < 3);
 
   if (team.length === 0) return null;
   const target = team[0];
@@ -178,14 +178,14 @@ export function rollTeamAugments(team, battle = null) {
   team.forEach((poke, idx) => {
     if (!poke) return;
     const key = poke.originalIndex ?? poke.id ?? idx;
-    const currentCount = Array.isArray(poke.augments) ? poke.augments.filter((a) => !a.buf).length : 0;
+    const currentCount = Array.isArray(poke.augments) ? poke.augments.filter((a) => isNormalAugment(a)).length : 0;
     if (currentCount >= 3) {
       choicesMap[key] = [];
       return;
     }
 
     const available = AUGMENT_LIST.filter((aug) => {
-      if (aug.buf || aug.isRandom === false || aug.weight === "-" || getAugmentWeight(aug, poke, battle || team) <= 0) return false;
+      if (!isNormalAugment(aug) || aug.isRandom === false || aug.weight === "-" || getAugmentWeight(aug, poke, battle || team) <= 0) return false;
       if (poke.hasAugment?.(aug.id)) return false;
       if (typeof aug.isEligible === "function" && !aug.isEligible(poke, battle || team, team)) return false;
       return true;
