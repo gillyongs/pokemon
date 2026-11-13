@@ -6,12 +6,7 @@ import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 
 export const isPokemon = (pokemon, target) => {
   if (!pokemon || !target) return false;
-  return Boolean(
-    pokemon.id?.includes(target) ||
-    pokemon.name?.includes(target) ||
-    pokemon.origin?.name?.includes(target) ||
-    pokemon.origin?.id?.includes(target)
-  );
+  return Boolean(pokemon.id?.includes(target) || pokemon.name?.includes(target) || pokemon.origin?.name?.includes(target) || pokemon.origin?.id?.includes(target));
 };
 
 const EXCLUSIVE_ITEMS = {
@@ -36,6 +31,11 @@ const EXCLUSIVE_ITEMS = {
   핫삼나이트: (p) => isPokemon(p, "핫삼"),
   이어롭나이트: (p) => isPokemon(p, "이어롭"),
   갑주무사나이트: (p) => isPokemon(p, "갑주무사"),
+  가디안나이트: (p) => isPokemon(p, "가디안"),
+  팬텀나이트: (p) => isPokemon(p, "팬텀"),
+  개굴닌자나이트: (p) => isPokemon(p, "개굴닌자"),
+  갸라도스나이트: (p) => isPokemon(p, "갸라도스"),
+  잉어킹나이트: (p) => isPokemon(p, "잉어킹"),
 };
 
 export const getFavoriteItemsForPokemon = (pokemon) => {

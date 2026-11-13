@@ -20,9 +20,19 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
 
   const selectedPlayerPoke = tradePlayerIdx !== null ? playerTeamFixed[tradePlayerIdx] : null;
   const selectedNpcPoke = tradeNpcIdx !== null ? npcTeamFixed[tradeNpcIdx] : null;
-  const hasPlayerLegendary = playerTeamFixed.some((p) => isLegendary(p?.origin));
-  const canTrade = (playerPoke, npcPoke) =>
-    !hasPlayerLegendary || isLegendary(playerPoke?.origin) === isLegendary(npcPoke?.origin);
+
+  const checkIsLegendary = (p) => isLegendary(p?.origin) || isLegendary(p);
+
+  // 팀 내 초전설 포켓몬은 최대 1마리까지만 보유 가능
+  // (내 초전설을 보내고 일반을 받거나, 일반을 보내고 일반을 받거나, 내 초전설을 보내고 상대 초전설을 받는 것은 모두 가능)
+  const canTrade = (playerPoke, npcPoke) => {
+    if (!playerPoke || !npcPoke) return false;
+    const remainingLegendaryCount = playerTeamFixed.filter(
+      (p) => p !== playerPoke && checkIsLegendary(p)
+    ).length;
+    const incomingLegendaryCount = checkIsLegendary(npcPoke) ? 1 : 0;
+    return remainingLegendaryCount + incomingLegendaryCount <= 1;
+  };
 
   const isTradeValid =
     tradePlayerIdx !== null &&
@@ -35,7 +45,7 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
       return;
     }
     if (selectedNpcPoke && !canTrade(p, selectedNpcPoke)) {
-      setTradeAlertMessage("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
+      setTradeAlertMessage("팀 내에 초전설 포켓몬은 최대 1마리까지만 보유할 수 있습니다.");
       return;
     }
     setTradePlayerIdx(idx);
@@ -47,7 +57,7 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
       return;
     }
     if (selectedPlayerPoke && !canTrade(selectedPlayerPoke, p)) {
-      setTradeAlertMessage("초전설 포켓몬은 초전설 포켓몬끼리만 교환할 수 있습니다.");
+      setTradeAlertMessage("팀 내에 초전설 포켓몬은 최대 1마리까지만 보유할 수 있습니다.");
       return;
     }
     setTradeNpcIdx(idx);
