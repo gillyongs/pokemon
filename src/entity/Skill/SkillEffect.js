@@ -206,6 +206,15 @@ function skillEffectSearch(name) {
       }
       applyAilment("얼음", battle, battle.turn.def, enqueue);
     },
+    freezeBug: (battle, enqueue, skillEffect) => {
+      if (random(100 - skillEffect.probability)) {
+        return;
+      }
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
+      applyAilment("freezeBug", battle, battle.turn.def, enqueue);
+    },
     잠듦: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
         return;

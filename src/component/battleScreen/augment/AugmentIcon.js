@@ -1327,7 +1327,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         )}
 
         {/* 6. 로스트 테크놀로지 (특수) (수제 벡터 클래식 게임보이 DMG-01) */}
-        {id === "specialSwordAndShield" && (
+        {(id === "specialSwordAndShield" || id === "lostTechnologyBlizzard") && (
           <g>
             {/* 1. 후면 레트로 사이버 그린 오라 & 픽셀 비트 빛무리 */}
             <g filter="url(#glow)">

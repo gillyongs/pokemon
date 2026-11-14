@@ -100,6 +100,7 @@ class PokemonInstance {
       // 기절시 damage.js에서만 초기화된다
       burn: null,
       freeze: null,
+      freezeBug: null, //영구동결 (1세대 눈보라 증강)
       poison: null, //독
       mpoison: null, //맹독
       mabi: null,

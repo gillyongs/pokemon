@@ -45,6 +45,13 @@ export const beforeSkillCheck = (bt, enqueue) => {
     return false;
   }
 
+  // 얼음 (영구 동결 - freezeBug)
+  if (atk.ailment.freezeBug !== null) {
+    let freezeText = atk.names + " 꽁꽁 얼어버려서 움직일 수 없다!";
+    enqueue({ id: "e902bf15-97a6-4318-aa8f-b00e1e5415d0", battle: bt, text: freezeText });
+    return false;
+  }
+
   // 얼음
   if (atk.ailment.freeze !== null) {
     if (random(80) && useSkill.type !== "불꽃") {

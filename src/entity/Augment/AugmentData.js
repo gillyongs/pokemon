@@ -7,6 +7,7 @@ import { getMultiplier } from "../../calc/rankStat";
 import sampleList from "../Pokemon/SamplePokemon";
 import { generate } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
+import { Skill } from "../Skill/Skill";
 import { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb } from "./swordEnhance";
 
 export { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb };
@@ -486,6 +487,36 @@ export const AUGMENT_LIST = [
     // damageCalculate.js에 구현
   },
   {
+    id: "lostTechnologyBlizzard",
+    name: "로스트 테크놀로지 (눈보라)",
+    desc: "눈보라가 과거의 위상을 되찾습니다.\n위력이 120, 명중률이 90이 됩니다.\n30% 확률로 적을 얼리며 절대 녹지 않습니다.",
+    cost: 3,
+    weight: 100,
+    isEligible: (pokemon) => hasSkill(pokemon, "눈보라"),
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon?.origin?.skill) return;
+      let slot = Number(options?.replaceSlot);
+      if (!slot || !pokemon.origin.skill[slot]) {
+        for (let s = 1; s <= 4; s++) {
+          const sk = pokemon.origin.skill[s];
+          if (sk?.name === "눈보라") {
+            slot = s;
+            break;
+          }
+        }
+      }
+      if (!slot) return;
+      this.replacedSlot = slot;
+
+      const upgradedBlizzard = new Skill("눈보라", "얼음", 120, 90, 5, 0, "catk", null, "30% 확률로 상대를 얼음 상태로 만든다.", [{ name: "freezeBug", probability: 30 }], {});
+      upgradedBlizzard.skillNumber = slot;
+      upgradedBlizzard.isLostTechnologyBlizzard = true;
+
+      pokemon.origin.skill[slot] = upgradedBlizzard;
+      pokemon.pp[slot] = upgradedBlizzard.pp;
+    },
+  },
+  {
     id: "ksante",
     name: "체력 4700 방어력 329 마저201 인 챔피언👤이 저지불가🚫, 쉴드🛡, 벽🧱 넘기는 거 있고요. 에어본🌪 있고, 심지어 쿨타임은 1️⃣초밖에 안되고 마나🧙♂️는 1️⃣5️⃣ 들고 w는 심지어 변신💫하면 쿨 초기화에다가 패시브는 고정피해🗡가 들어가며 그 다음에 방마저🥋 올리면📈 올릴수록📈 스킬 가속⏰이 생기고! q에 스킬가속⏰이 생기고 스킬 속도🚀가 빨라지고📈 그 다음에 공격력🗡 계수가 있어가지고 W가 그 이익-으아아아악😱",
     desc: "항상 방어와 특수방어 중 더 유리한 수치를 사용합니다.",
@@ -515,7 +546,7 @@ export const AUGMENT_LIST = [
       if (!pokemon?.origin?.skill) return;
       const slot = Number(options?.replaceSlot) || 4;
       const chosenType = options?.selectedType || "노말";
-      const prevSkill = pokemon.origin.skill[slot] || pokemon.skill?.[slot];
+      const prevSkill = pokemon.origin.skill[slot];
       const prevSkillName = options?.replacedSkillName || prevSkill?.name || "기존 기술";
 
       this.replacedSlot = slot;
@@ -704,9 +735,7 @@ export const AUGMENT_LIST = [
       this.replacedSlot = slot;
       const earthquake = { ...skillList.search("지진"), skillNumber: slot };
       pokemon.origin.skill[slot] = earthquake;
-      if (pokemon.pp) {
-        pokemon.pp[slot] = earthquake.pp;
-      }
+      pokemon.pp[slot] = earthquake.pp;
     },
   },
   {
@@ -722,9 +751,7 @@ export const AUGMENT_LIST = [
       this.replacedSlot = slot;
       const dDance = { ...skillList.search("용의춤"), skillNumber: slot };
       pokemon.origin.skill[slot] = dDance;
-      if (pokemon.pp) {
-        pokemon.pp[slot] = dDance.pp;
-      }
+      pokemon.pp[slot] = dDance.pp;
     },
   },
   {
@@ -769,10 +796,6 @@ export const AUGMENT_LIST = [
       };
 
       pokemon.origin.skill[targetSlot] = enhancedSkill;
-      if (pokemon.skill && pokemon.skill[targetSlot]) {
-        pokemon.skill[targetSlot] = enhancedSkill;
-      }
-
       this.targetSlot = targetSlot;
       this.enhancedSkillName = targetSkill.name;
     },
@@ -1487,7 +1510,7 @@ export const hasPokemonNameOnTeam = (target, keyword, context = null) => {
 // 특정 기술 보유 여부 확인
 export const hasSkill = (pokemon, skillName) => {
   if (!pokemon || !skillName) return false;
-  const skills = pokemon.origin?.skill || pokemon.skill;
+  const skills = pokemon.origin?.skill;
   if (!skills) return false;
   return [1, 2, 3, 4].some((slot) => {
     const sk = skills[slot] || skills[String(slot)];
@@ -1541,6 +1564,10 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
       } else {
         return "누적되는 추가 능력치를 획득합니다.";
       }
+    }
+  } else if (id === "lostTechnologyBlizzard") {
+    if (isTextScreen) {
+      individualDesc = `${names} 눈보라의 과거 위상을 되찾았다!`;
     }
   } else if (id === "rouletteWheel" || id === "marriedPokemon") {
     const fromName = prevPokeName || target?.name || "포켓몬";

@@ -36,7 +36,7 @@ const getPokemonStatusText = (pokemon) => {
   if (!pokemon) return "정상";
   if (pokemon.faint) return "기절";
   if (pokemon.ailment?.burn) return "화상";
-  if (pokemon.ailment?.freeze) return "얼음";
+  if (pokemon.ailment?.freeze || pokemon.ailment?.freezeBug) return "얼음";
   if (pokemon.ailment?.mabi) return "마비";
   if (pokemon.ailment?.poison) return "독";
   if (pokemon.ailment?.mpoison) return "맹독";

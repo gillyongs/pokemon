@@ -23,7 +23,7 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
 
   const isBurn = ailment === "화상" || ailment === "burn";
   const isMabi = ailment === "마비" || ailment === "mabi";
-  const isFreeze = ailment === "얼음" || ailment === "freeze";
+  const isFreeze = ailment === "얼음" || ailment === "freeze" || ailment === "freezeBug";
   const isPoison = ailment === "독" || ailment === "맹독" || ailment === "poison" || ailment === "mpoison";
   const isSleep = ailment === "수면" || ailment === "sleep" || ailment === "잠듦";
 
@@ -143,7 +143,11 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
   // 맹독: 부가효과(skillEffect.js)
   if (ailment === "얼음" || ailment === "freeze") {
     pokemon.ailment.freeze = true;
-    text = `${pokemon.names} 얼어붙었다!`;
+    text = textOption || `${pokemon.names} 얼어붙었다!`;
+  }
+  if (ailment === "freezeBug") {
+    pokemon.ailment.freezeBug = true;
+    text = textOption || `${pokemon.names} 꽁꽁 얼어붙었다!`;
   }
 
   // 잠듦: 하품(trunEnd/skillEvent.js)
