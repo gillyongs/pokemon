@@ -93,10 +93,11 @@ export const getForcedBeginnerAugment = getForcedSynergyAugment;
 export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
   if (!pokemon) return [];
   const currentCount = Array.isArray(pokemon.augments) ? pokemon.augments.filter((a) => isNormalAugment(a)).length : 0;
-  if (currentCount >= 3) return [];
+  const isFull = currentCount >= 3;
 
   // 이미 보유한 증강 제외
   const available = AUGMENT_LIST.filter((aug) => {
+    if (isFull && aug.cost !== "-") return false;
     if (!isNormalAugment(aug) || aug.isRandom === false || aug.weight === "-" || getAugmentWeight(aug, pokemon, battleOrTeam) <= 0) return false;
     if (pokemon.hasAugment?.(aug.id)) return false;
     if (typeof aug.isEligible === "function" && !aug.isEligible(pokemon, battleOrTeam)) return false;
@@ -110,7 +111,14 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
     pool = filterExclusiveAugments(pool, pickedId);
   };
 
-  if (forced && pool.some((a) => a.id === forced.id)) {
+  if (isFull) {
+    const anvilAug = AUGMENT_LIST.find((a) => a.id === "anvilStat");
+    if (anvilAug && !selected.some((a) => a.id === "anvilStat")) {
+      selected.push(anvilAug);
+      pool = pool.filter((a) => a.id !== "anvilStat");
+      filterExclusives("anvilStat");
+    }
+  } else if (forced && pool.some((a) => a.id === forced.id)) {
     selected.push(forced);
     pool = pool.filter((a) => a.id !== forced.id);
     filterExclusives(forced.id);
@@ -143,6 +151,20 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
   for (let i = selected.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [selected[i], selected[j]] = [selected[j], selected[i]];
+  }
+
+  if (isFull) {
+    const anvilIdx = selected.findIndex((a) => a.id === "anvilStat");
+    if (anvilIdx > 0) {
+      const [anvil] = selected.splice(anvilIdx, 1);
+      selected.unshift(anvil);
+    } else if (anvilIdx === -1) {
+      const anvilAug = AUGMENT_LIST.find((a) => a.id === "anvilStat");
+      if (anvilAug) {
+        if (selected.length >= count) selected.pop();
+        selected.unshift(anvilAug);
+      }
+    }
   }
 
   return selected;
@@ -179,12 +201,10 @@ export function rollTeamAugments(team, battle = null) {
     if (!poke) return;
     const key = poke.originalIndex ?? poke.id ?? idx;
     const currentCount = Array.isArray(poke.augments) ? poke.augments.filter((a) => isNormalAugment(a)).length : 0;
-    if (currentCount >= 3) {
-      choicesMap[key] = [];
-      return;
-    }
+    const isFull = currentCount >= 3;
 
     const available = AUGMENT_LIST.filter((aug) => {
+      if (isFull && aug.cost !== "-") return false;
       if (!isNormalAugment(aug) || aug.isRandom === false || aug.weight === "-" || getAugmentWeight(aug, poke, battle || team) <= 0) return false;
       if (poke.hasAugment?.(aug.id)) return false;
       if (typeof aug.isEligible === "function" && !aug.isEligible(poke, battle || team, team)) return false;
@@ -193,7 +213,12 @@ export function rollTeamAugments(team, battle = null) {
 
     const forced = getForcedBeginnerAugment(poke);
     const chosen = [];
-    if (forced && available.some((a) => a.id === forced.id)) {
+    if (isFull) {
+      const anvilAug = AUGMENT_LIST.find((a) => a.id === "anvilStat");
+      if (anvilAug && !chosen.some((a) => a.id === "anvilStat")) {
+        chosen.push(anvilAug);
+      }
+    } else if (forced && available.some((a) => a.id === forced.id)) {
       chosen.push(forced);
       globalPickedIds.add(forced.id);
     }
@@ -254,6 +279,20 @@ export function rollTeamAugments(team, battle = null) {
     for (let i = chosen.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [chosen[i], chosen[j]] = [chosen[j], chosen[i]];
+    }
+
+    if (isFull) {
+      const anvilIdx = chosen.findIndex((a) => a.id === "anvilStat");
+      if (anvilIdx > 0) {
+        const [anvil] = chosen.splice(anvilIdx, 1);
+        chosen.unshift(anvil);
+      } else if (anvilIdx === -1) {
+        const anvilAug = AUGMENT_LIST.find((a) => a.id === "anvilStat");
+        if (anvilAug) {
+          if (chosen.length >= 3) chosen.pop();
+          chosen.unshift(anvilAug);
+        }
+      }
     }
 
     choicesMap[key] = chosen;

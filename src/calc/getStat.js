@@ -31,6 +31,13 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     logText += ` + ${gearBonus} (기어 ${gearStack}중첩)`;
   }
 
+  // 모루 능력치: 능력치 파편으로 오르는 누적 능력치
+  const anvilBonus = Number(pokemon?.anvilStats?.[statKey] ?? pokemon?.origin?.anvilStats?.[statKey] ?? 0);
+  if (anvilBonus > 0 && STAT_KEYS.includes(statKey)) {
+    val += anvilBonus;
+    logText += ` + ${anvilBonus} (모루 능력치)`;
+  }
+
   const augments = pokemon?.augments || [];
 
   // 합적용 ==============================================================================

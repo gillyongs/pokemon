@@ -763,10 +763,90 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="40%" stopColor="#059669" />
             <stop offset="100%" stopColor="#064e3b" />
           </linearGradient>
+
+          {/* 오른손엔 방패 왼손엔 검 (유희왕 원작 카드 1:1 완벽 재현) 전용 그라데이션 & 필터 */}
+          <clipPath id="ssCircleClip">
+            <circle cx="32" cy="32" r="29.2" />
+          </clipPath>
+          <radialGradient id="vortexBg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#1e3a8a" />
+            <stop offset="50%" stopColor="#0f172a" />
+            <stop offset="100%" stopColor="#020617" />
+          </radialGradient>
+          <linearGradient id="bronzeKnight" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#b45309" />
+            <stop offset="35%" stopColor="#92400e" />
+            <stop offset="70%" stopColor="#78350f" />
+            <stop offset="100%" stopColor="#451a03" />
+          </linearGradient>
+          <radialGradient id="shieldGrad" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#92400e" />
+            <stop offset="50%" stopColor="#5a2408" />
+            <stop offset="100%" stopColor="#260e03" />
+          </radialGradient>
+          <linearGradient id="swordBlade" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#78350f" />
+            <stop offset="30%" stopColor="#d97706" />
+            <stop offset="50%" stopColor="#fef08a" />
+            <stop offset="70%" stopColor="#b45309" />
+            <stop offset="100%" stopColor="#451a03" />
+          </linearGradient>
+          <radialGradient id="atkSphere" cx="35%" cy="28%" r="68%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="18%" stopColor="#fed7aa" />
+            <stop offset="42%" stopColor="#f97316" />
+            <stop offset="78%" stopColor="#c2410c" />
+            <stop offset="100%" stopColor="#6c1a06" />
+          </radialGradient>
+          <radialGradient id="defSphere" cx="35%" cy="28%" r="68%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="18%" stopColor="#bfdbfe" />
+            <stop offset="42%" stopColor="#3b82f6" />
+            <stop offset="78%" stopColor="#1d4ed8" />
+            <stop offset="100%" stopColor="#0f2b70" />
+          </radialGradient>
+          <linearGradient id="topArrowGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#2563eb" />
+            <stop offset="50%" stopColor="#4f46e5" />
+            <stop offset="100%" stopColor="#7c3aed" />
+          </linearGradient>
+          <linearGradient id="bottomArrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ea580c" />
+            <stop offset="50%" stopColor="#f97316" />
+            <stop offset="100%" stopColor="#fb7185" />
+          </linearGradient>
+
+          {/* 로스트 테크놀로지 (클래식 게임보이 DMG-01) 전용 그라데이션 */}
+          <linearGradient id="dmgBody" x1="20%" y1="10%" x2="80%" y2="90%">
+            <stop offset="0%" stopColor="#e5e7e0" />
+            <stop offset="45%" stopColor="#dbddd5" />
+            <stop offset="100%" stopColor="#c8cac2" />
+          </linearGradient>
+          <linearGradient id="dmgDepth" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#a3a59c" />
+            <stop offset="50%" stopColor="#878980" />
+            <stop offset="100%" stopColor="#63655c" />
+          </linearGradient>
+          <linearGradient id="dmgBezel" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#696b79" />
+            <stop offset="50%" stopColor="#555765" />
+            <stop offset="100%" stopColor="#41434f" />
+          </linearGradient>
+          <linearGradient id="dmgLcd" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#a7cc23" />
+            <stop offset="40%" stopColor="#9bbc0f" />
+            <stop offset="85%" stopColor="#8cad12" />
+            <stop offset="100%" stopColor="#75940c" />
+          </linearGradient>
+          <linearGradient id="dmgBtn" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f43f5e" />
+            <stop offset="35%" stopColor="#be123c" />
+            <stop offset="100%" stopColor="#881337" />
+          </linearGradient>
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "highRiskCurse" && id !== "swordAndShield" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -967,6 +1047,62 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
+        {/* 스텔스록 (공중에 부유하는 날카로운 뾰족 암석들과 바위 기운) */}
+        {id === "stealthRock" && (
+          <g>
+            {/* 1. 후면 바위 타입 마력 / 대지 오라 & 스파크 */}
+            <g filter="url(#glow)">
+              <circle cx="32" cy="32" r="19" fill="#d97706" fillOpacity="0.18" />
+              <circle cx="32" cy="32" r="13" fill="#b45309" fillOpacity="0.15" />
+              <path d="M 12 36 C 14 20 26 13 46 14" stroke="#d97706" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" strokeDasharray="7 4" />
+              <path d="M 18 50 C 34 54 50 46 52 30" stroke="#f59e0b" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" strokeDasharray="6 4" />
+            </g>
+
+            {/* 2. 중앙 메인 날카로운 뾰족 바위 */}
+            <g transform="translate(32, 32) rotate(-15) translate(-32, -32)">
+              <polygon points="32,10 42,27 38,48 26,48 22,27" fill="#451a03" stroke="#78350f" strokeWidth="1.2" strokeLinejoin="round" />
+              <polygon points="32,10 22,27 26,48 32,38" fill="#78350f" stroke="#92400e" strokeWidth="0.8" />
+              <polygon points="32,10 42,27 38,48 32,38" fill="#b45309" stroke="#d97706" strokeWidth="0.8" />
+              <polygon points="32,10 36,25 32,38 28,25" fill="#f59e0b" />
+              <line x1="32" y1="10" x2="32" y2="38" stroke="#fef3c7" strokeWidth="1.1" strokeLinecap="round" opacity="0.9" />
+              <line x1="32" y1="10" x2="22" y2="27" stroke="#fde68a" strokeWidth="0.8" opacity="0.75" />
+              <line x1="32" y1="10" x2="42" y2="27" stroke="#fde68a" strokeWidth="0.8" opacity="0.75" />
+            </g>
+
+            {/* 3. 좌측 공중 부유하는 날카로운 바위 파편 */}
+            <g transform="translate(18, 26) rotate(25) translate(-18, -26)">
+              <polygon points="18,17 23,26 21,34 15,34 13,26" fill="#78350f" stroke="#92400e" strokeWidth="1" strokeLinejoin="round" />
+              <polygon points="18,17 13,26 15,34 18,30" fill="#92400e" />
+              <polygon points="18,17 23,26 21,34 18,30" fill="#d97706" />
+              <polygon points="18,17 20,25 18,30 16,25" fill="#fbbf24" />
+              <line x1="18" y1="17" x2="18" y2="30" stroke="#fef3c7" strokeWidth="0.9" strokeLinecap="round" opacity="0.85" />
+            </g>
+
+            {/* 4. 우측 공중 부유하는 날카로운 바위 파편 */}
+            <g transform="translate(47, 36) rotate(-35) translate(-47, -36)">
+              <polygon points="47,25 53,36 50,45 44,45 41,36" fill="#78350f" stroke="#92400e" strokeWidth="1" strokeLinejoin="round" />
+              <polygon points="47,25 41,36 44,45 47,40" fill="#92400e" />
+              <polygon points="47,25 53,36 50,45 47,40" fill="#d97706" />
+              <polygon points="47,25 49,34 47,40 45,34" fill="#fbbf24" />
+              <line x1="47" y1="25" x2="47" y2="40" stroke="#fef3c7" strokeWidth="0.9" strokeLinecap="round" opacity="0.85" />
+            </g>
+
+            {/* 5. 주변 궤도를 도는 작은 미세 파편들 */}
+            <polygon points="25,48 28,49 26,53 23,51" fill="#b45309" stroke="#d97706" strokeWidth="0.7" />
+            <polygon points="44,18 47,20 45,23 42,21" fill="#d97706" stroke="#f59e0b" strokeWidth="0.7" />
+            <polygon points="14,42 16,43 15,46 13,44" fill="#92400e" stroke="#b45309" strokeWidth="0.6" />
+
+            {/* 6. 바위 섬광 및 에너지 스파크 */}
+            <g filter="url(#glow)">
+              <path d="M 32 6 Q 32 8.5 34.5 8.5 Q 32 8.5 32 11 Q 32 8.5 29.5 8.5 Q 32 8.5 32 6 Z" fill="#fef08a" />
+              <path d="M 49 14 Q 49 16 51 16 Q 49 16 49 18 Q 49 16 47 16 Q 49 16 49 14 Z" fill="#fbbf24" />
+              <circle cx="16" cy="18" r="1.1" fill="#fef3c7" opacity="0.9" />
+              <circle cx="51" cy="46" r="1.0" fill="#f59e0b" opacity="0.85" />
+              <circle cx="28" cy="54" r="0.9" fill="#fbbf24" opacity="0.8" />
+            </g>
+          </g>
+        )}
+
         {/* 포켓몬과 결혼한 사람이 있었다 (황금 웨딩 링과 빛나는 루비 하트 & 다이아몬드 스파클) */}
         {id === "marriedPokemon" && (
           <g filter="url(#glow)" transform="translate(0, 4.5)">
@@ -1092,155 +1228,218 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 5. 오른손엔 방패 왼손엔 검 (유희왕 원작 모티브: 왼편 수호방패, 오른편 직립검, 상하 순환 스왑 화살표, ATK/DEF 스왑 오브) */}
+        {/* 5. 오른손엔 방패 왼손엔 검 (유희왕 원작 카드 일러스트 1:1 완벽 구현) */}
         {id === "swordAndShield" && (
-          <g filter="url(#glow)">
-            {/* 1. 배경: 기사(Knight) 투구 & 갑옷 실루엣 */}
-            <g opacity="0.4">
-              {/* 투구 뿔 장식 */}
-              <path d="M25 19 C22 14 17 13 14 10 C18 13 22 16 24 18" stroke="#94a3b8" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-              <path d="M39 19 C42 14 47 13 50 10 C46 13 42 16 40 18" stroke="#94a3b8" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-              {/* 기사 투구 & 슬릿 */}
-              <path d="M26 21 C26 14 38 14 38 21 L37 27 C37 28 35 29 32 29 C29 29 27 28 27 27 Z" fill="#334155" stroke="#64748b" strokeWidth="0.8" />
-              <line x1="28" y1="23" x2="36" y2="23" stroke="#0f172a" strokeWidth="1.5" strokeLinecap="round" />
-              {/* 어깨 갑옷 & 흉갑 실루엣 */}
-              <path d="M20 28 C25 26 39 26 44 28 L46 50 L18 50 Z" fill="#1e293b" stroke="#475569" strokeWidth="0.8" />
+          <g>
+            {/* 원형 테두리 내부 클리핑 그룹 */}
+            <g clipPath="url(#ssCircleClip)">
+              {/* (A) 원작 카드 배경: 짙은 푸른 보텍스 & 방사형 스피드라인 광선 */}
+              <rect x="0" y="0" width="64" height="64" fill="url(#vortexBg)" />
+              <g opacity="0.38">
+                <line x1="32" y1="32" x2="4" y2="10" stroke="#38bdf8" strokeWidth="1.2" />
+                <line x1="32" y1="32" x2="60" y2="10" stroke="#38bdf8" strokeWidth="1.2" />
+                <line x1="32" y1="32" x2="10" y2="58" stroke="#38bdf8" strokeWidth="1.2" />
+                <line x1="32" y1="32" x2="54" y2="58" stroke="#38bdf8" strokeWidth="1.2" />
+                <line x1="32" y1="32" x2="2" y2="32" stroke="#60a5fa" strokeWidth="1.4" />
+                <line x1="32" y1="32" x2="62" y2="32" stroke="#60a5fa" strokeWidth="1.4" />
+                <line x1="32" y1="32" x2="32" y2="2" stroke="#60a5fa" strokeWidth="1.4" />
+                <line x1="32" y1="32" x2="32" y2="62" stroke="#60a5fa" strokeWidth="1.4" />
+                <line x1="32" y1="32" x2="18" y2="4" stroke="#38bdf8" strokeWidth="1.0" />
+                <line x1="32" y1="32" x2="46" y2="4" stroke="#38bdf8" strokeWidth="1.0" />
+                <line x1="32" y1="32" x2="18" y2="60" stroke="#38bdf8" strokeWidth="1.0" />
+                <line x1="32" y1="32" x2="46" y2="60" stroke="#38bdf8" strokeWidth="1.0" />
+              </g>
+
+              {/* (B) 중앙 청동 기사 (Horned Knight) */}
+              <g>
+                {/* 1. 좌측 방패 (타원형 대형 쉴드) */}
+                <ellipse cx="14" cy="34" rx="7.5" ry="17" fill="url(#shieldGrad)" stroke="#b45309" strokeWidth="1.4" transform="rotate(-6 14 34)" />
+                <ellipse cx="14" cy="34" rx="5.5" ry="14" fill="none" stroke="#f59e0b" strokeWidth="0.8" opacity="0.75" transform="rotate(-6 14 34)" />
+                <path d="M 14 20 L 14 48 M 8.5 34 L 19.5 34" stroke="#d97706" strokeWidth="0.9" opacity="0.7" />
+
+                {/* 2. 우측 대검 (곧게 세운 브로드소드) */}
+                <path d="M 51.5 9.5 L 54.5 16 L 53.5 44 L 49.5 44 L 48.5 16 Z" fill="url(#swordBlade)" stroke="#92400e" strokeWidth="0.8" />
+                <line x1="51.5" y1="10" x2="51.5" y2="44" stroke="#fef08a" strokeWidth="0.8" opacity="0.85" />
+                <path d="M 45.5 44 C 48.5 43 54.5 43 57.5 44 L 56.5 46.5 L 46.5 46.5 Z" fill="#d97706" stroke="#78350f" strokeWidth="0.7" />
+                <rect x="50.3" y="46.5" width="2.4" height="6.5" rx="0.5" fill="#451a03" stroke="#260e03" strokeWidth="0.5" />
+                <circle cx="51.5" cy="54" r="1.9" fill="#d97706" stroke="#78350f" strokeWidth="0.7" />
+                <rect x="48.5" y="47.5" width="6" height="4.5" rx="1.2" fill="#78350f" stroke="#451a03" strokeWidth="0.6" />
+
+                {/* 3. 기사 본체 (흉갑 & 투구) */}
+                <path d="M 21 27 C 21 21 26 21 28 27 L 27 34 L 19 32 Z" fill="url(#bronzeKnight)" stroke="#451a03" strokeWidth="0.7" />
+                <path d="M 43 27 C 43 21 38 21 36 27 L 37 34 L 45 32 Z" fill="url(#bronzeKnight)" stroke="#451a03" strokeWidth="0.7" />
+                <path d="M 25 26 C 28 24 36 24 39 26 L 41 42 C 37 45 27 45 23 42 Z" fill="url(#bronzeKnight)" stroke="#451a03" strokeWidth="0.8" />
+                <path d="M 32 26 L 32 42 M 27 33 Q 32 37 37 33 M 28 38 Q 32 41 36 38" fill="none" stroke="#d97706" strokeWidth="0.9" opacity="0.85" />
+                <path d="M 22 43 C 26 42 38 42 42 43 L 42 47 C 37 48 27 48 22 47 Z" fill="#291307" stroke="#b45309" strokeWidth="0.6" />
+                <polygon points="25,47 23,51 27,48" fill="#d97706" stroke="#451a03" strokeWidth="0.4" />
+                <polygon points="32,47 32,52 34,48" fill="#d97706" stroke="#451a03" strokeWidth="0.4" />
+                <polygon points="39,47 41,51 37,48" fill="#d97706" stroke="#451a03" strokeWidth="0.4" />
+
+                {/* 기사 뿔 투구 */}
+                <path d="M 27 15 C 25 9 19 9 17 6 C 21 10 24 13 26 18 Z" fill="#d97706" stroke="#451a03" strokeWidth="0.6" />
+                <path d="M 37 15 C 39 9 45 9 47 6 C 43 10 40 13 38 18 Z" fill="#d97706" stroke="#451a03" strokeWidth="0.6" />
+                <path d="M 32 10 L 32 6 L 33 10 Z" fill="#f59e0b" />
+                <path d="M 26 18 C 26 12 38 12 38 18 L 38 23 C 38 25 26 25 26 23 Z" fill="url(#bronzeKnight)" stroke="#451a03" strokeWidth="0.7" />
+                <rect x="27.5" y="19" width="9" height="4.2" rx="1.2" fill="#1c1917" stroke="#d97706" strokeWidth="0.5" />
+                <line x1="29.2" y1="20" x2="29.2" y2="22.2" stroke="#d97706" strokeWidth="0.6" />
+                <line x1="31.1" y1="20" x2="31.1" y2="22.2" stroke="#d97706" strokeWidth="0.6" />
+                <line x1="32.9" y1="20" x2="32.9" y2="22.2" stroke="#d97706" strokeWidth="0.6" />
+                <line x1="34.8" y1="20" x2="34.8" y2="22.2" stroke="#d97706" strokeWidth="0.6" />
+              </g>
+
+              {/* (C) 원작 시그니처 굵은 순환 스왑 화살표 */}
+              {/* 상단 화살표 (우측 -> 좌측 시계방향: 블루/바이올렛) */}
+              <g>
+                <path d="M 46 22 C 40 12 28 12 23 20" stroke="url(#topArrowGrad)" strokeWidth="4.4" strokeLinecap="round" fill="none" filter="url(#glow)" />
+                <polygon points="25,14 17,21 26,24" fill="#3b82f6" stroke="#ffffff" strokeWidth="0.7" strokeLinejoin="round" />
+              </g>
+
+              {/* 하단 화살표 (좌측 -> 우측 시계방향: 오렌지/레드) */}
+              <g>
+                <path d="M 18 42 C 24 52 36 52 41 44" stroke="url(#bottomArrowGrad)" strokeWidth="4.4" strokeLinecap="round" fill="none" filter="url(#glow)" />
+                <polygon points="39,50 47,43 38,40" fill="#ea580c" stroke="#ffffff" strokeWidth="0.7" strokeLinejoin="round" />
+              </g>
+
+              {/* (D) 원작 시그니처 3D 광채 스피어 오브 (attack & defense) */}
+              {/* 좌측: attack 오렌지 오브 */}
+              <g>
+                <circle cx="18.5" cy="32.5" r="9.2" fill="url(#atkSphere)" stroke="#ffffff" strokeWidth="0.9" />
+                <ellipse cx="17.2" cy="27.5" rx="4.8" ry="2.2" fill="#ffffff" opacity="0.45" />
+                <text x="18.5" y="34.0" fontSize="3.6" fontWeight="900" fontFamily="'Arial Black', system-ui, sans-serif" fill="#ffffff" textAnchor="middle" letterSpacing="-0.1">
+                  attack
+                </text>
+              </g>
+
+              {/* 우측: defense 블루 오브 */}
+              <g>
+                <circle cx="45.5" cy="32.5" r="9.2" fill="url(#defSphere)" stroke="#ffffff" strokeWidth="0.9" />
+                <ellipse cx="44.2" cy="27.5" rx="4.8" ry="2.2" fill="#ffffff" opacity="0.45" />
+                <text x="45.5" y="34.0" fontSize="3.3" fontWeight="900" fontFamily="'Arial Black', system-ui, sans-serif" fill="#ffffff" textAnchor="middle" letterSpacing="-0.2">
+                  defense
+                </text>
+              </g>
             </g>
 
-            {/* 2. 왼편: 든든한 황금/청동 수호 방패 ("오른손엔 방패") */}
-            <g>
-              <path d="M13 17 C21 17 22 21 22 30 C22 41 13 49 13 49 C13 49 4 41 4 30 C4 21 5 17 13 17 Z" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
-              <path d="M13 20 C18.5 20 19.5 23 19.5 30 C19.5 38 13 44.5 13 44.5 C13 44.5 6.5 38 6.5 30 C6.5 23 7.5 20 13 20 Z" fill="#78350f" fillOpacity="0.35" stroke="#fef08a" strokeWidth="0.8" />
-              <path d="M13 22 L13 41 M8.5 29 L17.5 29" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" strokeOpacity="0.85" />
-            </g>
-
-            {/* 3. 오른편: 하늘을 향해 곧게 세운 대검 ("왼손엔 검") */}
-            <g>
-              <path d="M51 9 L54.5 15 L53.5 41 L48.5 41 L47.5 15 Z" fill="#ffffff" stroke="url(#prismRing)" strokeWidth="1" strokeLinejoin="round" />
-              <line x1="51" y1="12" x2="51" y2="40" stroke="#38bdf8" strokeWidth="1.2" strokeLinecap="round" />
-              <path d="M44 41 C47 40 55 40 58 41 L57 43.5 L45 43.5 Z" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.8" />
-              <line x1="51" y1="43.5" x2="51" y2="50" stroke="#94a3b8" strokeWidth="2.4" strokeLinecap="round" />
-              <circle cx="51" cy="51.5" r="2.2" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.8" />
-            </g>
-
-            {/* 4. 상하 순환 교환 화살표 (원작 시그니처 곡선 화살표) */}
-            {/* 상단 화살표 (검/우측 -> 방패/좌측 곡선: 블루/청록) */}
-            <g>
-              <path d="M43 20 C38 14 28 14 21 19" stroke="#38bdf8" strokeWidth="2.8" strokeLinecap="round" fill="none" />
-              <path d="M22 15 L17 21 L24 23 Z" fill="#38bdf8" stroke="#ffffff" strokeWidth="0.6" strokeLinejoin="round" />
-            </g>
-
-            {/* 하단 화살표 (방패/좌측 -> 검/우측 곡선: 오렌지/레드) */}
-            <g>
-              <path d="M21 44 C26 50 36 50 43 45" stroke="#f97316" strokeWidth="2.8" strokeLinecap="round" fill="none" />
-              <path d="M42 49 L47 43 L40 41 Z" fill="#f97316" stroke="#ffffff" strokeWidth="0.6" strokeLinejoin="round" />
-            </g>
-
-            {/* 5. 중앙 공격/방어 스왑 구체 (원작 attack / defense 오브) */}
-            {/* 좌측 attack 오브 (오렌지/골드 엠버) */}
-            <g>
-              <circle cx="23" cy="32" r="7.5" fill="url(#yugiohAtkOrb)" stroke="#ffffff" strokeWidth="1.2" />
-              <text x="23" y="34.2" fontSize="5.2" fontWeight="900" fontFamily="system-ui, -apple-system, sans-serif" fill="#ffffff" textAnchor="middle" letterSpacing="0.2">
-                ATK
-              </text>
-            </g>
-
-            {/* 우측 defense 오브 (블루/시안) */}
-            <g>
-              <circle cx="41" cy="32" r="7.5" fill="url(#yugiohDefOrb)" stroke="#ffffff" strokeWidth="1.2" />
-              <text x="41" y="34.2" fontSize="5.2" fontWeight="900" fontFamily="system-ui, -apple-system, sans-serif" fill="#ffffff" textAnchor="middle" letterSpacing="0.2">
-                DEF
-              </text>
-            </g>
-
-            {/* 중앙 등호 기호 (=) */}
-            <line x1="29.5" y1="30.5" x2="34.5" y2="30.5" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" />
-            <line x1="29.5" y1="33.5" x2="34.5" y2="33.5" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" />
-
-            {/* ✦ 스파클 반짝임 */}
-            <path d="M51 6 Q51 9 54 9 Q51 9 51 12 Q51 9 48 9 Q51 9 51 6 Z" fill="#fef08a" />
-            <path d="M13 13 Q13 15.5 15.5 15.5 Q13 15.5 13 18 Q13 15.5 10.5 15.5 Q13 15.5 13 13 Z" fill="#67e8f9" />
+            {/* 원형 외곽 림 테두리 */}
+            <circle cx="32" cy="32" r="29.2" fill="none" stroke="#38bdf8" strokeWidth="1.6" strokeOpacity="0.9" />
+            <circle cx="32" cy="32" r="28.0" fill="none" stroke="#fef08a" strokeWidth="0.5" strokeOpacity="0.5" />
           </g>
         )}
 
-        {/* 6. 오른손엔 방패 왼손엔 스태프 (유희왕 모티브 계승: 왼편 룬 방패, 오른편 직립 마법 스태프, 상하 마법 스왑 화살표, SpA/SpD 스왑 오브) */}
+        {/* 6. 로스트 테크놀로지 (특수) (수제 벡터 클래식 게임보이 DMG-01) */}
         {id === "specialSwordAndShield" && (
-          <g filter="url(#glow)">
-            {/* 1. 배경: 대마법사(Archmage) 후드 & 로브 및 마법진 실루엣 */}
-            <g opacity="0.45">
-              {/* 비전 마법진 룬 링 */}
-              <circle cx="32" cy="32" r="26" stroke="#c084fc" strokeWidth="0.8" strokeDasharray="3 3" fill="none" />
-              {/* 마법사 후드/두건 */}
-              <path d="M26 23 C26 14 32 9 32 9 C32 9 38 14 38 23 L37 27 C37 28 35 29 32 29 C29 29 27 28 27 27 Z" fill="#312e81" stroke="#6366f1" strokeWidth="0.8" />
-              {/* 후드 안쪽 신비로운 빛나는 안광 */}
-              <circle cx="29.5" cy="22.5" r="0.9" fill="#67e8f9" />
-              <circle cx="34.5" cy="22.5" r="0.9" fill="#67e8f9" />
-              {/* 로브 & 어깨 망토 실루엣 */}
-              <path d="M20 28 C25 26 39 26 44 28 L46 50 L18 50 Z" fill="#1e1b4b" stroke="#4338ca" strokeWidth="0.8" />
+          <g>
+            {/* 1. 후면 레트로 사이버 그린 오라 & 픽셀 비트 빛무리 */}
+            <g filter="url(#glow)">
+              <circle cx="32" cy="32" r="23" fill="#84cc16" opacity="0.16" />
+              <circle cx="32" cy="27" r="14" fill="#a3e635" opacity="0.18" />
+              <circle cx="32" cy="32" r="27.5" stroke="#a3e635" strokeWidth="0.8" strokeDasharray="4 3" opacity="0.45" fill="none" />
+              <path d="M 8 32 C 8 16 18 8 34 8" stroke="#38bdf8" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" strokeDasharray="6 4" />
+              <path d="M 22 56 C 40 58 56 46 56 28" stroke="#4ade80" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" strokeDasharray="6 4" />
             </g>
 
-            {/* 2. 왼편: 신비로운 비전 룬 마법 방패 ("오른손엔 방패") */}
-            <g>
-              <path d="M13 17 C21 17 22 21 22 30 C22 41 13 49 13 49 C13 49 4 41 4 30 C4 21 5 17 13 17 Z" fill="url(#magicStaffGrad)" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
-              <path d="M13 20 C18.5 20 19.5 23 19.5 30 C19.5 38 13 44.5 13 44.5 C13 44.5 6.5 38 6.5 30 C6.5 23 7.5 20 13 20 Z" fill="#3b0764" fillOpacity="0.45" stroke="#f472b6" strokeWidth="0.8" />
-              {/* 방패 중앙 마법 크리스탈 다이아몬드 룬 */}
-              <path d="M13 23 L16.5 30 L13 37 L9.5 30 Z" fill="#ffffff" fillOpacity="0.8" stroke="#c084fc" strokeWidth="0.8" />
-              <circle cx="13" cy="30" r="1.3" fill="#f472b6" />
+            {/* 2. 게임보이 콘솔 (11도 역동적 틸트) */}
+            <g transform="translate(31.5, 31.5) rotate(-11) translate(-31.5, -31.5)">
+              {/* (A) 바닥 드롭 섀도우 */}
+              <path d="M 19 8 L 43 8 Q 46 8 46 11 L 46 45 Q 46 48 42 51 L 40 52.5 Q 36 54 32 54 L 19 54 Q 16 54 16 51 L 16 11 Q 16 8 19 8 Z" transform="translate(3, 3)" fill="#000000" opacity="0.55" filter="url(#glow)" />
+
+              {/* (B) 3D 측면 두께 (우측 & 하단) */}
+              <path d="M 19 8 L 43 8 Q 46 8 46 11 L 46 45 Q 46 48 42 51 L 40 52.5 Q 36 54 32 54 L 19 54 Q 16 54 16 51 L 16 11 Q 16 8 19 8 Z" transform="translate(2.2, 1.6)" fill="url(#dmgDepth)" />
+              {/* 측면 볼륨 조절 다이얼 */}
+              <rect x="47.2" y="24" width="1.2" height="6.5" rx="0.6" fill="#3f403b" />
+              <line x1="47.8" y1="25.5" x2="47.8" y2="29" stroke="#71736b" strokeWidth="0.4" />
+
+              {/* (C) 본체 전면 케이싱 (둥근 모서리 + 우하단 인체공학적 곡선) */}
+              <path d="M 19 8 L 43 8 Q 46 8 46 11 L 46 45 Q 46 48 42 51 L 40 52.5 Q 36 54 32 54 L 19 54 Q 16 54 16 51 L 16 11 Q 16 8 19 8 Z" fill="url(#dmgBody)" stroke="#b5b7af" strokeWidth="0.6" />
+
+              {/* 상단 팩 슬롯 가로 음각 홈 */}
+              <line x1="21" y1="9.8" x2="41" y2="9.8" stroke="#a4a69e" strokeWidth="0.7" strokeLinecap="round" />
+              <line x1="21" y1="10.4" x2="41" y2="10.4" stroke="#ffffff" strokeWidth="0.3" strokeLinecap="round" opacity="0.8" />
+
+              {/* (D) 스크린 베젤 (다크 그레이 창) */}
+              <rect x="18.5" y="13" width="25" height="17.5" rx="2" fill="url(#dmgBezel)" stroke="#373942" strokeWidth="0.5" />
+
+              {/* 베젤 상단 투톤 컬러 라인 (블루 & 마젠타) */}
+              <line x1="21.5" y1="14.8" x2="40.5" y2="14.8" stroke="#3b82f6" strokeWidth="0.6" strokeLinecap="round" />
+              <line x1="21.5" y1="15.8" x2="40.5" y2="15.8" stroke="#db2777" strokeWidth="0.6" strokeLinecap="round" />
+
+              {/* 배터리 표시 레드 LED 점등 */}
+              <circle cx="21.2" cy="20.5" r="1.0" fill="#ef4444" />
+              <circle cx="21.2" cy="20.5" r="2.2" fill="#ef4444" opacity="0.55" filter="url(#glow)" />
+              <circle cx="20.9" cy="20.2" r="0.35" fill="#ffffff" opacity="0.9" />
+
+              {/* (E) LCD 디스플레이 (올리브 그린 도트 매트릭스) */}
+              <rect x="24.8" y="17.5" width="15.2" height="11.2" rx="0.8" fill="url(#dmgLcd)" stroke="#68840c" strokeWidth="0.4" />
+
+              {/* 화면 속 8비트 포켓몬 몬스터볼 그래픽 */}
+              <g opacity="0.85">
+                <circle cx="32.4" cy="23.1" r="3.4" fill="#306230" stroke="#0f380f" strokeWidth="0.6" />
+                <line x1="29" y1="23.1" x2="35.8" y2="23.1" stroke="#0f380f" strokeWidth="0.7" />
+                <circle cx="32.4" cy="23.1" r="1.3" fill="#8bac0f" stroke="#0f380f" strokeWidth="0.5" />
+                <circle cx="32.4" cy="23.1" r="0.45" fill="#0f380f" />
+                <rect x="26.2" y="19" width="3.5" height="0.8" fill="#0f380f" opacity="0.7" />
+                <rect x="35" y="26.3" width="3.5" height="0.8" fill="#0f380f" opacity="0.7" />
+              </g>
+
+              {/* (F) 닌텐도 게임보이 브랜드 로고 라인 */}
+              <g transform="translate(19.5, 33)">
+                <rect x="0" y="0" width="6" height="0.8" rx="0.4" fill="#1e3a8a" />
+                <rect x="7" y="-0.3" width="10" height="1.4" rx="0.4" fill="#1e3a8a" />
+                <rect x="17.5" y="-0.3" width="1.2" height="1.4" rx="0.3" fill="#1e3a8a" />
+              </g>
+
+              {/* (G) 십자키 (D-Pad) */}
+              <g>
+                <rect x="18.5" y="39.2" width="8.2" height="3.0" rx="0.5" fill="#1f2937" stroke="#111827" strokeWidth="0.3" />
+                <rect x="21.1" y="36.6" width="3.0" height="8.2" rx="0.5" fill="#1f2937" stroke="#111827" strokeWidth="0.3" />
+                <circle cx="22.6" cy="40.7" r="1.15" fill="#111827" stroke="#374151" strokeWidth="0.25" />
+                <polygon points="19.5,40.7 20.2,40.1 20.2,41.3" fill="#6b7280" opacity="0.8" />
+                <polygon points="25.7,40.7 25.0,40.1 25.0,41.3" fill="#6b7280" opacity="0.8" />
+                <polygon points="22.6,37.6 22.0,38.3 23.2,38.3" fill="#6b7280" opacity="0.8" />
+                <polygon points="22.6,43.8 22.0,43.1 23.2,43.1" fill="#6b7280" opacity="0.8" />
+              </g>
+
+              {/* (H) A & B 마젠타 버튼 (대각선 배치) */}
+              <g>
+                {/* B 버튼 (좌하단) */}
+                <circle cx="34.8" cy="43.2" r="2.35" fill="url(#dmgBtn)" stroke="#4c0519" strokeWidth="0.35" />
+                <circle cx="34.4" cy="42.7" r="1.7" fill="none" stroke="#fb7185" strokeWidth="0.4" opacity="0.75" />
+                <rect x="33.8" y="46.5" width="2.0" height="0.8" rx="0.4" fill="#1e3a8a" opacity="0.8" />
+
+                {/* A 버튼 (우상단) */}
+                <circle cx="40.2" cy="40.4" r="2.35" fill="url(#dmgBtn)" stroke="#4c0519" strokeWidth="0.35" />
+                <circle cx="39.8" cy="39.9" r="1.7" fill="none" stroke="#fb7185" strokeWidth="0.4" opacity="0.75" />
+                <rect x="39.2" y="43.7" width="2.0" height="0.8" rx="0.4" fill="#1e3a8a" opacity="0.8" />
+              </g>
+
+              {/* (I) 셀렉트 & 스타트 버튼 (사선 고무 캡슐) */}
+              <g>
+                <rect x="-2.4" y="-0.75" width="4.8" height="1.5" rx="0.75" fill="#64748b" stroke="#334155" strokeWidth="0.25" transform="translate(25.5, 48.2) rotate(-26)" />
+                <rect x="23.8" y="50.2" width="3.4" height="0.6" rx="0.3" fill="#1e3a8a" opacity="0.7" />
+
+                <rect x="-2.4" y="-0.75" width="4.8" height="1.5" rx="0.75" fill="#64748b" stroke="#334155" strokeWidth="0.25" transform="translate(30.2, 48.2) rotate(-26)" />
+                <rect x="28.5" y="50.2" width="3.4" height="0.6" rx="0.3" fill="#1e3a8a" opacity="0.7" />
+              </g>
+
+              {/* (J) 스피커 그릴 슬릿 (우하단 6줄 사선 홀) */}
+              <g opacity="0.85">
+                <line x1="36.5" y1="48.5" x2="38.5" y2="53.5" stroke="#787a72" strokeWidth="0.7" strokeLinecap="round" />
+                <line x1="38.0" y1="48.2" x2="40.0" y2="53.0" stroke="#787a72" strokeWidth="0.7" strokeLinecap="round" />
+                <line x1="39.5" y1="47.9" x2="41.3" y2="52.2" stroke="#787a72" strokeWidth="0.7" strokeLinecap="round" />
+                <line x1="41.0" y1="47.6" x2="42.6" y2="51.2" stroke="#787a72" strokeWidth="0.7" strokeLinecap="round" />
+                <line x1="42.5" y1="47.3" x2="43.8" y2="50.2" stroke="#787a72" strokeWidth="0.7" strokeLinecap="round" />
+                <line x1="44.0" y1="47.0" x2="44.9" y2="49.0" stroke="#787a72" strokeWidth="0.7" strokeLinecap="round" />
+              </g>
             </g>
 
-            {/* 3. 오른편: 하늘을 향해 곧게 세운 마법 스태프 ("왼손엔 스태프") */}
-            <g>
-              {/* 스태프 샤프트 봉 */}
-              <line x1="51" y1="18" x2="51" y2="49" stroke="url(#goldGrad)" strokeWidth="2.4" strokeLinecap="round" />
-              <line x1="51" y1="20" x2="51" y2="47" stroke="#ffffff" strokeWidth="0.8" strokeLinecap="round" />
-              {/* 하단 폼멜 */}
-              <circle cx="51" cy="51" r="2.2" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.8" />
-              {/* 상단 크레센트 윙 브라켓 헤드 */}
-              <path d="M45 15 C45 9 48 6 51 6 C54 6 57 9 57 15 C55 13 53 12 51 12 C49 12 47 13 45 15 Z" fill="url(#goldGrad)" stroke="#ffffff" strokeWidth="0.8" />
-              {/* 스태프 최상단 찬란한 마법 구체 */}
-              <circle cx="51" cy="14" r="3.8" fill="url(#magicOrbGlow)" stroke="#ffffff" strokeWidth="0.8" />
-              <circle cx="49.8" cy="12.8" r="1.1" fill="#ffffff" />
-              {/* 회전하는 마법 오라 링 */}
-              <ellipse cx="51" cy="14" rx="6.5" ry="2.2" stroke="#67e8f9" strokeWidth="1" fill="none" strokeDasharray="3 1.5" transform="rotate(-15 51 14)" />
+            {/* 3. 주변 떠다니는 레트로 8비트 사이버 스파클 & 빛무리 */}
+            <g filter="url(#glow)">
+              <path d="M 53 10 Q 53 13 55.5 13 Q 53 13 53 16 Q 53 13 50.5 13 Q 53 13 53 10 Z" fill="#bef264" />
+              <path d="M 12 18 Q 12 20.5 14.5 20.5 Q 12 20.5 12 23 Q 12 20.5 9.5 20.5 Q 12 20.5 12 18 Z" fill="#67e8f9" />
+              <circle cx="53" cy="46" r="1.1" fill="#facc15" opacity="0.85" />
+              <circle cx="11" cy="45" r="1.0" fill="#bef264" opacity="0.8" />
+              <circle cx="22" cy="6" r="0.9" fill="#ffffff" opacity="0.9" />
             </g>
-
-            {/* 4. 상하 순환 마법 교환 화살표 */}
-            {/* 상단 화살표 (스태프/우측 -> 방패/좌측 곡선: 바이올렛/퍼플) */}
-            <g>
-              <path d="M43 20 C38 14 28 14 21 19" stroke="#c084fc" strokeWidth="2.8" strokeLinecap="round" fill="none" />
-              <path d="M22 15 L17 21 L24 23 Z" fill="#c084fc" stroke="#ffffff" strokeWidth="0.6" strokeLinejoin="round" />
-            </g>
-
-            {/* 하단 화살표 (방패/좌측 -> 스태프/우측 곡선: 청록/시안) */}
-            <g>
-              <path d="M21 44 C26 50 36 50 43 45" stroke="#22d3ee" strokeWidth="2.8" strokeLinecap="round" fill="none" />
-              <path d="M42 49 L47 43 L40 41 Z" fill="#22d3ee" stroke="#ffffff" strokeWidth="0.6" strokeLinejoin="round" />
-            </g>
-
-            {/* 5. 중앙 특공/특방 스왑 구체 (SpA / SpD 오브) */}
-            {/* 좌측 SpA 오브 (신비로운 마젠타/퍼플) */}
-            <g>
-              <circle cx="23" cy="32" r="7.5" fill="url(#yugiohSpaOrb)" stroke="#ffffff" strokeWidth="1.2" />
-              <text x="23" y="34.2" fontSize="5.0" fontWeight="900" fontFamily="system-ui, -apple-system, sans-serif" fill="#ffffff" textAnchor="middle" letterSpacing="0.1">
-                SpA
-              </text>
-            </g>
-
-            {/* 우측 SpD 오브 (청아한 시안/애저 블루) */}
-            <g>
-              <circle cx="41" cy="32" r="7.5" fill="url(#yugiohSpdOrb)" stroke="#ffffff" strokeWidth="1.2" />
-              <text x="41" y="34.2" fontSize="5.0" fontWeight="900" fontFamily="system-ui, -apple-system, sans-serif" fill="#ffffff" textAnchor="middle" letterSpacing="0.1">
-                SpD
-              </text>
-            </g>
-
-            {/* 중앙 등호 기호 (=) */}
-            <line x1="29.5" y1="30.5" x2="34.5" y2="30.5" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" />
-            <line x1="29.5" y1="33.5" x2="34.5" y2="33.5" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" />
-
-            {/* ✦ 비전 마법 스파클 반짝임 */}
-            <path d="M51 4 Q51 7 54 7 Q51 7 51 10 Q51 7 48 7 Q51 7 51 4 Z" fill="#f472b6" />
-            <path d="M13 13 Q13 15.5 15.5 15.5 Q13 15.5 13 18 Q13 15.5 10.5 15.5 Q13 15.5 13 13 Z" fill="#67e8f9" />
           </g>
         )}
 
@@ -3535,6 +3734,71 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="51" cy="43" r="1.2" fill="#6ee7b7" opacity="0.85" />
             <circle cx="12" cy="43" r="1.0" fill="#34d399" opacity="0.8" />
             <circle cx="21" cy="8" r="0.9" fill="#ffffff" opacity="0.9" />
+          </g>
+        )}
+
+        {/* 모루 능력치 (Stat Anvil / Anvil Shard) */}
+        {(id === "anvilStat" || id === "anvilStatBuff") && (
+          <g>
+            <defs>
+              <radialGradient id="anvilBgGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#064e3b" />
+                <stop offset="65%" stopColor="#022c22" />
+                <stop offset="100%" stopColor="#01140e" />
+              </radialGradient>
+              <linearGradient id="anvilBodyGrad" x1="20%" y1="15%" x2="85%" y2="85%">
+                <stop offset="0%" stopColor="#a3e635" />
+                <stop offset="35%" stopColor="#84cc16" />
+                <stop offset="70%" stopColor="#22c55e" />
+                <stop offset="100%" stopColor="#eab308" />
+              </linearGradient>
+              <linearGradient id="anvilRimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#bef264" />
+                <stop offset="50%" stopColor="#65a30d" />
+                <stop offset="100%" stopColor="#a3e635" />
+              </linearGradient>
+              <filter id="anvilNeonGlow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="2" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            {/* 외부 어두운 배경 원반 */}
+            <circle cx="32" cy="32" r="28" fill="url(#anvilBgGrad)" />
+
+            {/* 내부 방사형 에메랄드 오라 */}
+            <circle cx="32" cy="32" r="20" fill="#22c55e" opacity="0.25" filter="url(#anvilNeonGlow)" />
+
+            {/* 외곽 네온 라임 링 */}
+            <circle cx="32" cy="32" r="27.5" fill="none" stroke="url(#anvilRimGrad)" strokeWidth="2.5" filter="url(#anvilNeonGlow)" />
+            <circle cx="32" cy="32" r="25.5" fill="none" stroke="#bef264" strokeWidth="0.8" opacity="0.8" />
+
+            {/* 중앙 모루 심볼 (Hourglass Anvil Shape) */}
+            <g filter="url(#anvilNeonGlow)">
+              <path
+                d="M 18 20 C 21 19, 43 19, 46 20 C 47 23, 44 26, 42 27 C 36 30, 36 34, 42 37 C 44 38, 47 41, 46 44 C 43 45, 21 45, 18 44 C 17 41, 20 38, 22 37 C 28 34, 28 30, 22 27 C 20 26, 17 23, 18 20 Z"
+                fill="url(#anvilBodyGrad)"
+                stroke="#d9f99d"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
+              {/* 상단면 하이라이트 */}
+              <path d="M 19 21 L 45 21 L 42 25 L 22 25 Z" fill="#fef08a" opacity="0.5" />
+              {/* 중앙 허리 음영 */}
+              <ellipse cx="32" cy="32" rx="4.5" ry="3" fill="#14532d" opacity="0.6" />
+              {/* 우측 하단 황금빛 파편 발광 */}
+              <path d="M 32 32 L 42 37 C 44 38, 46 40, 45 43 L 32 44 Z" fill="#facc15" opacity="0.75" />
+              {/* 좌측 상단 라임 하이라이트 */}
+              <path d="M 19 21 L 32 21 L 32 32 L 22 27 Z" fill="#ecfccb" opacity="0.4" />
+              {/* 중앙 엣지 크로스 라인 */}
+              <path d="M 22 25 L 32 32 L 42 25 M 32 32 L 32 44 M 22 37 L 32 32 L 42 37" fill="none" stroke="#ffffff" strokeWidth="0.8" opacity="0.4" />
+            </g>
+
+            {/* 외부 스파크 / 파편 파티클 */}
+            <circle cx="16" cy="17" r="1" fill="#bef264" opacity="0.9" />
+            <circle cx="48" cy="18" r="1.2" fill="#facc15" opacity="0.9" />
+            <circle cx="49" cy="46" r="1" fill="#bef264" opacity="0.8" />
+            <circle cx="15" cy="45" r="0.9" fill="#86efac" opacity="0.8" />
           </g>
         )}
       </svg>

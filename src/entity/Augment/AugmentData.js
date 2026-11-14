@@ -106,6 +106,26 @@ const getBattleFromContext = (battleOrTeam, teamArg = null) => {
   return null;
 };
 
+export const getPokemonStatValue = (pokemon, statKey, battleOrTeam = null) => {
+  if (!pokemon) return 0;
+  const battle = getBattleFromContext(battleOrTeam);
+  if (typeof getAugmentedStat === "function") {
+    const val = getAugmentedStat(pokemon, statKey, battle);
+    if (typeof val === "number" && !Number.isNaN(val) && val > 0) return val;
+  }
+  const stat = getPokemonBaseStats(pokemon);
+  return Number(stat?.[statKey] ?? 0);
+};
+
+export const hasStatRatioDiff = (pokemon, statKey1, statKey2, ratio = 1.5, battleOrTeam = null) => {
+  const val1 = getPokemonStatValue(pokemon, statKey1, battleOrTeam);
+  const val2 = getPokemonStatValue(pokemon, statKey2, battleOrTeam);
+  if (!val1 || !val2 || val1 <= 0 || val2 <= 0) return false;
+  const max = Math.max(val1, val2);
+  const min = Math.min(val1, val2);
+  return max >= min * ratio - 1e-9;
+};
+
 export const hasGamblingAddict = (pokemon, battleOrTeam = null, teamArg = null) => {
   const side = pokemon?.team === "npc" ? "npc" : "player";
   const battle = getBattleFromContext(battleOrTeam, teamArg);
@@ -391,32 +411,88 @@ export const AUGMENT_LIST = [
       }
     },
   },
+  // 스텔스록 ==================================================================
+  {
+    id: "stealthRock",
+    name: "스텔스록",
+    desc: "상대의 주위에 무수한 바위를 띄워 교체되어 나온 상대 포켓몬에게 데미지를 입힙니다.",
+    afterText: (target) => {
+      const team = target?.team || "player";
+      return team === "npc" ? "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!" : "상대의 주변에 뾰족한 바위가 떠다니기 시작했다!";
+    },
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon, battle) => {
+      const teamSide = pokemon?.team || "player";
+      const oppSide = teamSide === "player" ? "npc" : "player";
+      if (battle?.field?.[oppSide]?.sRock) return false;
+      if (hasSkill(pokemon, "스텔스록")) return false;
+      return true;
+    },
+    onApply: function (pokemon, battle) {
+      const team = pokemon?.team || "player";
+      const oppSide = team === "player" ? "npc" : "player";
+      if (battle?.field?.[oppSide]) {
+        battle.field[oppSide].sRock = true;
+      }
+    },
+  },
+  {
+    id: "anvilStat",
+    name: "모루 능력치",
+    desc: "누적되는 추가 능력치를 획득합니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: () => true,
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon) return;
+      if (!pokemon.anvilStats) {
+        pokemon.anvilStats = { atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
+      }
+      if (pokemon.origin && !pokemon.origin.anvilStats) {
+        pokemon.origin.anvilStats = pokemon.anvilStats;
+      }
+      const STAT_KEYS = ["atk", "catk", "def", "cdef", "speed"];
+      const pickedStat = options?.pickedStat || STAT_KEYS[Math.floor(Math.random() * STAT_KEYS.length)];
+      const pickedAmount = Number(options?.pickedAmount !== undefined ? options.pickedAmount : Math.floor(Math.random() * 6) + 5);
+      pokemon.anvilStats[pickedStat] = (pokemon.anvilStats[pickedStat] || 0) + pickedAmount;
+      if (pokemon.origin?.anvilStats) {
+        pokemon.origin.anvilStats[pickedStat] = pokemon.anvilStats[pickedStat];
+      }
+      if (options) {
+        options.pickedStat = pickedStat;
+        options.pickedAmount = pickedAmount;
+      }
+      this.pickedStat = pickedStat;
+      this.pickedAmount = pickedAmount;
+    },
+  },
   {
     id: "swordAndShield",
     name: "오른손엔 방패 왼손엔 검",
-    desc: "공격과 방어 중 더 유리한 수치를 사용합니다.",
+    desc: "항상 공격과 방어 중 더 유리한 수치를 사용합니다.",
     cost: 3,
     weight: 100,
-    isEligible: (pokemon) => canPickStatSwapAugment(pokemon) && isPhysicalPokemon(pokemon),
+    isEligible: (pokemon, battleOrTeam) => canPickStatSwapAugment(pokemon) && isPhysicalPokemon(pokemon) && hasStatRatioDiff(pokemon, "atk", "def", 1.5, battleOrTeam),
     // damageCalculate.js에 구현
   },
   {
     id: "specialSwordAndShield",
-    name: "오른손엔 방패 왼손엔 스태프",
-    desc: "특공과 특방 중 더 유리한 수치를 사용합니다.",
+    name: "로스트 테크놀로지 (특수)",
+    desc: "항상 특공과 특방 중 더 유리한 수치를 사용합니다.",
     cost: 3,
     weight: 100,
-    isEligible: (pokemon) => canPickStatSwapAugment(pokemon) && isSpecialPokemon(pokemon),
+    isEligible: (pokemon, battleOrTeam) => canPickStatSwapAugment(pokemon) && isSpecialPokemon(pokemon) && hasStatRatioDiff(pokemon, "catk", "cdef", 1.5, battleOrTeam),
     // damageCalculate.js에 구현
   },
   {
     id: "ksante",
     name: "체력 4700 방어력 329 마저201 인 챔피언👤이 저지불가🚫, 쉴드🛡, 벽🧱 넘기는 거 있고요. 에어본🌪 있고, 심지어 쿨타임은 1️⃣초밖에 안되고 마나🧙♂️는 1️⃣5️⃣ 들고 w는 심지어 변신💫하면 쿨 초기화에다가 패시브는 고정피해🗡가 들어가며 그 다음에 방마저🥋 올리면📈 올릴수록📈 스킬 가속⏰이 생기고! q에 스킬가속⏰이 생기고 스킬 속도🚀가 빨라지고📈 그 다음에 공격력🗡 계수가 있어가지고 W가 그 이익-으아아아악😱",
-    desc: "방어와 특수방어 중 더 유리한 수치를 사용합니다.",
+    desc: "항상 방어와 특수방어 중 더 유리한 수치를 사용합니다.",
     cost: 5,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
     shortName: "그 긴거",
-    isEligible: canPickStatSwapAugment,
+    isEligible: (pokemon, battleOrTeam) => canPickStatSwapAugment(pokemon) && hasStatRatioDiff(pokemon, "def", "cdef", 1.5, battleOrTeam),
     // damageCalculate.js에 구현
   },
   {
@@ -1171,8 +1247,8 @@ export const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
   ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight"],
 
-  // 3. 물리 / 특수 대칭형 스탯 전환 증강
-  ["swordAndShield", "specialSwordAndShield"],
+  // 3. 능력치 전환 증강: 동시에 2개 이상 나오지 않음
+  ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"],
 ];
 
 // O(1) 배타 조회를 위한 맵: { [augId]: Set([배타_증강_ID들]) }
@@ -1435,6 +1511,37 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     } else {
       return selectedAugment.desc || "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올리는 순풍을 전개한다.";
     }
+  } else if (id === "stealthRock") {
+    if (isTextScreen) {
+      const pokeName = target?.name || target?.origin?.name || "포켓몬";
+      individualDesc = `${pokeName}의 스텔스록!`;
+    } else {
+      return selectedAugment.desc || "상대의 주위에 무수한 바위를 띄워 교체되어 나온 상대 포켓몬에게 데미지를 입힙니다.";
+    }
+  } else if (id === "anvilStat" || id === "anvilStatBuff") {
+    const statLabels = {
+      atk: "공격",
+      catk: "특공",
+      def: "방어",
+      cdef: "특방",
+      speed: "스피드",
+    };
+    const pickedStat = options?.pickedStat || selectedAugment?.pickedStat;
+    const pickedAmount = options?.pickedAmount || selectedAugment?.pickedAmount;
+    const statLabel = statLabels[pickedStat] || "능력치";
+    if (isTextScreen) {
+      const pokeName = target?.name || target?.origin?.name || "포켓몬";
+      individualDesc = pickedStat && pickedAmount ? josa(`능력치 파편으로 ${pokeName}의 ${statLabel}#{이} ${pickedAmount} 올랐다!`) : `${names} 모루 능력치를 획득했다!`;
+    } else {
+      if (options?.showCurrentStats) {
+        return getAnvilStatsStatusDesc(target);
+      }
+      if (pickedStat && pickedAmount) {
+        individualDesc = `능력치 파편으로 ${josa(`${statLabel}#{이}`)} ${pickedAmount} 올랐습니다.`;
+      } else {
+        return "누적되는 추가 능력치를 획득합니다.";
+      }
+    }
   } else if (id === "rouletteWheel" || id === "marriedPokemon") {
     const fromName = prevPokeName || target?.name || "포켓몬";
     const toName = target?.name || "";
@@ -1608,9 +1715,9 @@ const getSwordAndShieldDesc = (pokemon, battle = null) => {
     const defRank = Number(pokemon?.tempStatus?.rank?.def ?? 0);
     const atkVal = Math.floor(getAugmentedStat(pokemon, "atk", battle) * getMultiplier(atkRank));
     const defVal = Math.floor(getAugmentedStat(pokemon, "def", battle) * getMultiplier(defRank));
-    return `공격(${atkVal})과 방어(${defVal}) 중 더 유리한 수치를 사용합니다.`;
+    return `항상 공격(${atkVal})과 방어(${defVal}) 중 더 유리한 수치를 사용합니다.`;
   }
-  return "공격과 방어 중 더 유리한 수치를 사용합니다.";
+  return "항상 공격과 방어 중 더 유리한 수치를 사용합니다.";
 };
 
 const getSpecialSwordAndShieldDesc = (pokemon, battle = null) => {
@@ -1620,9 +1727,9 @@ const getSpecialSwordAndShieldDesc = (pokemon, battle = null) => {
     const cdefRank = Number(pokemon?.tempStatus?.rank?.cdef ?? 0);
     const catkVal = Math.floor(getAugmentedStat(pokemon, "catk", battle) * getMultiplier(catkRank));
     const cdefVal = Math.floor(getAugmentedStat(pokemon, "cdef", battle) * getMultiplier(cdefRank));
-    return `특공(${catkVal})과 특방(${cdefVal}) 중 더 유리한 수치를 사용합니다.`;
+    return `항상 특공(${catkVal})과 특방(${cdefVal}) 중 더 유리한 수치를 사용합니다.`;
   }
-  return "특공과 특방 중 더 유리한 수치를 사용합니다.";
+  return "항상 특공과 특방 중 더 유리한 수치를 사용합니다.";
 };
 
 const getKsanteDesc = (pokemon, battle = null) => {
@@ -1632,9 +1739,9 @@ const getKsanteDesc = (pokemon, battle = null) => {
     const cdefRank = Number(pokemon?.tempStatus?.rank?.cdef ?? 0);
     const defVal = Math.floor(getAugmentedStat(pokemon, "def", battle) * getMultiplier(defRank));
     const cdefVal = Math.floor(getAugmentedStat(pokemon, "cdef", battle) * getMultiplier(cdefRank));
-    return `방어(${defVal})와 특수방어(${cdefVal}) 중 더 유리한 수치를 사용합니다.`;
+    return `항상 방어(${defVal})와 특수방어(${cdefVal}) 중 더 유리한 수치를 사용합니다.`;
   }
-  return "방어와 특수방어 중 더 유리한 수치를 사용합니다.";
+  return "항상 방어와 특수방어 중 더 유리한 수치를 사용합니다.";
 };
 
 const getHhgghggDesc = (pokemon, battle = null) => {
@@ -1645,9 +1752,47 @@ const getHhgghggDesc = (pokemon, battle = null) => {
   return "항상 가장 높은 값의 능력치를 사용합니다.";
 };
 
+export const hasAnvilStats = (pokemon) => {
+  if (!pokemon) return false;
+  const stats = pokemon.anvilStats || pokemon.origin?.anvilStats;
+  if (!stats) return false;
+  return Object.values(stats).some((v) => Number(v) > 0);
+};
+
+export const getAnvilStatsStatusDesc = (pokemon) => {
+  const stats = pokemon?.anvilStats || pokemon?.origin?.anvilStats;
+  if (!stats) return "누적되는 추가 능력치를 획득합니다.";
+  const labels = {
+    atk: "공격",
+    catk: "특공",
+    def: "방어",
+    cdef: "특방",
+    speed: "스피드",
+  };
+  const parts = [];
+  ["atk", "def", "catk", "cdef", "speed"].forEach((k) => {
+    const val = Number(stats[k] || 0);
+    if (val > 0) {
+      parts.push(`${labels[k]}: ${val}`);
+    }
+  });
+  if (parts.length > 0) {
+    return `누적되는 추가 능력치를 획득합니다.\n${parts.join("  ")}`;
+  }
+  return "누적되는 추가 능력치를 획득합니다.";
+};
+
+export const getAnvilStatsDesc = () => {
+  return "누적되는 추가 능력치를 획득합니다.";
+};
+
 export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
   if (!augment) return "";
   const stat = pokemon?.origin?.stat;
+
+  if (augment.id === "anvilStat" || augment.id === "anvilStatBuff") {
+    return "누적되는 추가 능력치를 획득합니다.";
+  }
 
   if (augment.id === "swordAndShield") {
     return getSwordAndShieldDesc(pokemon, battle);

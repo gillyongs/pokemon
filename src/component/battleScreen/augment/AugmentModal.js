@@ -193,9 +193,9 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     if (isTitanSelection) return true;
     const isSpecialAug = isBuffAugment(aug) || isCurseAugment(aug) || isSynergyAugment(aug);
     const isInstant = aug.cost === "-";
-    if (!isSpecialAug && !isInstant) {
-      const normalAugs = (pokemon.augments || []).filter((a) => isNormalAugment(a));
-      if (normalAugs.length >= 3) return false;
+    const normalAugs = (pokemon.augments || []).filter((a) => isNormalAugment(a));
+    if (normalAugs.length >= 3 && !isInstant && !isSpecialAug) {
+      return false;
     }
     if (pokemon.hasAugment?.(aug.id)) {
       return false;
@@ -235,7 +235,30 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
   });
 
   const activeKey = getPokeKey(activePokemon, 0);
-  const currentChoices = isTitanSelection ? titanFixedChoices : choicesMap && choicesMap[activeKey] && choicesMap[activeKey].length > 0 ? choicesMap[activeKey] : augments && augments.length > 0 ? augments : [];
+
+  const currentChoices = useMemo(() => {
+    const rawChoices = isTitanSelection ? titanFixedChoices : choicesMap && choicesMap[activeKey] && choicesMap[activeKey].length > 0 ? choicesMap[activeKey] : augments && augments.length > 0 ? augments : [];
+    let list = rawChoices;
+    const normalCount = (activePokemon?.augments || []).filter((a) => isNormalAugment(a)).length;
+    if (normalCount >= 3 && list.length > 0) {
+      const anvilIdx = list.findIndex((a) => a.id === "anvilStat");
+      if (anvilIdx > 0) {
+        const copy = [...list];
+        const [anvil] = copy.splice(anvilIdx, 1);
+        copy.unshift(anvil);
+        return copy;
+      } else if (anvilIdx === -1) {
+        const anvilAug = AUGMENT_LIST.find((a) => a.id === "anvilStat");
+        if (anvilAug) {
+          const copy = [...list];
+          if (copy.length >= 3) copy.pop();
+          copy.unshift(anvilAug);
+          return copy;
+        }
+      }
+    }
+    return list;
+  }, [isTitanSelection, titanFixedChoices, choicesMap, activeKey, augments, activePokemon]);
 
   const handleTogglePeek = (e) => {
     e.stopPropagation();
@@ -251,9 +274,6 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
   const handleSelectPokemon = (poke) => {
     if (isPeekMode) setIsPeekMode(false);
-    const isFull = (poke.augments || []).filter((a) => isNormalAugment(a)).length >= 3;
-    const isFainted = Boolean(poke.faint || poke.hp <= 0);
-    if (isFull && !isFainted) return;
     if (poke === activePokemon || poke?.id === activePokemon?.id) return;
     setActivePokemon(poke);
     setPreviewInfo(null);
@@ -1339,20 +1359,17 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                     {resolvedTeam.map((poke, idx) => {
                       const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
                       const count = (poke.augments || []).filter((a) => isNormalAugment(a)).length;
-                      const isFull = count >= 3;
-                      const isFainted = Boolean(poke.faint || poke.hp <= 0);
-                      const isSelectable = !isFull || isFainted;
                       const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
                       return (
                         <EntryCard
                           key={getPokeKey(poke, idx)}
                           $isSelected={isSelected}
-                          $disabled={!isSelectable}
+                          $disabled={false}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleSelectPokemon(poke);
                           }}
-                          title={!isSelectable ? `${poke.name} (보유 증강 3/3 완료)` : `${poke.name} (보유 증강 ${count}/3)`}
+                          title={`${poke.name} (보유 증강 ${count}/3)`}
                         >
                           <EntryPokemonImg
                             src={`/pokemon/img/pokemon/${pokeId}.webp`}
@@ -1362,7 +1379,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             }}
                           />
                           <EntryPokemonName>{poke.name}</EntryPokemonName>
-                          <EntryCountBadge $hasAugment={count > 0} $isFull={isFull}>{count}/3</EntryCountBadge>
+                          <EntryCountBadge $hasAugment={count > 0}>{count}/3</EntryCountBadge>
                         </EntryCard>
                       );
                     })}
@@ -1764,8 +1781,8 @@ const EntryPokemonName = styled.span`
 const EntryCountBadge = styled.span`
   font-size: 0.65rem;
   font-weight: 700;
-  color: ${(props) => (props.$isFull ? "#f87171" : props.$hasAugment ? "#64ffda" : "#94a3b8")};
-  background: ${(props) => (props.$isFull ? "rgba(239, 68, 68, 0.2)" : props.$hasAugment ? "rgba(100, 255, 218, 0.12)" : "rgba(255, 255, 255, 0.06)")};
+  color: ${(props) => (props.$hasAugment ? "#64ffda" : "#94a3b8")};
+  background: ${(props) => (props.$hasAugment ? "rgba(100, 255, 218, 0.12)" : "rgba(255, 255, 255, 0.06)")};
   padding: 1px 5px;
   border-radius: 4px;
   line-height: 1.2;

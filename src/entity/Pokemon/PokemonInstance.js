@@ -172,6 +172,16 @@ class PokemonInstance {
     this.mejaiStack = 0; // 메자이
     this.practiceCritStack = 0; // 윤탈
     this.giantBonusHp = 0; // 거인의 흡수
+    this.anvilStats = {
+      atk: 0,
+      def: 0,
+      catk: 0,
+      cdef: 0,
+      speed: 0,
+    };
+    if (this.origin) {
+      this.origin.anvilStats = this.anvilStats;
+    }
     this.log = {
       getAugmentedStat: null, // 증강으로 인한 능력치 변화
       hpCalculate: null, // 증강으로 인한 최대 HP 변화
@@ -297,7 +307,7 @@ class PokemonInstance {
     // 일반 증강만 3개 슬롯 제한 적용 (버프, 저주, 시너지는 슬롯 제한 없음)
     if (isNormalAugment(augObj)) {
       const normalCount = this.augments.filter((a) => isNormalAugment(a)).length;
-      if (normalCount >= 3) return false;
+      if (normalCount >= 3 && !isInstant) return false;
     }
     if (!isInstant && this.hasAugment(augId)) {
       if ((augObj.buf || augObj.synergy) && (options?.dragonKillCount !== undefined || options?.mejaiStack !== undefined || options?.practiceCritStack !== undefined || options?.giantBonusHp !== undefined)) {

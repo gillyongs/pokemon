@@ -72,7 +72,7 @@ export const useBattleStore = createStore((set, get) => ({
   },
 
   initBattleRound: ({ locationState, gameOption, queueObject }) => {
-    const { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round, mayhemMode = gameOption.mayhemMode, carriedAugments } = locationState || {};
+    const { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round, mayhemMode = gameOption.mayhemMode, carriedAugments, carriedAnvilStats } = locationState || {};
 
     queueObject.initQueue();
     set({
@@ -89,9 +89,29 @@ export const useBattleStore = createStore((set, get) => ({
     const nextBattle = createBattle(team1, team2, { difficulty, round, mayhemMode: isMayhem });
     set({ battleLive: nextBattle, battle: nextBattle });
 
+    // 모루 능력치(carriedAnvilStats) 직접 복원
+    const teamPokes = [nextBattle.player, nextBattle.playerBench1, nextBattle.playerBench2];
+    if (carriedAnvilStats) {
+      teamPokes.forEach((p, idx) => {
+        const targetIdx = p?.originalIndex ?? idx;
+        const saved = carriedAnvilStats[targetIdx] || carriedAnvilStats[String(targetIdx)];
+        if (saved && p) {
+          p.anvilStats = {
+            atk: Number(saved.atk || 0),
+            def: Number(saved.def || 0),
+            catk: Number(saved.catk || 0),
+            cdef: Number(saved.cdef || 0),
+            speed: Number(saved.speed || 0),
+          };
+          if (p.origin) {
+            p.origin.anvilStats = p.anvilStats;
+          }
+        }
+      });
+    }
+
     if (isMayhem && carriedAugments) {
       // 이전 라운드에서 선택하여 유지한 증강 복원
-      const teamPokes = [nextBattle.player, nextBattle.playerBench1, nextBattle.playerBench2];
 
       // 1. 포켓몬 객체에 스택 필드 선복원 (시너지 조건 만족 시 즉시 기존 누적 스택 반영)
       teamPokes.forEach((p, idx) => {
@@ -109,6 +129,17 @@ export const useBattleStore = createStore((set, get) => ({
             }
             if (savedAug?.giantBonusHp !== undefined) {
               p.giantBonusHp = Math.max(Number(p.giantBonusHp || 0), Number(savedAug.giantBonusHp || 0));
+            }
+            if (savedAug?.anvilStats) {
+              if (!p.anvilStats) {
+                p.anvilStats = { atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
+              }
+              Object.keys(savedAug.anvilStats).forEach((k) => {
+                p.anvilStats[k] = Math.max(Number(p.anvilStats[k] || 0), Number(savedAug.anvilStats[k] || 0));
+              });
+              if (p.origin) {
+                p.origin.anvilStats = p.anvilStats;
+              }
             }
           });
         }
@@ -233,7 +264,10 @@ export const useBattleStore = createStore((set, get) => ({
 
       if (queue[0].isAugment) {
         const curB = get().battleLive;
-        const target = [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && (p.augments || []).filter((a) => isNormalAugment(a)).length < 3);
+        const target =
+          [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && !p.faint && (p.augments || []).filter((a) => isNormalAugment(a)).length < 3) ||
+          [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && !p.faint) ||
+          curB.player;
         if (target) {
           const choices = rollAugments(target, 3, curB);
           if (choices && choices.length > 0) {
@@ -713,6 +747,7 @@ export const useBattleStore = createStore((set, get) => ({
         }
       });
       // 비활성화 상태여도 누적 스택이 있다면 보존
+      const hasAnvil = p.anvilStats && Object.values(p.anvilStats).some((v) => Number(v) > 0);
       if ((p.dragonKillCount || p.mejaiStack || p.practiceCritStack || p.giantBonusHp) && !effectiveCarriedMap[pIdx].some((a) => a.synergy || isSynergyAugment(a))) {
         effectiveCarriedMap[pIdx].push({
           id: "__synergy_stacks__",
@@ -721,6 +756,14 @@ export const useBattleStore = createStore((set, get) => ({
           mejaiStack: p.mejaiStack || 0,
           practiceCritStack: p.practiceCritStack || 0,
           giantBonusHp: p.giantBonusHp || 0,
+          anvilStats: p.anvilStats ? { ...p.anvilStats } : undefined,
+        });
+      }
+      if (hasAnvil && !effectiveCarriedMap[pIdx].some((a) => a.id === "__anvil_stats__" || (a.isStackMeta && a.anvilStats))) {
+        effectiveCarriedMap[pIdx].push({
+          id: "__anvil_stats__",
+          isStackMeta: true,
+          anvilStats: { ...p.anvilStats },
         });
       }
     });
@@ -750,9 +793,18 @@ export const useBattleStore = createStore((set, get) => ({
         mejaiStack: aug.mejaiStack,
         practiceCritStack: aug.practiceCritStack,
         giantBonusHp: aug.giantBonusHp,
+        anvilStats: aug.anvilStats ? { ...aug.anvilStats } : undefined,
       }));
       return acc;
     }, {});
+
+    const serializedAnvilStats = {};
+    curPlayerTeam.forEach((p, idx) => {
+      const pIdx = p.originalIndex ?? idx;
+      if (p.anvilStats) {
+        serializedAnvilStats[pIdx] = { ...p.anvilStats };
+      }
+    });
 
     navigate("/battle", {
       state: {
@@ -765,6 +817,7 @@ export const useBattleStore = createStore((set, get) => ({
         fromCustom,
         mayhemMode,
         carriedAugments: serializedCarried,
+        carriedAnvilStats: serializedAnvilStats,
       },
       replace: true,
     });

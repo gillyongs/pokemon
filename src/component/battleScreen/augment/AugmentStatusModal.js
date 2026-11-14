@@ -5,7 +5,7 @@ import { AUGMENT_POKEMON_PREVIEW_MAP } from "./AugmentModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import sampleList from "../../../entity/Pokemon/SamplePokemon";
-import { getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
+import { getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo, hasAnvilStats, getAnvilStatsStatusDesc } from "../../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
   const [previewInfo, setPreviewInfo] = useState(null);
@@ -28,7 +28,19 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
 
   if (!resolvedTeam || resolvedTeam.length === 0) return null;
 
-  const currentAugments = activePokemon?.augments || [];
+  const currentAugments = [...(activePokemon?.augments || [])];
+  if (
+    hasAnvilStats(activePokemon) &&
+    !currentAugments.some((a) => (typeof a === "string" ? a === "anvilStat" : a?.id === "anvilStat"))
+  ) {
+    currentAugments.push({
+      id: "anvilStat",
+      name: "모루 능력치",
+      desc: getAnvilStatsStatusDesc(activePokemon),
+      buf: true,
+      cost: "-",
+    });
+  }
   const sortedAugments = [...currentAugments].sort((a, b) => {
     // 0: 일반 증강, 1: 시너지, 2: 버프, 3: 디버프
     const getOrder = (aug) => {
