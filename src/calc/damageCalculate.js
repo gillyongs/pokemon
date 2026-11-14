@@ -6,8 +6,23 @@ import { isAilmentCheck } from "../service/ailment";
 import { speedCheck, speedCalculate, isPokemonAlone } from "./speedCheck";
 import { skillTypeCalculate } from "./skillTypeCalculate";
 import { consoleLog } from "../util/consoleLog";
-import { getAugmentedStat, getHighestStatInfo } from "./getStat";
+import { getAugmentedStat } from "./getStat";
 
+// 3. atk랑 catk중 더 높은 값 구하는 공통함수 (테라버스트, 파괴광선 등)
+export const getHigherAtkStat = (atkVal, catkVal) => {
+  return atkVal > catkVal ? "atk" : "catk";
+};
+
+export const getPokemonCombatStats = (pokemon, battle, noRank = false) => {
+  const rankMult = (statKey) => (noRank ? 1 : getMultiplier(pokemon?.tempStatus?.rank?.[statKey] ?? 0));
+  const stats = {
+    atk: getAugmentedStat(pokemon, "atk", battle) * rankMult("atk"),
+    catk: getAugmentedStat(pokemon, "catk", battle) * rankMult("catk"),
+    def: getAugmentedStat(pokemon, "def", battle) * rankMult("def"),
+    cdef: getAugmentedStat(pokemon, "cdef", battle) * rankMult("cdef"),
+  };
+  return applyStatSwapAugments(stats, pokemon);
+};
 export const damageCalculate = (battle, obj, ai) => {
   // 데미지를 "계산"만 해서 주는 함수
   // battle 객체 내부의 값을 바꾸지 않는다 (log 제외)
@@ -20,16 +35,6 @@ export const damageCalculate = (battle, obj, ai) => {
   const originSkill = attackPokemon.origin.skill[skillNumber]; // 시전 스킬
   const calculatedType = skillTypeCalculate(battle, originSkill, attackPokemon);
   let skill = originSkill && originSkill.type !== calculatedType ? { ...originSkill, type: calculatedType } : originSkill;
-  if (skill?.name === "테라버스트") {
-    // 공격과 특공중 더 높은 쪽을 적용.
-    // 공격이 더 높으면 물리기가 된다
-    // 랭크업까진 적용, 아이템이나 특성은 반영하지 않는다.
-    const currentAtk = getAugmentedStat(attackPokemon, "atk", battle) * getMultiplier(attackPokemon.tempStatus.rank.atk);
-    const currentCatk = getAugmentedStat(attackPokemon, "catk", battle) * getMultiplier(attackPokemon.tempStatus.rank.catk);
-    if (currentAtk > currentCatk) {
-      skill = { ...skill, stype: "atk" };
-    }
-  }
 
   const atkAbil = attackPokemon.abil;
   const defAbil = defensePokemon.abil;
@@ -80,137 +85,86 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 스탯 ================================================================================================================
 
-  // 공격에 반영할 스탯을 정한다.
-  // 공격과 특공, 방어와 특방중 사용할 능력치를 결정한다
-  // 사이코쇼크는 특수기이지만 방어력을, 바디프레스는 공격력 대신 방어력을, 속임수는 자신 대신 상대방의 공격력을 사용한다
+  // 1. 공격자 / 방어자 스탯 선언 (getAugmentedStat * getMultiplier)
+  const atkCombat = getPokemonCombatStats(attackPokemon, battle, false);
+  let { atk, catk, def } = atkCombat;
 
+  const defCombat = getPokemonCombatStats(defensePokemon, battle, false);
+  let { atk: defAtk, def: defDef, cdef: defCdef } = defCombat;
+
+  const noRankAtkCombat = getPokemonCombatStats(attackPokemon, battle, true);
+  let { atk: noRankAtk, catk: noRankCatk, def: noRankDef } = noRankAtkCombat;
+
+  const noRankDefCombat = getPokemonCombatStats(defensePokemon, battle, true);
+  let { atk: noRankDefAtk, def: noRankDefDef, cdef: noRankDefCdef } = noRankDefCombat;
+
+  // 2. 오른손엔 방패, 로스트 테크놀로지(특수), 그 긴거는 getPokemonCombatStats(applyStatSwapAugments)에서 우선 처리됨
+  // (atk와 def 중 높은 값으로 덮어 씌움, catk와 cdef 중 높은 값으로 덮어 씌움 등)
+
+  // 3. atk랑 catk중 더 높은 값 구하는 공통함수를 파서 테라버스트랑 파괴광선에서 사용
+  const isAdaptiveSkill =
+    skill?.name === "테라버스트" ||
+    (attackPokemon?.hasAugment?.("lostTechnologyHyperBeam") && skill?.name === "파괴광선");
+
+  if (isAdaptiveSkill) {
+    skill = { ...skill, stype: getHigherAtkStat(atk, catk) };
+  }
+
+  // 공격/방어에 반영할 스탯 및 수치 결정
   let attackStat = skill.stype;
   let defenseStat = "";
-  if (attackStat === "atk") {
-    // 물리 공격이면 상대 방어력과 계산
+  let atkStat = 0;
+  let defStat = 0;
+
+  if (skill.stype === "atk") {
     defenseStat = "def";
-  } else if (attackStat === "catk") {
-    // 특수 공격이면 상대 특방과 계산
+    atkStat = atk;
+    defStat = defDef;
+  } else if (skill.stype === "catk") {
     defenseStat = "cdef";
+    atkStat = catk;
+    defStat = defCdef;
     if (skill.name === "사이코쇼크" || skill.name === "사이코브레이크") {
       defenseStat = "def";
+      defStat = defDef;
     }
   }
 
   if (skill.name === "바디프레스") {
-    // 바디프레스는 공격력 대신 방어력을 사용
     attackStat = "def";
+    atkStat = def;
+    defenseStat = "def";
+    defStat = defDef;
   }
 
-  // 오른손엔 방패 왼손엔 검 (공/방), 왼손엔 스태프 (특공/특방), 그 긴거 (방/특방)
-  // 테라버스트와 동일하게 랭크업(증강 포함)까지 적용한 수치를 비교하며, 속임수는 상대 공격력을 사용하므로 제외
-  if (skill.name !== "속임수") {
-    if (skill.stype === "atk" && attackPokemon?.hasAugment?.("swordAndShield")) {
-      const currentAtk = getAugmentedStat(attackPokemon, "atk", battle) * getMultiplier(attackPokemon.tempStatus.rank.atk);
-      const currentDef = getAugmentedStat(attackPokemon, "def", battle) * getMultiplier(attackPokemon.tempStatus.rank.def);
-      if (skill.name === "바디프레스") {
-        attackStat = currentAtk > currentDef ? "atk" : "def";
-      } else {
-        attackStat = currentDef > currentAtk ? "def" : "atk";
-      }
-    } else if (skill.stype === "catk" && attackPokemon?.hasAugment?.("specialSwordAndShield")) {
-      const currentCatk = getAugmentedStat(attackPokemon, "catk", battle) * getMultiplier(attackPokemon.tempStatus.rank.catk);
-      const currentCdef = getAugmentedStat(attackPokemon, "cdef", battle) * getMultiplier(attackPokemon.tempStatus.rank.cdef);
-      attackStat = currentCdef > currentCatk ? "cdef" : "catk";
-    } else if (skill.name === "바디프레스" && attackPokemon?.hasAugment?.("ksante")) {
-      const currentDef = getAugmentedStat(attackPokemon, "def", battle) * getMultiplier(attackPokemon.tempStatus.rank.def);
-      const currentCdef = getAugmentedStat(attackPokemon, "cdef", battle) * getMultiplier(attackPokemon.tempStatus.rank.cdef);
-      attackStat = currentCdef > currentDef ? "cdef" : "def";
-    } else if ((skill.stype === "atk" || skill.stype === "catk") && attackPokemon?.hasAugment?.("hhgghgg")) {
-      attackStat = getHighestStatInfo(attackPokemon, battle)?.statKey || attackStat;
-    }
+  // 랭크업 및 천진, 급소, 성스러운칼 처리
+  if (defAbil === "천진" && noTggAtk) {
+    atkStat = attackStat === "def" ? noRankDef : attackStat === "catk" ? noRankCatk : noRankAtk;
+  }
+  const curNoRankAtk = attackStat === "def" ? noRankDef : attackStat === "catk" ? noRankCatk : noRankAtk;
+  if (isCritical && atkStat < curNoRankAtk) {
+    atkStat = curNoRankAtk;
   }
 
-  if (skill.stype === "atk" && defensePokemon?.hasAugment?.("swordAndShield")) {
-    const currentAtk = getAugmentedStat(defensePokemon, "atk", battle) * getMultiplier(defensePokemon.tempStatus.rank.atk);
-    const currentDef = getAugmentedStat(defensePokemon, "def", battle) * getMultiplier(defensePokemon.tempStatus.rank.def);
-    defenseStat = currentAtk > currentDef ? "atk" : "def";
-  } else if (defenseStat === "cdef" && defensePokemon?.hasAugment?.("specialSwordAndShield")) {
-    const currentCatk = getAugmentedStat(defensePokemon, "catk", battle) * getMultiplier(defensePokemon.tempStatus.rank.catk);
-    const currentCdef = getAugmentedStat(defensePokemon, "cdef", battle) * getMultiplier(defensePokemon.tempStatus.rank.cdef);
-    defenseStat = currentCatk > currentCdef ? "catk" : "cdef";
-  } else if ((defenseStat === "def" || defenseStat === "cdef") && defensePokemon?.hasAugment?.("ksante")) {
-    const currentDef = getAugmentedStat(defensePokemon, "def", battle) * getMultiplier(defensePokemon.tempStatus.rank.def);
-    const currentCdef = getAugmentedStat(defensePokemon, "cdef", battle) * getMultiplier(defensePokemon.tempStatus.rank.cdef);
-    if (defenseStat === "def") {
-      defenseStat = currentCdef > currentDef ? "cdef" : "def";
-    } else {
-      defenseStat = currentDef > currentCdef ? "def" : "cdef";
-    }
-  } else if ((defenseStat === "def" || defenseStat === "cdef") && defensePokemon?.hasAugment?.("hhgghgg")) {
-    defenseStat = getHighestStatInfo(defensePokemon, battle)?.statKey || defenseStat;
+  const hasSacredSword = skill.skillEffectList?.some((effect) => effect.name === "천진");
+  if (attackPokemon.abil === "천진" || hasSacredSword) {
+    defStat = defenseStat === "cdef" ? noRankDefCdef : noRankDefDef;
   }
-
-  // 랭크업 ================================================================================================================
-  // 랭크변화를 적용후 랭크와 관련된 요소 (천진, 급소, 성스러운칼)를 처리한다
-  // 천진: 상대방의 랭크변화를 무시한다.
-  // 급소: 시전자에게 불리한 랭크변화만 무시한다 (공격측 공격 다운, 방어측 방어 업)
-  // 성스러운칼: 상대방의 랭크변화를 무시한다
-
-  let noRankAtkStat = getAugmentedStat(attackPokemon, attackStat, battle);
-  let rankNumAtk = attackPokemon.tempStatus.rank[attackStat];
-  let rankUpAtk = getMultiplier(rankNumAtk);
-  let atkStat = noRankAtkStat * rankUpAtk;
-  if (defAbil === "천진") {
-    if (noTggAtk) {
-      atkStat = noRankAtkStat;
-    }
-    // 특성 천진
-    // 상대방의 능력치 변화를 무시한다
-    // 맞는쪽이 천진이면 공격쪽의 랭크변화가 무시된다 (ex: 무한 용성군)
-  }
-  if (isCritical && rankNumAtk < 0) {
-    atkStat = noRankAtkStat;
-    // 급소에 맞았을 경우 공격측에게 불리한 랭크다운이 무시된다
-    // 랭크업은 적용된다
-  }
-
-  // 방어포켓몬의 방어/특방 능력치
-  let noRankDefStat = getAugmentedStat(defensePokemon, defenseStat, battle);
-  let rankNumDef = defensePokemon.tempStatus.rank[defenseStat];
-  let rankUpDef = getMultiplier(rankNumDef);
-  let defStat = noRankDefStat * rankUpDef;
-  // 성스러운칼 부가효과
-  // 상대방의 능력치 변화를 무시한다
-  for (const effect of skill.skillEffectList) {
-    if (effect.name === "천진") {
-      defStat = noRankDefStat;
-    }
-  }
-
-  // 특성 천진
-  // 상대방의 능력치 변화를 무시한다
-  // 공격쪽이 천진이면 상대방의 랭크업이 무시된다
-  if (attackPokemon.abil === "천진") {
-    defStat = noRankDefStat;
-  }
-  // 급소에 맞았을 경우 방어측에게 유리한 랭크업이 무시된다
-  if (isCritical && defensePokemon.tempStatus.rank[defenseStat] > 0) {
-    defStat = noRankDefStat;
+  const curNoRankDef = defenseStat === "cdef" ? noRankDefCdef : noRankDefDef;
+  if (isCritical && defStat > curNoRankDef) {
+    defStat = curNoRankDef;
   }
 
   atkStat = Math.floor(atkStat);
   defStat = Math.floor(defStat);
-  // 속임수 ================================================================================================================
 
+  // 4. 기술이 속임수면 마지막에 그냥 상대 atk 값으로 덮어 씌운다
   if (skill.name === "속임수") {
-    const foulPlayBaseAtk = getAugmentedStat(defensePokemon, "atk", battle);
-    atkStat = foulPlayBaseAtk * getMultiplier(defensePokemon.tempStatus.rank.atk);
-    if (defensePokemon.abil === "천진") {
-      atkStat = foulPlayBaseAtk;
-    }
-    // 속임수는 상대방의 공격력을 사용하여 공격한다.
-    // 상대방의 랭크업은 적용하되, 상대방의 아이템, 특성, 화상은 적용하지 않는다
-    // 본인의 아이템, 특성, 화상은 적용한다
-    // 천진몬이 속임수 사용할때엔 영향이 없다 (상대방의 방어력 랭크변화를 무시하므로)
-    // 천진몬에게 속임수 사용시 천진몬의 랭크변화를 제거한 공격력을 가져온다
+    attackStat = "atk";
+    defenseStat = "def";
+    defStat = defDef;
+    atkStat = defAbil === "천진" ? Math.floor(noRankDefAtk) : Math.floor(defAtk);
   }
-
   // 스탯 보정 ======================================================================================================
   let atkStr = atkStat + "(" + attackStat + ")";
   let defStr = defStat + "(" + defenseStat + ")";
@@ -998,3 +952,33 @@ const powerCalculate = (battle, skill, obj, ai) => {
 
   return Math.floor(power);
 };
+
+// ==============================================================================
+// 내부 전용 유틸리티 및 헬퍼 함수 (Principle 6: 파일 최하단 배치 및 non-export)
+// ==============================================================================
+
+function applyStatSwapAugments(stats, pokemon) {
+  if (pokemon?.hasAugment?.("swordAndShield")) {
+    const maxVal = Math.max(stats.atk, stats.def);
+    stats.atk = maxVal;
+    stats.def = maxVal;
+  }
+  if (pokemon?.hasAugment?.("specialSwordAndShield")) {
+    const maxVal = Math.max(stats.catk, stats.cdef);
+    stats.catk = maxVal;
+    stats.cdef = maxVal;
+  }
+  if (pokemon?.hasAugment?.("ksante")) {
+    const maxVal = Math.max(stats.def, stats.cdef);
+    stats.def = maxVal;
+    stats.cdef = maxVal;
+  }
+  if (pokemon?.hasAugment?.("hhgghgg")) {
+    const maxVal = Math.max(stats.atk, stats.def, stats.catk, stats.cdef);
+    stats.atk = maxVal;
+    stats.def = maxVal;
+    stats.catk = maxVal;
+    stats.cdef = maxVal;
+  }
+  return stats;
+}

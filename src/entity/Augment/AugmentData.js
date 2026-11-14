@@ -34,26 +34,6 @@ export const getReplacementAugmentWeight = (pokemon) => {
   return Math.round(200 / (count + 1));
 };
 
-// 체력 비율 확인 공통 함수
-/**
- * 포켓몬의 현재 체력이 일정 비율 이상인지 확인하는 공통 함수 (예: 체력 50% 이상)
- * @param {Object} pokemon - 검사할 포켓몬 인스턴스
- * @param {number} [ratio=0.5] - 기준 비율 (0.5 또는 50%)
- * @returns {boolean}
- */
-export const isHpAtLeast = (pokemon, ratio = 0.5) => {
-  if (!pokemon) return false;
-  const maxHp = hpCalculate(pokemon) || pokemon.maxHp || pokemon.hp;
-  const currentHp = typeof pokemon.hp === "number" ? pokemon.hp : maxHp;
-  if (typeof currentHp !== "number" || typeof maxHp !== "number" || maxHp <= 0) {
-    return false;
-  }
-  const thresholdRatio = ratio > 1 ? ratio / 100 : ratio;
-  return currentHp >= maxHp * thresholdRatio;
-};
-
-export const hasHpAtLeast = isHpAtLeast;
-
 // 증강 이름 정렬 비교 함수 (" 로 시작하는 항목은 맨 뒤로 배치)
 /**
  * 증강 목록을 가나다순으로 정렬하되, 큰따옴표(")로 시작하는 증강은 맨 마지막에 배치하는 비교 함수
@@ -72,100 +52,17 @@ export const compareAugmentNames = (a, b) => {
   return nameA.localeCompare(nameB, "ko");
 };
 
-// 역할군 및 능력치 분류 (탱커 / 어태커 / 물리 / 특수)
-export const ATTACKER_ROLES = ["물리어태커", "물리딜탱", "특수어태커", "특수딜탱"];
-export const TANK_ROLES = ["막이", "물리막이", "특수막이"];
-export const EXCLUDED_STAT_TYPE_SKILLS = ["지구던지기", "속임수", "바디프레스"];
+// 포켓몬 이름 확인
+export const hasPokemonName = (pokemon, keyword) => Boolean(pokemon && keyword && pokemon.name.includes(keyword));
 
-export const getPokemonRole = (pokemon) => pokemon?.origin?.role || pokemon?.role || "";
-export const getPokemonBaseStats = (pokemon) => pokemon?.origin?.stat || pokemon?.stat || null;
-export const getPokemonActiveSkills = (pokemon) => {
-  const skills = pokemon?.origin?.skill || pokemon?.skill;
-  if (!skills) return [];
-  if (Array.isArray(skills)) {
-    return skills.slice(0, 4).filter((sk) => sk && sk.name !== "발버둥");
-  }
-  return [1, 2, 3, 4].map((slot) => skills[slot] || skills[String(slot)]).filter((sk) => sk && sk.name !== "발버둥");
+// 도박 중독 여부 확인
+export const hasGamblingAddict = (team) => {
+  if (!Array.isArray(team)) return false;
+  return team.some((p) => p && p.hasAugment?.("gamblingAddict"));
 };
-export const isAttackerPokemon = (pokemon) => ATTACKER_ROLES.includes(getPokemonRole(pokemon));
-export const isTankPokemon = (pokemon) => TANK_ROLES.includes(getPokemonRole(pokemon));
-export const isPhysicalPokemon = (pokemon) => {
-  const stat = getPokemonBaseStats(pokemon);
-  if (!stat || typeof stat.atk !== "number" || typeof stat.catk !== "number") return false;
-  if (!(stat.atk > stat.catk)) return false;
-  return getPokemonActiveSkills(pokemon).some((sk) => {
-    const stype = sk?.name === "테라버스트" && stat.atk > stat.catk ? "atk" : sk?.stype;
-    return stype === "atk" && !EXCLUDED_STAT_TYPE_SKILLS.includes(sk?.name);
-  });
-};
-export const isPsychicPokemon = (pokemon) => {
-  if (!pokemon) return false;
-  const t1 = pokemon.type1 || pokemon.origin?.type1;
-  const t2 = pokemon.type2 || pokemon.origin?.type2;
-  return t1 === "에스퍼" || t2 === "에스퍼";
-};
-
-export const isMewtwoPokemon = (pokemon) => {
-  if (!pokemon) return false;
-  const name = pokemon.origin?.name || pokemon.name || pokemon.id || "";
-  const pid = pokemon.pokemon_id || pokemon.origin?.pokemon_id || "";
-  return name.includes("뮤츠") || pid === "0150" || pid === "0150-a";
-};
-
-export const isSpecialPokemon = (pokemon) => {
-  const stat = getPokemonBaseStats(pokemon);
-  if (!stat || typeof stat.atk !== "number" || typeof stat.catk !== "number") return false;
-  if (!(stat.catk > stat.atk)) return false;
-  return getPokemonActiveSkills(pokemon).some((sk) => {
-    return sk?.stype === "catk" && !EXCLUDED_STAT_TYPE_SKILLS.includes(sk?.name);
-  });
-};
-
-// 상호 배타적 능력치 전환 증강 (하나라도 보유하면 나머지는 등장하지 않음)
-export const STAT_SWAP_AUGMENTS = ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"];
-const canPickStatSwapAugment = (pokemon) => !STAT_SWAP_AUGMENTS.some((id) => pokemon?.hasAugment?.(id));
 
 // 도박 중독 시 해금 및 확정 등장하는 도박 증강 ID 목록
 export const GAMBLE_BONUS_AUGMENT_IDS = ["russianRoulette", "oddEven", "doOrDie", "highRiskHighReturn"];
-
-const getBattleFromContext = (battleOrTeam, teamArg = null) => {
-  if (battleOrTeam && typeof battleOrTeam === "object" && !Array.isArray(battleOrTeam) && (battleOrTeam.player || battleOrTeam.npc)) {
-    return battleOrTeam;
-  }
-  if (teamArg && typeof teamArg === "object" && !Array.isArray(teamArg) && (teamArg.player || teamArg.npc)) {
-    return teamArg;
-  }
-  return null;
-};
-
-export const getPokemonStatValue = (pokemon, statKey, battleOrTeam = null) => {
-  if (!pokemon) return 0;
-  const battle = getBattleFromContext(battleOrTeam);
-  if (typeof getAugmentedStat === "function") {
-    const val = getAugmentedStat(pokemon, statKey, battle);
-    if (typeof val === "number" && !Number.isNaN(val) && val > 0) return val;
-  }
-  const stat = getPokemonBaseStats(pokemon);
-  return Number(stat?.[statKey] ?? 0);
-};
-
-export const hasStatRatioDiff = (pokemon, statKey1, statKey2, ratio = 1.5, battleOrTeam = null) => {
-  const val1 = getPokemonStatValue(pokemon, statKey1, battleOrTeam);
-  const val2 = getPokemonStatValue(pokemon, statKey2, battleOrTeam);
-  if (!val1 || !val2 || val1 <= 0 || val2 <= 0) return false;
-  const max = Math.max(val1, val2);
-  const min = Math.min(val1, val2);
-  return max >= min * ratio - 1e-9;
-};
-
-export const hasGamblingAddict = (pokemon, battleOrTeam = null, teamArg = null) => {
-  const side = pokemon?.team === "npc" ? "npc" : "player";
-  const battle = getBattleFromContext(battleOrTeam, teamArg);
-  const battleMembers = battle ? (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]) : [];
-  const arrayMembers = Array.isArray(teamArg) ? teamArg : Array.isArray(battleOrTeam) ? battleOrTeam : [];
-  const candidates = [pokemon, ...battleMembers, ...arrayMembers].filter(Boolean);
-  return candidates.some((p) => p.hasAugment?.("gamblingAddict"));
-};
 
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
@@ -505,7 +402,7 @@ export const AUGMENT_LIST = [
     desc: "항상 공격과 방어 중 더 유리한 수치를 사용합니다.",
     cost: 3,
     weight: 100,
-    isEligible: (pokemon, battleOrTeam) => canPickStatSwapAugment(pokemon) && isPhysicalPokemon(pokemon) && hasStatRatioDiff(pokemon, "atk", "def", 1.5, battleOrTeam),
+    isEligible: (pokemon, battle) => canPickStatSwapAugment(pokemon) && isPhysicalPokemon(pokemon) && hasStatRatioDiff(pokemon, "atk", "def", 1.5, battle),
     // damageCalculate.js에 구현
   },
   {
@@ -514,7 +411,7 @@ export const AUGMENT_LIST = [
     desc: "항상 특공과 특방 중 더 유리한 수치를 사용합니다.",
     cost: 3,
     weight: 100,
-    isEligible: (pokemon, battleOrTeam) => canPickStatSwapAugment(pokemon) && isSpecialPokemon(pokemon) && hasStatRatioDiff(pokemon, "catk", "cdef", 1.5, battleOrTeam),
+    isEligible: (pokemon, battle) => canPickStatSwapAugment(pokemon) && isSpecialPokemon(pokemon) && hasStatRatioDiff(pokemon, "catk", "cdef", 1.5, battle),
     // damageCalculate.js에 구현
   },
   {
@@ -553,7 +450,47 @@ export const AUGMENT_LIST = [
     desc: "에스퍼타입이 과거의 위상을 되찾습니다.\n고스트 타입 공격을 무효로 받고\n강철, 악 타입과 모든 상성 계산이 1배로 적용됩니다.",
     cost: 0,
     weight: 200,
-    isEligible: (pokemon) => isMewtwoPokemon(pokemon),
+    isEligible: (pokemon) => hasPokemonName(pokemon, "뮤츠"),
+  },
+  {
+    id: "lostTechnologyHyperBeam",
+    name: "로스트 테크놀로지 (파괴광선)",
+    desc: "파괴광선이 과거의 위상을 되찾습니다.\n파괴광선으로 적을 쓰러뜨리면 반동을 받지 않습니다.\n공격, 특수공격 중 더 높은 능력치를 사용합니다.",
+    cost: 3,
+    weight: 100,
+    isEligible: (pokemon) => hasSkill(pokemon, "파괴광선"),
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon?.origin?.skill) return;
+      let slot = Number(options?.replaceSlot);
+      if (!slot || !pokemon.origin.skill[slot]) {
+        for (let s = 1; s <= 4; s++) {
+          const sk = pokemon.origin.skill[s];
+          if (sk?.name === "파괴광선") {
+            slot = s;
+            break;
+          }
+        }
+      }
+      if (!slot) {
+        for (let s = 1; s <= 4; s++) {
+          if (pokemon.origin.skill[s]?.type === "노말") {
+            slot = s;
+            break;
+          }
+        }
+      }
+      if (!slot) return;
+      this.replacedSlot = slot;
+
+      const baseAtk = pokemon?.origin?.stat?.atk || pokemon?.stat?.atk || 0;
+      const baseCatk = pokemon?.origin?.stat?.catk || pokemon?.stat?.catk || 0;
+      const initialStype = baseAtk > baseCatk ? "atk" : "catk";
+      const upgradedHyperBeam = new Skill("파괴광선", "노말", 150, 90, 5, 0, initialStype, null, "빛의 광선으로 상대를 공격한다. 적을 쓰러뜨리면 반동을 받지 않는다. 공격, 특수공격 중 더 높은 능력치를 사용한다.", [{ name: "반동휴식" }], {});
+      upgradedHyperBeam.skillNumber = slot;
+
+      pokemon.origin.skill[slot] = upgradedHyperBeam;
+      pokemon.pp[slot] = upgradedHyperBeam.pp;
+    },
   },
   {
     id: "ksante",
@@ -562,7 +499,7 @@ export const AUGMENT_LIST = [
     cost: 5,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
     shortName: "그 긴거",
-    isEligible: (pokemon, battleOrTeam) => canPickStatSwapAugment(pokemon) && hasStatRatioDiff(pokemon, "def", "cdef", 1.5, battleOrTeam),
+    isEligible: (pokemon, battle) => canPickStatSwapAugment(pokemon) && hasStatRatioDiff(pokemon, "def", "cdef", 1.5, battle),
     // damageCalculate.js에 구현
   },
   {
@@ -640,9 +577,10 @@ export const AUGMENT_LIST = [
     },
     onApply: function (pokemon, battle) {
       const candidates = ["메가가디안", "님피아 (특수딜탱)", "메가이어롭", "마스카나"];
+      const team = battle ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [];
       const available = candidates.filter((id) => {
         const baseName = id.replace("메가", "").replace(/\s*\(.*?\)/, "");
-        return !hasPokemonNameOnTeam(pokemon, baseName, battle);
+        return !hasPokemonNameOnTeam(team, baseName);
       });
       const pool = available.length > 0 ? available : candidates;
       const pickedId = pool[Math.floor(Math.random() * pool.length)];
@@ -690,7 +628,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "플라이곤", battleOrTeam || team),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "플라이곤"),
     onApply: function (pokemon, battle) {
       replacePokemon(pokemon, "플라이곤", battle, { resetAugments: true });
     },
@@ -703,7 +641,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
-    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "레지기가스", battleOrTeam || team),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "레지기가스"),
     onApply: function (pokemon, battle) {
       replacePokemon(pokemon, "레지기가스", battle, { resetAugments: true });
     },
@@ -716,7 +654,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -4.5, scale: 1.35 },
-    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "잉어킹", battleOrTeam || team),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "잉어킹"),
     onApply: function (pokemon, battle) {
       replacePokemon(pokemon, "잉어킹", battle, { resetAugments: true });
     },
@@ -729,7 +667,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "기기기어르", battleOrTeam || team),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "기기기어르"),
     onApply: function (pokemon, battle) {
       const newPoke = replacePokemon(pokemon, "기기기어르", battle, { resetAugments: true });
       if (newPoke) {
@@ -747,7 +685,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: false,
     imageOptions: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
-    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "무한다이노", battleOrTeam || team),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "무한다이노"),
     onApply: function (pokemon, battle, options) {
       const newPoke = replacePokemon(pokemon, "무한다이노", battle, { resetAugments: true });
       const eternamaxAug = AUGMENT_LIST.find((a) => a.id === "eternamax");
@@ -760,20 +698,47 @@ export const AUGMENT_LIST = [
   {
     id: "mewtwoStrikesBack",
     name: "뮤츠의 역습",
-    desc: `현재 포켓몬을 조금 옛날의 뮤츠와 교체합니다.\n전용 증강 3개를 얻습니다.`,
+    desc: `현재 포켓몬을 조금 옛날의 뮤츠와 교체합니다.\n특정 증강 3개를 추가로 얻습니다.`,
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "뮤츠", battleOrTeam || team),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "뮤츠"),
     onApply: function (pokemon, battle, options) {
       const newPoke = replacePokemon(pokemon, "뮤츠 (증강)", battle, { resetAugments: true });
       if (newPoke) {
+        newPoke.img_id = "0150-a";
         const grantIds = ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic"];
+        const grantOptions = { ...options, replaceSlot: undefined };
         grantIds.forEach((augId) => {
           const targetAug = AUGMENT_LIST.find((a) => a.id === augId);
           if (targetAug) {
-            newPoke.applyAugment(targetAug, battle, options);
+            newPoke.applyAugment(targetAug, battle, grantOptions);
+          }
+        });
+        newPoke.checkAugmentSynergies?.(battle);
+      }
+    },
+  },
+  {
+    id: "veteranPrivilege",
+    name: "전관예우",
+    desc: `현재 포켓몬을 조금 옛날의 켄타로스와 교체합니다.\n특정 증강 3개를 추가로 얻습니다.`,
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "켄타로스"),
+    onApply: function (pokemon, battle, options) {
+      const newPoke = replacePokemon(pokemon, "켄타로스 (증강)", battle, { resetAugments: true });
+      if (newPoke) {
+        newPoke.img_id = "0128-a";
+        const grantIds = ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyHyperBeam"];
+        const grantOptions = { ...options, replaceSlot: undefined };
+        grantIds.forEach((augId) => {
+          const targetAug = AUGMENT_LIST.find((a) => a.id === augId);
+          if (targetAug) {
+            newPoke.applyAugment(targetAug, battle, grantOptions);
           }
         });
         newPoke.checkAugmentSynergies?.(battle);
@@ -1020,9 +985,8 @@ export const AUGMENT_LIST = [
     desc: "현재 필드에 나와있는 두 포켓몬 중 하나가 기절합니다.",
     cost: "-",
     weight: 100,
-    isEligible: (pokemon, battleOrTeam, team) => {
-      if (!hasGamblingAddict(pokemon, battleOrTeam, team)) return false;
-      const battle = getBattleFromContext(battleOrTeam, team);
+    isEligible: (pokemon, battle, team) => {
+      if (!hasGamblingAddict(team)) return false;
       if (battle) {
         if (!battle.player || battle.player.faint || battle.player.hp <= 0) return false;
         if (!battle.npc || battle.npc.faint || battle.npc.hp <= 0) return false;
@@ -1052,7 +1016,7 @@ export const AUGMENT_LIST = [
     desc: "랜덤한 수치의 랭크업을 얻습니다.",
     cost: "-",
     weight: 100,
-    isEligible: (pokemon, battleOrTeam, team) => hasGamblingAddict(pokemon, battleOrTeam, team),
+    isEligible: (pokemon, battle, team) => hasGamblingAddict(team),
     onApply: function (pokemon, battle, options) {
       if (!pokemon) return;
       const statPool = ["atk", "catk", "cdef", "def", "speed"];
@@ -1075,9 +1039,8 @@ export const AUGMENT_LIST = [
     desc: "10% 확률로 상대 엔트리의 대기중인 포켓몬을 전부 기절시킵니다.",
     cost: "-",
     weight: 100,
-    isEligible: (pokemon, battleOrTeam, team) => {
-      if (!hasGamblingAddict(pokemon, battleOrTeam, team)) return false;
-      const battle = getBattleFromContext(battleOrTeam, team);
+    isEligible: (pokemon, battle, team) => {
+      if (!hasGamblingAddict(team)) return false;
       if (!battle) return false;
       if (!pokemon || pokemon.faint || pokemon.hp <= 0) return false;
       if (!isPokemonAlone(pokemon, battle)) return false;
@@ -1113,7 +1076,7 @@ export const AUGMENT_LIST = [
     desc: "모든 공격의 데미지가 3배가 되는 버프 또는 절반이 되는 디버프를 얻습니다.",
     cost: "-",
     weight: 100,
-    isEligible: (pokemon, battleOrTeam, team) => hasGamblingAddict(pokemon, battleOrTeam, team) && !pokemon?.hasAugment?.("highRiskBuff") && !pokemon?.hasAugment?.("highRiskCurse"),
+    isEligible: (pokemon, battle, team) => hasGamblingAddict(team) && !pokemon.hasAugment?.("highRiskBuff") && !pokemon.hasAugment?.("highRiskCurse"),
     onApply: function (pokemon, battle, options) {
       if (!pokemon) return;
       const pickedResult = options?.highRiskResult === "buff" || options?.highRiskResult === "curse" ? options.highRiskResult : Math.random() < 0.5 ? "buff" : "curse";
@@ -1246,6 +1209,17 @@ export const AUGMENT_LIST = [
 
 // 3개 증강 공명(시너지) 버프 매핑 테이블
 // { [버프 증강 ID]: [조건 증강 ID 목록] }
+export const SYNERGY_ACTIVATION_THRESHOLD = {
+  lostTechnologyCritical: 3, // 로스트 테크놀로지 증강 배열 중 3개 이상 보유 시 활성화
+};
+
+export const getSynergyThreshold = (synergyId, requiredIds = []) => {
+  if (SYNERGY_ACTIVATION_THRESHOLD[synergyId] !== undefined) {
+    return SYNERGY_ACTIVATION_THRESHOLD[synergyId];
+  }
+  return Array.isArray(requiredIds) ? requiredIds.length : 3;
+};
+
 export const AUGMENT_SYNERGY_MAP = {
   echoOfHero: ["threeSnails", "nimbleMoves", "recovery"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복]
   dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
@@ -1254,7 +1228,7 @@ export const AUGMENT_SYNERGY_MAP = {
   practiceMakesCritical: ["infinityEdge", "bladeOfTheRuinedKing", "collector"], // 연습이 치명타를 낳는다: [무한의 대검, 몰락한 왕의 검, 징수의 총]
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
   giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패]
-  lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic"], // 로스트 테크놀로지 (급소): [로스트 테크놀로지 (특수), 로스트 테크놀로지 (눈보라), 로스트 테크놀로지 (에스퍼)]
+  lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic", "lostTechnologyHyperBeam"], // 로스트 테크놀로지 (급소)
 };
 
 export const SYNERGY_INFO_MAP = {
@@ -1323,11 +1297,13 @@ export const getAugmentSynergyInfo = (augId) => {
         title: buffAugment?.name || "시너지",
         desc: buffAugment?.desc || "",
       };
+      const threshold = getSynergyThreshold(buffId, requiredIds);
       return {
         buffId,
         buffAugment,
         requiredIds,
         requiredAugments,
+        threshold,
         emoji: meta.emoji,
         theme: meta.theme,
         title: meta.title,
@@ -1345,7 +1321,7 @@ export const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   ["revivePiece", "maxRevive"],
 
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
-  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack"],
+  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege"],
 
   // 3. 능력치 전환 증강: 동시에 2개 이상 나오지 않음
   ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"],
@@ -1370,7 +1346,7 @@ export const MUTUALLY_EXCLUSIVE_MAP = MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS.reduce((
  * 체력 종족값 증가 시 현재 체력 % 비율 유지
  * @param {Object} pokemon
  */
-export const applyEternamax = (pokemon) => {
+const applyEternamax = (pokemon) => {
   if (!pokemon) return;
 
   const baseStats = {
@@ -1465,7 +1441,7 @@ export const syncTeamEchoOfHeroBuff = (battle, fallbackPokemon = null) => {
  * @param {Object} [options] - 옵션 ({ resetAugments?: boolean, excludeAugmentId?: string })
  * @returns {Object} 교체된 포켓몬 인스턴스
  */
-export const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) => {
+const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) => {
   if (!pokemon) return null;
   const newPoke = typeof newPokemonOrId === "string" ? generate(newPokemonOrId) : newPokemonOrId;
   if (!newPoke) return pokemon;
@@ -1493,6 +1469,7 @@ export const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) =>
   Object.setPrototypeOf(pokemon, Object.getPrototypeOf(newPoke));
   Object.assign(pokemon, newPoke);
   pokemon.augments = newPoke.augments;
+  pokemon.img_id = newPoke.img_id || null;
   pokemon.isMega = false;
   delete pokemon.isEternamax;
 
@@ -1525,67 +1502,8 @@ export const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) =>
   return pokemon;
 };
 
-export const replacePokemonInBattle = replacePokemon;
-
-// 포켓몬 이름 확인
-export const hasPokemonName = (pokemon, keyword) => {
-  if (!pokemon || !keyword) return false;
-  const name = pokemon.origin?.name || pokemon.name || pokemon.id || "";
-  return name.includes(keyword);
-};
-
-// 팀 내 특정 포켓몬 존재 여부 확인
-export const hasPokemonNameOnTeam = (target, keyword, context = null) => {
-  if (!keyword) return false;
-
-  // 1. target이 팀 포켓몬 배열인 경우
-  if (Array.isArray(target)) {
-    return target.some((p) => p && hasPokemonName(p, keyword));
-  }
-
-  // 2. context가 팀 포켓몬 배열인 경우
-  if (Array.isArray(context)) {
-    return context.some((p) => p && hasPokemonName(p, keyword));
-  }
-
-  // 3. context가 배틀 객체인 경우
-  const checkBattleMembers = (battleObj, teamSide) => {
-    if (!battleObj || typeof battleObj !== "object") return false;
-    const isPlayer = teamSide !== "npc";
-    const members = isPlayer ? [battleObj.player, battleObj.playerBench1, battleObj.playerBench2] : [battleObj.npc, battleObj.npcBench1, battleObj.npcBench2];
-    return members.filter(Boolean).some((p) => hasPokemonName(p, keyword));
-  };
-
-  if (context && typeof context === "object") {
-    if (context.player || context.npc) {
-      const teamSide = target?.team || "player";
-      if (checkBattleMembers(context, teamSide)) return true;
-    }
-  }
-
-  // 4. target 자체가 배틀 객체인 경우
-  if (target && typeof target === "object" && (target.player || target.npc)) {
-    if (checkBattleMembers(target, "player") || checkBattleMembers(target, "npc")) return true;
-  }
-
-  // 5. target._team 또는 target.team이 포켓몬 배열인 경우
-  if (Array.isArray(target?._team)) {
-    return target._team.some((p) => p && hasPokemonName(p, keyword));
-  }
-  if (Array.isArray(target?.team)) {
-    return target.team.some((p) => p && hasPokemonName(p, keyword));
-  }
-
-  // 6. 단일 포켓몬 검사 (fallback)
-  if (target) {
-    return hasPokemonName(target, keyword);
-  }
-
-  return false;
-};
-
 // 특정 기술 보유 여부 확인
-export const hasSkill = (pokemon, skillName) => {
+const hasSkill = (pokemon, skillName) => {
   if (!pokemon || !skillName) return false;
   const skills = pokemon.origin?.skill;
   if (!skills) return false;
@@ -1649,9 +1567,16 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   } else if (id === "mewtwoStrikesBack") {
     const fromName = prevPokeName || "포켓몬";
     individualDesc = josa(`${fromName}#{이} 뮤츠로 교체되었다!`);
+  } else if (id === "veteranPrivilege") {
+    const fromName = prevPokeName || "포켓몬";
+    individualDesc = josa(`${fromName}#{이} 켄타로스로 교체되었다!`);
   } else if (id === "lostTechnologyPsychic") {
     if (isTextScreen) {
       individualDesc = `${names} 에스퍼타입의 과거 위상을 되찾았다!`;
+    }
+  } else if (id === "lostTechnologyHyperBeam") {
+    if (isTextScreen) {
+      individualDesc = `${names} 파괴광선의 과거 위상을 되찾았다!`;
     }
   } else if (id === "lostTechnologyCritical") {
     if (isTextScreen) {
@@ -1897,10 +1822,6 @@ export const getAnvilStatsStatusDesc = (pokemon) => {
   return "누적되는 추가 능력치를 획득합니다.";
 };
 
-export const getAnvilStatsDesc = () => {
-  return "누적되는 추가 능력치를 획득합니다.";
-};
-
 export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
   if (!augment) return "";
   const stat = pokemon?.origin?.stat;
@@ -1997,3 +1918,81 @@ export const stripEmoji = (str) => {
   if (typeof str !== "string") return str;
   return str.replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").trim();
 };
+
+// ==============================================================================
+// 내부 전용 유틸리티 및 헬퍼 함수 (Principle 6: 파일 최하단 배치 및 non-export)
+// ==============================================================================
+
+function isHpAtLeast(pokemon, ratio = 0.5) {
+  if (!pokemon) return false;
+  return pokemon.hp >= hpCalculate(pokemon) * ratio;
+}
+
+function hasPokemonNameOnTeam(team, keyword) {
+  if (!Array.isArray(team) || !keyword) return false;
+  return team.some((p) => p && hasPokemonName(p, keyword));
+}
+
+const TANK_ROLES = ["막이", "물리막이", "특수막이"];
+const EXCLUDED_STAT_TYPE_SKILLS = ["지구던지기", "속임수", "바디프레스"];
+
+function getPokemonRole(pokemon) {
+  return pokemon?.origin?.role || "";
+}
+
+function getPokemonBaseStats(pokemon) {
+  return pokemon?.origin?.stat || null;
+}
+
+function getPokemonActiveSkills(pokemon) {
+  const skills = pokemon?.origin?.skill;
+  if (!skills) return [];
+  return [1, 2, 3, 4].map((slot) => skills[slot]).filter((sk) => sk && sk.name !== "발버둥");
+}
+
+function isTankPokemon(pokemon) {
+  return TANK_ROLES.includes(getPokemonRole(pokemon));
+}
+
+function isPhysicalPokemon(pokemon) {
+  const stat = getPokemonBaseStats(pokemon);
+  if (!stat || stat.atk <= stat.catk) return false;
+  return getPokemonActiveSkills(pokemon).some((sk) => {
+    const stype = sk?.name === "테라버스트" && stat.atk > stat.catk ? "atk" : sk?.stype;
+    return stype === "atk" && !EXCLUDED_STAT_TYPE_SKILLS.includes(sk?.name);
+  });
+}
+
+function isSpecialPokemon(pokemon) {
+  const stat = getPokemonBaseStats(pokemon);
+  if (!stat || stat.catk <= stat.atk) return false;
+  return getPokemonActiveSkills(pokemon).some((sk) => {
+    return sk?.stype === "catk" && !EXCLUDED_STAT_TYPE_SKILLS.includes(sk?.name);
+  });
+}
+
+const STAT_SWAP_AUGMENTS = ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"];
+
+function canPickStatSwapAugment(pokemon) {
+  if (!pokemon) return false;
+  return !STAT_SWAP_AUGMENTS.some((id) => pokemon.hasAugment?.(id));
+}
+
+function getPokemonStatValue(pokemon, statKey, battle = null) {
+  if (!pokemon) return 0;
+  if (typeof getAugmentedStat === "function") {
+    const val = getAugmentedStat(pokemon, statKey, battle);
+    if (typeof val === "number" && !Number.isNaN(val) && val > 0) return val;
+  }
+  const stat = getPokemonBaseStats(pokemon);
+  return Number(stat?.[statKey] ?? 0);
+}
+
+function hasStatRatioDiff(pokemon, statKey1, statKey2, ratio = 1.5, battle = null) {
+  const val1 = getPokemonStatValue(pokemon, statKey1, battle);
+  const val2 = getPokemonStatValue(pokemon, statKey2, battle);
+  if (!val1 || !val2 || val1 <= 0 || val2 <= 0) return false;
+  const max = Math.max(val1, val2);
+  const min = Math.min(val1, val2);
+  return max >= min * ratio - 1e-9;
+}

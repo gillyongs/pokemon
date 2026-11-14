@@ -72,8 +72,16 @@ class PokemonTemplate {
   // prettier-ignore
   constructor(id, pokemon_id, gacha, evs, up, down, sk1, sk2, sk3, sk4, item, abil, role, tip = ""){
     const parsedEvs = parseEvs(evs);
-    const { hp: hps, atk: atks, def: defs, catk: catks, cdef: cdefs, speed: speeds } = parsedEvs;
+    let { hp: hps, atk: atks, def: defs, catk: catks, cdef: cdefs, speed: speeds } = parsedEvs;
     this._validateParams(id, pokemon_id, gacha, hps, atks, defs, catks, cdefs, speeds, up, down, sk1, sk2, sk3, sk4, item, abil, role, tip);
+    if (abil === "전관예우") {
+      hps = 252;
+      atks = 252;
+      defs = 252;
+      catks = 252;
+      cdefs = 252;
+      speeds = 252;
+    }
     this.evsInput = evs;
     this.role = role;
     this.tip = tip;

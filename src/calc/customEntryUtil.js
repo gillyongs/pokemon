@@ -244,7 +244,8 @@ export const isValidEntrySlot = (slot) => {
       if (typeof v !== "number" || !Number.isInteger(v) || v < 0 || v > 252) return false;
       totalEv += v;
     }
-    if (totalEv > 508) return false;
+    const maxAllowed = rawPokemon.abil === "전관예우" || slot.abil === "전관예우" ? 1512 : 508;
+    if (totalEv > maxAllowed) return false;
 
     const nature = slot.nature || rawPokemon.nature || { up: null, down: null };
     if (typeof nature !== "object" || Array.isArray(nature)) return false;

@@ -721,6 +721,15 @@ function skillEffectSearch(name) {
 
     반동휴식: (battle, enqueue, skillEffect) => {
       let atkPokemon = battle[battle.turn.atk];
+      let defPokemon = battle[battle.turn.def];
+      const usedSkill = atkPokemon?.turn?.useSkill;
+      if (
+        atkPokemon?.hasAugment?.("lostTechnologyHyperBeam") &&
+        usedSkill?.name === "파괴광선" &&
+        (defPokemon?.hp <= 0 || defPokemon?.faint)
+      ) {
+        return;
+      }
       if (!atkPokemon.faint) {
         atkPokemon.recharge = true;
         atkPokemon.autoSN = battle[battle.turn.atk].turn.choice;

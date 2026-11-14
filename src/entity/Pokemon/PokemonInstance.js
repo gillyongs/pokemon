@@ -80,6 +80,8 @@ class PokemonInstance {
     this.name = this.origin.name; // 메타몽때문에 이름도 가변값이 필요
     this.names = this.origin.names;
     this.namess = this.origin.namess;
+    this.pokemon_id = this.origin.pokemon_id;
+    this.img_id = null; // 포켓몬 스프라이트만 바꾸고 싶을때 사용 (기기기어르, 1세대 뮤츠)
     this.hp = this.origin.hp; // 현재 체력
     this.type1 = this.origin.type1;
     this.type2 = this.origin.type2;
@@ -202,7 +204,7 @@ class PokemonInstance {
   }
 
   checkAugmentSynergies(battle) {
-    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, syncTeamEchoOfHeroBuff } = require("../Augment/AugmentData");
+    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getSynergyThreshold, syncTeamEchoOfHeroBuff } = require("../Augment/AugmentData");
     const team = battle ? (this.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]) : [];
 
     Object.entries(AUGMENT_SYNERGY_MAP).forEach(([synergyId, requiredIds]) => {
@@ -215,7 +217,9 @@ class PokemonInstance {
         return;
       }
 
-      const hasAllConditions = requiredIds.every((reqId) => this.hasAugment(reqId));
+      const threshold = typeof getSynergyThreshold === "function" ? getSynergyThreshold(synergyId, requiredIds) : requiredIds.length;
+      const ownedCount = requiredIds.filter((reqId) => this.hasAugment(reqId)).length;
+      const hasAllConditions = ownedCount >= threshold;
       const hasSynergyNow = Boolean(existingAug);
 
       if (hasAllConditions) {

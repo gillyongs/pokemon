@@ -179,10 +179,11 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
     };
   }, [gacha]);
 
+  const maxAllowedEv = pokemon.abil === "전관예우" ? 1512 : 508;
   const totalEv = Object.values(evs).reduce((a, b) => a + (Number(b) || 0), 0);
-  const remainingEv = 508 - totalEv;
-  const isOverEv = totalEv > 508;
-  const overEv = totalEv - 508;
+  const remainingEv = maxAllowedEv - totalEv;
+  const isOverEv = totalEv > maxAllowedEv;
+  const overEv = totalEv - maxAllowedEv;
 
   const calculatedStats = useMemo(() => {
     const isUp = (key) => nature.up === key && nature.down !== key;
@@ -397,14 +398,14 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
           <EvSummaryBox $isOver={isOverEv}>
             <EvSummaryHeader>
               <span>
-                <strong>총 노력치:</strong> {totalEv} / 508
+                <strong>총 노력치:</strong> {totalEv} / {maxAllowedEv}
               </span>
-              <RemainingText $isFull={totalEv === 508} $isOver={isOverEv}>
+              <RemainingText $isFull={totalEv === maxAllowedEv} $isOver={isOverEv}>
                 {isOverEv ? `초과: +${overEv}` : `남은 노력치: ${remainingEv}`}
               </RemainingText>
             </EvSummaryHeader>
             <EvProgressBar>
-              <EvProgressFill $percent={Math.min(100, (totalEv / 508) * 100)} $isOver={isOverEv} />
+              <EvProgressFill $percent={Math.min(100, (totalEv / maxAllowedEv) * 100)} $isOver={isOverEv} />
             </EvProgressBar>
           </EvSummaryBox>
 

@@ -176,6 +176,8 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
           synergy={synergyPreviewInfo.synergy}
           activeAugmentId={synergyPreviewInfo.augmentId}
           activePokemon={activePokemon}
+          battle={battle}
+          team={resolvedTeam}
           onClose={() => setSynergyPreviewInfo(null)}
         />
       )}

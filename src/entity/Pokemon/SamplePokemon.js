@@ -406,40 +406,18 @@ new PokemonTemplate("라티오스", "0381", "5V0A", "CS252", "speed", "atk",
   }
   // ID로 객체 찾기
   getDataById(id) {
-    const searchId = typeof id === "object" && id ? id.id : id;
-    if (searchId === "레지기가스" || searchId === "0486") {
-      return regigigasSample;
-    }
-    if (searchId === "메가플라이곤" || searchId === "플라이곤" || searchId === "0330" || searchId === "0330-m") {
-      return megaFlygonSample;
-    }
-    if (searchId === "기기기어르" || searchId === "0601") {
-      return klinklangSample;
-    }
-    if (searchId === "라티오스" || searchId === "0381") {
-      return this.items.find((item) => item.id === "라티오스") || null;
-    }
-    if (searchId === "잉어킹" || searchId === "0129-g") {
-      return magikarpSample;
-    }
-    if (searchId === "뮤츠 (증강)" || searchId === "증강뮤츠" || searchId === "mewtwoAugment" || searchId === "mewtwoStrikesBack" || searchId === "0150-a") {
-      return mewtwoAugmentSample;
-    }
-    if (searchId === "뮤츠" || searchId === "0150") {
-      return this.items.find((item) => item.id === "뮤츠") || null;
-    }
-    const exact = this.items.find((item) => item.id === searchId);
+    if (!id) return null;
+    if (id === "레지기가스") return regigigasSample;
+    if (id === "메가플라이곤" || id === "플라이곤") return megaFlygonSample;
+    if (id === "기기기어르") return klinklangSample;
+    if (id === "잉어킹") return magikarpSample;
+    if (id === "켄타로스 (증강)") return taurosAugmentSample;
+    if (id === "뮤츠 (증강)") return mewtwoAugmentSample;
+    const exact = this.items.find((item) => item.id === id);
     if (exact) return exact;
     return (
-      this.items.find(
-        (item) =>
-          item.id.startsWith("메가") && item.id.replace(/^메가/, "") === searchId
-      ) ||
-      this.items.find(
-        (item) =>
-          typeof searchId === "string" &&
-          item.id.replace(/\s*\(.*?\)/, "") === searchId.replace(/\s*\(.*?\)/, "")
-      ) ||
+      this.items.find((item) => item.id.startsWith("메가") && item.id.replace(/^메가/, "") === id) ||
+      this.items.find((item) => item.id.replace(/\s*\(.*?\)/, "") === id.replace(/\s*\(.*?\)/, "")) ||
       null
     );
   }
@@ -456,7 +434,10 @@ export const magikarpSample = new PokemonTemplate("잉어킹", "0129-g", "6V", "
 
 export const klinklangSample = new PokemonTemplate("기기기어르", "0601", "6V", "HA252", "atk", "catk", "기어소서", "기어체인지", "와일드볼트", "방어", "먹다남은음식", "기어메이킹", "물리딜탱", "매 턴마다 기어를 추가하여 능력치가 조금씩 오릅니다.");
 
-export const mewtwoAugmentSample = new PokemonTemplate("뮤츠 (증강)", "0150-a", "5V0A", "CS252", "catk", "atk", "사이코키네시스", "눈보라", "나쁜음모", "HP회복", "", "없음", "특수어태커", "선택 시 로스트 테크놀로지 전용 증강 3개와 급소 시너지를 획득합니다.");
+export const taurosAugmentSample = new PokemonTemplate("켄타로스 (증강)", "0128", "6V", "AS252", "speed", "catk", "파괴광선", "눈보라", "지진", "10만볼트", "생명의구슬", "전관예우", "물리어태커", "선택 시 전용 증강 3개와 시너지 버프를 획득합니다.");
+export const taurosSample = taurosAugmentSample;
+
+export const mewtwoAugmentSample = new PokemonTemplate("뮤츠 (증강)", "0150", "5V0A", "CS252", "catk", "atk", "사이코키네시스", "눈보라", "나쁜음모", "HP회복", "생명의구슬", "프레셔", "특수어태커", "선택 시 전용 증강 3개와 시너지 버프를 획득합니다.");
 export const mewtwoSample = mewtwoAugmentSample;
 
 // 싱글턴 객체 생성 (전역에서 사용 가능)

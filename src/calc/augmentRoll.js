@@ -1,5 +1,4 @@
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, GAMBLE_BONUS_AUGMENT_IDS, hasGamblingAddict, MUTUALLY_EXCLUSIVE_MAP, isNormalAugment } from "../entity/Augment/AugmentData";
-
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, GAMBLE_BONUS_AUGMENT_IDS, hasGamblingAddict, MUTUALLY_EXCLUSIVE_MAP, isNormalAugment, getSynergyThreshold } from "../entity/Augment/AugmentData";
 
 export function filterExclusiveAugments(pool, pickedId) {
   if (!pickedId || !Array.isArray(pool)) return pool;
@@ -10,23 +9,14 @@ export function filterExclusiveAugments(pool, pickedId) {
 
 export const BEGINNER_AUGMENT_IDS = AUGMENT_SYNERGY_MAP.echoOfHero;
 
-export const REPLACEMENT_AUGMENT_IDS = [
-  "klinklangGear",
-  "legendaryTitan",
-  "marriedPokemon",
-  "rouletteWheel",
-  "soaring",
-  "magikarpJump",
-  "blackNight",
-  "mewtwoStrikesBack",
-];
+export const REPLACEMENT_AUGMENT_IDS = ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege"];
 
 export function getReplacementAugmentWeight(pokemon) {
   const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
   return Math.round(200 / (count + 1));
 }
 
-export function getAugmentWeight(aug, pokemon = null, battleOrTeam = null) {
+export function getAugmentWeight(aug, pokemon = null, battle = null) {
   if (!aug || aug.weight === "-" || !isNormalAugment(aug) || aug.isRandom === false) return 0;
 
   // 포켓몬 교체 증강 (기기기어르, 전설의 거인, 결혼, 돌림판, 비상 등):
@@ -35,30 +25,25 @@ export function getAugmentWeight(aug, pokemon = null, battleOrTeam = null) {
     return getReplacementAugmentWeight(pokemon);
   }
 
-  const rawWeight =
-    typeof aug.weight === "function"
-      ? aug.weight(pokemon, battleOrTeam)
-      : typeof aug.getWeight === "function"
-        ? aug.getWeight(pokemon, battleOrTeam)
-        : aug.weight;
+  const rawWeight = typeof aug.weight === "function" ? aug.weight(pokemon, battle) : typeof aug.getWeight === "function" ? aug.getWeight(pokemon, battle) : aug.weight;
   if (rawWeight === "-" || rawWeight === false || rawWeight === null) return 0;
   if (rawWeight === undefined) return 100;
   const weight = Number(rawWeight);
   return Number.isFinite(weight) && weight > 0 ? weight : 0;
 }
 
-function pickWeightedIndex(pool, pokemon = null, battleOrTeam = null) {
+function pickWeightedIndex(pool, pokemon = null, battle = null) {
   if (!Array.isArray(pool) || pool.length === 0) return -1;
   let totalWeight = 0;
   for (const aug of pool) {
-    totalWeight += getAugmentWeight(aug, pokemon, battleOrTeam);
+    totalWeight += getAugmentWeight(aug, pokemon, battle);
   }
   if (totalWeight <= 0) {
     return Math.floor(Math.random() * pool.length);
   }
   let rand = Math.random() * totalWeight;
   for (let i = 0; i < pool.length; i++) {
-    rand -= getAugmentWeight(pool[i], pokemon, battleOrTeam);
+    rand -= getAugmentWeight(pool[i], pokemon, battle);
     if (rand < 0) {
       return i;
     }
@@ -69,17 +54,16 @@ function pickWeightedIndex(pool, pokemon = null, battleOrTeam = null) {
 export function getForcedSynergyAugment(pokemon) {
   if (!pokemon) return null;
   for (const [buffId, requiredIds] of Object.entries(AUGMENT_SYNERGY_MAP)) {
+    // 영메는 팀 전체니까 따로 관리
     if (pokemon.hasAugment?.(buffId) || (buffId === "echoOfHero" && pokemon.hasEchoOfHeroBuff)) {
       continue;
     }
-    // 영메는 팀 전체니까 따로 관리
+    const threshold = typeof getSynergyThreshold === "function" ? getSynergyThreshold(buffId, requiredIds) : requiredIds.length;
     const owned = requiredIds.filter((id) => pokemon.hasAugment?.(id));
-    if (owned.length === 2) {
-      const missingId = requiredIds.find((id) => !pokemon.hasAugment?.(id));
-      if (missingId) {
-        const found = AUGMENT_LIST.find((a) => a.id === missingId || a.name === missingId);
-        if (found) return found;
-      }
+    if (owned.length === threshold - 1) {
+      const missingCandidates = requiredIds.filter((id) => !pokemon.hasAugment?.(id));
+      const found = AUGMENT_LIST.find((a) => missingCandidates.includes(a.id) && (typeof a.isEligible !== "function" || a.isEligible(pokemon)));
+      if (found) return found;
     }
   }
   return null;
@@ -91,17 +75,18 @@ export const getForcedBeginnerAugment = getForcedSynergyAugment;
  * 포켓몬이 선택 가능한 증강을 가중치 기반 무작위(중복 없이) 추첨합니다.
  * 포켓몬당 증강은 최대 3개까지 보유할 수 있습니다.
  */
-export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
+export function rollAugments(pokemon, count = 3, battle = null) {
   if (!pokemon) return [];
   const currentCount = Array.isArray(pokemon.augments) ? pokemon.augments.filter((a) => isNormalAugment(a)).length : 0;
   const isFull = currentCount >= 3;
+  const team = battle ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [pokemon];
 
   // 이미 보유한 증강 제외
   const available = AUGMENT_LIST.filter((aug) => {
     if (isFull && aug.cost !== "-") return false;
-    if (!isNormalAugment(aug) || aug.isRandom === false || aug.weight === "-" || getAugmentWeight(aug, pokemon, battleOrTeam) <= 0) return false;
+    if (!isNormalAugment(aug) || aug.isRandom === false || aug.weight === "-" || getAugmentWeight(aug, pokemon, battle) <= 0) return false;
     if (pokemon.hasAugment?.(aug.id)) return false;
-    if (typeof aug.isEligible === "function" && !aug.isEligible(pokemon, battleOrTeam)) return false;
+    if (typeof aug.isEligible === "function" && !aug.isEligible(pokemon, battle, team)) return false;
     return true;
   });
   const forced = getForcedBeginnerAugment(pokemon);
@@ -125,14 +110,10 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
     filterExclusives(forced.id);
   }
 
-  if (
-    selected.length < count &&
-    hasGamblingAddict(pokemon, battleOrTeam) &&
-    !selected.some((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id))
-  ) {
+  if (selected.length < count && hasGamblingAddict(team) && !selected.some((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id))) {
     const gamblePool = pool.filter((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id));
     if (gamblePool.length > 0) {
-      const gIdx = pickWeightedIndex(gamblePool, pokemon, battleOrTeam);
+      const gIdx = pickWeightedIndex(gamblePool, pokemon, battle);
       const picked = gamblePool[gIdx === -1 ? 0 : gIdx];
       selected.push(picked);
       pool = pool.filter((a) => a.id !== picked.id);
@@ -141,7 +122,7 @@ export function rollAugments(pokemon, count = 3, battleOrTeam = null) {
   }
 
   while (selected.length < count && pool.length > 0) {
-    const idx = pickWeightedIndex(pool, pokemon, battleOrTeam);
+    const idx = pickWeightedIndex(pool, pokemon, battle);
     if (idx === -1) break;
     const picked = pool[idx];
     selected.push(picked);
@@ -206,9 +187,9 @@ export function rollTeamAugments(team, battle = null) {
 
     const available = AUGMENT_LIST.filter((aug) => {
       if (isFull && aug.cost !== "-") return false;
-      if (!isNormalAugment(aug) || aug.isRandom === false || aug.weight === "-" || getAugmentWeight(aug, poke, battle || team) <= 0) return false;
+      if (!isNormalAugment(aug) || aug.isRandom === false || aug.weight === "-" || getAugmentWeight(aug, poke, battle) <= 0) return false;
       if (poke.hasAugment?.(aug.id)) return false;
-      if (typeof aug.isEligible === "function" && !aug.isEligible(poke, battle || team, team)) return false;
+      if (typeof aug.isEligible === "function" && !aug.isEligible(poke, battle, team)) return false;
       return true;
     });
 
@@ -236,11 +217,7 @@ export function rollTeamAugments(team, battle = null) {
       chosen.forEach((c) => filterExclusives(c.id));
     }
 
-    if (
-      chosen.length < 3 &&
-      hasGamblingAddict(poke, battle || team, team) &&
-      !chosen.some((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id))
-    ) {
+    if (chosen.length < 3 && hasGamblingAddict(team) && !chosen.some((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id))) {
       const gambleUnused = unused.filter((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id));
       const gambleAlready = already.filter((a) => GAMBLE_BONUS_AUGMENT_IDS.includes(a.id));
       if (gambleUnused.length > 0) {

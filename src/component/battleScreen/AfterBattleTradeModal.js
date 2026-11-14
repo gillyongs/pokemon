@@ -114,7 +114,7 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
                       overflow: "hidden",
                     }}
                   >
-                    <TradeCardImage src={`/pokemon/img/pokemon/${p?.img_id || p.origin.pokemon_id}.webp`} />
+                    <TradeCardImage src={`/pokemon/img/pokemon/${p.img_id || p.pokemon_id}.webp`} />
                     <TradeCardName>{p.origin.name}</TradeCardName>
                   </div>
                   <TradeInfoButton
@@ -150,7 +150,7 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
                       overflow: "hidden",
                     }}
                   >
-                    <TradeCardImage src={`/pokemon/img/pokemon/${p?.img_id || p.origin.pokemon_id}.webp`} />
+                    <TradeCardImage src={`/pokemon/img/pokemon/${p.img_id || p.pokemon_id}.webp`} />
                     <TradeCardName>{p.origin.name}</TradeCardName>
                   </div>
                   <TradeInfoButton

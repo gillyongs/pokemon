@@ -21,6 +21,7 @@ export const AUGMENT_POKEMON_PREVIEW_MAP = {
   blackNight: "무한다이노",
   eternamax: "무한다이노",
   mewtwoStrikesBack: "뮤츠 (증강)",
+  veteranPrivilege: "켄타로스 (증강)",
 };
 
 const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialTarget = null, battle = null, onSelect, onClose, isTestMode: propTestMode = null, isTitanSelection = false }) => {
@@ -1514,7 +1515,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
       {isStatusOpen && <AugmentStatusModal battle={battle} team={resolvedTeam} onClose={() => setIsStatusOpen(false)} />}
       {previewInfo && <AugmentPokemonPreviewModal augmentId={previewInfo.augmentId} pokemon={previewInfo.pokemon} onClose={() => setPreviewInfo(null)} />}
-      {synergyPreviewInfo && <AugmentSynergyPreviewModal synergy={synergyPreviewInfo.synergy} activeAugmentId={synergyPreviewInfo.augmentId} activePokemon={activePokemon} onClose={() => setSynergyPreviewInfo(null)} />}
+      {synergyPreviewInfo && <AugmentSynergyPreviewModal synergy={synergyPreviewInfo.synergy} activeAugmentId={synergyPreviewInfo.augmentId} activePokemon={activePokemon} battle={battle} team={resolvedTeam} onClose={() => setSynergyPreviewInfo(null)} />}
     </>
   );
 };

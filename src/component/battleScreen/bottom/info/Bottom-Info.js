@@ -10,6 +10,7 @@ import { getMultiplier } from "../../../../calc/rankStat";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { abilObject } from "../../../../entity/Ability";
+import { isNormalAugment } from "../../../../entity/Augment/AugmentData";
 import { itemText as itemTextDict } from "../../../../entity/Item";
 
 const statusTexts = {
@@ -136,7 +137,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
   const pokemon = battle[currentKey] || battle.player;
   const clickCountRef = useRef(0);
   const isMayhem = Boolean(battle?.isMayhem);
-  const augmentCount = (pokemon?.augments || []).length;
+  const augmentCount = (pokemon?.augments || []).filter((a) => isNormalAugment(a)).length;
 
   const handlePrevPokemon = (e) => {
     e.stopPropagation();
@@ -242,7 +243,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
         )}
         <TopRow>
           <SpriteBox>
-            <SpriteImg src={`/pokemon/img/pokemon/${pokemon?.img_id || pokemon?.origin?.pokemon_id}.webp`} alt={pokemon.origin.name} />
+            <SpriteImg src={`/pokemon/img/pokemon/${pokemon.img_id || pokemon.pokemon_id}.webp`} alt={pokemon.name} />
             <HpBarTrack>
               <HpBarFill style={{ width: `${hpRatio * 100}%`, backgroundColor: hpColor }} />
               <HpBarLabel>

@@ -5,7 +5,12 @@ import { itemText } from "../../../entity/Item";
 import { TYPE_COLORS } from "../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, hasPokemonName } from "../../../entity/Augment/AugmentData";
+
+const PREVIEW_IMG_ID_MAP = {
+  mewtwoStrikesBack: "0150-a",
+  veteranPrivilege: "0128-a",
+};
 
 const isOnlyPrioritySkillText = (text) => {
   if (!text || typeof text !== "string") return false;
@@ -92,9 +97,10 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
   const hasMegaForm = Boolean(pokemon?.megaData);
   const [showMegaForm, setShowMegaForm] = useState(hasMegaForm);
 
-  const isEternatusPokemon = pokemon?.pokemon_id === "0890" || pokemon?.name === "무한다이노" || augmentId === "blackNight" || augmentId === "eternamax";
-  const isMewtwoPokemon = pokemon?.pokemon_id === "0150" || pokemon?.pokemon_id === "0150-a" || pokemon?.name === "뮤츠" || pokemon?.id === "뮤츠" || pokemon?.id === "뮤츠 (증강)" || augmentId === "mewtwoStrikesBack";
-  const isTitanPokemon = pokemon?.pokemon_id === "0486" || pokemon?.name === "레지기가스" || augmentId === "legendaryTitan";
+  const isEternatusPokemon = hasPokemonName(pokemon, "무한다이노") || augmentId === "blackNight" || augmentId === "eternamax";
+  const isMewtwoPokemon = hasPokemonName(pokemon, "뮤츠") || augmentId === "mewtwoStrikesBack";
+  const isTitanPokemon = hasPokemonName(pokemon, "레지기가스") || augmentId === "legendaryTitan";
+  const isTaurosPokemon = hasPokemonName(pokemon, "켄타로스") || augmentId === "veteranPrivilege";
 
   const replacementAugmentInfo = useMemo(() => {
     if (isMewtwoPokemon) {
@@ -122,6 +128,20 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
       };
     }
 
+    if (isTaurosPokemon) {
+      const augs = [AUGMENT_LIST.find((a) => a.id === "specialSwordAndShield"), AUGMENT_LIST.find((a) => a.id === "lostTechnologyBlizzard"), AUGMENT_LIST.find((a) => a.id === "lostTechnologyHyperBeam")].filter(Boolean);
+      const synAug = AUGMENT_LIST.find((a) => a.id === "lostTechnologyCritical");
+      return {
+        type: "tauros",
+        btnLabel: "증강 확인 (3종)",
+        modalTitle: "켄타로스 전용 증강 & 시너지",
+        headerNotice: "교체 시 아래 전용 증강 3개를 모두 획득하며, 시너지가 즉시 활성화됩니다.",
+        augs,
+        connectorText: "✨ 3종 공명 달성 시 활성화 ✨",
+        synAug,
+      };
+    }
+
     if (isTitanPokemon) {
       const augs = [AUGMENT_LIST.find((a) => a.id === "fastStarter"), AUGMENT_LIST.find((a) => a.id === "hugePower"), AUGMENT_LIST.find((a) => a.id === "randomAbility")].filter(Boolean);
       return {
@@ -134,7 +154,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
     }
 
     return null;
-  }, [isMewtwoPokemon, isEternatusPokemon, isTitanPokemon]);
+  }, [isMewtwoPokemon, isEternatusPokemon, isTitanPokemon, isTaurosPokemon]);
 
   const eternamaxData = useMemo(() => {
     if (!isEternatusPokemon) return null;
@@ -171,7 +191,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
 
   const displayName = isMegaView ? pokemon.megaData.name : isEternamaxView ? eternamaxData.name : pokemon.name;
 
-  const displayPokemonId = isMegaView ? pokemon.megaData.pokemon_id : isEternamaxView ? eternamaxData.pokemon_id : pokemon.img_id || pokemon.pokemon_id;
+  const displayPokemonId = isMegaView ? pokemon.megaData.pokemon_id : isEternamaxView ? eternamaxData.pokemon_id : pokemon.img_id || PREVIEW_IMG_ID_MAP[augmentId] || pokemon.pokemon_id;
 
   const displayType1 = isMegaView ? pokemon.megaData.type1 : isEternamaxView ? eternamaxData.type1 : pokemon.type1;
 
@@ -186,6 +206,10 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
 
   const handleAbilClick = (e) => {
     e.stopPropagation();
+    if (displayAbil === "없음" || !displayAbil) {
+      setInfoText("특성이 없습니다.");
+      return;
+    }
     const desc = abilObject[displayAbil]?.text || (!isMegaView && pokemon.abilObj?.text) || "특성 설명이 없습니다.";
     setInfoText(`[${displayAbil}] ${desc}`);
   };

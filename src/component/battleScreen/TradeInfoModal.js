@@ -134,9 +134,8 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
 
   if (!pokemon) return null;
 
-  const p = pokemon.origin || pokemon;
-  const pokemonName = p?.name || pokemon.name || "포켓몬";
-  const pokemonId = pokemon?.img_id || p?.pokemon_id || pokemon?.pokemon_id;
+  const pokemonName = pokemon.name;
+  const pokemonId = pokemon.img_id || pokemon.pokemon_id;
   const statusText = getPokemonStatusText(pokemon);
   const maxHp = hpCalculate(pokemon);
   const hpRatio = Math.max(0, (pokemon.hp || 0) / (maxHp || 1));

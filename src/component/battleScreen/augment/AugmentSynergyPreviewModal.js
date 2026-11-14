@@ -1,6 +1,41 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
+import { AUGMENT_LIST, MUTUALLY_EXCLUSIVE_MAP } from "../../../entity/Augment/AugmentData";
+
+export const checkSynergyAugmentUnobtainable = (aug, pokemon, battle = null, team = null) => {
+  if (!pokemon || !aug) return false;
+
+  // 1. 이미 보유 중인 경우
+  if (pokemon.hasAugment?.(aug.id)) return false;
+
+  const fullAug = AUGMENT_LIST.find((a) => a.id === aug.id) || aug;
+
+  // 2. 상호 배타적 증강을 이미 보유한 경우
+  if (Array.isArray(pokemon.augments)) {
+    const hasExclusive = pokemon.augments.some((owned) => {
+      const ownedId = typeof owned === "string" ? owned : owned?.id;
+      return Boolean(MUTUALLY_EXCLUSIVE_MAP?.[fullAug.id]?.has?.(ownedId));
+    });
+    if (hasExclusive) return true;
+  }
+
+  // 3. 증강 고유의 자격 조건(isEligible) 미충족 시 (예: 특정 기술 미보유, 특정 포켓몬 전용, 특수/물리 조건 등)
+  if (typeof fullAug.isEligible === "function") {
+    try {
+      if (!fullAug.isEligible(pokemon, battle, team)) {
+        return true;
+      }
+    } catch (e) {
+      return true;
+    }
+  }
+
+  // 4. 가중치가 0이거나 랜덤 등장 불가인 경우
+  if (fullAug.isRandom === false) return true;
+
+  return false;
+};
 
 const fadeIn = keyframes`
   from {
@@ -22,14 +57,14 @@ const slideUp = keyframes`
   }
 `;
 
-const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePokemon = null, onClose }) => {
+const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePokemon = null, battle = null, team = null, onClose }) => {
   if (!synergy) return null;
 
-  const { buffAugment, requiredAugments = [], emoji, title } = synergy;
+  const { buffAugment, requiredAugments = [], threshold = requiredAugments.length, emoji, title } = synergy;
 
   // Count how many required augments activePokemon currently owns
   const ownedCount = requiredAugments.filter((a) => Boolean(activePokemon?.hasAugment?.(a.id))).length;
-  const isSynergyActive = Boolean(activePokemon?.hasAugment?.(buffAugment?.id) || ownedCount === 3);
+  const isSynergyActive = Boolean(activePokemon?.hasAugment?.(buffAugment?.id) || ownedCount >= threshold);
 
   return (
     <ModalOverlay
@@ -51,15 +86,18 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
               ✕
             </CloseButton>
           </HeaderTopRow>
-          <HeaderNotice>아래 증강을 모두 획득하면 추가 시너지가 활성화됩니다.</HeaderNotice>
+          <HeaderNotice>{threshold < requiredAugments.length ? `아래 증강 중 ${threshold}개를 획득하면 추가 시너지가 활성화됩니다.` : "아래 증강을 모두 획득하면 추가 시너지가 활성화됩니다."}</HeaderNotice>
         </HeaderArea>
 
         <RequiredGrid>
           {requiredAugments.map((aug) => {
             const isOwned = Boolean(activePokemon?.hasAugment?.(aug.id));
             const isViewing = aug.id === activeAugmentId;
+            const isUnobtainable = !isOwned && !isViewing && checkSynergyAugmentUnobtainable(aug, activePokemon, battle, team);
+            const statusLabel = isOwned ? "✓ 보유 중" : isViewing ? "선택 중" : isUnobtainable ? "획득 불가" : "미보유";
+
             return (
-              <AugmentRowCard key={aug.id} $isOwned={isOwned} $isViewing={isViewing}>
+              <AugmentRowCard key={aug.id} $isOwned={isOwned} $isViewing={isViewing} $isUnobtainable={isUnobtainable} title={isUnobtainable ? "현재 포켓몬은 이 증강의 조건을 충족하지 못하여 획득할 수 없습니다." : undefined}>
                 <IconCol>
                   <AugmentIcon id={aug.id} size={36} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
                   {aug.cost !== "-" && aug.cost !== undefined && <CostTag>{aug.cost} cost</CostTag>}
@@ -67,8 +105,8 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
                 <AugmentMeta>
                   <AugNameRow>
                     <AugName>{aug.name}</AugName>
-                    <StatusBadge $isOwned={isOwned} $isViewing={isViewing}>
-                      {isOwned ? "✓ 보유 중" : isViewing ? "선택 중" : "미보유"}
+                    <StatusBadge $isOwned={isOwned} $isViewing={isViewing} $isUnobtainable={isUnobtainable}>
+                      {statusLabel}
                     </StatusBadge>
                   </AugNameRow>
                   <AugDesc>{aug.desc}</AugDesc>
@@ -94,7 +132,6 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
                 <BuffNameRow>
                   <BuffName>{buffAugment.name}</BuffName>
                   <BuffPill>시너지</BuffPill>
-                  {isSynergyActive && <BuffActiveTag>★ 현재 활성화됨</BuffActiveTag>}
                 </BuffNameRow>
                 <BuffDesc>{buffAugment.desc}</BuffDesc>
               </BuffMeta>
@@ -258,9 +295,10 @@ const AugmentRowCard = styled.div`
   gap: 10px;
   padding: 8px 10px;
   border-radius: 8px;
-  background: ${(props) => (props.$isViewing ? "rgba(34, 56, 82, 0.85)" : props.$isOwned ? "rgba(22, 45, 40, 0.65)" : "rgba(15, 23, 42, 0.6)")};
-  border: ${(props) => (props.$isViewing ? "1.5px solid #64ffda" : props.$isOwned ? "1px solid rgba(100, 255, 218, 0.4)" : "1px solid rgba(255, 255, 255, 0.08)")};
+  background: ${(props) => (props.$isViewing ? "rgba(34, 56, 82, 0.85)" : props.$isOwned ? "rgba(22, 45, 40, 0.65)" : props.$isUnobtainable ? "rgba(34, 20, 25, 0.55)" : "rgba(15, 23, 42, 0.6)")};
+  border: ${(props) => (props.$isViewing ? "1.5px solid #64ffda" : props.$isOwned ? "1px solid rgba(100, 255, 218, 0.4)" : props.$isUnobtainable ? "1px solid rgba(244, 63, 94, 0.28)" : "1px solid rgba(255, 255, 255, 0.08)")};
   box-shadow: ${(props) => (props.$isViewing ? "0 0 10px rgba(100, 255, 218, 0.3)" : "none")};
+  opacity: ${(props) => (props.$isUnobtainable ? 0.65 : 1)};
   transition: all 0.2s ease;
 `;
 
@@ -323,7 +361,13 @@ const StatusBadge = styled.span`
       color: #ffd700;
       border: 1px solid rgba(255, 215, 0, 0.45);
     `
-        : `
+        : props.$isUnobtainable
+          ? `
+      background: rgba(244, 63, 94, 0.16);
+      color: #f43f5e;
+      border: 1px solid rgba(244, 63, 94, 0.4);
+    `
+          : `
       background: rgba(148, 163, 184, 0.1);
       color: #64748b;
       border: 1px solid rgba(148, 163, 184, 0.2);

@@ -1,4 +1,4 @@
-import { damageCalculate } from "../calc/damageCalculate";
+import { damageCalculate, getPokemonCombatStats, getHigherAtkStat } from "../calc/damageCalculate";
 import { getTypeText, typeCheckOnBattle } from "../calc/typeEffectCalculate";
 import { attackDamage } from "./damage";
 import skillEffectSearch from "../entity/Skill/SkillEffect";
@@ -14,8 +14,15 @@ export const skillUse = (bt, enqueue) => {
   const def = bt[bt.turn.def];
   let skill = atk.turn.useSkill;
   const calculatedType = skillTypeCalculate(bt, skill, atk);
+  // 기술 타입이 바뀌는 경우 (웨더볼, 스킨류 특성)
   if (skill && skill.type !== calculatedType) {
     skill = { ...skill, type: calculatedType };
+    atk.turn.useSkill = skill;
+  }
+  const isAdaptiveSkill = skill?.name === "테라버스트" || (atk?.hasAugment?.("lostTechnologyHyperBeam") && skill?.name === "파괴광선");
+  if (isAdaptiveSkill) {
+    const stats = getPokemonCombatStats(atk, bt);
+    skill = { ...skill, stype: getHigherAtkStat(stats.atk, stats.catk) };
     atk.turn.useSkill = skill;
   }
   const skillType = skill.stype;
