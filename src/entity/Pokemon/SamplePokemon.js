@@ -52,6 +52,9 @@ new PokemonTemplate("망나뇽 (물리)", "0149", "6V", "AS252", "atk", "catk",
 new PokemonTemplate("망나뇽 (특수)", "0149", "5V0A", "CS252", "catk", "atk",
   "폭풍", "용성군", "냉동빔", "화염방사", "구애안경", "멀티스케일", "특수어태커"),
 
+new PokemonTemplate("뮤츠", "0150", "5V0A", "CS252", "speed", "atk",
+  "사이코브레이크", "대지의힘", "냉동빔", "파동탄", "생명의구슬", "프레셔", "특수어태커"),
+  
 new PokemonTemplate("마릴리", "0184", "6V", "HA252", "atk", "catk",
   "치근거리기", "아쿠아제트", "아쿠아브레이크", "탁쳐서떨구기", "돌격조끼", "천하장사", "물리딜탱"),
 
@@ -419,6 +422,12 @@ new PokemonTemplate("라티오스", "0381", "5V0A", "CS252", "speed", "atk",
     if (searchId === "잉어킹" || searchId === "0129-g") {
       return magikarpSample;
     }
+    if (searchId === "뮤츠 (증강)" || searchId === "증강뮤츠" || searchId === "mewtwoAugment" || searchId === "mewtwoStrikesBack" || searchId === "0150-a") {
+      return mewtwoAugmentSample;
+    }
+    if (searchId === "뮤츠" || searchId === "0150") {
+      return this.items.find((item) => item.id === "뮤츠") || null;
+    }
     const exact = this.items.find((item) => item.id === searchId);
     if (exact) return exact;
     return (
@@ -446,6 +455,9 @@ export const megaFlygonSample = new PokemonTemplate("플라이곤", "0330", "6V"
 export const magikarpSample = new PokemonTemplate("잉어킹", "0129-g", "6V", "H28 C252 S228", "speed", "atk", "튀어오르기", "튀어오르기", "튀어오르기", "튀어오르기", "잉어킹나이트", "최강의잉어킹", "특수어태커", `모든 능력치가 999로 고정됩니다.\n기술만 어떻게든 바꾼다면...?`);
 
 export const klinklangSample = new PokemonTemplate("기기기어르", "0601", "6V", "HA252", "atk", "catk", "기어소서", "기어체인지", "와일드볼트", "방어", "먹다남은음식", "기어메이킹", "물리딜탱", "매 턴마다 기어를 추가하여 능력치가 조금씩 오릅니다.");
+
+export const mewtwoAugmentSample = new PokemonTemplate("뮤츠 (증강)", "0150-a", "5V0A", "CS252", "catk", "atk", "사이코키네시스", "눈보라", "나쁜음모", "HP회복", "", "없음", "특수어태커", "선택 시 로스트 테크놀로지 전용 증강 3개와 급소 시너지를 획득합니다.");
+export const mewtwoSample = mewtwoAugmentSample;
 
 // 싱글턴 객체 생성 (전역에서 사용 가능)
 const sampleList = new SamplePokemonList();

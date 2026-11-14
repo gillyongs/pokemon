@@ -4,6 +4,8 @@ import { abilObject } from "../../../entity/Ability";
 import { itemText } from "../../../entity/Item";
 import { TYPE_COLORS } from "../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
+import { AugmentIcon } from "./AugmentIcon";
+import { AUGMENT_LIST } from "../../../entity/Augment/AugmentData";
 
 const isOnlyPrioritySkillText = (text) => {
   if (!text || typeof text !== "string") return false;
@@ -18,13 +20,12 @@ const getDefaultInfoText = (pokemon) => {
 };
 
 const PreviewHexagonGraph = ({ hp, stat }) => {
-  const maxVal = Math.max(250, hp ?? 0, ...Object.values(stat || {}));
-  const MAX_STAT = Math.max(250, Math.ceil(maxVal / 50) * 50);
-  const width = 140;
-  const height = 140;
+  const MAX_STAT = 250;
+  const width = 136;
+  const height = 136;
   const cx = width / 2;
   const cy = height / 2;
-  const maxRadius = 42;
+  const maxRadius = 38;
 
   const order = ["hp", "atk", "def", "speed", "cdef", "catk"];
   const angles = order.map((_, i) => (i * 60 - 90) * (Math.PI / 180));
@@ -61,14 +62,24 @@ const PreviewHexagonGraph = ({ hp, stat }) => {
       {angles.map((a, i) => (
         <line key={i} x1={cx} y1={cy} x2={cx + maxRadius * Math.cos(a)} y2={cy + maxRadius * Math.sin(a)} stroke="rgba(255, 255, 255, 0.16)" strokeWidth="1" />
       ))}
-      <polygon points={polygonPoints} fill="rgba(100, 255, 218, 0.4)" stroke="#64ffda" strokeWidth="2" />
+      <polygon points={polygonPoints} fill="rgba(100, 255, 218, 0.35)" stroke="#64ffda" strokeWidth="2" />
       {order.map((key, i) => {
-        const labelR = maxRadius + 16;
-        const x = cx + labelR * Math.cos(angles[i]);
-        const y = cy + labelR * Math.sin(angles[i]);
+        const val = getVal(key);
+        const angle = angles[i];
+        let x = cx + (maxRadius + 4) * Math.cos(angle);
+        let y = cy + (maxRadius + 4) * Math.sin(angle);
+        let textAnchor = "middle";
+        if (Math.abs(Math.sin(angle)) < 0.8) {
+          textAnchor = Math.cos(angle) > 0 ? "start" : "end";
+        } else {
+          y += Math.sin(angle) > 0 ? 7 : -4;
+        }
         return (
-          <text key={key} x={x} y={y} fill="#cbd5e1" fontSize="9.5" fontWeight="700" textAnchor="middle" dominantBaseline="middle">
-            {labels[key]}
+          <text key={i} x={x} y={y} fill="#cbd5e1" fontSize="8.2" fontWeight="bold" textAnchor={textAnchor} dominantBaseline="middle">
+            <tspan x={x} dy="-0.55em">
+              {labels[key]}
+            </tspan>
+            <tspan x={x} dy="1.15em" fill="#e2e8f0">{`(${val})`}</tspan>
           </text>
         );
       })}
@@ -77,10 +88,53 @@ const PreviewHexagonGraph = ({ hp, stat }) => {
 };
 
 const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
+  const [showAugmentModal, setShowAugmentModal] = useState(false);
   const hasMegaForm = Boolean(pokemon?.megaData);
   const [showMegaForm, setShowMegaForm] = useState(hasMegaForm);
 
   const isEternatusPokemon = pokemon?.pokemon_id === "0890" || pokemon?.name === "무한다이노" || augmentId === "blackNight" || augmentId === "eternamax";
+  const isMewtwoPokemon = pokemon?.pokemon_id === "0150" || pokemon?.pokemon_id === "0150-a" || pokemon?.name === "뮤츠" || pokemon?.id === "뮤츠" || pokemon?.id === "뮤츠 (증강)" || augmentId === "mewtwoStrikesBack";
+  const isTitanPokemon = pokemon?.pokemon_id === "0486" || pokemon?.name === "레지기가스" || augmentId === "legendaryTitan";
+
+  const replacementAugmentInfo = useMemo(() => {
+    if (isMewtwoPokemon) {
+      const augs = [AUGMENT_LIST.find((a) => a.id === "specialSwordAndShield"), AUGMENT_LIST.find((a) => a.id === "lostTechnologyBlizzard"), AUGMENT_LIST.find((a) => a.id === "lostTechnologyPsychic")].filter(Boolean);
+      const synAug = AUGMENT_LIST.find((a) => a.id === "lostTechnologyCritical");
+      return {
+        type: "mewtwo",
+        btnLabel: "증강 확인 (3종)",
+        modalTitle: "뮤츠 전용 증강 & 시너지",
+        headerNotice: "교체 시 아래 전용 증강 3개를 모두 획득하며, 시너지가 즉시 활성화됩니다.",
+        augs,
+        connectorText: "✨ 3종 공명 달성 시 활성화 ✨",
+        synAug,
+      };
+    }
+
+    if (isEternatusPokemon) {
+      const augs = [AUGMENT_LIST.find((a) => a.id === "eternamax")].filter(Boolean);
+      return {
+        type: "blackNight",
+        btnLabel: "증강 확인 (1종)",
+        modalTitle: "무한다이노 전용 증강",
+        headerNotice: "교체 시 아래 전용 증강을 추가로 획득합니다.",
+        augs,
+      };
+    }
+
+    if (isTitanPokemon) {
+      const augs = [AUGMENT_LIST.find((a) => a.id === "fastStarter"), AUGMENT_LIST.find((a) => a.id === "hugePower"), AUGMENT_LIST.find((a) => a.id === "randomAbility")].filter(Boolean);
+      return {
+        type: "legendaryTitan",
+        btnLabel: "증강 확인 (3택 1)",
+        modalTitle: "레지기가스 전용 특성 증강",
+        headerNotice: "교체 시 아래 3개의 특성 증강 중 하나를 선택하여 획득합니다.",
+        augs,
+      };
+    }
+
+    return null;
+  }, [isMewtwoPokemon, isEternatusPokemon, isTitanPokemon]);
 
   const eternamaxData = useMemo(() => {
     if (!isEternatusPokemon) return null;
@@ -151,6 +205,11 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
     const isOnlyPriority = isOnlyPrioritySkillText(skill.text);
     const desc = isOnlyPriority || !skill.text ? "설명이 없습니다." : skill.text;
     setInfoText(`[${skill.name}] ${desc}`);
+  };
+
+  const handleStatClick = (e) => {
+    e.stopPropagation();
+    setInfoText(`[능력치] HP: ${displayHp} / 스피드: ${displayStat.speed ?? 0} / 공격: ${displayStat.atk ?? 0} / 특수공격: ${displayStat.catk ?? 0} / 방어: ${displayStat.def ?? 0} / 특수방어: ${displayStat.cdef ?? 0}`);
   };
 
   return (
@@ -269,57 +328,48 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
 
         <SectionDivider />
 
-        <StatsRow>
-          <GraphWrap>
-            <PreviewHexagonGraph hp={displayHp} stat={displayStat} />
-          </GraphWrap>
-          <StatGrid>
-            <StatItem>
-              <StatLabel>HP:</StatLabel> <StatVal>{displayHp}</StatVal>
-            </StatItem>
-            <StatItem>
-              <StatLabel>스피드:</StatLabel> <StatVal>{displayStat.speed ?? 0}</StatVal>
-            </StatItem>
-            <StatItem>
-              <StatLabel>공격:</StatLabel> <StatVal>{displayStat.atk ?? 0}</StatVal>
-            </StatItem>
-            <StatItem>
-              <StatLabel>특수공격:</StatLabel> <StatVal>{displayStat.catk ?? 0}</StatVal>
-            </StatItem>
-            <StatItem>
-              <StatLabel>방어:</StatLabel> <StatVal>{displayStat.def ?? 0}</StatVal>
-            </StatItem>
-            <StatItem>
-              <StatLabel>특수방어:</StatLabel> <StatVal>{displayStat.cdef ?? 0}</StatVal>
-            </StatItem>
-          </StatGrid>
-        </StatsRow>
+        <BottomRow>
+          <LeftCol>
+            <GraphBox onClick={handleStatClick} title="클릭하여 능력치 상세 보기">
+              <PreviewHexagonGraph hp={displayHp} stat={displayStat} />
+            </GraphBox>
+            {replacementAugmentInfo && (
+              <AugmentCheckBtn
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowAugmentModal(true);
+                }}
+                title="획득 증강 확인"
+              >
+                {replacementAugmentInfo.btnLabel}
+              </AugmentCheckBtn>
+            )}
+          </LeftCol>
 
-        <SkillsGrid>
-          {skills.map((skill, idx) => {
-            const displayType = skillTypeCalculate(null, skill, { abil: displayAbil });
-            return (
-              <SkillCardButton key={skill.name || idx} type="button" onClick={(e) => handleSkillClick(e, skill)}>
-                <SkillIcon
-                  src={`/pokemon/img/type/${displayType}.svg`}
-                  alt={displayType}
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-                <SkillMetaCol>
-                  <SkillNameText>
-                    {skill.name}
-                    {skill.nimbleMoves ? " +1" : ""}
-                  </SkillNameText>
-                  <SkillPpText>
-                    PP {skill.pp}/{skill.pp}
-                  </SkillPpText>
-                </SkillMetaCol>
-              </SkillCardButton>
-            );
-          })}
-        </SkillsGrid>
+          <SkillsBox>
+            {skills.map((skill, idx) => {
+              const displayType = skillTypeCalculate(null, skill, { abil: displayAbil }) || skill.type || skill.stype;
+              return (
+                <SkillRowButton key={skill.name || idx} type="button" onClick={(e) => handleSkillClick(e, skill)}>
+                  <SkillTypeImg
+                    src={`/pokemon/img/type/${displayType}.svg`}
+                    alt={skill.name}
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                  <SkillMainInfo>
+                    <SkillNameText>
+                      {skill.name}
+                      {skill.nimbleMoves ? " +1" : ""}
+                    </SkillNameText>
+                  </SkillMainInfo>
+                </SkillRowButton>
+              );
+            })}
+          </SkillsBox>
+        </BottomRow>
 
         <InfoBox>{infoText}</InfoBox>
 
@@ -335,6 +385,91 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
           </CloseActionButton>
         </ButtonGroup>
       </ModalContainer>
+
+      {showAugmentModal && replacementAugmentInfo && (
+        <ModalOverlay
+          style={{ zIndex: 10025 }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowAugmentModal(false);
+          }}
+        >
+          <SubModalContainer onClick={(e) => e.stopPropagation()}>
+            <SubModalHeader>
+              <SubModalHeaderTop>
+                <SubModalTitleRow>
+                  <SubModalTitle>{replacementAugmentInfo.modalTitle}</SubModalTitle>
+                </SubModalTitleRow>
+                <CloseButton
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAugmentModal(false);
+                  }}
+                  title="닫기"
+                >
+                  ✕
+                </CloseButton>
+              </SubModalHeaderTop>
+              <SubModalNotice>{replacementAugmentInfo.headerNotice}</SubModalNotice>
+            </SubModalHeader>
+
+            <SubModalAugList>
+              {replacementAugmentInfo.augs.map((aug, idx) => (
+                <SubModalAugCard key={aug.id || idx}>
+                  <SubModalIconCol>
+                    <AugmentIcon id={aug.id} size={36} />
+                    {aug.cost !== "-" && aug.cost !== undefined && <SubModalCostTag>{aug.cost} cost</SubModalCostTag>}
+                  </SubModalIconCol>
+                  <SubModalAugMeta>
+                    <SubModalAugNameRow>
+                      <SubModalAugName>{aug.name}</SubModalAugName>
+                    </SubModalAugNameRow>
+                    <SubModalAugDesc>{aug.desc}</SubModalAugDesc>
+                  </SubModalAugMeta>
+                </SubModalAugCard>
+              ))}
+            </SubModalAugList>
+
+            {replacementAugmentInfo.connectorText && (
+              <SubModalConnectorRow>
+                <SubModalConnectorLine />
+                <SubModalConnectorBadge>{replacementAugmentInfo.connectorText}</SubModalConnectorBadge>
+                <SubModalConnectorLine />
+              </SubModalConnectorRow>
+            )}
+
+            {replacementAugmentInfo.synAug && (
+              <SubModalBuffCard>
+                <SubModalBuffHeader>
+                  <SubModalIconCol>
+                    <AugmentIcon id={replacementAugmentInfo.synAug.id} size={40} />
+                  </SubModalIconCol>
+                  <SubModalBuffMeta>
+                    <SubModalBuffNameRow>
+                      <SubModalBuffName>{replacementAugmentInfo.synAug.name}</SubModalBuffName>
+                      <SubModalSynergyPill>시너지</SubModalSynergyPill>
+                    </SubModalBuffNameRow>
+                    <SubModalBuffDesc>{replacementAugmentInfo.synAug.getDesc ? replacementAugmentInfo.synAug.getDesc(pokemon) : replacementAugmentInfo.synAug.desc}</SubModalBuffDesc>
+                  </SubModalBuffMeta>
+                </SubModalBuffHeader>
+              </SubModalBuffCard>
+            )}
+
+            <SubModalFooter>
+              <SubModalConfirmBtn
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowAugmentModal(false);
+                }}
+              >
+                확인
+              </SubModalConfirmBtn>
+            </SubModalFooter>
+          </SubModalContainer>
+        </ModalOverlay>
+      )}
     </ModalOverlay>
   );
 };
@@ -478,22 +613,6 @@ const FormToggleButton = styled.button`
   }
 `;
 
-const NoticeBanner = styled.div`
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 10px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  color: #bae6fd;
-  font-size: 0.76rem;
-  font-weight: 600;
-  line-height: 1.35;
-  text-align: left;
-  word-break: keep-all;
-`;
-
 const TopProfileRow = styled.div`
   display: flex;
   align-items: stretch;
@@ -615,17 +734,20 @@ const SectionDivider = styled.hr`
   margin: 12px 0 10px;
 `;
 
-const StatsRow = styled.div`
+const BottomRow = styled.div`
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
+  min-height: 145px;
   width: 100%;
   margin-bottom: 10px;
+  box-sizing: border-box;
 `;
 
-const GraphWrap = styled.div`
-  flex: 0 0 140px;
+const LeftCol = styled.div`
+  flex: 0 0 136px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 
@@ -634,96 +756,89 @@ const GraphWrap = styled.div`
   }
 `;
 
-const StatGrid = styled.div`
-  flex: 1;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 5px 8px;
-  text-align: left;
-  font-size: 0.83rem;
-
-  @media (max-width: 480px) {
-    font-size: 0.76rem;
-    gap: 4px 5px;
-  }
-`;
-
-const StatItem = styled.div`
-  white-space: nowrap;
-  color: #f8fafc;
-`;
-
-const StatLabel = styled.strong`
-  color: #94a3b8;
-  font-weight: 700;
-`;
-
-const StatVal = styled.span`
-  font-weight: 700;
-  color: #f8fafc;
-`;
-
-const SkillsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
+const GraphBox = styled.div`
   width: 100%;
-  margin-bottom: 10px;
-  box-sizing: border-box;
-`;
-
-const SkillCardButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.45);
+  height: 100%;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-  padding: 8px 9px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
-  font-family: inherit;
-  min-width: 0;
-  width: 100%;
+  border-radius: 10px;
+  padding: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   box-sizing: border-box;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: #64ffda;
+    background: rgba(100, 255, 218, 0.08);
+    border-color: rgba(100, 255, 218, 0.45);
   }
 `;
 
-const SkillIcon = styled.img`
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  object-fit: contain;
+const SkillsBox = styled.div`
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 5px;
+  box-sizing: border-box;
+`;
+
+const SkillRowButton = styled.button`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-width: 0;
+  user-select: none;
+  font-family: inherit;
+
+  &:hover {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(100, 255, 218, 0.55);
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+const SkillTypeImg = styled.img`
+  width: 22px;
+  height: 22px;
+  margin-right: 6px;
+  border-radius: 3px;
   flex-shrink: 0;
 `;
 
-const SkillMetaCol = styled.div`
+const SkillMainInfo = styled.div`
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  overflow: hidden;
 `;
 
 const SkillNameText = styled.span`
-  font-weight: 700;
-  font-size: 0.88rem;
-  color: #ffffff;
+  font-weight: bold;
+  font-size: 0.82rem;
+  color: #f8fafc;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`;
-
-const SkillPpText = styled.span`
-  font-size: 0.74rem;
-  color: #94a3b8;
-  white-space: nowrap;
 `;
 
 const InfoBox = styled.div`
@@ -767,5 +882,290 @@ const CloseActionButton = styled.button`
     background: rgba(100, 255, 218, 0.16);
     border-color: #64ffda;
     color: #64ffda;
+  }
+`;
+
+const AugmentCheckBtn = styled.button`
+  width: 100%;
+  height: 32px;
+  background: linear-gradient(135deg, rgba(20, 30, 40, 0.95), rgba(10, 15, 20, 0.9));
+  color: #64ffda;
+  border: 1px solid rgba(100, 255, 218, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  border-radius: 7px;
+  padding: 0 6px;
+  font-size: 11.5px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  margin-top: 5px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(30, 45, 60, 0.95), rgba(10, 15, 20, 0.9));
+    border-color: rgba(100, 255, 218, 0.7);
+    box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+  }
+  &:active {
+    transform: scale(0.97);
+  }
+`;
+
+const SubModalContainer = styled.div`
+  background: rgba(15, 23, 42, 0.98);
+  border: 1.5px solid rgba(100, 255, 218, 0.4);
+  border-radius: 14px;
+  padding: 18px 18px 14px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9);
+  position: relative;
+  box-sizing: border-box;
+  cursor: default;
+
+  @media (max-width: 480px) {
+    padding: 14px 12px 12px;
+    width: 95%;
+  }
+`;
+
+const SubModalHeader = styled.div`
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+`;
+
+const SubModalHeaderTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const SubModalTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const SubModalEmoji = styled.span`
+  font-size: 1.3rem;
+`;
+
+const SubModalTitle = styled.h3`
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+`;
+
+const SubModalNotice = styled.p`
+  margin: 6px 0 0 0;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  word-break: keep-all;
+`;
+
+const SubModalAugList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+`;
+
+const SubModalAugCard = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+`;
+
+const SubModalIconCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+`;
+
+const SubModalCostTag = styled.span`
+  font-size: 0.65rem;
+  color: #64ffda;
+  background: rgba(100, 255, 218, 0.1);
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+`;
+
+const SubModalAugMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+`;
+
+const SubModalAugNameRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 2px;
+`;
+
+const SubModalAugName = styled.span`
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  word-break: keep-all;
+`;
+
+const SubModalBadge = styled.span`
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  ${(props) =>
+    props.$isChoice
+      ? `
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.45);
+  `
+      : `
+    background: rgba(100, 255, 218, 0.16);
+    color: #64ffda;
+    border: 1px solid rgba(100, 255, 218, 0.45);
+  `}
+`;
+
+const SubModalAugDesc = styled.p`
+  margin: 0;
+  font-size: 0.74rem;
+  color: #94a3b8;
+  line-height: 1.35;
+  white-space: pre-line;
+  word-break: keep-all;
+`;
+
+const SubModalConnectorRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 10px;
+`;
+
+const SubModalConnectorLine = styled.div`
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.5), rgba(255, 215, 0, 0.1));
+`;
+
+const SubModalConnectorBadge = styled.span`
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffd700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+`;
+
+const SubModalBuffCard = styled.div`
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(50, 42, 16, 0.95) 0%, rgba(22, 45, 64, 0.95) 100%);
+  border: 1.5px solid #ffd700;
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.25);
+  margin-bottom: 12px;
+  text-align: left;
+`;
+
+const SubModalBuffHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+`;
+
+const SubModalBuffMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+`;
+
+const SubModalBuffNameRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+  flex-wrap: wrap;
+`;
+
+const SubModalBuffName = styled.span`
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #ffffff;
+`;
+
+const SubModalSynergyPill = styled.span`
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  border: 1px solid rgba(255, 215, 0, 0.5);
+`;
+
+const SubModalActiveTag = styled.span`
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64ffda;
+`;
+
+const SubModalBuffDesc = styled.p`
+  margin: 0;
+  font-size: 0.74rem;
+  color: #fde68a;
+  line-height: 1.35;
+  white-space: pre-line;
+  word-break: keep-all;
+`;
+
+const SubModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+`;
+
+const SubModalConfirmBtn = styled.button`
+  width: 100%;
+  padding: 8px 0;
+  font-size: 0.92rem;
+  border: 1px solid rgba(100, 255, 218, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(100, 255, 218, 0.12);
+  color: #64ffda;
+  font-weight: 700;
+  font-family: inherit;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(100, 255, 218, 0.24);
+    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);
   }
 `;

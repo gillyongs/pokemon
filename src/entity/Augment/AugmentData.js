@@ -10,7 +10,24 @@ import skillList from "../Skill/skillList";
 import { Skill } from "../Skill/Skill";
 import { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb } from "./swordEnhance";
 
+import PokemonData from "../Pokemon/PokemonData";
+
 export { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb };
+
+export const getBaseSpeedStat = (pokemon) => {
+  if (!pokemon) return 100;
+  const pId = pokemon.origin?.pokemon_id || pokemon.pokemon_id || pokemon.origin?.id || pokemon.id;
+  if (pId) {
+    const data = PokemonData.getDataById(pId);
+    if (data && typeof data.speed === "number") return data.speed;
+  }
+  const name = pokemon.name || pokemon.origin?.name;
+  if (name) {
+    const data = PokemonData.items?.find((p) => p.name === name);
+    if (data && typeof data.speed === "number") return data.speed;
+  }
+  return 100;
+};
 
 export const getReplacementAugmentWeight = (pokemon) => {
   const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
@@ -81,6 +98,20 @@ export const isPhysicalPokemon = (pokemon) => {
     return stype === "atk" && !EXCLUDED_STAT_TYPE_SKILLS.includes(sk?.name);
   });
 };
+export const isPsychicPokemon = (pokemon) => {
+  if (!pokemon) return false;
+  const t1 = pokemon.type1 || pokemon.origin?.type1;
+  const t2 = pokemon.type2 || pokemon.origin?.type2;
+  return t1 === "에스퍼" || t2 === "에스퍼";
+};
+
+export const isMewtwoPokemon = (pokemon) => {
+  if (!pokemon) return false;
+  const name = pokemon.origin?.name || pokemon.name || pokemon.id || "";
+  const pid = pokemon.pokemon_id || pokemon.origin?.pokemon_id || "";
+  return name.includes("뮤츠") || pid === "0150" || pid === "0150-a";
+};
+
 export const isSpecialPokemon = (pokemon) => {
   const stat = getPokemonBaseStats(pokemon);
   if (!stat || typeof stat.atk !== "number" || typeof stat.catk !== "number") return false;
@@ -517,6 +548,14 @@ export const AUGMENT_LIST = [
     },
   },
   {
+    id: "lostTechnologyPsychic",
+    name: "로스트 테크놀로지 (에스퍼)",
+    desc: "에스퍼타입이 과거의 위상을 되찾습니다.\n고스트 타입 공격을 무효로 받고\n강철, 악 타입과 모든 상성 계산이 1배로 적용됩니다.",
+    cost: 0,
+    weight: 200,
+    isEligible: (pokemon) => isMewtwoPokemon(pokemon),
+  },
+  {
     id: "ksante",
     name: "체력 4700 방어력 329 마저201 인 챔피언👤이 저지불가🚫, 쉴드🛡, 벽🧱 넘기는 거 있고요. 에어본🌪 있고, 심지어 쿨타임은 1️⃣초밖에 안되고 마나🧙♂️는 1️⃣5️⃣ 들고 w는 심지어 변신💫하면 쿨 초기화에다가 패시브는 고정피해🗡가 들어가며 그 다음에 방마저🥋 올리면📈 올릴수록📈 스킬 가속⏰이 생기고! q에 스킬가속⏰이 생기고 스킬 속도🚀가 빨라지고📈 그 다음에 공격력🗡 계수가 있어가지고 W가 그 이익-으아아아악😱",
     desc: "항상 방어와 특수방어 중 더 유리한 수치를 사용합니다.",
@@ -718,6 +757,30 @@ export const AUGMENT_LIST = [
     },
   },
 
+  {
+    id: "mewtwoStrikesBack",
+    name: "뮤츠의 역습",
+    desc: `현재 포켓몬을 조금 옛날의 뮤츠와 교체합니다.\n전용 증강 3개를 얻습니다.`,
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon, battleOrTeam, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(pokemon, "뮤츠", battleOrTeam || team),
+    onApply: function (pokemon, battle, options) {
+      const newPoke = replacePokemon(pokemon, "뮤츠 (증강)", battle, { resetAugments: true });
+      if (newPoke) {
+        const grantIds = ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic"];
+        grantIds.forEach((augId) => {
+          const targetAug = AUGMENT_LIST.find((a) => a.id === augId);
+          if (targetAug) {
+            newPoke.applyAugment(targetAug, battle, options);
+          }
+        });
+        newPoke.checkAugmentSynergies?.(battle);
+      }
+    },
+  },
+
   // 특정 포켓몬 전용 증강 =============================================================================
   // =================================================================================================
   {
@@ -883,7 +946,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "practiceMakesCritical",
-    name: "연습이 치명타를 낳는다 🎯",
+    name: "연습이 치명타를 낳는다 💥",
     desc: "공격 시 스택이 쌓이고 스택 당 급소 확률이 1% 증가합니다.",
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "practiceMakesCritical");
@@ -933,6 +996,14 @@ export const AUGMENT_LIST = [
         this.giantBonusHp = bonusHp;
       }
     },
+  },
+  {
+    id: "lostTechnologyCritical",
+    name: "로스트 테크놀로지 (급소)",
+    desc: "과거의 급소 확률 공식을 사용합니다.\n급소 확률이 스피드 종족값에 비례합니다.",
+    synergy: true,
+    isRandom: false,
+    weight: "-",
   },
   {
     id: "gamblingAddict",
@@ -1183,6 +1254,7 @@ export const AUGMENT_SYNERGY_MAP = {
   practiceMakesCritical: ["infinityEdge", "bladeOfTheRuinedKing", "collector"], // 연습이 치명타를 낳는다: [무한의 대검, 몰락한 왕의 검, 징수의 총]
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
   giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패]
+  lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic"], // 로스트 테크놀로지 (급소): [로스트 테크놀로지 (특수), 로스트 테크놀로지 (눈보라), 로스트 테크놀로지 (에스퍼)]
 };
 
 export const SYNERGY_INFO_MAP = {
@@ -1228,6 +1300,11 @@ export const SYNERGY_INFO_MAP = {
     title: "거인의 흡수",
     desc: "매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치만큼 추가 HP를 얻습니다.",
   },
+  lostTechnologyCritical: {
+    theme: "로스트 테크놀로지",
+    title: "로스트 테크놀로지 (급소)",
+    desc: "과거의 급소 확률 공식을 사용합니다. 스피드 종족값이 높을수록 급소에 맞을 확률이 높아집니다.",
+  },
 };
 
 /**
@@ -1268,7 +1345,7 @@ export const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   ["revivePiece", "maxRevive"],
 
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
-  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight"],
+  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack"],
 
   // 3. 능력치 전환 증강: 동시에 2개 이상 나오지 않음
   ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"],
@@ -1568,6 +1645,17 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
   } else if (id === "lostTechnologyBlizzard") {
     if (isTextScreen) {
       individualDesc = `${names} 눈보라의 과거 위상을 되찾았다!`;
+    }
+  } else if (id === "mewtwoStrikesBack") {
+    const fromName = prevPokeName || "포켓몬";
+    individualDesc = josa(`${fromName}#{이} 뮤츠로 교체되었다!`);
+  } else if (id === "lostTechnologyPsychic") {
+    if (isTextScreen) {
+      individualDesc = `${names} 에스퍼타입의 과거 위상을 되찾았다!`;
+    }
+  } else if (id === "lostTechnologyCritical") {
+    if (isTextScreen) {
+      individualDesc = `${names} 과거의 급소 확률 공식을 되찾았다!`;
     }
   } else if (id === "rouletteWheel" || id === "marriedPokemon") {
     const fromName = prevPokeName || target?.name || "포켓몬";

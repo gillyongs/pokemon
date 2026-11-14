@@ -14,6 +14,7 @@ export const DEDICATED_AUGMENT_POKEMON = {
   harmfulBird: "0663",
   klinklangGear: "0601",
   magikarpJump: "0129-g",
+  mewtwoStrikesBack: "0150-a",
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
@@ -34,6 +35,9 @@ export const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   "0601": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   magikarpJump: { shiftUp: true, offsetY: -4.5, scale: 1.35 },
   "0129-g": { shiftUp: true, offsetY: -4.5, scale: 1.35 },
+  mewtwoStrikesBack: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0150-a": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0150": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null }) => {
@@ -1327,7 +1331,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         )}
 
         {/* 6. 로스트 테크놀로지 (특수) (수제 벡터 클래식 게임보이 DMG-01) */}
-        {(id === "specialSwordAndShield" || id === "lostTechnologyBlizzard") && (
+        {(id === "specialSwordAndShield" || id === "lostTechnologyBlizzard" || id === "lostTechnologyPsychic" || id === "lostTechnologyCritical") && (
           <g>
             {/* 1. 후면 레트로 사이버 그린 오라 & 픽셀 비트 빛무리 */}
             <g filter="url(#glow)">

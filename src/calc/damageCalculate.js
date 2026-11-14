@@ -92,7 +92,7 @@ export const damageCalculate = (battle, obj, ai) => {
   } else if (attackStat === "catk") {
     // 특수 공격이면 상대 특방과 계산
     defenseStat = "cdef";
-    if (skill.name === "사이코쇼크") {
+    if (skill.name === "사이코쇼크" || skill.name === "사이코브레이크") {
       defenseStat = "def";
     }
   }

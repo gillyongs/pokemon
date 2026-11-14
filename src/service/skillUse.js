@@ -6,6 +6,7 @@ import { beforeSkillCheck, afterSkillCheck } from "./skillCheck";
 import { random } from "../util/randomCheck";
 import { getAccuracy } from "../calc/accuracyCalculate";
 import { skillTypeCalculate } from "../calc/skillTypeCalculate";
+import { getBaseSpeedStat } from "../entity/Augment/AugmentData";
 
 export const skillUse = (bt, enqueue) => {
   const skillNumber = bt.turn.atkSN;
@@ -253,10 +254,20 @@ const criticalRate = (input, pokemon = null) => {
   let probability = 0;
   switch (input) {
     case 0:
-      probability = 1 / 24;
+      if (pokemon?.hasAugment?.("lostTechnologyCritical")) {
+        const baseSpeed = getBaseSpeedStat(pokemon);
+        probability = baseSpeed / 512;
+      } else {
+        probability = 1 / 24;
+      }
       break;
     case 1:
-      probability = 1 / 8;
+      if (pokemon?.hasAugment?.("lostTechnologyCritical")) {
+        const baseSpeed = getBaseSpeedStat(pokemon);
+        probability = baseSpeed / 64;
+      } else {
+        probability = 1 / 8;
+      }
       break;
     case 2:
       probability = 1 / 2;

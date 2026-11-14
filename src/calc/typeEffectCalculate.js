@@ -29,6 +29,30 @@ const isMindEye = (pokemon, skillType, t1, t2) => {
   return (pokemon?.abil === "심안" || pokemon?.abil === "배짱") && isOneOf(skillType, ["격투", "노말"]) && hasType("고스트", t1, t2);
 };
 
+/**
+ * [증강] 상성 변경 보정 처리 함수
+ * 기존의 순수 상성 계산 공식(onlyTypeEffectCalculate)을 수정하지 않고,
+ * 증강에 의해 특수하게 변경되는 상성 배율을 우선 계산하여 반환합니다.
+ * @returns {number|null} 증강에 의해 상성이 재정의되면 배율(0, 1 등), 해당 없으면 null
+ */
+export const getAugmentTypeMultiplier = (atk, def, skillType, t1, t2) => {
+  // [증강: 로스트 테크놀로지 (에스퍼)] - 피격 시: 고스트 무효(0배), 악/강철 공격 1배
+  if (def?.hasAugment?.("lostTechnologyPsychic")) {
+    if (skillType === "고스트") return 0;
+    if (skillType === "악" || skillType === "강철") return 1;
+  }
+
+  // [증강: 로스트 테크놀로지 (에스퍼)] - 공격 시: 에스퍼 기술로 공격 시 악(원래 0배) 및 강철(원래 0.5배)을 1배로 계산
+  if (atk?.hasAugment?.("lostTechnologyPsychic") && skillType === "에스퍼") {
+    const chart = typeChart[skillType] || {};
+    const mult1 = (t1 === "악" || t1 === "강철") ? 1 : (chart[t1] ?? 1);
+    const mult2 = (t2 === "악" || t2 === "강철") ? 1 : (chart[t2] ?? 1);
+    return mult1 * mult2;
+  }
+
+  return null;
+};
+
 export const typeCheck = (skillType, t1, t2, skillName) => {
   // 특성, 아이템등을 반영하지 않고 오직 상성만을 체크
   // field.js: 스텔스록 데미지 계산
@@ -46,6 +70,10 @@ export const typeCheckOnBattle = (battle, skillType, t1, t2, skillName, defPoke 
   const def = defPoke || battle?.[battle?.turn?.def];
   const activeSkillName = skillName || atk?.turn?.useSkill?.name || atk?.origin?.skill?.[battle?.turn?.atkSN]?.name;
   if (activeSkillName === "발버둥") return 1;
+
+  // [증강: 로스트 테크놀로지 (에스퍼) 등 증강 상성 보정]
+  const augmentMult = getAugmentTypeMultiplier(atk, def, skillType, t1, t2);
+  if (augmentMult !== null) return augmentMult;
 
   // [증강: 무효 겟또다제]
   if (def?.hasAugment?.("nullifyGetto")) {
@@ -95,6 +123,15 @@ export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass, skillN
   }
   if (skillName === "발버둥") {
     return "○ 효과가 있음";
+  }
+
+  // [증강: 로스트 테크놀로지 (에스퍼) 등 증강 상성 보정]
+  const augmentMult = getAugmentTypeMultiplier(pokemon, defPokemon, skillType, t1, t2);
+  if (augmentMult !== null) {
+    if (augmentMult === 1) return "○ 효과가 있음";
+    if (augmentMult > 1) return "◎ 효과가 굉장함";
+    if (augmentMult === 0) return "✕ 효과가 없음";
+    return "△ 효과가 별로";
   }
 
   // npc한테 증강 없어서 상관없긴 한데 굳이 뺼 필욘 없으니까...

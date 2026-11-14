@@ -20,6 +20,7 @@ export const AUGMENT_POKEMON_PREVIEW_MAP = {
   magikarpJump: "잉어킹",
   blackNight: "무한다이노",
   eternamax: "무한다이노",
+  mewtwoStrikesBack: "뮤츠 (증강)",
 };
 
 const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialTarget = null, battle = null, onSelect, onClose, isTestMode: propTestMode = null, isTitanSelection = false }) => {
