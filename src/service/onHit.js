@@ -17,7 +17,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   if (defPokemon.item === "풍선") {
     //기절하거나 탁떨, 대타출동 상태중에 맞아도 풍선은 무조건 터진다
     const text = defPokemon.name + "의 풍선이 터졌다!";
-    defPokemon.item = null;
+    defPokemon.consumeItem();
     enqueue({ id: "13bb1111-7771-46b2-b0f6-b5b95f4bc81b", battle, text: text });
   }
 
@@ -28,7 +28,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   if (defPokemon.item === "슈케열매" && useSkill?.type === "땅" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     const typeDamage = typeCheckOnBattle(battle, useSkill.type, defPokemon.type1, defPokemon.type2);
     if (typeDamage > 1) {
-      defPokemon.item = null;
+      defPokemon.consumeItem();
       enqueue({ id: "7c0782c7-e4a8-4dc9-9bc6-22738696e17e", battle, text: `${defPokemon.names("는")} 슈케열매로 땅타입 기술의 위력을 반감시켰다!` });
     }
   }

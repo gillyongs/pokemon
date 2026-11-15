@@ -162,7 +162,7 @@
 ### 3.3 스피드 계산: `speedCalculate(pokemon, baseSpeed, battle, abil, rankOverride)` (`src/calc/speedCheck.js`)
 - **계산 순서**:
   1. 기초 스피드: `hhgghgg` 보유 시 `getHighestStatInfo`의 최댓값 스탯/랭크 사용, 아니면 `getAugmentedStat(pokemon, "speed", battle)`.
-  2. 랭크 배율(`getMultiplier(rank)`), 마비(`* 0.5`), 구애스카프(`* 1.5`), 고대활성/쿼크차지(`* 1.5`), 곡예(`* 2`), 순풍(`* 2`), 쓱쓱(`* 2`), 패스트스타트 5턴 후(`* 2`), 슬로스타트 5턴 미만(`* 0.5`).
+  2. 랭크 배율(`getMultiplier(rank)`), 마비(`* 0.5`), 구애스카프(`* 1.5`), 고대활성/쿼크차지(`* 1.5`), 곡예(`tempStatus.unburden` 활성화 시 `* 2`, 교체 시 해제), 순풍(`* 2`), 쓱쓱(`* 2`), 패스트스타트 5턴 후(`* 2`), 슬로스타트 5턴 미만(`* 0.5`).
   3. 증강 배율: `dragonHunter` (상대가 드래곤일 때 `* 1.5`), `dragonDie` (`1 + Math.floor(dragonKillCount / 2) * 0.1`), `lifePartner` (`* 1.1`), `lastWarrior` (혼자 남았을 때 `* 1.6`).
 
 ### 3.4 데미지 계산: `damageCalculate(battle, skillNumber, options)` (`src/calc/damageCalculate.js`)

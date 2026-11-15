@@ -36,7 +36,7 @@ export const PokemonAbil = {
     // 부스트에너지에 의한 발동
     else if (this.item === "부스트에너지") {
       this.tempStatus.protosynthesis = maxKey;
-      this.item = null;
+      this.consumeItem();
       enqueue({
         id: "ba65c986-1270-49c7-b195-91251dad5ec1",
         battle,
@@ -69,7 +69,7 @@ export const PokemonAbil = {
 
     // 부스트에너지를 지니고있을시 즉시 재발동
     if (this.item === "부스트에너지") {
-      this.item = null;
+      this.consumeItem();
       enqueue({
         id: "fd7b98f0-a2ef-4a7d-90e0-9f649e088fb4",
         battle,
@@ -107,7 +107,7 @@ export const PokemonAbil = {
     // 부스트에너지에 의한 발동
     else if (this.item === "부스트에너지") {
       this.tempStatus.quarkDrive = maxKey;
-      this.item = null;
+      this.consumeItem();
       enqueue({
         id: "59a4af2d-968f-4950-a53b-ee1a633d589d",
         battle,
@@ -140,7 +140,7 @@ export const PokemonAbil = {
 
     // 부스트에너지를 지니고있을시 즉시 재발동
     if (this.item === "부스트에너지") {
-      this.item = null;
+      this.consumeItem();
       enqueue({
         id: "121869a7-a593-4660-84da-15134b3b9dd8",
         battle,

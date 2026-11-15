@@ -122,6 +122,7 @@ class PokemonInstance {
       hitCount: 0, // 피격 횟수 (분노의주먹 위력계산) * 교체하면 초기화되게 너프됐음
       firstTurn: true, // 배틀 등장 첫 턴 여부 (속이기, 만나자마자 성공 판정)
       turnsOnField: 0, // 필드에 나온 턴 수 (슬로스타트)
+      unburden: false, // 곡예: 도구 소모/상실 시 true, 교체 시 초기화
     };
     this.img_id = null; // 포켓몬 스프라이트만 바꾸고 싶을때 사용 (기기기어르, 1세대 뮤츠)
     this.faint = null; //기절 여부
@@ -224,6 +225,17 @@ class PokemonInstance {
   // 원본 이름 기반 조사 헬퍼 (로그 출력 시 "상대 " 접두사 방지 등)
   baseNames(postposition) {
     return josa(`${this.o.name}#{${postposition}}`);
+  }
+
+  // 도구 소모/상실 전용 메서드 (곡예 특성 발동 포함)
+  consumeItem() {
+    if (!this.item) return null;
+    const lostItem = this.item;
+    this.item = null;
+    if (this.abil?.name === "곡예" && this.tempStatus) {
+      this.tempStatus.unburden = true;
+    }
+    return lostItem;
   }
 
   // --- 원본 복원 전용 메서드 ---

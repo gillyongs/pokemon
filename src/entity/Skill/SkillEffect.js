@@ -355,7 +355,7 @@ function skillEffectSearch(name) {
         // 울멧이나 철가시로 공격자가 기절하면 아이템은 떨구지 못한다
         // 약보 : 추가뎀은 무조건 적용. 악타입 약점이면 아이템이 써지고 아니면 떨어진다
         // 탈출버튼, 레드카드, 나무열매 : 발동하지 않고 떨어진다
-        def.item = null;
+        def.consumeItem();
         if (def.abil?.name !== "무아지경") {
           def.tempStatus.onlySkill = null; // 구애 시리즈로 고정된 스킬
         }

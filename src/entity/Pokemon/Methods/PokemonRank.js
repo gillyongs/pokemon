@@ -117,7 +117,7 @@ export const PokemonRank = {
     dropped.forEach((key) => {
       rank[key] = 0;
     });
-    this.item = null;
+    this.consumeItem();
     enqueue({ id: "4f4cbeb9-0f39-466d-b6ab-333e57af715c", battle, text: `${this.names("는")} 하양허브로 떨어진 능력을 원래대로 되돌렸다!` });
     // 디버프를 받기 전 상태로 되돌리는게 아니라, 랭크다운된 능력치를 제로로 만드는게 맞음
   },

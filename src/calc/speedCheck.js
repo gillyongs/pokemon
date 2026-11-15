@@ -66,8 +66,8 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
     speed *= 1.5;
     pokemon.log.speedCalculate += " * 1.5 (쿼크차지)";
   }
-  // 곡예: 원래 도구를 지니고 있었는데 잃은 경우 스피드 2배
-  if (abil === "곡예" && (pokemon.hasConsumedItem)) {
+  // 곡예: 도구가 없어지고 곡예 상태일 때 스피드 2배 (교체 시 초기화)
+  if (abil === "곡예" && pokemon?.tempStatus?.unburden) {
     speed *= 2;
     pokemon.log.speedCalculate += " * 2 (곡예)";
   }

@@ -114,7 +114,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
         // 옹골참 기띠가 동시에 있으면 옹골참이 먼저 쓰인다
       } else if (gdTrigger) {
         gdTextTrigger = true;
-        defPokemon.item = null;
+        defPokemon.consumeItem();
       }
 
       actualGiveDamage -= 1;
