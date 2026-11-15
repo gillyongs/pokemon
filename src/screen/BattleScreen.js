@@ -5,7 +5,7 @@ import { useRecoilValue } from "recoil";
 import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../store/recoilState";
 import { testmode, subscribeTestMode } from "../config/testMode";
-import AugmentModal from "../component/battleScreen/augment/AugmentModal";
+import AugmentSelectModal from "../component/battleScreen/augment/AugmentSelectModal";
 import AugmentStatusModal from "../component/battleScreen/augment/AugmentStatusModal";
 import AugmentCarryoverModal from "../component/battleScreen/augment/AugmentCarryoverModal";
 import RoundOptionsModal from "../component/battleScreen/RoundOptionsModal";
@@ -287,7 +287,7 @@ const Battle = () => {
           onSkipTrade={handleSkipTrade}
         />
         {augmentModalOpen && (
-          <AugmentModal
+          <AugmentSelectModal
             team={
               isTitanSelection && augmentTargetPoke
                 ? [augmentTargetPoke]

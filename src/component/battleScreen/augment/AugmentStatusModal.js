@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_POKEMON_PREVIEW_MAP } from "./AugmentModal";
+import { AUGMENT_POKEMON_PREVIEW_MAP } from "./augmentPreviewConstants";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
