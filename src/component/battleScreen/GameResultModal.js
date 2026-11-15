@@ -54,6 +54,9 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalBox = styled.div`
+  max-height: 60vh;
+  overflow-y: auto;
+  box-sizing: border-box;
   background: rgba(15, 20, 28, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;

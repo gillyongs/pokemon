@@ -181,7 +181,7 @@ const ModalContainer = styled.div`
   padding: 18px 20px 16px;
   width: 100%;
   max-width: 480px;
-  max-height: 90vh;
+  max-height: 80vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -207,7 +207,7 @@ const ModalContainer = styled.div`
 
   @media (max-width: 480px) {
     padding: 14px 12px 14px;
-    max-height: 94vh;
+    max-height: 80vh;
   }
 `;
 

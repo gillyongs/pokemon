@@ -275,7 +275,8 @@ const ModalContainer = styled.div`
   border-radius: 12px;
   width: 92vw;
   max-width: 940px;
-  height: 82vh;
+  height: 60vh;
+  max-height: 60vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);

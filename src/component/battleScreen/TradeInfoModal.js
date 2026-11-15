@@ -128,32 +128,62 @@ const HexagonGraph = ({ pokemon, battle }) => {
   );
 };
 
-const TradeInfoModal = ({ pokemon, battle, onClose }) => {
+const TradeInfoModal = ({ pokemon, pokemonList = [], battle, onClose }) => {
+  const [currentPoke, setCurrentPoke] = useState(pokemon);
   const [infoText, setInfoText] = useState("기술, 특성, 지닌물건, 능력치를 클릭하면 설명이 나옵니다.");
   const [isAugmentStatusOpen, setIsAugmentStatusOpen] = useState(false);
 
-  if (!pokemon) return null;
+  React.useEffect(() => {
+    if (pokemon) {
+      setCurrentPoke(pokemon);
+      setInfoText("기술, 특성, 지닌물건, 능력치를 클릭하면 설명이 나옵니다.");
+    }
+  }, [pokemon]);
 
-  const pokemonName = pokemon.name;
-  const pokemonId = pokemon.img_id || pokemon.uniqueKey;
-  const statusText = getPokemonStatusText(pokemon);
-  const maxHp = hpCalculate(pokemon);
-  const hpRatio = Math.max(0, (pokemon.hp || 0) / (maxHp || 1));
+  const list = pokemonList && pokemonList.length > 0 ? pokemonList : [pokemon];
+
+  const handlePrevPokemon = (e) => {
+    e.stopPropagation();
+    const currentIndex = list.findIndex(
+      (p) => p === currentPoke || (p?.sampleName || p?.id || p?.name) === (currentPoke?.sampleName || currentPoke?.id || currentPoke?.name)
+    );
+    const prevIndex = (currentIndex - 1 + list.length) % list.length;
+    setCurrentPoke(list[prevIndex]);
+    setInfoText("기술, 특성, 지닌물건, 능력치를 클릭하면 설명이 나옵니다.");
+  };
+
+  const handleNextPokemon = (e) => {
+    e.stopPropagation();
+    const currentIndex = list.findIndex(
+      (p) => p === currentPoke || (p?.sampleName || p?.id || p?.name) === (currentPoke?.sampleName || currentPoke?.id || currentPoke?.name)
+    );
+    const nextIndex = (currentIndex + 1) % list.length;
+    setCurrentPoke(list[nextIndex]);
+    setInfoText("기술, 특성, 지닌물건, 능력치를 클릭하면 설명이 나옵니다.");
+  };
+
+  if (!currentPoke) return null;
+
+  const pokemonName = currentPoke.name;
+  const pokemonId = currentPoke.img_id || currentPoke.uniqueKey;
+  const statusText = getPokemonStatusText(currentPoke);
+  const maxHp = hpCalculate(currentPoke);
+  const hpRatio = Math.max(0, (currentPoke.hp || 0) / (maxHp || 1));
 
   let hpColor = "#4ade80";
   if (hpRatio <= 0.25) hpColor = "#ef4444";
   else if (hpRatio <= 0.5) hpColor = "#facc15";
 
-  const normalAugmentCount = (pokemon?.augments || []).filter((a) => isNormalAugment(a)).length;
+  const normalAugmentCount = (currentPoke?.augments || []).filter((a) => isNormalAugment(a)).length;
 
   const handleAbilClick = () => {
-    const abilName = pokemon.abil?.name || pokemon.abil || "없음";
-    const desc = pokemon.abil?.text || abilObject[abilName]?.text || "특성 설명이 없습니다.";
+    const abilName = currentPoke.abil?.name || currentPoke.abil || "없음";
+    const desc = currentPoke.abil?.text || abilObject[abilName]?.text || "특성 설명이 없습니다.";
     setInfoText(`[특성: ${abilName}] ${desc}`);
   };
 
   const handleItemClick = () => {
-    const itemName = pokemon.item;
+    const itemName = currentPoke.item;
     if (!itemName) {
       setInfoText("지닌 아이템이 없습니다.");
       return;
@@ -179,9 +209,9 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
 
   const handleStatClick = () => {
     const getStatSummary = (stat) => {
-      const rank = Number(pokemon?.tempStatus?.rank?.[stat] ?? 0);
+      const rank = Number(currentPoke?.tempStatus?.rank?.[stat] ?? 0);
       const mult = getMultiplier(rank);
-      const base = getAugmentedStat(pokemon, stat, battle);
+      const base = getAugmentedStat(currentPoke, stat, battle);
       const finalVal = Math.floor(base * mult);
       const rankStr = rank !== 0 ? `(${rank > 0 ? `+${rank}` : rank})` : "";
       return `${finalVal}${rankStr}`;
@@ -192,12 +222,22 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
     const catk = getStatSummary("catk");
     const cdef = getStatSummary("cdef");
     const speed = getStatSummary("speed");
-    setInfoText(`HP ${pokemon.hp ?? hp}/${hp} | 공격 ${atk} | 방어 ${def} | 특공 ${catk} | 특방 ${cdef} | 스피드 ${speed}`);
+    setInfoText(`HP ${currentPoke.hp ?? hp}/${hp} | 공격 ${atk} | 방어 ${def} | 특공 ${catk} | 특방 ${cdef} | 스피드 ${speed}`);
   };
 
   return (
     <ModalOverlay onClick={onClose}>
       <ModalBox onClick={(e) => e.stopPropagation()}>
+        {list.length > 1 && (
+          <>
+            <NavArrowBtn $dir="left" type="button" onClick={handlePrevPokemon} title="이전 포켓몬">
+              ‹
+            </NavArrowBtn>
+            <NavArrowBtn $dir="right" type="button" onClick={handleNextPokemon} title="다음 포켓몬">
+              ›
+            </NavArrowBtn>
+          </>
+        )}
         <ModalHeader>
           <ModalTitle>포켓몬 정보</ModalTitle>
           <CloseButton type="button" onClick={onClose} title="닫기">
@@ -252,8 +292,8 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
 
             <MetaRow>
               <MetaLabel>타입:</MetaLabel>
-              <TypeBadge $type={pokemon.type1}>{pokemon.type1}</TypeBadge>
-              {pokemon.type2 && <TypeBadge $type={pokemon.type2}>{pokemon.type2}</TypeBadge>}
+              <TypeBadge $type={currentPoke.type1}>{currentPoke.type1}</TypeBadge>
+              {currentPoke.type2 && <TypeBadge $type={currentPoke.type2}>{currentPoke.type2}</TypeBadge>}
             </MetaRow>
           </MetaColumn>
         </TopRow>
@@ -263,7 +303,7 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
         <BottomRow>
           <LeftCol>
             <GraphBox onClick={handleStatClick} title="클릭하여 능력치 상세 보기">
-              <HexagonGraph pokemon={pokemon} battle={battle} />
+              <HexagonGraph pokemon={currentPoke} battle={battle} />
             </GraphBox>
             <AugmentCheckBtn
               type="button"
@@ -279,9 +319,9 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
 
           <SkillsBox>
             {[1, 2, 3, 4].map((skillNumber) => {
-              const skill = pokemon?.skill?.[skillNumber];
+              const skill = currentPoke?.skill?.[skillNumber];
               if (!skill || !skill.name) return null;
-              const displayType = skillTypeCalculate(battle, skill, pokemon) || skill.type || skill.stype;
+              const displayType = skillTypeCalculate(battle, skill, currentPoke) || skill.type || skill.stype;
 
               return (
                 <SkillRowButton key={skillNumber} onClick={() => handleSkillClick(skill)}>
@@ -309,8 +349,8 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
         {isAugmentStatusOpen && (
           <AugmentStatusModal
             battle={battle}
-            team={[pokemon]}
-            initialPokemon={pokemon}
+            team={list}
+            initialPokemon={currentPoke}
             onClose={() => setIsAugmentStatusOpen(false)}
           />
         )}
@@ -693,7 +733,7 @@ const InfoBox = styled.div`
   font-size: 0.85rem;
   line-height: 1.45;
   color: #e2e8f0;
-  min-height: 42px;
+  min-height: 80px;
   display: flex;
   align-items: center;
   text-align: left;
@@ -720,5 +760,47 @@ const ModalButton = styled.button`
   &:hover {
     background: rgba(100, 255, 218, 0.25);
     box-shadow: 0 4px 14px rgba(100, 255, 218, 0.2);
+  }
+`;
+
+
+const NavArrowBtn = styled.button`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  ${({ $dir }) => ($dir === "left" ? "left: 4px;" : "right: 4px;")}
+  width: 28px;
+  height: 52px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(100, 255, 218, 0.45);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  color: #64ffda;
+  font-size: 24px;
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: all 0.2s ease;
+  user-select: none;
+
+  &:hover {
+    background: #64ffda;
+    color: #0f172a;
+    box-shadow: 0 4px 16px rgba(100, 255, 218, 0.6);
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  @media (max-width: 480px) {
+    width: 24px;
+    height: 44px;
+    font-size: 18px;
+    ${({ $dir }) => ($dir === "left" ? "left: 2px;" : "right: 2px;")}
   }
 `;

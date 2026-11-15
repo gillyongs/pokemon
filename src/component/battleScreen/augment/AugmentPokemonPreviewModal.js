@@ -874,7 +874,7 @@ const InfoBox = styled.div`
   font-size: 0.83rem;
   line-height: 1.45;
   color: #f1f5f9;
-  min-height: 44px;
+  min-height: 80px;
   display: flex;
   align-items: center;
   text-align: left;

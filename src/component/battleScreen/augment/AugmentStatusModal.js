@@ -222,6 +222,8 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
+  height: 70vh;
+  max-height: 70vh;
   background: rgba(15, 20, 28, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
@@ -376,9 +378,11 @@ const CardContainer = styled.div`
   flex-direction: column;
   gap: 10px;
   width: 100%;
-  min-height: 120px;
-  max-height: 50vh;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  box-sizing: border-box;
+  padding-right: 4px;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -392,9 +396,13 @@ const CardContainer = styled.div`
 const EmptyChoiceText = styled.div`
   font-size: 0.85rem;
   color: #94a3b8;
-  padding: 32px 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   width: 100%;
+  padding: 32px 0;
 `;
 
 const IconCol = styled.div`

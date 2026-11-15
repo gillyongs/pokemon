@@ -128,7 +128,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           swordFailed: item.augment.swordFailed,
           swordBonusAtk: item.augment.swordBonusAtk,
           swordName: item.augment.swordName,
-          pickedAbility: item.augment.pickedAbility || (item.augment.id === "randomAbility" ? (item.pokemon?.abil?.name || item.pokemon?.abil) : undefined),
+          pickedAbility: item.augment.pickedAbility || (item.augment.id === "randomAbility" ? item.pokemon?.abil?.name || item.pokemon?.abil : undefined),
           targetSlot: item.augment.targetSlot,
           enhancedSkillName: item.augment.enhancedSkillName,
           baseSkillName: item.augment.baseSkillName,
@@ -156,8 +156,6 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
             </SelectAllButton>
           )}
         </PointBar>
-
-        {isCostOver && <AlertBox>최대 코스트({maxPoints})를 초과하여 선택 완료할 수 없습니다!</AlertBox>}
 
         <CardScrollArea>
           {allOwnedAugments.length === 0 ? (
@@ -242,7 +240,8 @@ const ModalContainer = styled.div`
   padding: 20px 22px;
   width: 90vw;
   max-width: 460px;
-  max-height: 85vh;
+  max-height: 70vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
@@ -330,7 +329,7 @@ const CardScrollArea = styled.div`
   gap: 12px;
   padding-right: 4px;
   margin-bottom: 14px;
-  max-height: 50vh;
+  max-height: 60vh;
 
   &::-webkit-scrollbar {
     width: 6px;

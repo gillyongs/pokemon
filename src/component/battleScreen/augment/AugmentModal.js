@@ -31,6 +31,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     return Boolean(testmode);
   });
   const [showAllList, setShowAllList] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (typeof propTestMode === "boolean") {
@@ -211,7 +212,11 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
   const { allEligible, allIneligible } = useMemo(() => {
     const eligible = [];
     const ineligible = [];
+    const trimmed = searchTerm.trim().toLowerCase();
     AUGMENT_LIST.forEach((aug) => {
+      if (trimmed && !aug.name.toLowerCase().includes(trimmed)) {
+        return;
+      }
       if (checkEligibility(aug, activePokemon)) {
         eligible.push(aug);
       } else {
@@ -221,7 +226,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     eligible.sort(compareAugmentNames);
     ineligible.sort(compareAugmentNames);
     return { allEligible: eligible, allIneligible: ineligible };
-  }, [activePokemon]);
+  }, [activePokemon, searchTerm]);
 
   // 레지기가스 선택시 고정 증강
   const titanFixedChoices = useMemo(() => {
@@ -281,6 +286,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     setPreviewInfo(null);
     setSynergyPreviewInfo(null);
     setSelectedAugment(null); // 다른 포켓몬 선택 시 증강 선택 상태 초기화
+    setSearchTerm("");
     setTypeSelectAug(null);
     setSelectedType(null);
     setSkillSelectAug(null);
@@ -309,30 +315,31 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     setSelectedAugment((prev) => (prev?.id === aug.id ? null : aug));
   };
 
-  const handleConfirm = (e) => {
+  const handleConfirm = (e, aug = null) => {
     e?.stopPropagation();
-    if (!selectedAugment || !activePokemon) return;
+    const targetAug = aug || selectedAugment;
+    if (!targetAug || !activePokemon) return;
 
-    if ((selectedAugment.id === "danceOfGarchomp" || selectedAugment.id === "nameIsSalamence") && activePokemon?.skill) {
-      setSkillSelectAug(selectedAugment);
+    if ((targetAug.id === "danceOfGarchomp" || targetAug.id === "nameIsSalamence") && activePokemon?.skill) {
+      setSkillSelectAug(targetAug);
       setSelectedSlot(null);
       return;
     }
 
-    if (selectedAugment.id === "nullifyGetto") {
-      setTypeSelectAug(selectedAugment);
+    if (targetAug.id === "nullifyGetto") {
+      setTypeSelectAug(targetAug);
       setSelectedType(null);
       return;
     }
 
-    if (selectedAugment.id === "teraBlast") {
-      setTypeSelectAug(selectedAugment);
+    if (targetAug.id === "teraBlast") {
+      setTypeSelectAug(targetAug);
       setSelectedType(null);
       return;
     }
 
-    if (selectedAugment.id === "swordEnhance") {
-      setSwordEnhanceAug(selectedAugment);
+    if (targetAug.id === "swordEnhance") {
+      setSwordEnhanceAug(targetAug);
       setSwordLevel(0);
       setSwordFailed(false);
       setSwordLastResult(null);
@@ -340,18 +347,18 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
       return;
     }
 
-    if (["allOrNothing", "russianRoulette", "doOrDie", "highRiskHighReturn", "randomAbility", "oddEven"].includes(selectedAugment.id)) {
+    if (["allOrNothing", "russianRoulette", "doOrDie", "highRiskHighReturn", "randomAbility", "oddEven"].includes(targetAug.id)) {
       clearSlotTimers();
-      setRouletteAug(selectedAugment);
+      setRouletteAug(targetAug);
       setRouletteSpinning(false);
       setRouletteRotation(0);
       setRouletteResult(null);
-      if (selectedAugment.id === "randomAbility") {
+      if (targetAug.id === "randomAbility") {
         setSlotReelItems(buildInitialAbilityReel(activePokemon));
         setSlotOffsetY(0);
         setSlotTransitionEnabled(false);
         resetOddEvenReels();
-      } else if (selectedAugment.id === "oddEven") {
+      } else if (targetAug.id === "oddEven") {
         const init = buildInitialOddEvenReels();
         setOddEvenStatItems(init.statItems);
         setOddEvenDeltaItems(init.deltaItems);
@@ -370,7 +377,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
       return;
     }
 
-    onSelect(selectedAugment, { targetPokemon: activePokemon });
+    onSelect(targetAug, { targetPokemon: activePokemon });
   };
 
   const currentSwordTier = getSwordEnhanceTier(swordLevel);
@@ -1388,7 +1395,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                   </EntryContainer>
                 )}
 
-                <CardContainer $isAll={showAllList}>
+                <CardContainer $isAll={showAllList} onClick={() => setSelectedAugment(null)}>
                   {showAllList ? (
                     allEligible.length === 0 && allIneligible.length === 0 ? (
                       <EmptyChoiceText>등록된 증강이 없습니다.</EmptyChoiceText>
@@ -1417,12 +1424,26 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                                 </CardTitleRow>
                                 <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                               </CardContent>
-                              {isCardSelected && hasPreview && (
-                                <CardPreviewOverlay>
-                                  <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : `${synergyData?.title || "시너지"} 공명 상세정보 보기`}>
-                                    상세정보
-                                  </PreviewInfoButton>
-                                </CardPreviewOverlay>
+                              {isCardSelected && (
+                                <CardActionOverlay onClick={(e) => { e.stopPropagation(); setSelectedAugment(null); }}>
+                                  <CardActionButton
+                                    type="button"
+                                    $variant="confirm"
+                                    onClick={(e) => handleConfirm(e, aug)}
+                                  >
+                                    선택
+                                  </CardActionButton>
+                                  {hasPreview && (
+                                    <CardActionButton
+                                      type="button"
+                                      $variant="info"
+                                      onClick={(e) => handleOpenPreview(e, aug.id)}
+                                      title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : `${synergyData?.title || "시너지"} 공명 상세정보 보기`}
+                                    >
+                                      상세정보
+                                    </CardActionButton>
+                                  )}
+                                </CardActionOverlay>
                               )}
                             </AugmentCard>
                           );
@@ -1486,12 +1507,26 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                             </CardTitleRow>
                             <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
                           </CardContent>
-                          {isCardSelected && hasPreview && (
-                            <CardPreviewOverlay>
-                              <PreviewInfoButton type="button" onClick={(e) => handleOpenPreview(e, aug.id)} title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : `${synergyData?.title || "시너지"} 공명 상세정보 보기`}>
-                                상세정보
-                              </PreviewInfoButton>
-                            </CardPreviewOverlay>
+                          {isCardSelected && (
+                            <CardActionOverlay onClick={(e) => { e.stopPropagation(); setSelectedAugment(null); }}>
+                              <CardActionButton
+                                type="button"
+                                $variant="confirm"
+                                onClick={(e) => handleConfirm(e, aug)}
+                              >
+                                선택
+                              </CardActionButton>
+                              {hasPreview && (
+                                <CardActionButton
+                                  type="button"
+                                  $variant="info"
+                                  onClick={(e) => handleOpenPreview(e, aug.id)}
+                                  title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : `${synergyData?.title || "시너지"} 공명 상세정보 보기`}
+                                >
+                                  상세정보
+                                </CardActionButton>
+                              )}
+                            </CardActionOverlay>
                           )}
                         </AugmentCard>
                       );
@@ -1499,11 +1534,28 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                   )}
                 </CardContainer>
 
-                <ButtonGroup>
-                  <ConfirmButton type="button" disabled={!selectedAugment} onClick={handleConfirm}>
-                    선택
-                  </ConfirmButton>
-                </ButtonGroup>
+                {showAllList && (
+                  <SearchContainer onClick={(e) => e.stopPropagation()}>
+                    <SearchInput
+                      type="text"
+                      placeholder="증강 이름으로 검색..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {searchTerm && (
+                      <SearchClearButton
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSearchTerm("");
+                        }}
+                        title="검색어 지우기"
+                      >
+                        ✕
+                      </SearchClearButton>
+                    )}
+                  </SearchContainer>
+                )}
               </>
             )}
           </ModalContainer>
@@ -1604,6 +1656,8 @@ const PeekToggleButton = styled.button`
 `;
 
 const ModalContainer = styled.div`
+  height: 65vh;
+  max-height: 65vh;
   background: rgba(15, 20, 28, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
@@ -1796,30 +1850,26 @@ const CardContainer = styled.div`
   gap: 10px;
   width: 100%;
   box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 4px;
 
-  ${(props) =>
-    props.$isAll &&
-    `
-    max-height: 52vh;
-    overflow-y: auto;
-    padding-right: 4px;
-    margin-bottom: 4px;
-
-    &::-webkit-scrollbar {
-      width: 5px;
-    }
-    &::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 4px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: rgba(100, 255, 218, 0.35);
-      border-radius: 4px;
-    }
-    &::-webkit-scrollbar-thumb:hover {
-      background: rgba(100, 255, 218, 0.65);
-    }
-  `}
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(100, 255, 218, 0.35);
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 255, 218, 0.65);
+  }
 `;
 
 const TitleGroup = styled.div`
@@ -1944,46 +1994,44 @@ const CardTitleRow = styled.div`
   }
 `;
 
-const CardPreviewOverlay = styled.div`
+const CardActionOverlay = styled.div`
   position: absolute;
   inset: 0;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 12px;
+  border-radius: 10px;
   z-index: 5;
-  pointer-events: none;
+  animation: ${fadeIn} 0.15s ease-out;
 `;
 
-const PreviewInfoButton = styled.button`
+const CardActionButton = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  min-width: 96px;
-  padding: 14px 26px;
-  background: rgba(15, 23, 42, 0.96);
-  border: 1.5px solid #64ffda;
+  min-height: 44px;
+  min-width: 80px;
+  padding: 10px 18px;
   border-radius: 8px;
-  color: #64ffda;
   font-size: 0.95rem;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  pointer-events: auto;
-  transition: all 0.2s ease;
   user-select: none;
   white-space: nowrap;
-  box-shadow:
-    0 4px 18px rgba(0, 0, 0, 0.85),
-    0 0 14px rgba(100, 255, 218, 0.4);
-  animation: ${fadeIn} 0.15s ease-out;
+  transition: all 0.2s ease;
+  background: rgba(15, 23, 42, 0.95);
+  color: #64ffda;
+  border: 1.5px solid #64ffda;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
 
   &:hover {
     background: #64ffda;
     color: #0f172a;
-    box-shadow:
-      0 4px 22px rgba(0, 0, 0, 0.9),
-      0 0 18px rgba(100, 255, 218, 0.7);
+    box-shadow: 0 4px 18px rgba(100, 255, 218, 0.6);
     transform: scale(1.04);
   }
 
@@ -1992,14 +2040,70 @@ const PreviewInfoButton = styled.button`
   }
 
   @media (max-width: 480px) {
-    min-height: 44px;
-    min-width: 84px;
+    min-height: 38px;
+    min-width: 70px;
     font-size: 0.86rem;
-    padding: 10px 18px;
+    padding: 8px 14px;
+  }
+`;
+
+const SearchContainer = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  margin-top: 8px;
+  box-sizing: border-box;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  height: 38px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #f8fafc;
+  font-size: 0.9rem;
+  padding: 0 34px 0 12px;
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: #64ffda;
+    box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+  }
+
+  &::placeholder {
+    color: #64748b;
+  }
+`;
+
+const SearchClearButton = styled.button`
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #f8fafc;
   }
 `;
 
 const EmptyChoiceText = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 0.9rem;
   color: #94a3b8;
   padding: 24px 0;

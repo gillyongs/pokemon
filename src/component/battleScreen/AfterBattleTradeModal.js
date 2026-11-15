@@ -6,7 +6,7 @@ import TradeInfoModal from "./TradeInfoModal";
 const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) => {
   const [tradePlayerIdx, setTradePlayerIdx] = useState(null);
   const [tradeNpcIdx, setTradeNpcIdx] = useState(null);
-  const [tradeInfoPokemon, setTradeInfoPokemon] = useState(null);
+  const [tradeInfoData, setTradeInfoData] = useState(null);
   const [tradeAlertMessage, setTradeAlertMessage] = useState(null);
 
   if (!isOpen || !battle) return null;
@@ -120,7 +120,7 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
                   <TradeInfoButton
                     onClick={(e) => {
                       e.stopPropagation();
-                      setTradeInfoPokemon(p);
+                      setTradeInfoData({ pokemon: p, list: playerTeamFixed });
                     }}
                   >
                     상세정보
@@ -156,7 +156,7 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
                   <TradeInfoButton
                     onClick={(e) => {
                       e.stopPropagation();
-                      setTradeInfoPokemon(p);
+                      setTradeInfoData({ pokemon: p, list: npcTeamFixed });
                     }}
                   >
                     상세정보
@@ -183,7 +183,14 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
           </ModalButton>
         </ModalButtonContainer>
       </ModalBox>
-      {tradeInfoPokemon && <TradeInfoModal pokemon={tradeInfoPokemon} battle={battle} onClose={() => setTradeInfoPokemon(null)} />}
+      {tradeInfoData && (
+        <TradeInfoModal
+          pokemon={tradeInfoData.pokemon}
+          pokemonList={tradeInfoData.list}
+          battle={battle}
+          onClose={() => setTradeInfoData(null)}
+        />
+      )}
       {tradeAlertMessage && (
         <ModalOverlay
           onClick={(e) => {
@@ -247,6 +254,9 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalBox = styled.div`
+  max-height: 60vh;
+  overflow-y: auto;
+  box-sizing: border-box;
   background: rgba(15, 20, 28, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
