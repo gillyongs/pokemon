@@ -340,11 +340,14 @@ const ModalBox = styled.div`
   padding: 20px;
   width: 92vw;
   max-width: 680px;
-  max-height: 82vh;
+  height: 57.4vh;
+  min-height: 57.4vh;
+  max-height: 57.4vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   color: #333;
+  box-sizing: border-box;
 `;
 
 const CloseButton = styled.button`
@@ -414,6 +417,7 @@ const SearchInput = styled.input`
 
 const ListArea = styled.div`
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 4px;
   margin-top: 4px;

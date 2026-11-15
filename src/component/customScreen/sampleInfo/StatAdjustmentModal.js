@@ -3,6 +3,7 @@ import styled from "styled-components";
 import PokemonData from "../../../entity/Pokemon/PokemonData";
 
 export const STAT_KEYS = ["hp", "atk", "def", "catk", "cdef", "speed"];
+export const GRID_STAT_KEYS = ["hp", "speed", "atk", "catk", "def", "cdef"];
 
 const STAT_NAMES = {
   hp: "HP",
@@ -377,30 +378,29 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
             <PresetBtn onClick={() => handleApplyPreset("reset")}>초기화</PresetBtn>
           </PresetSection>
 
-          {/* 4. 능력치 6개 목록 */}
+          {/* 4. 능력치 6개 목록 (2*3 그리드) */}
           <StatsListArea>
-            {STAT_KEYS.map((statKey) => {
+            {GRID_STAT_KEYS.map((statKey) => {
               const isHp = statKey === "hp";
-              const baseVal = baseData[statKey] || 0;
               const finalVal = isHp ? calculatedStats.hp : calculatedStats.stat[statKey];
               const isUp = !isHp && nature.up === statKey && nature.down !== statKey;
               const isDown = !isHp && nature.down === statKey && nature.up !== statKey;
 
               return (
-                <StatRowCard key={statKey}>
-                  <StatLabelCol>
-                    <StatNameRow>
+                <StatCard key={statKey}>
+                  <StatCardTop>
+                    <StatLabelRow>
                       <StatName>{STAT_NAMES[statKey]}</StatName>
                       {isUp && <NatureModifier $type="up">▲</NatureModifier>}
                       {isDown && <NatureModifier $type="down">▼</NatureModifier>}
-                    </StatNameRow>
-                    <StatBaseText>
-                      종족 {baseVal}
-                    </StatBaseText>
-                  </StatLabelCol>
+                    </StatLabelRow>
+                    <FinalStatVal $isUp={isUp} $isDown={isDown}>
+                      {finalVal}
+                    </FinalStatVal>
+                  </StatCardTop>
 
-                  <EvControlCol>
-                    <StepBtn onClick={() => handleEvDirectSet(statKey, 0)}>0</StepBtn>
+                  <EvControlRow>
+                    <StepBtn $wide onClick={() => handleEvDirectSet(statKey, 0)}>0</StepBtn>
                     <StepBtn onClick={() => handleEvChange(statKey, -4)}>-4</StepBtn>
                     <EvInput
                       type="number"
@@ -413,16 +413,9 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
                       aria-label={`${STAT_NAMES[statKey]} 노력치 입력`}
                     />
                     <StepBtn onClick={() => handleEvChange(statKey, 4)}>+4</StepBtn>
-                    <StepBtn onClick={() => handleEvDirectSet(statKey, 252)}>252</StepBtn>
-                  </EvControlCol>
-
-                  <FinalStatCol>
-                    <FinalStatLabel>실수치</FinalStatLabel>
-                    <FinalStatVal $isUp={isUp} $isDown={isDown}>
-                      {finalVal}
-                    </FinalStatVal>
-                  </FinalStatCol>
-                </StatRowCard>
+                    <StepBtn $wide onClick={() => handleEvDirectSet(statKey, 252)}>252</StepBtn>
+                  </EvControlRow>
+                </StatCard>
               );
             })}
           </StatsListArea>
@@ -669,77 +662,80 @@ const PresetBtn = styled.button`
 `;
 
 const StatsListArea = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-`;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 
-const StatRowCard = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 5px 8px;
-  background: #fafafa;
-  border: 1px solid #e0e0e0;
-  border-radius: 7px;
-  box-sizing: border-box;
-`;
-
-const StatLabelCol = styled.div`
-  flex: 0 0 78px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-
-  @media (max-width: 420px) {
-    flex: 0 0 68px;
+  @media (max-width: 480px) {
+    gap: 6px;
   }
 `;
 
-const StatNameRow = styled.div`
+const StatCard = styled.div`
   display: flex;
-  align-items: center;
-  gap: 3px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 6px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-sizing: border-box;
+  min-height: 66px;
+
+  @media (max-width: 480px) {
+    padding: 6px 4px;
+    min-height: 62px;
+  }
+`;
+
+const StatCardTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  margin-bottom: 5px;
+`;
+
+const StatLabelRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
 `;
 
 const StatName = styled.span`
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: bold;
   color: #333;
 `;
 
 const NatureModifier = styled.span`
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: bold;
   color: ${({ $type }) => ($type === "up" ? "#d32f2f" : "#1971c2")};
 `;
 
-const StatBaseText = styled.span`
-  font-size: 0.58rem;
-  color: #888;
-  white-space: nowrap;
+const FinalStatVal = styled.span`
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: ${({ $isUp, $isDown }) => ($isUp ? "#c62828" : $isDown ? "#1565c0" : "#222")};
 `;
 
-const EvControlCol = styled.div`
-  flex: 1;
+const EvControlRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 5px;
-  min-width: 0;
-
-  @media (max-width: 420px) {
-    gap: 3px;
-  }
+  justify-content: space-between;
+  gap: 3px;
+  width: 100%;
 `;
 
 const EvInput = styled.input`
-  width: 44px;
-  height: 30px;
-  margin: 0 4px;
-  padding: 0 2px;
+  width: 38px;
+  height: 26px;
+  margin: 0 1px;
+  padding: 0;
   border: 1px solid ${({ $isMax }) => ($isMax ? "#ff8787" : "#ced4da")};
-  border-radius: 5px;
-  font-size: 0.85rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
   font-weight: bold;
   text-align: center;
   color: ${({ $isMax }) => ($isMax ? "#e03131" : "#2e7d32")};
@@ -760,27 +756,26 @@ const EvInput = styled.input`
   }
   -moz-appearance: textfield;
 
-  @media (max-width: 420px) {
-    width: 38px;
-    height: 27px;
-    margin: 0 4px;
+  @media (max-width: 480px) {
+    width: 34px;
+    height: 24px;
     font-size: 0.78rem;
-    padding: 0 1px;
   }
 `;
 
 const StepBtn = styled.button`
+  flex: ${({ $wide }) => ($wide ? "1.25" : "1")};
+  min-width: ${({ $wide }) => ($wide ? "25px" : "20px")};
   background: #ffffff;
   border: 1px solid #ced4da;
-  border-radius: 5px;
-  padding: 3px 6px;
-  min-width: 29px;
-  height: 30px;
+  border-radius: 4px;
+  height: 26px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: 0.72rem;
+  font-weight: 600;
   color: #495057;
   cursor: pointer;
   box-sizing: border-box;
@@ -791,32 +786,11 @@ const StepBtn = styled.button`
     border-color: #adb5bd;
   }
 
-  @media (max-width: 420px) {
-    padding: 2px 4px;
-    font-size: 0.7rem;
-    min-width: 24px;
-    height: 27px;
+  @media (max-width: 480px) {
+    height: 24px;
+    font-size: 0.68rem;
+    min-width: ${({ $wide }) => ($wide ? "21px" : "16px")};
   }
-`;
-
-const FinalStatCol = styled.div`
-  flex: 0 0 44px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  padding-left: 2px;
-  margin-left: 4px;
-`;
-
-const FinalStatLabel = styled.span`
-  font-size: 0.6rem;
-  color: #888;
-`;
-
-const FinalStatVal = styled.span`
-  font-size: 0.92rem;
-  font-weight: bold;
-  color: ${({ $isUp, $isDown }) => ($isUp ? "#c62828" : $isDown ? "#1565c0" : "#222")};
 `;
 
 const ModalFooter = styled.div`

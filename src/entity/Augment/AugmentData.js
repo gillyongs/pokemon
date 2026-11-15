@@ -377,7 +377,7 @@ export const AUGMENT_LIST = [
     id: "swordAndShield",
     name: "오른손엔 방패 왼손엔 검",
     desc: "항상 공격과 방어 중 더 유리한 수치를 사용합니다.",
-    cost: 3,
+    cost: 2,
     weight: 100,
     isEligible: (pokemon, battle) => canPickStatSwapAugment(pokemon) && isPhysicalPokemon(pokemon) && hasStatRatioDiff(pokemon, "atk", "def", 1.5, battle),
     // damageCalculate.js에 구현
@@ -386,7 +386,7 @@ export const AUGMENT_LIST = [
     id: "specialSwordAndShield",
     name: "로스트 테크놀로지 (특수)",
     desc: "항상 특공과 특방 중 더 유리한 수치를 사용합니다.",
-    cost: 3,
+    cost: 2,
     weight: 100,
     isEligible: (pokemon, battle) => canPickStatSwapAugment(pokemon) && isSpecialPokemon(pokemon) && hasStatRatioDiff(pokemon, "catk", "cdef", 1.5, battle),
     // damageCalculate.js에 구현
@@ -433,7 +433,7 @@ export const AUGMENT_LIST = [
     id: "lostTechnologyHyperBeam",
     name: "로스트 테크놀로지 (파괴광선)",
     desc: "파괴광선이 과거의 위상을 되찾습니다.\n파괴광선으로 적을 쓰러뜨리면 반동을 받지 않습니다.\n공격, 특수공격 중 더 높은 능력치를 사용합니다.",
-    cost: 3,
+    cost: 1,
     weight: 100,
     isEligible: (pokemon) => hasSkill(pokemon, "파괴광선"),
     onApply: function (pokemon, battle, options) {
@@ -473,7 +473,7 @@ export const AUGMENT_LIST = [
     id: "ksante",
     name: "체력 4700 방어력 329 마저201 인 챔피언👤이 저지불가🚫, 쉴드🛡, 벽🧱 넘기는 거 있고요. 에어본🌪 있고, 심지어 쿨타임은 1️⃣초밖에 안되고 마나🧙♂️는 1️⃣5️⃣ 들고 w는 심지어 변신💫하면 쿨 초기화에다가 패시브는 고정피해🗡가 들어가며 그 다음에 방마저🥋 올리면📈 올릴수록📈 스킬 가속⏰이 생기고! q에 스킬가속⏰이 생기고 스킬 속도🚀가 빨라지고📈 그 다음에 공격력🗡 계수가 있어가지고 W가 그 이익-으아아아악😱",
     desc: "항상 방어와 특수방어 중 더 유리한 수치를 사용합니다.",
-    cost: 5,
+    cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
     shortName: "그 긴거",
     isEligible: (pokemon, battle) => canPickStatSwapAugment(pokemon) && hasStatRatioDiff(pokemon, "def", "cdef", 1.5, battle),
@@ -817,7 +817,7 @@ export const AUGMENT_LIST = [
     id: "threeSnails",
     name: "달팽이 세마리 🍁",
     desc: "공격 후 적에게 추가 고정 데미지를 입힙니다.",
-    cost: 3,
+    cost: 2,
     weight: 100,
   },
   {
@@ -1091,7 +1091,7 @@ export const AUGMENT_LIST = [
     id: "eternamax",
     name: "무한 다이맥스",
     desc: "무한 다이맥스 상태가 됩니다.",
-    cost: 10,
+    cost: 5,
     weight: 500,
     shiftUp: false,
     imageOptions: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
