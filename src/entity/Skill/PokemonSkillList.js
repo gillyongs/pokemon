@@ -1,10 +1,10 @@
 import { allSkills } from "./skillList.js";
 
 // 막아 둔 스킬
-export const noLearnSkill = ["테라버스트", "앙코르", "발버둥"];
+const noLearnSkill = ["테라버스트", "앙코르", "발버둥"];
 
 // 미구현된 주요 포켓몬 기술 리스트
-export const UNIMPLEMENTED_SKILLS = [
+const UNIMPLEMENTED_SKILLS = [
   {
     name: "겁나는얼굴",
     type: "노말",
@@ -559,7 +559,7 @@ export const UNIMPLEMENTED_SKILLS = [
   },
 ];
 
-export const UNIMPLEMENTED_SKILL_MAP = UNIMPLEMENTED_SKILLS.reduce((acc, cur) => {
+const UNIMPLEMENTED_SKILL_MAP = UNIMPLEMENTED_SKILLS.reduce((acc, cur) => {
   acc[cur.name] = cur;
   return acc;
 }, {});
@@ -579,7 +579,7 @@ export const UNIMPLEMENTED_SKILL_MAP = UNIMPLEMENTED_SKILLS.reduce((acc, cur) =>
 // 뛰어오르기 (뛰어오르다 X)
 // 셸블레이드 (쉘블레이드 X)
 // 치유소원 (치유의소원 X)
-export const POKEMON_SKILLS = {
+const POKEMON_SKILLS = {
   // 리자몽
   "0006": {
     core: ["솔라빔", "화염방사", "에어슬래시", "플레어드라이브", "니트로차지", "날개쉬기", "용의파동", "오버히트", "웨더볼", "용의춤"],
@@ -1238,7 +1238,7 @@ export const POKEMON_SKILLS = {
   },
 };
 
-export const POKEMON_SKILL_ALIASES = {
+const POKEMON_SKILL_ALIASES = {
   라티오스: "0381",
   팬텀: "0094",
   메가팬텀: "0094-m",
@@ -1297,7 +1297,7 @@ export const POKEMON_SKILL_ALIASES = {
 export const getSkillListForPokemon = (pokemon) => {
   if (!pokemon) return [];
 
-  const rawKey = typeof pokemon === "string" ? pokemon : pokemon.pokemon_id || pokemon.id || pokemon.origin?.pokemon_id || pokemon.origin?.id || pokemon.name;
+  const rawKey = typeof pokemon === "string" ? pokemon : pokemon.uniqueKey || pokemon.sampleName || pokemon.id || pokemon.name;
 
   const key = POKEMON_SKILL_ALIASES[rawKey] || rawKey;
 
@@ -1407,10 +1407,6 @@ export const getSkillListForPokemon = (pokemon) => {
 };
 
 const pokemonSkillList = {
-  noLearnSkill,
-  UNIMPLEMENTED_SKILLS,
-  UNIMPLEMENTED_SKILL_MAP,
-  POKEMON_SKILLS,
   getSkillListForPokemon,
 };
 

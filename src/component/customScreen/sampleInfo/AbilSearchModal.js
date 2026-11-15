@@ -7,9 +7,9 @@ export const getAbilityListForPokemon = (pokemon) => {
   if (!pokemon) return [];
 
   // 1. PokemonData에서 원본 도감 데이터 조회
-  const rawData = PokemonData.getDataById(pokemon.pokemon_id) || PokemonData.getDataById(pokemon.id) || (pokemon.origin ? PokemonData.getDataById(pokemon.origin.pokemon_id || pokemon.origin.id) : null);
+  const abilList = PokemonData.getPokemonDataByUniqueKeyAndColumn(pokemon.uniqueKey, "abilList");
 
-  const rawList = pokemon.abilList || rawData?.abilList || [pokemon.abil];
+  const rawList = abilList || [pokemon.abil?.name || pokemon.abil];
 
   // 중복 제거 및 리스트 가공
   const uniqueList = Array.from(new Set(rawList.filter(Boolean)));
@@ -26,7 +26,7 @@ export const getAbilityListForPokemon = (pokemon) => {
   });
 };
 
-export const sortAbilities = (list, currentAbil) => {
+const sortAbilities = (list, currentAbil) => {
   return [...list].sort((a, b) => {
     const aSelected = a.name === currentAbil;
     const bSelected = b.name === currentAbil;

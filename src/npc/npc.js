@@ -34,7 +34,7 @@ export const makeNpcChoice = (battle, actNumber) => {
   }
 
   let arr = [1, 2, 3, 4, "npcBench1", "npcBench2"];
-  const skills = [1, 2, 3, 4].map((num) => battle.npc.origin.skill[num]);
+  const skills = [1, 2, 3, 4].map((num) => battle.npc.skill[num]);
 
   // 기절한 포켓몬으로 교체 막기
   if (battle.npcBench1?.faint) arr = arr.filter((v) => v !== "npcBench1");
@@ -51,7 +51,7 @@ export const makeNpcChoice = (battle, actNumber) => {
   const disable = battle.npc?.tempStatus?.disable;
   const hasUnbound = battle.npc?.hasAugment?.("unboundChoice");
   const isChoiceLocked = Boolean(battle.npc?.item?.startsWith("구애") && !hasUnbound);
-  const isGorillaLocked = Boolean(battle.npc?.abil === "무아지경" && !hasUnbound);
+  const isGorillaLocked = Boolean(battle.npc?.abil?.name === "무아지경" && !hasUnbound);
   if (onlySkill && (isChoiceLocked || isGorillaLocked)) {
     skills.forEach((sk, i) => {
       const num = i + 1;

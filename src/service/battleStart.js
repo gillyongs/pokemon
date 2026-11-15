@@ -26,8 +26,8 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
   battle.player.turn.substitute = Boolean(battle.player.tempStatus.substitute);
   battle.npc.turn.substitute = Boolean(battle.npc.tempStatus.substitute);
 
-  if (isAttack(actNumber)) battle.player.turn.useSkill = battle.player.origin.skill[actNumber];
-  if (isAttack(npcActNumber)) battle.npc.turn.useSkill = battle.npc.origin.skill[npcActNumber];
+  if (isAttack(actNumber)) battle.player.turn.useSkill = battle.player.skill[actNumber];
+  if (isAttack(npcActNumber)) battle.npc.turn.useSkill = battle.npc.skill[npcActNumber];
 
   // 메가진화 판정 (기술 사용 시 스피드 판정 전 발동)
   const playerMegaTrigger = battle.megaTrigger?.player || options.useMega;
@@ -143,7 +143,7 @@ function isSwitch(act) {
 }
 
 
-export const skillUsePlayer = (bt, actNumber, npcActNumber, enqueue) => {
+const skillUsePlayer = (bt, actNumber, npcActNumber, enqueue) => {
   // skillUse로 들어가기 전에 넣어야 할 변수를 처리한다
   bt.turn.atk = "player";
   bt.turn.def = "npc";

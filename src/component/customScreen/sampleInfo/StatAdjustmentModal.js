@@ -4,7 +4,7 @@ import PokemonData from "../../../entity/Pokemon/PokemonData";
 
 export const STAT_KEYS = ["hp", "atk", "def", "catk", "cdef", "speed"];
 
-export const STAT_NAMES = {
+const STAT_NAMES = {
   hp: "HP",
   atk: "공격",
   def: "방어",
@@ -13,7 +13,7 @@ export const STAT_NAMES = {
   speed: "스피드",
 };
 
-export const NATURE_STAT_OPTIONS = [
+const NATURE_STAT_OPTIONS = [
   { key: "atk", label: "공격" },
   { key: "def", label: "방어" },
   { key: "catk", label: "특공" },
@@ -21,7 +21,7 @@ export const NATURE_STAT_OPTIONS = [
   { key: "speed", label: "스피드" },
 ];
 
-export const NATURE_TABLE = {
+const NATURE_TABLE = {
   "atk-def": { name: "외로운", text: "공격▲ 방어▼" },
   "atk-catk": { name: "고집", text: "공격▲ 특공▼" },
   "atk-cdef": { name: "개구쟁이", text: "공격▲ 특방▼" },
@@ -96,26 +96,7 @@ export const getNatureInfo = (up, down) => {
   };
 };
 
-export const GACHA_OPTIONS = [
-  { id: "6V", name: "6V" },
-  { id: "5V0A", name: "5V0A" },
-  { id: "5V0S", name: "5V0S" },
-  { id: "4V0A0S", name: "4V0A0S" },
-];
 
-export const GACHA_DESCRIPTIONS = {
-  "6V": "모든 능력치 풀보정. 물리 포켓몬이 채용합니다.",
-  "5V0A": "공격 무보정. 특수 포켓몬이 채용합니다.",
-  "5V0S": "스피드 무보정. 물리 트릭룸 포켓몬이 채용합니다.",
-  "4V0A0S": "공, 스핏 무보정. 특수 트릭룸 포켓몬이 채용합니다.",
-};
-
-export const normalizeGacha = (g) => {
-  if (g === "5V1A") return "5V0A";
-  if (g === "5V1S") return "5V0S";
-  if (g === "4V") return "4V0A0S";
-  return g || "6V";
-};
 
 export const calculateStat = (base, iv, ev, isHp = false, natureUp = false, natureDown = false) => {
   if (isHp) {
@@ -129,11 +110,10 @@ export const calculateStat = (base, iv, ev, isHp = false, natureUp = false, natu
   return val;
 };
 
-const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, currentNature, currentGacha = "6V", onSave, onClose }) => {
+const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, currentNature, onSave, onClose }) => {
   const baseData = useMemo(() => {
     return (
-      PokemonData.getDataById(pokemon.pokemon_id) ||
-      PokemonData.getDataById(pokemon.id) || {
+      PokemonData.getPokemonDataByUniqueKey(pokemon.uniqueKey) || {
         hp: 100,
         atk: 100,
         def: 100,
@@ -164,22 +144,16 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
 
   const [evs, setEvs] = useState({ ...defaultEvs });
   const [nature, setNature] = useState({ ...defaultNature });
-  const [gacha, setGacha] = useState(normalizeGacha(currentGacha || pokemon.gacha));
+  const ivs = useMemo(() => ({
+    hp: 31,
+    atk: 31,
+    def: 31,
+    catk: 31,
+    cdef: 31,
+    speed: 31,
+  }), []);
 
-  const ivs = useMemo(() => {
-    const isSpeed0 = gacha === "5V0S" || gacha === "4V0A0S" || gacha === "5V1S" || gacha === "4V";
-    const isAtk0 = gacha === "5V0A" || gacha === "4V0A0S" || gacha === "5V1A" || gacha === "4V";
-    return {
-      hp: 31,
-      atk: isAtk0 ? 0 : 31,
-      def: 31,
-      catk: 31,
-      cdef: 31,
-      speed: isSpeed0 ? 0 : 31,
-    };
-  }, [gacha]);
-
-  const maxAllowedEv = pokemon.abil === "전관예우" ? 1512 : 508;
+  const maxAllowedEv = (pokemon.abil?.name || pokemon.abil) === "전관예우" ? 1512 : 508;
   const totalEv = Object.values(evs).reduce((a, b) => a + (Number(b) || 0), 0);
   const remainingEv = maxAllowedEv - totalEv;
   const isOverEv = totalEv > maxAllowedEv;
@@ -200,7 +174,7 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
 
     let megaData = null;
     if (pokemon.megaData) {
-      const megaBase = PokemonData.getDataById(pokemon.megaData.pokemon_id);
+      const megaBase = PokemonData.getPokemonDataByUniqueKey(pokemon.megaData.uniqueKey);
       if (megaBase) {
         megaData = {
           ...pokemon.megaData,
@@ -261,7 +235,6 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
     if (presetType === "sample") {
       setEvs({ ...(pokemon.evs || defaultEvs) });
       setNature({ ...(pokemon.nature || defaultNature) });
-      setGacha(normalizeGacha(pokemon.gacha));
     } else if (presetType === "reset") {
       setEvs({ hp: 0, atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 });
     } else if (presetType === "AS252") {
@@ -302,7 +275,6 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
         stat: calculatedStats.stat,
         evs: cleanEvs,
         nature,
-        gacha,
         megaData: calculatedStats.megaData || pokemon.megaData,
       });
     }
@@ -376,23 +348,7 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
             </NatureRow>
           </NatureSection>
 
-          {/* 2. 개체값 선택 (위에서 2번째: 성격과 노력치 사이) */}
-          <GachaSection>
-            <SectionHeader>
-              <SectionTitle>개체값</SectionTitle>
-            </SectionHeader>
-            <GachaButtonGroup>
-              {GACHA_OPTIONS.map((opt) => {
-                const isSelected = gacha === opt.id;
-                return (
-                  <GachaBtn key={opt.id} $isSelected={isSelected} onClick={() => setGacha(opt.id)}>
-                    {opt.name}
-                  </GachaBtn>
-                );
-              })}
-            </GachaButtonGroup>
-            <GachaDescBox>{GACHA_DESCRIPTIONS[gacha] || GACHA_DESCRIPTIONS["6V"]}</GachaDescBox>
-          </GachaSection>
+
 
           {/* 3. 총 노력치 프로그레스 및 프리셋 */}
           <EvSummaryBox $isOver={isOverEv}>
@@ -426,8 +382,6 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
             {STAT_KEYS.map((statKey) => {
               const isHp = statKey === "hp";
               const baseVal = baseData[statKey] || 0;
-              const ivVal = ivs[statKey];
-              const evVal = Number(evs[statKey]) || 0;
               const finalVal = isHp ? calculatedStats.hp : calculatedStats.stat[statKey];
               const isUp = !isHp && nature.up === statKey && nature.down !== statKey;
               const isDown = !isHp && nature.down === statKey && nature.up !== statKey;
@@ -441,7 +395,7 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
                       {isDown && <NatureModifier $type="down">▼</NatureModifier>}
                     </StatNameRow>
                     <StatBaseText>
-                      종족 {baseVal} · IV {ivVal}
+                      종족 {baseVal}
                     </StatBaseText>
                   </StatLabelCol>
 
@@ -652,48 +606,7 @@ const NatureSelectBtn = styled.button`
   }
 `;
 
-const GachaSection = styled.div`
-  background: #fdfdfd;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 7px 10px 8px;
-  text-align: left;
-`;
 
-const GachaButtonGroup = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin-top: 4px;
-`;
-
-const GachaBtn = styled.button`
-  padding: 6px 0;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: bold;
-  transition: all 0.15s ease;
-  text-align: center;
-  border: 1px solid ${({ $isSelected }) => ($isSelected ? "#339af0" : "#dee2e6")};
-  background: ${({ $isSelected }) => ($isSelected ? "#e7f5ff" : "#ffffff")};
-  color: ${({ $isSelected }) => ($isSelected ? "#1864ab" : "#495057")};
-
-  &:hover {
-    background: ${({ $isSelected }) => ($isSelected ? "#d0ebff" : "#f8f9fa")};
-  }
-`;
-
-const GachaDescBox = styled.div`
-  margin-top: 6px;
-  padding: 6px 10px;
-  background: #f8f9fa;
-  border-left: 3px solid #339af0;
-  border-radius: 4px;
-  font-size: 0.74rem;
-  color: #495057;
-  line-height: 1.4;
-`;
 
 const EvSummaryBox = styled.div`
   background: ${({ $isOver }) => ($isOver ? "#fff5f5" : "#f8f9fa")};

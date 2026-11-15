@@ -6,7 +6,7 @@ import { hpCalculate } from "../../calc/hpCalculate";
 import { getMultiplier } from "../../calc/rankStat";
 import { TYPE_COLORS } from "../../calc/typeEffectCalculate";
 import { abilObject } from "../../entity/Ability";
-import { itemText as itemTextDict } from "../../entity/Item";
+import { itemText } from "../../entity/Item";
 import { isOnlyPrioritySkillText } from "../customScreen/sampleInfo/SkillSearchModal";
 import { isNormalAugment } from "../../entity/Augment/AugmentData";
 import AugmentStatusModal from "./augment/AugmentStatusModal";
@@ -135,7 +135,7 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
   if (!pokemon) return null;
 
   const pokemonName = pokemon.name;
-  const pokemonId = pokemon.img_id || pokemon.pokemon_id;
+  const pokemonId = pokemon.img_id || pokemon.uniqueKey;
   const statusText = getPokemonStatusText(pokemon);
   const maxHp = hpCalculate(pokemon);
   const hpRatio = Math.max(0, (pokemon.hp || 0) / (maxHp || 1));
@@ -147,18 +147,18 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
   const normalAugmentCount = (pokemon?.augments || []).filter((a) => isNormalAugment(a)).length;
 
   const handleAbilClick = () => {
-    const abilName = pokemon.abil || p.abil || "없음";
-    const desc = pokemon.abilObj?.text || p.abilObj?.text || abilObject[abilName]?.text || "특성 설명이 없습니다.";
+    const abilName = pokemon.abil?.name || pokemon.abil || "없음";
+    const desc = pokemon.abil?.text || abilObject[abilName]?.text || "특성 설명이 없습니다.";
     setInfoText(`[특성: ${abilName}] ${desc}`);
   };
 
   const handleItemClick = () => {
-    const itemName = pokemon.item || p.item;
+    const itemName = pokemon.item;
     if (!itemName) {
       setInfoText("지닌 아이템이 없습니다.");
       return;
     }
-    const desc = pokemon.itemText || p.itemText || itemTextDict[itemName] || `${itemName}`;
+    const desc = itemText[itemName] || `${itemName}`;
     setInfoText(`[아이템: ${itemName}] ${desc}`);
   };
 
@@ -238,22 +238,22 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
             <MetaRow>
               <MetaLabel>특성:</MetaLabel>
               <ClickableBadge onClick={handleAbilClick}>
-                {pokemon.abil || p.abil || "없음"}
-                {pokemon.abilObj?.used ? " (사용됨)" : ""}
+                {pokemon.abil?.name || pokemon.abil || "없음"}
+                {pokemon.abil?.used ? " (사용됨)" : ""}
               </ClickableBadge>
             </MetaRow>
 
             <MetaRow>
               <MetaLabel>아이템:</MetaLabel>
               <ClickableBadge onClick={handleItemClick}>
-                {pokemon.item || p.item || "없음"}
+                {pokemon.item || "없음"}
               </ClickableBadge>
             </MetaRow>
 
             <MetaRow>
               <MetaLabel>타입:</MetaLabel>
-              <TypeBadge $type={pokemon.type1 || p.type1}>{pokemon.type1 || p.type1}</TypeBadge>
-              {(pokemon.type2 || p.type2) && <TypeBadge $type={pokemon.type2 || p.type2}>{pokemon.type2 || p.type2}</TypeBadge>}
+              <TypeBadge $type={pokemon.type1}>{pokemon.type1}</TypeBadge>
+              {pokemon.type2 && <TypeBadge $type={pokemon.type2}>{pokemon.type2}</TypeBadge>}
             </MetaRow>
           </MetaColumn>
         </TopRow>
@@ -279,7 +279,7 @@ const TradeInfoModal = ({ pokemon, battle, onClose }) => {
 
           <SkillsBox>
             {[1, 2, 3, 4].map((skillNumber) => {
-              const skill = p?.skill?.[skillNumber] || pokemon?.skill?.[skillNumber];
+              const skill = pokemon?.skill?.[skillNumber];
               if (!skill || !skill.name) return null;
               const displayType = skillTypeCalculate(battle, skill, pokemon) || skill.type || skill.stype;
 

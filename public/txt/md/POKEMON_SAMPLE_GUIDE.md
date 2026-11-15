@@ -98,13 +98,13 @@ new PokemonTemplate("메가킬라플로르", "0970", "5V0A", "CS252", "speed", "
 샘플 추가 후 올바르게 엔진에 등록되었는지 검증하는 단위 테스트 패턴입니다:
 
 ```javascript
-import { generate } from "../../entity/Pokemon/PokemonInstance";
+import { generatePokemonInstance } from "../../entity/Pokemon/PokemonInstance";
 import sampleList from "../../entity/Pokemon/SamplePokemon";
 import Battle from "../../entity/Battle";
 
 describe("메가킬라플로르 실전 샘플 검증", () => {
   it("샘플 템플릿 정보 및 노력치, 성격, 기술배치가 일치해야 한다", () => {
-    const template = sampleList.getDataById("메가킬라플로르");
+    const template = sampleList.getDataBySampleName("메가킬라플로르");
     expect(template.role).toBe("기점잡이");
     expect(template.item).toBe("킬라플로르나이트");
     expect(template.abil).toBe("독치장");
@@ -115,8 +115,8 @@ describe("메가킬라플로르 실전 샘플 검증", () => {
   });
 
   it("인스턴스 생성 및 메가진화 시 메가스펙이 정상 적용되어야 한다", () => {
-    const player = generate("메가킬라플로르");
-    const enemy = generate("한카리아스");
+    const player = generatePokemonInstance("메가킬라플로르");
+    const enemy = generatePokemonInstance("한카리아스");
     const battle = new Battle(player, enemy);
 
     expect(player.isMegaEvolveAble(battle)).toBe(true);

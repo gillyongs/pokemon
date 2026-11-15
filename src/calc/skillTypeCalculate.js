@@ -1,4 +1,3 @@
-import { abilObject } from "../entity/Ability";
 
 export const skillTypeCalculate = (battle, skill, pokemon = null) => {
   if (!skill) return null;
@@ -22,11 +21,7 @@ export const skillTypeCalculate = (battle, skill, pokemon = null) => {
   }
 
   // 스킨류 특성 (스카이스킨, 페어리스킨 등): 노말 타입 기술을 해당 타입으로 변환 (발버둥 제외)
-  const skinFeature = pokeObj?.abilObj?.feature?.skin
-    ? pokeObj.abilObj.feature
-    : abilObject[pokeObj?.abil]?.feature?.skin
-    ? abilObject[pokeObj.abil].feature
-    : null;
+  const skinFeature = pokeObj?.abil?.feature?.skin ? pokeObj.abil.feature : null;
 
   if (skinFeature && type === "노말" && skill.name !== "발버둥") {
     return skinFeature.type;

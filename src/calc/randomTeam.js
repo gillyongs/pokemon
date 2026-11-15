@@ -1,20 +1,20 @@
-import sampleList from "../entity/Pokemon/SamplePokemon";
+import sampleList from "../entity/Pokemon/pokemonSampleList";
 
-export const isSupporter = (pokemon) => pokemon?.role === "기점잡이";
-export const isTanker = (pokemon) =>
+const isSupporter = (pokemon) => pokemon?.role === "기점잡이";
+const isTanker = (pokemon) =>
   pokemon?.role === "물리막이" || pokemon?.role === "특수막이" || pokemon?.role === "막이";
-export const isAttacker = (pokemon) =>
+const isAttacker = (pokemon) =>
   pokemon?.role === "물리어태커" ||
   pokemon?.role === "특수어태커" ||
   pokemon?.role === "물리딜탱" ||
   pokemon?.role === "특수딜탱";
 export const isLegendary = (pokemon) => !!pokemon?.feature?.legendary;
-export const isMega = (pokemon) => !!pokemon?.megaData;
+const isMega = (pokemon) => !!pokemon?.megaData;
 
 /**
  * 포켓몬의 타입이 주어진 타입 집합과 겹치는 개수를 반환합니다.
  */
-export const getOverlapCount = (pokemon, typeSet) => {
+const getOverlapCount = (pokemon, typeSet) => {
   let count = 0;
   if (pokemon?.type1 && typeSet.has(pokemon.type1)) count++;
   if (pokemon?.type2 && typeSet.has(pokemon.type2)) count++;
@@ -24,7 +24,7 @@ export const getOverlapCount = (pokemon, typeSet) => {
 /**
  * 기존 포켓몬들과 타입이 최소한으로 겹치는(가능하면 0개) 후보들을 필터링합니다.
  */
-export const filterByMinTypeOverlap = (candidateList, otherPokemonList) => {
+const filterByMinTypeOverlap = (candidateList, otherPokemonList) => {
   if (!candidateList || candidateList.length <= 1 || !otherPokemonList || otherPokemonList.length === 0) {
     return candidateList;
   }
@@ -62,27 +62,32 @@ export const filterByMinTypeOverlap = (candidateList, otherPokemonList) => {
 export const getRandomPokemonForSlot = (currentTeam, targetIndex, options = {}) => {
   const { forceSupporter, allowSupporter, forceTanker, allowTanker, forceAttacker, allowAttacker, forceLegendary, allowLegendary, forceMega, allowMega } = options;
 
-  const otherPokemon = currentTeam.map((id, i) => (i !== targetIndex && id ? sampleList.getDataById(id) : null)).filter(Boolean);
+  const otherPokemon = currentTeam.map((id, i) => (i !== targetIndex && id ? sampleList.getDataBySampleName(id) : null)).filter(Boolean);
 
-  const existingNos = otherPokemon.map((p) => p.no).filter(Boolean);
+  const existingNos = otherPokemon.map((p) => p.dexNo || p.no).filter(Boolean);
+  const currentTeamNames = currentTeam.map((p) => (typeof p === "object" && p ? p.sampleName || p.id || p.name : p)).filter(Boolean);
   const hasLegendary = otherPokemon.some(isLegendary);
   const hasMega = otherPokemon.some(isMega);
 
-  // 1. 규칙 1 필터링: 초전설 최대 1마리, 메가진화 최대 1마리, 도감번호 중복 불가, 동일 샘플 ID 중복 불가
+  // 1. 규칙 1 필터링: 초전설 최대 1마리, 메가진화 최대 1마리, 도감번호 중복 불가, 동일 샘플 이름 중복 불가
   const rule1Candidates = sampleList.items.filter((p) => {
-    if (currentTeam.includes(p.id)) return false;
-    if (existingNos.includes(p.no)) return false;
+    const sName = p.sampleName || p.id;
+    const dNo = p.dexNo || p.no;
+    if (currentTeamNames.includes(sName)) return false;
+    if (existingNos.includes(dNo)) return false;
     if (hasLegendary && isLegendary(p)) return false;
     if (hasMega && isMega(p)) return false;
     return true;
   });
 
   if (rule1Candidates.length === 0) {
-    const fallback = sampleList.items.filter((p) => !currentTeam.includes(p.id));
+    const fallback = sampleList.items.filter((p) => !currentTeamNames.includes(p.sampleName || p.id));
     if (fallback.length > 0) {
-      return fallback[Math.floor(Math.random() * fallback.length)].id;
+      const picked = fallback[Math.floor(Math.random() * fallback.length)];
+      return picked.sampleName || picked.id;
     }
-    return sampleList.items[Math.floor(Math.random() * sampleList.items.length)].id;
+    const picked = sampleList.items[Math.floor(Math.random() * sampleList.items.length)];
+    return picked.sampleName || picked.id;
   }
 
   // 2. 규칙 2 & 3 필터링
@@ -221,7 +226,7 @@ export const getRandomPokemonForSlot = (currentTeam, targetIndex, options = {}) 
   const candidatesToPick = typeFiltered.length > 0 ? typeFiltered : filtered;
 
   const chosen = candidatesToPick[Math.floor(Math.random() * candidatesToPick.length)];
-  return chosen.id;
+  return chosen.sampleName || chosen.id;
 };
 
 /**
@@ -244,7 +249,7 @@ export const fillRandomTeam = (existingTeam = [null, null, null], teamSize = 3) 
 
   if (emptyIndices.length === 0) return team;
 
-  const existingPokemons = team.filter(Boolean).map((id) => sampleList.getDataById(id));
+  const existingPokemons = team.filter(Boolean).map((id) => sampleList.getDataBySampleName(id)).filter(Boolean);
   const hasExistingLegendary = existingPokemons.some(isLegendary);
   const hasExistingMega = existingPokemons.some(isMega);
   const existingSupporters = existingPokemons.filter(isSupporter).length;

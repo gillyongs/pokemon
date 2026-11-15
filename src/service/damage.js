@@ -18,8 +18,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   const isNoTextSkill = useSkill.feature?.noText || useSkill.feature?.oneShot;
   // 일격기나 고정데미지 스킬은 상성, 급소 텍스트가 뜨지 않는다
-  let atkAbil = battle[battle.turn.atk].abil;
-  let atkAbilObj = battle[battle.turn.atk].abilObj;
+
 
   let commonText = null;
   if (serialAttackObject) {
@@ -34,7 +33,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   // 대타출동
   if (defPokemon.tempStatus.substitute) {
-    if (useSkill.feature?.sound || atkPokemon.abil === "틈새포착") {
+    if (useSkill.feature?.sound || atkPokemon.abil?.name === "틈새포착") {
       // 소리 기술이나 틈새포착 특성은 대타를 뚫는다
     } else {
       defPokemon.turn.substitute = true;
@@ -77,11 +76,11 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   // 특성 "탈" 처리
   let talTrigger = false;
-  if (defPokemon.abil === "탈" && !defPokemon.abilObj?.used) {
-    if (!atkAbilObj.feature?.tgg) {
+  if (defPokemon.abil?.name === "탈" && !defPokemon.abil?.used) {
+    if (!atkPokemon.abil?.feature?.tgg) {
       //틀깨기
       talTrigger = true;
-      defPokemon.abilObj.used = true;
+      defPokemon.abil.used = true;
       const talHp = Math.floor(hpCalculate(defPokemon) / 8);
       if (skDamage > talHp) {
         skDamage = talHp;
@@ -93,7 +92,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   let gdTrigger = defPokemon.item === "기합의띠";
 
   // 옹골참 트리거
-  let ogcTrigger = defPokemon.abil === "옹골참" && !atkAbilObj.feature?.tgg;
+  let ogcTrigger = defPokemon.abil?.name === "옹골참" && !atkPokemon.abil?.feature?.tgg;
 
   let noOneShot = defPokemon.hp === hpCalculate(defPokemon) && (gdTrigger || ogcTrigger);
 
@@ -160,17 +159,17 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
 
   if (ogcTextTrigger) {
-    enqueue({ id: "d13b5f2a-c639-454b-a99b-3cda35125184", battle, text: (commonText || "") + "[특성 옹골참] " + defPokemon.names + " 옹골참으로 버텼다!" });
+    enqueue({ id: "d13b5f2a-c639-454b-a99b-3cda35125184", battle, text: (commonText || "") + "[특성 옹골참] " + defPokemon.names("는") + " 옹골참으로 버텼다!" });
     defaultText = false;
   }
 
   if (gdTextTrigger) {
-    enqueue({ id: "c5586860-fd7d-43fd-9e5a-2b01d89fa561", battle, text: (commonText || "") + defPokemon.names + " 기합의 띠로 버텼다!" });
+    enqueue({ id: "c5586860-fd7d-43fd-9e5a-2b01d89fa561", battle, text: (commonText || "") + defPokemon.names("는") + " 기합의 띠로 버텼다!" });
     defaultText = false;
   }
 
   if (mandooTextTrigger) {
-    enqueue({ id: "68433131-04e8-41e0-8cc4-c13dcc8b93a4", battle, text: (commonText || "") + defPokemon.names + " 플레이어를 슬프게 하지 않으려고 버텼다!" });
+    enqueue({ id: "68433131-04e8-41e0-8cc4-c13dcc8b93a4", battle, text: (commonText || "") + defPokemon.names("는") + " 플레이어를 슬프게 하지 않으려고 버텼다!" });
     defaultText = false;
   }
 
@@ -190,7 +189,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     if (!isConfuseSelfHit && atkPokemon.hasAugment?.("collector") && !atkPokemon.faint && defPokemon.hp <= hpCalculate(defPokemon) * 0.05) {
       executedByCollector = true;
       defPokemon.hp = 0;
-      enqueue({ id: "5d3c74a2-8e14-4d9a-b7c1-904c011ec702", battle, text: `[증강 징수의 총] ${defPokemon.names} 처형당했다!` });
+      enqueue({ id: "5d3c74a2-8e14-4d9a-b7c1-904c011ec702", battle, text: `[증강 징수의 총] ${defPokemon.names("는")} 처형당했다!` });
     }
 
     if (defPokemon.hp > 0) {
@@ -220,7 +219,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     // 길동무
     // handleFaint에서 tempStatus가 초기화되므로 faint 처리 전에 battle.turn에 기록 (발동은 SkillEffect 공통에서 처리)
     if (defPokemon.tempStatus?.destinyBond && !atkPokemon.faint && battle?.turn) {
-      battle.turn.destinyBondUser = defPokemon.names;
+      battle.turn.destinyBondUser = defPokemon.names("는");
     }
 
     // 용용 죽겠지 버프: 드래곤 타입 포켓몬 처치 횟수 누적 (handleFaint 스냅샷에 즉시 반영되도록 직전에 처리)
@@ -252,9 +251,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     defPokemon.handleFaint(battle, enqueue);
 
     // 자기과신
-    if (atkAbilObj.feature?.swip) {
-      let swip = atkAbilObj.feature.swip;
-      let abilName = atkAbilObj.name;
+    if (atkPokemon.abil?.feature?.swip) {
+      let swip = atkPokemon.abil.feature.swip;
+      let abilName = atkPokemon.abil.name;
       if (abilName === "혼연일체(흑)" || abilName === "혼연일체(백)") {
         abilName = "혼연일체";
       }

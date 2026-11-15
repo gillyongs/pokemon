@@ -11,7 +11,7 @@ import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { abilObject } from "../../../../entity/Ability";
 import { isNormalAugment } from "../../../../entity/Augment/AugmentData";
-import { itemText as itemTextDict } from "../../../../entity/Item";
+import { itemText } from "../../../../entity/Item";
 
 const statusTexts = {
   독: "매 턴 HP의 1/8의 데미지를 입는다.",
@@ -167,8 +167,10 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
   const handleAbilClick = (e) => {
     e.stopPropagation();
     clickCountRef.current = 0;
-    const desc = pokemon.abilObj?.text || abilObject[pokemon.abil]?.text || "설명이 없습니다.";
-    setText(`[${pokemon.abil}] ${desc}`);
+    const abilName = pokemon.abil?.name || pokemon.abil;
+    if (!abilName) return;
+    const desc = pokemon.abil?.text || abilObject[abilName]?.text || "설명이 없습니다.";
+    setText(`[${abilName}] ${desc}`);
   };
 
   const handleItemClick = (e) => {
@@ -179,7 +181,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
       setText("지닌 아이템이 없습니다.");
       return;
     }
-    const desc = pokemon.itemText || itemTextDict[pokemon.item] || `${pokemon.item}`;
+    const desc = itemText[pokemon.item] || `${pokemon.item}`;
     setText(`[${pokemon.item}] ${desc}`);
   };
 
@@ -243,7 +245,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
         )}
         <TopRow>
           <SpriteBox>
-            <SpriteImg src={`/pokemon/img/pokemon/${pokemon.img_id || pokemon.pokemon_id}.webp`} alt={pokemon.name} />
+            <SpriteImg src={`/pokemon/img/pokemon/${pokemon.img_id || pokemon.uniqueKey}.webp`} alt={pokemon.name} />
             <HpBarTrack>
               <HpBarFill style={{ width: `${hpRatio * 100}%`, backgroundColor: hpColor }} />
               <HpBarLabel>
@@ -255,7 +257,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
           <MetaColumn>
             <HeaderLine>
               <NameWrap>
-                <PokemonTitle>{pokemon.origin.name}</PokemonTitle>
+                <PokemonTitle>{pokemon.name}</PokemonTitle>
                 {pokemon.isMega && <MegaIcon src="/pokemon/img/background/mega.webp" alt="mega" />}
                 {statusText !== "정상" && (
                   <StatusBadge $color={statusColors[statusText] || "#64ffda"} onClick={handleStatusClick}>
@@ -268,8 +270,8 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
             <MetaRow>
               <MetaLabel>특성:</MetaLabel>
               <ClickableBadge onClick={handleAbilClick}>
-                {pokemon.abil}
-                {pokemon.abilObj?.used ? " (사용됨)" : ""}
+                {pokemon.abil?.name || pokemon.abil}
+                {pokemon.abil?.used ? " (사용됨)" : ""}
               </ClickableBadge>
             </MetaRow>
 
@@ -323,7 +325,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
 
           <SkillsBox>
             {[1, 2, 3, 4].map((skillNumber) => {
-              const skill = pokemon.origin?.skill?.[skillNumber];
+              const skill = pokemon.skill?.[skillNumber];
               if (!skill || !skill.name) return null;
               const pp = pokemon.pp?.[skillNumber] ?? skill.pp;
               const displayType = skillTypeCalculate(battle, skill, pokemon);

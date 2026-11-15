@@ -12,13 +12,13 @@ export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
   battle.turn.textFreeze = null;
   battle.turn.turnEnd = null;
   let isFaintSwitch = battle.player.faint;
-  enqueue({ id: "b83eb420-1c0d-47c1-aa65-c3b7115a7268", battle, text: battle.player.origin.name + " 돌아와!" });
+  enqueue({ id: "b83eb420-1c0d-47c1-aa65-c3b7115a7268", battle, text: battle.player.baseName + " 돌아와!" });
   switchPokemon(battle, "player", actNumber, options);
   battle.turn.turnEnd = null;
   enqueue({
     id: "d62ecb46-560e-40ad-a16a-e57235acf4e2",
     battle,
-    text: "가랏! " + battle.player.origin.name + "!",
+    text: "가랏! " + battle.player.baseName + "!",
   });
 
   applyFieldEffects(battle, "player", enqueue); // 장판 효과가 특성보다 먼저임
@@ -43,7 +43,7 @@ export const switchPlayerForce = (battle, actNumber, enqueue) => {
   enqueue({
     id: "5635931b-ab6f-4b80-ab18-55df5ec2cd2f",
     battle,
-    text: battle.player.origin.names + " 배틀에 끌려나왔다!",
+    text: battle.player.names("는") + " 배틀에 끌려나왔다!",
   });
   applyFieldEffects(battle, "player", enqueue);
   if (!battle.player.faint) {
@@ -60,19 +60,19 @@ export const switchNpc = (battle, actNumber, enqueue, force, options = {}) => {
     enqueue({
       id: "cbe52210-aa36-4e06-9244-9807127f2e58",
       battle,
-      text: "상대 " + battle.npc.origin.names + " 배틀에 끌려나왔다!",
+      text: battle.npc.names("는") + " 배틀에 끌려나왔다!",
     });
   } else {
     enqueue({
       id: "e895cc4c-5ad6-4ccc-a7dd-98bd1a5b3c04",
       battle,
-      text: "상대는 " + battle.npc.origin.namess + " 넣어 버렸다!",
+      text: "상대는 " + battle.npc.baseNames("를") + " 넣어 버렸다!",
     });
     switchPokemon(battle, "npc", actNumber, options);
     enqueue({
       id: "50befd61-7787-45c3-ba72-b3ed7b1892f1",
       battle,
-      text: "상대는 " + battle.npc.origin.namess + " 내보냈다!",
+      text: "상대는 " + battle.npc.baseNames("를") + " 내보냈다!",
     });
   }
   applyFieldEffects(battle, "npc", enqueue);
@@ -122,13 +122,13 @@ export const switchBothFaint = (battle, actNumber, enqueue) => {
   // 기절 맞교체는 필드 위 포켓몬이 없으므로 교체 순서는 랜덤, 양족 포켓몬이 나온 다음 특성이 빠른 쪽부터 먼저 적용된다.
   battle.turn.textFreeze = null;
   battle.turn.turnEnd = null;
-  enqueue({ id: "24038799-2c59-4d5c-92c3-ed926eeb7c20", battle, text: battle.player.origin.name + " 돌아와!" });
+  enqueue({ id: "24038799-2c59-4d5c-92c3-ed926eeb7c20", battle, text: battle.player.baseName + " 돌아와!" });
   switchPokemon(battle, "player", actNumber);
   battle.turn.turnEnd = null;
   enqueue({
     id: "4fb97c1c-8937-4290-96c6-1e9c48689d18",
     battle,
-    text: "가랏! " + battle.player.origin.name + "!",
+    text: "가랏! " + battle.player.baseName + "!",
   });
 
   const targetBench = getNpcAutoSwitchTarget(battle);
@@ -136,13 +136,13 @@ export const switchBothFaint = (battle, actNumber, enqueue) => {
     enqueue({
       id: "abad55be-ab92-466e-823f-39eda4774b5e",
       battle,
-      text: "상대는 " + battle.npc.origin.namess + " 넣어 버렸다!",
+      text: "상대는 " + battle.npc.baseNames("를") + " 넣어 버렸다!",
     });
     switchPokemon(battle, "npc", targetBench);
     enqueue({
       id: "d0fdcf3b-fb85-458f-8850-0923f8a57148",
       battle,
-      text: "상대는 " + battle.npc.origin.namess + " 내보냈다!",
+      text: "상대는 " + battle.npc.baseNames("를") + " 내보냈다!",
     });
   }
 
@@ -191,7 +191,7 @@ const extraSwitchWhenTurnEnd = (battle, user, enqueue) => {
 
 // ===================================================================================================
 
-export const switchPokemon = (battle, IN, OUT, options = {}) => {
+const switchPokemon = (battle, IN, OUT, options = {}) => {
   // 교체 함수.
   // 실제 객체의 값을 바꾸고
   // pokemon.tempStatus 값을 초기화한다
@@ -215,12 +215,12 @@ export const switchPokemon = (battle, IN, OUT, options = {}) => {
         substituteHp: pokemonIn.tempStatus.substituteHp,
       }
     : null;
-  if (pokemonIn.abil === "재생력") {
+  if (pokemonIn.abil?.name === "재생력") {
     // 재생력 특성을 지닌 포켓몬은 교체시 체력이 회복
     const hp = hpCalculate(pokemonIn);
     pokemonIn.recoverNoText(battle, Math.floor(hp / 3), pokemonIn);
   }
-  if (pokemonIn.abil === "자연회복") {
+  if (pokemonIn.abil?.name === "자연회복") {
     // 자연회복 특성을 지닌 포켓몬은 교체시 상태이상을 회복
     Object.keys(pokemonIn.ailment).forEach((key) => {
       pokemonIn.ailment[key] = null;
@@ -251,18 +251,11 @@ export const switchPokemon = (battle, IN, OUT, options = {}) => {
     }
   });
   // 리베로 타입 초기화 (메가진화 포켓몬은 메가진화 타입 유지)
-  if (pokemonIn.isMega && pokemonIn.origin?.megaData) {
-    pokemonIn.type1 = pokemonIn.origin.megaData.type1;
-    pokemonIn.type2 = pokemonIn.origin.megaData.type2;
-  } else {
-    pokemonIn.type1 = pokemonIn.origin.type1;
-    pokemonIn.type2 = pokemonIn.origin.type2;
-  }
+  pokemonIn.resetType();
 
   // 트레이스 특성 초기화
-  if (pokemonIn.abil !== pokemonIn.origin.abil) {
-    pokemonIn.abil = pokemonIn.origin.abil;
-    pokemonIn.abilObj = { ...pokemonIn.origin.abilObj };
+  if (pokemonIn.abil?.name !== pokemonIn.baseAbil?.name) {
+    pokemonIn.resetAbil();
   }
 
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];

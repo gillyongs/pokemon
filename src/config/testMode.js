@@ -4,7 +4,7 @@ export let selectedNpcAct = null;
 
 const listeners = new Set();
 
-export const setTestmode = (val) => {
+const setTestmode = (val) => {
   testmode = val;
   if (typeof window !== "undefined") {
     window.testmode = val;

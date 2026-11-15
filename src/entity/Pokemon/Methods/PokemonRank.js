@@ -8,14 +8,14 @@ export const PokemonRank = {
     // isMoldBreaker: 상대방 "기술"에 의한 랭크변화일때 상대방 특성이 틀깨기이면 true -> 끈끈넷은 틀깨기가 적용이 안되기에 따로 추가
     const rank = this.tempStatus.rank;
 
-    if (this.abil === "심술꾸러기") {
+    if (this.abil?.name === "심술꾸러기") {
       rankValue = -rankValue;
     }
 
     // 클리어바디: 상대방에 의한 랭크 감소를 막음
     // 부가효과, 위협, 끈끈넷
     // 단, 틀깨기 포켓몬의 공격에 의한거면 막을 수 없음 (즉 끈끈넷은 막힘)
-    if (isOpponent && rankValue < 0 && this.abil === "클리어바디") {
+    if (isOpponent && rankValue < 0 && this.abil?.name === "클리어바디") {
       if (!isMoldBreaker) {
         enqueue({ id: "78565ebe-ca8e-400d-a6aa-fc94467688a5", battle, text: `[특성 클리어바디] ${this.name}의 ${getStatName2(rankType)} 떨어지지 않았다!` });
         return;
@@ -24,7 +24,7 @@ export const PokemonRank = {
 
     // 미러아머: 상대방에 의한 랭크 감소를 반사함
     // 단, 틀깨기 포켓몬의 공격에 의한거면 반사되지 않음 (즉 끈끈넷은 반사됨)
-    if (isOpponent && rankValue < 0 && this.abil === "미러아머") {
+    if (isOpponent && rankValue < 0 && this.abil?.name === "미러아머") {
       if (!isMoldBreaker) {
         enqueue({
           id: "6f9438d1-dbcf-494d-bc4d-f9a6f4c18c96",
@@ -34,7 +34,7 @@ export const PokemonRank = {
         });
         const enemy = this.team === "player" ? battle?.npc : battle?.player;
         if (enemy && !enemy.faint) {
-          if (enemy.abil === "클리어바디") {
+          if (enemy.abil?.name === "클리어바디") {
             enqueue({ id: "b95689e3-6766-42de-8396-560a9797079d", battle, text: `[특성 클리어바디] ${enemy.name}의 ${getStatName2(rankType)} 떨어지지 않았다!` });
           } else {
             // 미러아머로 반사한 랭크다운은 미러아머로 반사되지 않는다 (무한반사 방지)
@@ -85,9 +85,9 @@ export const PokemonRank = {
     // 승기 / 오기: 상대에 의해 능력치가 떨어졌을 때 발동
     if (isOpponent && rankValue < 0) {
       // 끈끈넷에 발동하는거 맞음
-      if (this.abil === "승기") {
+      if (this.abil?.name === "승기") {
         this.rankUp(battle, enqueue, "catk", 2, "[특성 승기]", false);
-      } else if (this.abil === "오기") {
+      } else if (this.abil?.name === "오기") {
         this.rankUp(battle, enqueue, "atk", 2, "[특성 오기]", false);
       }
     }
@@ -118,7 +118,7 @@ export const PokemonRank = {
       rank[key] = 0;
     });
     this.item = null;
-    enqueue({ id: "4f4cbeb9-0f39-466d-b6ab-333e57af715c", battle, text: `${this.names} 하양허브로 떨어진 능력을 원래대로 되돌렸다!` });
+    enqueue({ id: "4f4cbeb9-0f39-466d-b6ab-333e57af715c", battle, text: `${this.names("는")} 하양허브로 떨어진 능력을 원래대로 되돌렸다!` });
     // 디버프를 받기 전 상태로 되돌리는게 아니라, 랭크다운된 능력치를 제로로 만드는게 맞음
   },
 
@@ -126,7 +126,7 @@ export const PokemonRank = {
     // 가장 높은 능력치 종류를 리턴하는 함수 (ex: "speed")
     // 아이템, 특성은 반영되지 않고 기본 능력치와 랭크 변화만 적용된다
     // 고대활성, 비스트부스트에 사용
-    const stat = this.origin.stat;
+    const stat = this.stat;
     const ranks = this.tempStatus.rank;
 
     // 각 능력치별 랭크 보정값 반영

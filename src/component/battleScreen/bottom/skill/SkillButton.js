@@ -5,7 +5,7 @@ import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 
 const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {
   let pp = battle.player.pp[skillNumber];
-  let skill = battle.player.origin.skill[skillNumber];
+  let skill = battle.player.skill[skillNumber];
   const displayType = skillTypeCalculate(battle, skill, battle.player);
 
   const sn = getNumberText(skillNumber);
@@ -26,7 +26,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     //stopPropagation 해놓고 dequeue를 추가로 앞에 넣음
 
     const player = battle.player;
-    const skill = player.origin.skill[skillIndex]; // 실제 스킬 정보
+    const skill = player.skill[skillIndex]; // 실제 스킬 정보
     let pp = battle.player.pp[skillIndex];
     if (!queueObject.queueCheck()) return;
 
@@ -47,7 +47,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     const { onlySkill } = player.tempStatus;
     const hasUnbound = player.hasAugment?.("unboundChoice");
     const isChoiceLocked = Boolean(player.item?.startsWith("구애") && !hasUnbound);
-    const isGorillaLocked = Boolean(player.abil === "무아지경" && !hasUnbound);
+    const isGorillaLocked = Boolean(player.abil?.name === "무아지경" && !hasUnbound);
 
     if (onlySkill && (isChoiceLocked || isGorillaLocked) && onlySkill !== skill.name) {
       const lockSource = isGorillaLocked ? "특성 무아지경" : player.item;
@@ -62,17 +62,17 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
 
     // 돌조 입고 변화기 사용
     if (player.item === "돌격조끼" && (skill.stype === "natk" || skill.stype === "buf")) {
-      return reject(player.names + " 돌격조끼 때문에 변화기를 사용할 수 없다!");
+      return reject(player.names("는") + " 돌격조끼 때문에 변화기를 사용할 수 없다!");
     }
 
     // 도발 상태에서 변화기 사용
     if (player.tempStatus.taunt !== null && (skill.stype === "natk" || skill.stype === "buf")) {
-      return reject(player.names + " 도발 때문에 변화기를 사용할 수 없다!");
+      return reject(player.names("는") + " 도발 때문에 변화기를 사용할 수 없다!");
     }
 
     // 소리기술금지 상태에서 소리 기술 사용
     if (player.tempStatus.noSound !== null && skill.feature?.sound) {
-      return reject(player.names + " 한동안 소리 기술을 사용할 수 없다!");
+      return reject(player.names("는") + " 한동안 소리 기술을 사용할 수 없다!");
     }
 
     // 저주받은바디로 봉인된 기술 사용

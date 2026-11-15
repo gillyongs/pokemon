@@ -160,7 +160,8 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
     if (!isEternatusPokemon) return null;
     return {
       name: "무한다이맥스",
-      pokemon_id: "0890-m",
+      dexNo: "0890",
+      uniqueKey: "0890-m",
       type1: "독",
       type2: "드래곤",
       abil: "프레셔",
@@ -191,13 +192,13 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
 
   const displayName = isMegaView ? pokemon.megaData.name : isEternamaxView ? eternamaxData.name : pokemon.name;
 
-  const displayPokemonId = isMegaView ? pokemon.megaData.pokemon_id : isEternamaxView ? eternamaxData.pokemon_id : pokemon.img_id || PREVIEW_IMG_ID_MAP[augmentId] || pokemon.pokemon_id;
+  const displayPokemonId = isMegaView ? pokemon.megaData.uniqueKey : isEternamaxView ? eternamaxData.uniqueKey : (pokemon.img_id || PREVIEW_IMG_ID_MAP[augmentId] || pokemon.uniqueKey);
 
   const displayType1 = isMegaView ? pokemon.megaData.type1 : isEternamaxView ? eternamaxData.type1 : pokemon.type1;
 
   const displayType2 = isMegaView ? pokemon.megaData.type2 : isEternamaxView ? eternamaxData.type2 : pokemon.type2;
 
-  const displayAbil = isMegaView ? pokemon.megaData.abil : isEternamaxView ? eternamaxData.abil : pokemon.abil;
+  const displayAbil = isMegaView ? pokemon.megaData.abil : isEternamaxView ? eternamaxData.abil : (pokemon.abil?.name || pokemon.abil);
 
   const displayHp = isEternamaxView ? eternamaxData.hp : pokemon.hp;
   const displayStat = isMegaView ? pokemon.megaData.stat : isEternamaxView ? eternamaxData.stat : pokemon.stat || {};
@@ -210,7 +211,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
       setInfoText("특성이 없습니다.");
       return;
     }
-    const desc = abilObject[displayAbil]?.text || (!isMegaView && pokemon.abilObj?.text) || "특성 설명이 없습니다.";
+    const desc = abilObject[displayAbil]?.text || (!isMegaView && pokemon.abil?.text) || "특성 설명이 없습니다.";
     setInfoText(`[${displayAbil}] ${desc}`);
   };
 
@@ -220,7 +221,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
       setInfoText("지닌 아이템이 없습니다.");
       return;
     }
-    const desc = itemText[displayItem] || pokemon.itemText || "아이템 설명이 없습니다.";
+    const desc = itemText[displayItem] || "아이템 설명이 없습니다.";
     setInfoText(`[${displayItem}] ${desc}`);
   };
 

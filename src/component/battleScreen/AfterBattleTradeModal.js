@@ -21,7 +21,7 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
   const selectedPlayerPoke = tradePlayerIdx !== null ? playerTeamFixed[tradePlayerIdx] : null;
   const selectedNpcPoke = tradeNpcIdx !== null ? npcTeamFixed[tradeNpcIdx] : null;
 
-  const checkIsLegendary = (p) => isLegendary(p?.origin) || isLegendary(p);
+  const checkIsLegendary = (p) => isLegendary(p?.o) || isLegendary(p);
 
   // 팀 내 초전설 포켓몬은 최대 1마리까지만 보유 가능
   // (내 초전설을 보내고 일반을 받거나, 일반을 보내고 일반을 받거나, 내 초전설을 보내고 상대 초전설을 받는 것은 모두 가능)
@@ -114,8 +114,8 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
                       overflow: "hidden",
                     }}
                   >
-                    <TradeCardImage src={`/pokemon/img/pokemon/${p.img_id || p.pokemon_id}.webp`} />
-                    <TradeCardName>{p.origin.name}</TradeCardName>
+                    <TradeCardImage src={`/pokemon/img/pokemon/${p.img_id || p.uniqueKey}.webp`} />
+                    <TradeCardName>{p.baseName || p.name}</TradeCardName>
                   </div>
                   <TradeInfoButton
                     onClick={(e) => {
@@ -150,8 +150,8 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
                       overflow: "hidden",
                     }}
                   >
-                    <TradeCardImage src={`/pokemon/img/pokemon/${p.img_id || p.pokemon_id}.webp`} />
-                    <TradeCardName>{p.origin.name}</TradeCardName>
+                    <TradeCardImage src={`/pokemon/img/pokemon/${p.img_id || p.uniqueKey}.webp`} />
+                    <TradeCardName>{p.baseName || p.name}</TradeCardName>
                   </div>
                   <TradeInfoButton
                     onClick={(e) => {
@@ -231,7 +231,6 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
 };
 
 export default AfterBattleTradeModal;
-export { AfterBattleTradeModal, AfterBattleTradeModal as AfterBattleTradeModel };
 
 const ModalOverlay = styled.div`
   position: fixed;

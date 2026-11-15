@@ -11,13 +11,13 @@ export const STAT_LABELS = {
 };
 
 export const getAugmentedStat = (pokemon, statKey, battle = null) => {
-  const baseStatObj = pokemon?.origin?.stat || pokemon?.stat;
+  const baseStatObj = pokemon?.stat;
   let val = baseStatObj?.[statKey] ?? 0;
   if (typeof val !== "number") return 0;
   let logText = `${val}(${statKey})`;
 
   // 최강의잉어킹 특성: 체력을 제외한 모든 능력치(공격, 방어, 특공, 특방, 스피드) 999 고정
-  const hasStrongestMagikarp = pokemon?.abil === "최강의잉어킹" || pokemon?.origin?.abil === "최강의잉어킹";
+  const hasStrongestMagikarp = (pokemon?.abil?.name || pokemon?.abil) === "최강의잉어킹";
   if (hasStrongestMagikarp && STAT_KEYS.includes(statKey)) {
     val = 999;
     logText = `999(${statKey}: 최강의잉어킹)`;
@@ -32,7 +32,7 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   }
 
   // 모루 능력치: 능력치 파편으로 오르는 누적 능력치
-  const anvilBonus = Number(pokemon?.anvilStats?.[statKey] ?? pokemon?.origin?.anvilStats?.[statKey] ?? 0);
+  const anvilBonus = Number(pokemon?.anvilStats?.[statKey] ?? 0);
   if (anvilBonus > 0 && STAT_KEYS.includes(statKey)) {
     val += anvilBonus;
     logText += ` + ${anvilBonus} (모루 능력치)`;
@@ -129,7 +129,7 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
 };
 
 export const getHighestStatInfo = (pokemon, battle = null) => {
-  const baseStatObj = pokemon?.origin?.stat || pokemon?.stat;
+  const baseStatObj = pokemon?.stat;
   if (!baseStatObj) return null;
 
   let best = null;

@@ -1,4 +1,3 @@
-import PokemonData from "./Pokemon/PokemonData";
 import { josa } from "josa";
 
 export const abilObject = {
@@ -202,63 +201,14 @@ export const abilObject = {
 };
 
 // 아수라장(증강) 전용 특성 목록
-export const augmentAbill = ["패스트스타트", "기어메이킹", "최강의잉어킹", "전관예우"];
-export const augmentAbil = augmentAbill;
+const augmentAbill = ["패스트스타트", "기어메이킹", "최강의잉어킹", "전관예우"];
 
 // 트레이스로 베낄 수 없는 특성 (기본 불가 특성 + 아수라장 전용 특성)
-// 테라볼티지, 터보블레이즈, 재앙시리즈, 불가사의부적 가능
-export const noTraceAbil = ["트레이스", "혼연일체(흑)", "혼연일체(백)", "탈", "배틀스위치", "고대활성", "쿼크차지", "테라체인지", "테라셀", "제로포밍", "어군", "절대안깸", "플라워기프트", "화학의힘", "일루전", "유대변화", "스웜체인지", "리시버", "리밋실드", "달마모드", "기분파", "괴짜", "AR시스템", "그대로꿀꺽미사일", "아이스페이스", ...augmentAbill];
+// 테라볼티지, 터보블레이즈, 재앙시리즈, 불가사의부적는 트레이스 가능한게 맞음
+const noTraceAbil = ["트레이스", "혼연일체(흑)", "혼연일체(백)", "탈", "배틀스위치", "고대활성", "쿼크차지", "테라체인지", "테라셀", "제로포밍", "어군", "절대안깸", "플라워기프트", "화학의힘", "일루전", "유대변화", "스웜체인지", "리시버", "리밋실드", "달마모드", "기분파", "괴짜", "AR시스템", "그대로꿀꺽미사일", "아이스페이스", ...augmentAbill];
 
 // 랜덤 특성 증강에서 제외할 특성 목록 (noTraceAbil과 동일한 값을 가짐)
 export const noRandomAbil = noTraceAbil;
-
-// 포켓몬 특성 변경 공통 함수
-export const changePokemonAbility = (pokemon, abilityName, fallbackText = "") => {
-  if (!pokemon || !abilityName) return null;
-  pokemon.abil = abilityName;
-  if (pokemon.origin) {
-    pokemon.origin.abil = abilityName;
-  }
-  const baseObj = abilObject[abilityName] ? { ...abilObject[abilityName] } : { text: fallbackText || "설명이 없습니다." };
-  baseObj.name = abilityName;
-  baseObj.used = false;
-  pokemon.abilObj = baseObj;
-  if (pokemon.origin) {
-    pokemon.origin.abilObj = { ...baseObj };
-  }
-  if (abilityName === "전관예우") {
-    const baseData = PokemonData.getDataById(pokemon.pokemon_id || pokemon.origin?.pokemon_id || pokemon.id);
-    if (baseData && pokemon.origin) {
-      const nature = pokemon.origin.nature || { up: null, down: null };
-      const ivs = { hp: 31, atk: 31, def: 31, catk: 31, cdef: 31, speed: 31 };
-      if (pokemon.origin.gacha === "5V0A") ivs.atk = 0;
-      if (pokemon.origin.gacha === "5V0S") ivs.speed = 0;
-      if (pokemon.origin.gacha === "4V0A0S") { ivs.atk = 0; ivs.speed = 0; }
-
-      const calc = (base, iv, up, down) => {
-        let val = Math.floor((base * 2 + 63 + iv) / 2) + 5;
-        if (up) val = Math.floor(val * 1.1);
-        if (down) val = Math.floor(val * 0.9);
-        return val;
-      };
-
-      const newHp = Math.floor((baseData.hp * 2 + 63 + ivs.hp) / 2) + 60;
-      pokemon.origin.evs = { hp: 252, atk: 252, def: 252, catk: 252, cdef: 252, speed: 252 };
-      const hpDiff = newHp - pokemon.origin.hp;
-      pokemon.origin.hp = newHp;
-      pokemon.hp = Math.max(1, (pokemon.hp || 0) + hpDiff);
-      pokemon.origin.stat.atk = calc(baseData.atk, ivs.atk, nature.up === "atk", nature.down === "atk");
-      pokemon.origin.stat.def = calc(baseData.def, ivs.def, nature.up === "def", nature.down === "def");
-      pokemon.origin.stat.catk = calc(baseData.catk, ivs.catk, nature.up === "catk", nature.down === "catk");
-      pokemon.origin.stat.cdef = calc(baseData.cdef, ivs.cdef, nature.up === "cdef", nature.down === "cdef");
-      pokemon.origin.stat.speed = calc(baseData.speed, ivs.speed, nature.up === "speed", nature.down === "speed");
-    }
-  }
-  return baseObj;
-};
-
-export const changeAbility = changePokemonAbility;
-export const setPokemonAbility = changePokemonAbility;
 
 // 특성 발동
 // 첫대면(battleScreen.js), 교체(switch.js), 메가진화 후(pokemonMage.js) 발동
@@ -266,7 +216,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   const atk = bt[atks];
   const defs = atks === "player" ? "npc" : "player";
   const def = bt[defs];
-  const atkAbil = atk.abil;
+  const atkAbil = atk.abil?.name;
 
   // ==================================================================================
   // 단순 텍스트 출력
@@ -286,7 +236,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     enqueue({
       id: "c04ebf99-9277-41cd-9271-c0a9270ea942",
       battle: bt,
-      text: `[특성 ${atkAbil}] ${atk[messageAbilities[atkAbil].head]} ${messageAbilities[atkAbil].text}`,
+      text: `[특성 ${atkAbil}] ${messageAbilities[atkAbil].head === "names" ? atk.names("는") : atk.name} ${messageAbilities[atkAbil].text}`,
     });
   }
 
@@ -294,7 +244,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     enqueue({
       id: "c669af3f-013e-4dae-879b-b23cd5b820c1",
       battle: bt,
-      text: `[특성 혼연일체] ${atk.names} 두 가지 특성을 겸비한다!`,
+      text: `[특성 혼연일체] ${atk.names("는")} 두 가지 특성을 겸비한다!`,
     });
     enqueue({
       id: "547eae7b-c087-4ee3-8e08-1ed46aa71b58",
@@ -320,12 +270,12 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // 위협
   if (atkAbil === "위협" && def && !def.faint) {
     const abilText = "[특성 위협]";
-    enqueue({ id: "fe000494-7206-4668-890e-33d172b69877", battle: bt, text: `${abilText} ${atk.names} 적을 위협했다!` });
+    enqueue({ id: "fe000494-7206-4668-890e-33d172b69877", battle: bt, text: `${abilText} ${atk.names("는")} 적을 위협했다!` });
     if (def.tempStatus.substitute) {
       // 위협은 대타에 막힘
       enqueue({ id: "950f472a-f4f2-4f2f-9b74-d3fc00b3f853", battle: bt, text: `${abilText} ${def.name}에겐 효과가 없는 것 같다...` });
-    } else if (def.abil === "정신력" || def.abil === "둔감" || def.abil === "배짱") {
-      enqueue({ id: "5f404d87-dc6b-4b99-b8d8-3c3c54ee298b", battle: bt, text: `[특성 ${def.abil}] ${def.name}의 공격은 떨어지지 않는다!` });
+    } else if (def.abil?.name === "정신력" || def.abil?.name === "둔감" || def.abil?.name === "배짱") {
+      enqueue({ id: "5f404d87-dc6b-4b99-b8d8-3c3c54ee298b", battle: bt, text: `[특성 ${def.abil?.name}] ${def.name}의 공격은 떨어지지 않는다!` });
     } else {
       def.rankUp(bt, enqueue, "atk", -1, abilText, true);
     }
@@ -334,7 +284,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // 다운로드
   if (atkAbil === "다운로드" && def && !def.faint) {
     const abilText = "[특성 다운로드]";
-    const statObj = def.origin?.stat || def.stat;
+    const statObj = def.stat;
     if (statObj) {
       const defStat = statObj.def || 0;
       const cdefStat = statObj.cdef || 0;
@@ -378,10 +328,10 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
       enqueue({
         id: "f466ee8f-6a1f-4e45-934d-f0092a0c5d31",
         battle: bt,
-        text: `[특성 진홍빛고동] ${atk.names} 햇살을 받아 고대의 고동을 폭발시켰다!`,
+        text: `[특성 진홍빛고동] ${atk.names("는")} 햇살을 받아 고대의 고동을 폭발시켰다!`,
       });
     } else {
-      let text = `[특성 진홍빛고동] ${atk.names} 햇살을 강하게 하여 고대의 고동을 폭발시켰다!`;
+      let text = `[특성 진홍빛고동] ${atk.names("는")} 햇살을 강하게 하여 고대의 고동을 폭발시켰다!`;
       bt.field.weather.setWeatherOnBattle(bt, enqueue, atk, "쾌청", text);
     }
   }
@@ -391,10 +341,10 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
       enqueue({
         id: "c8f4ae61-58d5-4bb2-8097-01d65d1059e4",
         battle: bt,
-        text: `[특성 하드론엔진] ${atk.names} 일렉트릭필드의 힘으로 미래 기관을 가동했다!`,
+        text: `[특성 하드론엔진] ${atk.names("는")} 일렉트릭필드의 힘으로 미래 기관을 가동했다!`,
       });
     } else {
-      const text = `[특성 하드론엔진] ${atk.names} 일렉트릭필드를 전개하여 미래 기관을 가동했다!`;
+      const text = `[특성 하드론엔진] ${atk.names("는")} 일렉트릭필드를 전개하여 미래 기관을 가동했다!`;
       bt.field.terrain.setTerrainOnBattle(bt, enqueue, atk, "일렉트릭필드", text);
     }
   }
@@ -411,38 +361,36 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   if (trace) return; // 트레이스로 상대 특성을 배껴왔을때 재귀적으로 해당 함수를 한번 더 실행
 
   if (atkAbil === "트레이스" && def && !def.faint) {
-    if (noTraceAbil.includes(def.abil)) {
+    if (noTraceAbil.includes(def.abil?.name)) {
       return;
     } else {
-      atk.abil = def.abil;
-      atk.abilObj = def.abilObj;
+      atk.abil = { ...def.abil };
       enqueue({
         id: "9ef304eb-b117-4c2d-984d-6d4af03ab4aa",
         battle: bt,
-        text: `[특성 트레이스] ${atk.names} ${josa(`${def.name}의 ${def.abil}#{을}`)} 트레이스했다!`,
+        text: `[특성 트레이스] ${atk.names("는")} ${josa(`${def.name}의 ${def.abil?.name}#{을}`)} 트레이스했다!`,
       });
       applyAbilityEffects(bt, atks, enqueue, true);
     }
   }
 
-  if (def && !def.faint && def.abil === "트레이스") {
+  if (def && !def.faint && def.abil?.name === "트레이스") {
     // 등장했을때 상대방의 특성을 트레이스하지 못한 경우
     // 이후 트레이스 가능한 특성의 포켓몬이 등장하면 바로 발동한다
-    if (noTraceAbil.includes(atk.abil)) {
+    if (noTraceAbil.includes(atk.abil?.name)) {
       return;
     } else {
-      def.abil = atk.abil;
-      def.abilObj = atk.abilObj;
+      def.abil = { ...atk.abil };
       enqueue({
         id: "4a7114ef-c9eb-474b-9fda-fd9c847a35b5",
         battle: bt,
-        text: `[특성 트레이스] ${def.names} ${josa(`${atk.name}의 ${atk.abil}#{을}`)} 트레이스했다!`,
+        text: `[특성 트레이스] ${def.names("는")} ${josa(`${atk.name}의 ${atk.abil?.name}#{을}`)} 트레이스했다!`,
       });
       applyAbilityEffects(bt, defs, enqueue, true);
     }
   }
 
   if (atk.item === "풍선") {
-    enqueue({ id: "a643b7eb-ef96-4324-b416-20afbd9248b4", battle: bt, text: atk.names + " 풍선으로 떠 있다!" });
+    enqueue({ id: "a643b7eb-ef96-4324-b416-20afbd9248b4", battle: bt, text: atk.names("는") + " 풍선으로 떠 있다!" });
   }
 };

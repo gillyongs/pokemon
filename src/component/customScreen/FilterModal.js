@@ -1,21 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { POKEMON_ROLES } from "../../entity/Pokemon/PokemonTemplate";
 
+const POKEMON_ROLES = ["물리어태커", "특수어태커", "기점잡이", "물리딜탱", "특수딜탱", "막이", "물리막이", "특수막이"];
 const POKEMON_TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투", "독", "땅", "비행", "에스퍼", "벌레", "바위", "고스트", "드래곤", "악", "강철", "페어리"];
 
-const FilterModal = ({
-  activeTypes = [],
-  activeRoles = [],
-  isMegaFilter = false,
-  isLegendaryFilter = false,
-  isIntimidateFilter = false,
-  isWeatherFilter = false,
-  isWallFilter = false,
-  activeLogic = "OR",
-  onApply,
-  onClose,
-}) => {
+const FilterModal = ({ activeTypes = [], activeRoles = [], isMegaFilter = false, isLegendaryFilter = false, isIntimidateFilter = false, isWeatherFilter = false, isWallFilter = false, activeLogic = "OR", onApply, onClose }) => {
   const [tempSelectedTypes, setTempSelectedTypes] = useState(activeTypes);
   const [tempSelectedRoles, setTempSelectedRoles] = useState(activeRoles);
   const [tempIsMegaFilter, setTempIsMegaFilter] = useState(isMegaFilter);

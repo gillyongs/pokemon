@@ -1,22 +1,21 @@
 import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, GAMBLE_BONUS_AUGMENT_IDS, hasGamblingAddict, MUTUALLY_EXCLUSIVE_MAP, isNormalAugment, getSynergyThreshold } from "../entity/Augment/AugmentData";
 
-export function filterExclusiveAugments(pool, pickedId) {
+function filterExclusiveAugments(pool, pickedId) {
   if (!pickedId || !Array.isArray(pool)) return pool;
   const blockedIds = MUTUALLY_EXCLUSIVE_MAP[pickedId];
   if (!blockedIds || blockedIds.size === 0) return pool;
   return pool.filter((aug) => !blockedIds.has(aug.id));
 }
 
-export const BEGINNER_AUGMENT_IDS = AUGMENT_SYNERGY_MAP.echoOfHero;
 
-export const REPLACEMENT_AUGMENT_IDS = ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege"];
+const REPLACEMENT_AUGMENT_IDS = ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege"];
 
-export function getReplacementAugmentWeight(pokemon) {
+function getReplacementAugmentWeight(pokemon) {
   const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
   return Math.round(200 / (count + 1));
 }
 
-export function getAugmentWeight(aug, pokemon = null, battle = null) {
+function getAugmentWeight(aug, pokemon = null, battle = null) {
   if (!aug || aug.weight === "-" || !isNormalAugment(aug) || aug.isRandom === false) return 0;
 
   // 포켓몬 교체 증강 (기기기어르, 전설의 거인, 결혼, 돌림판, 비상 등):
@@ -51,7 +50,7 @@ function pickWeightedIndex(pool, pokemon = null, battle = null) {
   return pool.length - 1;
 }
 
-export function getForcedSynergyAugment(pokemon) {
+function getForcedSynergyAugment(pokemon) {
   if (!pokemon) return null;
   for (const [buffId, requiredIds] of Object.entries(AUGMENT_SYNERGY_MAP)) {
     // 영메는 팀 전체니까 따로 관리
@@ -69,7 +68,7 @@ export function getForcedSynergyAugment(pokemon) {
   return null;
 }
 
-export const getForcedBeginnerAugment = getForcedSynergyAugment;
+const getForcedBeginnerAugment = getForcedSynergyAugment;
 
 /**
  * 포켓몬이 선택 가능한 증강을 가중치 기반 무작위(중복 없이) 추첨합니다.
@@ -152,21 +151,6 @@ export function rollAugments(pokemon, count = 3, battle = null) {
   return selected;
 }
 
-export function grantRandomAugment(battle, preferredPokemon = null) {
-  if (!battle) return null;
-  const team = [preferredPokemon, battle.player, battle.playerBench1, battle.playerBench2].filter((p, idx, arr) => p && arr.indexOf(p) === idx && (p.augments || []).filter((a) => isNormalAugment(a)).length < 3);
-
-  if (team.length === 0) return null;
-  const target = team[0];
-  const rolled = rollAugments(target, 1, battle);
-  if (!rolled || rolled.length === 0) return null;
-
-  const aug = rolled[0];
-  const applied = target.applyAugment(aug, battle);
-  if (!applied) return null;
-
-  return { target, augment: aug };
-}
 
 /**
  * 팀 내 포켓몬별로 서로 다른 3개의 증강을 가중치 기반으로 추첨합니다.

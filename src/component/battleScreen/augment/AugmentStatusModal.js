@@ -4,7 +4,7 @@ import { AugmentIcon } from "./AugmentIcon";
 import { AUGMENT_POKEMON_PREVIEW_MAP } from "./AugmentModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
-import sampleList from "../../../entity/Pokemon/SamplePokemon";
+import sampleList from "../../../entity/Pokemon/pokemonSampleList";
 import { getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo, hasAnvilStats, getAnvilStatsStatusDesc } from "../../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
@@ -70,11 +70,11 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
         {resolvedTeam.length > 0 && (
           <EntryContainer>
             {resolvedTeam.map((poke, idx) => {
-              const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
-              const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
+              const isSelected = activePokemon === poke || (activePokemon?.sampleName || activePokemon?.id) === (poke.sampleName || poke.id);
+              const pokeId = poke.uniqueKey;
               const count = (poke.augments || []).filter((a) => isNormalAugment(a)).length;
               return (
-                <EntryCard key={poke.originalIndex ?? poke.id ?? idx} $isSelected={isSelected} onClick={() => {
+                <EntryCard key={poke.originalIndex ?? poke.sampleName ?? poke.id ?? idx} $isSelected={isSelected} onClick={() => {
                   setActivePokemon(poke);
                   setSelectedAugId(null);
                 }} title={`${poke.name} (보유 증강 ${count}/3)`}>
@@ -103,7 +103,7 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
               const isSynergy = isSynergyAugment(aug);
               const isBuff = isBuffAugment(aug);
               const sampleKey = AUGMENT_POKEMON_PREVIEW_MAP[aug.id];
-              const previewSample = sampleKey ? sampleList.getDataById(sampleKey) : null;
+              const previewSample = sampleKey ? sampleList.getDataBySampleName(sampleKey) : null;
               const synergyData = getAugmentSynergyInfo(aug.id);
               const hasPreview = Boolean(previewSample || synergyData);
               return (

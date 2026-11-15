@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 // 포켓몬 배틀 UI 스타일에 맞춘 룬 & 심볼 SVG 아이콘 세트 (틸/청록 & 골드 & 슬레이트 네이비 테마)
 // 전용 증강별 포켓몬 도감번호 매핑
-export const DEDICATED_AUGMENT_POKEMON = {
+const DEDICATED_AUGMENT_POKEMON = {
   danceOfGarchomp: "0445",
   nameIsSalamence: "0373",
   fastStarter: "0486",
@@ -19,7 +19,7 @@ export const DEDICATED_AUGMENT_POKEMON = {
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
-export const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
+const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   nameIsSalamence: { shiftUp: true, offsetY: -5.5, scale: 1.15 },
   "0373": { shiftUp: true, offsetY: -5.5, scale: 1.15 },
   legendaryTitan: { shiftUp: true, offsetY: -5, scale: 1.15 },
@@ -45,7 +45,7 @@ export const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null }) => {
-  const pokeId = pokemonId || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.origin?.pokemon_id && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird") ? pokemon.origin.pokemon_id : null);
+  const pokeId = pokemonId || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird") ? pokemon.uniqueKey : null);
 
   const augOptions = imageOptions || DEDICATED_AUGMENT_IMAGE_OPTIONS[id] || (pokeId ? DEDICATED_AUGMENT_IMAGE_OPTIONS[pokeId] : null) || {};
 

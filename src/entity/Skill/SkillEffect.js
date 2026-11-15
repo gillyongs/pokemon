@@ -12,7 +12,7 @@ function isTargetSubstituteBlocked(battle) {
   const atkPokemon = battle?.[battle?.turn?.atk];
   const skill = atkPokemon?.turn?.useSkill;
   const hitSub = defPokemon?.turn?.lastHitSubstitute !== null ? Boolean(defPokemon.turn.lastHitSubstitute) : Boolean(defPokemon?.turn?.substitute || defPokemon?.tempStatus?.substitute);
-  const penetrates = atkPokemon?.abil === "틈새포착" || Boolean(skill?.feature?.sound);
+  const penetrates = atkPokemon?.abil?.name === "틈새포착" || Boolean(skill?.feature?.sound);
   return hitSub && !penetrates;
 }
 
@@ -43,7 +43,7 @@ function skillEffectSearch(name) {
             shellColor = "빨간";
             shellDamage = 40;
           }
-          const text = `[증강 달팽이세마리] ${def.names} ${shellColor} 달팽이 껍질에 맞았다!`;
+          const text = `[증강 달팽이세마리] ${def.names("는")} ${shellColor} 달팽이 껍질에 맞았다!`;
           def.getDamage(battle, enqueue, shellDamage, text);
         }
       }
@@ -52,7 +52,6 @@ function skillEffectSearch(name) {
       const hasWujuStyle = atkPokemon?.hasAugment?.("wujuStyle");
       if (hasWujuStyle && def && !def.faint && (def.hp === undefined || def.hp > 0) && atkPokemon && !atkPokemon.faint) {
         if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
-          const targetName = def.names || def.name;
           const text = `[버프 우주류 검술] ${def.name}에게 30의 추가 고정 데미지를 입혔다!`;
           def.getDamage(battle, enqueue, 30, text);
         }
@@ -66,7 +65,7 @@ function skillEffectSearch(name) {
           const curCatk = Math.floor(getAugmentedStat(atkPokemon, "catk", battle) * getMultiplier(rankCatk));
           const ludenDamage = Math.floor(curCatk * 0.05);
           if (ludenDamage > 0) {
-            const text = `[증강 루덴의 메아리] ${def.names} 메아리에 맞았다!`;
+            const text = `[증강 루덴의 메아리] ${def.names("는")} 메아리에 맞았다!`;
             def.getDamage(battle, enqueue, ludenDamage, text);
           }
         }
@@ -103,7 +102,7 @@ function skillEffectSearch(name) {
           enqueue({
             id: "e3a9f6c2-1b7d-4c8e-a5f0-6d2b9c4e8a17",
             battle,
-            text: userName + ` ${atkPokemon.namess} 길동무로 삼았다!`,
+            text: userName + ` ${atkPokemon.names("를")} 길동무로 삼았다!`,
           });
           atkPokemon.handleFaint(battle, enqueue);
         }
@@ -133,7 +132,7 @@ function skillEffectSearch(name) {
         return;
       }
 
-      targetPokemon.rankUp(battle, enqueue, skillEffect.stat, skillEffect.value, null, skillEffect.target === "def", battle[battle.turn?.atk].abilObj?.feature?.tgg);
+      targetPokemon.rankUp(battle, enqueue, skillEffect.stat, skillEffect.value, null, skillEffect.target === "def", battle[battle.turn?.atk].abil?.feature?.tgg);
     },
 
     랭크다수변화: (battle, enqueue, skillEffect) => {
@@ -152,7 +151,7 @@ function skillEffectSearch(name) {
       }
 
       const atkPokemon = battle[battle.turn?.atk];
-      const isMoldBreaker = skillEffect.target === "def" && Boolean(atkPokemon?.abilObj?.feature?.tgg || atkPokemon?.abil === "틀깨기" || atkPokemon?.abil === "테라볼티지" || atkPokemon?.abil === "터보블레이즈");
+      const isMoldBreaker = skillEffect.target === "def" && Boolean(atkPokemon?.abil?.feature?.tgg || atkPokemon?.abil?.name === "틀깨기" || atkPokemon?.abil?.name === "테라볼티지" || atkPokemon?.abil?.name === "터보블레이즈");
 
       targetPokemon.rankUpMulti(battle, enqueue, skillEffect.stats, null, skillEffect.target === "def", isMoldBreaker);
     },
@@ -281,8 +280,8 @@ function skillEffectSearch(name) {
     풀죽음: (battle, enqueue, skillEffect) => {
       let atk = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
-      const noTggAtk = !atk.abilObj.feature?.tgg;
-      if (def.abil === "정신력" && noTggAtk) {
+      const noTggAtk = !atk.abil?.feature?.tgg;
+      if (def.abil?.name === "정신력" && noTggAtk) {
         return;
       }
       if (isTargetSubstituteBlocked(battle)) {
@@ -296,7 +295,7 @@ function skillEffectSearch(name) {
     빗나감패널티: (battle, enqueue, skillEffect) => {
       let atkPokemon = battle[battle.turn.atk];
       if (atkPokemon.turn.jumpKickFail) {
-        const text = atkPokemon.names + " 의욕이 넘쳐 땅에 부딪쳤다!";
+        const text = atkPokemon.names("는") + " 의욕이 넘쳐 땅에 부딪쳤다!";
         atkPokemon.getDamage(battle, enqueue, hpCalculate(atkPokemon) / 2, text);
       }
     },
@@ -357,7 +356,7 @@ function skillEffectSearch(name) {
         // 약보 : 추가뎀은 무조건 적용. 악타입 약점이면 아이템이 써지고 아니면 떨어진다
         // 탈출버튼, 레드카드, 나무열매 : 발동하지 않고 떨어진다
         def.item = null;
-        if (def.abil !== "무아지경") {
+        if (def.abil?.name !== "무아지경") {
           def.tempStatus.onlySkill = null; // 구애 시리즈로 고정된 스킬
         }
         enqueue({
@@ -429,20 +428,20 @@ function skillEffectSearch(name) {
     },
     반동: (battle, enqueue, skillEffect) => {
       let atkPokemon = battle[battle.turn.atk];
-      if (atkPokemon.abil === "돌머리") return;
-      const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
+      if (atkPokemon.abil?.name === "돌머리") return;
+      const text = atkPokemon.names("는") + " 반동으로 데미지를 입었다!";
       const ratio = skillEffect?.ratio || 3;
       atkPokemon.getDamage(battle, enqueue, atkPokemon.turn.recentDamageGive / ratio, text);
     },
     발버둥반동: (battle, enqueue, skillEffect) => {
       let atkPokemon = battle[battle.turn.atk];
       if (atkPokemon.faint) return;
-      const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
+      const text = atkPokemon.names("는") + " 반동으로 데미지를 입었다!";
       atkPokemon.getDamage(battle, enqueue, hpCalculate(atkPokemon) / 4, text);
     },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
-      if (!isAilmentCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0 && def.abil !== "의기양양" && def.abil !== "불면") {
+      if (!isAilmentCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0 && def.abil?.name !== "의기양양" && def.abil?.name !== "불면") {
         // 상대가 상태이상에 걸려있지 않음 + 하품 맞은 상태 아님
         // 불면, 의기양양이면 하품 자체가 실패함
         if (battle.field?.terrian?.isElectircField && !def.isFlying(battle, true)) {
@@ -458,7 +457,7 @@ function skillEffectSearch(name) {
         enqueue({
           id: "eee89d87-1741-4dd6-86d6-4280d7330eea",
           battle,
-          text: def.name + "의 " + "졸음을 유도했다!",
+          text: `${def.name}의 졸음을 유도했다!`,
         });
       } else {
         enqueue({
@@ -478,7 +477,7 @@ function skillEffectSearch(name) {
         enqueue({
           id: "38e49189-0df7-4c1a-bda8-7552853df759",
           battle,
-          text: def.names + " 한동안 소리 기술을 사용할 수 없게 됐다!",
+          text: def.names("는") + " 한동안 소리 기술을 사용할 수 없게 됐다!",
         });
       }
     },
@@ -489,7 +488,7 @@ function skillEffectSearch(name) {
       enqueue({
         id: "f647a247-0db6-4dc5-bc52-8ed51b1b6d1e",
         battle,
-        text: skillUser.names + " 방어 태세에 들어갔다!",
+        text: skillUser.names("는") + " 방어 태세에 들어갔다!",
       });
     },
     니들가드: (battle, enqueue, skillEffect) => {
@@ -499,7 +498,7 @@ function skillEffectSearch(name) {
       enqueue({
         id: "f48c4cb4-e808-4d70-821a-6bfb3c398f82",
         battle,
-        text: skillUser.names + " 방어 태세에 들어갔다!",
+        text: skillUser.names("는") + " 방어 태세에 들어갔다!",
       });
     },
 
@@ -642,11 +641,11 @@ function skillEffectSearch(name) {
       const defPokemon = battle[def];
       const atkPokemon = battle[battle.turn.atk];
       if (atkPokemon.faint) return;
-      if (defPokemon.abil === "둔감" && !atkPokemon?.abilObj?.feature?.tgg) {
+      if (defPokemon.abil?.name === "둔감" && !atkPokemon?.abil?.feature?.tgg) {
         enqueue({
           id: "ffce1bdf-4b5b-4da4-bb49-6ec64b3d713c",
           battle,
-          text: `[특성 둔감] ${defPokemon.names} 도발에 넘어가지 않는다!`,
+          text: `[특성 둔감] ${defPokemon.names("는")} 도발에 넘어가지 않는다!`,
         });
         return;
       }
@@ -669,7 +668,7 @@ function skillEffectSearch(name) {
         enqueue({
           id: "c66c9e96-f65c-4ad0-a59d-d9708ab78329",
           battle,
-          text: defPokemon.names + " 도발에 넘어가 버렸다!",
+          text: defPokemon.names("는") + " 도발에 넘어가 버렸다!",
         });
       }
     },
@@ -688,15 +687,14 @@ function skillEffectSearch(name) {
       }
       // 아이템 교환
       [atk.item, def.item] = [def.item, atk.item];
-      [atk.itemText, def.itemText] = [def.itemText, atk.itemText];
 
       // 구애 시리즈로 고정된 스킬 초기화
-      if (atk.abil !== "무아지경") atk.tempStatus.onlySkill = null;
-      if (def.abil !== "무아지경") def.tempStatus.onlySkill = null;
+      if (atk.abil?.name !== "무아지경") atk.tempStatus.onlySkill = null;
+      if (def.abil?.name !== "무아지경") def.tempStatus.onlySkill = null;
       enqueue({
         id: "ea3b5107-90e2-4c4e-8cba-60e3b48af238",
         battle,
-        text: atk.names + " 서로의 도구를 교체했다!",
+        text: atk.names("는") + " 서로의 도구를 교체했다!",
       });
     },
 
@@ -768,7 +766,7 @@ function skillEffectSearch(name) {
         return;
       }
 
-      atkPokemon.getDamage(battle, enqueue, needHp, `${atkPokemon.names} 체력을 깎아 파워를 최대로 올렸다!`);
+      atkPokemon.getDamage(battle, enqueue, needHp, `${atkPokemon.names("는")} 체력을 깎아 파워를 최대로 올렸다!`);
       if (atkPokemon.faint) return;
       atkPokemon.rankUp(battle, enqueue, "atk", 12);
     },
@@ -804,12 +802,12 @@ function skillEffectSearch(name) {
         }
       });
       if (hazardRemoved) {
-        enqueue({ id: "68712ac3-ad21-42de-a0e1-2844d01d46fa", battle, text: atk.names + " 자신의 필드를 정리했다!" });
+        enqueue({ id: "68712ac3-ad21-42de-a0e1-2844d01d46fa", battle, text: atk.names("는") + " 자신의 필드를 정리했다!" });
       }
       if (atk.tempStatus.seed) {
         //씨뿌리기 제거
         atk.tempStatus.seed = null;
-        enqueue({ id: "312f9c6b-4ae8-4730-96f4-bf6d2d408f4e", battle, text: atk.names + " 씨뿌리기에게서 벗어났다!" });
+        enqueue({ id: "312f9c6b-4ae8-4730-96f4-bf6d2d408f4e", battle, text: atk.names("는") + " 씨뿌리기에게서 벗어났다!" });
       }
       if (atk.tempStatus.switchLock) {
         let skillName = atk.tempStatus.switchLock;
@@ -819,7 +817,7 @@ function skillEffectSearch(name) {
         enqueue({
           id: "c1ec77c2-36ef-434a-aa47-cba739355644",
           battle,
-          text: atk.names + " " + skillName + "에게서 벗어났다!",
+          text: atk.names("는") + " " + skillName + "에게서 벗어났다!",
         });
       }
     },
@@ -849,7 +847,7 @@ function skillEffectSearch(name) {
         def.tempStatus.switchLock = skillEffect.skillName;
         def.tempStatus.switchLockTurnRemain = Math.random() < 0.5 ? 4 : 5;
         //4~5턴인데 확률은 모르겠음
-        enqueue({ id: "4255ff9b-961a-428c-9cfe-05a52ef07753", battle, text: def.names + " " + skillEffect.text });
+        enqueue({ id: "4255ff9b-961a-428c-9cfe-05a52ef07753", battle, text: def.names("는") + " " + skillEffect.text });
       }
     },
 
@@ -874,7 +872,7 @@ function skillEffectSearch(name) {
     길동무: (battle, enqueue, skillEffect) => {
       const atk = battle[battle.turn.atk];
       atk.tempStatus.destinyBond = true;
-      enqueue({ id: "b7c2e8a1-4d3f-4e6a-9b1c-2f5d8e7a0c31", battle, text: atk.names + " 상대를 길동무로 삼으려 하고 있다!" });
+      enqueue({ id: "b7c2e8a1-4d3f-4e6a-9b1c-2f5d8e7a0c31", battle, text: atk.names("는") + " 상대를 길동무로 삼으려 하고 있다!" });
     },
     목숨걸기: (battle, enqueue, skillEffect) => {
       if (battle[battle.turn.atk].faint) return;
@@ -890,7 +888,7 @@ function skillEffectSearch(name) {
 
 
       const damage = Math.ceil(hpCalculate(atkPokemon) / 2);
-      const text = atkPokemon.names + " 반동으로 데미지를 입었다!";
+      const text = atkPokemon.names("는") + " 반동으로 데미지를 입었다!";
       atkPokemon.getDamage(battle, enqueue, damage, text);
     },
 

@@ -28,7 +28,7 @@ export const PokemonRecover = {
       enqueue({
         id: "45f9331b-d45f-4425-9cad-c1249947a90b",
         battle,
-        text: text ?? `${this.names} 체력을 회복했다!`,
+        text: text ?? `${this.names("는")} 체력을 회복했다!`,
       });
     }
   },
@@ -60,7 +60,7 @@ export const PokemonRecover = {
       enqueue({
         id: "resurrection-on-pokemonRecover",
         battle,
-        text: option.text ?? `${this.names} 다시 싸울 수 있게 되었다!`,
+        text: option.text ?? `${this.names("는")} 다시 싸울 수 있게 되었다!`,
       });
     }
 

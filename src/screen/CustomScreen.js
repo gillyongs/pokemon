@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
-import sampleList from "../entity/Pokemon/SamplePokemon";
+import sampleList from "../entity/Pokemon/pokemonSampleList";
 import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../store/recoilState";
 import SampleInfoModal from "../component/customScreen/sampleInfo/SampleInfoModal";
@@ -102,19 +102,19 @@ const CustomScreen = () => {
 
   const handleSelect = (pokemonId) => {
     const currentTeam = getActiveTeam();
-    const existingIndex = currentTeam.findIndex((entry) => (typeof entry === "object" && entry ? entry.id : entry) === pokemonId);
+    const existingIndex = currentTeam.findIndex((entry) => (typeof entry === "object" && entry ? entry.sampleName || entry.id : entry) === pokemonId);
     if (existingIndex !== -1) {
       handleRemove(existingIndex);
       return;
     }
 
-    const targetSample = sampleList.getDataById(pokemonId);
-    const targetNo = targetSample?.no || targetSample?.pokemon_id;
+    const targetSample = sampleList.getDataBySampleName(pokemonId);
+    const targetNo = targetSample?.dexNo || targetSample?.no || targetSample?.uniqueKey;
     const hasSameNo = currentTeam.some((entry) => {
       if (!entry) return false;
-      const entryId = typeof entry === "object" ? entry.id : entry;
-      const entrySample = sampleList.getDataById(entryId);
-      const entryNo = entrySample?.no || entrySample?.pokemon_id;
+      const entryId = typeof entry === "object" ? entry.sampleName || entry.id : entry;
+      const entrySample = sampleList.getDataBySampleName(entryId);
+      const entryNo = entrySample?.dexNo || entrySample?.no || entrySample?.uniqueKey;
       return Boolean(targetNo && entryNo && targetNo === entryNo);
     });
 
@@ -134,15 +134,16 @@ const CustomScreen = () => {
 
   const handleAddToActiveTeam = (pokemon, customItem, customAbil, customSkills, customStats) => {
     const currentTeam = getActiveTeam();
-    const existingIndex = currentTeam.findIndex((entry) => (typeof entry === "object" && entry ? entry.id : entry) === pokemon.id);
+    const sName = pokemon.sampleName || pokemon.id;
+    const existingIndex = currentTeam.findIndex((entry) => (typeof entry === "object" && entry ? entry.sampleName || entry.id : entry) === sName);
     if (existingIndex !== -1) return;
 
-    const targetNo = pokemon?.no || pokemon?.pokemon_id;
+    const targetNo = pokemon?.dexNo || pokemon?.no || pokemon?.uniqueKey;
     const hasSameNo = currentTeam.some((entry) => {
       if (!entry) return false;
-      const entryId = typeof entry === "object" ? entry.id : entry;
-      const entrySample = sampleList.getDataById(entryId);
-      const entryNo = entrySample?.no || entrySample?.pokemon_id;
+      const entryId = typeof entry === "object" ? entry.sampleName || entry.id : entry;
+      const entrySample = sampleList.getDataBySampleName(entryId);
+      const entryNo = entrySample?.dexNo || entrySample?.no || entrySample?.uniqueKey;
       return Boolean(targetNo && entryNo && targetNo === entryNo);
     });
 
@@ -162,12 +163,12 @@ const CustomScreen = () => {
     if (slotIndex === null || slotIndex === undefined) return;
     const currentTeam = getActiveTeam();
 
-    const targetNo = pokemon?.no || pokemon?.pokemon_id;
+    const targetNo = pokemon?.dexNo || pokemon?.no || pokemon?.uniqueKey;
     const hasSameNoInOtherSlot = currentTeam.some((entry, idx) => {
       if (idx === slotIndex || !entry) return false;
-      const entryId = typeof entry === "object" ? entry.id : entry;
-      const entrySample = sampleList.getDataById(entryId);
-      const entryNo = entrySample?.no || entrySample?.pokemon_id;
+      const entryId = typeof entry === "object" ? entry.sampleName || entry.id : entry;
+      const entrySample = sampleList.getDataBySampleName(entryId);
+      const entryNo = entrySample?.dexNo || entrySample?.no || entrySample?.uniqueKey;
       return Boolean(targetNo && entryNo && targetNo === entryNo);
     });
 
@@ -358,7 +359,7 @@ const CustomScreen = () => {
         <TeamSlots>
           {[0, 1, 2].map((index) => {
             const pokemonEntry = currentTeam[index];
-            const pokemonId = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.id : pokemonEntry;
+            const pokemonId = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.sampleName || pokemonEntry.id : pokemonEntry;
             const pokemonData = resolveSlotPokemonData(pokemonEntry);
             return (
               <Slot
@@ -391,7 +392,7 @@ const CustomScreen = () => {
                     </RemoveBtn>
                     <ImageWrapper>
                       <img
-                        src={`/pokemon/img/pokemon/${pokemonData.megaData?.pokemon_id || pokemonData.pokemon_id}.webp`}
+                        src={`/pokemon/img/pokemon/${pokemonData.megaData?.uniqueKey || pokemonData.uniqueKey}.webp`}
                         alt={pokemonData.name}
                         style={{ height: "70px", width: "70px", objectFit: "contain", transform: "scale(1.15) translateY(-4px)" }}
                         onError={(e) => {
@@ -410,7 +411,7 @@ const CustomScreen = () => {
                         />
                       )}
                     </ImageWrapper>
-                    <PokemonName>{pokemonData.id}</PokemonName>
+                    <PokemonName>{pokemonData.sampleName || pokemonData.id}</PokemonName>
                   </PokemonCard>
                 ) : (
                   <EmptySlot onClick={() => handleRandomPick(index)}>
@@ -485,12 +486,13 @@ const CustomScreen = () => {
         </SectionHeader>
         <Grid>
           {filteredSamples.map((pokemon) => {
-            const isSelected = currentTeam.some((entry) => (typeof entry === "object" && entry ? entry.id : entry) === pokemon.id);
+            const sName = pokemon.sampleName || pokemon.id;
+            const isSelected = currentTeam.some((entry) => (typeof entry === "object" && entry ? entry.sampleName || entry.id : entry) === sName);
             return (
-              <ListItem key={pokemon.id} $isSelected={isSelected} onClick={() => handleSelect(pokemon.id)}>
+              <ListItem key={sName} $isSelected={isSelected} onClick={() => handleSelect(sName)}>
                 <ImageWrapper style={{ flexShrink: 0 }}>
                   <img
-                    src={`/pokemon/img/pokemon/${pokemon.megaData?.pokemon_id || pokemon.pokemon_id}.webp`}
+                    src={`/pokemon/img/pokemon/${pokemon.megaData?.uniqueKey || pokemon.uniqueKey}.webp`}
                     alt={pokemon.name}
                     style={{ height: "76px", width: "76px", objectFit: "contain", transform: "scale(1.2) translate(-3px, -6px)" }}
                     onError={(e) => {
@@ -508,7 +510,7 @@ const CustomScreen = () => {
                   )}
                 </ImageWrapper>
                 <InfoCol>
-                  <PokemonNameList>{pokemon.id}</PokemonNameList>
+                  <PokemonNameList>{sName}</PokemonNameList>
                   <SkillGrid>
                     {[1, 2, 3, 4].map((num) => {
                       const skill = pokemon.skill?.[num];
@@ -603,11 +605,11 @@ const CustomScreen = () => {
               : !getActiveTeam().includes(null) ||
                 getActiveTeam().some((entry) => {
                   if (!entry) return false;
-                  const entryId = typeof entry === "object" ? entry.id : entry;
-                  if (entryId === infoModalPokemon.id) return true;
-                  const entrySample = sampleList.getDataById(entryId);
-                  const entryNo = entrySample?.no || entrySample?.pokemon_id;
-                  const targetNo = infoModalPokemon.no || infoModalPokemon.pokemon_id;
+                  const entryId = typeof entry === "object" ? entry.sampleName || entry.id : entry;
+                  if (entryId === (infoModalPokemon.sampleName || infoModalPokemon.id)) return true;
+                  const entrySample = sampleList.getDataBySampleName(entryId);
+                  const entryNo = entrySample?.dexNo || entrySample?.no || entrySample?.uniqueKey;
+                  const targetNo = infoModalPokemon.dexNo || infoModalPokemon.no || infoModalPokemon.uniqueKey;
                   return Boolean(targetNo && entryNo && targetNo === entryNo);
                 })
           }

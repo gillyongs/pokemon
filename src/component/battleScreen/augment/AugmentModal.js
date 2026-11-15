@@ -8,7 +8,7 @@ import { ALL_POKEMON_TYPES, TYPE_COLORS, isNoEffect, getTypeEffectText } from ".
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 import { rollTeamAugments } from "../../../calc/augmentRoll";
 import { testmode, subscribeTestMode } from "../../../config/testMode";
-import sampleList from "../../../entity/Pokemon/SamplePokemon";
+import sampleList from "../../../entity/Pokemon/pokemonSampleList";
 import AugmentStatusModal from "./AugmentStatusModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
@@ -88,7 +88,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
   const formatDeltaText = (val) => (val > 0 ? `+${val}` : `${val}`);
 
   const getRandomAbilityPool = (pokemon) => {
-    const currentAbil = pokemon?.abil;
+    const currentAbil = pokemon?.abil?.name || pokemon?.abil;
     return Object.keys(abilObject).filter((a) => !noRandomAbil.includes(a) && a !== currentAbil);
   };
 
@@ -100,7 +100,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
   const buildInitialAbilityReel = (pokemon) => {
     const pool = getRandomAbilityPool(pokemon);
-    const centerAbil = pokemon?.abil || pickRandomFrom(pool);
+    const centerAbil = pokemon?.abil?.name || pokemon?.abil || pickRandomFrom(pool);
     const topAbil = pickRandomFrom(pool, centerAbil);
     const bottomAbil = pickRandomFrom(pool, centerAbil);
     return [topAbil, centerAbil, bottomAbil];
@@ -155,12 +155,12 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
   const resolvedTeam = team && team.length > 0 ? team : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
 
-  const getPokeKey = (p, idx) => p?.originalIndex ?? p?.id ?? idx;
+  const getPokeKey = (p, idx) => p?.originalIndex ?? p?.sampleName ?? p?.id ?? idx;
 
   const getPreviewSample = (augId) => {
     const sampleKey = AUGMENT_POKEMON_PREVIEW_MAP[augId];
     if (!sampleKey) return null;
-    return sampleList.getDataById(sampleKey) || null;
+    return sampleList.getDataBySampleName(sampleKey) || null;
   };
 
   const handleOpenPreview = (e, augId) => {
@@ -313,7 +313,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     e?.stopPropagation();
     if (!selectedAugment || !activePokemon) return;
 
-    if ((selectedAugment.id === "danceOfGarchomp" || selectedAugment.id === "nameIsSalamence") && activePokemon?.origin?.skill) {
+    if ((selectedAugment.id === "danceOfGarchomp" || selectedAugment.id === "nameIsSalamence") && activePokemon?.skill) {
       setSkillSelectAug(selectedAugment);
       setSelectedSlot(null);
       return;
@@ -642,7 +642,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
   const getRouletteOutcomeText = () => {
     if (!rouletteAug || !rouletteResult) return "";
     if (rouletteAug.id === "russianRoulette") {
-      const targetName = rouletteResult === "npc" ? battle?.npc?.name || battle?.npc?.origin?.name || "상대 포켓몬" : battle?.player?.name || battle?.player?.origin?.name || activePokemon?.name || "내 포켓몬";
+      const targetName = rouletteResult === "npc" ? battle?.npc?.name || "상대 포켓몬" : battle?.player?.name || activePokemon?.name || "내 포켓몬";
       return `${targetName} 기절!`;
     }
     if (rouletteAug.id === "doOrDie") {
@@ -652,7 +652,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
       return rouletteResult === "buff" ? "하이 리턴! 모든 공격 데미지 3배" : "하이 리스크... 모든 공격 데미지 절반";
     }
     if (rouletteAug.id === "randomAbility") {
-      const prevAbil = activePokemon?.abil;
+      const prevAbil = activePokemon?.abil?.name || activePokemon?.abil;
       return prevAbil ? `${prevAbil} → ${rouletteResult}` : `획득 특성: ${rouletteResult}`;
     }
     if (rouletteAug.id === "oddEven") {
@@ -674,10 +674,10 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
     if (rouletteAug?.id === "russianRoulette") {
       const playerPoke = battle?.player || activePokemon;
       const npcPoke = battle?.npc;
-      const playerPokeId = playerPoke?.origin?.pokemon_id || playerPoke?.pokemon_id || "0025";
-      const npcPokeId = npcPoke?.origin?.pokemon_id || npcPoke?.pokemon_id || "0000";
-      const playerLabel = formatWheelLabel(playerPoke?.name || playerPoke?.origin?.name || "내 포켓몬");
-      const npcLabel = formatWheelLabel(npcPoke?.name || npcPoke?.origin?.name || "상대");
+      const playerPokeId = playerPoke?.uniqueKey || "0025";
+      const npcPokeId = npcPoke?.uniqueKey || "0000";
+      const playerLabel = formatWheelLabel(playerPoke?.name || "내 포켓몬");
+      const npcLabel = formatWheelLabel(npcPoke?.name || "상대");
 
       return (
         <svg viewBox="0 0 220 220" width="212" height="212" xmlns="http://www.w3.org/2000/svg">
@@ -1142,7 +1142,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
 
                 <SkillGrid>
                   {[1, 2, 3, 4].map((slot) => {
-                    const sk = activePokemon?.origin?.skill?.[slot];
+                    const sk = activePokemon?.skill?.[slot];
                     if (!sk) return null;
                     const currentPp = activePokemon?.pp?.[slot] ?? sk.pp;
                     const displayType = skillTypeCalculate(battle, sk, activePokemon);
@@ -1242,8 +1242,8 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                 <TypeGridContainer>
                   <TypeGrid>
                     {ALL_POKEMON_TYPES.map((tName) => {
-                      const t1 = activePokemon?.origin?.type1 || activePokemon?.type1;
-                      const t2 = activePokemon?.origin?.type2 || activePokemon?.type2;
+                      const t1 = activePokemon?.type1;
+                      const t2 = activePokemon?.type2;
                       const isDisabled = typeSelectAug?.id === "teraBlast" ? false : Boolean(t1 && isNoEffect(tName, t1, t2));
                       const isSelected = selectedType === tName;
                       const typeCol = TYPE_COLORS[tName] || "#64ffda";
@@ -1361,7 +1361,7 @@ const AugmentModal = ({ team = [], augments = [], targetPokemon = null, initialT
                     {resolvedTeam.map((poke, idx) => {
                       const isSelected = activePokemon === poke || activePokemon?.id === poke.id;
                       const count = (poke.augments || []).filter((a) => isNormalAugment(a)).length;
-                      const pokeId = poke.origin?.pokemon_id || poke.pokemon_id;
+                      const pokeId = poke.uniqueKey;
                       return (
                         <EntryCard
                           key={getPokeKey(poke, idx)}

@@ -1,33 +1,14 @@
 import { hpCalculate } from "../../calc/hpCalculate";
-import { abilObject, noRandomAbil, changePokemonAbility, changeAbility } from "../Ability";
+import { abilObject, noRandomAbil } from "../Ability";
 import { josa } from "josa";
 import { getAugmentedStat, getHighestStatInfo, STAT_LABELS } from "../../calc/getStat";
 import { isPokemonAlone } from "../../calc/speedCheck";
 import { getMultiplier } from "../../calc/rankStat";
-import sampleList from "../Pokemon/SamplePokemon";
-import { generate } from "../Pokemon/PokemonInstance";
+import sampleList from "../Pokemon/pokemonSampleList";
+import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
 import { Skill } from "../Skill/Skill";
 import { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb } from "./swordEnhance";
-
-import PokemonData from "../Pokemon/PokemonData";
-
-export { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb };
-
-export const getBaseSpeedStat = (pokemon) => {
-  if (!pokemon) return 100;
-  const pId = pokemon.origin?.pokemon_id || pokemon.pokemon_id || pokemon.origin?.id || pokemon.id;
-  if (pId) {
-    const data = PokemonData.getDataById(pId);
-    if (data && typeof data.speed === "number") return data.speed;
-  }
-  const name = pokemon.name || pokemon.origin?.name;
-  if (name) {
-    const data = PokemonData.items?.find((p) => p.name === name);
-    if (data && typeof data.speed === "number") return data.speed;
-  }
-  return 100;
-};
 
 export const getReplacementAugmentWeight = (pokemon) => {
   const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
@@ -170,7 +151,7 @@ export const AUGMENT_LIST = [
     desc: "기술 고정 효과를 받지 않습니다.",
     cost: 1,
     weight: 300,
-    isEligible: (pokemon) => Boolean((pokemon?.item && pokemon.item.startsWith("구애")) || pokemon?.abil === "무아지경"),
+    isEligible: (pokemon) => Boolean((pokemon?.item && pokemon.item.startsWith("구애")) || pokemon?.abil?.name === "무아지경"),
     onApply: (pokemon) => {
       if (pokemon?.tempStatus) {
         pokemon.tempStatus.onlySkill = null;
@@ -185,9 +166,9 @@ export const AUGMENT_LIST = [
     cost: 2,
     weight: 100,
     isEligible: (pokemon) => {
-      if (pokemon?.abil === "불꽃몸" || pokemon?.origin?.abil === "불꽃몸") return true;
-      if (!pokemon?.origin?.skill) return false;
-      const skills = Object.values(pokemon.origin.skill).filter(Boolean);
+      if (pokemon?.abil?.name === "불꽃몸") return true;
+      if (!pokemon?.skill) return false;
+      const skills = Object.values(pokemon.skill).filter(Boolean);
       return skills.some((sk) => {
         if (!sk) return false;
         return Array.isArray(sk.skillEffectList) && sk.skillEffectList.some((eff) => eff.name === "화상" || eff.name === "트라이어택");
@@ -378,16 +359,12 @@ export const AUGMENT_LIST = [
       if (!pokemon.anvilStats) {
         pokemon.anvilStats = { atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
       }
-      if (pokemon.origin && !pokemon.origin.anvilStats) {
-        pokemon.origin.anvilStats = pokemon.anvilStats;
-      }
+
       const STAT_KEYS = ["atk", "catk", "def", "cdef", "speed"];
       const pickedStat = options?.pickedStat || STAT_KEYS[Math.floor(Math.random() * STAT_KEYS.length)];
       const pickedAmount = Number(options?.pickedAmount !== undefined ? options.pickedAmount : Math.floor(Math.random() * 6) + 5);
       pokemon.anvilStats[pickedStat] = (pokemon.anvilStats[pickedStat] || 0) + pickedAmount;
-      if (pokemon.origin?.anvilStats) {
-        pokemon.origin.anvilStats[pickedStat] = pokemon.anvilStats[pickedStat];
-      }
+
       if (options) {
         options.pickedStat = pickedStat;
         options.pickedAmount = pickedAmount;
@@ -422,11 +399,11 @@ export const AUGMENT_LIST = [
     weight: 100,
     isEligible: (pokemon) => hasSkill(pokemon, "눈보라"),
     onApply: function (pokemon, battle, options) {
-      if (!pokemon?.origin?.skill) return;
+      if (!pokemon?.skill) return;
       let slot = Number(options?.replaceSlot);
-      if (!slot || !pokemon.origin.skill[slot]) {
+      if (!slot || !pokemon.skill[slot]) {
         for (let s = 1; s <= 4; s++) {
-          const sk = pokemon.origin.skill[s];
+          const sk = pokemon.skill[s];
           if (sk?.name === "눈보라") {
             slot = s;
             break;
@@ -440,7 +417,7 @@ export const AUGMENT_LIST = [
       upgradedBlizzard.skillNumber = slot;
       upgradedBlizzard.isLostTechnologyBlizzard = true;
 
-      pokemon.origin.skill[slot] = upgradedBlizzard;
+      pokemon.skill[slot] = upgradedBlizzard;
       pokemon.pp[slot] = upgradedBlizzard.pp;
     },
   },
@@ -460,11 +437,11 @@ export const AUGMENT_LIST = [
     weight: 100,
     isEligible: (pokemon) => hasSkill(pokemon, "파괴광선"),
     onApply: function (pokemon, battle, options) {
-      if (!pokemon?.origin?.skill) return;
+      if (!pokemon?.skill) return;
       let slot = Number(options?.replaceSlot);
-      if (!slot || !pokemon.origin.skill[slot]) {
+      if (!slot || !pokemon.skill[slot]) {
         for (let s = 1; s <= 4; s++) {
-          const sk = pokemon.origin.skill[s];
+          const sk = pokemon.skill[s];
           if (sk?.name === "파괴광선") {
             slot = s;
             break;
@@ -473,7 +450,7 @@ export const AUGMENT_LIST = [
       }
       if (!slot) {
         for (let s = 1; s <= 4; s++) {
-          if (pokemon.origin.skill[s]?.type === "노말") {
+          if (pokemon.skill[s]?.type === "노말") {
             slot = s;
             break;
           }
@@ -482,13 +459,13 @@ export const AUGMENT_LIST = [
       if (!slot) return;
       this.replacedSlot = slot;
 
-      const baseAtk = pokemon?.origin?.stat?.atk || pokemon?.stat?.atk || 0;
-      const baseCatk = pokemon?.origin?.stat?.catk || pokemon?.stat?.catk || 0;
+      const baseAtk = pokemon?.stat?.atk || 0;
+      const baseCatk = pokemon?.stat?.catk || 0;
       const initialStype = baseAtk > baseCatk ? "atk" : "catk";
       const upgradedHyperBeam = new Skill("파괴광선", "노말", 150, 90, 5, 0, initialStype, null, "빛의 광선으로 상대를 공격한다. 적을 쓰러뜨리면 반동을 받지 않는다. 공격, 특수공격 중 더 높은 능력치를 사용한다.", [{ name: "반동휴식" }], {});
       upgradedHyperBeam.skillNumber = slot;
 
-      pokemon.origin.skill[slot] = upgradedHyperBeam;
+      pokemon.skill[slot] = upgradedHyperBeam;
       pokemon.pp[slot] = upgradedHyperBeam.pp;
     },
   },
@@ -519,10 +496,10 @@ export const AUGMENT_LIST = [
     cost: 1,
     weight: 100,
     onApply: function (pokemon, battle, options) {
-      if (!pokemon?.origin?.skill) return;
+      if (!pokemon?.skill) return;
       const slot = Number(options?.replaceSlot) || 4;
       const chosenType = options?.selectedType || "노말";
-      const prevSkill = pokemon.origin.skill[slot];
+      const prevSkill = pokemon.skill[slot];
       const prevSkillName = options?.replacedSkillName || prevSkill?.name || "기존 기술";
 
       this.replacedSlot = slot;
@@ -536,7 +513,7 @@ export const AUGMENT_LIST = [
         skillNumber: slot,
       };
 
-      pokemon.origin.skill[slot] = teraBlast;
+      pokemon.skill[slot] = teraBlast;
       if (pokemon.pp) {
         pokemon.pp[slot] = teraBlast.pp;
       }
@@ -555,10 +532,11 @@ export const AUGMENT_LIST = [
     isEligible: (pokemon) => isHpAtLeast(pokemon, 0.5),
     onApply: function (pokemon, battle) {
       const allItems = sampleList.items || [];
-      const filtered = allItems.filter((item) => item.id !== pokemon.id);
+      const currentSampleName = pokemon.sampleName || pokemon.id;
+      const filtered = allItems.filter((item) => (item.sampleName || item.id) !== currentSampleName);
       if (filtered.length === 0) return;
       const picked = filtered[Math.floor(Math.random() * filtered.length)];
-      replacePokemon(pokemon, picked.id, battle, { resetAugments: true });
+      replacePokemon(pokemon, picked.sampleName || picked.id, battle, { resetAugments: true });
     },
   },
 
@@ -610,8 +588,8 @@ export const AUGMENT_LIST = [
     weight: "-",
     isEligible: () => false,
     onApply: function (pokemon) {
-      if (pokemon && pokemon.origin?.hp && !pokemon._appliedLifePartnerHp) {
-        const baseHp = pokemon.origin.hp;
+      if (pokemon && pokemon.baseHp && !pokemon._appliedLifePartnerHp) {
+        const baseHp = pokemon.baseHp;
         const newMaxHp = hpCalculate(pokemon);
         const hpGain = Math.max(0, Math.round(baseHp * 1.1) - baseHp);
         pokemon.hp = Math.min(newMaxHp, (pokemon.hp || baseHp) + hpGain);
@@ -758,11 +736,11 @@ export const AUGMENT_LIST = [
     imageOptions: { shiftUp: true, offsetY: -5.5, scale: 1.15 },
     isEligible: (pokemon) => hasPokemonName(pokemon, "보만다") && !hasSkill(pokemon, "지진"),
     onApply: function (pokemon, battle, options) {
-      if (!pokemon?.origin?.skill) return;
+      if (!pokemon?.skill) return;
       const slot = Number(options?.replaceSlot) || 4;
       this.replacedSlot = slot;
       const earthquake = { ...skillList.search("지진"), skillNumber: slot };
-      pokemon.origin.skill[slot] = earthquake;
+      pokemon.skill[slot] = earthquake;
       pokemon.pp[slot] = earthquake.pp;
     },
   },
@@ -774,11 +752,11 @@ export const AUGMENT_LIST = [
     weight: 300,
     isEligible: (pokemon) => hasPokemonName(pokemon, "한카리아스") && !hasSkill(pokemon, "용의춤"),
     onApply: function (pokemon, battle, options) {
-      if (!pokemon?.origin?.skill) return;
+      if (!pokemon?.skill) return;
       const slot = Number(options?.replaceSlot) || 4;
       this.replacedSlot = slot;
       const dDance = { ...skillList.search("용의춤"), skillNumber: slot };
-      pokemon.origin.skill[slot] = dDance;
+      pokemon.skill[slot] = dDance;
       pokemon.pp[slot] = dDance.pp;
     },
   },
@@ -790,7 +768,7 @@ export const AUGMENT_LIST = [
     weight: 500,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
-    isEligible: (pokemon) => hasPokemonName(pokemon, "파이어로") && pokemon?.abil === "질풍날개",
+    isEligible: (pokemon) => hasPokemonName(pokemon, "파이어로") && pokemon?.abil?.name === "질풍날개",
   },
   {
     id: "nimbleMoves",
@@ -799,20 +777,20 @@ export const AUGMENT_LIST = [
     cost: 4,
     weight: 100,
     onApply: function (pokemon, battle, options) {
-      if (!pokemon?.origin?.skill) return;
-      const validSlots = [1, 2, 3, 4].filter((slot) => pokemon.origin.skill[slot]);
+      if (!pokemon?.skill) return;
+      const validSlots = [1, 2, 3, 4].filter((slot) => pokemon.skill[slot]);
       if (validSlots.length === 0) return;
 
       let targetSlot = options?.targetSlot;
       if (options?.enhancedSkillName) {
-        const foundSlot = validSlots.find((s) => pokemon.origin.skill[s]?.name === options.enhancedSkillName);
+        const foundSlot = validSlots.find((s) => pokemon.skill[s]?.name === options.enhancedSkillName);
         if (foundSlot) targetSlot = foundSlot;
       }
-      if (!targetSlot || !pokemon.origin.skill[targetSlot]) {
+      if (!targetSlot || !pokemon.skill[targetSlot]) {
         targetSlot = validSlots[Math.floor(Math.random() * validSlots.length)];
       }
 
-      const targetSkill = pokemon.origin.skill[targetSlot];
+      const targetSkill = pokemon.skill[targetSlot];
       if (!targetSkill) return;
 
       const currentPrior = typeof targetSkill.prior === "number" ? targetSkill.prior : 0;
@@ -823,7 +801,7 @@ export const AUGMENT_LIST = [
         nimbleMoves: true,
       };
 
-      pokemon.origin.skill[targetSlot] = enhancedSkill;
+      pokemon.skill[targetSlot] = enhancedSkill;
       this.targetSlot = targetSlot;
       this.enhancedSkillName = targetSkill.name;
     },
@@ -1006,7 +984,7 @@ export const AUGMENT_LIST = [
       if (options && typeof options === "object") {
         options.resolvedFaintSide = side;
         options.resolvedFaintTarget = faintPoke;
-        options.resolvedFaintTargetName = faintPoke?.name || faintPoke?.origin?.name || "";
+        options.resolvedFaintTargetName = faintPoke?.name || "";
       }
     },
   },
@@ -1056,7 +1034,7 @@ export const AUGMENT_LIST = [
         const benches = [battle.npcBench1, battle.npcBench2];
         benches.forEach((bp) => {
           if (bp && !bp.faint && !(bp.hp <= 0)) {
-            faintedNames.push(bp.name || bp.origin?.name || "");
+            faintedNames.push(bp.name || "");
             bp.hp = 0;
             if (!options?.deferFaint) {
               bp.handleFaint?.(battle, options?.enqueue || (() => {}));
@@ -1128,9 +1106,9 @@ export const AUGMENT_LIST = [
     desc: "현재 포켓몬의 특성을 천하장사로 변경합니다.\n(물리기술의 위력이 2배가 됩니다.)",
     cost: 3,
     weight: 100,
-    isEligible: (pokemon) => pokemon?.abil !== "천하장사" && isPhysicalPokemon(pokemon),
+    isEligible: (pokemon) => pokemon?.abil?.name !== "천하장사" && isPhysicalPokemon(pokemon),
     onApply: (pokemon) => {
-      changePokemonAbility(pokemon, "천하장사");
+      pokemon.changeAbil("천하장사");
     },
   },
   {
@@ -1143,7 +1121,7 @@ export const AUGMENT_LIST = [
     imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
     isEligible: (pokemon) => hasPokemonName(pokemon, "레지기가스"),
     onApply: (pokemon) => {
-      changePokemonAbility(pokemon, "패스트스타트");
+      pokemon.changeAbil("패스트스타트");
     },
   },
   {
@@ -1156,10 +1134,10 @@ export const AUGMENT_LIST = [
       const picked =
         options?.pickedAbility ||
         (() => {
-          const pool = Object.keys(abilObject).filter((a) => !noRandomAbil.includes(a) && a !== pokemon.abil);
+          const pool = Object.keys(abilObject).filter((a) => !noRandomAbil.includes(a) && a !== (pokemon?.abil?.name || pokemon?.abil));
           return pool[Math.floor(Math.random() * pool.length)];
         })();
-      changePokemonAbility(pokemon, picked);
+      pokemon.changeAbil(picked);
       this.pickedAbility = picked;
     },
   },
@@ -1209,7 +1187,7 @@ export const AUGMENT_LIST = [
 
 // 3개 증강 공명(시너지) 버프 매핑 테이블
 // { [버프 증강 ID]: [조건 증강 ID 목록] }
-export const SYNERGY_ACTIVATION_THRESHOLD = {
+const SYNERGY_ACTIVATION_THRESHOLD = {
   lostTechnologyCritical: 3, // 로스트 테크놀로지 증강 배열 중 3개 이상 보유 시 활성화
 };
 
@@ -1231,7 +1209,7 @@ export const AUGMENT_SYNERGY_MAP = {
   lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic", "lostTechnologyHyperBeam"], // 로스트 테크놀로지 (급소)
 };
 
-export const SYNERGY_INFO_MAP = {
+const SYNERGY_INFO_MAP = {
   echoOfHero: {
     emoji: "🍁",
     theme: "모험가 초보자",
@@ -1316,7 +1294,7 @@ export const getAugmentSynergyInfo = (augId) => {
 };
 
 // 동시에 2개 이상 등장하지 않는 상호 배타적 증강 그룹 목록 (배열 안의 배열 형태)
-export const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
+const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   // 1. 부활 아이템: 기력의 조각과 기력의 덩어리는 동시에 나오지 않음
   ["revivePiece", "maxRevive"],
 
@@ -1358,27 +1336,19 @@ const applyEternamax = (pokemon) => {
     speed: 130,
   };
 
-  const origin = pokemon.origin || pokemon;
-  const evs = origin.evs || { hp: 4, atk: 0, def: 0, catk: 252, cdef: 0, speed: 252 };
-  const gacha = origin.gacha || "5V0A";
-  const nature = origin.nature || { up: "speed", down: "atk" };
-
-  const gachaStats = {
-    "6V": ["hp", "atk", "def", "catk", "cdef", "speed"],
-    "5V0S": ["hp", "atk", "def", "catk", "cdef"],
-    "5V0A": ["hp", "def", "catk", "cdef", "speed"],
-    "4V0A0S": ["hp", "def", "catk", "cdef"],
-  };
+  const o = pokemon.o || pokemon;
+  const evs = o.evs || { hp: 4, atk: 0, def: 0, catk: 252, cdef: 0, speed: 252 };
+  const nature = o.nature || { up: "speed", down: "atk" };
 
   // 1. HP 계산
   const evHp = evs.hp ?? 0;
-  const ivHp = gachaStats[gacha]?.includes("hp") !== false ? 31 : 0;
+  const ivHp = 31;
   const newMaxHp = Math.floor((baseStats.hp * 2 + Math.floor(evHp / 4) + ivHp) / 2) + 60;
 
   // 현재 체력 비율 유지 (예: 반피면 50% 유지)
-  const oldMaxHp = hpCalculate(pokemon) || origin.hp || pokemon.hp || newMaxHp;
+  const oldMaxHp = hpCalculate(pokemon) || o.hp || pokemon.hp || newMaxHp;
   const oldHp = typeof pokemon.hp === "number" ? pokemon.hp : oldMaxHp;
-  origin.hp = newMaxHp;
+  o.hp = newMaxHp;
   const effectiveNewMaxHp = hpCalculate(pokemon) || newMaxHp;
   const hpRatio = oldMaxHp > 0 ? Math.max(0, Math.min(1, oldHp / oldMaxHp)) : 1;
   const newHp = Math.min(effectiveNewMaxHp, Math.max(oldHp > 0 ? 1 : 0, Math.round(effectiveNewMaxHp * hpRatio)));
@@ -1390,23 +1360,19 @@ const applyEternamax = (pokemon) => {
   ["atk", "def", "catk", "cdef", "speed"].forEach((statKey) => {
     const baseVal = baseStats[statKey];
     const evVal = evs[statKey] ?? 0;
-    const hasIv = gachaStats[gacha] ? gachaStats[gacha].includes(statKey) : true;
-    const ivVal = hasIv ? 31 : 0;
+    const ivVal = 31;
     let val = Math.floor((baseVal * 2 + Math.floor(evVal / 4) + ivVal) / 2) + 5;
     if (nature?.up === statKey) val = Math.floor(val * 1.1);
     if (nature?.down === statKey) val = Math.floor(val * 0.9);
     newStats[statKey] = val;
   });
 
-  origin.stat = { ...origin.stat, ...newStats };
-  if (pokemon.stat) {
-    pokemon.stat = { ...pokemon.stat, ...newStats };
-  }
+  o.stat = { ...o.stat, ...newStats };
 
   // 3. 이미지 및 ID 변경 (0890-m.webp)
-  origin.pokemon_id = "0890-m";
-  pokemon.pokemon_id = "0890-m";
-  origin.baseStats = baseStats;
+  o.uniqueKey = "0890-m";
+  o.dexNo = "0890";
+  o.baseStats = baseStats;
   pokemon.isEternamax = true;
 };
 
@@ -1443,10 +1409,8 @@ export const syncTeamEchoOfHeroBuff = (battle, fallbackPokemon = null) => {
  */
 const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) => {
   if (!pokemon) return null;
-  const newPoke = typeof newPokemonOrId === "string" ? generate(newPokemonOrId) : newPokemonOrId;
+  const newPoke = typeof newPokemonOrId === "string" ? generatePokemonInstance(newPokemonOrId, pokemon.team || "player") : newPokemonOrId;
   if (!newPoke) return pokemon;
-
-  newPoke.team = pokemon.team || "player";
   newPoke.originalIndex = pokemon.originalIndex !== undefined ? pokemon.originalIndex : 0;
 
   // 포켓몬 교체 시 기본적으로 해당 포켓몬의 증강, 버프, 저주를 전부 초기화 (resetAugments === false 인 경우만 유지)
@@ -1505,7 +1469,7 @@ const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) => {
 // 특정 기술 보유 여부 확인
 const hasSkill = (pokemon, skillName) => {
   if (!pokemon || !skillName) return false;
-  const skills = pokemon.origin?.skill;
+  const skills = pokemon.skill;
   if (!skills) return false;
   return [1, 2, 3, 4].some((slot) => {
     const sk = skills[slot] || skills[String(slot)];
@@ -1517,21 +1481,21 @@ const hasSkill = (pokemon, skillName) => {
 export const getAugmentText = (selectedAugment, target, isTextScreen = false, prevPokeName = "", options = null) => {
   if (!selectedAugment) return "";
   const id = selectedAugment.id;
-  const names = target ? target.names || josa(`${target.name || "포켓몬"}#{은}`) : "포켓몬은";
+  const names = target ? target.names("는") : "포켓몬은";
 
   // 특수 증강 목록 체크 (개별 desc 생성)
   let individualDesc = null;
 
   if (id === "tailwind") {
     if (isTextScreen) {
-      const pokeName = target?.name || target?.origin?.name || "포켓몬";
+      const pokeName = target?.name || "포켓몬";
       individualDesc = `${pokeName}의 순풍!`;
     } else {
       return selectedAugment.desc || "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올리는 순풍을 전개한다.";
     }
   } else if (id === "stealthRock") {
     if (isTextScreen) {
-      const pokeName = target?.name || target?.origin?.name || "포켓몬";
+      const pokeName = target?.name || "포켓몬";
       individualDesc = `${pokeName}의 스텔스록!`;
     } else {
       return selectedAugment.desc || "상대의 주위에 무수한 바위를 띄워 교체되어 나온 상대 포켓몬에게 데미지를 입힙니다.";
@@ -1548,7 +1512,7 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     const pickedAmount = options?.pickedAmount || selectedAugment?.pickedAmount;
     const statLabel = statLabels[pickedStat] || "능력치";
     if (isTextScreen) {
-      const pokeName = target?.name || target?.origin?.name || "포켓몬";
+      const pokeName = target?.name || "포켓몬";
       individualDesc = pickedStat && pickedAmount ? josa(`능력치 파편으로 ${pokeName}의 ${statLabel}#{이} ${pickedAmount} 올랐다!`) : `${names} 모루 능력치를 획득했다!`;
     } else {
       if (options?.showCurrentStats) {
@@ -1620,27 +1584,27 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     }
   } else if (id === "randomAbility") {
     const randomAug = target?.augments?.find((a) => a.id === "randomAbility");
-    const abilName = options?.pickedAbility || selectedAugment?.pickedAbility || randomAug?.pickedAbility || (randomAug ? target?.abil : "");
+    const abilName = options?.pickedAbility || selectedAugment?.pickedAbility || randomAug?.pickedAbility || (randomAug ? target?.abil?.name || target?.abil : "");
     if (abilName) {
       const pokeName = target?.name || "포켓몬";
       individualDesc = `${pokeName}의 특성이 ${josa(`${abilName}#{으로}`)} 바뀌었다!`;
     }
   } else if (id === "revivePiece") {
-    const revivedName = target?.name || target?.origin?.name || "포켓몬";
+    const revivedName = target?.name || "포켓몬";
     if (isTextScreen) {
       individualDesc = `${revivedName}에게 기력의 조각을 사용했다!`;
     } else {
       individualDesc = `${josa(`${revivedName}#{이}`)} HP를 절반 회복하고 부활했습니다.`;
     }
   } else if (id === "maxRevive") {
-    const revivedName = target?.name || target?.origin?.name || "포켓몬";
+    const revivedName = target?.name || "포켓몬";
     if (isTextScreen) {
       individualDesc = `${revivedName}에게 기력의 덩어리를 사용했다!`;
     } else {
       individualDesc = `${josa(`${revivedName}#{이}`)} HP를 최대로 회복하고 부활했습니다.`;
     }
   } else if (id === "fullRestore") {
-    const pokeName = target?.name || target?.origin?.name || "포켓몬";
+    const pokeName = target?.name || "포켓몬";
     if (isTextScreen) {
       individualDesc = josa(`${pokeName}#{은} 회복약으로 건강해졌다!`);
     } else {
@@ -1749,7 +1713,7 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
 };
 
 const getSwordAndShieldDesc = (pokemon, battle = null) => {
-  const stat = pokemon?.origin?.stat || pokemon?.stat;
+  const stat = pokemon?.stat;
   if (stat && typeof stat.atk === "number" && typeof stat.def === "number") {
     const atkRank = Number(pokemon?.tempStatus?.rank?.atk ?? 0);
     const defRank = Number(pokemon?.tempStatus?.rank?.def ?? 0);
@@ -1761,7 +1725,7 @@ const getSwordAndShieldDesc = (pokemon, battle = null) => {
 };
 
 const getSpecialSwordAndShieldDesc = (pokemon, battle = null) => {
-  const stat = pokemon?.origin?.stat || pokemon?.stat;
+  const stat = pokemon?.stat;
   if (stat && typeof stat.catk === "number" && typeof stat.cdef === "number") {
     const catkRank = Number(pokemon?.tempStatus?.rank?.catk ?? 0);
     const cdefRank = Number(pokemon?.tempStatus?.rank?.cdef ?? 0);
@@ -1773,7 +1737,7 @@ const getSpecialSwordAndShieldDesc = (pokemon, battle = null) => {
 };
 
 const getKsanteDesc = (pokemon, battle = null) => {
-  const stat = pokemon?.origin?.stat || pokemon?.stat;
+  const stat = pokemon?.stat;
   if (stat && typeof stat.def === "number" && typeof stat.cdef === "number") {
     const defRank = Number(pokemon?.tempStatus?.rank?.def ?? 0);
     const cdefRank = Number(pokemon?.tempStatus?.rank?.cdef ?? 0);
@@ -1794,13 +1758,13 @@ const getHhgghggDesc = (pokemon, battle = null) => {
 
 export const hasAnvilStats = (pokemon) => {
   if (!pokemon) return false;
-  const stats = pokemon.anvilStats || pokemon.origin?.anvilStats;
+  const stats = pokemon.anvilStats;
   if (!stats) return false;
   return Object.values(stats).some((v) => Number(v) > 0);
 };
 
 export const getAnvilStatsStatusDesc = (pokemon) => {
-  const stats = pokemon?.anvilStats || pokemon?.origin?.anvilStats;
+  const stats = pokemon?.anvilStats;
   if (!stats) return "누적되는 추가 능력치를 획득합니다.";
   const labels = {
     atk: "공격",
@@ -1824,7 +1788,7 @@ export const getAnvilStatsStatusDesc = (pokemon) => {
 
 export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
   if (!augment) return "";
-  const stat = pokemon?.origin?.stat;
+  const stat = pokemon?.stat;
 
   if (augment.id === "anvilStat" || augment.id === "anvilStatBuff") {
     return "누적되는 추가 능력치를 획득합니다.";
@@ -1879,8 +1843,6 @@ export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
   }
   return augment.desc || "";
 };
-
-export { changePokemonAbility, changeAbility };
 
 export const isSynergyAugment = (augment) => {
   if (!augment) return false;
@@ -1937,15 +1899,15 @@ const TANK_ROLES = ["막이", "물리막이", "특수막이"];
 const EXCLUDED_STAT_TYPE_SKILLS = ["지구던지기", "속임수", "바디프레스"];
 
 function getPokemonRole(pokemon) {
-  return pokemon?.origin?.role || "";
+  return pokemon?.role || "";
 }
 
 function getPokemonBaseStats(pokemon) {
-  return pokemon?.origin?.stat || null;
+  return pokemon?.stat || null;
 }
 
 function getPokemonActiveSkills(pokemon) {
-  const skills = pokemon?.origin?.skill;
+  const skills = pokemon?.skill;
   if (!skills) return [];
   return [1, 2, 3, 4].map((slot) => skills[slot]).filter((sk) => sk && sk.name !== "발버둥");
 }

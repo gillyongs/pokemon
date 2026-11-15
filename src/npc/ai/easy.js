@@ -48,7 +48,7 @@ export function npcAiEasy(choices, battle) {
 // 해당 스킬 사용시 적에게 입히는 최소데미지, 최대데미지, 가중치 값을 지니고있는다
 function createSkObj(baseBattle, sn, hp) {
   const bt = cloneWithMethods(baseBattle);
-  const skill = bt.npc.origin.skill[sn];
+  const skill = bt.npc.skill[sn];
 
   const skObj = {
     name: skill.name,
@@ -83,7 +83,7 @@ function createSkObj(baseBattle, sn, hp) {
 }
 
 //상대를 쓰러뜨릴 수 있는 기술을 필터링
-export function getKillableSkill(skObj, hp, bt) {
+function getKillableSkill(skObj, hp, bt) {
   // 1. 상대를 확정으로 쓰러뜨릴 수 있는 기술 (minDmg >= hp)
   const minCandidates = [1, 2, 3, 4].map((num) => skObj[num]).filter((s) => s && s.minDmg >= hp);
 
@@ -148,7 +148,7 @@ const findBestSkill = (skillList, bt) => {
   return candidatesAfterWeak.find((s) => (s.minDmg || 0) === maxMinDmg) || null;
 };
 
-export function getHighestScoreKey(skObj) {
+function getHighestScoreKey(skObj) {
   let bestKey = null;
   let maxScore = -Infinity;
 
@@ -163,7 +163,7 @@ export function getHighestScoreKey(skObj) {
 }
 
 // 강한 디메리트 체크
-export function hasStrongDemerit(skillObj, bt) {
+function hasStrongDemerit(skillObj, bt) {
   const sk = skillObj?.sk;
   if (!sk) return false;
 
@@ -190,7 +190,7 @@ export function hasStrongDemerit(skillObj, bt) {
     // 3. 상대방이 물리어태커/딜탱인데 화상을 입었을 때의 화상치료
     if (eff.name === "화상치료") {
       const player = bt?.player;
-      const role = player?.role || player?.origin?.role;
+      const role = player?.role;
       const isPhysical = role === "물리어태커" || role === "물리딜탱";
       const hasBurn = player?.ailment?.burn !== null && player?.ailment?.burn !== undefined;
       if (isPhysical && hasBurn) {
@@ -203,7 +203,7 @@ export function hasStrongDemerit(skillObj, bt) {
 }
 
 // 약한 디메리트 체크
-export function hasWeakDemerit(skillObj, bt) {
+function hasWeakDemerit(skillObj, bt) {
   const sk = skillObj?.sk;
   if (!sk) return false;
 
@@ -225,7 +225,7 @@ export function hasWeakDemerit(skillObj, bt) {
 
     // 2. 반동 피해 (돌머리 특성일 경우 반동 무효이므로 디메리트 아님)
     if (eff.name === "반동") {
-      if (npc?.abil !== "돌머리") {
+      if (npc?.abil?.name !== "돌머리") {
         return true;
       }
     }
@@ -264,7 +264,7 @@ export function statusAbleCheck(status, pokemon) {
     if (t1 === "불꽃" || t2 === "불꽃") {
       return false;
     }
-    if (pokemon.abil === "수포") {
+    if (pokemon.abil?.name === "수포") {
       return false;
     }
   }
@@ -296,7 +296,7 @@ function createPkObj(baseBattle, sn, hp) {
   const pokemon = bt[index];
 
   const skObj = {
-    name: pokemon.origin.name,
+    name: pokemon.baseName || pokemon.name,
     score: 0,
     number: index,
     log: {
@@ -350,7 +350,7 @@ export function calculatePokemonSwitchScore(bt, sn, skObj) {
     }
   }
 
-  const playerSkills = [1, 2, 3, 4].map((num) => bt.player.origin.skill[num]);
+  const playerSkills = [1, 2, 3, 4].map((num) => bt.player.skill[num]);
   for (const sk of playerSkills) {
     const list = sk?.skillEffectList;
     if (list && typeof list[Symbol.iterator] === "function") {
@@ -370,7 +370,7 @@ export function calculatePokemonSwitchScore(bt, sn, skObj) {
 
 function calculateTypeScore(bt, index, log) {
   const pokemon = bt[index];
-  const stat = bt.player.origin.stat;
+  const stat = bt.player.stat;
   const playerAtkType = stat.atk > stat.catk ? "atk" : "catk"; // 상대가 물리형인지 특수형인지
   const defStat = playerAtkType === "atk" ? "def" : "cdef";
   const player = bt.player;
@@ -397,7 +397,7 @@ function calculateTypeScore(bt, index, log) {
   }
 
   const maxHp = hpCalculate(pokemon);
-  let score = Math.floor((maxHp * pokemon.origin.stat[defStat]) / result / 1000);
-  log[index] = `${maxHp} * ${pokemon.origin.stat[defStat]} / ${result} / 1000 = ${score}`;
+  let score = Math.floor((maxHp * pokemon.stat[defStat]) / result / 1000);
+  log[index] = `${maxHp} * ${pokemon.stat[defStat]} / ${result} / 1000 = ${score}`;
   return score;
 }

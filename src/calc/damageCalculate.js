@@ -32,18 +32,18 @@ export const damageCalculate = (battle, obj, ai) => {
   const defensePokemon = battle[battle.turn.def];
 
   const skillNumber = battle.turn.atkSN;
-  const originSkill = attackPokemon.origin.skill[skillNumber]; // 시전 스킬
+  const originSkill = attackPokemon.skill[skillNumber]; // 시전 스킬
   const calculatedType = skillTypeCalculate(battle, originSkill, attackPokemon);
   let skill = originSkill && originSkill.type !== calculatedType ? { ...originSkill, type: calculatedType } : originSkill;
 
-  const atkAbil = attackPokemon.abil;
-  const defAbil = defensePokemon.abil;
+  const atkAbil = attackPokemon.abil?.name;
+  const defAbil = defensePokemon.abil?.name;
 
   const isMustCritical = Boolean(skill?.feature?.mustCritical);
   const isCritical = ai ? isMustCritical : Boolean(attackPokemon.turn.critical);
   // NPC 데미지 계산시엔 확정급소가 아니면 급소 보정을 하지 않는다 (난수 제거)
 
-  const noTggAtk = !attackPokemon.abilObj.feature?.tgg;
+  const noTggAtk = !attackPokemon.abil?.feature?.tgg;
 
   if (ai) {
     const typeDamage = typeCheckOnBattle(battle, skill.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
@@ -147,7 +147,7 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   const hasSacredSword = skill.skillEffectList?.some((effect) => effect.name === "천진");
-  if (attackPokemon.abil === "천진" || hasSacredSword) {
+  if (atkAbil === "천진" || hasSacredSword) {
     defStat = defenseStat === "cdef" ? noRankDefCdef : noRankDefDef;
   }
   const curNoRankDef = defenseStat === "cdef" ? noRankDefCdef : noRankDefDef;
@@ -209,7 +209,7 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStr += " * 1.3 (쿼크차지)";
     }
 
-    if (attackPokemon.ailment.burn !== null && attackStat === "atk" && attackPokemon.abil !== "근성") {
+    if (attackPokemon.ailment.burn !== null && attackStat === "atk" && atkAbil !== "근성") {
       // 화상 상태이면 공격력 절반
       atkStat *= 0.5;
       atkStr += " * 0.5 (화상)";
@@ -235,7 +235,7 @@ export const damageCalculate = (battle, obj, ai) => {
         atkStr += " * 0.75 (재앙의목간)";
       }
     }
-    if (attackPokemon.abil === "진홍빛고동" && battle.field.weather.isSunny) {
+    if (atkAbil === "진홍빛고동" && battle.field.weather.isSunny) {
       atkStat *= 1.3;
       atkStr += " * 1.3 (진홍빛고동)";
     }
@@ -275,7 +275,7 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStat *= 1.3;
       atkStr += " * 1.3 (쿼크차지)";
     }
-    if (attackPokemon.abil === "하드론엔진" && battle.field.terrain.isElectricField) {
+    if (atkAbil === "하드론엔진" && battle.field.terrain.isElectricField) {
       atkStat *= 1.3;
       atkStr += " * 1.3 (하드론엔진)";
     }
@@ -295,7 +295,7 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 0.75;
       defStr += " * 0.75 (재앙의검)";
     }
-    if (defensePokemon.item === "진화의휘석" && defensePokemon.origin.feature?.evo) {
+    if (defensePokemon.item === "진화의휘석" && defensePokemon.feature?.evo) {
       defStat *= 1.5;
       defStr += " * 1.5 (진화의휘석)";
     }
@@ -323,7 +323,7 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 0.75;
       defStr += " * 0.75 (재앙의구슬)";
     }
-    if (defensePokemon.item === "진화의휘석" && defensePokemon.origin.feature?.evo) {
+    if (defensePokemon.item === "진화의휘석" && defensePokemon.feature?.evo) {
       defStat *= 1.5;
       defStr += " * 1.5 (진화의휘석)";
     }
@@ -753,7 +753,7 @@ export const damageCalculate = (battle, obj, ai) => {
     if (obj) text += ` (${obj.serial}타)`;
 
     consoleLog(text);
-    if (getAugmentedStat(attackPokemon, attackStat, battle) !== attackPokemon.origin.stat[attackStat]) {
+    if (getAugmentedStat(attackPokemon, attackStat, battle) !== attackPokemon.stat[attackStat]) {
       consoleLog(attackPokemon.log.getAugmentedStat);
     }
 
@@ -851,7 +851,7 @@ const powerCalculate = (battle, skill, obj, ai) => {
       if (battle[battle.turn.atk].item === "속임수주사위") {
         power = skill.power * 4.14;
       }
-      if (battle[battle.turn.atk].abil === "스킬링크") {
+      if (battle[battle.turn.atk].abil?.name === "스킬링크") {
         power = skill.power * 5;
       }
       return Math.floor(power);

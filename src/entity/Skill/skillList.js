@@ -17,9 +17,6 @@ class SkillList {
     if (!name) return null;
     return this.search(name);
   }
-  getItemById(name) {
-    return this.getDataById(name);
-  }
 }
 
 const skillList = new SkillList();

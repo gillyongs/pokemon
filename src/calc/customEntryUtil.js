@@ -1,17 +1,17 @@
-import sampleList from "../entity/Pokemon/SamplePokemon";
+import sampleList from "../entity/Pokemon/pokemonSampleList";
 import PokemonData from "../entity/Pokemon/PokemonData";
-import skillList from "../entity/Skill/skillList";
 import { getAbilityListForPokemon } from "../component/customScreen/sampleInfo/AbilSearchModal";
 import { getItemListForPokemon } from "../component/customScreen/sampleInfo/ItemSearchModal";
 import { getSkillListForPokemon } from "../entity/Skill/PokemonSkillList";
-import { STAT_KEYS, getNatureInfo, normalizeGacha, calculateStat } from "../component/customScreen/sampleInfo/StatAdjustmentModal";
+import { STAT_KEYS, getNatureInfo, calculateStat } from "../component/customScreen/sampleInfo/StatAdjustmentModal";
 
-export const WEATHER_ABILITIES = ["잔비", "가뭄", "진홍빛고동", "모래날림"];
-export const WALL_SKILLS = ["리플렉터", "빛의장막", "오로라베일"];
+const WEATHER_ABILITIES = ["잔비", "가뭄", "진홍빛고동", "모래날림"];
+const WALL_SKILLS = ["리플렉터", "빛의장막", "오로라베일"];
 
-export const isWallPokemon = (pokemon) => {
+const isWallPokemon = (pokemon) => {
   if (!pokemon) return false;
-  if (pokemon.id && pokemon.id.includes("벽깔이")) return true;
+  const sName = pokemon.sampleName || pokemon.id;
+  if (sName && sName.includes("벽깔이")) return true;
   if (pokemon.skill) {
     const skills = Object.values(pokemon.skill);
     return skills.some((s) => s && WALL_SKILLS.includes(s.name));
@@ -19,15 +19,16 @@ export const isWallPokemon = (pokemon) => {
   return false;
 };
 
-export const isNameMatch = (searchStr, pokemon) => {
+const isNameMatch = (searchStr, pokemon) => {
   if (!searchStr) return true;
 
   const s = searchStr.trim().toLowerCase();
-  const cleanId = (pokemon.id || "").replace(/\s*[\(（].*?[\)）]/g, "").trim().toLowerCase();
-  const cleanName = (pokemon.name || "").replace(/\s*[\(（].*?[\)）]/g, "").trim().toLowerCase();
+  const cleanId = (pokemon.sampleName || pokemon.id || "").replace(/\s*[(（].*?[)）]/g, "").trim().toLowerCase();
+  const cleanName = (pokemon.name || "").replace(/\s*[(（].*?[)）]/g, "").trim().toLowerCase();
 
-  if (s === "위협" && (pokemon.abil === "위협" || pokemon.megaData?.abil === "위협")) return true;
-  if (s === "날씨" && (WEATHER_ABILITIES.includes(pokemon.abil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil)))) return true;
+  const pAbil = pokemon.abil?.name || pokemon.abil;
+  if (s === "위협" && (pAbil === "위협" || pokemon.megaData?.abil === "위협")) return true;
+  if (s === "날씨" && (WEATHER_ABILITIES.includes(pAbil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil)))) return true;
   if (s === "초전설" && pokemon.feature?.legendary) return true;
   if ((s === "메가진화" || s === "메가") && pokemon.megaData) return true;
 
@@ -74,13 +75,14 @@ export const filterSamplePokemons = (
     }
 
     let intimidateMatch = true;
+    const pAbil = pokemon.abil?.name || pokemon.abil;
     if (isIntimidateFilter) {
-      intimidateMatch = pokemon.abil === "위협" || pokemon.megaData?.abil === "위협";
+      intimidateMatch = pAbil === "위협" || pokemon.megaData?.abil === "위협";
     }
 
     let weatherMatch = true;
     if (isWeatherFilter) {
-      weatherMatch = WEATHER_ABILITIES.includes(pokemon.abil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil));
+      weatherMatch = WEATHER_ABILITIES.includes(pAbil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil));
     }
 
     let wallMatch = true;
@@ -93,11 +95,12 @@ export const filterSamplePokemons = (
 };
 
 export const buildCustomSlotEntry = (pokemon, customItem, customAbil, customSkills, customStats) => {
-  const rawPokemon = sampleList.getDataById(pokemon.id) || pokemon;
+  const rawPokemon = sampleList.getDataBySampleName(pokemon.sampleName || pokemon.id) || pokemon;
+  const rawAbilName = rawPokemon.abil?.name || rawPokemon.abil;
   const finalItem = customItem !== undefined ? customItem : rawPokemon.item;
-  const finalAbil = customAbil !== undefined ? customAbil : rawPokemon.abil;
+  const finalAbil = customAbil !== undefined ? customAbil : rawAbilName;
   const isItemChanged = finalItem !== rawPokemon.item;
-  const isAbilChanged = finalAbil !== rawPokemon.abil;
+  const isAbilChanged = finalAbil !== rawAbilName;
 
   const defaultSkills = {
     1: rawPokemon.skill?.[1]?.name,
@@ -120,7 +123,8 @@ export const buildCustomSlotEntry = (pokemon, customItem, customAbil, customSkil
 
   if (isItemChanged || isAbilChanged || isSkillsChanged || isStatChanged) {
     return {
-      id: rawPokemon.id,
+      sampleName: rawPokemon.sampleName || rawPokemon.id,
+      id: rawPokemon.sampleName || rawPokemon.id,
       item: finalItem,
       abil: finalAbil,
       skills: finalSkills,
@@ -130,65 +134,25 @@ export const buildCustomSlotEntry = (pokemon, customItem, customAbil, customSkil
             hp: customStats.hp,
             evs: customStats.evs,
             nature: customStats.nature,
-            gacha: customStats.gacha,
             megaData: customStats.megaData,
           }
         : {}),
     };
   }
 
-  return rawPokemon.id;
+  return rawPokemon.sampleName || rawPokemon.id;
 };
 
-export const resolveSlotPokemonData = (pokemonEntry) => {
-  const pokemonId = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.id : pokemonEntry;
-  if (!pokemonId) return null;
+// 슬롯 엔트리를 완성된 샘플 객체로 변환 (커스텀 반영)
+export const resolveSlotPokemonData = (pokemonEntry) => sampleList.buildSample(pokemonEntry);
 
-  const rawPokemonData = sampleList.getDataById(pokemonId);
-  if (!rawPokemonData) return null;
-
-  const customItem = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.item : null;
-  const customAbil = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.abil : null;
-  const customSkills = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.skills : null;
-
-  const itemVal = customItem !== null && customItem !== undefined ? (customItem === "없음" ? "" : customItem) : rawPokemonData.item;
-  const abilVal = customAbil !== null && customAbil !== undefined ? customAbil : rawPokemonData.abil;
-  let skillsVal = rawPokemonData.skill;
-  if (customSkills) {
-    skillsVal = {
-      1: customSkills[1] ? { ...skillList.search(customSkills[1]), skillNumber: 1 } : rawPokemonData.skill[1],
-      2: customSkills[2] ? { ...skillList.search(customSkills[2]), skillNumber: 2 } : rawPokemonData.skill[2],
-      3: customSkills[3] ? { ...skillList.search(customSkills[3]), skillNumber: 3 } : rawPokemonData.skill[3],
-      4: customSkills[4] ? { ...skillList.search(customSkills[4]), skillNumber: 4 } : rawPokemonData.skill[4],
-    };
-  }
-  const statVal = typeof pokemonEntry === "object" && pokemonEntry?.stat ? { ...rawPokemonData.stat, ...pokemonEntry.stat } : rawPokemonData.stat;
-  const hpVal = typeof pokemonEntry === "object" && pokemonEntry?.hp !== undefined ? pokemonEntry.hp : rawPokemonData.hp;
-  const evsVal = typeof pokemonEntry === "object" && pokemonEntry?.evs ? pokemonEntry.evs : rawPokemonData.evs;
-  const natureVal = typeof pokemonEntry === "object" && pokemonEntry?.nature ? pokemonEntry.nature : rawPokemonData.nature;
-  const gachaVal = typeof pokemonEntry === "object" && pokemonEntry?.gacha ? pokemonEntry.gacha : rawPokemonData.gacha;
-  const megaDataVal = typeof pokemonEntry === "object" && pokemonEntry?.megaData ? pokemonEntry.megaData : rawPokemonData.megaData;
-
-  return {
-    ...rawPokemonData,
-    item: itemVal,
-    abil: abilVal,
-    skill: skillsVal,
-    stat: statVal,
-    hp: hpVal,
-    evs: evsVal,
-    nature: natureVal,
-    gacha: gachaVal,
-    megaData: megaDataVal,
-  };
-};
-
-export const isValidEntrySlot = (slot) => {
+const isValidEntrySlot = (slot) => {
   if (slot === null) return true;
-  if (typeof slot === "string") return Boolean(sampleList.getDataById(slot));
-  if (typeof slot !== "object" || Array.isArray(slot) || typeof slot.id !== "string") return false;
+  if (typeof slot === "string") return Boolean(sampleList.getDataBySampleName(slot));
+  const slotSampleName = slot.sampleName || slot.id;
+  if (typeof slot !== "object" || Array.isArray(slot) || typeof slotSampleName !== "string") return false;
 
-  const rawPokemon = sampleList.getDataById(slot.id);
+  const rawPokemon = sampleList.getDataBySampleName(slotSampleName);
   if (!rawPokemon) return false;
 
   // 1. 특성 검증: 해당 포켓몬이 가질 수 있는 구현된 특성인지 확인
@@ -197,7 +161,7 @@ export const isValidEntrySlot = (slot) => {
     const validAbils = getAbilityListForPokemon(rawPokemon)
       .filter((a) => a.isImplemented)
       .map((a) => a.name);
-    if (!validAbils.includes(slot.abil) && slot.abil !== rawPokemon.abil) {
+    if (!validAbils.includes(slot.abil) && slot.abil !== (rawPokemon.abil?.name || rawPokemon.abil)) {
       return false;
     }
   }
@@ -233,7 +197,7 @@ export const isValidEntrySlot = (slot) => {
   }
 
   // 4. 능력치(노력치, 성격, 개체값, 실능치) 범위 및 일치 여부 검증
-  const hasCustomStatFields = slot.evs !== undefined || slot.nature !== undefined || slot.gacha !== undefined || slot.hp !== undefined || slot.stat !== undefined;
+  const hasCustomStatFields = slot.evs !== undefined || slot.nature !== undefined || slot.hp !== undefined || slot.stat !== undefined;
   if (hasCustomStatFields) {
     const evs = slot.evs || rawPokemon.evs || { hp: 0, atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
     if (typeof evs !== "object" || Array.isArray(evs)) return false;
@@ -244,7 +208,7 @@ export const isValidEntrySlot = (slot) => {
       if (typeof v !== "number" || !Number.isInteger(v) || v < 0 || v > 252) return false;
       totalEv += v;
     }
-    const maxAllowed = rawPokemon.abil === "전관예우" || slot.abil === "전관예우" ? 1512 : 508;
+    const maxAllowed = (rawPokemon.abil?.name || rawPokemon.abil) === "전관예우" || slot.abil === "전관예우" ? 1512 : 508;
     if (totalEv > maxAllowed) return false;
 
     const nature = slot.nature || rawPokemon.nature || { up: null, down: null };
@@ -254,22 +218,16 @@ export const isValidEntrySlot = (slot) => {
     const natureInfo = getNatureInfo(nature.up, nature.down);
     if (!natureInfo.isValid) return false;
 
-    const rawGacha = slot.gacha || rawPokemon.gacha || "6V";
-    if (!["6V", "5V0A", "5V0S", "4V0A0S", "5V1A", "5V1S", "4V"].includes(rawGacha)) return false;
-    const gacha = normalizeGacha(rawGacha);
-
-    const baseData = PokemonData.getDataById(rawPokemon.pokemon_id) || PokemonData.getDataById(rawPokemon.id);
+    const baseData = PokemonData.getPokemonDataByUniqueKey(rawPokemon.uniqueKey);
     if (!baseData) return false;
 
-    const isSpeed0 = gacha === "5V0S" || gacha === "4V0A0S";
-    const isAtk0 = gacha === "5V0A" || gacha === "4V0A0S";
     const ivs = {
       hp: 31,
-      atk: isAtk0 ? 0 : 31,
+      atk: 31,
       def: 31,
       catk: 31,
       cdef: 31,
-      speed: isSpeed0 ? 0 : 31,
+      speed: 31,
     };
     const isUp = (key) => nature.up === key && nature.down !== key;
     const isDown = (key) => nature.down === key && nature.up !== key;
@@ -304,15 +262,16 @@ export const isValidTeamArray = (arr) => {
   if (!arr.every(isValidEntrySlot)) return false;
 
   // 팀 내 중복 포켓몬 검증
-  const ids = arr.filter(Boolean).map((entry) => (typeof entry === "object" ? entry.id : entry));
+  const ids = arr.filter(Boolean).map((entry) => (typeof entry === "object" ? entry.sampleName || entry.id : entry));
   if (new Set(ids).size !== ids.length) return false;
 
   // 팀 내 동일 도감번호 중복 검증
   const nos = arr
     .filter(Boolean)
     .map((entry) => {
-      const raw = sampleList.getDataById(typeof entry === "object" ? entry.id : entry);
-      return raw?.no || raw?.pokemon_id;
+      const idKey = typeof entry === "object" ? entry.sampleName || entry.id : entry;
+      const raw = sampleList.getDataBySampleName(idKey);
+      return raw?.dexNo || raw?.no || raw?.uniqueKey;
     })
     .filter(Boolean);
   if (new Set(nos).size !== nos.length) return false;

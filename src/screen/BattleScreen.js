@@ -190,7 +190,7 @@ const Battle = () => {
               return (
                 <NpcActionSelector onClick={(e) => e.stopPropagation()}>
                   {[1, 2, 3, 4].map((num) => {
-                    const skill = battle.npc.origin.skill[num];
+                    const skill = battle.npc.skill[num];
                     const name = skill?.name || `기술${num}`;
                     const isSelected = selectedNpcChoice === num;
                     const isAvailable = validChoices.includes(num);
@@ -208,7 +208,7 @@ const Battle = () => {
                   {[1, 2].map((num) => {
                     const benchKey = `npcBench${num}`;
                     const benchPoke = battle[benchKey];
-                    const name = `교체(${benchPoke?.origin?.name || `포켓몬${num}`})`;
+                    const name = `교체(${benchPoke?.name || `포켓몬${num}`})`;
                     const isSelected = selectedNpcChoice === benchKey;
                     const isAvailable = validChoices.includes(benchKey);
                     return (

@@ -113,8 +113,8 @@ export function useQueue() {
         const updatedText =
           typeof item.text === "string" &&
           item.text.includes("무엇을 할까?") &&
-          nextItemBattle.player?.origin?.names
-            ? nextItemBattle.player.origin.names + " 무엇을 할까?"
+          nextItemBattle.player
+            ? nextItemBattle.player.names("는") + " 무엇을 할까?"
             : item.text;
         return {
           ...item,

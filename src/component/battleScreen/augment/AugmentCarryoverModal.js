@@ -128,7 +128,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           swordFailed: item.augment.swordFailed,
           swordBonusAtk: item.augment.swordBonusAtk,
           swordName: item.augment.swordName,
-          pickedAbility: item.augment.pickedAbility || (item.augment.id === "randomAbility" ? item.pokemon?.abil : undefined),
+          pickedAbility: item.augment.pickedAbility || (item.augment.id === "randomAbility" ? (item.pokemon?.abil?.name || item.pokemon?.abil) : undefined),
           targetSlot: item.augment.targetSlot,
           enhancedSkillName: item.augment.enhancedSkillName,
           baseSkillName: item.augment.baseSkillName,

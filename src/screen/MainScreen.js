@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { createGlobalStyle, keyframes } from "styled-components";
 import { useRecoilValue } from "recoil";
-import { pokemonList } from "../entity/Pokemon/PokemonTemplate";
 import { defaultOption } from "../config/defaultOption";
 import { testmode, subscribeTestMode } from "../config/testMode";
 import { gameOptionState } from "../store/recoilState";

@@ -5,8 +5,8 @@ export const isShadowTagged = (battle, team) => {
   const self = battle?.[team];
   const opponent = battle?.[team === "player" ? "npc" : "player"];
   if (!self || !opponent || opponent.faint) return false;
-  if (opponent.abil !== "그림자밟기") return false;
-  if (self.abil === "그림자밟기") return false;
+  if (opponent.abil?.name !== "그림자밟기") return false;
+  if (self.abil?.name === "그림자밟기") return false;
   if (self.type1 === "고스트" || self.type2 === "고스트") return false;
   return true;
 };

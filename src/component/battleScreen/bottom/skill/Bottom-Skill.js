@@ -10,7 +10,7 @@ import LogModal from "../../LogModal";
 import styled from "styled-components";
 
 const isSkillUsable = (player, skillIndex) => {
-  const skill = player?.origin?.skill?.[skillIndex];
+  const skill = player?.skill?.[skillIndex];
   const pp = player?.pp?.[skillIndex];
   if (!skill) return false;
   if (pp <= 0) return false;
@@ -18,7 +18,7 @@ const isSkillUsable = (player, skillIndex) => {
   const { onlySkill } = player.tempStatus || {};
   const hasUnbound = player.hasAugment?.("unboundChoice");
   const isChoiceLocked = Boolean(player.item?.startsWith("구애") && !hasUnbound);
-  const isGorillaLocked = Boolean(player.abil === "무아지경" && !hasUnbound);
+  const isGorillaLocked = Boolean(player.abil?.name === "무아지경" && !hasUnbound);
   if (onlySkill && (isChoiceLocked || isGorillaLocked) && onlySkill !== skill.name) {
     return false;
   }
@@ -68,7 +68,7 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
           }
           const curBattle = btObj || battle;
           if (!curBattle.player.auto && !curBattle.player.charge && !curBattle.player.recharge) {
-            setText?.(curBattle.player.origin.names + " 무엇을 할까?");
+            setText?.(curBattle.player.names("는") + " 무엇을 할까?");
           }
         }}
       />

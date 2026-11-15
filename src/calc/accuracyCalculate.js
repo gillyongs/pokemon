@@ -9,7 +9,7 @@ export function getAccuracy(bt, skill, attacker) {
   }
 
   // 노가드 특성: 공격자 또는 방어자가 노가드면 필중
-  if (attacker?.abil === "노가드" || defender?.abil === "노가드") {
+  if (attacker?.abil?.name === "노가드" || defender?.abil?.name === "노가드") {
     return 100;
   }
 
@@ -41,7 +41,7 @@ export function getAccuracy(bt, skill, attacker) {
 
   // 복안 명중률 1.3배 보정
   // 일격기엔 적용되지 않는다
-  if (attacker.abil === "복안" && typeof accur === "number" && !skill.feature?.oneShot) {
+  if (attacker.abil?.name === "복안" && typeof accur === "number" && !skill.feature?.oneShot) {
     accur = Math.floor(accur * 1.3);
   }
 

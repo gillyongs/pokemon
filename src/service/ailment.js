@@ -7,7 +7,7 @@ export const isAilmentCheck = (pokemon) => {
 const faintCheck = (pokemon) => pokemon.faint;
 
 // 상태이상 부여 가능 체크
-export function ailmentAbleCheck(battle, ailment, pokemon) {
+function ailmentAbleCheck(battle, ailment, pokemon) {
   // 이미 다른 상태이상이 있으면 불가
   if (isAilmentCheck(pokemon)) {
     return false;
@@ -35,7 +35,7 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
       // 물,얼음 타입 화상 걸리는거 맞음
       return false;
     }
-    if (pokemon.abil === "열교환" || pokemon.abil === "수포") {
+    if (pokemon.abil?.name === "열교환" || pokemon.abil?.name === "수포") {
       // 특성이 열교환, 수포인 화상에 걸리지 않는다
       // 상대방이 틀깨기면 걸리기는 하는데 어차피 즉시 회복되므로 걍 생략함
       return false;
@@ -47,7 +47,7 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
     if (t1 === "전기" || t2 === "전기") {
       return false;
     }
-    if (pokemon.abil === "유연") {
+    if (pokemon.abil?.name === "유연") {
       return false;
     }
   }
@@ -64,7 +64,7 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
 
   if (isPoison) {
     // 특성 부식: 상대가 독, 강철 타입이라도 독/맹독 상태로 만들 수 있다
-    const hasCorrosion = atkPokemon?.abil === "부식";
+    const hasCorrosion = atkPokemon?.abil?.name === "부식";
     // 독, 강철 타입은 독에 걸리지 않는다 (부식 특성 제외)
     if (!hasCorrosion && (t1 === "독" || t2 === "독" || t1 === "강철" || t2 === "강철")) {
       return false;
@@ -72,7 +72,7 @@ export function ailmentAbleCheck(battle, ailment, pokemon) {
   }
 
   if (isSleep) {
-    if (pokemon.abil === "의기양양" || pokemon.abil === "불면") {
+    if (pokemon.abil?.name === "의기양양" || pokemon.abil?.name === "불면") {
       return false;
     }
     // 일렉트릭필드면 잠들지 않는다
@@ -99,7 +99,7 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
 
     // 1 ~ 3턴
     pokemon.tempStatus.confuse = Math.floor(Math.random() * 3) + 1;
-    const confuseText = textOption || `${pokemon.names} 혼란에 빠졌다!`;
+    const confuseText = textOption || `${pokemon.names("는")} 혼란에 빠졌다!`;
     enqueue({ id: "b3741b6f-1875-4b80-bf5a-dd826a54574a", battle, text: confuseText });
     return;
   }
@@ -120,13 +120,13 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
   let text = "";
   if (ailment === "마비" || ailment === "mabi") {
     pokemon.ailment.mabi = true;
-    text = textOption || `${pokemon.names} 마비되어 기술을 쓰기 어려워졌다!`;
+    text = textOption || `${pokemon.names("는")} 마비되어 기술을 쓰기 어려워졌다!`;
   }
 
   // 화상: 부가효과(skillEffect.js), 화염구슬(turnEnd/ailmentEvent.js)
   if (ailment === "화상" || ailment === "burn") {
     pokemon.ailment.burn = true;
-    text = textOption || `${pokemon.names} 화상을 입었다!`;
+    text = textOption || `${pokemon.names("는")} 화상을 입었다!`;
   }
 
   // 독: 부가효과(skillEffect.js), 독압정(field.js)
@@ -143,18 +143,18 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
   // 맹독: 부가효과(skillEffect.js)
   if (ailment === "얼음" || ailment === "freeze") {
     pokemon.ailment.freeze = true;
-    text = textOption || `${pokemon.names} 얼어붙었다!`;
+    text = textOption || `${pokemon.names("는")} 얼어붙었다!`;
   }
   if (ailment === "freezeBug") {
     pokemon.ailment.freezeBug = true;
-    text = textOption || `${pokemon.names} 꽁꽁 얼어붙었다!`;
+    text = textOption || `${pokemon.names("는")} 꽁꽁 얼어붙었다!`;
   }
 
   // 잠듦: 하품(trunEnd/skillEvent.js)
   if (ailment === "잠듦" || ailment === "수면" || ailment === "sleep") {
     //잠듦이 맞는데 수면이랑 헷갈릴까봐...
     pokemon.ailment.sleep = Math.floor(Math.random() * 3) + 2; // 2 ~ 4턴 잠듦
-    text = `${pokemon.names} 잠들어버렸다!`;
+    text = `${pokemon.names("는")} 잠들어버렸다!`;
   }
 
   // 출력 텍스트

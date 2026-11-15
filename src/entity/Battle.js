@@ -1,4 +1,4 @@
-import { generate } from "./Pokemon/PokemonInstance";
+import { generatePokemonInstance } from "./Pokemon/PokemonInstance";
 import { Field } from "./Field/Field";
 class Battle {
   constructor(player, npc, playerBench1, playerBench2, npcBench1, npcBench2) {
@@ -8,13 +8,6 @@ class Battle {
     this.npcBench1 = npcBench1;
     this.playerBench2 = playerBench2;
     this.npcBench2 = npcBench2;
-
-    this.player.team = "player";
-    this.npc.team = "npc";
-    this.playerBench1.team = "player";
-    this.npcBench1.team = "npc";
-    this.playerBench2.team = "player";
-    this.npcBench2.team = "npc";
 
     this.turn = {
       fastActUser: null, // 먼저 '행동'한 쪽. 교체도 포함한다.
@@ -72,26 +65,19 @@ class Battle {
 }
 
 export function createBattle(playerArray, npcArray, options = { difficulty: "이지", round: 1 }) {
-  const player = generate(playerArray[0]);
+  const player = generatePokemonInstance(playerArray[0], "player");
   player.originalIndex = 0;
-  const npc = generate(npcArray[0], { isNpc: true, ...options });
-  npc.name = "상대 " + npc.name;
-  npc.names = "상대 " + npc.names;
-  npc.namess = "상대 " + npc.namess;
+  const npc = generatePokemonInstance(npcArray[0], "npc", options);
   npc.originalIndex = 0;
 
-  const playerBench1 = generate(playerArray[1]);
+  const playerBench1 = generatePokemonInstance(playerArray[1], "player");
   playerBench1.originalIndex = 1;
-  const npcBench1 = generate(npcArray[1], { isNpc: true, ...options });
-  npcBench1.name = "상대 " + npcBench1.name;
-  npcBench1.names = "상대 " + npcBench1.names;
+  const npcBench1 = generatePokemonInstance(npcArray[1], "npc", options);
   npcBench1.originalIndex = 1;
 
-  const playerBench2 = generate(playerArray[2]);
+  const playerBench2 = generatePokemonInstance(playerArray[2], "player");
   playerBench2.originalIndex = 2;
-  const npcBench2 = generate(npcArray[2], { isNpc: true, ...options });
-  npcBench2.name = "상대 " + npcBench2.name;
-  npcBench2.names = "상대 " + npcBench2.names;
+  const npcBench2 = generatePokemonInstance(npcArray[2], "npc", options);
   npcBench2.originalIndex = 2;
 
   const b = new Battle(player, npc, playerBench1, playerBench2, npcBench1, npcBench2);

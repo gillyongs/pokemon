@@ -1,13 +1,23 @@
 import { getStatName } from "../../../calc/rankStat.js";
-import { changePokemonAbility } from "../../Ability.js";
+import { abilObject } from "../../Ability.js";
 export const PokemonAbil = {
-  changeAbility(abilityName, fallbackText) {
-    return changePokemonAbility(this, abilityName, fallbackText);
+  changeAbil(abilityName, fallbackText = "") {
+    if (!abilityName) return null;
+    const baseObj = abilObject[abilityName] ? { ...abilObject[abilityName] } : { text: fallbackText || "설명이 없습니다." };
+    baseObj.name = abilityName;
+    baseObj.used = false;
+
+    this.abil = { ...baseObj };
+    if (this.o) {
+      this.o.abil = { ...baseObj };
+    }
+
+    return baseObj;
   },
   // 고대활성 발동
   handleProtosynthesis(battle, enqueue) {
     // 특성이 고대활성이 아니거나 이미 고대활성이 적용된 경우 발동하지 않음
-    if (this.abil !== "고대활성" || this.tempStatus.protosynthesis !== null) return;
+    if (this.abil?.name !== "고대활성" || this.tempStatus.protosynthesis !== null) return;
 
     // 고대활성: 가장 높은 능력치가 1랭크 업
     const maxKey = this.maxStat();
@@ -20,7 +30,7 @@ export const PokemonAbil = {
       enqueue({
         id: "242870a8-c92d-4282-933d-a6e07a751f8a",
         battle,
-        text: `[특성 고대활성] ${this.names} 쾌청에 의해 고대활성을 발동했다!`,
+        text: `[특성 고대활성] ${this.names("는")} 쾌청에 의해 고대활성을 발동했다!`,
       });
     }
     // 부스트에너지에 의한 발동
@@ -30,7 +40,7 @@ export const PokemonAbil = {
       enqueue({
         id: "ba65c986-1270-49c7-b195-91251dad5ec1",
         battle,
-        text: `[특성 고대활성] ${this.names} 부스트에너지에 의해 고대활성을 발동했다!`,
+        text: `[특성 고대활성] ${this.names("는")} 부스트에너지에 의해 고대활성을 발동했다!`,
       });
     }
 
@@ -46,7 +56,7 @@ export const PokemonAbil = {
 
   // 쾌청 해제 시 이로인한 고대활성 종료 처리
   handleProtosynthesisEnd(battle, enqueue) {
-    if (this.abil !== "고대활성" || this.tempStatus.protosynthesis === null) return;
+    if (this.abil?.name !== "고대활성" || this.tempStatus.protosynthesis === null) return;
     if (!this.tempStatus.protosynthesisBySun) return; // 쾌청 기반이 아니면 무시
 
     this.tempStatus.protosynthesis = null;
@@ -63,7 +73,7 @@ export const PokemonAbil = {
       enqueue({
         id: "fd7b98f0-a2ef-4a7d-90e0-9f649e088fb4",
         battle,
-        text: `[특성 고대활성] ${this.names} 부스트에너지에 의해 고대활성을 발동했다!`,
+        text: `[특성 고대활성] ${this.names("는")} 부스트에너지에 의해 고대활성을 발동했다!`,
       });
       const maxKey = this.maxStat();
       this.tempStatus.protosynthesis = maxKey;
@@ -78,7 +88,7 @@ export const PokemonAbil = {
   // 쿼크차지 발동
   handleQuarkDrive(battle, enqueue) {
     // 특성이 쿼크차지가 아니거나 이미 쿼크차지가 적용된 경우 발동하지 않음
-    if (this.abil !== "쿼크차지" || this.tempStatus.quarkDrive !== null) return;
+    if (this.abil?.name !== "쿼크차지" || this.tempStatus.quarkDrive !== null) return;
 
     // 쿼크차지: 가장 높은 능력치가 강화
     const maxKey = this.maxStat();
@@ -91,7 +101,7 @@ export const PokemonAbil = {
       enqueue({
         id: "0245a415-51eb-4a72-bed6-d900831afcfa",
         battle,
-        text: `[특성 쿼크차지] ${this.names} 일렉트릭필드에 의해 쿼크차지를 발동했다!`,
+        text: `[특성 쿼크차지] ${this.names("는")} 일렉트릭필드에 의해 쿼크차지를 발동했다!`,
       });
     }
     // 부스트에너지에 의한 발동
@@ -101,7 +111,7 @@ export const PokemonAbil = {
       enqueue({
         id: "59a4af2d-968f-4950-a53b-ee1a633d589d",
         battle,
-        text: `[특성 쿼크차지] ${this.names} 부스트에너지에 의해 쿼크차지를 발동했다!`,
+        text: `[특성 쿼크차지] ${this.names("는")} 부스트에너지에 의해 쿼크차지를 발동했다!`,
       });
     }
 
@@ -117,7 +127,7 @@ export const PokemonAbil = {
 
   // 일렉트릭필드 해제 시 이로인한 쿼크차지 종료 처리
   handleQuarkDriveEnd(battle, enqueue) {
-    if (this.abil !== "쿼크차지" || this.tempStatus.quarkDrive === null) return;
+    if (this.abil?.name !== "쿼크차지" || this.tempStatus.quarkDrive === null) return;
     if (!this.tempStatus.quarkDriveByField) return; // 필드 기반이 아니면 무시
 
     this.tempStatus.quarkDrive = null;
@@ -134,7 +144,7 @@ export const PokemonAbil = {
       enqueue({
         id: "121869a7-a593-4660-84da-15134b3b9dd8",
         battle,
-        text: `[특성 쿼크차지] ${this.names} 부스트에너지에 의해 쿼크차지를 발동했다!`,
+        text: `[특성 쿼크차지] ${this.names("는")} 부스트에너지에 의해 쿼크차지를 발동했다!`,
       });
       const maxKey = this.maxStat();
       this.tempStatus.quarkDrive = maxKey;

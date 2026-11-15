@@ -8,12 +8,15 @@
 
 모든 개발 및 코드 수정 시 아래 원칙을 반드시 준수해야 합니다:
 
-1. **`pokemon.origin`에선 최대한 불변의 값만을 사용한다**
-   - 포켓몬 인스턴스(`PokemonInstance`)에 존재하는 가변 프로퍼티(예: `img_id`, `hp`, `item`, `abil`, `tempStatus` 등)라 하여도 함부로 `origin`(`PokemonTemplate`)에 똑같이 넣지 않는다. `origin`은 복제 가능한 순수 기준 불변 데이터여야 한다.
+1. **`pokemon.o`에선 최대한 불변의 값만을 사용하며, 외부에서 `pokemon.o`를 직접 참조하지 않고 `PokemonInstance` 인터페이스를 사용한다**
+   - 포켓몬 인스턴스(`PokemonInstance`) 외부 파일(`service`, `calc`, `component`, `npc`, `screen` 등)에서는 `p.o`에 절대로 직접 접근하지 않는다 (`p.o.skill` ❌ → `p.skill` ⭕, `p.o.stat` ❌ → `p.stat` ⭕, `p.o.feature` ❌ → `p.feature` ⭕, `p.o.role` ❌ → `p.role` ⭕ 등 getter 사용).
+   - 원본 타입/특성 복원은 전용 메서드(`p.resetType()`, `p.resetAbil()`)를 사용한다.
+   - 원본 기준 이름/체력/아이템/조사 확인은 전용 getter/헬퍼(`p.baseName`, `p.baseNames(postposition)`, `p.baseHp`, `p.hasConsumedItem`)를 사용한다.
+   - `o`(`samplePokemon`)는 복제 가능한 순수 기준 불변 데이터여야 한다.
 2. **`entity`에 선언된 인스턴스들은 무조건 존재하는 값이다**
    - 불필요하게 `if()`문이나 다중 옵셔널 체이닝으로 인스턴스 필드의 존재 여부를 과도하게 체크하지 않는다.
-3. **`pokemon.id === ?? || pokemon.origin.id === ?? || ...`와 같은 다중 중복 검사를 금지한다**
-   - 안정성을 이유로 몇 겹의 조건문 체크를 중복 작성하지 않고, 표준화된 단일 프로퍼티(예: `pokemon.name`, `pokemon.pokemon_id`, `pokemon.img_id`)를 사용하여 최소한의 필요한 코드만을 작성한다.
+3. **`pokemon.id === ?? || pokemon.o.id === ?? || ...`와 같은 다중 중복 검사를 금지한다**
+   - 안정성을 이유로 몇 겹의 조건문 체크를 중복 작성하지 않고, 표준화된 단일 프로퍼티(예: `pokemon.name`, `pokemon.uniqueKey`, `pokemon.img_id`)를 사용하여 최소한의 필요한 코드만을 작성한다.
 4. **증강 판정은 최대한 `hasAugment`만을 사용한다**
    - 증강에 대한 조건문 판정을 위해 기술(`Skill`)이나 포켓몬 객체에 임의의 커스텀 플래그/프로퍼티(예: `isLostTechnologyHyperBeam` 등)를 추가하지 말고, `pokemon.hasAugment("증강ID")`를 통해 직접 판정한다.
 5. **함수는 단 한가지 종류의 인자만을 사용한다**
@@ -22,6 +25,12 @@
 6. **`export`해서 밖에서 사용하지 않는 함수는 `export`로 지정하지 않는다**
    - 다른 파일에서 참조(import)하지 않는 함수는 불필요하게 `export`를 붙이지 않는다.
    - 해당 파일 내부에서만 사용하는 작은 규모의 내부 함수는 파일 최대한 밑(하단)에 작성하여 상단의 주요 로직 및 공개 인터페이스의 가독성을 보장한다.
+7. **하위 호환용 래퍼 함수를 두지 말고 무조건 모든 호출부를 바꾼다**
+   - `getDataById(id) { return this.getPokemonDataByUniqueKey(id); }` 같은 과거 이름 지원용 하위 호환 래퍼 함수를 남기지 않는다.
+   - 함수/메서드 이름을 개선하거나 변경할 경우, 코드베이스의 모든 호출부를 전수 조사하여 새로운 표준 함수명으로 일괄 변경한다.
+8. **미리 쓰지도 않는 함수를 구현하지 않고 필요할 때 추가한다 (YAGNI)**
+   - `getDataByDexNo(dexNo)`처럼 현재 코드베이스 어디에서도 쓰이지 않는 미래 예측성 함수/유틸을 사전에 만들지 않는다.
+   - 실제로 기능 요구사항이 발생하여 호출이 필요해졌을 때만 구현한다.
 
 ---
 
@@ -33,28 +42,29 @@
 | :--- | :--- | :--- |
 | **신규 증강(Augment) 추가** | 1. `src/entity/Augment/AugmentData.js` (`AUGMENT_LIST`, 필요 시 `AUGMENT_SYNERGY_MAP`, `getAugmentText`, `getAugmentDesc`)<br>2. `src/component/battleScreen/augment/AugmentIcon.js` (아이콘 SVG 또는 PNG `<image>`, 배경 원 제외 조건 `L755`)<br>3. 효과 발동처 (`damageCalculate.js` / `speedCheck.js` / `hpCalculate.js` / `getStat.js` / `turnEnd.js` / `onHit.js` / `damage.js` 등) | - PNG 아이콘이고 자체 원형 테두리가 있으면 `AugmentIcon.js` 베이스 배경 원 조건(`id !== "..."`)에 추가할 것.<br>- 스택/상태를 가지는 증강이면 아래 **라운드 승계 4대 직렬화 지점** 필수 수정. |
 | **스택/상태형 증강 승계 추가** | 1. `src/entity/Pokemon/PokemonInstance.js` (생성자 프로퍼티 초기화 & `applyAugment` 내 `isBuf` 재적용 조건)<br>2. `src/entity/Augment/AugmentData.js` (`onApply`에서 `options` 복원, `getDesc` 표기)<br>3. `src/component/battleScreen/augment/AugmentCarryoverModal.js` (`carriedMap` 직렬화)<br>4. `src/store/battleStore.js` (`effectiveCarriedMap` → `serializedCarried` → 초기 `applyAugment` 호출 옵션) | `navigate("/battle", { state })`는 함수를 복제할 수 없으므로(`DataCloneError`), plain 객체(`serializedCarried`)에 상태 필드를 명시적으로 복사해야 다음 라운드로 전달됨. |
-| **최대 HP 관련 로직 수정** | `src/calc/hpCalculate.js` | `p.origin.hp`를 직접 수정하지 말고 `hpCalculate(pokemon)` 내부에 곱연산/합연산 규칙을 추가할 것. 배틀 내 최대 HP 조회는 모두 `hpCalculate(p)`를 통함. |
+| **최대 HP 관련 로직 수정** | `src/calc/hpCalculate.js` | `p.o.hp`를 직접 수정하지 말고 `hpCalculate(pokemon)` 내부에 곱연산/합연산 규칙을 추가할 것. 배틀 내 최대 HP 조회는 모두 `hpCalculate(p)`를 통함. |
 | **공격/특공 기초 스탯 증강** | `src/calc/getStat.js` (`getAugmentedStat`, `getHighestStatInfo`) | 합연산(`swordEnhance`, `mejaisSoulstealer`) → 곱연산(`lifePartner`, `rabadonsDeathcap`, `allOrNothing`) → 팀 버프(`echoOfHero`) 순서로 계산됨. |
 | **스피드/우선도 계산 수정** | `src/calc/speedCheck.js` (`speedCalculate`, `priCalculate`, `skillSpeedCheck`, `speedCheck`) | 메가진화 예상 스피드는 `getExpectedMegaSpeed`에서 별도 가상 뷰(`megaPokemonView`)로 계산됨. |
 | **데미지 공식/배율 수정** | `src/calc/damageCalculate.js` (공식), `src/service/damage.js` (실제 체력 차감/기띠/옹골참/탈/대타/처형) | `damageCalculate`는 순수 계산(로그 기록 포함)만 수행하고, 실제 HP 감소·기절·열매·처형은 `damage.js`(`attackDamage`)와 `PokemonGetDamage.js`에서 수행함. |
 | **턴 종료 효과 추가/수정** | `src/service/turnEnd.js` | **주의**: `battle.resetBattleTurn()`은 반드시 `turnEnd.js` 맨 마지막 줄에서 호출되어야 함. |
 | **기술(Skill) 추가/수정** | `src/entity/Skill/PokemonSkillList.js`, `src/entity/Skill/skillList/*.js`, `src/entity/Skill/SkillEffect.js`, `src/entity/Skill/SkillRequirement.js` | 공격 전 체크는 `src/service/skillCheck.js`, 명중 후 접촉 판정은 `src/service/onHit.js`, 부가효과는 `SkillEffect.js`에서 처리. |
-| **특성(Ability) 추가/수정** | `src/entity/Ability.js` (`abilObject`, `noTraceAbil`, `noRandomAbil`, `changePokemonAbility`, `applyAbilityEffects`) | 등장 시 발동 특성은 `applyAbilityEffects`, 스킨류 특성은 `src/calc/skillTypeCalculate.js` & `damageCalculate.js` 연동. |
+| **특성(Ability) 추가/수정** | `src/entity/Ability.js` (`abilObject`, `noTraceAbil`, `noRandomAbil`, `applyAbilityEffects`) 및 `PokemonAbil.js` (`changeAbil`) | 등장 시 발동 특성은 `applyAbilityEffects`, 스킨류 특성은 `src/calc/skillTypeCalculate.js` & `damageCalculate.js` 연동. |
 | **NPC AI 판단 로직 수정** | `src/npc/npc.js`, `src/npc/ai/easy.js` (`getKillableSkill`, `calculatePokemonSwitchScore`), `src/npc/ai/calculateSkillScore.js` | AI가 데미지를 시뮬레이션할 때는 `damageCalculate(..., { ai: true, randNum })`를 사용하여 `pokemon.log` 오염 및 일반 급소 변수를 배제함. |
 
 ---
 
-## 2. 🧬 `PokemonInstance` 상태 계층 및 `p.origin` 변이 명세
+## 2. 🧬 `PokemonInstance` 상태 계층 및 `p.o` 변이 명세
 
 런타임 포켓몬 객체(`src/entity/Pokemon/PokemonInstance.js`)는 상태의 수명(Lifecycle)에 따라 5개 계층으로 분리되어 있습니다.
 
 ### 2.1 상태 계층 요약
 
-1. **`p.origin` (원본 기준 데이터)**
-   - 샘플 템플릿(`SamplePokemon.js`)을 `cloneWithMethods`로 복제한 객체.
-   - 기본 종족값/실수치(`origin.hp`, `origin.stat.{atk,def,catk,cdef,speed}`), 원본 타입(`origin.type1`, `origin.type2`), 원본 특성(`origin.abil`, `origin.abilObj`), 원본 아이템(`origin.item`), 기술 슬롯(`origin.skill[1~5]`), 메가진화 데이터(`origin.megaData`) 보유.
+1. **`p.o` (원본 기준 데이터 - `PokemonInstance` 내부 전용)**
+   - 샘플 템플릿(`pokemonSampleList.js`)을 `cloneWithMethods`로 복제한 객체.
+   - 기본 종족값/실수치(`o.hp`, `o.stat.{atk,def,catk,cdef,speed}`), 원본 타입(`o.type1`, `o.type2`), 원본 특성(`o.abil`: `{ name, text, feature, used }`), 원본 아이템(`o.item`), 기술 슬롯(`o.skill[1~5]`), 메가진화 데이터(`o.megaData`) 보유.
+   - **중요**: `p.o`는 클래스 내부 전용(캡슐화)으로 취급되며, 외부 파일(`service`, `calc`, `component`, `npc` 등)에서 직접 접근할 수 없습니다. 불변 스펙(`skill`, `stat`, `feature`, `role`, `megaData`, `baseHp` 등)은 `PokemonInstance`의 getter를 사용하고, 원본 복원은 `resetType()`, `resetAbil()` 등의 전용 메서드를 통해 수행합니다.
 2. **`p` 최상위 프로퍼티 (배틀 내 영구/가변 상태)**
-   - `p.hp` (현재 체력), `p.faint` (기절 여부), `p.type1` / `p.type2` (현재 타입 - 날개쉬기 등으로 임시 변경 가능), `p.item` (현재 아이템 - 탁쳐서떨구기/자뭉열매 소모 시 `null`), `p.abil` / `p.abilObj` (현재 특성 - 트레이스 등), `p.pp` (`{1,2,3,4,5}`), `p.isMega`, `p.augments` (보유 증강 배열).
+   - `p.hp` (현재 체력), `p.faint` (기절 여부), `p.type1` / `p.type2` (현재 타입 - 날개쉬기 등으로 임시 변경 가능), `p.item` (현재 아이템 - 탁쳐서떨구기/자뭉열매 소모 시 `null`), `p.abil` (현재 특성 객체 - `{ name, text, feature, used }`), `p.pp` (`{1,2,3,4,5}`), `p.isMega`, `p.augments` (보유 증강 배열).
    - 증강 누적 상태값: `p.dragonKillCount` (용용죽겠지), `p.mejaiStack` (메자이), `p.practiceCritStack` (연습이 치명타를 낳는다), `p.giantBonusHp` / `p._appliedGiantBonusHp` (거인의 흡수), `p._appliedLifePartnerHp` (인생의 동반자), `p.hasEchoOfHeroBuff` (영웅의 메아리).
 3. **`p.ailment` (주요 상태이상 - 기절 시 `damage.js` 또는 치유 기술로만 초기화)**
    - `{ burn, freeze, poison, mpoison, mabi, sleep }` (교체해도 유지됨).
@@ -66,82 +76,77 @@
 
 ---
 
-### 2.2 `p.origin` 자체가 바뀌는 경우 (객체 참조 교체)
+### 2.2 `p.o` 자체가 바뀌는 경우 (객체 참조 교체)
 
-`p.origin` 참조 자체가 통째로 할당되거나 교체되는 경우는 전체 코드베이스에서 아래뿐입니다:
+`p.o` 참조 자체가 통째로 할당되거나 교체되는 경우는 전체 코드베이스에서 아래뿐입니다:
 
-1. **인스턴스 최초 생성 (`new PokemonInstance` in `src/entity/Pokemon/PokemonInstance.js:24`)**
-   - `this.origin = cloneWithMethods(pokemon);`
+1. **인스턴스 최초 생성 (`generatePokemonInstance(entry)` → `new PokemonInstance(sample)` in `src/entity/Pokemon/PokemonInstance.js`)**
+   - `generatePokemonInstance`가 `sampleList.buildSample(entry)`로 커스텀까지 반영된 완성 샘플을 만들고, 생성자는 `this.o = cloneWithMethods(sample);`만 수행.
 2. **증강에 의한 포켓몬 교체 (`replacePokemon` in `src/entity/Augment/AugmentData.js:1093-1120`)**
-   - `newPoke = generate(...)` 생성 후 `Object.assign(pokemon, newPoke)`를 수행하여 기존 `pokemon` 인스턴스 참조는 유지한 채 `pokemon.origin`을 새 포켓몬의 `origin`으로 통째로 교체함 (`originalIndex`와 `team`은 유지).
+   - `newPoke = generatePokemonInstance(...)` 생성 후 `Object.assign(pokemon, newPoke)`를 수행하여 기존 `pokemon` 인스턴스 참조는 유지한 채 `pokemon.o`를 새 포켓몬의 `o`로 통째로 교체함 (`originalIndex`와 `team`은 유지).
    - 호출처:
      - `marriedPokemon` ("포켓몬과 결혼한 사람이 있었다" - `AugmentData.js:409`)
      - `rouletteWheel` ("돌려 돌려 돌림판" - `AugmentData.js:457`)
      - `soaring` ('"메가" 플라이곤' - `AugmentData.js:589`)
      - `legendaryTitan` ("전설의 거인" - `AugmentData.js:603`)
 3. **(참조용 임시 뷰) 메가진화 예상 스피드 계산 (`getExpectedMegaSpeed` in `src/calc/speedCheck.js:126-129`)**
-   - 원본을 수정하지 않고 `{ ...pokemon, origin: { ...pokemon.origin, stat: megaStat } }` 얕은 복사 뷰를 만들어 `speedCalculate`에 전달.
+   - 원본을 수정하지 않고 `{ ...pokemon, o: { ...pokemon.o, stat: megaStat } }` 얕은 복사 뷰를 만들어 `speedCalculate`에 전달.
 4. **(참고) 배틀 종료 후 상대 포켓몬 트레이드 (`submitTrade` in `src/store/battleStore.js:736-774`)**
    - `curBattle.player = newPoke` 형태로 슬롯의 `PokemonInstance` 자체를 교체함.
 
 ---
 
-### 2.3 `p.origin` 내부의 값(`p.origin.xxx`)이 바뀌는 경우
+### 2.3 `p.o` 내부의 값(`p.o.xxx`)이 바뀌는 경우
 
-`hpCalculate` 도입 이후 **`origin.hp`와 `origin.stat`은 일반 배틀/증강 중 직접 수정하지 않는 것이 원칙**이며, 실제로 `p.origin` 내부 프로퍼티가 수정되는 곳은 아래 7가지 경우로 제한됩니다:
+`hpCalculate` 도입 이후 **`o.hp`와 `o.stat`은 일반 배틀/증강 중 직접 수정하지 않는 것이 원칙**이며, 실제로 `p.o` 내부 프로퍼티가 수정되는 곳은 아래 7가지 경우로 제한됩니다:
 
-1. **`PokemonInstance` 생성자 초기 설정 (`src/entity/Pokemon/PokemonInstance.js:25-102`)**
-   - 커스텀 엔트리 옵션 반영:
-     - `this.origin.item`, `this.origin.itemText` (`L26-27`)
-     - `this.origin.abil`, `this.origin.abilObj` (`L30-33`)
-     - `this.origin.skill[1~4]` (`L41`)
-     - `this.origin.hp`, `this.origin.stat`, `this.origin.evs`, `this.origin.nature`, `this.origin.megaData` (`L53-65`)
+1. **`PokemonInstance` 생성자 초기 설정 (`src/entity/Pokemon/PokemonInstance.js`)**
+   - *(커스텀 엔트리(item/abil/skills/hp/stat/evs/nature/megaData) 반영은 생성자가 아니라 `sampleList.buildSample(entry)` (`src/entity/Pokemon/pokemonSampleList.js`)에서 원본 샘플을 복제해 수행하며, 생성자는 완성된 sample 하나만 인자로 받음)*
    - NPC 난이도/라운드 스케일링 (`options.isNpc && options.difficulty !== "이지"`):
      - `multiplier = 1.0 + (options.round - 1) * 0.1`
-     - 노말/하드 공통: `this.origin.hp = Math.floor(this.origin.hp * multiplier)` (`L69`)
-     - 하드 전용: `this.origin.stat.{atk,def,catk,cdef,speed}`에 `multiplier` 곱적용 (`L70-76`)
-   - 5번 기술 초기화:
-     - `this.origin.skill[5]` = 발버둥 (`L90`)
-     - *(참고: 스킨류 특성 타입 변환은 `origin.skill`을 변경하지 않고 `src/calc/skillTypeCalculate.js`에서 동적 계산)*
+     - 노말/하드 공통: `this.o.hp = Math.floor(this.o.hp * multiplier)`
+     - 하드 전용: `this.o.stat.{atk,def,catk,cdef,speed}`에 `multiplier` 곱적용
+   - *(5번 기술 발버둥은 `samplePokemon` 생성 시 `skill[5]`로 기본 포함됨)*
+     - *(참고: 스킨류 특성 타입 변환은 `o.skill`을 변경하지 않고 `src/calc/skillTypeCalculate.js`에서 동적 계산)*
 2. **메가진화 실행 (`PokemonMega.megaEvolve` in `src/entity/Pokemon/Methods/PokemonMega.js:36-50`)**
-   - `this.origin.type1`, `this.origin.type2`, `this.origin.pokemon_id` (`L36-38`)
-   - `this.origin.stat.{atk,def,catk,cdef,speed}` = 메가진화 스탯 (`L41-45`, 체력은 불변)
-   - `this.origin.abil`, `this.origin.abilObj` = 메가진화 특성 (`L49-50`)
+   - `this.o.type1`, `this.o.type2`, `this.o.uniqueKey` (`L36-38`)
+   - `this.o.stat.{atk,def,catk,cdef,speed}` = 메가진화 스탯 (`L41-45`, 체력은 불변)
+   - `this.o.abil`, `this.abil` = 메가진화 특성 객체
 3. **무한 다이맥스 증강 (`applyEternamax` in `src/entity/Augment/AugmentData.js:998-1060`)**
    - 무한다이노가 `eternamax` 증강 적용 시 종족값(255/115/250/125/250/130) 기반으로 재계산:
-     - `origin.hp = newMaxHp` (`L1030`, 기존 체력 비율 유지 계산 시 `hpCalculate(pokemon)`과 연동)
-     - `origin.stat = { ...origin.stat, ...newStats }` (`L1050`)
-     - `origin.pokemon_id = "0890-m"`, `origin.baseStats = baseStats` (`L1056-1058`)
-4. **증강을 통한 특성 영구 변경 (`changePokemonAbility` in `src/entity/Ability.js:207-220`)**
-   - `pokemon.abil`뿐만 아니라 `pokemon.origin.abil = abilityName`, `pokemon.origin.abilObj = baseObj`까지 함께 변경.
+     - `o.hp = newMaxHp` (`L1030`, 기존 체력 비율 유지 계산 시 `hpCalculate(pokemon)`과 연동)
+     - `o.stat = { ...o.stat, ...newStats }` (`L1050`)
+     - `o.uniqueKey = "0890-m"`, `o.baseStats = baseStats` (`L1056-1058`)
+4. **증강을 통한 특성 영구 변경 (`pokemon.changeAbil` in `src/entity/Pokemon/Methods/PokemonAbil.js`)**
+   - `pokemon.abil`뿐만 아니라 `pokemon.o.abil = { ...baseObj }`까지 함께 변경.
    - 호출 증강: `hugePower`(천하장사), `fastStarter`(패스트스타트), `randomAbility`(특성 야바위).
-   - *(주의: 배틀 중 `트레이스` 특성은 `atk.abil`만 바꾸며 `origin.abil`은 변경하지 않음)*
+   - *(주의: 배틀 중 `트레이스` 특성은 `atk.abil`만 바꾸며 `o.abil`은 변경하지 않음)*
 5. **증강을 통한 기술 슬롯 변경/강화 (`src/entity/Augment/AugmentData.js`)**
-   - 모든 기술 실행(`skillUse.js`, `damageCalculate.js`)과 UI가 `pokemon.origin.skill[slot]`을 참조하므로 아래 증강들은 `pokemon.origin.skill[slot]`을 새 객체로 교체함:
+   - 모든 기술 실행(`skillUse.js`, `damageCalculate.js`)과 UI가 `pokemon.o.skill[slot]`을 참조하므로 아래 증강들은 `pokemon.o.skill[slot]`을 새 객체로 교체함:
      - `teraBlast` (테라버스트 교체 - `L522`)
      - `nameIsSalamence` (보만다 지진 교체 - `L544`)
      - `danceOfGarchomp` (한카리아스 용의춤 교체 - `L562`)
      - `nimbleMoves` (민첩한 몸놀림: `prior: currentPrior + 1`, `nimbleMoves: true` 부여 - `L637`)
 6. **테스트 모드 NPC 즉시 전멸 버튼 (`handleTestSkipNpc` in `src/store/battleStore.js:776-798`)**
-   - *(참고: 따라큐 '탈' 특성 소모는 `origin.abil`을 변경하지 않고 `defPokemon.abilObj.used = true`로 관리하며, 상세 정보 UI(`Bottom-Info.js`)에서 `abilObj.used`가 `true`일 때만 `(사용됨)`을 붙여 렌더링함)*
-   - `curBattle[key].origin.hp = 0; curBattle[key].origin.faint = true;`
+   - *(참고: 따라큐 '탈' 특성 소모는 `o.abil`을 변경하지 않고 `defPokemon.abil.used = true`로 관리하며, 상세 정보 UI(`Bottom-Info.js`)에서 `pokemon.abil.used`가 `true`일 때만 `(사용됨)`을 붙여 렌더링함)*
+   - `curBattle[key].o.hp = 0; curBattle[key].o.faint = true;`
 
 ---
 
 ## 3. 🧮 4대 수치 계산 파이프라인 (Stat & Damage Pipelines)
 
-능력치나 체력을 참조할 때는 `pokemon.origin`을 직접 읽지 말고 아래 전용 계산 함수를 사용해야 증강 효과가 누락되지 않습니다.
+능력치나 체력을 참조할 때는 `pokemon.o`를 직접 읽지 말고 아래 전용 계산 함수를 사용해야 증강 효과가 누락되지 않습니다.
 
 ### 3.1 최대 HP 계산: `hpCalculate(pokemon, baseHp = null)` (`src/calc/hpCalculate.js`)
-- **역할**: `pokemon.origin.hp`는 원본으로 보존한 채, 증강 효과가 반영된 **실제 최대 HP**를 반환하고 `pokemon.log.hpCalculate`에 수식을 기록.
+- **역할**: `pokemon.o.hp`는 원본으로 보존한 채, 증강 효과가 반영된 **실제 최대 HP**를 반환하고 `pokemon.log.hpCalculate`에 수식을 기록.
 - **계산 순서**:
-  1. 기준값: `baseHp ?? pokemon.origin?.hp ?? pokemon.hp ?? 0`
+  1. 기준값: `baseHp ?? pokemon.o?.hp ?? pokemon.hp ?? 0`
   2. **곱적용 증강**: `lifePartner` (인생의 동반자) → `hp = Math.round(hp * 1.1)`
   3. **합적용 증강**: `giantAbsorption` (거인의 흡수) → `hp += Number(pokemon.giantBonusHp ?? aug?.giantBonusHp ?? 0)`
 - **필수 규칙**: 회복량(`PokemonRecover.js`, `leftOver`, `warmogsArmor`, `SkillEffect.js` 등), 최대체력 비례 피해(`Weather.js`, `field.js`, `onHit.js`, `turnEnd.js`, `sunfireAegis`, `giantAbsorption`), 풀피 판정(`멀티스케일`, `질풍날개`, `옹골참`, `기합의띠`), 처형(`collector`), UI 체력바(`PokemonInfo.js`, `BenchPokemon.js`, `Bottom-Info.js`) 등 **모든 최대 HP 참조처는 반드시 `hpCalculate(pokemon)`을 사용**해야 함.
 
 ### 3.2 기초 스탯 증강 계산: `getAugmentedStat(pokemon, statKey, battle = null)` (`src/calc/getStat.js`)
-- **역할**: `origin.stat[statKey]`를 기준으로 상시 적용되는 스탯 증강을 계산하고 `pokemon.log.getAugmentedStat`에 기록.
+- **역할**: `o.stat[statKey]`를 기준으로 상시 적용되는 스탯 증강을 계산하고 `pokemon.log.getAugmentedStat`에 기록.
 - **계산 순서** (`atk`, `catk` 대상):
   1. **합적용**:
      - `swordEnhance` (검 강화하기): `atk`, `catk`에 `+bonusAtk`

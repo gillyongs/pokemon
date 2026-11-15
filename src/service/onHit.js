@@ -25,26 +25,26 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   // 대타출동 상태로 맞을땐 대부분의 피격 이벤트가 발생하지 않음
 
   const noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
-  if (defPokemon.item === "슈케열매" && useSkill?.type === "땅" && !noBerryAbil.includes(atkPokemon.abil)) {
+  if (defPokemon.item === "슈케열매" && useSkill?.type === "땅" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     const typeDamage = typeCheckOnBattle(battle, useSkill.type, defPokemon.type1, defPokemon.type2);
     if (typeDamage > 1) {
       defPokemon.item = null;
-      enqueue({ id: "7c0782c7-e4a8-4dc9-9bc6-22738696e17e", battle, text: `${defPokemon.names} 슈케열매로 땅타입 기술의 위력을 반감시켰다!` });
+      enqueue({ id: "7c0782c7-e4a8-4dc9-9bc6-22738696e17e", battle, text: `${defPokemon.names("는")} 슈케열매로 땅타입 기술의 위력을 반감시켰다!` });
     }
   }
 
-  if (defPokemon.abil === "열교환" && !defPokemon.faint && useSkill.type === "불꽃" && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
+  if (defPokemon.abil?.name === "열교환" && !defPokemon.faint && useSkill.type === "불꽃" && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
     defPokemon.rankUp(battle, enqueue, "atk", 1, "[특성 열교환]");
     // 데미지 무효 효과는 없음
   }
 
-  if (defPokemon.abil === "지구력" && !defPokemon.faint && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
+  if (defPokemon.abil?.name === "지구력" && !defPokemon.faint && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
     // 공격 기술에 맞을 때마다 방어 1랭크 상승 (연속기면 여러번)
     // 지구력, 꺠어진갑옷 틀꺠기랑 상관없이 발동됨
     defPokemon.rankUp(battle, enqueue, "def", 1, "[특성 지구력]");
   }
 
-  if (defPokemon.abil === "깨어진갑옷" && !defPokemon.faint && useSkill.stype === "atk") {
+  if (defPokemon.abil?.name === "깨어진갑옷" && !defPokemon.faint && useSkill.stype === "atk") {
     // 물리 공격을 맞았을 때 방어 1랭크 하락, 스피드 2랭크 상승
     defPokemon.rankUpMulti(
       battle,
@@ -57,7 +57,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
     );
   }
 
-  if (defPokemon.abil === "독치장") {
+  if (defPokemon.abil?.name === "독치장") {
     if (useSkill.stype === "atk") {
       // 물리 공격에만 발생 (접촉 상관 x)
       const field = battle.field[atk];
@@ -91,7 +91,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
     }
   }
 
-  if (defPokemon.abil === "저주받은바디" && !atkPokemon.faint && !atkPokemon.tempStatus.disable && useSkill?.name && useSkill.name !== "발버둥") {
+  if (defPokemon.abil?.name === "저주받은바디" && !atkPokemon.faint && !atkPokemon.tempStatus.disable && useSkill?.name && useSkill.name !== "발버둥") {
     if (random(30)) {
       atkPokemon.tempStatus.disable = useSkill.name;
       atkPokemon.tempStatus.disableTurnRemain = 4;
@@ -114,34 +114,34 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   if (useSkill.feature?.punch && atkPokemon.item === "펀치글러브") {
     touch = false;
   }
-  if (defPokemon.abil === "불꽃몸" && touch && !atkPokemon.faint) {
+  if (defPokemon.abil?.name === "불꽃몸" && touch && !atkPokemon.faint) {
     const chiliMult = defPokemon.hasAugment?.("grandmasChiliOil") ? 3 : 1;
     const flameBodyChance = Math.min(100, 30 * chiliMult);
     if (random(flameBodyChance)) {
-      applyAilment("화상", battle, battle.turn.atk, enqueue, false, `[특성 불꽃몸] ${atkPokemon.names} 화상을 입었다!`);
+      applyAilment("화상", battle, battle.turn.atk, enqueue, false, `[특성 불꽃몸] ${atkPokemon.names("는")} 화상을 입었다!`);
     }
   }
-  if (defPokemon.abil === "정전기" && touch && !atkPokemon.faint) {
+  if (defPokemon.abil?.name === "정전기" && touch && !atkPokemon.faint) {
     if (random(30)) {
-      applyAilment("마비", battle, battle.turn.atk, enqueue, false, `[특성 정전기] ${atkPokemon.names} 마비되어 기술을 쓰기 어려워졌다!`);
+      applyAilment("마비", battle, battle.turn.atk, enqueue, false, `[특성 정전기] ${atkPokemon.names("는")} 마비되어 기술을 쓰기 어려워졌다!`);
     }
   }
   const atkMaxHp = hpCalculate(atkPokemon);
   // 철가시, 울퉁불퉁멧
-  if (defPokemon.abilObj.feature?.hanka && touch && !atkPokemon.faint) {
-    const text = "[특성 " + defPokemon.abil + "] " + atkPokemon.names + " 상처를 입었다!";
+  if (defPokemon.abil?.feature?.hanka && touch && !atkPokemon.faint) {
+    const text = "[특성 " + defPokemon.abil?.name + "] " + atkPokemon.names("는") + " 상처를 입었다!";
     atkPokemon.getDamage(battle, enqueue, atkMaxHp / 8, text);
     // 별 상관은 없지만 해당 특성이 울멧보다 먼저
   }
   if (defPokemon.item === "울퉁불퉁멧" && touch && !atkPokemon.faint) {
-    const text = atkPokemon.names + " 울퉁불퉁멧 때문에 데미지를 입었다!";
+    const text = atkPokemon.names("는") + " 울퉁불퉁멧 때문에 데미지를 입었다!";
     atkPokemon.getDamage(battle, enqueue, atkMaxHp / 6, text);
     // 철가시 1/8, 울멧 1/6 맞음
   }
   // 증강 관련 (접촉 여부 무관) ===========================================================
   // [증강] 가시갑옷: 적에게 공격을 받을 때 상대방에게 최대 HP의 1/8 데미지를 준다
   if (defPokemon.hasAugment?.("thornmail") && !atkPokemon.faint) {
-    const text = "[증강 가시갑옷] " + atkPokemon.names + " 가시갑옷 때문에 데미지를 입었다!";
+    const text = "[증강 가시갑옷] " + atkPokemon.names("는") + " 가시갑옷 때문에 데미지를 입었다!";
     atkPokemon.getDamage(battle, enqueue, atkMaxHp / 8, text);
   }
 };

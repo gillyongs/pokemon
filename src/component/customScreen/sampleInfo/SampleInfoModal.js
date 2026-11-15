@@ -80,7 +80,7 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
   const p = pokemon; // CustomScreen에서는 객체 자체가 origin 형태임
   const [infoText, setInfoText] = useState(p?.tip && p.tip.trim() !== "" ? "[TIP] " + p.tip : "특성, 아이템, 능력치, 기술배치를 클릭하여 수정할 수 있습니다.");
   const [selectedItem, setSelectedItem] = useState(p.item || "없음");
-  const [selectedAbil, setSelectedAbil] = useState(p.abil || "");
+  const [selectedAbil, setSelectedAbil] = useState(p.abil?.name || p.abil || "");
   const [selectedSkills, setSelectedSkills] = useState({
     1: p.skill?.[1]?.name || "",
     2: p.skill?.[2]?.name || "",
@@ -92,7 +92,6 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
     stat: { ...p.stat },
     evs: p.evs || { hp: 0, atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 },
     nature: p.nature || { up: null, down: null },
-    gacha: p.gacha || "6V",
     megaData: p.megaData,
   });
   const [isItemSearchOpen, setIsItemSearchOpen] = useState(false);
@@ -173,7 +172,8 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
   };
 
   const showAbilDesc = () => {
-    const desc = abilObject[selectedAbil]?.text || (selectedAbil === p.abil ? p.abilObj?.text : "") || "설명이 없습니다.";
+    const currentName = p.abil?.name || p.abil;
+    const desc = abilObject[selectedAbil]?.text || (selectedAbil === currentName ? p.abil?.text : "") || "설명이 없습니다.";
     setInfoText(`[${selectedAbil}] ${desc}`);
   };
 
@@ -202,7 +202,7 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
 
         <div style={{ display: "flex", alignItems: "stretch", marginBottom: "15px" }}>
           <div style={{ flex: "0 0 115px", minHeight: "115px", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#f5f5f5", borderRadius: "10px", padding: "6px", border: "1px solid #eee", boxSizing: "border-box", overflow: "hidden" }}>
-            <img src={`/pokemon/img/pokemon/${p.megaData?.pokemon_id || p.pokemon_id}.webp`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", transform: "scale(1.2) translateY(-5px)" }} />
+            <img src={`/pokemon/img/pokemon/${p.megaData?.uniqueKey || p.uniqueKey}.webp`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", transform: "scale(1.2) translateY(-5px)" }} />
           </div>
           <div style={{ flex: "1", minWidth: 0, paddingLeft: "12px", textAlign: "left", display: "flex", flexDirection: "column", justifyContent: "center", gap: "6px" }}>
             <h2 style={{ color: "#333", margin: "0 0 2px 0", fontSize: "1.4rem", whiteSpace: "nowrap" }}>{p.name}</h2>
@@ -358,7 +358,6 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
             currentStat={customStats.stat}
             currentEvs={customStats.evs}
             currentNature={customStats.nature}
-            currentGacha={customStats.gacha}
             onSave={(newStats) => {
               setCustomStats((prev) => ({
                 ...prev,

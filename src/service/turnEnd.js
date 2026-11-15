@@ -63,19 +63,19 @@ export const turnEnd = (battle, enqueue) => {
     // 능력치 증감은 어차피 damageCalculate, speedCalculate에서 처리하므로 그냥 text만 enqueue하면 됨
     if (!p || p.hp <= 0 || p.faint) return;
     p.tempStatus.turnsOnField = (p.tempStatus.turnsOnField || 0) + 1;
-    if (p.abil === "패스트스타트" && p.tempStatus.turnsOnField === 5) {
+    if (p.abil?.name === "패스트스타트" && p.tempStatus.turnsOnField === 5) {
       enqueue({
         battle,
-        text: `[특성: 패스트스타트] ${p.names} 더 강한 힘을 낼 수 있게 되었다!`,
+        text: `[특성: 패스트스타트] ${p.names("는")} 더 강한 힘을 낼 수 있게 되었다!`,
       });
     }
-    if (p.abil === "슬로스타트" && p.tempStatus.turnsOnField === 5) {
+    if (p.abil?.name === "슬로스타트" && p.tempStatus.turnsOnField === 5) {
       enqueue({
         battle,
-        text: `[특성: 슬로스타트] ${p.names} 마침내 제 힘을 낼 수 있게 되었다!`,
+        text: `[특성: 슬로스타트] ${p.names("는")} 마침내 제 힘을 낼 수 있게 되었다!`,
       });
     }
-    if (p.abil === "기어메이킹") {
+    if (p.abil?.name === "기어메이킹") {
       p.gearStack = (p.gearStack || 0) + 1;
       const visualStack = Math.min(p.gearStack, 7);
       p.img_id = `0601-${visualStack}`;
@@ -92,13 +92,11 @@ export const turnEnd = (battle, enqueue) => {
   // 공중날기 처리
   if (tempPlayer.roost) {
     tempPlayer.roost = null;
-    battle.player.type1 = battle.player.origin.type1;
-    battle.player.type2 = battle.player.origin.type2;
+    battle.player.resetType();
   }
   if (tempNpc.roost) {
     tempNpc.roost = null;
-    battle.npc.type1 = battle.npc.origin.type1;
-    battle.npc.type2 = battle.npc.origin.type2;
+    battle.npc.resetType();
   }
 
   // 첫 턴 여부 false 처리 (속이기, 만나자마자 성공 체크)
@@ -115,7 +113,7 @@ export const turnEnd = (battle, enqueue) => {
     const switchedIn = side === "player" ? playerSwitched : npcSwitched;
     // 유턴 등 기술로 교체한 턴엔 가속이 발동하지 않음
     if (!p || p.faint || p.hp <= 0 || switchedIn) return;
-    if (p.abil === "가속") {
+    if (p.abil?.name === "가속") {
       const canBoost = p.tempStatus.rank.speed < 6;
       if (canBoost) {
         p.rankUp(battle, enqueue, "speed", 1, "[특성 가속]");
@@ -174,7 +172,7 @@ export const turnEnd = (battle, enqueue) => {
     enqueue({
       id: "a5b4b821-d398-45a0-8169-dfad0859a11b",
       battle: battle,
-      text: battle.player.origin.names + " 무엇을 할까?",
+      text: battle.player.names("는") + " 무엇을 할까?",
       bottomMode: "skill",
       waitInput: true,
       allowAct: true,
@@ -197,7 +195,7 @@ function applySunfireAegis(battle, enqueue, user) {
   if (!opponent || opponent.faint) return;
 
   const damage = Math.max(1, Math.floor(hpCalculate(p) * 0.1));
-  const text = `[증강 태양불꽃방패] ${opponent.names} 불사르기 데미지를 입었다!`;
+  const text = `[증강 태양불꽃방패] ${opponent.names("는")} 불사르기 데미지를 입었다!`;
   opponent.getDamage(battle, enqueue, damage, text);
 }
 
@@ -224,7 +222,7 @@ function applyGiantAbsorption(battle, enqueue, user) {
     }
   }
 
-  const text = `[증강 거인의흡수] ${p.names} ${opponent.name}의 체력을 흡수했다!`;
+  const text = `[증강 거인의흡수] ${p.names("는")} ${opponent.name}의 체력을 흡수했다!`;
   opponent.getDamage(battle, enqueue, damage, text);
 }
 
@@ -237,7 +235,7 @@ function applyWarmogsArmor(battle, enqueue, user) {
   const undamaged = !p.turn?.damagedThisTurn;
   const ratio = undamaged ? 0.06 : 0.03;
   const heal = Math.max(1, Math.floor(maxHp * ratio));
-  const text = undamaged ? `[증강 워모그의 갑옷] ${p.names} 체력을 크게 회복했다!` : `[증강 워모그의 갑옷] ${p.names} 체력을 조금 회복했다!`;
+  const text = undamaged ? `[증강 워모그의 갑옷] ${p.names("는")} 체력을 크게 회복했다!` : `[증강 워모그의 갑옷] ${p.names("는")} 체력을 조금 회복했다!`;
   p.recover(battle, heal, enqueue, text);
 }
 
@@ -294,9 +292,9 @@ function switchLock(battle, enqueue, getter) {
     if (skillGetter.tempStatus.switchLockTurnRemain === 0) {
       skillGetter.tempStatus.switchLock = null;
       skillGetter.tempStatus.switchLockTurnRemain = null;
-      enqueue({ id: "8c6a1aa2-f25d-45bf-bbe3-f5aea20fdb22", battle, text: `${skillGetter.names} ${skillName}에게서 벗어났다!` });
+      enqueue({ id: "8c6a1aa2-f25d-45bf-bbe3-f5aea20fdb22", battle, text: `${skillGetter.names("는")} ${skillName}에게서 벗어났다!` });
     } else {
-      skillGetter.getDamage(battle, enqueue, Math.floor(hpCalculate(skillGetter) / 8), `${skillGetter.names} ${skillName}의 데미지를 입고 있다.`);
+      skillGetter.getDamage(battle, enqueue, Math.floor(hpCalculate(skillGetter) / 8), `${skillGetter.names("는")} ${skillName}의 데미지를 입고 있다.`);
     }
   }
 }
@@ -311,7 +309,7 @@ function taunt(battle, enqueue, getter) {
   }
 
   if (skillGetter.tempStatus.taunt === 0) {
-    let wakeUpText = skillGetter.names + " 도발의 효과가 풀렸다!";
+    let wakeUpText = skillGetter.names("는") + " 도발의 효과가 풀렸다!";
     skillGetter.tempStatus.taunt = null;
     enqueue({ id: "e40f7ddc-71fe-4cd9-b3ac-36031dbbdf26", battle: battle, text: wakeUpText });
   }
@@ -327,7 +325,7 @@ function noSound(battle, enqueue, getter) {
   }
 
   if (skillGetter.tempStatus.noSound === 0) {
-    let wakeUpText = skillGetter.names + " 다시 소리 기술을 사용할 수 있게 됐다!";
+    let wakeUpText = skillGetter.names("는") + " 다시 소리 기술을 사용할 수 있게 됐다!";
     skillGetter.tempStatus.noSound = null;
     enqueue({ id: "10facab5-d501-4e07-a21d-ab5d777c55db", battle: battle, text: wakeUpText });
   }
@@ -367,7 +365,7 @@ function autoEnd(battle, enqueue, user) {
   const p = battle[user];
   if (p.faint) return;
 
-  let autoConfuseText = p.names + " 몹시 지쳐서 혼란에 빠졌다!";
+  let autoConfuseText = p.names("는") + " 몹시 지쳐서 혼란에 빠졌다!";
   if (p.auto > 0) {
     p.auto--;
   }
@@ -395,10 +393,10 @@ function applyStatusDamage(battle, enqueue, user) {
   const maxHp = hpCalculate(p);
 
   if (p.ailment.poison) {
-    p.getDamage(battle, enqueue, Math.floor(maxHp / 8), `${p.names} 독에 의한 데미지를 입었다!`);
+    p.getDamage(battle, enqueue, Math.floor(maxHp / 8), `${p.names("는")} 독에 의한 데미지를 입었다!`);
   }
   if (p.ailment.mpoison) {
-    p.getDamage(battle, enqueue, Math.floor((maxHp * p.ailment.mpoison) / 16), `${p.names} 맹독에 의한 데미지를 입었다!`);
+    p.getDamage(battle, enqueue, Math.floor((maxHp * p.ailment.mpoison) / 16), `${p.names("는")} 맹독에 의한 데미지를 입었다!`);
     p.ailment.mpoison++;
   }
   if (p.ailment.burn) {
@@ -411,7 +409,7 @@ function applyStatusDamage(battle, enqueue, user) {
 
     const baseBurn = Math.max(1, Math.floor(maxHp / 16));
     const burnDamage = hasChiliOil ? baseBurn * 5 : baseBurn;
-    const text = hasChiliOil ? `[증강 할머니의 고추기름] ${p.names} 극심한 화상 데미지를 입었다!` : `${p.names} 화상 데미지를 입었다!`;
+    const text = hasChiliOil ? `[증강 할머니의 고추기름] ${p.names("는")} 극심한 화상 데미지를 입었다!` : `${p.names("는")} 화상 데미지를 입었다!`;
 
     p.getDamage(battle, enqueue, burnDamage, text);
   }
@@ -422,6 +420,6 @@ function flameOrb(battle, enqueue, user) {
   if (p.faint) return;
 
   if (p.item === "화염구슬") {
-    applyAilment("화상", battle, p.team, enqueue, false, `${p.names} 화염구슬로 화상을 입었다!`);
+    applyAilment("화상", battle, p.team, enqueue, false, `${p.names("는")} 화염구슬로 화상을 입었다!`);
   }
 }

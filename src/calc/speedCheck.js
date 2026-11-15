@@ -19,7 +19,7 @@ export const isPokemonAlone = (pokemon, battle) => {
 };
 
 // 스피드 실 수치 계산 함수
-export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = pokemon.abil, rankOverride = null) => {
+export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = (pokemon?.abil?.name || pokemon?.abil), rankOverride = null) => {
   let speedStatKey = "speed";
   let speed;
   let rankNum = pokemon?.tempStatus?.rank?.speed ?? 0;
@@ -67,7 +67,7 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
     pokemon.log.speedCalculate += " * 1.5 (쿼크차지)";
   }
   // 곡예: 원래 도구를 지니고 있었는데 잃은 경우 스피드 2배
-  if (abil === "곡예" && pokemon.origin?.item && !pokemon.item) {
+  if (abil === "곡예" && (pokemon.hasConsumedItem)) {
     speed *= 2;
     pokemon.log.speedCalculate += " * 2 (곡예)";
   }
@@ -119,13 +119,13 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
   return speed;
 };
 
-export const getExpectedMegaSpeed = (pokemon, battle = null) => {
-  const megaStat = pokemon.origin?.megaData?.stat;
-  const megaAbil = pokemon.origin?.megaData?.abil ?? pokemon.abil;
+const getExpectedMegaSpeed = (pokemon, battle = null) => {
+  const megaStat = pokemon.megaData?.stat;
+  const megaAbil = pokemon.megaData?.abil ?? pokemon.abil?.name ?? pokemon.abil;
   if (megaStat) {
     const megaPokemonView = {
       ...pokemon,
-      origin: { ...pokemon.origin, stat: megaStat },
+      o: { ...pokemon.o, stat: megaStat },
     };
     if (pokemon?.hasAugment?.("hhgghgg")) {
       const highest = getHighestStatInfo(megaPokemonView, battle);
@@ -219,12 +219,12 @@ export const priCalculate = (battle, pokemon, skill) => {
   const pokeMaxHp = hpCalculate(pokeObj);
   const isFullHp = Boolean(pokeObj && pokeMaxHp > 0 && pokeObj.hp >= pokeMaxHp);
   const hasHarmfulBird = Boolean(pokeObj?.hasAugment?.("harmfulBird"));
-  if (pokeObj?.abil === "질풍날개" && skillType === "비행" && (isFullHp || hasHarmfulBird)) {
+  if (pokeObj?.abil?.name === "질풍날개" && skillType === "비행" && (isFullHp || hasHarmfulBird)) {
     prior += 1;
   }
 
   // 짓궂은마음: 변화 기술 우선도 +1
-  if (pokeObj?.abil === "짓궂은마음" && (skill.stype === "natk" || skill.stype === "buf")) {
+  if (pokeObj?.abil?.name === "짓궂은마음" && (skill.stype === "natk" || skill.stype === "buf")) {
     prior += 1;
   }
   return prior;

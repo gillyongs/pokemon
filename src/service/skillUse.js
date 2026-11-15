@@ -6,7 +6,7 @@ import { beforeSkillCheck, afterSkillCheck } from "./skillCheck";
 import { random } from "../util/randomCheck";
 import { getAccuracy } from "../calc/accuracyCalculate";
 import { skillTypeCalculate } from "../calc/skillTypeCalculate";
-import { getBaseSpeedStat } from "../entity/Augment/AugmentData";
+import { criticalCalculate } from "../calc/criticalCalculate";
 
 export const skillUse = (bt, enqueue) => {
   const skillNumber = bt.turn.atkSN;
@@ -41,7 +41,7 @@ export const skillUse = (bt, enqueue) => {
     // pp 및 구애 고정 처리 (발버둥은 PP 무제한, 충전 2턴째 발사 시 중복 차감 방지)
     if (!atk.charge && skill.name !== "발버둥") {
       atk.pp[skillNumber] -= 1;
-      if (def.abil === "프레셔" && atk.pp[skillNumber] > 0) {
+      if (def.abil?.name === "프레셔" && atk.pp[skillNumber] > 0) {
         atk.pp[skillNumber] -= 1;
       }
     }
@@ -49,7 +49,7 @@ export const skillUse = (bt, enqueue) => {
     // 구애 스킬 고정 처리 (구애 시리즈 또는 무아지경)
     const hasUnbound = atk.hasAugment?.("unboundChoice");
     const isChoiceItem = (atk.item === "구애스카프" || atk.item === "구애머리띠" || atk.item === "구애안경") && !hasUnbound;
-    const isGorillaTactics = atk.abil === "무아지경" && !hasUnbound;
+    const isGorillaTactics = atk.abil?.name === "무아지경" && !hasUnbound;
 
     if (!atk.charge && (isChoiceItem || isGorillaTactics) && skill.name !== "발버둥") {
       atk.tempStatus.onlySkill = skill.name;
@@ -69,7 +69,7 @@ export const skillUse = (bt, enqueue) => {
         atk.autoSN = null;
       } else {
         const chargeObj = skill.feature.charge;
-        enqueue({ id: "d55115e1-460f-4120-bdcc-fdee3157b69c", battle: bt, text: atk[chargeObj.head] + skill.feature.charge.text });
+        enqueue({ id: "d55115e1-460f-4120-bdcc-fdee3157b69c", battle: bt, text: (chargeObj.head === "names" ? atk.names("는") : atk.name) + skill.feature.charge.text });
         // 충전 텍스트 (ex:"제르네아스는 파워를 모으고 있다!", "텅비드에게서 우주의 힘이 넘쳐난다!")
 
         if (chargeObj.rankUpStat) {
@@ -84,7 +84,7 @@ export const skillUse = (bt, enqueue) => {
           enqueue({ id: "2eadbf55-e934-439a-bb56-133d4f6d4022", battle: bt, text: skillUseText }); // 스킬 텍스트 2번 뜨는게 맞음
         } else if (atk.item === "파워풀허브") {
           atk.item = null;
-          enqueue({ id: "5584b7a1-3115-45f1-8b80-9597bed46fd3", battle: bt, text: `${atk.names} 파워풀허브로 힘이 넘쳐흐른다!` });
+          enqueue({ id: "5584b7a1-3115-45f1-8b80-9597bed46fd3", battle: bt, text: `${atk.names("는")} 파워풀허브로 힘이 넘쳐흐른다!` });
           enqueue({ id: "b3212fe0-7e8a-4302-8dfe-a239852d0f6f", battle: bt, text: skillUseText }); // 스킬 텍스트 2번 뜨는게 맞음
         } else {
           atk.charge = true;
@@ -165,7 +165,7 @@ export const skillUse = (bt, enqueue) => {
         for (let i = 1; i <= num; i++) {
           atk.turn.critical = null;
           // 급소 여부 계산 (연속기는 매 타격마다 독립 판정)
-          if (criticalRate(cri, atk)) {
+          if (criticalCalculate(cri, atk)) {
             atk.turn.critical = true;
           }
           // 급소확정
@@ -193,7 +193,7 @@ export const skillUse = (bt, enqueue) => {
         // 연속기 아닌 경우
         atk.turn.critical = null;
         // 급소 여부 계산
-        if (criticalRate(cri, atk)) {
+        if (criticalCalculate(cri, atk)) {
           atk.turn.critical = true;
         }
         // 급소확정
@@ -219,7 +219,7 @@ export const skillUse = (bt, enqueue) => {
         return;
       }
 
-      if (skill.feature?.powder && (def.type1 === "풀" || def.type2 === "풀" || def.abil === "방진")) {
+      if (skill.feature?.powder && (def.type1 === "풀" || def.type2 === "풀" || def.abil?.name === "방진")) {
         // 풀 타입 포켓몬과 방진 특성은 가루 기술 무효
         const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
         enqueue({ id: "f5bb2e94-9dd0-4041-80c1-ea0488f02f9b", battle: bt, text: typeText });
@@ -231,7 +231,7 @@ export const skillUse = (bt, enqueue) => {
       // 트릭, 하품, 뽐내기, 전기자석파, 씨뿌리기 등은 실패한다
 
       if (bt[bt.turn.def].tempStatus.substitute) {
-        if (noSubstituteSkills.includes(skill.name) || skill.feature.sound || bt[bt.turn.atk].abil === "틈새포착") {
+        if (noSubstituteSkills.includes(skill.name) || skill.feature.sound || bt[bt.turn.atk].abil?.name === "틈새포착") {
           // 소리 변화기 및 틈새포착 사용자의 변화기는 대타를 뚫는다 ex) 막말내뱉기
         } else {
           enqueue({ id: "942dc7a3-e0d0-4632-80ce-f9a095e38272", battle: bt, text: "하지만 실패했다!" });
@@ -257,56 +257,6 @@ export const skillUse = (bt, enqueue) => {
   }
 };
 
-const criticalRate = (input, pokemon = null) => {
-  let probability = 0;
-  switch (input) {
-    case 0:
-      if (pokemon?.hasAugment?.("lostTechnologyCritical")) {
-        const baseSpeed = getBaseSpeedStat(pokemon);
-        probability = baseSpeed / 512;
-      } else {
-        probability = 1 / 24;
-      }
-      break;
-    case 1:
-      if (pokemon?.hasAugment?.("lostTechnologyCritical")) {
-        const baseSpeed = getBaseSpeedStat(pokemon);
-        probability = baseSpeed / 64;
-      } else {
-        probability = 1 / 8;
-      }
-      break;
-    case 2:
-      probability = 1 / 2;
-      break;
-    default:
-      probability = 1;
-      break;
-  }
-
-  // 증강 무한의 대검
-  if (pokemon?.hasAugment?.("infinityEdge")) {
-    probability += 0.25;
-  }
-
-  // 증강 징수의 총: 급소 확률 25% 증가
-  if (pokemon?.hasAugment?.("collector")) {
-    probability += 0.25;
-  }
-
-  // 버프 연습이 치명타를 낳는다: 스택당 급소 확률 1% 상승
-  if (pokemon?.hasAugment?.("practiceMakesCritical")) {
-    const practiceAug = pokemon.augments?.find((a) => a.id === "practiceMakesCritical");
-    const stack = Number(pokemon.practiceCritStack ?? practiceAug?.practiceCritStack ?? 0);
-    if (stack > 0) {
-      probability += stack * 0.01;
-    }
-  }
-
-  if (probability >= 1) return true;
-  return Math.random() < probability;
-};
-
 const handleSkillFail = (bt) => {
   // 스킬 실패시 처리할 것
 
@@ -322,7 +272,7 @@ const handleSkillFail = (bt) => {
   }
 };
 
-export const randomTwoFive = (battle, item) => {
+const randomTwoFive = (battle, item) => {
   // 2~5회 연속기
   // 기술의 명중여부, 반감열매에 대한 데미지 감소량 계산은 첫 타격에만 계산
   // 참기나 카운터의 반사 데미지 계산은 마지막 타격에만 계산
@@ -330,7 +280,7 @@ export const randomTwoFive = (battle, item) => {
   // 부가효과는 attackDamage 안에 applyOnHitEvents에서 처리
   const r = Math.random() * 100; // 0 ~ 99.999...
 
-  if (battle[battle.turn.atk].abil === "스킬링크") {
+  if (battle[battle.turn.atk].abil?.name === "스킬링크") {
     return 5;
   }
 
@@ -351,7 +301,7 @@ export const randomTwoFive = (battle, item) => {
   else return 5; // 85 ~ 99.999 (15%)
 };
 
-export const randomTriple = (battle, item, accur) => {
+const randomTriple = (battle, item, accur) => {
   let finalAccur = accur;
   if (!random(finalAccur)) return 1; // 이미 앞에서 명중 한번 체크 했으므로 최소 1 리턴
   if (!random(finalAccur)) return 2;
@@ -377,7 +327,7 @@ const applyAfterSkillEffects = (bt, enqueue) => {
   }
 };
 
-export const applySkillEffects = (bt, enqueue, skillEffectList = bt[bt.turn.atk].turn.useSkill?.skillEffectList) => {
+const applySkillEffects = (bt, enqueue, skillEffectList = bt[bt.turn.atk].turn.useSkill?.skillEffectList) => {
   // 기술 내부에 존재하는 부가효과 함수 배열을 순회하며 부가효과 함수를 실행한다
   // 연속기의 경우 일부 부가효과만 적용되기에 전용 skillEffectList를 인자로 받는다
 

@@ -6,8 +6,8 @@ export const PokemonMega = {
     if (this.faint) return false;
     if (this.isMega) return false;
     if (battle.megaUsed?.[this.team]) return false;
-    if (!this.origin.megaData) return false;
-    if (this.item !== this.origin.megaData.stone) return false;
+    if (!this.o.megaData) return false;
+    if (this.item !== this.o.megaData.stone) return false;
     return true;
   },
 
@@ -20,7 +20,7 @@ export const PokemonMega = {
     if (!this.isMegaEvolveAble(battle)) return;
     battle.megaUsed[this.team] = true;
 
-    const mega = this.origin.megaData;
+    const mega = this.o.megaData;
 
     // 1. 도구 반응 텍스트 (진화 전 원본 상태)
     enqueue({
@@ -33,27 +33,31 @@ export const PokemonMega = {
     this.isMega = true;
     this.type1 = mega.type1;
     this.type2 = mega.type2;
-    this.origin.type1 = mega.type1;
-    this.origin.type2 = mega.type2;
-    this.origin.pokemon_id = mega.pokemon_id;
+    this.o.type1 = mega.type1;
+    this.o.type2 = mega.type2;
+    this.o.dexNo = mega.dexNo;
+    this.o.uniqueKey = mega.uniqueKey;
 
     // 체력은 변하지 않는다
-    this.origin.stat.atk = mega.stat.atk;
-    this.origin.stat.def = mega.stat.def;
-    this.origin.stat.catk = mega.stat.catk;
-    this.origin.stat.cdef = mega.stat.cdef;
-    this.origin.stat.speed = mega.stat.speed;
+    this.o.stat.atk = mega.stat.atk;
+    this.o.stat.def = mega.stat.def;
+    this.o.stat.catk = mega.stat.catk;
+    this.o.stat.cdef = mega.stat.cdef;
+    this.o.stat.speed = mega.stat.speed;
 
-    this.abil = mega.abil;
-    this.abilObj = { ...(abilObject[mega.abil] || {}), name: mega.abil, used: false };
-    this.origin.abil = mega.abil;
-    this.origin.abilObj = { ...this.abilObj };
+    const megaAbilObj = {
+      ...(abilObject[mega.abil] || {}),
+      name: mega.abil,
+      used: false,
+    };
+    this.abil = megaAbilObj;
+    this.o.abil = { ...megaAbilObj };
 
     // 3. 메가진화 완료 텍스트 (메가진화 후 이미지/아이콘이 적용된 상태로 큐에 등록)
     enqueue({
       id: "0c2dbb7e-c2bc-4509-b8c1-dcd41ddafc1e",
       battle,
-      text: `${this.names} ${josa(`${mega.name}#{으로}`)} 메가진화했다!`,
+      text: `${this.names("는")} ${josa(`${mega.name}#{으로}`)} 메가진화했다!`,
     });
 
     // 4. 메가진화 후 특성 발동 (가뭄 등 등장 특성)

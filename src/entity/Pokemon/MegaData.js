@@ -1,9 +1,9 @@
 /**
  * 포켓몬 메가진화 관계 데이터
- * 키: 기본 포켓몬 ID (pokemon_id)
+ * 키: 기본 포켓몬 ID (uniqueKey)
  * 값: 메가진화 정보 배열 (리자몽, 뮤츠 등 여러 메가진화가 존재하는 포켓몬 지원)
  */
-export const megaDataList = {
+const megaDataList = {
   // 라이츄 (Y)
   "0026": [
     {
@@ -220,11 +220,4 @@ export const getMegaData = (pokemonId, item) => {
   const list = megaDataList[pokemonId];
   if (!list || !item) return null;
   return list.find((entry) => entry.stone === item) || null;
-};
-
-/**
- * 특정 포켓몬이 메가진화 가능한 폼 목록을 반환합니다.
- */
-export const getAvailableMegaForms = (pokemonId) => {
-  return megaDataList[pokemonId] || [];
 };

@@ -159,7 +159,7 @@
       // Service Layer
       { id: "battleStart", name: "battleStart.js", layer: "Service", path: "src/service/battleStart.js", callers: ["BattleScreen", "BottomSectionSwitch"], callees: ["speedCheck", "attack", "switch", "turnEnd", "PokemonMega"], desc: "턴 진입점. 스피드/우선도 비교, 메가진화 우선 처리, 공격/교체 분기 후 turnEnd 호출", funcs: ["battleStart()", "isAttack()"] },
       { id: "attack", name: "attack.js", layer: "Service", path: "src/service/attack.js", callers: ["battleStart"], callees: ["skillUse"], desc: "공격 주체 관점(player vs npc) 설정 후 skillUse 호출", funcs: ["attackPlayer()", "attackNpc()"] },
-      { id: "skillUse", name: "skillUse.js", layer: "Service", path: "src/service/skillUse.js", callers: ["attack"], callees: ["skillCheck", "damageCalculate", "damage", "onHit", "skillEffect", "typeEffectCalculate", "accuracyCalculate"], desc: "기술 시전 9단계 파이프라인 (검사 ➡️ PP차감 ➡️ 데미지 ➡️ 피격 ➡️ 부가효과)", funcs: ["skillUse()", "criticalRate()"] },
+      { id: "skillUse", name: "skillUse.js", layer: "Service", path: "src/service/skillUse.js", callers: ["attack"], callees: ["skillCheck", "damageCalculate", "damage", "onHit", "skillEffect", "typeEffectCalculate", "accuracyCalculate", "criticalCalculate"], desc: "기술 시전 9단계 파이프라인 (검사 ➡️ PP차감 ➡️ 데미지 ➡️ 피격 ➡️ 부가효과)", funcs: ["skillUse()"] },
       { id: "skillCheck", name: "skillCheck.js", layer: "Service", path: "src/service/skillCheck.js", callers: ["skillUse"], callees: ["ailment", "SkillRequirement"], desc: "시전 전/후 실패 조건 판정 (풀죽음, 마비, 혼란자해, 잠듦, 도발, 기습, 방어)", funcs: ["beforeSkillCheck()", "afterSkillCheck()"] },
       { id: "skillEffect", name: "skillEffect.js", layer: "Service", path: "src/service/skillEffect.js", callers: ["skillUse"], callees: ["SkillEffect"], desc: "랭크변화, 상태이상, 퇴장/반동기(빗나감패널티, 자폭, 철제광선반동 faint 가드)", funcs: ["applySkillEffects()", "skillEffectsAfter()"] },
       { id: "onHit", name: "onHit.js", layer: "Service", path: "src/service/onHit.js", callers: ["skillUse"], callees: ["damage", "Ability", "Item"], desc: "접촉기 피격 시 발동하는 특성/도구 (정전기, 불꽃몸, 울퉁불퉁멧, 까칠한피부)", funcs: ["onHit()"] },
@@ -174,10 +174,10 @@
 
       // Entity Layer
       { id: "Battle", name: "Battle.js", layer: "Entity", path: "src/entity/Battle.js", callers: ["CustomScreen", "MainScreen", "battleStart"], callees: ["PokemonInstance", "Field"], desc: "배틀 최상위 도메인 객체 (선출 3v3 포켓몬, 턴 플래그, 필드, 메가진화 상태)", funcs: ["createBattle()", "resetTurn()"] },
-      { id: "PokemonInstance", name: "PokemonInstance.js", layer: "Entity", path: "src/entity/Pokemon/PokemonInstance.js", callers: ["Battle", "CustomScreen"], callees: ["PokemonRank", "PokemonGetDamage", "PokemonRecover", "PokemonMega", "PokemonAbil"], desc: "런타임 배틀 포켓몬 인스턴스 (HP, 실스탯, 랭크, 상태이상, 쿨다운 관리)", funcs: ["generate()"] },
+      { id: "PokemonInstance", name: "PokemonInstance.js", layer: "Entity", path: "src/entity/Pokemon/PokemonInstance.js", callers: ["Battle", "CustomScreen"], callees: ["PokemonRank", "PokemonGetDamage", "PokemonRecover", "PokemonMega", "PokemonAbil"], desc: "런타임 배틀 포켓몬 인스턴스 (HP, 실스탯, 랭크, 상태이상, 쿨다운 관리)", funcs: ["generatePokemonInstance()"] },
       { id: "PokemonMega", name: "PokemonMega.js", layer: "Entity", path: "src/entity/Pokemon/Methods/PokemonMega.js", callers: ["PokemonInstance", "battleStart"], callees: ["Ability", "MegaData"], desc: "메가진화 메서드 (isMegaEvolveAble, megaEvolve: 스탯/타입 변경 및 특성 재발동)", funcs: ["isMegaEvolveAble()", "megaEvolve()"] },
       { id: "PokemonRank", name: "PokemonRank.js", layer: "Entity", path: "src/entity/Pokemon/Methods/PokemonRank.js", callers: ["PokemonInstance"], callees: ["rankStat"], desc: "포켓몬 랭크업/다운 연산 (+6~-6 제한 및 심술꾸러기 반전 반영)", funcs: ["rankUp()", "rankDown()", "rankUpMulti()"] },
-      { id: "SamplePokemon", name: "SamplePokemon.js", layer: "Entity", path: "src/entity/Pokemon/SamplePokemon.js", callers: ["CustomScreen", "randomTeam"], callees: ["PokemonTemplate"], desc: "실제 배틀에서 사용하는 프리셋 샘플 포켓몬 싱글턴 목록 (sampleList)", funcs: ["sampleList.getDataById()"] },
+      { id: "SamplePokemon", name: "SamplePokemon.js", layer: "Entity", path: "src/entity/Pokemon/SamplePokemon.js", callers: ["CustomScreen", "randomTeam"], callees: ["PokemonTemplate"], desc: "실제 배틀에서 사용하는 프리셋 샘플 포켓몬 싱글턴 목록 (sampleList)", funcs: ["sampleList.getDataBySampleName()"] },
       { id: "Skill", name: "Skill.js", layer: "Entity", path: "src/entity/Skill/Skill.js", callers: ["skillList", "PokemonSkillList"], callees: [], desc: "기술 도메인 클래스 (위력, 명중, PP, 우선도, 물리/특수/변화, originText)", funcs: ["Skill()"] },
       { id: "SkillEffect", name: "SkillEffect.js", layer: "Entity", path: "src/entity/Skill/SkillEffect.js", callers: ["skillEffect"], callees: ["switch", "ailment"], desc: "40종 이상의 부가효과 실행 딕셔너리 (랭크변화, 상태이상, 필드파괴, 철제광선반동)", funcs: ["skillEffectSearch()"] },
       { id: "PokemonSkillList", name: "PokemonSkillList.js", layer: "Entity", path: "src/skill/PokemonSkillList.js", callers: ["SkillSearchModal"], callees: ["Skill"], desc: "도감 번호별 포켓몬 습득 가능 기술 매핑 딕셔너리", funcs: ["getSkillListForPokemon()"] },
@@ -193,7 +193,8 @@
       { id: "useQueue", name: "useQueue.js", layer: "Util", path: "src/util/useQueue.js", callers: ["BattleScreen", "battleStart"], callees: ["recoilState", "cloneWithMethods"], desc: "Recoil 기반 턴 애니메이션 이벤트 큐 조작 훅", funcs: ["enqueue()", "dequeue()", "resetQueue()", "textSkip()"] },
       { id: "customEntryUtil", name: "customEntryUtil.js", layer: "Util", path: "src/util/customEntryUtil.js", callers: ["CustomScreen", "FilterModal"], callees: ["SamplePokemon", "SkillSearchModal"], desc: "커스텀 팀 유효성 검증, 이름/타입/역할군 필터링, JSON 파일 익스포트/임포트", funcs: ["filterSamplePokemons()", "exportTeamToFile()"] },
       { id: "damageFunction", name: "damage.js", layer: "Function", path: "src/function/damage.js", callers: ["skillUse", "onHit"], callees: [], desc: "attackDamage: 체력 차감, 대타출동/탈(Disguise)/기띠/옹골참 처리", funcs: ["attackDamage()"] },
-      { id: "accuracyCalculate", name: "accuracyCalculate.js", layer: "Function", path: "src/function/accuracyCalculate.js", callers: ["skillUse", "easy", "calculateSkillScore"], callees: [], desc: "날씨(비 번개/폭풍 필중, 쾌청 50%), 복안 특성(1.3배) 반영 최종 명중률 계산", funcs: ["getAccuracy()"] },
+      { id: "accuracyCalculate", name: "accuracyCalculate.js", layer: "Function", path: "src/calc/accuracyCalculate.js", callers: ["skillUse", "easy", "calculateSkillScore"], callees: [], desc: "날씨(비 번개/폭풍 필중, 쾌청 50%), 복안 특성(1.3배) 반영 최종 명중률 계산", funcs: ["getAccuracy()"] },
+      { id: "criticalCalculate", name: "criticalCalculate.js", layer: "Function", path: "src/calc/criticalCalculate.js", callers: ["skillUse"], callees: ["PokemonData"], desc: "급소 확률 및 급소 명중 여부 판정 (랭크, 무대, 징수의 총, 잃어버린 기술 등)", funcs: ["criticalCalculate()", "getBaseSpeedStat()"] },
       { id: "ailment", name: "ailment.js", layer: "Function", path: "src/function/ailment.js", callers: ["skillCheck", "SkillEffect", "fieldService"], callees: [], desc: "상태이상 판정 및 부여 함수 (화상, 마비, 독, 맹독, 얼음, 잠듦)", funcs: ["ailmentAbleCheck()", "applyAilment()", "isAilmentCheck()"] }
     ];
 
@@ -439,7 +440,7 @@
           { step: 2, mod: "SampleInfoModal.js", action: "포켓몬 선택 시 스탯 및 [TIP] 운용 팁 노출, 세부 모달 진입" },
           { step: 3, mod: "StatAdjustmentModal.js", action: "개체값(6V/5V0A), 노력치(252/252/4), 성격(up/down) 조정 후 calculateStat() 실스탯 연산" },
           { step: 4, mod: "SkillSearchModal.js", action: "PokemonSkillList에서 기술 검색 후 4개 필수 선택 검증" },
-          { step: 5, mod: "Battle.js (createBattle)", action: "완성된 3v3 엔트리를 generate()로 넘겨 PokemonInstance로 인스턴스화하고 new Battle() 생성" },
+          { step: 5, mod: "Battle.js (createBattle)", action: "완성된 3v3 엔트리를 generatePokemonInstance()로 넘겨 PokemonInstance로 인스턴스화하고 new Battle() 생성" },
           { step: 6, mod: "BattleScreen.js", action: "생성된 battle 객체를 state로 주입받아 배틀 시작 큐 가동" }
         ]
       },

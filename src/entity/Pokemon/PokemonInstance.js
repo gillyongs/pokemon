@@ -1,105 +1,63 @@
+import { josa } from "josa";
 import { hpCalculate } from "../../calc/hpCalculate";
-import sampleList from "./SamplePokemon";
+import sampleList from "./pokemonSampleList";
+import { cloneWithMethods } from "../../util/cloneWithMethods";
+
 import { PokemonRecover } from "./Methods/PokemonRecover";
 import { PokemonAbil } from "./Methods/PokemonAbil.js";
 import { PokemonGetDamage } from "./Methods/PokemonGetDamage.js";
 import { PokemonRank } from "./Methods/PokemonRank.js";
 import { PokemonMega } from "./Methods/PokemonMega.js";
-import { cloneWithMethods } from "../../util/cloneWithMethods";
-import { itemText } from "../Item.js";
-import { abilObject } from "../Ability.js";
-import skillList from "../Skill/skillList.js";
 
 // 실제 배틀에 사용되는 포켓몬 객체
-// 능력치, pp, 상태이상여부, 랭크업, 기절 여부 등 가변 값을 지닌다.
-// 불변 값은 origin에서 관리한다
+// samplePokmon 객체를 받아 현재 체력, 상태이상여부, 기절 여부 등 배틀 중에 바뀌는 가변적인 프로퍼티를 추가한다.
+// 최대 체력, 도감번호 등 불변 값은 origin에서만 가지고있고 getter로 접근한다.
 class PokemonInstance {
-  constructor(id, options = { isNpc: false, difficulty: "이지", round: 1 }) {
-    this.team = ""; // player or npc
-    this.id = typeof id === "object" && id ? id.id : id;
-    const customItem = typeof id === "object" && id ? id.item : options.item;
-    const customAbil = typeof id === "object" && id ? id.abil || id.abill : options.abil;
-    const customSkills = typeof id === "object" && id ? id.skills || id.skill : options.skills;
-    const pokemon = sampleList.getDataById(this.id);
-    this.origin = cloneWithMethods(pokemon);
-    if (customItem !== undefined && customItem !== null) {
-      this.origin.item = customItem === "없음" ? "" : customItem;
-      this.origin.itemText = itemText[customItem] || "";
-    }
-    if (customAbil) {
-      this.origin.abil = customAbil;
-      const baseObj = abilObject[customAbil] ? { ...abilObject[customAbil] } : { text: "설명이 없습니다." };
-      baseObj.name = customAbil;
-      baseObj.used = false;
-      this.origin.abilObj = baseObj;
-    }
-    if (customSkills) {
-      for (let slot = 1; slot <= 4; slot++) {
-        const sk = typeof customSkills === "object" ? customSkills[slot] || customSkills[slot - 1] : null;
-        if (sk) {
-          const skillName = typeof sk === "string" ? sk : sk.name;
-          if (skillName) {
-            this.origin.skill[slot] = { ...skillList.search(skillName), skillNumber: slot };
-          }
-        }
-      }
-    }
-    const customStat = typeof id === "object" && id ? id.stat : options.stat;
-    const customHp = typeof id === "object" && id ? id.hp : options.hp;
-    const customEvs = typeof id === "object" && id ? id.evs : options.evs;
-    const customNature = typeof id === "object" && id ? id.nature : options.nature;
-    const customMegaData = typeof id === "object" && id ? id.megaData : options.megaData;
+  constructor(sample, team, options = { difficulty: "이지", round: 1 }) {
+    this.team = team; // "player" or "npc", 인스턴스 만들때 인자로 받는다
 
-    if (customHp !== undefined && customHp !== null) {
-      this.origin.hp = customHp;
-    }
-    if (customStat) {
-      this.origin.stat = { ...this.origin.stat, ...customStat };
-    }
-    if (customEvs) {
-      this.origin.evs = customEvs;
-    }
-    if (customNature) {
-      this.origin.nature = customNature;
-    }
-    if (customMegaData && this.origin.megaData) {
-      this.origin.megaData = { ...this.origin.megaData, ...customMegaData };
-    }
-    if (options.isNpc && options.difficulty !== "이지") {
+    this.o = cloneWithMethods(sample);
+
+    // 난이도 및 라운드에 따른 NPC 스탯 보정 =============================================
+    if (team === "npc" && options.difficulty !== "이지") {
       const multiplier = 1.0 + (options.round - 1) * 0.1;
-      this.origin.hp = Math.floor(this.origin.hp * multiplier);
+      this.o.hp = Math.floor(this.o.hp * multiplier);
       if (options.difficulty === "하드") {
-        this.origin.stat.atk = Math.floor(this.origin.stat.atk * multiplier);
-        this.origin.stat.def = Math.floor(this.origin.stat.def * multiplier);
-        this.origin.stat.catk = Math.floor(this.origin.stat.catk * multiplier);
-        this.origin.stat.cdef = Math.floor(this.origin.stat.cdef * multiplier);
-        this.origin.stat.speed = Math.floor(this.origin.stat.speed * multiplier);
+        this.o.stat.atk = Math.floor(this.o.stat.atk * multiplier);
+        this.o.stat.def = Math.floor(this.o.stat.def * multiplier);
+        this.o.stat.catk = Math.floor(this.o.stat.catk * multiplier);
+        this.o.stat.cdef = Math.floor(this.o.stat.cdef * multiplier);
+        this.o.stat.speed = Math.floor(this.o.stat.speed * multiplier);
       }
     }
 
-    this.name = this.origin.name; // 메타몽때문에 이름도 가변값이 필요
-    this.names = this.origin.names;
-    this.namess = this.origin.namess;
-    this.pokemon_id = this.origin.pokemon_id;
-    this.img_id = null; // 포켓몬 스프라이트만 바꾸고 싶을때 사용 (기기기어르, 1세대 뮤츠)
-    this.hp = this.origin.hp; // 현재 체력
-    this.type1 = this.origin.type1;
-    this.type2 = this.origin.type2;
-    this.item = this.origin.item;
-    this.itemText = this.origin.itemText;
-    this.abil = this.origin.abil;
-    this.abilObj = { ...this.origin.abilObj, used: false };
-    this.origin.skill[5] = { ...skillList.search("발버둥"), skillNumber: 5 };
+    // origin에서 전달받은 값 중 가변 값 ========================================================
+    this.name = this.o.name;
+    if (team === "npc") {
+      this.name = "상대 " + this.name;
+    }
+
+    this.hp = this.o.hp; // 현재 체력
+    this.type1 = this.o.type1;
+    this.type2 = this.o.type2;
+    this.item = this.o.item;
+    this.abil = {
+      ...this.o.abil,
+      used: false,
+    };
 
     this.pp = {
-      1: this.origin.skill[1].pp,
-      2: this.origin.skill[2].pp,
-      3: this.origin.skill[3].pp,
-      4: this.origin.skill[4].pp,
+      1: this.o.skill[1].pp,
+      2: this.o.skill[2].pp,
+      3: this.o.skill[3].pp,
+      4: this.o.skill[4].pp,
       5: 9999,
     };
+
+    // instance에서 새로 추가되는 가변값 ===============================================================
+
     this.ailment = {
-      // 기절시 damage.js에서만 초기화된다
+      // 상태이상
       burn: null,
       freeze: null,
       freezeBug: null, //영구동결 (1세대 눈보라 증강)
@@ -108,6 +66,7 @@ class PokemonInstance {
       mabi: null,
       sleep: null,
     };
+
     this.turn = {
       // 매 턴 초기화
       // turnEnd.js에서 초기화된다
@@ -164,6 +123,7 @@ class PokemonInstance {
       firstTurn: true, // 배틀 등장 첫 턴 여부 (속이기, 만나자마자 성공 판정)
       turnsOnField: 0, // 필드에 나온 턴 수 (슬로스타트)
     };
+    this.img_id = null; // 포켓몬 스프라이트만 바꾸고 싶을때 사용 (기기기어르, 1세대 뮤츠)
     this.faint = null; //기절 여부
     this.isMega = false; //메가진화 여부
     this.auto = null; //자동 행동 여부 (역린)
@@ -182,8 +142,8 @@ class PokemonInstance {
       cdef: 0,
       speed: 0,
     };
-    if (this.origin) {
-      this.origin.anvilStats = this.anvilStats;
+    if (this.o) {
+      this.o.anvilStats = this.anvilStats;
     }
     this.log = {
       getAugmentedStat: null, // 증강으로 인한 능력치 변화
@@ -192,6 +152,95 @@ class PokemonInstance {
       damage2: null,
       speedCalculate: null,
       speedVS: null,
+    };
+  }
+
+  names(postposition) {
+    return josa(`${this.name}#{${postposition}}`);
+  }
+
+  // --- 불변 식별자 및 스펙 Getter (외부 직접 o 접근 방지 및 캡슐화) ---
+  get sampleName() {
+    return this.o.sampleName;
+  }
+
+  get id() {
+    return this.o.sampleName;
+  }
+
+  get dexNo() {
+    return this.o.dexNo;
+  }
+
+  get uniqueKey() {
+    return this.o.uniqueKey;
+  }
+
+  get skill() {
+    return this.o.skill;
+  }
+
+  get feature() {
+    return this.o.feature;
+  }
+
+  get role() {
+    return this.o.role;
+  }
+
+  get stat() {
+    return this.o.stat;
+  }
+
+  get megaData() {
+    return this.o.megaData;
+  }
+
+  get baseHp() {
+    return this.o.hp;
+  }
+
+  get baseName() {
+    return this.o.name;
+  }
+
+  get baseItem() {
+    return this.o.item;
+  }
+
+  get baseAbil() {
+    return this.o.abil;
+  }
+
+  get maxHp() {
+    return hpCalculate(this);
+  }
+
+  // 곡예 등 원래 아이템이 있었으나 현재 소모되었는지 여부
+  get hasConsumedItem() {
+    return Boolean(this.o.item && !this.item);
+  }
+
+  // 원본 이름 기반 조사 헬퍼 (로그 출력 시 "상대 " 접두사 방지 등)
+  baseNames(postposition) {
+    return josa(`${this.o.name}#{${postposition}}`);
+  }
+
+  // --- 원본 복원 전용 메서드 ---
+  resetType() {
+    if (this.isMega && this.o.megaData) {
+      this.type1 = this.o.megaData.type1;
+      this.type2 = this.o.megaData.type2;
+    } else {
+      this.type1 = this.o.type1;
+      this.type2 = this.o.type2;
+    }
+  }
+
+  resetAbil() {
+    this.abil = {
+      ...this.o.abil,
+      used: false,
     };
   }
 
@@ -343,7 +392,8 @@ class PokemonInstance {
     return true;
   }
 
-  // 기절시 상태이상 초기화
+  // 상태이상 초기화
+  // 기절, 부활, 초승달춤, 치유소원, 회복약 (증강)
   resetAilment() {
     // 초승달춤에서도 사용
     Object.keys(this.ailment).forEach((key) => {
@@ -388,8 +438,8 @@ class PokemonInstance {
     const enemy = pokemon.team === "player" ? battle.npc : battle.player;
 
     // 부유 특성
-    if (pokemon.abil === "부유") {
-      if (isSkill && enemy?.abilObj?.feature?.tgg === true) {
+    if (pokemon.abil?.name === "부유") {
+      if (isSkill && enemy?.abil?.feature?.tgg === true) {
         // 상대 특성이 틀깨기이면 압정, 독압정, 끈적끈적네트에 맞는다. (압정을 깐 포켓몬이 아니라, 압정을 밟았을때 상대 포켓몬이 틀깨기여야한다.)
         // 일렉트릭필드일때 상대(틀깨기)가 하품/최면술을 쓴다 = 부유 판정 못받음 = 필드 효과 받음 = 잠들지 않음
       } else {
@@ -424,16 +474,16 @@ class PokemonInstance {
 
     if (this.item === "먹다남은음식") {
       if (this.hp < maxHp) {
-        this.recover(battle, Math.floor(maxHp / 16), enqueue, `${this.names} 먹다남은음식으로 인해 조금 회복했다.`);
+        this.recover(battle, Math.floor(maxHp / 16), enqueue, `${this.names("는")} 먹다남은음식으로 인해 조금 회복했다.`);
       }
     } else if (this.item === "검은진흙") {
       const isPoison = this.type1 === "독" || this.type2 === "독";
       if (isPoison) {
         if (this.hp < maxHp) {
-          this.recover(battle, Math.floor(maxHp / 16), enqueue, `${this.names} 검은진흙으로 인해 조금 회복했다.`);
+          this.recover(battle, Math.floor(maxHp / 16), enqueue, `${this.names("는")} 검은진흙으로 인해 조금 회복했다.`);
         }
       } else {
-        const text = `${this.names} 검은진흙으로 인해 데미지를 입었다!`;
+        const text = `${this.names("는")} 검은진흙으로 인해 데미지를 입었다!`;
         this.getDamage(battle, enqueue, Math.floor(maxHp / 8), text);
       }
     }
@@ -441,7 +491,7 @@ class PokemonInstance {
     // 증강: 회복 (매 턴 최대 HP의 1/16만큼 회복)
     if (this.hasAugment("recovery")) {
       if (this.hp < maxHp) {
-        this.recover(battle, Math.floor(maxHp / 16), enqueue, `[증강 회복] ${this.names} 체력을 조금 회복했다.`);
+        this.recover(battle, Math.floor(maxHp / 16), enqueue, `[증강 회복] ${this.names("는")} 체력을 조금 회복했다.`);
       }
     }
   }
@@ -449,8 +499,9 @@ class PokemonInstance {
 
 Object.assign(PokemonInstance.prototype, PokemonRecover, PokemonAbil, PokemonGetDamage, PokemonRank, PokemonMega);
 
-export function generate(id, options = { isNpc: false, difficulty: "노말", round: 1 }) {
-  return new PokemonInstance(id, options);
+// entry: sampleName 문자열 또는 커스텀 슬롯 엔트리 객체
+export function generatePokemonInstance(entry, team = "player", options = { difficulty: "노말", round: 1 }) {
+  return new PokemonInstance(sampleList.buildSample(entry), team, options);
 }
 
 export default PokemonInstance;

@@ -11,7 +11,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   }
   const npc = bt.npc;
   const player = bt.player;
-  const skill = bt.npc.origin.skill[sn];
+  const skill = bt.npc.skill[sn];
 
   // 리턴값
   let score = 0; // 가중치
@@ -35,7 +35,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
     return -999;
   }
 
-  if (skill.stype === "natk" && npc.abil === "짓궂은마음" && (player.type1 === "악" || player.type2 === "악")) {
+  if (skill.stype === "natk" && npc.abil?.name === "짓궂은마음" && (player.type1 === "악" || player.type2 === "악")) {
     skObj.log.score = "불발";
     return -999;
   }
@@ -72,7 +72,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
         }
 
         if (skillEffect.name === "반동") {
-          if (npc.abil !== "돌머리") {
+          if (npc.abil?.name !== "돌머리") {
             score *= 0.9;
             log += ` * 0.9 (반동)`;
           }
@@ -140,7 +140,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
 
       //상대가 물리형일때 화상 보정
-      if (skillEffect.name === "화상" && (player.origin.role === "물리어태커" || player.origin.role === "물리딜탱") && statusAbleCheck("화상", player)) {
+      if (skillEffect.name === "화상" && (player.role === "물리어태커" || player.role === "물리딜탱") && statusAbleCheck("화상", player)) {
         let plus = (50 * skillEffect.probability) / 100;
         score += plus;
         log += ` + ${plus} (화상 물리 보정)`;
@@ -265,7 +265,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
       if (skillEffect.name === "리플렉터") {
         if (bt.field.npc.noClean.reflect === null) {
-          let origin = player.origin.role === "물리어태커" || player.origin.role === "물리딜탱" ? 20 : 15; // 상대가 물리면 리플렉터를 먼저 치게
+          let origin = player.role === "물리어태커" || player.role === "물리딜탱" ? 20 : 15; // 상대가 물리면 리플렉터를 먼저 치게
           let value = origin * (remainPokemonCount(bt, "npc") + 1);
           score += value;
           log += ` + ${value} (${skillEffect.name})`;
@@ -273,7 +273,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       }
       if (skillEffect.name === "빛의장막") {
         if (bt.field.npc.noClean.lightScreen === null) {
-          let origin = player.origin.role === "특수어태커" || player.origin.role === "특수딜탱" ? 20 : 15;
+          let origin = player.role === "특수어태커" || player.role === "특수딜탱" ? 20 : 15;
           let value = origin * (remainPokemonCount(bt, "npc") + 1);
           score += value;
           log += ` + ${value} (${skillEffect.name})`;
@@ -379,7 +379,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
       if (skillEffect.name === "마비" && statusAbleCheck(skillEffect.name, player)) {
         let value = (50 * skillEffect.probability) / 100;
 
-        const hasPsychoCut = ["1", "2", "3", "4"].some((key) => npc.origin.skill[key]?.name === "병상첨병");
+        const hasPsychoCut = ["1", "2", "3", "4"].some((key) => npc.skill[key]?.name === "병상첨병");
         if (hasPsychoCut) value *= 1.3;
 
         score += value;
@@ -388,7 +388,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
         log += text;
       }
 
-      if (skillEffect.name === "화상" && (player.origin.role === "물리어태커" || player.origin.role === "물리딜탱") && statusAbleCheck(skillEffect.name, player)) {
+      if (skillEffect.name === "화상" && (player.role === "물리어태커" || player.role === "물리딜탱") && statusAbleCheck(skillEffect.name, player)) {
         let value = (50 * skillEffect.probability) / 100;
 
         score += value;
@@ -433,12 +433,12 @@ function remainPokemonCount(battle, user) {
 const rankScoreCalculate = (bt, sn, skillEffect) => {
   const npc = bt.npc;
   const player = bt.player;
-  const skill = bt.npc.origin.skill[sn];
-  const npcRole = npc.origin.role || "";
-  const playerRole = player.origin.role || "";
+  const skill = bt.npc.skill[sn];
+  const npcRole = npc.role || "";
+  const playerRole = player.role || "";
 
   let rankUpValue = skillEffect.value;
-  if ((npc.abil === "심술꾸러기" && skillEffect.target === "atk") || (player.abil === "심술꾸러기" && skillEffect.target === "def")) {
+  if ((npc.abil?.name === "심술꾸러기" && skillEffect.target === "atk") || (player.abil?.name === "심술꾸러기" && skillEffect.target === "def")) {
     // 특성 심술꾸러기는 랭크업이 반대로 적용
     rankUpValue = -skillEffect.value;
   }
@@ -465,14 +465,14 @@ const rankScoreCalculate = (bt, sn, skillEffect) => {
       }
 
       // 바디프레스 스킬이 있으면 방어력 증가에 추가 보정
-      const isBodyPress = [1, 2, 3, 4].some((num) => npc.origin.skill[num]?.name === "바디프레스");
+      const isBodyPress = [1, 2, 3, 4].some((num) => npc.skill[num]?.name === "바디프레스");
       if (skillEffect.stat === "def" && isBodyPress) {
         value += 15;
       }
     }
 
     let plus = (value * rankUpValue * skillEffect.probability) / 100; // 랭크업 확률과 수치 적용
-    if (player.abil === "천진") plus = Math.floor(plus * 0.1);
+    if (player.abil?.name === "천진") plus = Math.floor(plus * 0.1);
     rankScore = plus;
     logText = ` + ${plus}(자벞 ${skillEffect.stat}(${value})*${rankUpValue})`;
   }
@@ -492,7 +492,7 @@ const rankScoreCalculate = (bt, sn, skillEffect) => {
     }
 
     let minus = (value * rankUpValue * skillEffect.probability) / 100;
-    if (player.abil === "천진") minus = Math.floor(minus * 0.1); // ex) 천진 상대로 용성군 난사
+    if (player.abil?.name === "천진") minus = Math.floor(minus * 0.1); // ex) 천진 상대로 용성군 난사
     rankScore = minus;
     logText = ` - ${-minus}(디메리트 ${skillEffect.stat}(${value})*${rankUpValue})`;
   }
@@ -538,7 +538,7 @@ const rankScoreCalculate = (bt, sn, skillEffect) => {
   return { rankScore, logText };
 };
 
-export function getLowHpFactor(hp, maxHp, exponent = 2.3) {
+function getLowHpFactor(hp, maxHp, exponent = 2.3) {
   /**
    * 체력 비율에 따른 희생/퇴장기 가중치 비율 계산 (0 ~ 1)
    * 체력이 100%일 때는 0에 가깝고, 체력이 0%에 가까워질수록 1에 수렴

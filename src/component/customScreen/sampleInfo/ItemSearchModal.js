@@ -4,9 +4,9 @@ import { itemText } from "../../../entity/Item";
 import { typeCheck } from "../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 
-export const isPokemon = (pokemon, target) => {
+const isPokemon = (pokemon, target) => {
   if (!pokemon || !target) return false;
-  return Boolean(pokemon.id?.includes(target) || pokemon.name?.includes(target) || pokemon.origin?.name?.includes(target) || pokemon.origin?.id?.includes(target));
+  return Boolean(pokemon.sampleName?.includes(target) || pokemon.id?.includes(target) || pokemon.name?.includes(target));
 };
 
 const EXCLUSIVE_ITEMS = {
@@ -38,7 +38,7 @@ const EXCLUSIVE_ITEMS = {
   잉어킹나이트: (p) => isPokemon(p, "잉어킹"),
 };
 
-export const getFavoriteItemsForPokemon = (pokemon) => {
+const getFavoriteItemsForPokemon = (pokemon) => {
   if (!pokemon) return [];
 
   const favorites = [];
@@ -72,7 +72,7 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
   }
 
   // 타입
-  const types = [pokemon.type1, pokemon.type2, pokemon.origin?.type1, pokemon.origin?.type2, pokemon.megaData?.type1, pokemon.megaData?.type2].filter(Boolean);
+  const types = [pokemon.type1, pokemon.type2, pokemon.megaData?.type1, pokemon.megaData?.type2].filter(Boolean);
 
   // 막이 / 딜탱인 경우 -> 돌격조끼, 먹다남은음식, 자뭉열매, 울퉁불퉁멧
   if (isTanker) {
@@ -123,8 +123,8 @@ export const getFavoriteItemsForPokemon = (pokemon) => {
     }
   }
 
-  // Pokemon.origin.feature?.evo가 true인 경우 -> 진화의휘석
-  if (pokemon.feature?.evo || pokemon.origin?.feature?.evo) {
+  // pokemon.feature?.evo가 true인 경우 -> 진화의휘석
+  if (pokemon.feature?.evo) {
     add("진화의휘석");
   }
 
@@ -238,7 +238,7 @@ export const getItemListForPokemon = (pokemon) => {
   }));
 };
 
-export const sortItems = (list, currentItem) => {
+const sortItems = (list, currentItem) => {
   if (!currentItem) return list;
   const current = list.filter((item) => item.name === currentItem);
   const others = list.filter((item) => item.name !== currentItem);

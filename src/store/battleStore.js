@@ -5,7 +5,7 @@ import { setSelectedNpcAct } from "../config/testMode";
 import { consoleLog } from "../util/consoleLog";
 import { rollAugments } from "../calc/augmentRoll";
 import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, syncTeamEchoOfHeroBuff, stripEmoji } from "../entity/Augment/AugmentData";
-import { generate } from "../entity/Pokemon/PokemonInstance";
+import { generatePokemonInstance } from "../entity/Pokemon/PokemonInstance";
 import { switchNpcAuto } from "../service/switch";
 import { speedCheck } from "../calc/speedCheck";
 import { battleStart } from "../service/battleStart";
@@ -103,9 +103,6 @@ export const useBattleStore = createStore((set, get) => ({
             cdef: Number(saved.cdef || 0),
             speed: Number(saved.speed || 0),
           };
-          if (p.origin) {
-            p.origin.anvilStats = p.anvilStats;
-          }
         }
       });
     }
@@ -137,9 +134,6 @@ export const useBattleStore = createStore((set, get) => ({
               Object.keys(savedAug.anvilStats).forEach((k) => {
                 p.anvilStats[k] = Math.max(Number(p.anvilStats[k] || 0), Number(savedAug.anvilStats[k] || 0));
               });
-              if (p.origin) {
-                p.origin.anvilStats = p.anvilStats;
-              }
             }
           });
         }
@@ -309,7 +303,7 @@ export const useBattleStore = createStore((set, get) => ({
       if (curBattle && (curBattle.player.auto || curBattle.player.charge || curBattle.player.recharge)) {
         battleStart(curBattle, curBattle.player.autoSN, npcChoice(curBattle, curBattle.player.autoSN), queueObject);
       } else if (curBattle) {
-        set({ text: curBattle.player.origin.names + " 무엇을 할까?" });
+        set({ text: curBattle.player.names("는") + " 무엇을 할까?" });
       }
     }
   },
@@ -328,7 +322,7 @@ export const useBattleStore = createStore((set, get) => ({
       queueObject.dequeue();
     } else if (bottom === "skill") {
       if (battleLive && !battleLive.player.auto && !battleLive.player.charge && !battleLive.player.recharge) {
-        set({ text: battleLive.player.origin.names + " 무엇을 할까?" });
+        set({ text: battleLive.player.names("는") + " 무엇을 할까?" });
       }
     }
   },
@@ -399,7 +393,7 @@ export const useBattleStore = createStore((set, get) => ({
     const teamPokes = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2].filter(Boolean);
     const targetCandidate = options?.targetPokemon || augmentTargetPoke;
     const target = (targetCandidate && teamPokes.find((p) => p && (p.originalIndex === targetCandidate.originalIndex || p.id === targetCandidate.id || p.name === targetCandidate.name))) || curBattle.player;
-    const prevPokeName = target.name || target.origin?.name || "";
+    const prevPokeName = target.name || "";
 
     const synergyBuffIds = Object.keys(AUGMENT_SYNERGY_MAP);
     const hadSynergyBefore = {};
@@ -447,7 +441,7 @@ export const useBattleStore = createStore((set, get) => ({
           text: synergyText,
           logText: synergyText,
           augmentData: {
-            targetName: target.name || target.names,
+            targetName: target.name,
             augment: {
               id: buffAug?.id || buffId,
               name: buffAug?.name || buffName,
@@ -571,7 +565,7 @@ export const useBattleStore = createStore((set, get) => ({
 
     const appliedAug = augOptions?.resolvedGrantedAug || target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
     const isReplacement = selectedAugment.id === "legendaryTitan" || selectedAugment.id === "rouletteWheel" || selectedAugment.id === "soaring" || selectedAugment.id === "marriedPokemon" || selectedAugment.id === "magikarpJump" || selectedAugment.id === "klinklangGear" || selectedAugment.id === "blackNight" || selectedAugment.id === "mewtwoStrikesBack" || selectedAugment.id === "veteranPrivilege";
-    const logTargetName = isReplacement ? prevPokeName : target.name || target.names;
+    const logTargetName = isReplacement ? prevPokeName : target.name;
 
     const isSelectedCurse = Boolean(appliedAug.curse || isCurseAugment(appliedAug));
     const isSelectedSynergy = Boolean(appliedAug.synergy || isSynergyAugment(appliedAug));
@@ -711,10 +705,11 @@ export const useBattleStore = createStore((set, get) => ({
         ? getRandomTeam(3)
         : curPlayerTeam.map((p, idx) => {
             const originalCustom = Array.isArray(team1) ? team1[p.originalIndex ?? idx] : null;
-            if (originalCustom && typeof originalCustom === "object" && originalCustom.id === p.id) {
+            const sName = p.sampleName || p.id;
+            if (originalCustom && typeof originalCustom === "object" && (originalCustom.sampleName === sName || originalCustom.id === sName)) {
               return originalCustom;
             }
-            return p.id;
+            return sName;
           });
 
     const nextTeam2 = getRandomTeam(3);
@@ -830,13 +825,12 @@ export const useBattleStore = createStore((set, get) => ({
     if (!playerPoke) return;
 
     const { team1 } = locationState || {};
-    let nextTeam1 = playerTeamFixed.length === 3 ? playerTeamFixed.map((p) => p.id) : [...team1];
-    const npcIds = npcTeamFixed.map((p) => p.id);
+    let nextTeam1 = playerTeamFixed.length === 3 ? playerTeamFixed.map((p) => p.sampleName || p.id) : [...team1];
+    const npcIds = npcTeamFixed.map((p) => p.sampleName || p.id);
     const tradedId = npcIds[tradeNpcIdx];
     nextTeam1[tradePlayerIdx] = tradedId;
 
-    const newPoke = generate(tradedId);
-    newPoke.team = "player";
+    const newPoke = generatePokemonInstance(tradedId, "player");
     newPoke.originalIndex = playerPoke.originalIndex ?? tradePlayerIdx;
     newPoke.augments = [];
 
@@ -864,9 +858,6 @@ export const useBattleStore = createStore((set, get) => ({
       if (curBattle[key]) {
         curBattle[key].hp = 0;
         curBattle[key].faint = true;
-        if (curBattle[key].origin) {
-          curBattle[key].origin.hp = 0;
-        }
       }
     });
 

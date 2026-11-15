@@ -52,7 +52,7 @@ export const PokemonGetDamage = {
     enqueue({
       id: "04606dda-a370-46f8-97d6-155e4f7722c2",
       battle,
-      text: `${this.names} 쓰러졌다!`,
+      text: `${this.names("는")} 쓰러졌다!`,
     });
   },
 
@@ -60,7 +60,7 @@ export const PokemonGetDamage = {
     // attackDmage에서도 사용
     const atkTeam = this.team === "npc" ? "player" : "npc";
     const atkPokemon = battle[atkTeam];
-    const atkAbil = atkPokemon.abil;
+    const atkAbil = atkPokemon.abil?.name;
 
     const noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
     if (noBerryAbil.includes(atkAbil)) return;
@@ -68,7 +68,7 @@ export const PokemonGetDamage = {
     if (this.item === "자뭉열매") {
       const maxHp = hpCalculate(this);
       if (this.hp <= Math.floor(maxHp / 2)) {
-        this.recover(battle, Math.floor(maxHp / 4), enqueue, `${this.names} 자뭉열매로 인해 조금 회복했다.`);
+        this.recover(battle, Math.floor(maxHp / 4), enqueue, `${this.names("는")} 자뭉열매로 인해 조금 회복했다.`);
         this.item = null;
       }
     }

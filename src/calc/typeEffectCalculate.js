@@ -26,7 +26,7 @@ export const TYPE_COLORS = {
 
 // 심안(고스트 면역 무시)
 const isMindEye = (pokemon, skillType, t1, t2) => {
-  return (pokemon?.abil === "심안" || pokemon?.abil === "배짱") && isOneOf(skillType, ["격투", "노말"]) && hasType("고스트", t1, t2);
+  return (pokemon?.abil?.name === "심안" || pokemon?.abil?.name === "배짱") && isOneOf(skillType, ["격투", "노말"]) && hasType("고스트", t1, t2);
 };
 
 /**
@@ -35,7 +35,7 @@ const isMindEye = (pokemon, skillType, t1, t2) => {
  * 증강에 의해 특수하게 변경되는 상성 배율을 우선 계산하여 반환합니다.
  * @returns {number|null} 증강에 의해 상성이 재정의되면 배율(0, 1 등), 해당 없으면 null
  */
-export const getAugmentTypeMultiplier = (atk, def, skillType, t1, t2) => {
+const getAugmentTypeMultiplier = (atk, def, skillType, t1, t2) => {
   // [증강: 로스트 테크놀로지 (에스퍼)] - 피격 시: 고스트 무효(0배), 악/강철 공격 1배
   if (def?.hasAugment?.("lostTechnologyPsychic")) {
     if (skillType === "고스트") return 0;
@@ -68,7 +68,7 @@ export const typeCheckOnBattle = (battle, skillType, t1, t2, skillName, defPoke 
   // 타오르는불꽃은 버프 효과가 있기에 skillCheck에서 따로 처리
   const atk = battle?.[battle?.turn?.atk];
   const def = defPoke || battle?.[battle?.turn?.def];
-  const activeSkillName = skillName || atk?.turn?.useSkill?.name || atk?.origin?.skill?.[battle?.turn?.atkSN]?.name;
+  const activeSkillName = skillName || atk?.turn?.useSkill?.name || atk?.skill?.[battle?.turn?.atkSN]?.name;
   if (activeSkillName === "발버둥") return 1;
 
   // [증강: 로스트 테크놀로지 (에스퍼) 등 증강 상성 보정]

@@ -3,7 +3,7 @@ import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { AUGMENT_LIST, MUTUALLY_EXCLUSIVE_MAP } from "../../../entity/Augment/AugmentData";
 
-export const checkSynergyAugmentUnobtainable = (aug, pokemon, battle = null, team = null) => {
+const checkSynergyAugmentUnobtainable = (aug, pokemon, battle = null, team = null) => {
   if (!pokemon || !aug) return false;
 
   // 1. 이미 보유 중인 경우

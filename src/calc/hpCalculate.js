@@ -5,11 +5,11 @@ const hasAugmentId = (pokemon, id) => {
   return Array.isArray(pokemon?.augments) && pokemon.augments.some((a) => (typeof a === "string" ? a === id : a?.id === id));
 };
 
-// 최대 HP 실 수치 계산 함수 (원본 origin.hp는 유지하고 증강 효과를 합산)
+// 최대 HP 실 수치 계산 함수 (원본 o.hp는 유지하고 증강 효과를 합산)
 export const hpCalculate = (pokemon, baseHp = null) => {
   if (!pokemon) return 0;
 
-  let hp = baseHp !== null && baseHp !== undefined ? baseHp : (pokemon.origin?.hp ?? pokemon.hp ?? 0);
+  let hp = baseHp !== null && baseHp !== undefined ? baseHp : (pokemon.baseHp ?? pokemon.hp ?? 0);
   if (typeof hp !== "number" || Number.isNaN(hp) || hp <= 0) {
     return Math.max(0, Number(hp) || 0);
   }
