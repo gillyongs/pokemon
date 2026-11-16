@@ -314,7 +314,7 @@ export const AUGMENT_LIST = [
     desc: "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올리는 순풍을 전개한다.",
     afterText: "우리 편의 뒤에서 순풍이 불기 시작했다!",
     cost: "-",
-    weight: 100,
+    weight: 50,
     isEligible: (pokemon, battle) => {
       const teamSide = pokemon?.team || "player";
       if (battle?.field?.[teamSide]?.noClean?.tailwind) return false;
@@ -328,13 +328,49 @@ export const AUGMENT_LIST = [
       }
     },
   },
+  // 특성의 역전 =============================================================
+  {
+    id: "abilityInversion",
+    name: "특성의 역전",
+    desc: "기본 특성과 메가진화 특성을 교환합니다.",
+    cost: 1,
+    weight: 300,
+    isEligible: (pokemon) => {
+      const isCharizardY = (hasPokemonName(pokemon, "리자몽") || pokemon?.sampleName?.includes("리자몽")) && pokemon?.item === "리자몽나이트Y";
+      const isGallade = (hasPokemonName(pokemon, "엘레이드") || pokemon?.sampleName?.includes("엘레이드")) && pokemon?.item === "엘레이드나이트";
+      return isCharizardY || isGallade;
+    },
+    onApply: function (pokemon) {
+      if (!pokemon || !pokemon.megaData) return;
+      if (pokemon._hasInvertedAbility) return;
+      pokemon._hasInvertedAbility = true;
+
+      const baseAbilName = pokemon.o?.abil?.name || pokemon.abil?.name || pokemon.abil;
+      const megaAbilName = pokemon.megaData.abil;
+
+      if (pokemon.isMega) {
+        pokemon.changeAbil(baseAbilName);
+        pokemon.megaData.abil = baseAbilName;
+        if (pokemon.o) {
+          pokemon.o.abil = { ...pokemon.abil };
+          if (pokemon.o.megaData) pokemon.o.megaData.abil = baseAbilName;
+        }
+      } else {
+        pokemon.changeAbil(megaAbilName);
+        pokemon.megaData.abil = baseAbilName;
+        if (pokemon.o?.megaData) {
+          pokemon.o.megaData.abil = baseAbilName;
+        }
+      }
+    },
+  },
   // 위협 ====================================================================
   {
     id: "intimidate",
     name: "위협",
     desc: "상대를 위축시켜 공격을 떨어뜨립니다.",
     cost: "-",
-    weight: 100,
+    weight: 70,
     isEligible: (pokemon, battle) => {
       const teamSide = pokemon?.team || "player";
       const oppSide = teamSide === "player" ? "npc" : "player";
@@ -365,7 +401,7 @@ export const AUGMENT_LIST = [
       return team === "npc" ? "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!" : "상대의 주변에 뾰족한 바위가 떠다니기 시작했다!";
     },
     cost: "-",
-    weight: 100,
+    weight: 70,
     isEligible: (pokemon, battle) => {
       const teamSide = pokemon?.team || "player";
       const oppSide = teamSide === "player" ? "npc" : "player";
@@ -1321,7 +1357,7 @@ export const AUGMENT_LIST = [
     name: "기력의 조각",
     desc: "기절한 포켓몬의 HP를 절반 회복하고 부활시킵니다.",
     cost: "-",
-    weight: 100,
+    weight: 70,
     isEligible: (pokemon) => Boolean(pokemon && (pokemon.faint || pokemon.hp <= 0)),
     onApply: function (pokemon, battle, options) {
       pokemon.handleResurrection(battle, 0.5, options?.enqueue, options);
@@ -1332,7 +1368,7 @@ export const AUGMENT_LIST = [
     name: "기력의 덩어리",
     desc: "기절한 포켓몬의 HP를 전부 회복하고 부활시킵니다.",
     cost: "-",
-    weight: 100,
+    weight: 50,
     isEligible: (pokemon) => Boolean(pokemon && (pokemon.faint || pokemon.hp <= 0)),
     onApply: function (pokemon, battle, options) {
       pokemon.handleResurrection(battle, 1.0, options?.enqueue, options);
@@ -1738,6 +1774,13 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
       individualDesc = `${pokeName}의 순풍!`;
     } else {
       return selectedAugment.desc || "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올리는 순풍을 전개한다.";
+    }
+  } else if (id === "abilityInversion") {
+    if (isTextScreen) {
+      const pokeName = target?.name || "포켓몬";
+      individualDesc = `${pokeName}의 기본 특성과 메가진화 특성이 뒤바뀌었다!`;
+    } else {
+      return selectedAugment.desc || "기본 특성과 메가진화 특성을 교환합니다.";
     }
   } else if (id === "intimidate") {
     if (isTextScreen) {

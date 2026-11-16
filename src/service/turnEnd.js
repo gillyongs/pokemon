@@ -51,6 +51,15 @@ export const turnEnd = (battle, enqueue) => {
   battle.field.weather.handleWeatherDamageTurnEnd(battle, enqueue, fastUser);
   battle.field.weather.handleWeatherDamageTurnEnd(battle, enqueue, slowUser);
 
+  // [특성] 선파워 (쾌청 시 매 턴 종료마다 최대 HP의 1/8 데미지)
+  [fastUser, slowUser].forEach((user) => {
+    const p = battle[user];
+    if (!p || p.faint || p.hp <= 0) return;
+    if (p.abil?.name === "선파워" && battle.field.weather.isSunny) {
+      p.getDamage(battle, enqueue, Math.max(1, Math.floor(hpCalculate(p) / 8)), `[특성 선파워] ${p.name}의 생명이 조금 깎였다!`);
+    }
+  });
+
   // [증강] 태양불꽃방패 (매 턴 내 HP의 10%만큼 상대에게 데미지)
   applySunfireAegis(battle, enqueue, fastUser);
   applySunfireAegis(battle, enqueue, slowUser);

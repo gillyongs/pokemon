@@ -243,6 +243,10 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 특공 (catk) ===================================
   if (skill.stype === "catk") {
+    if (atkAbil === "선파워" && battle.field.weather.isSunny) {
+      atkStat *= 1.5;
+      atkStr += " * 1.5 (선파워)";
+    }
     if (attackPokemon.item === "구애안경") {
       atkStat *= 1.5;
       atkStr += " * 1.5 (구애안경)";

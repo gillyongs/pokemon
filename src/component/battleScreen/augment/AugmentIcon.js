@@ -912,6 +912,32 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="60%" stopColor="#451a03" />
             <stop offset="100%" stopColor="#1c0d02" />
           </radialGradient>
+          <filter id="inversionGlowSun" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#f59e0b" floodOpacity="0.8" />
+          </filter>
+          <filter id="inversionGlowMega" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#38bdf8" floodOpacity="0.8" />
+          </filter>
+          <linearGradient id="inversionBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#0b1120" />
+            <stop offset="100%" stopColor="#020617" />
+          </linearGradient>
+          <linearGradient id="inversionArrowSun" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fef08a" />
+            <stop offset="35%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#ea580c" />
+          </linearGradient>
+          <linearGradient id="inversionArrowMega" x1="100%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stopColor="#e0f2fe" />
+            <stop offset="35%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#7c3aed" />
+          </linearGradient>
+          <linearGradient id="inversionRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f59e0b" />
+            <stop offset="50%" stopColor="#a855f7" />
+            <stop offset="100%" stopColor="#06b6d4" />
+          </linearGradient>
+
           <linearGradient id="intimidateRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#bae6fd" />
             <stop offset="40%" stopColor="#38bdf8" />
@@ -3985,6 +4011,34 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <path d="M 49 14 Q 49 16.2 51.2 16.2 Q 49 16.2 49 18.5 Q 49 16.2 46.8 16.2 Q 49 16.2 49 14 Z" fill="#e0f2fe" opacity="0.95" />
             <circle cx="14" cy="46" r="1" fill="#7dd3fc" opacity="0.85" />
             <circle cx="48" cy="44" r="0.7" fill="#ffffff" opacity="0.75" />
+          </g>
+        )}
+
+        {/* 특성의 역전 (Ability Inversion: 볼드 강조 스왑 화살표 & 메가 스파크 코어) */}
+        {id === "abilityInversion" && (
+          <g>
+            {/* 백그라운드 원 & 듀얼 링 */}
+            <circle cx="32" cy="32" r="29.5" fill="url(#inversionBgGrad)" stroke="url(#inversionRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="27.5" fill="none" stroke="#1e293b" strokeWidth="0.8" />
+
+            {/* 상단 화살표 (태양/골드 - 시계방향 우측 스왑) */}
+            <g filter="url(#inversionGlowSun)">
+              <path d="M 12 31 C 12.5 18, 22.5 9.5, 35 9.5 C 41.5 9.5, 47 11.8, 51 15 L 47 20.5 C 43.5 17.8, 39.5 16, 35 16 C 26 16, 19 22.5, 18 30.5 Z" fill="url(#inversionArrowSun)" stroke="#fef08a" strokeWidth="0.5" strokeLinejoin="round" />
+              <path d="M 44.5 9 L 57.5 18.5 L 44 26 L 47.8 18.5 Z" fill="url(#inversionArrowSun)" stroke="#ffffff" strokeWidth="0.8" strokeLinejoin="round" />
+              <path d="M 16 28 C 19 18, 27 12.8, 36 12.8 C 41 12.8, 46 14.5, 49.5 17.5" fill="none" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
+            </g>
+
+            {/* 하단 화살표 (메가/시안 - 시계방향 좌측 스왑) */}
+            <g filter="url(#inversionGlowMega)">
+              <path d="M 52 33 C 51.5 46, 41.5 54.5, 29 54.5 C 22.5 54.5, 17 52.2, 13 49 L 17 43.5 C 20.5 46.2, 24.5 48, 29 48 C 38 48, 45 41.5, 46 33.5 Z" fill="url(#inversionArrowMega)" stroke="#e0f2fe" strokeWidth="0.5" strokeLinejoin="round" />
+              <path d="M 19.5 55 L 6.5 45.5 L 20 38 L 16.2 45.5 Z" fill="url(#inversionArrowMega)" stroke="#ffffff" strokeWidth="0.8" strokeLinejoin="round" />
+              <path d="M 48 36 C 45 46, 37 51.2, 28 51.2 C 23 51.2, 18 49.5, 14.5 46.5" fill="none" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
+            </g>
+
+            {/* 중앙 메가 스왑 에너지 코어 */}
+            <circle cx="32" cy="32" r="5" fill="#0f172a" stroke="#475569" strokeWidth="0.8" />
+            <path d="M 32 24 Q 32 32 40 32 Q 32 32 32 40 Q 32 32 24 32 Q 32 32 32 24 Z" fill="#ffffff" />
+            <circle cx="32" cy="32" r="1.8" fill="#38bdf8" />
           </g>
         )}
 
