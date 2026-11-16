@@ -190,6 +190,8 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
         <AugmentGrantPreviewModal
           augmentId={grantPreviewInfo.augmentId}
           grantInfo={grantPreviewInfo.grant}
+          pokemon={activePokemon}
+          battle={battle}
           onClose={() => setGrantPreviewInfo(null)}
         />
       )}

@@ -325,7 +325,7 @@ class PokemonInstance {
   }
 
   checkAugmentSynergies(battle) {
-    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getSynergyThreshold, syncTeamEchoOfHeroBuff } = require("../Augment/AugmentData");
+    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getSynergyThreshold, syncTeamEchoOfHeroBuff, syncTeamBearBuffs } = require("../Augment/AugmentData");
     const team = battle ? (this.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]) : [];
 
     Object.entries(AUGMENT_SYNERGY_MAP).forEach(([synergyId, requiredIds]) => {
@@ -389,6 +389,9 @@ class PokemonInstance {
         }
       }
     });
+    if (typeof syncTeamBearBuffs === "function") {
+      syncTeamBearBuffs(battle);
+    }
   }
 
   checkEchoOfHeroSynergy(battle) {

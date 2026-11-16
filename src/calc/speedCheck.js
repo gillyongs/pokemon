@@ -66,6 +66,11 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
     speed *= 2;
     pokemon.log.speedCalculate += " * 2 (쓱쓱)";
   }
+  // 눈치우기: 설경일 때 스피드 2배
+  if (abil === "눈치우기" && battle?.field?.weather?.isSnow) {
+    speed *= 2;
+    pokemon.log.speedCalculate += " * 2 (눈치우기)";
+  }
   if (abil === "패스트스타트" && (pokemon.tempStatus?.turnsOnField ?? 0) >= 5) {
     speed *= 2;
     pokemon.log.speedCalculate += " * 2 (패스트스타트)";

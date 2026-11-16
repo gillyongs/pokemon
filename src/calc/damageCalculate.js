@@ -537,6 +537,18 @@ export const damageCalculate = (battle, obj, ai) => {
     // 고정 데미지 기술(일격기, 카운터, 지구던지기, 카타스트로피)도 적용 안 됨
   }
 
+  // 복슬복슬: 직접 공격 기술(접촉기) 피격 시 데미지 절반, 불꽃 타입 기술 피격 시 데미지 2배
+  if (defAbil === "복슬복슬" && noTggAtk) {
+    if (skill.feature?.touch) {
+      damage *= 0.5;
+      attackPokemon.log.damage1 += " * 0.5 (복슬복슬 접촉)";
+    }
+    if (skill.type === "불꽃") {
+      damage *= 2;
+      attackPokemon.log.damage1 += " * 2 (복슬복슬 불꽃)";
+    }
+  }
+
   if ((atkAbil === "페어리오라" || defAbil === "페어리오라") && skill.type === "페어리") {
     // 틀깨기 적용 안됨
     damage = (damage * 4) / 3;

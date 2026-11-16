@@ -4,7 +4,7 @@ import { defaultOption } from "../config/defaultOption";
 import { setSelectedNpcAct } from "../config/testMode";
 import { consoleLog } from "../util/consoleLog";
 import { rollAugments } from "../calc/augmentRoll";
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, syncTeamEchoOfHeroBuff, stripEmoji } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, syncTeamEchoOfHeroBuff, stripEmoji, isReplacementAugment } from "../entity/Augment/AugmentData";
 import { generatePokemonInstance } from "../entity/Pokemon/PokemonInstance";
 import { switchNpcAuto } from "../service/switch";
 import { speedCheck } from "../calc/speedCheck";
@@ -564,7 +564,7 @@ export const useBattleStore = createStore((set, get) => ({
     }
 
     const appliedAug = augOptions?.resolvedGrantedAug || target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
-    const isReplacement = selectedAugment.id === "legendaryTitan" || selectedAugment.id === "rouletteWheel" || selectedAugment.id === "soaring" || selectedAugment.id === "marriedPokemon" || selectedAugment.id === "magikarpJump" || selectedAugment.id === "klinklangGear" || selectedAugment.id === "blackNight" || selectedAugment.id === "mewtwoStrikesBack" || selectedAugment.id === "veteranPrivilege" || selectedAugment.id === "sacrificeGod";
+    const isReplacement = isReplacementAugment(selectedAugment);
     const logTargetName = isReplacement ? prevPokeName : target.name;
 
     const isSelectedCurse = Boolean(appliedAug.curse || isCurseAugment(appliedAug));

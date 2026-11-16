@@ -220,6 +220,9 @@ new samplePokemon("너트령", "0598", "HB252", "def", "catk",
 new samplePokemon("샹델라", "0609", "CS252", "speed", "atk",
   "화염방사", "섀도볼", "에너지볼", "트릭", "구애스카프", "타오르는불꽃", "특수어태커"),
 
+new samplePokemon("툰베어", "0614", "AS252", "atk", "catk",
+  "고드름떨구기", "인파이트", "아쿠아브레이크", "지진", "생명의구슬", "눈치우기", "물리어태커"),
+
 new samplePokemon("삼삼드래", "0635", "CS252", "speed", "atk",
   "용성군", "악의파동", "화염방사", "유턴", "구애스카프", "부유", "특수어태커"),
 
@@ -271,6 +274,7 @@ new samplePokemon("누리레느", "0730", "CS252", "catk", "speed",
 
 new samplePokemon("깨비물거미", "0752", "HA252", "atk", "catk", 
   "끈적끈적네트", "아쿠아브레이크", "흡혈", "덤벼들기", "신비의물방울", "수포", "물리딜탱"), 
+
 
 new samplePokemon("메가갑주무사", "0768", "HA252", "atk", "catk",
   "만나자마자", "아쿠아제트", "아이언헤드", "기습", "갑주무사나이트", "단단한발톱", "물리딜탱"),
@@ -464,6 +468,7 @@ new samplePokemon("라티오스", "0381", "CS252", "speed", "atk",
     }
     if (typeof sampleName !== "string") return null;
     if (sampleName === "레지기가스") return regigigasSample;
+    if (sampleName === "이븐곰") return bewearSample;
     if (sampleName === "메가플라이곤" || sampleName === "플라이곤") return megaFlygonSample;
     if (sampleName === "기기기어르") return klinklangSample;
     if (sampleName === "잉어킹") return magikarpSample;
@@ -505,6 +510,7 @@ new samplePokemon("라티오스", "0381", "CS252", "speed", "atk",
 
 // 증강으로만 나오는 포켓몬들
 const regigigasSample = new samplePokemon("레지기가스", "0486", "HA252", "atk", "catk", "묵사발", "화풀이", "드레인펀치", "냉동펀치", "돌격조끼", "슬로스타트", "물리딜탱", "선택 시 특성과 관련된 증강을 추가로 획득합니다.");
+const bewearSample = new samplePokemon("이븐곰", "0760", "HA252", "atk", "catk", "이판사판태클", "드레인펀치", "냉동펀치", "지진", "돌격조끼", "복슬복슬", "물리딜탱");
 const megaFlygonSample = new samplePokemon("플라이곤", "0330", "AS252", "speed", "catk", "지진", "스케일샷", "용의춤", "유턴", "플라이곤나이트", "부유", "물리어태커", "메가진화 시 벌레/드래곤 타입으로 변하며, 특성 색안경은 반감되는 기술의 위력을 2배로 만듭니다.");
 const magikarpSample = new samplePokemon("잉어킹", "0129-g", "H28 C252 S228", "speed", "atk", "튀어오르기", "튀어오르기", "튀어오르기", "튀어오르기", "잉어킹나이트", "최강의잉어킹", "특수어태커", `모든 능력치가 999로 고정됩니다.\n기술만 어떻게든 바꾼다면...?`);
 const klinklangSample = new samplePokemon("기기기어르", "0601", "HA252", "atk", "catk", "기어소서", "기어체인지", "와일드볼트", "방어", "먹다남은음식", "기어메이킹", "물리딜탱", "매 턴마다 기어를 추가하여 능력치가 조금씩 오릅니다.");

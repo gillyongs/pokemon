@@ -1,15 +1,5 @@
 import { getMultiplier } from "./rankStat";
 
-export const STAT_KEYS = ["atk", "def", "catk", "cdef", "speed"];
-
-export const STAT_LABELS = {
-  atk: "공격",
-  def: "방어",
-  catk: "특공",
-  cdef: "특방",
-  speed: "스피드",
-};
-
 export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   const baseStatObj = pokemon?.stat;
   let val = baseStatObj?.[statKey] ?? 0;
@@ -50,7 +40,6 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
       logText += ` + ${bonusStat} (전관예우)`;
     }
   }
-
 
   const augments = pokemon?.augments || [];
 
@@ -95,6 +84,12 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
       logText += " * 1.5 (영혼의 심복)";
     }
 
+    // 곰 세마리가 한 집에 있어
+    if (augId === "threeBearsHouse") {
+      const mult = getBearMultiplier(pokemon, battle);
+      val = Math.round(val * mult);
+      logText += ` * ${mult} (곰 세마리가 한 집에 있어)`;
+    }
 
     // 라바돈의 죽음 모자
     if (augId === "rabadonsDeathcap") {
@@ -171,4 +166,24 @@ export const getHighestStatInfo = (pokemon, battle = null) => {
     }
   }
   return best;
+};
+
+const BEAR_DEX = ["0614", "0760", "0892", "0901"];
+
+const getBearMultiplier = (pokemon, battle) => {
+  if (!battle) return 1.1;
+  const team = pokemon?.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
+  const count = team.filter((p) => p && BEAR_DEX.includes(p.dexNo)).length;
+
+  return count >= 3 ? 1.5 : count === 2 ? 1.3 : 1.1;
+};
+
+export const STAT_KEYS = ["atk", "def", "catk", "cdef", "speed"];
+
+export const STAT_LABELS = {
+  atk: "공격",
+  def: "방어",
+  catk: "특공",
+  cdef: "특방",
+  speed: "스피드",
 };

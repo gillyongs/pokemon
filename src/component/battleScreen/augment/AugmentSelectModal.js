@@ -567,6 +567,8 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
         <AugmentGrantPreviewModal
           augmentId={grantPreviewInfo.augmentId}
           grantInfo={grantPreviewInfo.grant}
+          pokemon={activePokemon}
+          battle={battle}
           onClose={() => setGrantPreviewInfo(null)}
         />
       )}
@@ -1016,8 +1018,8 @@ const CardActionButton = styled.button`
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  min-width: 80px;
-  padding: 10px 18px;
+  width: 100px;
+  padding: 10px 0;
   border-radius: 8px;
   font-size: 0.95rem;
   font-weight: 700;
@@ -1025,6 +1027,7 @@ const CardActionButton = styled.button`
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
+  box-sizing: border-box;
   transition: all 0.2s ease;
   background: rgba(15, 23, 42, 0.95);
   color: #64ffda;
@@ -1044,9 +1047,9 @@ const CardActionButton = styled.button`
 
   @media (max-width: 480px) {
     min-height: 38px;
-    min-width: 70px;
+    width: 86px;
     font-size: 0.86rem;
-    padding: 8px 14px;
+    padding: 8px 0;
   }
 `;
 

@@ -14,6 +14,14 @@ export const getReplacementAugmentWeight = (pokemon) => {
   return Math.round(200 / (count + 1));
 };
 
+// 포켓몬 교체 증강
+export const REPLACEMENT_AUGMENT_IDS = ["legendaryTitan", "rouletteWheel", "soaring", "marriedPokemon", "magikarpJump", "klinklangGear", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears"];
+
+export const isReplacementAugment = (augmentOrId) => {
+  const id = typeof augmentOrId === "string" ? augmentOrId : augmentOrId?.id;
+  return REPLACEMENT_AUGMENT_IDS.includes(id);
+};
+
 // 증강 이름 정렬 비교 함수 (" 로 시작하는 항목은 맨 뒤로 배치)
 /**
  * 증강 목록을 가나다순으로 정렬하되, 큰따옴표(")로 시작하는 증강은 맨 마지막에 배치하는 비교 함수
@@ -592,15 +600,6 @@ export const AUGMENT_LIST = [
     isRandom: false,
     weight: "-",
     isEligible: () => false,
-    onApply: function (pokemon) {
-      if (pokemon && pokemon.baseHp && !pokemon._appliedLifePartnerHp) {
-        const baseHp = pokemon.baseHp;
-        const newMaxHp = hpCalculate(pokemon);
-        const hpGain = Math.max(0, Math.round(baseHp * 1.1) - baseHp);
-        pokemon.hp = Math.min(newMaxHp, (pokemon.hp || baseHp) + hpGain);
-        pokemon._appliedLifePartnerHp = true;
-      }
-    },
   },
 
   // 신을 제물로 (초전설 전용 교체 증강)
@@ -644,6 +643,105 @@ export const AUGMENT_LIST = [
       }
     },
   },
+  // 곰은 사람을 찢어 (포켓몬 교체 증강)
+  {
+    id: "threeBears",
+    name: "곰은 사람을 찢어",
+    desc: "해당 포켓몬을 곰 포켓몬 중 한마리와 교체합니다. 곰 세마리가 한 집에 있어 증강을 추가로 획득합니다.",
+    cost: "-",
+    weight: (pokemon, battle) => {
+      const side = pokemon?.team === "npc" ? "npc" : "player";
+      const team = battle ? (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean) : [];
+      const bearCount = team.filter(isBearPokemon).length;
+      if (bearCount === 1) return 300;
+      if (bearCount >= 2) return 500;
+      return 100;
+    },
+    isEligible: (pokemon) => isHpAtLeast(pokemon, 0.5) && !isBearPokemon(pokemon),
+    onApply: function (pokemon, battle) {
+      const candidates = [
+        { sampleName: "다투곰", dexNo: "0901" },
+        { sampleName: "달투곰", dexNo: "0901" },
+        { sampleName: "악라오스", dexNo: "0892" },
+        { sampleName: "물라오스", dexNo: "0892" },
+        { sampleName: "툰베어", dexNo: "0614" },
+        { sampleName: "이븐곰", dexNo: "0760" },
+      ];
+      const side = pokemon?.team === "npc" ? "npc" : "player";
+      const team = battle ? (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean) : [];
+      const otherTeammates = team.filter((p) => p !== pokemon);
+      const available = candidates.filter((c) => !hasPokemonOnTeam(otherTeammates, c.dexNo));
+      const pool = available.length > 0 ? available : candidates;
+      const picked = pool[Math.floor(Math.random() * pool.length)];
+
+      replacePokemon(pokemon, picked.sampleName, battle, { resetAugments: true });
+
+      // 해당 증강으로 얻은 곰 포켓몬한테 '곰 세마리가 한 집에 있어' 증강 추가
+      const houseAug = AUGMENT_LIST.find((a) => a.id === "threeBearsHouse");
+      if (houseAug) {
+        if (!pokemon.augments) pokemon.augments = [];
+        if (!pokemon.augments.some((a) => (typeof a === "string" ? a === "threeBearsHouse" : a?.id === "threeBearsHouse"))) {
+          const newAug = { ...houseAug };
+          pokemon.augments.push(newAug);
+          if (typeof houseAug.onApply === "function") {
+            houseAug.onApply(pokemon, battle);
+          }
+        }
+      }
+
+      syncTeamBearBuffs(battle);
+    },
+  },
+  // 곰 세마리가 한 집에 있어 (일반 증강: 팀의 곰 포켓몬 수에 따라 모든 능력치 1.1 / 1.3 / 1.5배)
+  {
+    id: "threeBearsHouse",
+    name: "곰 세마리가 한 집에 있어",
+    desc: "팀의 곰 포켓몬 수에 따라 모든 능력치가 증가합니다.",
+    getDesc: (pokemon, battle, options = null) => {
+      if (options?.showCurrentStats) {
+        const b = battle || (typeof window !== "undefined" && window.__battle) || null;
+        const side = pokemon?.team === "npc" ? "npc" : "player";
+        const team = b ? (side === "npc" ? [b.npc, b.npcBench1, b.npcBench2] : [b.player, b.playerBench1, b.playerBench2]).filter(Boolean) : [];
+        const count = team.length > 0 ? Math.min(3, Math.max(1, team.filter(isBearPokemon).length)) : 1;
+        const multMap = { 1: "1.1", 2: "1.3", 3: "1.5" };
+        const mult = multMap[count] || "1.1";
+        return `팀에 곰 포켓몬이 ${count}마리 있어 능력치가 ${mult}배 상승합니다.`;
+      }
+      return "팀의 곰 포켓몬 수에 따라 모든 능력치가 증가합니다.";
+    },
+    cost: 0,
+    weight: (pokemon, battle) => {
+      const side = pokemon?.team === "npc" ? "npc" : "player";
+      const team = battle ? (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean) : [];
+      const bearCount = team.filter(isBearPokemon).length;
+      if (bearCount <= 1) return 100;
+      if (bearCount === 2) return 300;
+      return 500;
+    },
+    isEligible: (pokemon) => {
+      if (!isBearPokemon(pokemon)) return false;
+      const augs = pokemon?.augments || [];
+      if (pokemon?.hasAugment?.("threeBearsHouse") || augs.some((a) => (typeof a === "string" ? a === "threeBearsHouse" : a?.id === "threeBearsHouse"))) {
+        return false;
+      }
+      return true;
+    },
+    onApply: function (pokemon, battle) {
+      if (!pokemon) return;
+      const side = pokemon?.team === "npc" ? "npc" : "player";
+      const team = battle ? (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean) : [];
+      const bearCount = team.filter(isBearPokemon).length || 1;
+      const mult = bearCount >= 3 ? 1.5 : bearCount === 2 ? 1.3 : 1.1;
+
+      const houseAug = (pokemon.augments || []).find((a) => (typeof a === "string" ? a === "threeBearsHouse" : a?.id === "threeBearsHouse"));
+      if (houseAug && typeof houseAug === "object") {
+        houseAug.bearCount = bearCount;
+        houseAug.mult = mult;
+      }
+
+      syncTeamBearBuffs(battle);
+    },
+  },
   // 영혼의 심복 (모든 능력치 1.5배 증가 버프)
   {
     id: "soulMinion",
@@ -653,15 +751,6 @@ export const AUGMENT_LIST = [
     isRandom: false,
     weight: "-",
     isEligible: () => false,
-    onApply: function (pokemon) {
-      if (pokemon && pokemon.baseHp && !pokemon._appliedSoulMinionHp) {
-        const baseHp = pokemon.baseHp;
-        const newMaxHp = hpCalculate(pokemon);
-        const hpGain = Math.max(0, Math.round(baseHp * 1.5) - baseHp);
-        pokemon.hp = Math.min(newMaxHp, (pokemon.hp || baseHp) + hpGain);
-        pokemon._appliedSoulMinionHp = true;
-      }
-    },
   },
 
   {
@@ -874,7 +963,7 @@ export const AUGMENT_LIST = [
   {
     id: "threeSnails",
     name: "달팽이 세마리 🍁",
-    desc: "공격 후 적에게 추가 고정 데미지를 입힙니다.",
+    desc: "공격 후 적에게 달팽이 껍질을 던져 추가 고정 데미지를 입힙니다.",
     cost: 2,
     weight: 100,
   },
@@ -1379,7 +1468,7 @@ const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   ["revivePiece", "maxRevive"],
 
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
-  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod"],
+  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears"],
 
   // 3. 능력치 전환 증강: 동시에 2개 이상 나오지 않음
   ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"],
@@ -1454,6 +1543,57 @@ const applyEternamax = (pokemon) => {
   o.dexNo = "0890";
   o.baseStats = baseStats;
   pokemon.isEternamax = true;
+};
+
+// 곰 포켓몬 관련 상수 및 판정 함수
+export const BEAR_POKEMON_NAMES = ["다투곰", "달투곰", "악라오스", "물라오스", "툰베어", "이븐곰"];
+export const BEAR_DEX_NOS = ["0614", "0760", "0892", "0901"];
+
+export const isBearPokemon = (pokemon) => {
+  if (!pokemon) return false;
+  const rawDex = pokemon.dexNo || (pokemon.uniqueKey ? String(pokemon.uniqueKey).split("-")[0] : null) || (pokemon.id ? String(pokemon.id).split("-")[0] : null);
+  const cleanDex = rawDex ? String(rawDex).split("-")[0] : "";
+  if (cleanDex && BEAR_DEX_NOS.includes(cleanDex)) return true;
+  const name = pokemon.name || pokemon.sampleName || pokemon.id || "";
+  return BEAR_POKEMON_NAMES.some((bName) => name && name.includes(bName));
+};
+
+// 곰 버프 배율 계산 함수 (1마리: 1.1배, 2마리: 1.3배, 3마리: 1.5배)
+export const getBearMultiplier = (pokemon, battle) => {
+  if (!battle) return 1.1;
+  const team = pokemon?.team === "npc"
+    ? [battle.npc, battle.npcBench1, battle.npcBench2]
+    : [battle.player, battle.playerBench1, battle.playerBench2];
+  const count = team.filter((p) => p && BEAR_DEX_NOS.includes(p.dexNo)).length;
+
+  return count >= 3 ? 1.5 : count === 2 ? 1.3 : 1.1;
+};
+
+// 팀 내 곰 포켓몬 수에 따른 곰 증강("곰 세마리가 한 집에 있어") 동기화 함수
+export const syncTeamBearBuffs = (battle) => {
+  if (!battle) return;
+  ["player", "npc"].forEach((side) => {
+    const team = (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean);
+
+    const bearCount = team.filter(isBearPokemon).length;
+    const mult = bearCount >= 3 ? 1.5 : bearCount === 2 ? 1.3 : 1.1;
+
+    team.forEach((pokemon) => {
+      // 보유 중인 '곰 세마리가 한 집에 있어' 증강만 업데이트
+      const houseAug = (pokemon.augments || []).find((a) => {
+        const id = typeof a === "string" ? a : a?.id;
+        return id === "threeBearsHouse";
+      });
+      if (!houseAug) return;
+
+      if (typeof houseAug === "object") {
+        houseAug.id = "threeBearsHouse";
+        houseAug.name = "곰 세마리가 한 집에 있어";
+        houseAug.bearCount = bearCount;
+        houseAug.mult = mult;
+      }
+    });
+  });
 };
 
 // 팀 내 영웅의 메아리(hasEchoOfHeroBuff) 플래그 동기화 함수
@@ -1542,6 +1682,7 @@ const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) => {
 
   // 교체된 포켓몬이 영웅의 메아리 보유자였던 경우 팀 잔여 hasEchoOfHeroBuff 플래그 정리
   syncTeamEchoOfHeroBuff(battle, pokemon);
+  syncTeamBearBuffs(battle);
 
   return pokemon;
 };
@@ -1632,7 +1773,22 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     if (isTextScreen) {
       individualDesc = `${names} 과거의 급소 확률 공식을 되찾았다!`;
     }
-  } else if (id === "rouletteWheel" || id === "marriedPokemon" || id === "sacrificeGod") {
+  } else if (id === "threeBearsHouse") {
+    if (options?.showCurrentStats) {
+      const b = options?.battle || (typeof window !== "undefined" && window.__battle) || null;
+      const side = target?.team === "npc" ? "npc" : "player";
+      const team = b ? (side === "npc" ? [b.npc, b.npcBench1, b.npcBench2] : [b.player, b.playerBench1, b.playerBench2]).filter(Boolean) : [];
+      const count = team.length > 0 ? Math.min(3, Math.max(1, team.filter(isBearPokemon).length)) : selectedAugment?.bearCount || 1;
+      const multMap = { 1: "1.1", 2: "1.3", 3: "1.5" };
+      const mult = multMap[count] || (selectedAugment?.mult ? String(selectedAugment.mult) : "1.1");
+      return `팀에 곰 포켓몬이 ${count}마리 있어 능력치가 ${mult}배 상승합니다.`;
+    }
+    if (isTextScreen) {
+      individualDesc = `${names} 팀의 곰 포켓몬 수에 따라 모든 능력치가 증가했다!`;
+    } else {
+      return "팀의 곰 포켓몬 수에 따라 모든 능력치가 증가합니다.";
+    }
+  } else if (id === "rouletteWheel" || id === "marriedPokemon" || id === "sacrificeGod" || id === "threeBears") {
     const fromName = prevPokeName || target?.name || "포켓몬";
     const toName = target?.name || "";
     individualDesc = josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);

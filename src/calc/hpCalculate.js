@@ -5,7 +5,7 @@ const hasAugmentId = (pokemon, id) => {
   return Array.isArray(pokemon?.augments) && pokemon.augments.some((a) => (typeof a === "string" ? a === id : a?.id === id));
 };
 
-// 최대 HP 실 수치 계산 함수 (원본 o.hp는 유지하고 증강 효과를 합산)
+// 최대 HP 실 수치 계산 함수 (원본 o.hp를 유지하고 증강 효과를 합산)
 export const hpCalculate = (pokemon, baseHp = null) => {
   if (!pokemon) return 0;
 
@@ -16,20 +16,7 @@ export const hpCalculate = (pokemon, baseHp = null) => {
 
   let logText = `${hp}(hp)`;
 
-  // 1. 곱적용 증강 =============================================================
-  // 인생의 동반자: 모든 능력치 1.1배
-  if (hasAugmentId(pokemon, "lifePartner")) {
-    hp = Math.round(hp * 1.1);
-    logText += " * 1.1 (인생의 동반자)";
-  }
-
-  // 영혼의 심복: 모든 능력치 1.5배
-  if (hasAugmentId(pokemon, "soulMinion")) {
-    hp = Math.round(hp * 1.5);
-    logText += " * 1.5 (영혼의 심복)";
-  }
-
-  // 2. 합적용 증강 =============================================================
+  // 합적용 증강 =============================================================
   // 거인의 흡수: 누적 흡수량만큼 추가 HP 증가
   if (hasAugmentId(pokemon, "giantAbsorption")) {
     const aug = pokemon.augments?.find((a) => (typeof a === "string" ? a === "giantAbsorption" : a?.id === "giantAbsorption"));

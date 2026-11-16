@@ -905,10 +905,59 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="85%" stopColor="#1e3a8a" />
             <stop offset="100%" stopColor="#0f172a" />
           </linearGradient>
+
+          {/* 곰 3마리 및 곰 버프 전용 그라데이션 */}
+          <radialGradient id="threeBearsBg" cx="50%" cy="45%" r="65%">
+            <stop offset="0%" stopColor="#78350f" />
+            <stop offset="60%" stopColor="#451a03" />
+            <stop offset="100%" stopColor="#1c0d02" />
+          </radialGradient>
+          <linearGradient id="threeBearsRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#e0f2fe" />
+            <stop offset="40%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#0284c7" />
+          </linearGradient>
+
+          <radialGradient id="oneBearBg" cx="50%" cy="45%" r="65%">
+            <stop offset="0%" stopColor="#6c3614" />
+            <stop offset="70%" stopColor="#3d1b06" />
+            <stop offset="100%" stopColor="#1c0b02" />
+          </radialGradient>
+          <linearGradient id="oneBearRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#b45309" />
+          </linearGradient>
+
+          <radialGradient id="twoBearsBg" cx="50%" cy="45%" r="65%">
+            <stop offset="0%" stopColor="#3b3b4f" />
+            <stop offset="60%" stopColor="#222233" />
+            <stop offset="100%" stopColor="#101018" />
+          </radialGradient>
+          <linearGradient id="twoBearsRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#93c5fd" />
+            <stop offset="50%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#1e3a8a" />
+          </linearGradient>
+
+          <radialGradient id="threeBearsBuffBg" cx="50%" cy="45%" r="65%">
+            <stop offset="0%" stopColor="#854d0e" />
+            <stop offset="55%" stopColor="#5c330a" />
+            <stop offset="100%" stopColor="#251201" />
+          </radialGradient>
+          <linearGradient id="threeBearsBuffRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fde047" />
+            <stop offset="50%" stopColor="#eab308" />
+            <stop offset="100%" stopColor="#a16207" />
+          </linearGradient>
+          <linearGradient id="threeBearsHouseRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#7dd3fc" />
+            <stop offset="50%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#0284c7" />
+          </linearGradient>
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -3930,6 +3979,75 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <path d="M 49 14 Q 49 16.2 51.2 16.2 Q 49 16.2 49 18.5 Q 49 16.2 46.8 16.2 Q 49 16.2 49 14 Z" fill="#e0f2fe" opacity="0.95" />
             <circle cx="14" cy="46" r="1" fill="#7dd3fc" opacity="0.85" />
             <circle cx="48" cy="44" r="0.7" fill="#ffffff" opacity="0.75" />
+          </g>
+        )}
+
+        {/* 곰은 사람을 찢어 (유저 커스텀 일러스트 + 원형 클리핑 & 아이스 블루 링) */}
+        {id === "threeBears" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/threeBears.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#threeBearsRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.5" strokeOpacity="0.75" />
+          </g>
+        )}
+
+        {/* 곰 한마리 버프 (발자국 1개 + 브론즈/앰버 링) */}
+        {id === "oneBear" && (
+          <g>
+            <circle cx="32" cy="32" r="29.5" fill="url(#oneBearBg)" />
+            <circle cx="32" cy="33" r="16" fill="#f59e0b" opacity="0.15" filter="url(#glow)" />
+            {/* 곰 발바닥 (중앙 1개) */}
+            <ellipse cx="32" cy="38" rx="8" ry="6" fill="#d97706" />
+            <ellipse cx="32" cy="37.5" rx="6.5" ry="4.8" fill="#f59e0b" />
+            {/* 발가락 4개 */}
+            <circle cx="23" cy="29" r="2.8" fill="#f59e0b" />
+            <circle cx="28.5" cy="25" r="3.2" fill="#fbbf24" />
+            <circle cx="35.5" cy="25" r="3.2" fill="#fbbf24" />
+            <circle cx="41" cy="29" r="2.8" fill="#f59e0b" />
+            {/* 상단 별 1개 */}
+            <path d="M 32 12 Q 32 14.5 34.5 14.5 Q 32 14.5 32 17 Q 32 14.5 29.5 14.5 Q 32 14.5 32 12 Z" fill="#fef08a" opacity="0.95" />
+            {/* 테두리 링 */}
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#oneBearRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#fed7aa" strokeWidth="0.5" strokeOpacity="0.75" />
+          </g>
+        )}
+
+        {/* 곰 두마리 버프 (발자국 2개 + 실버/시안 링) */}
+        {id === "twoBears" && (
+          <g>
+            <circle cx="32" cy="32" r="29.5" fill="url(#twoBearsBg)" />
+            <circle cx="32" cy="32" r="16" fill="#38bdf8" opacity="0.18" filter="url(#glow)" />
+            {/* 좌측 발바닥 */}
+            <g transform="translate(19, 36) scale(0.68)">
+              <ellipse cx="0" cy="0" rx="8" ry="6" fill="#38bdf8" />
+              <circle cx="-7" cy="-9" r="2.8" fill="#7dd3fc" />
+              <circle cx="-2.5" cy="-12" r="3" fill="#bae6fd" />
+              <circle cx="3.5" cy="-12" r="3" fill="#bae6fd" />
+              <circle cx="8" cy="-9" r="2.8" fill="#7dd3fc" />
+            </g>
+            {/* 우측 발바닥 */}
+            <g transform="translate(45, 36) scale(0.68)">
+              <ellipse cx="0" cy="0" rx="8" ry="6" fill="#38bdf8" />
+              <circle cx="-7" cy="-9" r="2.8" fill="#7dd3fc" />
+              <circle cx="-2.5" cy="-12" r="3" fill="#bae6fd" />
+              <circle cx="3.5" cy="-12" r="3" fill="#bae6fd" />
+              <circle cx="8" cy="-9" r="2.8" fill="#7dd3fc" />
+            </g>
+            {/* 상단 별 2개 */}
+            <path d="M 24 13 Q 24 15 26 15 Q 24 15 24 17 Q 24 15 22 15 Q 24 15 24 13 Z" fill="#e0f2fe" opacity="0.95" />
+            <path d="M 40 13 Q 40 15 42 15 Q 40 15 40 17 Q 40 15 38 15 Q 40 15 40 13 Z" fill="#e0f2fe" opacity="0.95" />
+            {/* 테두리 링 */}
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#twoBearsRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.5" strokeOpacity="0.8" />
+          </g>
+        )}
+
+        {/* 곰 세마리가 한 집에 있어 (유저 커스텀 일러스트 + 원형 클리핑 & 아이스 블루 링) */}
+        {id === "threeBearsHouse" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/threeBearsHouse.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#threeBearsHouseRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.5" strokeOpacity="0.75" />
           </g>
         )}
       </svg>
