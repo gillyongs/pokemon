@@ -2,7 +2,6 @@ import { hpCalculate } from "../../calc/hpCalculate";
 import { abilObject, noRandomAbil } from "../Ability";
 import { josa } from "josa";
 import { getAugmentedStat, getHighestStatInfo, STAT_LABELS } from "../../calc/getStat";
-import { isPokemonAlone } from "../../calc/speedCheck";
 import { getMultiplier } from "../../calc/rankStat";
 import sampleList from "../Pokemon/pokemonSampleList";
 import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
@@ -533,9 +532,15 @@ export const AUGMENT_LIST = [
     onApply: function (pokemon, battle) {
       const allItems = sampleList.items || [];
       const currentSampleName = pokemon.sampleName || pokemon.id;
-      const filtered = allItems.filter((item) => (item.sampleName || item.id) !== currentSampleName);
-      if (filtered.length === 0) return;
-      const picked = filtered[Math.floor(Math.random() * filtered.length)];
+      const team = battle ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [];
+      const filtered = allItems.filter((item) => {
+        const name = item.sampleName || item.id;
+        if (name === currentSampleName) return false;
+        return !hasPokemonOnTeam(team, item.dexNo);
+      });
+      const pool = filtered.length > 0 ? filtered : allItems.filter((item) => (item.sampleName || item.id) !== currentSampleName);
+      if (pool.length === 0) return;
+      const picked = pool[Math.floor(Math.random() * pool.length)];
       replacePokemon(pokemon, picked.sampleName || picked.id, battle, { resetAugments: true });
     },
   },
@@ -549,16 +554,16 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     isEligible: (pokemon) => {
       if (!isHpAtLeast(pokemon, 0.5)) return false;
-      const excluded = ["마스카나", "가디안", "이어롭", "님피아"];
-      if (excluded.some((name) => hasPokemonName(pokemon, name))) return false;
+      const excludedDex = ["0908", "0282", "0428", "0700"]; // 마스카나, 가디안, 이어롭, 님피아
+      if (excludedDex.includes(pokemon.dexNo)) return false;
       return true;
     },
     onApply: function (pokemon, battle) {
       const candidates = ["메가가디안", "님피아 (특수딜탱)", "메가이어롭", "마스카나"];
       const team = battle ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [];
       const available = candidates.filter((id) => {
-        const baseName = id.replace("메가", "").replace(/\s*\(.*?\)/, "");
-        return !hasPokemonNameOnTeam(team, baseName);
+        const sample = sampleList.getDataBySampleName(id);
+        return !hasPokemonOnTeam(team, sample?.dexNo);
       });
       const pool = available.length > 0 ? available : candidates;
       const pickedId = pool[Math.floor(Math.random() * pool.length)];
@@ -607,7 +612,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     isEligible: (pokemon) => {
       if (!isHpAtLeast(pokemon, 0.5)) return false;
-      const isLeg = Boolean(pokemon?.feature?.legendary || pokemon?.o?.feature?.legendary || pokemon?.legendary);
+      const isLeg = Boolean(pokemon?.feature?.legendary || pokemon?.legendary);
       return isLeg;
     },
     onApply: function (pokemon, battle) {
@@ -615,14 +620,13 @@ export const AUGMENT_LIST = [
       const currentSampleName = pokemon.sampleName || pokemon.id;
       const team = battle ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [];
       const filtered = allItems.filter((item) => {
-        const isLeg = Boolean(item?.feature?.legendary || item?.o?.feature?.legendary || item?.legendary);
+        const isLeg = Boolean(item?.feature?.legendary || item?.legendary);
         if (isLeg) return false;
         const name = item.sampleName || item.id;
         if (name === currentSampleName) return false;
-        const baseName = item.name || name;
-        return !hasPokemonNameOnTeam(team, baseName);
+        return !hasPokemonOnTeam(team, item.dexNo);
       });
-      const pool = filtered.length > 0 ? filtered : allItems.filter((item) => !Boolean(item?.feature?.legendary || item?.o?.feature?.legendary || item?.legendary) && (item.sampleName || item.id) !== currentSampleName);
+      const pool = filtered.length > 0 ? filtered : allItems.filter((item) => !Boolean(item?.feature?.legendary || item?.legendary) && (item.sampleName || item.id) !== currentSampleName);
       if (pool.length === 0) return;
       const picked = pool[Math.floor(Math.random() * pool.length)];
       replacePokemon(pokemon, picked.sampleName || picked.id, battle, { resetAugments: true });
@@ -668,7 +672,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "플라이곤"),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0330"),
     onApply: function (pokemon, battle) {
       replacePokemon(pokemon, "플라이곤", battle, { resetAugments: true });
     },
@@ -681,7 +685,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
-    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "레지기가스"),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0486"),
     onApply: function (pokemon, battle) {
       replacePokemon(pokemon, "레지기가스", battle, { resetAugments: true });
     },
@@ -694,7 +698,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -4.5, scale: 1.35 },
-    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "잉어킹"),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0129"),
     onApply: function (pokemon, battle) {
       replacePokemon(pokemon, "잉어킹", battle, { resetAugments: true });
     },
@@ -707,7 +711,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "기기기어르"),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0601"),
     onApply: function (pokemon, battle) {
       const newPoke = replacePokemon(pokemon, "기기기어르", battle, { resetAugments: true });
       if (newPoke) {
@@ -725,7 +729,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: false,
     imageOptions: { shiftUp: false, offsetY: 2.5, scale: 1.02 },
-    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "무한다이노"),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0890"),
     onApply: function (pokemon, battle, options) {
       const newPoke = replacePokemon(pokemon, "무한다이노", battle, { resetAugments: true });
       const eternamaxAug = AUGMENT_LIST.find((a) => a.id === "eternamax");
@@ -743,7 +747,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "뮤츠"),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0150"),
     onApply: function (pokemon, battle, options) {
       const newPoke = replacePokemon(pokemon, "뮤츠 (증강)", battle, { resetAugments: true });
       if (newPoke) {
@@ -768,7 +772,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonNameOnTeam(team, "켄타로스"),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0128"),
     onApply: function (pokemon, battle, options) {
       const newPoke = replacePokemon(pokemon, "켄타로스 (증강)", battle, { resetAugments: true });
       if (newPoke) {
@@ -1075,7 +1079,8 @@ export const AUGMENT_LIST = [
       if (!hasGamblingAddict(team)) return false;
       if (!battle) return false;
       if (!pokemon || pokemon.faint || pokemon.hp <= 0) return false;
-      if (!isPokemonAlone(pokemon, battle)) return false;
+      const side = pokemon?.team === "npc" ? "npc" : "player";
+      if (!battle.isLastPokemon?.(side)) return false;
       const isNpcAlive = (p) => Boolean(p && !p.faint && !(p.hp <= 0));
       const npcBenchAlive = [battle.npcBench1, battle.npcBench2].some(isNpcAlive);
       const npcAliveCount = [battle.npc, battle.npcBench1, battle.npcBench2].filter(isNpcAlive).length;
@@ -1983,9 +1988,9 @@ function isHpAtLeast(pokemon, ratio = 0.5) {
   return pokemon.hp >= hpCalculate(pokemon) * ratio;
 }
 
-function hasPokemonNameOnTeam(team, keyword) {
-  if (!Array.isArray(team) || !keyword) return false;
-  return team.some((p) => p && hasPokemonName(p, keyword));
+function hasPokemonOnTeam(team, dexNo) {
+  if (!Array.isArray(team) || !dexNo) return false;
+  return team.some((p) => p && p.dexNo === dexNo);
 }
 
 const TANK_ROLES = ["막이", "물리막이", "특수막이"];

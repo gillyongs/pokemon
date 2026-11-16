@@ -1,20 +1,5 @@
 import PokemonData from "../entity/Pokemon/PokemonData";
 
-export const getBaseSpeedStat = (pokemon) => {
-  if (!pokemon) return 100;
-  const pId = pokemon.uniqueKey || pokemon.id;
-  if (pId) {
-    const speed = PokemonData.getPokemonDataByUniqueKeyAndColumn(pId, "speed");
-    if (typeof speed === "number") return speed;
-  }
-  const name = pokemon.name;
-  if (name) {
-    const data = PokemonData.items?.find((p) => p.name === name);
-    if (data && typeof data.speed === "number") return data.speed;
-  }
-  return 100;
-};
-
 export const criticalCalculate = (input, pokemon = null) => {
   let probability = 0;
   switch (input) {
@@ -63,4 +48,15 @@ export const criticalCalculate = (input, pokemon = null) => {
 
   if (probability >= 1) return true;
   return Math.random() < probability;
+};
+
+// 포켓몬의 스피드 종족값을 가져오는 함수
+// 과거 1세대 급소 확률 계산 증강
+const getBaseSpeedStat = (pokemon) => {
+  if (!pokemon) return 100;
+  const pId = pokemon.uniqueKey || pokemon.id;
+  if (pId) {
+    const speed = PokemonData.getPokemonDataByUniqueKeyAndColumn(pId, "speed");
+    if (typeof speed === "number") return speed;
+  }
 };

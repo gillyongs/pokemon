@@ -3,21 +3,6 @@ import { getMultiplier } from "./rankStat";
 import { getAugmentedStat, getHighestStatInfo } from "./getStat";
 import { skillTypeCalculate } from "./skillTypeCalculate";
 
-export const isPokemonAlone = (pokemon, battle) => {
-  if (!pokemon || !battle) return false;
-  const teamSide = pokemon.team === "npc" ? "npc" : (pokemon.team === "player" ? "player" : (battle.npc === pokemon ? "npc" : "player"));
-  const teamMembers = teamSide === "npc"
-    ? [battle.npc, battle.npcBench1, battle.npcBench2].filter(Boolean)
-    : [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean);
-  const otherMembers = teamMembers.filter((p) => {
-    if (pokemon.originalIndex !== undefined && p.originalIndex !== undefined) {
-      return p.originalIndex !== pokemon.originalIndex;
-    }
-    return p !== pokemon;
-  });
-  return otherMembers.length > 0 && otherMembers.every((p) => p.faint || p.hp <= 0);
-};
-
 // 스피드 실 수치 계산 함수
 export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = (pokemon?.abil?.name || pokemon?.abil), rankOverride = null) => {
   let speedStatKey = "speed";
@@ -110,7 +95,8 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
     pokemon.log.speedCalculate += " * 1.1 (인생의 동반자)";
   }
   if (battle && pokemon?.hasAugment?.("lastWarrior")) {
-    if (isPokemonAlone(pokemon, battle)) {
+    const side = pokemon?.team === "npc" ? "npc" : "player";
+    if (battle.isLastPokemon?.(side)) {
       speed *= 1.6;
       pokemon.log.speedCalculate += " * 1.6 (최후의 전사)";
     }

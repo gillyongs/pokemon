@@ -62,6 +62,17 @@ class Battle {
       p?.resetTurn?.();
     });
   }
+
+  // 해당 진영("player" | "npc")의 필드 포켓몬이 팀에서 유일하게 생존한 마지막 포켓몬인지 여부
+  isLastPokemon(side) {
+    if (side !== "npc" && side !== "player") return false;
+    const active = side === "npc" ? this.npc : this.player;
+    if (!active || active.faint || active.hp <= 0) return false;
+    const benches = side === "npc"
+      ? [this.npcBench1, this.npcBench2].filter(Boolean)
+      : [this.playerBench1, this.playerBench2].filter(Boolean);
+    return benches.length > 0 && benches.every((p) => p.faint || p.hp <= 0);
+  }
 }
 
 export function createBattle(playerArray, npcArray, options = { difficulty: "이지", round: 1 }) {

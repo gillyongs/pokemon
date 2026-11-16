@@ -3,7 +3,7 @@ import { typeCheckOnBattle } from "./typeEffectCalculate";
 import { getMultiplier } from "./rankStat";
 import { noNullItem } from "../entity/Item";
 import { isAilmentCheck } from "../service/ailment";
-import { speedCheck, speedCalculate, isPokemonAlone } from "./speedCheck";
+import { speedCheck, speedCalculate } from "./speedCheck";
 import { skillTypeCalculate } from "./skillTypeCalculate";
 import { consoleLog } from "../util/consoleLog";
 import { getAugmentedStat } from "./getStat";
@@ -400,7 +400,8 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 라스트 사무라이: 해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 60% 증가
   if (battle && attackPokemon?.hasAugment?.("lastSamurai") && (skill.stype === "atk" || skill.stype === "catk")) {
-    if (isPokemonAlone(attackPokemon, battle)) {
+    const side = attackPokemon?.team === "npc" ? "npc" : "player";
+    if (battle.isLastPokemon?.(side)) {
       atkStat *= 1.6;
       atkStr += " * 1.6 (라스트 사무라이)";
     }
@@ -408,7 +409,8 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 라스트 맨 스탠딩: 해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 60% 증가
   if (battle && defensePokemon?.hasAugment?.("lastManStanding") && (defenseStat === "def" || defenseStat === "cdef")) {
-    if (isPokemonAlone(defensePokemon, battle)) {
+    const side = defensePokemon?.team === "npc" ? "npc" : "player";
+    if (battle.isLastPokemon?.(side)) {
       defStat *= 1.6;
       defStr += " * 1.6 (라스트 맨 스탠딩)";
     }
