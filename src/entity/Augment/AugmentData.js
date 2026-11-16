@@ -8,6 +8,7 @@ import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
 import { Skill } from "../Skill/Skill";
 import { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb } from "./swordEnhance";
+import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
 
 export const getReplacementAugmentWeight = (pokemon) => {
   const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
@@ -281,6 +282,19 @@ export const AUGMENT_LIST = [
       pokemon.swordName = sName;
     },
   },
+  {
+    id: "soulDice",
+    name: "영혼의 주사위 🎲",
+    desc: "주사위를 굴려 총 50의 스탯을 얻습니다.\n주사위는 계속 굴릴 수 있습니다.",
+    cost: 1,
+    weight: 60,
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon) return;
+      const stats = options?.soulDiceStats || rollSoulDiceStats();
+      this.soulDiceStats = stats;
+      pokemon.soulDiceStats = stats;
+    },
+  },
 
   {
     id: "nullifyGetto",
@@ -414,6 +428,34 @@ export const AUGMENT_LIST = [
       const oppSide = team === "player" ? "npc" : "player";
       if (battle?.field?.[oppSide]) {
         battle.field[oppSide].sRock = true;
+      }
+    },
+  },
+  // 끈적끈적네트 ================================================================
+  {
+    id: "stickyWeb",
+    name: "끈적끈적네트 🕸️",
+    desc: "상대의 주위에 끈적끈적한 네트를 쳐 교체되어 나온 상대 포켓몬의 스피드를 1랭크 떨어뜨립니다.",
+    afterText: (target) => {
+      const team = target?.team || "player";
+      return team === "npc" ? "아군의 발밑에 끈적끈적한 네트가 펼쳐졌다!" : "상대의 발밑에 끈적끈적한 네트가 펼쳐졌다!";
+    },
+    cost: "-",
+    weight: 70,
+    isEligible: (pokemon, battle) => {
+      const teamSide = pokemon?.team || "player";
+      const oppSide = teamSide === "player" ? "npc" : "player";
+      const b = battle || (typeof window !== "undefined" && window.__battle) || null;
+      if (b?.field?.[oppSide]?.stickyWeb) return false;
+      if (hasSkill(pokemon, "끈적끈적네트")) return false;
+      return true;
+    },
+    onApply: function (pokemon, battle) {
+      const team = pokemon?.team || "player";
+      const oppSide = team === "player" ? "npc" : "player";
+      const b = battle || (typeof window !== "undefined" && window.__battle) || null;
+      if (b?.field?.[oppSide]) {
+        b.field[oppSide].stickyWeb = true;
       }
     },
   },
@@ -999,20 +1041,20 @@ export const AUGMENT_LIST = [
       const validSlots = [1, 2, 3, 4].filter((slot) => pokemon.skill[slot]);
       if (validSlots.length === 0) return;
 
-      let targetSlot = options?.targetSlot;
-      if (options?.enhancedSkillName) {
-        const foundSlot = validSlots.find((s) => pokemon.skill[s]?.name === options.enhancedSkillName);
-        if (foundSlot) targetSlot = foundSlot;
+      const skillName = options?.nimbleSkillName || options?.enhancedSkillName;
+      let targetSkill = null;
+      if (skillName) {
+        const foundSlot = validSlots.find((s) => pokemon.skill[s]?.name === skillName);
+        if (foundSlot) targetSkill = pokemon.skill[foundSlot];
       }
-      if (!targetSlot || !pokemon.skill[targetSlot]) {
-        targetSlot = validSlots[Math.floor(Math.random() * validSlots.length)];
+      if (!targetSkill) {
+        const randomSlot = validSlots[Math.floor(Math.random() * validSlots.length)];
+        targetSkill = pokemon.skill[randomSlot];
       }
-
-      const targetSkill = pokemon.skill[targetSlot];
       if (!targetSkill) return;
 
       pokemon.nimbleSkillName = targetSkill.name;
-      this.targetSlot = targetSlot;
+      this.nimbleSkillName = targetSkill.name;
       this.enhancedSkillName = targetSkill.name;
     },
   },
@@ -1421,6 +1463,7 @@ export const AUGMENT_LIST = [
 // { [버프 증강 ID]: [조건 증강 ID 목록] }
 const SYNERGY_ACTIVATION_THRESHOLD = {
   lostTechnologyCritical: 3, // 과거의 영광 증강 배열 중 3개 이상 보유 시 활성화
+  echoOfHero: 3, // 초보자 시너지 증강 4개 중 3개 이상 보유 시 활성화
 };
 
 export const getSynergyThreshold = (synergyId, requiredIds = []) => {
@@ -1431,7 +1474,7 @@ export const getSynergyThreshold = (synergyId, requiredIds = []) => {
 };
 
 export const AUGMENT_SYNERGY_MAP = {
-  echoOfHero: ["threeSnails", "nimbleMoves", "recovery"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복]
+  echoOfHero: ["threeSnails", "nimbleMoves", "recovery", "soulDice"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복, 영혼의 주사위]
   dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
   wujuStyle: ["lastManStanding", "lastSamurai", "lastWarrior"], // 우주류 검술: [라스트 맨 스탠딩, 라스트 사무라이, 최후의 전사]
   mejaisSoulstealer: ["rabadonsDeathcap", "voidStaff", "ludensEcho"], // 메자이의 영혼약탈자: [라바돈의 죽음모자, 공허의 지팡이, 루덴의 메아리]
@@ -1796,6 +1839,13 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     } else {
       return selectedAugment.desc || "상대의 주위에 무수한 바위를 띄워 교체되어 나온 상대 포켓몬에게 데미지를 입힙니다.";
     }
+  } else if (id === "stickyWeb") {
+    if (isTextScreen) {
+      const pokeName = target?.name || "포켓몬";
+      individualDesc = `${pokeName}의 끈적끈적네트!`;
+    } else {
+      return selectedAugment.desc || "상대의 주위에 끈적끈적한 네트를 쳐 교체되어 나온 상대 포켓몬의 스피드를 1랭크 떨어뜨립니다.";
+    }
   } else if (id === "anvilStat" || id === "anvilStatBuff") {
     const statLabels = {
       atk: "공격",
@@ -1884,7 +1934,7 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     individualDesc = josa(`${fromName}#{이} 무한다이노로 교체되었다!`);
   } else if (id === "nimbleMoves") {
     const nimbleAug = target?.augments?.find((a) => a.id === "nimbleMoves") || selectedAugment;
-    const skillName = options?.enhancedSkillName || nimbleAug?.enhancedSkillName || target?.nimbleSkillName;
+    const skillName = options?.nimbleSkillName || options?.enhancedSkillName || nimbleAug?.nimbleSkillName || nimbleAug?.enhancedSkillName || target?.nimbleSkillName;
     if (skillName) {
       individualDesc = `${skillName}의 우선도가 1 증가했다!`;
     }
@@ -1898,6 +1948,18 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
       const level = Number(options?.swordLevel ?? swordAug?.swordLevel ?? 0);
       const bonusAtk = options?.swordBonusAtk !== undefined ? Number(options.swordBonusAtk) : swordAug?.swordBonusAtk !== undefined ? Number(swordAug.swordBonusAtk) : failed ? 0 : 20 + level * 20;
       individualDesc = failed ? "강화에 실패하였다..." : `검 강화에 성공하여 공격과 특수공격을 ${bonusAtk} 얻었다!`;
+    }
+  } else if (id === "soulDice") {
+    if (isTextScreen) {
+      individualDesc = "주사위를 굴려 스탯을 얻었다!";
+    } else {
+      const diceAug = target?.augments?.find((a) => a.id === "soulDice") || selectedAugment;
+      const stats = options?.soulDiceStats || diceAug?.soulDiceStats || target?.soulDiceStats;
+      if (stats) {
+        individualDesc = `주사위를 굴려 스탯을 얻었습니다.\n(공격:${stats.atk} 방어:${stats.def} 특공:${stats.catk} 특방:${stats.cdef} 스피드:${stats.speed})`;
+      } else {
+        individualDesc = "주사위를 굴려 총 50의 스탯을 얻습니다.\n주사위는 계속 굴릴 수 있습니다.";
+      }
     }
   } else if (id === "randomAbility") {
     const randomAug = target?.augments?.find((a) => a.id === "randomAbility");
@@ -2145,6 +2207,18 @@ export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
 
   if (augment.id === "swordEnhance") {
     return "검을 강화하여 강화 단계에 따라 공격과 특수공격을 증가시킵니다.";
+  }
+
+  if (augment.id === "stickyWeb") {
+    return "상대의 주위에 끈적끈적한 네트를 쳐 교체되어 나온 상대 포켓몬의 스피드를 1랭크 떨어뜨립니다.";
+  }
+
+  if (augment.id === "soulDice") {
+    const stats = augment.soulDiceStats || pokemon?.soulDiceStats;
+    if (stats) {
+      return `주사위를 굴려 스탯을 얻었습니다.\n(공격:${stats.atk} 방어:${stats.def} 특공:${stats.catk} 특방:${stats.cdef} 스피드:${stats.speed})`;
+    }
+    return "주사위를 굴려 총 50의 스탯을 얻습니다.\n주사위는 계속 굴릴 수 있습니다.";
   }
 
   if (augment.id === "allOrNothing") {

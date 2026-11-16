@@ -65,6 +65,13 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
         val += bonusCatk;
         logText += ` + ${bonusCatk} (메자이 ${stack}중첩)`;
       }
+    } else if (augId === "soulDice") {
+      const diceStats = aug?.soulDiceStats;
+      const bonus = Number(diceStats?.[statKey] ?? 0);
+      if (bonus > 0) {
+        val += bonus;
+        logText += ` + ${bonus} (영혼의 주사위)`;
+      }
     }
   }
 

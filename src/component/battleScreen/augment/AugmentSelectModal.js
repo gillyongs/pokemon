@@ -10,6 +10,7 @@ import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import AugmentGrantPreviewModal from "./AugmentGrantPreviewModal";
 import AugmentSwordEnhanceView from "./select/AugmentSwordEnhanceView";
+import AugmentSoulDiceView from "./select/AugmentSoulDiceView";
 import AugmentRouletteView from "./select/AugmentRouletteView";
 import AugmentSkillSelectView from "./select/AugmentSkillSelectView";
 import AugmentTypeSelectView from "./select/AugmentTypeSelectView";
@@ -48,6 +49,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   const [selectedType, setSelectedType] = useState(null);
   const [selectedAugment, setSelectedAugment] = useState(null);
   const [swordEnhanceAug, setSwordEnhanceAug] = useState(null);
+  const [soulDiceAug, setSoulDiceAug] = useState(null);
   const [rouletteAug, setRouletteAug] = useState(null);
 
   const resolvedTeam = team && team.length > 0 ? team : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
@@ -193,6 +195,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     setSelectedType(null);
     setSkillSelectAug(null);
     setSwordEnhanceAug(null);
+    setSoulDiceAug(null);
     setRouletteAug(null);
   };
 
@@ -232,6 +235,11 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       return;
     }
 
+    if (targetAug.id === "soulDice") {
+      setSoulDiceAug(targetAug);
+      return;
+    }
+
     if (["allOrNothing", "russianRoulette", "doOrDie", "highRiskHighReturn", "randomAbility", "oddEven"].includes(targetAug.id)) {
       setRouletteAug(targetAug);
       return;
@@ -265,6 +273,16 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                   setSwordEnhanceAug(null);
                 }}
                 onCancel={() => setSwordEnhanceAug(null)}
+              />
+            ) : soulDiceAug ? (
+              <AugmentSoulDiceView
+                soulDiceAug={soulDiceAug}
+                activePokemon={activePokemon}
+                onSelect={(aug, opts) => {
+                  onSelect(aug, opts);
+                  setSoulDiceAug(null);
+                }}
+                onCancel={() => setSoulDiceAug(null)}
               />
             ) : skillSelectAug ? (
               <AugmentSkillSelectView

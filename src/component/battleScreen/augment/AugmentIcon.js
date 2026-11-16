@@ -938,6 +938,31 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="100%" stopColor="#06b6d4" />
           </linearGradient>
 
+          <linearGradient id="soulDiceRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f59e0b" />
+            <stop offset="50%" stopColor="#ef4444" />
+            <stop offset="100%" stopColor="#b45309" />
+          </linearGradient>
+
+          <filter id="stickyWebGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#a3e635" floodOpacity="0.75" />
+          </filter>
+          <radialGradient id="stickyWebBgGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#064e3b" stopOpacity="0.85" />
+            <stop offset="65%" stopColor="#022c22" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#02140e" />
+          </radialGradient>
+          <linearGradient id="stickyWebRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#bae6fd" />
+            <stop offset="40%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#0284c7" />
+          </linearGradient>
+          <linearGradient id="stickyWebSilkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="50%" stopColor="#d9f99d" />
+            <stop offset="100%" stopColor="#bef264" />
+          </linearGradient>
+
           <linearGradient id="intimidateRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#bae6fd" />
             <stop offset="40%" stopColor="#38bdf8" />
@@ -1262,6 +1287,15 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
               <circle cx="51" cy="46" r="1.0" fill="#f59e0b" opacity="0.85" />
               <circle cx="28" cy="54" r="0.9" fill="#fbbf24" opacity="0.8" />
             </g>
+          </g>
+        )}
+
+        {/* 끈적끈적네트 (블루/아이스 거미줄 일러스트 + 원형 클리핑 & 시안/블루 링) */}
+        {id === "stickyWeb" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/stickyWeb.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#stickyWebRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#7dd3fc" strokeWidth="0.5" strokeOpacity="0.75" />
           </g>
         )}
 
@@ -4039,6 +4073,35 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="32" cy="32" r="5" fill="#0f172a" stroke="#475569" strokeWidth="0.8" />
             <path d="M 32 24 Q 32 32 40 32 Q 32 32 32 40 Q 32 32 24 32 Q 32 32 32 24 Z" fill="#ffffff" />
             <circle cx="32" cy="32" r="1.8" fill="#38bdf8" />
+          </g>
+        )}
+
+        {/* 영혼의 주사위 (메이플스토리 감성 빨간색 3D 주사위 + 황금 테두리 + 양피지 스크롤 & 별빛 스파클) */}
+        {id === "soulDice" && (
+          <g filter="url(#glow)">
+            <circle cx="32" cy="32" r="29.5" fill="#38bdf8" fillOpacity="0.18" stroke="url(#soulDiceRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="27.5" fill="none" stroke="#fed7aa" strokeWidth="0.6" strokeDasharray="3 2" opacity="0.6" />
+
+            <circle cx="16" cy="18" r="1.4" fill="#fde047" />
+            <circle cx="48" cy="15" r="1.2" fill="#ffffff" />
+            <circle cx="49" cy="48" r="1.3" fill="#fde047" />
+            <circle cx="15" cy="46" r="1.2" fill="#ffffff" />
+
+            <g transform="translate(32 31.5) scale(0.48) translate(-50 -50)">
+              <polygon points="50,16 82,32 50,48 18,32" fill="#ef4444" stroke="#991b1b" strokeWidth="2.5" strokeLinejoin="round" />
+              <ellipse cx="50" cy="32" rx="5" ry="3.5" fill="#ffffff" />
+
+              <polygon points="18,32 50,48 50,84 18,68" fill="#dc2626" stroke="#7f1d1d" strokeWidth="2.5" strokeLinejoin="round" />
+              <ellipse cx="28" cy="45" rx="4" ry="4.6" fill="#ffffff" />
+              <ellipse cx="34" cy="58" rx="4" ry="4.6" fill="#ffffff" />
+              <ellipse cx="40" cy="71" rx="4" ry="4.6" fill="#ffffff" />
+
+              <polygon points="50,48 82,32 82,68 50,84" fill="#991b1b" stroke="#581313" strokeWidth="2.5" strokeLinejoin="round" />
+              <ellipse cx="62" cy="55" rx="4" ry="4.6" fill="#ffffff" />
+              <ellipse cx="70" cy="68" rx="4" ry="4.6" fill="#ffffff" />
+            </g>
+
+            <path d="M 25 48.5 Q 32 51.5 39 48.5" fill="none" stroke="#d97706" strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
           </g>
         )}
 
