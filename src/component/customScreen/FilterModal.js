@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
-const POKEMON_ROLES = ["물리어태커", "특수어태커", "기점잡이", "물리딜탱", "특수딜탱", "막이", "물리막이", "특수막이"];
+const POKEMON_ROLES = ["물리어태커", "물리딜탱", "특수어태커", "특수딜탱", "기점잡이", "막이", "물리막이", "특수막이"];
 const POKEMON_TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투", "독", "땅", "비행", "에스퍼", "벌레", "바위", "고스트", "드래곤", "악", "강철", "페어리"];
 
-const FilterModal = ({ activeTypes = [], activeRoles = [], isMegaFilter = false, isLegendaryFilter = false, isIntimidateFilter = false, isWeatherFilter = false, isWallFilter = false, activeLogic = "OR", onApply, onClose }) => {
+const FilterModal = ({ activeTypes = [], activeRoles = [], isMegaFilter = false, isLegendaryFilter = false, isIntimidateFilter = false, isWeatherFilter = false, isWallFilter = false, isStealthRockFilter = false, activeLogic = "OR", onApply, onClose }) => {
   const [tempSelectedTypes, setTempSelectedTypes] = useState(activeTypes);
   const [tempSelectedRoles, setTempSelectedRoles] = useState(activeRoles);
   const [tempIsMegaFilter, setTempIsMegaFilter] = useState(isMegaFilter);
@@ -12,6 +12,7 @@ const FilterModal = ({ activeTypes = [], activeRoles = [], isMegaFilter = false,
   const [tempIsIntimidateFilter, setTempIsIntimidateFilter] = useState(isIntimidateFilter);
   const [tempIsWeatherFilter, setTempIsWeatherFilter] = useState(isWeatherFilter);
   const [tempIsWallFilter, setTempIsWallFilter] = useState(isWallFilter);
+  const [tempIsStealthRockFilter, setTempIsStealthRockFilter] = useState(isStealthRockFilter);
   const [tempLogic, setTempLogic] = useState(activeLogic);
   const [typeColors, setTypeColors] = useState({});
 
@@ -45,6 +46,8 @@ const FilterModal = ({ activeTypes = [], activeRoles = [], isMegaFilter = false,
           <ModalTitle>포켓몬 검색</ModalTitle>
           <CloseIcon onClick={onClose}>✕</CloseIcon>
         </ModalHeader>
+
+        <ModalBody>
         <SectionTitleRow>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <ModalSubTitle>타입</ModalSubTitle>
@@ -53,11 +56,21 @@ const FilterModal = ({ activeTypes = [], activeRoles = [], isMegaFilter = false,
               <LogicOption $active={tempLogic === "AND"}>AND</LogicOption>
             </LogicSwitch>
           </div>
+          <SectionResetButton
+            type="button"
+            title="타입 필터 초기화"
+            onClick={() => {
+              setTempSelectedTypes([]);
+              setTempLogic("OR");
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+          </SectionResetButton>
         </SectionTitleRow>
         <TypeGrid>
-          <TypeButton $active={tempSelectedTypes.length === 0} onClick={() => setTempSelectedTypes([])}>
-            전체
-          </TypeButton>
           {POKEMON_TYPES.map((type) => (
             <TypeButton key={type} $active={tempSelectedTypes.includes(type)} $color={typeColors[type]} onClick={() => toggleType(type)}>
               {type}
@@ -67,11 +80,18 @@ const FilterModal = ({ activeTypes = [], activeRoles = [], isMegaFilter = false,
 
         <SectionTitleRow>
           <ModalSubTitle>역할군</ModalSubTitle>
+          <SectionResetButton
+            type="button"
+            title="역할군 필터 초기화"
+            onClick={() => setTempSelectedRoles([])}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+          </SectionResetButton>
         </SectionTitleRow>
         <RoleGrid>
-          <TypeButton $active={tempSelectedRoles.length === 0} onClick={() => setTempSelectedRoles([])}>
-            전체
-          </TypeButton>
           {POKEMON_ROLES.map((role) => (
             <TypeButton key={role} $active={tempSelectedRoles.includes(role)} onClick={() => toggleRole(role)}>
               {role}
@@ -88,6 +108,7 @@ const FilterModal = ({ activeTypes = [], activeRoles = [], isMegaFilter = false,
               setTempIsIntimidateFilter(false);
               setTempIsWeatherFilter(false);
               setTempIsWallFilter(false);
+              setTempIsStealthRockFilter(false);
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -117,7 +138,13 @@ const FilterModal = ({ activeTypes = [], activeRoles = [], isMegaFilter = false,
             <CheckboxInput type="checkbox" checked={tempIsWallFilter} onChange={(e) => setTempIsWallFilter(e.target.checked)} />
             벽깔이
           </CheckboxLabel>
+          <CheckboxLabel>
+            <CheckboxInput type="checkbox" checked={tempIsStealthRockFilter} onChange={(e) => setTempIsStealthRockFilter(e.target.checked)} />
+            스텔스록
+          </CheckboxLabel>
         </EtcRow>
+
+        </ModalBody>
 
         <ModalFooter>
           <SearchButton
@@ -130,6 +157,7 @@ const FilterModal = ({ activeTypes = [], activeRoles = [], isMegaFilter = false,
                 isIntimidate: tempIsIntimidateFilter,
                 isWeather: tempIsWeatherFilter,
                 isWall: tempIsWallFilter,
+                isStealthRock: tempIsStealthRockFilter,
                 logic: tempLogic,
               });
               onClose();
@@ -160,21 +188,41 @@ const ModalOverlay = styled.div`
 
 const ModalContent = styled.div`
   background: white;
-  padding: 20px;
+  padding: 18px 18px 14px;
   border-radius: 12px;
-  width: 320px;
-  max-width: 90%;
-  max-height: 85vh;
-  overflow-y: auto;
+  width: 360px;
+  max-width: 92%;
+  max-height: 61.2vh;
+  max-height: 61.2dvh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 `;
 
 const ModalHeader = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+`;
+
+const ModalBody = styled.div`
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 `;
 
 const ModalTitle = styled.h3`
@@ -246,15 +294,15 @@ const CloseIcon = styled.div`
 
 const TypeGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
   margin-bottom: 20px;
 `;
 
 const RoleGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
   margin-bottom: 20px;
 `;
 
@@ -285,14 +333,15 @@ const CheckboxInput = styled.input`
 `;
 
 const TypeButton = styled.button`
-  padding: 8px 0;
+  padding: 7px 1px;
   border: 1px solid ${(props) => (props.$active ? props.$color || "#4caf50" : "#ccc")};
   background-color: ${(props) => (props.$active ? props.$color || "#4caf50" : "#fff")};
   color: ${(props) => (props.$active ? "#fff" : "#333")};
   border-radius: 6px;
   cursor: pointer;
   font-weight: ${(props) => (props.$active ? "bold" : "normal")};
-  font-size: 0.85rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
   transition: all 0.2s;
 
   &:hover {
@@ -306,7 +355,10 @@ const ModalFooter = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-top: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+  flex-shrink: 0;
 `;
 
 const SearchButton = styled.button`

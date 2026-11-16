@@ -72,7 +72,7 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
           {/* 1. 포켓몬 목록 (상단 배치) */}
           {hasCandidates && (
             <CandidatesSection>
-              <CandidatesGrid>
+              <CandidatesGrid $count={grantInfo.candidates.length}>
                 {grantInfo.candidates.map((cand, idx) => {
                   const isUnavailable = checkCandidateUnavailable(cand);
                   return (
@@ -270,8 +270,12 @@ const CandidatesSection = styled.div`
 
 const CandidatesGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: ${(props) => (props.$count === 4 ? "repeat(4, 1fr)" : "repeat(3, 1fr)")};
   gap: 8px;
+
+  @media (max-width: 380px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 `;
 
 const CandidateCard = styled.button`

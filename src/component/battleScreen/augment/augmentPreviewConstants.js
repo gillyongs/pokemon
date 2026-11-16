@@ -11,9 +11,15 @@ export const AUGMENT_POKEMON_PREVIEW_MAP = {
 
 export const AUGMENT_GRANT_PREVIEW_MAP = {
   marriedPokemon: {
-    modalTitle: "추가 보상 획득 안내",
-    headerNotice: "해당 증강 선택시 아래 증강 또는 버프를 추가로 획득합니다.",
+    modalTitle: "증강 상세 안내",
+    headerNotice: "다음 포켓몬 중 1마리와 교체됩니다.",
     items: ["lifePartner"],
+    candidates: [
+      { sampleName: "메가가디안", name: "메가가디안", imgId: "0282-m", dexNo: "0282" },
+      { sampleName: "님피아 (특수딜탱)", name: "님피아", imgId: "0700", dexNo: "0700" },
+      { sampleName: "메가이어롭", name: "메가이어롭", imgId: "0428-m", dexNo: "0428" },
+      { sampleName: "마스카나", name: "마스카나", imgId: "0908", dexNo: "0908" },
+    ],
   },
   sacrificeGod: {
     modalTitle: "추가 보상 획득 안내",

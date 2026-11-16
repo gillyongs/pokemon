@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const RoundOptionsModal = ({ isOpen, onClose, difficulty = "노말", round = 1, teamOption = "선택" }) => {
+const RoundOptionsModal = ({ isOpen, onClose, difficulty = "노말", round = 1, teamOption = "선택", mayhemMode = false }) => {
   if (!isOpen) return null;
 
   const multiplier = (1.0 + (round - 1) * 0.1).toFixed(1);
@@ -23,6 +23,9 @@ const RoundOptionsModal = ({ isOpen, onClose, difficulty = "노말", round = 1, 
           </p>
           <p>
             <strong>팀 옵션:</strong> {teamOption}
+          </p>
+          <p>
+            <strong>아수라장:</strong> <span style={{ color: mayhemMode ? "#64ffda" : "#aaa", fontWeight: "bold" }}>{mayhemMode ? "ON" : "OFF"}</span>
           </p>
         </OptionContent>
         <ModalButtonContainer>

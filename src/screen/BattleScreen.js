@@ -182,6 +182,7 @@ const Battle = () => {
             difficulty={location.state?.difficulty || gameOption.difficulty}
             round={location.state?.round || defaultOption.round}
             teamOption={location.state?.teamOption || gameOption.teamOption}
+            mayhemMode={location.state?.mayhemMode ?? battle?.mayhemMode ?? gameOption.mayhemMode}
           />
           {testmode &&
             battle?.npc &&

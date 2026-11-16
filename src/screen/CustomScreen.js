@@ -35,6 +35,7 @@ const CustomScreen = () => {
   const [isIntimidateFilter, setIsIntimidateFilter] = useState(false);
   const [isWeatherFilter, setIsWeatherFilter] = useState(false);
   const [isWallFilter, setIsWallFilter] = useState(false);
+  const [isStealthRockFilter, setIsStealthRockFilter] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
   const [gameOption, setGameOption] = useRecoilState(gameOptionState);
@@ -79,6 +80,7 @@ const CustomScreen = () => {
     setIsIntimidateFilter(false);
     setIsWeatherFilter(false);
     setIsWallFilter(false);
+    setIsStealthRockFilter(false);
     setActiveLogic("OR");
   };
 
@@ -92,6 +94,7 @@ const CustomScreen = () => {
     isIntimidateFilter,
     isWeatherFilter,
     isWallFilter,
+    isStealthRockFilter,
   });
 
   const getActiveTeam = () => (activeTab === "player" ? selectedTeam : npcTeam);
@@ -570,8 +573,9 @@ const CustomScreen = () => {
           isIntimidateFilter={isIntimidateFilter}
           isWeatherFilter={isWeatherFilter}
           isWallFilter={isWallFilter}
+          isStealthRockFilter={isStealthRockFilter}
           activeLogic={activeLogic}
-          onApply={({ types, roles, isMega, isLegendary, isIntimidate, isWeather, isWall, logic }) => {
+          onApply={({ types, roles, isMega, isLegendary, isIntimidate, isWeather, isWall, isStealthRock, logic }) => {
             setActiveTypes(types);
             setActiveRoles(roles);
             setIsMegaFilter(isMega);
@@ -579,6 +583,7 @@ const CustomScreen = () => {
             setIsIntimidateFilter(isIntimidate);
             setIsWeatherFilter(isWeather);
             setIsWallFilter(isWall);
+            setIsStealthRockFilter(isStealthRock);
             setActiveLogic(logic);
           }}
           onClose={() => setIsFilterModalOpen(false)}

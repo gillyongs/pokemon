@@ -1,6 +1,6 @@
 export const defaultOption = {
   difficulty: "이지",
-  teamOption: "랜덤",
+  teamOption: "트레이드",
   round: 1,
-  mayhemMode: false,
+  mayhemMode: true,
 };

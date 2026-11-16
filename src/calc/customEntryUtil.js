@@ -19,6 +19,16 @@ const isWallPokemon = (pokemon) => {
   return false;
 };
 
+const hasStealthRock = (pokemon) => {
+  if (!pokemon) return false;
+  if (pokemon.skill) {
+    const skills = Object.values(pokemon.skill);
+    return skills.some((s) => s && (s.name === "스텔스록" || s === "스텔스록"));
+  }
+  return false;
+};
+
+
 const isNameMatch = (searchStr, pokemon) => {
   if (!searchStr) return true;
 
@@ -39,13 +49,14 @@ const isNameMatch = (searchStr, pokemon) => {
   if (s === "버드" && (cleanId.includes("백마렉스") || cleanId.includes("흑마렉스"))) return true;
   if (s === "대검" && cleanId.includes("히검귀")) return true;
   if (s === "페" && cleanId.includes("패리퍼")) return true;
+  if ((s === "스텔스록" || s === "스록") && hasStealthRock(pokemon)) return true;
 
   return false;
 };
 
 export const filterSamplePokemons = (
   items,
-  { searchTerm, activeTypes, activeLogic, activeRoles, isMegaFilter, isLegendaryFilter, isIntimidateFilter, isWeatherFilter, isWallFilter }
+  { searchTerm, activeTypes, activeLogic, activeRoles, isMegaFilter, isLegendaryFilter, isIntimidateFilter, isWeatherFilter, isWallFilter, isStealthRockFilter }
 ) => {
   return items.filter((pokemon) => {
     const nameMatch = isNameMatch(searchTerm, pokemon);
@@ -90,7 +101,12 @@ export const filterSamplePokemons = (
       wallMatch = isWallPokemon(pokemon);
     }
 
-    return nameMatch && typeMatch && roleMatch && megaMatch && legendaryMatch && intimidateMatch && weatherMatch && wallMatch;
+    let stealthRockMatch = true;
+    if (isStealthRockFilter) {
+      stealthRockMatch = hasStealthRock(pokemon);
+    }
+
+    return nameMatch && typeMatch && roleMatch && megaMatch && legendaryMatch && intimidateMatch && weatherMatch && wallMatch && stealthRockMatch;
   });
 };
 
