@@ -394,6 +394,7 @@ export const useBattleStore = createStore((set, get) => ({
     const targetCandidate = options?.targetPokemon || augmentTargetPoke;
     const target = (targetCandidate && teamPokes.find((p) => p && (p.originalIndex === targetCandidate.originalIndex || p.id === targetCandidate.id || p.name === targetCandidate.name))) || curBattle.player;
     const prevPokeName = target.name || "";
+    const prevAbilName = target.abil?.name;
 
     const synergyBuffIds = Object.keys(AUGMENT_SYNERGY_MAP);
     const hadSynergyBefore = {};
@@ -560,6 +561,18 @@ export const useBattleStore = createStore((set, get) => ({
         applyAbilityEffects(curBattle, fastUser, collectEnqueue);
         applyAbilityEffects(curBattle, slowUser, collectEnqueue);
         set({ isTitanPendingStart: false });
+      } else {
+        const userSide = target.team === "npc" ? "npc" : "player";
+        const activeSidePoke = curBattle[userSide];
+        const isActivePoke = activeSidePoke === target || activeSidePoke?.originalIndex === target.originalIndex;
+        const enemySide = userSide === "player" ? "npc" : "player";
+        const enemyPoke = curBattle[enemySide];
+        if (isActivePoke && activeSidePoke && !activeSidePoke.faint && enemyPoke && !enemyPoke.faint) {
+          const isReplacement = isReplacementAugment(selectedAugment);
+          if (target.abil?.name !== prevAbilName || isReplacement || isTitanSecond) {
+            applyAbilityEffects(curBattle, userSide, collectEnqueue);
+          }
+        }
       }
     }
 

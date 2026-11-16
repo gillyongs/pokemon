@@ -912,6 +912,12 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="60%" stopColor="#451a03" />
             <stop offset="100%" stopColor="#1c0d02" />
           </radialGradient>
+          <linearGradient id="intimidateRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#bae6fd" />
+            <stop offset="40%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#1e3a8a" />
+          </linearGradient>
+
           <linearGradient id="threeBearsRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#e0f2fe" />
             <stop offset="40%" stopColor="#38bdf8" />
@@ -3979,6 +3985,15 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <path d="M 49 14 Q 49 16.2 51.2 16.2 Q 49 16.2 49 18.5 Q 49 16.2 46.8 16.2 Q 49 16.2 49 14 Z" fill="#e0f2fe" opacity="0.95" />
             <circle cx="14" cy="46" r="1" fill="#7dd3fc" opacity="0.85" />
             <circle cx="48" cy="44" r="0.7" fill="#ffffff" opacity="0.75" />
+          </g>
+        )}
+
+        {/* 위협 (사자 일러스트 + 아이스 블루 링) */}
+        {id === "intimidate" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/intimidate.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#intimidateRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#93c5fd" strokeWidth="0.5" strokeOpacity="0.75" />
           </g>
         )}
 

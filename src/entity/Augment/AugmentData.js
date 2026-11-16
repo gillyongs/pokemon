@@ -328,6 +328,33 @@ export const AUGMENT_LIST = [
       }
     },
   },
+  // 위협 ====================================================================
+  {
+    id: "intimidate",
+    name: "위협",
+    desc: "상대를 위축시켜 공격을 떨어뜨립니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon, battle) => {
+      const teamSide = pokemon?.team || "player";
+      const oppSide = teamSide === "player" ? "npc" : "player";
+      const opponent = battle?.[oppSide];
+      if (!opponent || opponent.faint) return false;
+      if (!isPhysicalPokemon(opponent)) return false;
+      const blockedAbils = ["클리어바디", "하얀연기", "괴력집게", "정신력", "둔감", "마이페이스", "배짱", "미러아머", "오기", "승기", "주눅"];
+      const oppAbil = opponent.abil?.name;
+      if (blockedAbils.includes(oppAbil)) return false;
+      return true;
+    },
+    onApply: function (pokemon, battle, options) {
+      const teamSide = pokemon?.team || "player";
+      const oppSide = teamSide === "player" ? "npc" : "player";
+      const opponent = battle?.[oppSide];
+      if (!opponent || opponent.faint) return;
+      const enqueue = options?.enqueue;
+      opponent.rankUp(battle, enqueue, "atk", -1, "[증강 위협]", true);
+    },
+  },
   // 스텔스록 ==================================================================
   {
     id: "stealthRock",
@@ -1561,9 +1588,7 @@ export const isBearPokemon = (pokemon) => {
 // 곰 버프 배율 계산 함수 (1마리: 1.1배, 2마리: 1.3배, 3마리: 1.5배)
 export const getBearMultiplier = (pokemon, battle) => {
   if (!battle) return 1.1;
-  const team = pokemon?.team === "npc"
-    ? [battle.npc, battle.npcBench1, battle.npcBench2]
-    : [battle.player, battle.playerBench1, battle.playerBench2];
+  const team = pokemon?.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
   const count = team.filter((p) => p && BEAR_DEX_NOS.includes(p.dexNo)).length;
 
   return count >= 3 ? 1.5 : count === 2 ? 1.3 : 1.1;
@@ -1713,6 +1738,13 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
       individualDesc = `${pokeName}의 순풍!`;
     } else {
       return selectedAugment.desc || "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올리는 순풍을 전개한다.";
+    }
+  } else if (id === "intimidate") {
+    if (isTextScreen) {
+      const pokeName = target?.name || "포켓몬";
+      individualDesc = `${pokeName}의 위협!`;
+    } else {
+      return selectedAugment.desc || "상대를 위축시켜 공격을 떨어뜨립니다.";
     }
   } else if (id === "stealthRock") {
     if (isTextScreen) {
