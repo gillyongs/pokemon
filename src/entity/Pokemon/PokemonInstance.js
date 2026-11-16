@@ -1,5 +1,4 @@
 import { josa } from "josa";
-import { hpCalculate } from "../../calc/hpCalculate";
 import sampleList from "./pokemonSampleList";
 import { cloneWithMethods } from "../../util/cloneWithMethods";
 
@@ -290,7 +289,7 @@ class PokemonInstance {
 
   leftOver(battle, enqueue) {
     if (this.faint) return;
-    const maxHp = hpCalculate(this);
+    const maxHp = this.maxHp;
 
     if (this.item === "먹다남은음식") {
       if (this.hp < maxHp) {

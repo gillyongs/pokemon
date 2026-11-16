@@ -1,4 +1,3 @@
-import { hpCalculate } from "../../calc/hpCalculate";
 export class userField {
   constructor(team) {
     this.team = team; // player or npc
@@ -41,7 +40,7 @@ export class userField {
     const target = battle[this.team];
     if (wish.turnRemain === 0) {
       this.noClean.wish = null;
-      if (target.hp < hpCalculate(target) && !target.faint) {
+      if (target.hp < target.maxHp && !target.faint) {
         // 풀피면 아예 발동 안하고 사라짐
         target.recover(battle, Math.floor(wish.amount), enqueue, `${wish.name}의 희망사항이 이루어졌다!`);
       }

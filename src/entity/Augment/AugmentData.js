@@ -1,4 +1,3 @@
-import { hpCalculate } from "../../calc/hpCalculate";
 import { abilObject, noRandomAbil } from "../Ability";
 import { josa } from "josa";
 import { getAugmentedStat, getHighestStatInfo, STAT_LABELS } from "../../calc/getStat";
@@ -1175,14 +1174,14 @@ export const AUGMENT_LIST = [
       const bonusHp = Number(options?.giantBonusHp ?? pokemon?.giantBonusHp ?? this.giantBonusHp ?? 0);
       if (pokemon) {
         const hadPrevApplied = Number(pokemon._appliedGiantBonusHp ?? 0) > 0;
-        const prevMaxHp = hpCalculate(pokemon);
+        const prevMaxHp = pokemon.maxHp;
         pokemon.giantBonusHp = bonusHp;
         this.giantBonusHp = bonusHp;
         const existingAug = pokemon.augments?.find((a) => a.id === "giantAbsorption");
         if (existingAug) {
           existingAug.giantBonusHp = bonusHp;
         }
-        const newMaxHp = hpCalculate(pokemon);
+        const newMaxHp = pokemon.maxHp;
         if (options?.isCarryover && !hadPrevApplied && bonusHp > 0 && pokemon.hp === prevMaxHp) {
           pokemon.hp = newMaxHp;
         }
@@ -1424,14 +1423,14 @@ export const AUGMENT_LIST = [
     weight: 100,
     isEligible: (pokemon) => {
       if (!pokemon || pokemon.faint || pokemon.hp <= 0) return false;
-      const maxHp = hpCalculate(pokemon);
+      const maxHp = pokemon.maxHp;
       const isLowHp = pokemon.hp <= maxHp * 0.5;
       const hasAilment = Boolean(pokemon.ailment && Object.values(pokemon.ailment).some((v) => v !== null));
       return isLowHp || hasAilment;
     },
     onApply: function (pokemon) {
       if (!pokemon) return;
-      pokemon.hp = hpCalculate(pokemon);
+      pokemon.hp = pokemon.maxHp;
       pokemon.resetAilment();
       pokemon.tempStatus.confuse = null;
     },
@@ -1621,10 +1620,10 @@ const applyEternamax = (pokemon) => {
   const newMaxHp = Math.floor((baseStats.hp * 2 + Math.floor(evHp / 4) + ivHp) / 2) + 60;
 
   // 현재 체력 비율 유지 (예: 반피면 50% 유지)
-  const oldMaxHp = hpCalculate(pokemon) || o.hp || pokemon.hp || newMaxHp;
+  const oldMaxHp = pokemon.maxHp || o.hp || pokemon.hp || newMaxHp;
   const oldHp = typeof pokemon.hp === "number" ? pokemon.hp : oldMaxHp;
   o.hp = newMaxHp;
-  const effectiveNewMaxHp = hpCalculate(pokemon) || newMaxHp;
+  const effectiveNewMaxHp = pokemon.maxHp || newMaxHp;
   const hpRatio = oldMaxHp > 0 ? Math.max(0, Math.min(1, oldHp / oldMaxHp)) : 1;
   const newHp = Math.min(effectiveNewMaxHp, Math.max(oldHp > 0 ? 1 : 0, Math.round(effectiveNewMaxHp * hpRatio)));
 
@@ -2290,7 +2289,7 @@ export const stripEmoji = (str) => {
 
 function isHpAtLeast(pokemon, ratio = 0.5) {
   if (!pokemon) return false;
-  return pokemon.hp >= hpCalculate(pokemon) * ratio;
+  return pokemon.hp >= pokemon.maxHp * ratio;
 }
 
 function hasPokemonOnTeam(team, dexNo) {

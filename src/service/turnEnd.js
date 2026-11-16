@@ -1,4 +1,3 @@
-import { hpCalculate } from "../calc/hpCalculate";
 import { switchNpcAuto } from "./switch";
 import { speedCheck } from "../calc/speedCheck";
 import { applyAilment } from "./ailment";
@@ -56,7 +55,7 @@ export const turnEnd = (battle, enqueue) => {
     const p = battle[user];
     if (!p || p.faint || p.hp <= 0) return;
     if (p.abil?.name === "선파워" && battle.field.weather.isSunny) {
-      p.getDamage(battle, enqueue, Math.max(1, Math.floor(hpCalculate(p) / 8)), `[특성 선파워] ${p.name}의 생명이 조금 깎였다!`);
+      p.getDamage(battle, enqueue, Math.max(1, Math.floor(p.maxHp / 8)), `[특성 선파워] ${p.name}의 생명이 조금 깎였다!`);
     }
   });
 
@@ -203,7 +202,7 @@ function applySunfireAegis(battle, enqueue, user) {
   const opponent = battle[opponentSide];
   if (!opponent || opponent.faint) return;
 
-  const damage = Math.max(1, Math.floor(hpCalculate(p) * 0.1));
+  const damage = Math.max(1, Math.floor(p.maxHp * 0.1));
   const text = `[증강 태양불꽃방패] ${opponent.names("는")} 불사르기 데미지를 입었다!`;
   opponent.getDamage(battle, enqueue, damage, text);
 }
@@ -217,7 +216,7 @@ function applyGiantAbsorption(battle, enqueue, user) {
   const opponent = battle[opponentSide];
   if (!opponent || opponent.faint || opponent.hp <= 0) return;
 
-  const damage = Math.max(1, Math.floor(hpCalculate(p) * 0.01));
+  const damage = Math.max(1, Math.floor(p.maxHp * 0.01));
   const gain = Math.min(opponent.hp, damage);
 
   // 체력 최대치(giantBonusHp)만 늘리고 현재 HP는 회복하지 않음 (텍스트 enqueue 스냅샷에 즉시 반영되도록 데미지 전 처리)
@@ -237,7 +236,7 @@ function applyGiantAbsorption(battle, enqueue, user) {
 
 function applyWarmogsArmor(battle, enqueue, user) {
   const p = battle[user];
-  const maxHp = hpCalculate(p);
+  const maxHp = p.maxHp;
   if (!p || p.faint || p.hp <= 0 || p.hp >= maxHp) return;
   if (!p.hasAugment?.("warmogsArmor")) return;
 
@@ -285,7 +284,7 @@ function seed(battle, enqueue, getter, user) {
 
   // 씨뿌리기
   if (skillGetter.tempStatus.seed) {
-    const dmg = skillGetter.getDamage(battle, enqueue, Math.floor(hpCalculate(skillGetter) / 8));
+    const dmg = skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.maxHp / 8));
     skillUser.recover(battle, Math.floor(dmg), enqueue, `씨뿌리기가 ${skillGetter.name}의 체력을 빼앗는다!`);
   }
 }
@@ -303,7 +302,7 @@ function switchLock(battle, enqueue, getter) {
       skillGetter.tempStatus.switchLockTurnRemain = null;
       enqueue({ id: "8c6a1aa2-f25d-45bf-bbe3-f5aea20fdb22", battle, text: `${skillGetter.names("는")} ${skillName}에게서 벗어났다!` });
     } else {
-      skillGetter.getDamage(battle, enqueue, Math.floor(hpCalculate(skillGetter) / 8), `${skillGetter.names("는")} ${skillName}의 데미지를 입고 있다.`);
+      skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.maxHp / 8), `${skillGetter.names("는")} ${skillName}의 데미지를 입고 있다.`);
     }
   }
 }
@@ -399,7 +398,7 @@ function applyStatusDamage(battle, enqueue, user) {
   const p = battle[user];
 
   if (p.faint) return;
-  const maxHp = hpCalculate(p);
+  const maxHp = p.maxHp;
 
   if (p.ailment.poison) {
     p.getDamage(battle, enqueue, Math.floor(maxHp / 8), `${p.names("는")} 독에 의한 데미지를 입었다!`);

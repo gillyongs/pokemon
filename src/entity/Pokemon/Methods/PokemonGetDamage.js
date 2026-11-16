@@ -1,4 +1,3 @@
-import { hpCalculate } from "../../../calc/hpCalculate";
 export const PokemonGetDamage = {
   getDamage(battle, enqueue, damageValue, text) {
     // 기준 = 급소 없음, 탈 안 까임, 멀스 적용 안됨
@@ -66,7 +65,7 @@ export const PokemonGetDamage = {
     if (noBerryAbil.includes(atkAbil)) return;
 
     if (this.item === "자뭉열매") {
-      const maxHp = hpCalculate(this);
+      const maxHp = this.maxHp;
       if (this.hp <= Math.floor(maxHp / 2)) {
         this.recover(battle, Math.floor(maxHp / 4), enqueue, `${this.names("는")} 자뭉열매로 인해 조금 회복했다.`);
         this.consumeItem();

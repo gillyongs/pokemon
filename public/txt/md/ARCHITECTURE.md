@@ -137,7 +137,7 @@
 
 능력치나 체력을 참조할 때는 `pokemon.o`를 직접 읽지 말고 아래 전용 계산 함수를 사용해야 증강 효과가 누락되지 않습니다.
 
-### 3.1 최대 HP 계산: `hpCalculate(pokemon, baseHp = null)` (`src/calc/hpCalculate.js`)
+### 3.1 최대 HP 계산: `hpCalculate(pokemon)` (`src/calc/hpCalculate.js`)
 - **역할**: `pokemon.o.hp`는 원본으로 보존한 채, 증강 효과가 반영된 **실제 최대 HP**를 반환하고 `pokemon.log.hpCalculate`에 수식을 기록.
 - **계산 순서**:
   1. 기준값: `baseHp ?? pokemon.o?.hp ?? pokemon.hp ?? 0`

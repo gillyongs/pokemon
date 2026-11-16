@@ -1,4 +1,3 @@
-import { hpCalculate } from "../../calc/hpCalculate";
 import { aiItemScore } from "../../entity/Item";
 import { damageCalculate } from "../../calc/damageCalculate";
 import { getAccuracy } from "../../calc/accuracyCalculate";
@@ -56,7 +55,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
     let accur = accurRaw === "-" ? 100 : Number(accurRaw) || 0;
     if (accur !== 100 && accurRaw !== "-") accur = Math.min(100, accur);
 
-    const playerHp = hpCalculate(bt.player);
+    const playerHp = bt.player.maxHp;
     score = Math.floor((avrDmg * accur) / playerHp); // 평균 데미지 * 명중률 / 상대방 체력
     log = score;
     skObj.log.atkScoreOrigin = `${avrDmg} * ${accur} / ${playerHp} = ${score}`;
@@ -84,14 +83,14 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
         }
 
         if (skillEffect.name === "자폭" || skillEffect.name === "대폭발") {
-          const factor = getLowHpFactor(npc.hp, hpCalculate(npc), 2.3);
+          const factor = getLowHpFactor(npc.hp, npc.maxHp, 2.3);
           const mult = Number((0.15 + 0.95 * factor).toFixed(2));
           score *= mult;
           log += ` * ${mult} (${skillEffect.name})`;
         }
 
         if (skillEffect.name === "철제광선반동") {
-          const factor = getLowHpFactor(npc.hp, hpCalculate(npc), 2.3);
+          const factor = getLowHpFactor(npc.hp, npc.maxHp, 2.3);
           const mult = Number((0.7 + 0.35 * factor).toFixed(2));
           score *= mult;
           log += ` * ${mult} (철제광선반동)`;
@@ -361,7 +360,7 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
           skObj.log.score = "불발(벤치없음)";
           return -999;
         }
-        const factor = getLowHpFactor(npc.hp, hpCalculate(npc), 2.3);
+        const factor = getLowHpFactor(npc.hp, npc.maxHp, 2.3);
         let value = Math.round(230 * factor);
         score += value;
         log += ` + ${value} (${skillEffect.name})`;

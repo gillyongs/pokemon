@@ -1,4 +1,3 @@
-import { hpCalculate } from "../calc/hpCalculate";
 import { typeCheck } from "../calc/typeEffectCalculate";
 import { applyAilment, isAilmentCheck } from "./ailment";
 export const applyFieldEffects = (bt, atks, enqueue) => {
@@ -16,7 +15,7 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
   const atk = bt[atks];
   const def = bt[defs];
 
-  const maxHp = hpCalculate(atk);
+  const maxHp = atk.maxHp;
 
   //초승달춤
   if (bt.field[atks].noClean.lunarDance) {

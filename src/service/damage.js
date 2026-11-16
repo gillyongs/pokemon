@@ -1,4 +1,3 @@
-import { hpCalculate } from "../calc/hpCalculate";
 import { josa } from "josa";
 import { applyOnHitEvents } from "./onHit.js";
 
@@ -81,7 +80,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       //틀깨기
       talTrigger = true;
       defPokemon.abil.used = true;
-      const talHp = Math.floor(hpCalculate(defPokemon) / 8);
+      const talHp = Math.floor(defPokemon.maxHp / 8);
       if (skDamage > talHp) {
         skDamage = talHp;
         actualGiveDamage = talHp;
@@ -94,7 +93,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   // 옹골참 트리거
   let ogcTrigger = defPokemon.abil?.name === "옹골참" && !atkPokemon.abil?.feature?.tgg;
 
-  let noOneShot = defPokemon.hp === hpCalculate(defPokemon) && (gdTrigger || ogcTrigger);
+  let noOneShot = defPokemon.hp === defPokemon.maxHp && (gdTrigger || ogcTrigger);
 
   let ogcTextTrigger = false;
   let gdTextTrigger = false;
@@ -186,7 +185,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
 
     // [증강] 징수의 총: 상대 포켓몬의 체력이 5% 이하일 경우 처형
-    if (!isConfuseSelfHit && atkPokemon.hasAugment?.("collector") && !atkPokemon.faint && defPokemon.hp <= hpCalculate(defPokemon) * 0.05) {
+    if (!isConfuseSelfHit && atkPokemon.hasAugment?.("collector") && !atkPokemon.faint && defPokemon.hp <= defPokemon.maxHp * 0.05) {
       executedByCollector = true;
       defPokemon.hp = 0;
       enqueue({ id: "5d3c74a2-8e14-4d9a-b7c1-904c011ec702", battle, text: `[증강 징수의 총] ${defPokemon.names("는")} 처형당했다!` });

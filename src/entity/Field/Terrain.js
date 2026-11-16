@@ -1,4 +1,3 @@
-import { hpCalculate } from "../../calc/hpCalculate";
 import { speedCheck } from "../../calc/speedCheck";
 
 export class Terrain {
@@ -58,7 +57,7 @@ export class Terrain {
 
       for (const user of [fastUser, slowUser]) {
         const p = battle[user];
-        const maxHp = hpCalculate(p);
+        const maxHp = p.maxHp;
         if (!p.faint && p.hp < maxHp && !p.isFlying(battle)) {
           p.recover(battle, Math.floor(maxHp / 16), enqueue, `[그래스필드] ${p.name}의 체력이 회복되었다!`);
         }

@@ -1,4 +1,3 @@
-import { hpCalculate } from "../../calc/hpCalculate";
 // Weather.js
 import { speedCheck } from "../../calc/speedCheck";
 
@@ -89,7 +88,7 @@ export class Weather {
       if (p.faint) return;
       const immune = p.type1 === "바위" || p.type2 === "바위" || p.type1 === "땅" || p.type2 === "땅" || p.type1 === "강철" || p.type2 === "강철";
       if (!immune) {
-        p.getDamage(battle, enqueue, Math.floor(hpCalculate(p) / 16), `모래바람이 ${p.names("를")} 덮쳤다!`);
+        p.getDamage(battle, enqueue, Math.floor(p.maxHp / 16), `모래바람이 ${p.names("를")} 덮쳤다!`);
       }
     }
   }

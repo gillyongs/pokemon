@@ -1,10 +1,9 @@
-import { hpCalculate } from "../../../calc/hpCalculate";
 
 export const PokemonRecover = {
   _doRecover(battle, recoverValue, { enqueue, text, silent = false } = {}) {
     if (this.hp <= 0) return; // 이미 기절했으면 무시
 
-    const maxHp = hpCalculate(this);
+    const maxHp = this.maxHp;
 
     // 풀피 상태
     if (this.hp >= maxHp) {
@@ -46,7 +45,7 @@ export const PokemonRecover = {
   },
 
   handleResurrection(battle, recoverValue = 0.5, enqueue, option = {}) {
-    const maxHp = hpCalculate(this);
+    const maxHp = this.maxHp;
     const targetHp = recoverValue <= 1 ? Math.max(1, Math.floor(maxHp * recoverValue)) : Math.min(maxHp, Math.floor(recoverValue));
 
     this.faint = false;

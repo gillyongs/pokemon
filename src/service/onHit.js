@@ -1,4 +1,3 @@
-import { hpCalculate } from "../calc/hpCalculate";
 import { applyAilment } from "./ailment";
 import { random } from "../util/randomCheck";
 import { typeCheckOnBattle } from "../calc/typeEffectCalculate";
@@ -126,7 +125,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
       applyAilment("마비", battle, battle.turn.atk, enqueue, false, `[특성 정전기] ${atkPokemon.names("는")} 마비되어 기술을 쓰기 어려워졌다!`);
     }
   }
-  const atkMaxHp = hpCalculate(atkPokemon);
+  const atkMaxHp = atkPokemon.maxHp;
   // 철가시, 울퉁불퉁멧
   if (defPokemon.abil?.feature?.hanka && touch && !atkPokemon.faint) {
     const text = "[특성 " + defPokemon.abil?.name + "] " + atkPokemon.names("는") + " 상처를 입었다!";

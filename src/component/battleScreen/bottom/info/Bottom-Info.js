@@ -5,7 +5,6 @@ import TextBox from "../common/TextBox";
 import { TYPE_COLORS } from "../../../customScreen/sampleInfo/SampleInfoModal";
 import { isOnlyPrioritySkillText } from "../../../customScreen/sampleInfo/SkillSearchModal";
 import { getAugmentedStat } from "../../../../calc/getStat";
-import { hpCalculate } from "../../../../calc/hpCalculate";
 import { getMultiplier } from "../../../../calc/rankStat";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
@@ -59,7 +58,7 @@ const HexagonGraph = ({ pokemon }) => {
 
   const getStatInfo = (stat) => {
     if (stat === "hp") {
-      const base = hpCalculate(pokemon);
+      const base = pokemon.maxHp;
       return { val: base, baseVal: base, rank: 0 };
     }
     const rank = Number(pokemon?.tempStatus?.rank?.[stat] ?? 0);
@@ -158,7 +157,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
   };
 
   const statusText = getPokemonStatusText(pokemon);
-  const maxHp = hpCalculate(pokemon);
+  const maxHp = pokemon.maxHp;
   const hpRatio = Math.max(0, (pokemon.hp || 0) / (maxHp || 1));
   let hpColor = "#4ade80";
   if (hpRatio <= 0.25) hpColor = "#ef4444";

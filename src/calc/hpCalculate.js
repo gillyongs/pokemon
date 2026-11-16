@@ -6,13 +6,8 @@ const hasAugmentId = (pokemon, id) => {
 };
 
 // 최대 HP 실 수치 계산 함수 (원본 o.hp를 유지하고 증강 효과를 합산)
-export const hpCalculate = (pokemon, baseHp = null) => {
-  if (!pokemon) return 0;
-
-  let hp = baseHp !== null && baseHp !== undefined ? baseHp : (pokemon.baseHp ?? pokemon.hp ?? 0);
-  if (typeof hp !== "number" || Number.isNaN(hp) || hp <= 0) {
-    return Math.max(0, Number(hp) || 0);
-  }
+export const hpCalculate = (pokemon) => {
+  let hp = pokemon.baseHp;
 
   let logText = `${hp}(hp)`;
 
@@ -28,11 +23,7 @@ export const hpCalculate = (pokemon, baseHp = null) => {
   }
 
   logText += ` = ${hp}`;
-  try {
-    if (pokemon.log) {
-      pokemon.log.hpCalculate = logText;
-    }
-  } catch (e) {}
+  pokemon.log.hpCalculate = logText;
 
   return hp;
 };

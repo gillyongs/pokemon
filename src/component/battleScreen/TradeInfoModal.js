@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { skillTypeCalculate } from "../../calc/skillTypeCalculate";
 import { getAugmentedStat } from "../../calc/getStat";
-import { hpCalculate } from "../../calc/hpCalculate";
 import { getMultiplier } from "../../calc/rankStat";
 import { TYPE_COLORS } from "../../calc/typeEffectCalculate";
 import { abilObject } from "../../entity/Ability";
@@ -57,7 +56,7 @@ const HexagonGraph = ({ pokemon, battle }) => {
 
   const getStatInfo = (stat) => {
     if (stat === "hp") {
-      const base = hpCalculate(pokemon);
+      const base = pokemon.maxHp;
       return { val: base, baseVal: base, rank: 0 };
     }
     const rank = Number(pokemon?.tempStatus?.rank?.[stat] ?? 0);
@@ -167,7 +166,7 @@ const TradeInfoModal = ({ pokemon, pokemonList = [], battle, onClose }) => {
   const pokemonName = currentPoke.name;
   const pokemonId = currentPoke.img_id || currentPoke.uniqueKey;
   const statusText = getPokemonStatusText(currentPoke);
-  const maxHp = hpCalculate(currentPoke);
+  const maxHp = currentPoke.maxHp;
   const hpRatio = Math.max(0, (currentPoke.hp || 0) / (maxHp || 1));
 
   let hpColor = "#4ade80";

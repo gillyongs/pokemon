@@ -1,4 +1,3 @@
-import { hpCalculate } from "../calc/hpCalculate";
 import { applyAbilityEffects } from "../entity/Ability";
 import { applyFieldEffects } from "./field";
 import { calculatePokemonSwitchScore } from "../npc/ai/easy";
@@ -217,7 +216,7 @@ const switchPokemon = (battle, IN, OUT, options = {}) => {
     : null;
   if (pokemonIn.abil?.name === "재생력") {
     // 재생력 특성을 지닌 포켓몬은 교체시 체력이 회복
-    const hp = hpCalculate(pokemonIn);
+    const hp = pokemonIn.maxHp;
     pokemonIn.recoverNoText(battle, Math.floor(hp / 3), pokemonIn);
   }
   if (pokemonIn.abil?.name === "자연회복") {

@@ -1,4 +1,3 @@
-import { hpCalculate } from "./hpCalculate";
 import { typeCheckOnBattle } from "./typeEffectCalculate";
 import { getMultiplier } from "./rankStat";
 import { noNullItem } from "../entity/Item";
@@ -57,7 +56,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
   if (skill.feature.oneShot) {
     //일격기
-    return hpCalculate(defensePokemon);
+    return defensePokemon.maxHp;
   }
   if (skill.name === "카타스트로피" || skill.name === "자연의분노") {
     // 현재 체력의 절반을 깎는 스킬
@@ -530,7 +529,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 특성 ===========================================================================================
 
-  if (defAbil === "멀티스케일" && defensePokemon.hp === hpCalculate(defensePokemon)) {
+  if (defAbil === "멀티스케일" && defensePokemon.hp === defensePokemon.maxHp) {
     if (noTggAtk) {
       damage *= 0.5;
       attackPokemon.log.damage1 += " * 0.5 (멀티스케일)";
@@ -629,7 +628,7 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.5 (타오르는불꽃)";
   }
 
-  const atkMaxHp = hpCalculate(attackPokemon);
+  const atkMaxHp = attackPokemon.maxHp;
   if (atkAbil === "급류" && attackPokemon.hp <= atkMaxHp / 3 && skill.type === "물") {
     damage *= 1.5;
     attackPokemon.log.damage1 += " * 1.5 (급류)";
@@ -917,13 +916,13 @@ const powerCalculate = (battle, skill, obj, ai) => {
   }
   if (skill.feature?.hpScale) {
     // 체력비례 데미지
-    power = (power * atk.hp) / (hpCalculate(atk) || 1);
+    power = (power * atk.hp) / (atk.maxHp || 1);
   }
   if (skill.name === "묵사발") {
     // 상대의 남은 HP 비례 (최대 120, 최소 1)
     const defPoke = battle[battle.turn.def];
     const curHp = defPoke?.hp ?? 1;
-    const maxHp = hpCalculate(defPoke) || curHp;
+    const maxHp = defPoke.maxHp || curHp;
     power = Math.max(1, Math.floor(120 * (curHp / maxHp)));
   }
   if (skill.name === "객기" && (atk.ailment.burn || atk.ailment.mabi || atk.ailment.poison || atk.ailment.mpoison)) {
