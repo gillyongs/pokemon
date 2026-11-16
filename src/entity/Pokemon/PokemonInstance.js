@@ -132,20 +132,20 @@ class PokemonInstance {
     this.charge = null; //충전중 여부 (파워풀허브 없이 충전 기술을 썼을때)
     this.recharge = null; //반동휴식 여부 (파괴광선 등)
     this.augments = [];
-    this.dragonKillCount = 0; // 용용죽겠지
-    this.mejaiStack = 0; // 메자이
-    this.practiceCritStack = 0; // 윤탈
-    this.giantBonusHp = 0; // 거인의 흡수
-    this.anvilStats = {
-      atk: 0,
-      def: 0,
-      catk: 0,
-      cdef: 0,
-      speed: 0,
+    this.agument = {
+      dragonKillCount: 0, // 용용죽겠지
+      mejaiStack: 0, // 메자이
+      practiceCritStack: 0, // 윤탈
+      giantBonusHp: 0, // 거인의 흡수
+      nimbleSkillName: null, // 민첩한 몸놀림
+      anvilStats: {
+        atk: 0,
+        def: 0,
+        catk: 0,
+        cdef: 0,
+        speed: 0,
+      },
     };
-    if (this.o) {
-      this.o.anvilStats = this.anvilStats;
-    }
     this.log = {
       getAugmentedStat: null, // 증강으로 인한 능력치 변화
       hpCalculate: null, // 증강으로 인한 최대 HP 변화
@@ -211,6 +211,62 @@ class PokemonInstance {
 
   get baseAbil() {
     return this.o.abil;
+  }
+
+  // --- 증강(agument / augment) 상태 프로퍼티 및 하위 호환 게터/세터 ---
+  get augment() {
+    return this.agument;
+  }
+  set augment(v) {
+    this.agument = v;
+  }
+
+  get dragonKillCount() {
+    return this.agument?.dragonKillCount ?? 0;
+  }
+  set dragonKillCount(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.dragonKillCount = v;
+  }
+
+  get mejaiStack() {
+    return this.agument?.mejaiStack ?? 0;
+  }
+  set mejaiStack(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.mejaiStack = v;
+  }
+
+  get practiceCritStack() {
+    return this.agument?.practiceCritStack ?? 0;
+  }
+  set practiceCritStack(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.practiceCritStack = v;
+  }
+
+  get giantBonusHp() {
+    return this.agument?.giantBonusHp ?? 0;
+  }
+  set giantBonusHp(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.giantBonusHp = v;
+  }
+
+  get nimbleSkillName() {
+    return this.agument?.nimbleSkillName ?? null;
+  }
+  set nimbleSkillName(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.nimbleSkillName = v;
+  }
+
+  get anvilStats() {
+    return this.agument?.anvilStats;
+  }
+  set anvilStats(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.anvilStats = v;
   }
 
   get maxHp() {

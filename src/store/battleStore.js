@@ -564,7 +564,7 @@ export const useBattleStore = createStore((set, get) => ({
     }
 
     const appliedAug = augOptions?.resolvedGrantedAug || target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
-    const isReplacement = selectedAugment.id === "legendaryTitan" || selectedAugment.id === "rouletteWheel" || selectedAugment.id === "soaring" || selectedAugment.id === "marriedPokemon" || selectedAugment.id === "magikarpJump" || selectedAugment.id === "klinklangGear" || selectedAugment.id === "blackNight" || selectedAugment.id === "mewtwoStrikesBack" || selectedAugment.id === "veteranPrivilege";
+    const isReplacement = selectedAugment.id === "legendaryTitan" || selectedAugment.id === "rouletteWheel" || selectedAugment.id === "soaring" || selectedAugment.id === "marriedPokemon" || selectedAugment.id === "magikarpJump" || selectedAugment.id === "klinklangGear" || selectedAugment.id === "blackNight" || selectedAugment.id === "mewtwoStrikesBack" || selectedAugment.id === "veteranPrivilege" || selectedAugment.id === "sacrificeGod";
     const logTargetName = isReplacement ? prevPokeName : target.name;
 
     const isSelectedCurse = Boolean(appliedAug.curse || isCurseAugment(appliedAug));

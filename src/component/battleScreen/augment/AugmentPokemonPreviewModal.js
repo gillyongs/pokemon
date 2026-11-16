@@ -5,7 +5,7 @@ import { itemText } from "../../../entity/Item";
 import { TYPE_COLORS } from "../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST, hasPokemonName } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, hasPokemonName, isNimbleSkill } from "../../../entity/Augment/AugmentData";
 
 const PREVIEW_IMG_ID_MAP = {
   mewtwoStrikesBack: "0150-a",
@@ -387,7 +387,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
                   <SkillMainInfo>
                     <SkillNameText>
                       {skill.name}
-                      {skill.nimbleMoves ? " +1" : ""}
+                      {skill.nimbleMoves || isNimbleSkill(pokemon, skill) ? " +1" : ""}
                     </SkillNameText>
                   </SkillMainInfo>
                 </SkillRowButton>
@@ -519,8 +519,8 @@ const ModalOverlay = styled.div`
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   display: flex;
   justify-content: center;
   align-items: center;

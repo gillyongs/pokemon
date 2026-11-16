@@ -8,7 +8,7 @@ function filterExclusiveAugments(pool, pickedId) {
 }
 
 
-const REPLACEMENT_AUGMENT_IDS = ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege"];
+const REPLACEMENT_AUGMENT_IDS = ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod"];
 
 function getReplacementAugmentWeight(pokemon) {
   const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;

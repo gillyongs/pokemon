@@ -23,6 +23,12 @@ export const hpCalculate = (pokemon, baseHp = null) => {
     logText += " * 1.1 (인생의 동반자)";
   }
 
+  // 영혼의 심복: 모든 능력치 1.5배
+  if (hasAugmentId(pokemon, "soulMinion")) {
+    hp = Math.round(hp * 1.5);
+    logText += " * 1.5 (영혼의 심복)";
+  }
+
   // 2. 합적용 증강 =============================================================
   // 거인의 흡수: 누적 흡수량만큼 추가 HP 증가
   if (hasAugmentId(pokemon, "giantAbsorption")) {

@@ -2,6 +2,7 @@ import { useRef } from "react";
 import styled from "styled-components";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
+import { isNimbleSkill } from "../../../../entity/Augment/AugmentData";
 
 const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {
   let pp = battle.player.pp[skillNumber];
@@ -129,7 +130,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
       <ICON src={`/pokemon/img/type/${displayType}.svg`} alt={skill.name} />
       <NAME skname={skill.name}>
         {skill.name}
-        {skill.nimbleMoves ? " +1" : ""}
+        {skill.nimbleMoves || isNimbleSkill(battle.player, skill) ? " +1" : ""}
       </NAME>
       <EFFECT>{getTypeEffectText(battle.player, displayType, battle.npc.type1, battle.npc.type2, skill.stype, skill.name)}</EFFECT>
       <PP>

@@ -215,6 +215,12 @@ export const priCalculate = (battle, pokemon, skill) => {
   }
 
   const pokeObj = typeof pokemon === "string" ? battle?.[pokemon] : pokemon;
+
+  // 민첩한 몸놀림: 증강 보유 중이고 강화 대상으로 선택된 기술과 일치할 때 우선도 +1
+  const nimbleSkillName = pokeObj?.nimbleSkillName || pokeObj?.augments?.find((a) => a.id === "nimbleMoves")?.enhancedSkillName;
+  if (pokeObj?.hasAugment?.("nimbleMoves") && nimbleSkillName && nimbleSkillName === skill.name) {
+    prior += 1;
+  }
   const skillType = skillTypeCalculate(battle, skill, pokeObj);
   const pokeMaxHp = hpCalculate(pokeObj);
   const isFullHp = Boolean(pokeObj && pokeMaxHp > 0 && pokeObj.hp >= pokeMaxHp);

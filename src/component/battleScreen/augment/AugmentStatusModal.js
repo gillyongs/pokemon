@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_POKEMON_PREVIEW_MAP } from "./augmentPreviewConstants";
+import { AUGMENT_POKEMON_PREVIEW_MAP, getAugmentGrantInfo } from "./augmentPreviewConstants";
+import AugmentGrantPreviewModal from "./AugmentGrantPreviewModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
@@ -10,6 +11,7 @@ import { getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNorm
 const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
   const [previewInfo, setPreviewInfo] = useState(null);
   const [synergyPreviewInfo, setSynergyPreviewInfo] = useState(null);
+  const [grantPreviewInfo, setGrantPreviewInfo] = useState(null);
   const [selectedAugId, setSelectedAugId] = useState(null);
 
   const handleCardClick = (e, aug) => {
@@ -105,7 +107,8 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
               const sampleKey = AUGMENT_POKEMON_PREVIEW_MAP[aug.id];
               const previewSample = sampleKey ? sampleList.getDataBySampleName(sampleKey) : null;
               const synergyData = getAugmentSynergyInfo(aug.id);
-              const hasPreview = Boolean(previewSample || synergyData);
+              const grantData = getAugmentGrantInfo(aug.id);
+              const hasPreview = Boolean(previewSample || synergyData || grantData);
               return (
                 <AugmentCard
                   key={aug.id || index}
@@ -138,6 +141,8 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                             setPreviewInfo({ augmentId: aug.id, pokemon: previewSample });
                           } else if (synergyData) {
                             setSynergyPreviewInfo({ augmentId: aug.id, synergy: synergyData });
+                          } else if (grantData) {
+                            setGrantPreviewInfo({ augmentId: aug.id, grant: grantData });
                           }
                         }}
                         title={
@@ -145,7 +150,7 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                             ? (aug.id === "eternamax" || aug.id === "blackNight"
                                 ? "무한다이맥스 / 무한다이노 상세정보 보기"
                                 : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`)
-                            : `${synergyData?.title || "시너지"} 공명 상세정보 보기`
+                            : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"
                         }
                       >
                         상세정보
@@ -181,6 +186,13 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
           onClose={() => setSynergyPreviewInfo(null)}
         />
       )}
+      {grantPreviewInfo && (
+        <AugmentGrantPreviewModal
+          augmentId={grantPreviewInfo.augmentId}
+          grantInfo={grantPreviewInfo.grant}
+          onClose={() => setGrantPreviewInfo(null)}
+        />
+      )}
     </ModalOverlay>
   );
 };
@@ -205,8 +217,8 @@ const ModalOverlay = styled.div`
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   display: flex;
   justify-content: center;
   align-items: center;

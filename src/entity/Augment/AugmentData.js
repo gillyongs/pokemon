@@ -598,6 +598,75 @@ export const AUGMENT_LIST = [
     },
   },
 
+  // 신을 제물로 (초전설 전용 교체 증강)
+  {
+    id: "sacrificeGod",
+    name: "신을 제물로",
+    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다.  영혼의 심복 버프를 추가로 획득합니다.",
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    isEligible: (pokemon) => {
+      if (!isHpAtLeast(pokemon, 0.5)) return false;
+      const isLeg = Boolean(pokemon?.feature?.legendary || pokemon?.o?.feature?.legendary || pokemon?.legendary);
+      return isLeg;
+    },
+    onApply: function (pokemon, battle) {
+      const allItems = sampleList.items || [];
+      const currentSampleName = pokemon.sampleName || pokemon.id;
+      const team = battle ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [];
+      const filtered = allItems.filter((item) => {
+        const isLeg = Boolean(item?.feature?.legendary || item?.o?.feature?.legendary || item?.legendary);
+        if (isLeg) return false;
+        const name = item.sampleName || item.id;
+        if (name === currentSampleName) return false;
+        const baseName = item.name || name;
+        return !hasPokemonNameOnTeam(team, baseName);
+      });
+      const pool =
+        filtered.length > 0
+          ? filtered
+          : allItems.filter(
+              (item) =>
+                !Boolean(item?.feature?.legendary || item?.o?.feature?.legendary || item?.legendary) &&
+                (item.sampleName || item.id) !== currentSampleName
+            );
+      if (pool.length === 0) return;
+      const picked = pool[Math.floor(Math.random() * pool.length)];
+      replacePokemon(pokemon, picked.sampleName || picked.id, battle, { resetAugments: true });
+
+      // 영혼의 심복 버프 추가 획득
+      const minionAug = AUGMENT_LIST.find((a) => a.id === "soulMinion");
+      if (minionAug) {
+        if (typeof pokemon.applyAugment === "function") {
+          pokemon.applyAugment(minionAug, battle);
+        } else {
+          if (!pokemon.augments) pokemon.augments = [];
+          pokemon.augments.push({ ...minionAug, buf: true });
+          if (typeof minionAug.onApply === "function") minionAug.onApply(pokemon, battle);
+        }
+      }
+    },
+  },
+  // 영혼의 심복 (모든 능력치 1.5배 증가 버프)
+  {
+    id: "soulMinion",
+    name: "영혼의 심복",
+    desc: "모든 능력치가 1.5배 증가합니다.",
+    buf: true,
+    isRandom: false,
+    weight: "-",
+    isEligible: () => false,
+    onApply: function (pokemon) {
+      if (pokemon && pokemon.baseHp && !pokemon._appliedSoulMinionHp) {
+        const baseHp = pokemon.baseHp;
+        const newMaxHp = hpCalculate(pokemon);
+        const hpGain = Math.max(0, Math.round(baseHp * 1.5) - baseHp);
+        pokemon.hp = Math.min(newMaxHp, (pokemon.hp || baseHp) + hpGain);
+        pokemon._appliedSoulMinionHp = true;
+      }
+    },
+  },
+
   {
     id: "soaring",
     name: '"메가" 플라이곤',
@@ -658,7 +727,7 @@ export const AUGMENT_LIST = [
     id: "blackNight",
     name: "가라르의 미래를 지키기 위해 지금부터 블랙 나이트를 일으킬 거란다!",
     shortName: "블랙 나이트",
-    desc: "현재 포켓몬을 무한다이노와 교체합니다.\n무한다이맥스 증강을 추가로 획득합니다.\n( 코스트 10 )",
+    desc: "현재 포켓몬을 무한다이노와 교체합니다.\n무한다이맥스 증강을 추가로 획득합니다.",
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: false,
@@ -793,15 +862,7 @@ export const AUGMENT_LIST = [
       const targetSkill = pokemon.skill[targetSlot];
       if (!targetSkill) return;
 
-      const currentPrior = typeof targetSkill.prior === "number" ? targetSkill.prior : 0;
-
-      const enhancedSkill = {
-        ...targetSkill,
-        prior: currentPrior + 1,
-        nimbleMoves: true,
-      };
-
-      pokemon.skill[targetSlot] = enhancedSkill;
+      pokemon.nimbleSkillName = targetSkill.name;
       this.targetSlot = targetSlot;
       this.enhancedSkillName = targetSkill.name;
     },
@@ -1299,7 +1360,7 @@ const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   ["revivePiece", "maxRevive"],
 
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
-  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege"],
+  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod"],
 
   // 3. 능력치 전환 증강: 동시에 2개 이상 나오지 않음
   ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"],
@@ -1546,7 +1607,7 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     if (isTextScreen) {
       individualDesc = `${names} 과거의 급소 확률 공식을 되찾았다!`;
     }
-  } else if (id === "rouletteWheel" || id === "marriedPokemon") {
+  } else if (id === "rouletteWheel" || id === "marriedPokemon" || id === "sacrificeGod") {
     const fromName = prevPokeName || target?.name || "포켓몬";
     const toName = target?.name || "";
     individualDesc = josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);
@@ -1567,7 +1628,7 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     individualDesc = josa(`${fromName}#{이} 무한다이노로 교체되었다!`);
   } else if (id === "nimbleMoves") {
     const nimbleAug = target?.augments?.find((a) => a.id === "nimbleMoves") || selectedAugment;
-    const skillName = options?.enhancedSkillName || nimbleAug?.enhancedSkillName;
+    const skillName = options?.enhancedSkillName || nimbleAug?.enhancedSkillName || target?.nimbleSkillName;
     if (skillName) {
       individualDesc = `${skillName}의 우선도가 1 증가했다!`;
     }
@@ -1754,6 +1815,12 @@ const getHhgghggDesc = (pokemon, battle = null) => {
     return `항상 가장 높은 값의 능력치를 사용합니다. (${highest.label} ${highest.displayValue})`;
   }
   return "항상 가장 높은 값의 능력치를 사용합니다.";
+};
+
+export const isNimbleSkill = (pokemon, skill) => {
+  if (!pokemon || !skill) return false;
+  const nimbleSkillName = pokemon.nimbleSkillName || pokemon.augments?.find((a) => a.id === "nimbleMoves")?.enhancedSkillName;
+  return Boolean(pokemon.hasAugment?.("nimbleMoves") && nimbleSkillName && nimbleSkillName === skill.name);
 };
 
 export const hasAnvilStats = (pokemon) => {

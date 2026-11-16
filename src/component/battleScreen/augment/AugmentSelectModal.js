@@ -8,14 +8,15 @@ import sampleList from "../../../entity/Pokemon/pokemonSampleList";
 import AugmentStatusModal from "./AugmentStatusModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
+import AugmentGrantPreviewModal from "./AugmentGrantPreviewModal";
 import AugmentSwordEnhanceView from "./select/AugmentSwordEnhanceView";
 import AugmentRouletteView from "./select/AugmentRouletteView";
 import AugmentSkillSelectView from "./select/AugmentSkillSelectView";
 import AugmentTypeSelectView from "./select/AugmentTypeSelectView";
 
 
-import { AUGMENT_POKEMON_PREVIEW_MAP } from "./augmentPreviewConstants";
-export { AUGMENT_POKEMON_PREVIEW_MAP };
+import { AUGMENT_POKEMON_PREVIEW_MAP, getAugmentGrantInfo } from "./augmentPreviewConstants";
+export { AUGMENT_POKEMON_PREVIEW_MAP, getAugmentGrantInfo };
 
 const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, initialTarget = null, battle = null, onSelect, onClose, isTestMode: propTestMode = null, isTitanSelection = false }) => {
   const [isTestMode, setIsTestMode] = useState(() => {
@@ -41,6 +42,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [previewInfo, setPreviewInfo] = useState(null);
   const [synergyPreviewInfo, setSynergyPreviewInfo] = useState(null);
+  const [grantPreviewInfo, setGrantPreviewInfo] = useState(null);
   const [skillSelectAug, setSkillSelectAug] = useState(null);
   const [typeSelectAug, setTypeSelectAug] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
@@ -71,6 +73,11 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     const synergy = getAugmentSynergyInfo(augId);
     if (synergy) {
       setSynergyPreviewInfo({ augmentId: augId, synergy });
+      return;
+    }
+    const grant = getAugmentGrantInfo(augId);
+    if (grant) {
+      setGrantPreviewInfo({ augmentId: augId, grant });
       return;
     }
   };
@@ -179,6 +186,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     setActivePokemon(poke);
     setPreviewInfo(null);
     setSynergyPreviewInfo(null);
+    setGrantPreviewInfo(null);
     setSelectedAugment(null); // 다른 포켓몬 선택 시 증강 선택 상태 초기화
     setSearchTerm("");
     setTypeSelectAug(null);
@@ -393,7 +401,8 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                           const isBuff = isBuffAugment(aug);
                           const previewSample = getPreviewSample(aug.id);
                           const synergyData = getAugmentSynergyInfo(aug.id);
-                          const hasPreview = Boolean(previewSample || synergyData);
+                          const grantData = getAugmentGrantInfo(aug.id);
+                          const hasPreview = Boolean(previewSample || synergyData || grantData);
                           return (
                             <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => handleCardClick(e, aug)}>
                               <IconCol>
@@ -423,7 +432,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                                       type="button"
                                       $variant="info"
                                       onClick={(e) => handleOpenPreview(e, aug.id)}
-                                      title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : `${synergyData?.title || "시너지"} 공명 상세정보 보기`}
+                                      title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"}
                                     >
                                       상세정보
                                     </CardActionButton>
@@ -476,7 +485,8 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                       const isBuff = isBuffAugment(aug);
                       const previewSample = getPreviewSample(aug.id);
                       const synergyData = getAugmentSynergyInfo(aug.id);
-                      const hasPreview = Boolean(previewSample || synergyData);
+                          const grantData = getAugmentGrantInfo(aug.id);
+                          const hasPreview = Boolean(previewSample || synergyData || grantData);
                       return (
                         <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => handleCardClick(e, aug)}>
                           <IconCol>
@@ -506,7 +516,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                                   type="button"
                                   $variant="info"
                                   onClick={(e) => handleOpenPreview(e, aug.id)}
-                                  title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : `${synergyData?.title || "시너지"} 공명 상세정보 보기`}
+                                  title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"}
                                 >
                                   상세정보
                                 </CardActionButton>
@@ -553,6 +563,13 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       {isStatusOpen && <AugmentStatusModal battle={battle} team={resolvedTeam} onClose={() => setIsStatusOpen(false)} />}
       {previewInfo && <AugmentPokemonPreviewModal augmentId={previewInfo.augmentId} pokemon={previewInfo.pokemon} onClose={() => setPreviewInfo(null)} />}
       {synergyPreviewInfo && <AugmentSynergyPreviewModal synergy={synergyPreviewInfo.synergy} activeAugmentId={synergyPreviewInfo.augmentId} activePokemon={activePokemon} battle={battle} team={resolvedTeam} onClose={() => setSynergyPreviewInfo(null)} />}
+      {grantPreviewInfo && (
+        <AugmentGrantPreviewModal
+          augmentId={grantPreviewInfo.augmentId}
+          grantInfo={grantPreviewInfo.grant}
+          onClose={() => setGrantPreviewInfo(null)}
+        />
+      )}
     </>
   );
 };
@@ -838,7 +855,7 @@ const CardContainer = styled.div`
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: 6px 4px 6px 2px;
   margin-bottom: 4px;
 
   &::-webkit-scrollbar {
@@ -982,13 +999,14 @@ const CardTitleRow = styled.div`
 const CardActionOverlay = styled.div`
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(2px);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  border-radius: 10px;
+  border-radius: 7px;
   z-index: 5;
   animation: ${fadeIn} 0.15s ease-out;
 `;
@@ -1149,7 +1167,7 @@ const AugmentCard = styled.div`
     !props.$disabled &&
     `
     &:hover {
-      transform: ${props.$isPeek ? "none" : "translateY(-2px)"};
+      transform: none;
       border-color: ${props.$isSelected ? (props.$isCurse ? "#ef4444" : props.$isSynergy ? "#ffd700" : props.$isBuff ? "#38bdf8" : "#64ffda") : props.$isCurse ? "rgba(239, 68, 68, 0.7)" : props.$isSynergy ? "rgba(255, 215, 0, 0.7)" : props.$isBuff ? "rgba(56, 189, 248, 0.7)" : "rgba(100, 255, 218, 0.5)"};
       border-left: 4px solid ${props.$isCurse ? "#ef4444" : props.$isSynergy ? "#ffd700" : props.$isBuff ? "#38bdf8" : "#64ffda"};
       background: ${props.$isSelected ? (props.$isCurse ? "rgba(68, 22, 26, 0.98)" : props.$isSynergy ? "rgba(50, 42, 16, 0.98)" : props.$isBuff ? "rgba(14, 45, 68, 0.98)" : "rgba(22, 45, 64, 0.98)") : props.$isCurse ? "rgba(68, 22, 26, 0.3)" : props.$isSynergy ? "rgba(50, 42, 16, 0.3)" : props.$isBuff ? "rgba(14, 45, 68, 0.3)" : "rgba(20, 30, 44, 0.75)"};
@@ -1164,7 +1182,7 @@ const AugmentCard = styled.div`
     }
 
     &:active {
-      transform: scale(0.98);
+      transform: ${props.$isSelected ? "none" : "scale(0.98)"};
     }
   `}
 `;

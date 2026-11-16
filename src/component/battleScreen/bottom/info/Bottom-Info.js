@@ -10,7 +10,7 @@ import { getMultiplier } from "../../../../calc/rankStat";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { abilObject } from "../../../../entity/Ability";
-import { isNormalAugment } from "../../../../entity/Augment/AugmentData";
+import { isNormalAugment, isNimbleSkill } from "../../../../entity/Augment/AugmentData";
 import { itemText } from "../../../../entity/Item";
 
 const statusTexts = {
@@ -337,7 +337,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
                   <SkillMainInfo>
                     <SkillNameText>
                       {skill.name}
-                      {skill.nimbleMoves ? " +1" : ""}
+                      {skill.nimbleMoves || isNimbleSkill(pokemon, skill) ? " +1" : ""}
                     </SkillNameText>
                   </SkillMainInfo>
                   <SkillMetaBox>

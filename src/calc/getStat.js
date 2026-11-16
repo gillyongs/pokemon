@@ -75,6 +75,12 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
       logText += " * 1.1 (인생의 동반자)";
     }
 
+    // 영혼의 심복: 모든 능력치 1.5배
+    if (augId === "soulMinion") {
+      val = Math.round(val * 1.5);
+      logText += " * 1.5 (영혼의 심복)";
+    }
+
     // 라바돈의 죽음 모자
     if (augId === "rabadonsDeathcap") {
       if (statKey === "catk") {

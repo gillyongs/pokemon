@@ -9,7 +9,7 @@ const PokemonInfo = ({ battle, type }) => {
   return (
     <INFO type={type}>
       <NAME>
-        <span>{pokemon.name}</span>
+        <span>{pokemon.baseName}</span>
         {pokemon.isMega && <MegaIcon src="/pokemon/img/background/mega.webp" alt="mega" />}
       </NAME>
       {Object.entries(pokemon.ailment).map(([key, value]) =>
