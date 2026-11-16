@@ -533,8 +533,24 @@ const CustomScreen = () => {
                 <DetailButton
                   onClick={(e) => {
                     e.stopPropagation();
-                    setEditingSlotIndex(null);
-                    setInfoModalPokemon(pokemon);
+                    const targetNo = pokemon.dexNo || pokemon.no || pokemon.uniqueKey;
+                    const existingSlotIndex = currentTeam.findIndex((entry) => {
+                      if (!entry) return false;
+                      const entryId = typeof entry === "object" ? entry.sampleName || entry.id : entry;
+                      if (entryId === sName) return true;
+                      const entrySample = sampleList.getDataBySampleName(entryId);
+                      if ((entrySample?.sampleName || entrySample?.id) === sName) return true;
+                      const entryNo = entrySample?.dexNo || entrySample?.no || entrySample?.uniqueKey;
+                      return Boolean(targetNo && entryNo && targetNo === entryNo);
+                    });
+
+                    if (existingSlotIndex !== -1) {
+                      setEditingSlotIndex(existingSlotIndex);
+                      setInfoModalPokemon(resolveSlotPokemonData(currentTeam[existingSlotIndex]));
+                    } else {
+                      setEditingSlotIndex(null);
+                      setInfoModalPokemon(pokemon);
+                    }
                   }}
                 >
                   샘플 수정
