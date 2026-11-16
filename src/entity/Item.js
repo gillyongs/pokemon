@@ -30,6 +30,7 @@ export const itemText = {
   녹지않는얼음: "얼음타입 기술의 위력이 1.2배 올라간다.",
   금속코트: "강철타입 기술의 위력이 1.2배 올라간다.",
   요정의깃털: "페어리타입 기술의 위력이 1.2배 올라간다.",
+  마음의물방울: "라티오스나 라티아스가 지니게 하면 에스퍼, 드래곤 타입 기술의 위력이 1.2배 올라간다.",
 
   드닐레이브나이트: "드닐레이브에게 지니게 하면 배틀 중 메가진화 할 수 있다.",
   메타그로스나이트: "메타그로스에게 지니게 하면 배틀 중 메가진화 할 수 있다.",
@@ -89,6 +90,7 @@ export const aiItemScore = {
   녹지않는얼음: 20,
   금속코트: 20,
   요정의깃털: 20,
+  마음의물방울: 20,
 
   통굽부츠: 15,
   펀치글러브: 15,
@@ -104,3 +106,12 @@ export const aiItemScore = {
 noNullItem.forEach((item) => {
   aiItemScore[item] = 0;
 });
+
+// 포켓몬 상태/증강에 따라 동적으로 변경되는 아이템 설명 반환 헬퍼
+export const getItemDesc = (itemName, pokemon = null) => {
+  if (!itemName) return "";
+  if (itemName === "마음의물방울" && pokemon?.hasAugment?.("soulDew")) {
+    return "라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승한다.";
+  }
+  return itemText[itemName] || itemName;
+};

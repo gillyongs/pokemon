@@ -1244,6 +1244,27 @@ export const AUGMENT_LIST = [
       pokemon.tempStatus.confuse = null;
     },
   },
+  // 마음의물방울 (라티아스/라티오스 전용 증강)
+  {
+    id: "soulDew",
+    name: "마음의물방울",
+    desc: "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
+    cost: 0,
+    weight: 20,
+    isEligible: (pokemon) => {
+      return Boolean(pokemon.name.includes("라티오스") || pokemon.name.includes("라티아스"));
+    },
+    onApply: function (pokemon, battle, options) {
+      if (pokemon) {
+        const wasHolding = pokemon.item === "마음의물방울";
+        pokemon._wasHoldingSoulDew = wasHolding;
+        if (options) {
+          options.wasHoldingSoulDew = wasHolding;
+        }
+        pokemon.item = "마음의물방울";
+      }
+    },
+  },
 ];
 
 // 3개 증강 공명(시너지) 버프 매핑 테이블
@@ -1585,6 +1606,18 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
         return "누적되는 추가 능력치를 획득합니다.";
       }
     }
+  } else if (id === "soulDew") {
+    if (isTextScreen) {
+      const isHolding = options?.wasHoldingSoulDew !== undefined
+        ? options.wasHoldingSoulDew
+        : target?._wasHoldingSoulDew !== undefined
+          ? target._wasHoldingSoulDew
+          : target?.item === "마음의물방울";
+      delete target?._wasHoldingSoulDew;
+      individualDesc = isHolding
+        ? "마음의물방울이 옛날의 영광을 되찾았다!"
+        : "지닌 아이템이 마음의물방울로 교체되었다!";
+    }
   } else if (id === "lostTechnologyBlizzard") {
     if (isTextScreen) {
       individualDesc = `${names} 눈보라의 과거 위상을 되찾았다!`;
@@ -1875,6 +1908,14 @@ export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
 
   if (augment.id === "hhgghgg") {
     return getHhgghggDesc(pokemon, battle);
+  }
+
+  if (augment.id === "soulDew") {
+    const isHolding = pokemon?.item === "마음의물방울";
+    const header = isHolding
+      ? "마음의물방울이 옛날의 영광을 되찾습니다."
+      : "지닌 아이템을 마음의물방울로 교체합니다.";
+    return `${header}\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.`;
   }
 
   if (augment.id === "teraBlast") {

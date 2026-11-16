@@ -19,7 +19,7 @@ class samplePokemon {
     this.type2 = pokemon.type2;
     this.feature = pokemon.feature;
 
-    const parsedEvs = parseEvs(evs, abil);
+    const parsedEvs = parseEvs(evs);
     let { hp: hps, atk: atks, def: defs, catk: catks, cdef: cdefs, speed: speeds } = parsedEvs;
     this.evs = { hp: hps, atk: atks, def: defs, catk: catks, cdef: cdefs, speed: speeds };
     this.nature = { up, down }; // 성격, battle 중에는 안 쓰지만 custom UI에 필요
@@ -118,11 +118,7 @@ class samplePokemon {
 export default samplePokemon;
 
 // 노력치 파싱
-function parseEvs(evs, abil) {
-  if (abil === "전관예우") {
-    // 모든 노력치를 최대로 부여하는 증강 특성
-    return { hp: 252, atk: 252, def: 252, catk: 252, cdef: 252, speed: 252 };
-  }
+function parseEvs(evs) {
   if (Array.isArray(evs)) {
     return {
       hp: evs[0] ?? 0,

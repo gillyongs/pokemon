@@ -2,6 +2,12 @@
 export function getAccuracy(bt, skill, attacker) {
   let accur = skill.accur;
 
+  // 필중
+  if (accur === "-") {
+    return 100;
+    //ai 가중치 계산에서 명중률 * 최소데미지로 점수를 계산하므로 true가 아닌 100을 리턴
+  }
+
   // 대검돌격 필중 보정
   const defender = bt[bt.turn?.def];
   if (defender?.tempStatus?.glaiveRush) {
@@ -16,11 +22,6 @@ export function getAccuracy(bt, skill, attacker) {
   // [증강] 억까 방지 : 원래 기술 명중률이 80% 이상이면 필중
   if (attacker?.hasAugment?.("noUnfairMiss") && typeof skill.accur === "number" && skill.accur >= 80) {
     return 100;
-  }
-
-  // 필중
-  if (accur === "-") {
-    return 100; //ai 가중치 계산에 사용하므로 100 리턴해줘야함
   }
 
   // 설경 눈보라 필중
@@ -44,7 +45,6 @@ export function getAccuracy(bt, skill, attacker) {
   if (attacker.abil?.name === "복안" && typeof accur === "number" && !skill.feature?.oneShot) {
     accur = Math.floor(accur * 1.3);
   }
-
 
   return accur;
 }

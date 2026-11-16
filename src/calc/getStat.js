@@ -38,6 +38,20 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     logText += ` + ${anvilBonus} (모루 능력치)`;
   }
 
+  // 전관예우 특성: 모든 노력치 최대화(252) 적용 -> (252 - 현재 노력치)에 해당하는 스탯 추가 (0일 때 +32)
+  const abilName = pokemon.abil?.name || pokemon.abil;
+  if (abilName === "전관예우" && STAT_KEYS.includes(statKey)) {
+    const evs = pokemon.evs || {};
+    const currentEv = Number(evs[statKey] ?? 0);
+    const remainingEv = Math.max(0, 252 - currentEv);
+    const bonusStat = Math.round(remainingEv / 8);
+    if (bonusStat > 0) {
+      val += bonusStat;
+      logText += ` + ${bonusStat} (전관예우)`;
+    }
+  }
+
+
   const augments = pokemon?.augments || [];
 
   // 합적용 ==============================================================================
@@ -80,6 +94,7 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
       val = Math.round(val * 1.5);
       logText += " * 1.5 (영혼의 심복)";
     }
+
 
     // 라바돈의 죽음 모자
     if (augId === "rabadonsDeathcap") {

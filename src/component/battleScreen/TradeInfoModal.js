@@ -6,7 +6,7 @@ import { hpCalculate } from "../../calc/hpCalculate";
 import { getMultiplier } from "../../calc/rankStat";
 import { TYPE_COLORS } from "../../calc/typeEffectCalculate";
 import { abilObject } from "../../entity/Ability";
-import { itemText } from "../../entity/Item";
+import { itemText, getItemDesc } from "../../entity/Item";
 import { isOnlyPrioritySkillText } from "../customScreen/sampleInfo/SkillSearchModal";
 import { isNormalAugment, isNimbleSkill } from "../../entity/Augment/AugmentData";
 import AugmentStatusModal from "./augment/AugmentStatusModal";
@@ -188,7 +188,7 @@ const TradeInfoModal = ({ pokemon, pokemonList = [], battle, onClose }) => {
       setInfoText("지닌 아이템이 없습니다.");
       return;
     }
-    const desc = itemText[itemName] || `${itemName}`;
+    const desc = getItemDesc(itemName, pokemon);
     setInfoText(`[아이템: ${itemName}] ${desc}`);
   };
 

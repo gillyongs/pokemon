@@ -11,7 +11,7 @@ import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { abilObject } from "../../../../entity/Ability";
 import { isNormalAugment, isNimbleSkill } from "../../../../entity/Augment/AugmentData";
-import { itemText } from "../../../../entity/Item";
+import { itemText, getItemDesc } from "../../../../entity/Item";
 
 const statusTexts = {
   독: "매 턴 HP의 1/8의 데미지를 입는다.",
@@ -181,7 +181,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
       setText("지닌 아이템이 없습니다.");
       return;
     }
-    const desc = itemText[pokemon.item] || `${pokemon.item}`;
+    const desc = getItemDesc(pokemon.item, pokemon);
     setText(`[${pokemon.item}] ${desc}`);
   };
 

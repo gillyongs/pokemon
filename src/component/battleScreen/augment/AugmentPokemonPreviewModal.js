@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { abilObject } from "../../../entity/Ability";
-import { itemText } from "../../../entity/Item";
+import { itemText, getItemDesc } from "../../../entity/Item";
 import { TYPE_COLORS } from "../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 import { AugmentIcon } from "./AugmentIcon";
@@ -221,7 +221,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
       setInfoText("지닌 아이템이 없습니다.");
       return;
     }
-    const desc = itemText[displayItem] || "아이템 설명이 없습니다.";
+    const desc = getItemDesc(displayItem, pokemon) || "아이템 설명이 없습니다.";
     setInfoText(`[${displayItem}] ${desc}`);
   };
 

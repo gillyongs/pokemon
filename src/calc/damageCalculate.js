@@ -247,6 +247,14 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStat *= 1.5;
       atkStr += " * 1.5 (구애안경)";
     }
+    if (
+      attackPokemon.item === "마음의물방울" &&
+      attackPokemon.hasAugment?.("soulDew") &&
+      (attackPokemon.name.includes("라티오스") || attackPokemon.name.includes("라티아스"))
+    ) {
+      atkStat *= 1.5;
+      atkStr += " * 1.5 (마음의물방울)";
+    }
     if (defAbil === "재앙의그릇" && atkAbil !== "재앙의그릇") {
       if (noTggAtk) {
         atkStat *= 0.75;
@@ -310,6 +318,14 @@ export const damageCalculate = (battle, obj, ai) => {
     if (defensePokemon.item === "돌격조끼") {
       defStat *= 1.5;
       defStr += " * 1.5 (돌격조끼)";
+    }
+    if (
+      defensePokemon.item === "마음의물방울" &&
+      defensePokemon.hasAugment?.("soulDew") &&
+      (defensePokemon.name.includes("라티오스") || defensePokemon.name.includes("라티아스"))
+    ) {
+      defStat *= 1.5;
+      defStr += " * 1.5 (마음의물방울)";
     }
     if (defensePokemon.tempStatus.protosynthesis === "cdef") {
       defStat *= 1.3;
@@ -494,6 +510,16 @@ export const damageCalculate = (battle, obj, ai) => {
   if (skill.type === "페어리" && attackPokemon.item === "요정의깃털") {
     damage *= 1.2;
     attackPokemon.log.damage1 += " * 1.2 (요정의깃털)";
+  }
+
+  if (
+    attackPokemon.item === "마음의물방울" &&
+    (skill.type === "에스퍼" || skill.type === "드래곤") &&
+    !attackPokemon.hasAugment?.("soulDew") &&
+    (attackPokemon.name.includes("라티오스") || attackPokemon.name.includes("라티아스"))
+  ) {
+    damage *= 1.2;
+    attackPokemon.log.damage1 += " * 1.2 (마음의물방울)";
   }
 
   // 특성 ===========================================================================================

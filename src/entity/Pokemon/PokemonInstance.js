@@ -193,6 +193,10 @@ class PokemonInstance {
     return this.o.stat;
   }
 
+  get evs() {
+    return this.o.evs;
+  }
+
   get megaData() {
     return this.o.megaData;
   }

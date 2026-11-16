@@ -36,6 +36,8 @@ const EXCLUSIVE_ITEMS = {
   개굴닌자나이트: (p) => isPokemon(p, "개굴닌자"),
   갸라도스나이트: (p) => isPokemon(p, "갸라도스"),
   잉어킹나이트: (p) => isPokemon(p, "잉어킹"),
+  마음의물방울: (p) => isPokemon(p, "라티오스") || isPokemon(p, "라티아스"),
+  진화의휘석: (p) => Boolean(p?.feature?.evo),
 };
 
 const getFavoriteItemsForPokemon = (pokemon) => {
@@ -187,6 +189,11 @@ const getFavoriteItemsForPokemon = (pokemon) => {
   // 물라오스 -> 펀치글러브
   if (isPokemon(pokemon, "물라오스")) {
     add("펀치글러브");
+  }
+
+  // 라티오스 / 라티아스 -> 마음의물방울
+  if (isPokemon(pokemon, "라티오스") || isPokemon(pokemon, "라티아스")) {
+    add("마음의물방울");
   }
 
   return favorites;
@@ -506,7 +513,7 @@ const Badge = styled.span`
 `;
 
 const ItemDesc = styled.div`
-  font-size: 0.8rem;
+  font-size: 0.64rem;
   color: #666;
   margin-top: 2px;
   line-height: 1.35;

@@ -154,7 +154,7 @@ const StatAdjustmentModal = ({ pokemon, currentHp, currentStat, currentEvs, curr
     speed: 31,
   }), []);
 
-  const maxAllowedEv = (pokemon.abil?.name || pokemon.abil) === "전관예우" ? 1512 : 508;
+  const maxAllowedEv = 508;
   const totalEv = Object.values(evs).reduce((a, b) => a + (Number(b) || 0), 0);
   const remainingEv = maxAllowedEv - totalEv;
   const isOverEv = totalEv > maxAllowedEv;

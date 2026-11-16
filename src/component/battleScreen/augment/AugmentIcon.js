@@ -947,6 +947,25 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
+        {/* 마음의물방울 (라티아스/라티오스 전용 증강) */}
+        {id === "soulDew" && (
+          <g>
+            <circle cx="27" cy="27" r="16" fill="#f43f5e" opacity="0.18" filter="url(#glow)" />
+            <circle cx="37" cy="37" r="16" fill="#3b82f6" opacity="0.22" filter="url(#glow)" />
+            <image
+              href="/pokemon/img/item/마음의물방울.webp"
+              x="8"
+              y="8"
+              width="48"
+              height="48"
+              style={{ filter: "drop-shadow(0 0 5px rgba(56, 189, 248, 0.6))" }}
+            />
+            <path d="M 49 14 Q 49 16.5 51.5 16.5 Q 49 16.5 49 19 Q 49 16.5 49 14 Z" fill="#e0f2fe" opacity="0.95" />
+            <circle cx="15" cy="46" r="1.1" fill="#f472b6" opacity="0.85" />
+            <circle cx="48" cy="45" r="0.8" fill="#67e8f9" opacity="0.85" />
+          </g>
+        )}
+
         {/* 용 사냥꾼 / 드래곤 슬레이어 / 용살자 / 용용 죽겠지 (회색 대검 & 파란 코등이/손잡이 & 붉은 용 엠블럼) */}
         {(id === "dragonHunter" || id === "dragonSlayer" || id === "dragonKiller" || id === "dragonDie") && (
           <g>
