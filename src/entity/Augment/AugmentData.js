@@ -384,7 +384,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "specialSwordAndShield",
-    name: "로스트 테크놀로지 (특수)",
+    name: "과거의 영광 (특수)",
     desc: "항상 특공과 특방 중 더 유리한 수치를 사용합니다.",
     cost: 2,
     weight: 100,
@@ -393,8 +393,8 @@ export const AUGMENT_LIST = [
   },
   {
     id: "lostTechnologyBlizzard",
-    name: "로스트 테크놀로지 (눈보라)",
-    desc: "눈보라가 과거의 위상을 되찾습니다.\n위력이 120, 명중률이 90이 됩니다.\n30% 확률로 적을 얼리며 절대 녹지 않습니다.",
+    name: "과거의 영광 (눈보라)",
+    desc: "눈보라의 위력이 120, 명중률이 90이 됩니다. 30% 확률로 적을 얼리며 절대 녹지 않습니다.",
     cost: 3,
     weight: 100,
     isEligible: (pokemon) => hasSkill(pokemon, "눈보라"),
@@ -423,16 +423,16 @@ export const AUGMENT_LIST = [
   },
   {
     id: "lostTechnologyPsychic",
-    name: "로스트 테크놀로지 (에스퍼)",
-    desc: "에스퍼타입이 과거의 위상을 되찾습니다.\n고스트 타입 공격을 무효로 받고\n강철, 악 타입과 모든 상성 계산이 1배로 적용됩니다.",
+    name: "과거의 영광 (에스퍼)",
+    desc: "고스트 타입 공격을 무효로 받습니다.\n추가로 강철, 악 타입과 모든 상성 계산이 1배로 적용됩니다.",
     cost: 0,
     weight: 200,
     isEligible: (pokemon) => hasPokemonName(pokemon, "뮤츠"),
   },
   {
     id: "lostTechnologyHyperBeam",
-    name: "로스트 테크놀로지 (파괴광선)",
-    desc: "파괴광선이 과거의 위상을 되찾습니다.\n파괴광선으로 적을 쓰러뜨리면 반동을 받지 않습니다.\n공격, 특수공격 중 더 높은 능력치를 사용합니다.",
+    name: "과거의 영광 (파괴광선)",
+    desc: "파괴광선으로 적을 쓰러뜨리면 반동을 받지 않습니다. 공격, 특수공격 중 더 높은 능력치를 사용합니다.",
     cost: 1,
     weight: 100,
     isEligible: (pokemon) => hasSkill(pokemon, "파괴광선"),
@@ -622,14 +622,7 @@ export const AUGMENT_LIST = [
         const baseName = item.name || name;
         return !hasPokemonNameOnTeam(team, baseName);
       });
-      const pool =
-        filtered.length > 0
-          ? filtered
-          : allItems.filter(
-              (item) =>
-                !Boolean(item?.feature?.legendary || item?.o?.feature?.legendary || item?.legendary) &&
-                (item.sampleName || item.id) !== currentSampleName
-            );
+      const pool = filtered.length > 0 ? filtered : allItems.filter((item) => !Boolean(item?.feature?.legendary || item?.o?.feature?.legendary || item?.legendary) && (item.sampleName || item.id) !== currentSampleName);
       if (pool.length === 0) return;
       const picked = pool[Math.floor(Math.random() * pool.length)];
       replacePokemon(pokemon, picked.sampleName || picked.id, battle, { resetAugments: true });
@@ -1003,7 +996,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "lostTechnologyCritical",
-    name: "로스트 테크놀로지 (급소)",
+    name: "과거의 영광 (급소)",
     desc: "과거의 급소 확률 공식을 사용합니다.\n급소 확률이 스피드 종족값에 비례합니다.",
     synergy: true,
     isRandom: false,
@@ -1270,7 +1263,7 @@ export const AUGMENT_LIST = [
 // 3개 증강 공명(시너지) 버프 매핑 테이블
 // { [버프 증강 ID]: [조건 증강 ID 목록] }
 const SYNERGY_ACTIVATION_THRESHOLD = {
-  lostTechnologyCritical: 3, // 로스트 테크놀로지 증강 배열 중 3개 이상 보유 시 활성화
+  lostTechnologyCritical: 3, // 과거의 영광 증강 배열 중 3개 이상 보유 시 활성화
 };
 
 export const getSynergyThreshold = (synergyId, requiredIds = []) => {
@@ -1288,7 +1281,7 @@ export const AUGMENT_SYNERGY_MAP = {
   practiceMakesCritical: ["infinityEdge", "bladeOfTheRuinedKing", "collector"], // 연습이 치명타를 낳는다: [무한의 대검, 몰락한 왕의 검, 징수의 총]
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
   giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패]
-  lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic", "lostTechnologyHyperBeam"], // 로스트 테크놀로지 (급소)
+  lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic", "lostTechnologyHyperBeam"], // 과거의 영광 (급소)
 };
 
 const SYNERGY_INFO_MAP = {
@@ -1335,8 +1328,8 @@ const SYNERGY_INFO_MAP = {
     desc: "매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치만큼 추가 HP를 얻습니다.",
   },
   lostTechnologyCritical: {
-    theme: "로스트 테크놀로지",
-    title: "로스트 테크놀로지 (급소)",
+    theme: "과거의 영광",
+    title: "과거의 영광 (급소)",
     desc: "과거의 급소 확률 공식을 사용합니다. 스피드 종족값이 높을수록 급소에 맞을 확률이 높아집니다.",
   },
 };
@@ -1608,15 +1601,9 @@ export const getAugmentText = (selectedAugment, target, isTextScreen = false, pr
     }
   } else if (id === "soulDew") {
     if (isTextScreen) {
-      const isHolding = options?.wasHoldingSoulDew !== undefined
-        ? options.wasHoldingSoulDew
-        : target?._wasHoldingSoulDew !== undefined
-          ? target._wasHoldingSoulDew
-          : target?.item === "마음의물방울";
+      const isHolding = options?.wasHoldingSoulDew !== undefined ? options.wasHoldingSoulDew : target?._wasHoldingSoulDew !== undefined ? target._wasHoldingSoulDew : target?.item === "마음의물방울";
       delete target?._wasHoldingSoulDew;
-      individualDesc = isHolding
-        ? "마음의물방울이 옛날의 영광을 되찾았다!"
-        : "지닌 아이템이 마음의물방울로 교체되었다!";
+      individualDesc = isHolding ? "마음의물방울이 옛날의 영광을 되찾았다!" : "지닌 아이템이 마음의물방울로 교체되었다!";
     }
   } else if (id === "lostTechnologyBlizzard") {
     if (isTextScreen) {
@@ -1912,9 +1899,7 @@ export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
 
   if (augment.id === "soulDew") {
     const isHolding = pokemon?.item === "마음의물방울";
-    const header = isHolding
-      ? "마음의물방울이 옛날의 영광을 되찾습니다."
-      : "지닌 아이템을 마음의물방울로 교체합니다.";
+    const header = isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다." : "지닌 아이템을 마음의물방울로 교체합니다.";
     return `${header}\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.`;
   }
 

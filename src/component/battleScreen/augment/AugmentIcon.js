@@ -824,7 +824,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="100%" stopColor="#fb7185" />
           </linearGradient>
 
-          {/* 로스트 테크놀로지 (클래식 게임보이 DMG-01) 전용 그라데이션 */}
+          {/* 과거의 영광 (클래식 게임보이 DMG-01) 전용 그라데이션 */}
           <linearGradient id="dmgBody" x1="20%" y1="10%" x2="80%" y2="90%">
             <stop offset="0%" stopColor="#e5e7e0" />
             <stop offset="45%" stopColor="#dbddd5" />
@@ -1407,7 +1407,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 6. 로스트 테크놀로지 (특수) (수제 벡터 클래식 게임보이 DMG-01) */}
+        {/* 6. 과거의 영광 (특수) (수제 벡터 클래식 게임보이 DMG-01) */}
         {(id === "specialSwordAndShield" || id === "lostTechnologyBlizzard" || id === "lostTechnologyPsychic" || id === "lostTechnologyHyperBeam" || id === "lostTechnologyCritical") && (
           <g>
             {/* 1. 후면 레트로 사이버 그린 오라 & 픽셀 비트 빛무리 */}

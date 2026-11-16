@@ -98,7 +98,7 @@ export const damageCalculate = (battle, obj, ai) => {
   const noRankDefCombat = getPokemonCombatStats(defensePokemon, battle, true);
   let { atk: noRankDefAtk, def: noRankDefDef, cdef: noRankDefCdef } = noRankDefCombat;
 
-  // 2. 오른손엔 방패, 로스트 테크놀로지(특수), 그 긴거는 getPokemonCombatStats(applyStatSwapAugments)에서 우선 처리됨
+  // 2. 오른손엔 방패, 과거의 영광(특수), 그 긴거는 getPokemonCombatStats(applyStatSwapAugments)에서 우선 처리됨
   // (atk와 def 중 높은 값으로 덮어 씌움, catk와 cdef 중 높은 값으로 덮어 씌움 등)
 
   // 3. atk랑 catk중 더 높은 값 구하는 공통함수를 파서 테라버스트랑 파괴광선에서 사용
