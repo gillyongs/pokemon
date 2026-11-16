@@ -11,7 +11,7 @@ import { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb } from ".
 
 export const getReplacementAugmentWeight = (pokemon) => {
   const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
-  return Math.round(200 / (count + 1));
+  return Math.round(120 / (count + 1));
 };
 
 // 포켓몬 교체 증강
