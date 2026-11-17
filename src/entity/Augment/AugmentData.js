@@ -105,7 +105,7 @@ export const AUGMENT_LIST = [
     cost: 1,
     weight: 100,
     //명중률이 80~99인 기술이 존재할 때만 등장
-    isEligible: (pokemon) => getPokemonActiveSkills(pokemon).some((sk) => typeof sk?.accur === "number" && sk.accur >= 80 && sk.accur <= 99),
+    isEligible: (pokemon) => getPokemonSkills(pokemon).some((sk) => typeof sk?.accur === "number" && sk.accur >= 80 && sk.accur <= 99),
     // accuracyCalculate.js에 구현
   },
   {
@@ -1851,9 +1851,7 @@ export const AUGMENT_LIST = [
     desc: "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
     selDesc: function (pokemon) {
       const isHolding = (pokemon?.item?.name || pokemon?.item) === "마음의물방울";
-      return isHolding
-        ? "마음의물방울이 옛날의 영광을 되찾습니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다."
-        : "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
+      return isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다." : "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
     },
     screenText: function (target, prevPokeName, options) {
       const isHolding = options?.wasHoldingSoulDew !== undefined ? options.wasHoldingSoulDew : target?._wasHoldingSoulDew !== undefined ? target._wasHoldingSoulDew : target?.item === "마음의물방울";
@@ -2083,22 +2081,13 @@ const applyEternamax = (pokemon) => {
 export const BEAR_POKEMON_NAMES = ["다투곰", "달투곰", "악라오스", "물라오스", "툰베어", "이븐곰"];
 export const BEAR_DEX_NOS = ["0614", "0760", "0892", "0901"];
 
-export const isBearPokemon = (pokemon) => {
+const isBearPokemon = (pokemon) => {
   if (!pokemon) return false;
   const rawDex = pokemon.dexNo || (pokemon.uniqueKey ? String(pokemon.uniqueKey).split("-")[0] : null) || (pokemon.id ? String(pokemon.id).split("-")[0] : null);
   const cleanDex = rawDex ? String(rawDex).split("-")[0] : "";
   if (cleanDex && BEAR_DEX_NOS.includes(cleanDex)) return true;
   const name = pokemon.name || pokemon.sampleName || pokemon.id || "";
   return BEAR_POKEMON_NAMES.some((bName) => name && name.includes(bName));
-};
-
-// 곰 버프 배율 계산 함수 (1마리: 1.1배, 2마리: 1.3배, 3마리: 1.5배)
-export const getBearMultiplier = (pokemon, battle) => {
-  if (!battle) return 1.1;
-  const team = pokemon?.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
-  const count = team.filter((p) => p && BEAR_DEX_NOS.includes(p.dexNo)).length;
-
-  return count >= 3 ? 1.5 : count === 2 ? 1.3 : 1.1;
 };
 
 // 팀 내 곰 포켓몬 수에 따른 곰 증강("곰 세마리가 한 집에 있어") 동기화 함수
@@ -2234,23 +2223,16 @@ const hasSkill = (pokemon, skillName) => {
 // 4대 텍스트 시스템: selDesc / screenText / logModalText / statusModalText
 // ====================================================================================
 
-/**
- * 1. 선택 모달 / 상세정보 미리보기 전용 (selDesc)
- */
+// 증강 선택창에서 출력되는 설명 텍스트
 export const getAugmentSelDesc = (augment, pokemon = null, battle = null) => {
-  if (!augment) return "";
   if (typeof augment.selDesc === "function") return augment.selDesc(pokemon, battle);
   if (augment.selDesc) return augment.selDesc;
   if (typeof augment.desc === "function") return augment.desc(pokemon);
   return augment.desc || "";
 };
 
-/**
- * 2. 배틀 상단 화면 실시간 텍스트창 전용 (screenText)
- * - 증강에 개별 screenText가 없으면 공통 로직으로 자동 생성
- */
+// 텍스트창에 출력되는 증강 획득 텍스트
 export const getAugmentScreenText = (augment, target = null, prevPokeName = "", options = null) => {
-  if (!augment) return "";
   if (typeof augment.screenText === "function") return augment.screenText(target, prevPokeName, options);
   if (augment.screenText) return augment.screenText;
 
@@ -2263,51 +2245,29 @@ export const getAugmentScreenText = (augment, target = null, prevPokeName = "", 
   return `[증강] ${names} "${rawName}" 효과를 얻었다!`;
 };
 
-/**
- * 3. 우측 상단 로그 보기 모달 카드 전용 (logModalText)
- */
+// 로그 모달에서 출력되는 증강 텍스트
 export const getAugmentLogModalText = (augment, target = null, prevPokeName = "", options = null) => {
-  if (!augment) return "";
   if (typeof augment.logModalText === "function") return augment.logModalText(target, prevPokeName, options);
   if (augment.logModalText) return augment.logModalText;
-  if (typeof augment.selDesc === "function") return augment.selDesc(target);
-  if (augment.selDesc) return augment.selDesc;
   if (typeof augment.desc === "function") return augment.desc(target);
   return augment.desc || "";
 };
 
-/**
- * 4. 증강 현황 모달 / 증강 유지(전달) 모달 전용 (statusModalText)
- */
+// 증강 현황, 유지 모달에서 출력되는 증강 텍스트
 export const getAugmentStatusModalText = (augment, pokemon = null, battle = null, options = null) => {
-  if (!augment) return "";
   if (typeof augment.statusModalText === "function") return augment.statusModalText(pokemon, battle, options);
   if (augment.statusModalText) return augment.statusModalText;
-  if (typeof augment.selDesc === "function") return augment.selDesc(pokemon, battle);
-  if (augment.selDesc) return augment.selDesc;
   if (typeof augment.desc === "function") return augment.desc(pokemon);
   return augment.desc || "";
 };
 
-// 하위 호환성 래퍼
-export const getAugmentText = (augment, target, isTextScreen = false, prevPokeName = "", options = null) => {
-  if (isTextScreen) {
-    return getAugmentScreenText(augment, target, prevPokeName, options);
-  }
-  if (options?.showCurrentStats || options?.isCarryover) {
-    return getAugmentStatusModalText(augment, target, options?.battle, options);
-  }
-  return getAugmentLogModalText(augment, target, prevPokeName, options);
-};
-
+// 증강 original desc, 주로 preview 모달에서 출력
 export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
-  if (!augment) return "";
   if (typeof augment.desc === "function") return augment.desc(pokemon);
   return augment.desc || "";
 };
 
 export const isSynergyAugment = (augment) => {
-  if (!augment) return false;
   if (typeof augment === "object" && augment.synergy) return true;
   const id = typeof augment === "string" ? augment : augment.id;
   if (id && AUGMENT_SYNERGY_MAP && Boolean(AUGMENT_SYNERGY_MAP[id])) return true;
@@ -2316,7 +2276,6 @@ export const isSynergyAugment = (augment) => {
 };
 
 export const isCurseAugment = (augment) => {
-  if (!augment) return false;
   if (typeof augment === "object" && augment.curse) return true;
   const id = typeof augment === "string" ? augment : augment.id;
   const found = AUGMENT_LIST.find((a) => a.id === id);
@@ -2324,7 +2283,6 @@ export const isCurseAugment = (augment) => {
 };
 
 export const isBuffAugment = (augment) => {
-  if (!augment) return false;
   if (isCurseAugment(augment)) return false;
   if (isSynergyAugment(augment)) return false;
   if (typeof augment === "object" && augment.buf) return true;
@@ -2334,7 +2292,6 @@ export const isBuffAugment = (augment) => {
 };
 
 export const isNormalAugment = (augment) => {
-  if (!augment) return false;
   return !isCurseAugment(augment) && !isBuffAugment(augment) && !isSynergyAugment(augment);
 };
 
@@ -2348,7 +2305,6 @@ export const stripEmoji = (str) => {
 // ==============================================================================
 
 function isHpAtLeast(pokemon, ratio = 0.5) {
-  if (!pokemon) return false;
   return pokemon.hp >= pokemon.maxHp * ratio;
 }
 
@@ -2357,71 +2313,57 @@ function hasPokemonOnTeam(team, dexNo) {
   return team.some((p) => p && p.dexNo === dexNo);
 }
 
-const TANK_ROLES = ["막이", "물리막이", "특수막이"];
-const EXCLUDED_STAT_TYPE_SKILLS = ["지구던지기", "속임수", "바디프레스"];
-
-function getPokemonRole(pokemon) {
-  return pokemon?.role || "";
-}
-
-function getPokemonBaseStats(pokemon) {
-  return pokemon?.stat || null;
-}
-
-function getPokemonActiveSkills(pokemon) {
+function getPokemonSkills(pokemon) {
   const skills = pokemon?.skill;
   if (!skills) return [];
   return [1, 2, 3, 4].map((slot) => skills[slot]).filter((sk) => sk && sk.name !== "발버둥");
 }
 
+// 막이 포켓몬 여부, pokemon.role로 확인
 function isTankPokemon(pokemon) {
-  return TANK_ROLES.includes(getPokemonRole(pokemon));
+  const TANK_ROLES = ["막이", "물리막이", "특수막이"];
+  return TANK_ROLES.includes(pokemon.role);
 }
 
+const EXCLUDED_STAT_TYPE_SKILLS = ["지구던지기", "속임수", "바디프레스"];
+
+// 물리 포켓몬 여부, 공격이 더 높고 물리 공격기가 있는 경우
 function isPhysicalPokemon(pokemon) {
-  const stat = getPokemonBaseStats(pokemon);
-  if (!stat || stat.atk <= stat.catk) return false;
-  return getPokemonActiveSkills(pokemon).some((sk) => {
+  const stat = pokemon.stat;
+  if (stat.atk < stat.catk) return false;
+  return getPokemonSkills(pokemon).some((sk) => {
     const stype = sk?.name === "테라버스트" && stat.atk > stat.catk ? "atk" : sk?.stype;
     return stype === "atk" && !EXCLUDED_STAT_TYPE_SKILLS.includes(sk?.name);
   });
 }
 
+// 특수 포켓몬 여부, 특공이 더 높고 특수 공격기가 있는 경우
 function isSpecialPokemon(pokemon) {
-  const stat = getPokemonBaseStats(pokemon);
-  if (!stat || stat.catk <= stat.atk) return false;
-  return getPokemonActiveSkills(pokemon).some((sk) => {
+  const stat = pokemon.stat;
+  if (stat.catk < stat.atk) return false;
+  return getPokemonSkills(pokemon).some((sk) => {
     return sk?.stype === "catk" && !EXCLUDED_STAT_TYPE_SKILLS.includes(sk?.name);
   });
 }
 
-const STAT_SWAP_AUGMENTS = ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"];
-
+// 능륵쳐 일치화 증강이 이미 있으면 안나옴
 function canPickStatSwapAugment(pokemon) {
-  if (!pokemon) return false;
+  const STAT_SWAP_AUGMENTS = ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"];
   return !STAT_SWAP_AUGMENTS.some((id) => pokemon.hasAugment?.(id));
 }
 
-function getPokemonStatValue(pokemon, statKey, battle = null) {
-  if (!pokemon) return 0;
-  if (typeof getAugmentedStat === "function") {
-    const val = getAugmentedStat(pokemon, statKey, battle);
-    if (typeof val === "number" && !Number.isNaN(val) && val > 0) return val;
-  }
-  const stat = getPokemonBaseStats(pokemon);
-  return Number(stat?.[statKey] ?? 0);
-}
-
+// 오른손엔방패 왼손엔검, 특수, 그 긴거 : 두 스탯이 1.5배 이상 차이날때만 등장
 function hasStatRatioDiff(pokemon, statKey1, statKey2, ratio = 1.5, battle = null) {
-  const val1 = getPokemonStatValue(pokemon, statKey1, battle);
-  const val2 = getPokemonStatValue(pokemon, statKey2, battle);
+  const val1 = getAugmentedStat(pokemon, statKey1, battle);
+  const val2 = getAugmentedStat(pokemon, statKey2, battle);
   if (!val1 || !val2 || val1 <= 0 || val2 <= 0) return false;
   const max = Math.max(val1, val2);
   const min = Math.min(val1, val2);
   return max >= min * ratio - 1e-9;
 }
 
-export const getStatCompareDesc = (pokemon, stat1, stat2, battle = null, label1 = null, label2 = null) => {
+// 오른손엔방패 왼손엔검, 특수, 그 긴거 텍스트
+const getStatCompareDesc = (pokemon, stat1, stat2, battle = null, label1 = null, label2 = null) => {
   const defaultLabels = {
     atk: "공격",
     def: "방어",
@@ -2440,30 +2382,4 @@ export const getStatCompareDesc = (pokemon, stat1, stat2, battle = null, label1 
     return josa(`항상 ${name1}(${val1})#{와} ${name2}(${val2}) 중 더 유리한 수치를 사용합니다.`);
   }
   return josa(`항상 ${name1}#{와} ${name2} 중 더 유리한 수치를 사용합니다.`);
-};
-
-export const getSwordAndShieldDesc = (pokemon, battle = null) => getStatCompareDesc(pokemon, "atk", "def", battle);
-export const getSpecialSwordAndShieldDesc = (pokemon, battle = null) => getStatCompareDesc(pokemon, "catk", "cdef", battle);
-export const getKsanteDesc = (pokemon, battle = null) => getStatCompareDesc(pokemon, "def", "cdef", battle);
-
-export const getAllOrNothingStatValues = (pokemon, battle = null, pick = null) => {
-  const stat = pokemon?.stat;
-  if (!stat || typeof stat.atk !== "number" || typeof stat.catk !== "number") return null;
-  const atkRank = Number(pokemon?.tempStatus?.rank?.atk ?? 0);
-  const catkRank = Number(pokemon?.tempStatus?.rank?.catk ?? 0);
-  let atkVal = Math.floor(getAugmentedStat(pokemon, "atk", battle) * getMultiplier(atkRank));
-  let catkVal = Math.floor(getAugmentedStat(pokemon, "catk", battle) * getMultiplier(catkRank));
-
-  const hasApplied = pokemon?.augments?.some((a) => (typeof a === "string" ? a === "allOrNothing" : a.id === "allOrNothing") && (a.allOrNothingResult || pokemon.allOrNothingResult));
-  if (!hasApplied && pick) {
-    if (pick === "atk") {
-      atkVal = Math.round(atkVal * 2);
-      catkVal = Math.max(1, Math.floor(catkVal / 2));
-    } else if (pick === "catk") {
-      catkVal = Math.round(catkVal * 2);
-      atkVal = Math.max(1, Math.floor(atkVal / 2));
-    }
-  }
-
-  return { atkVal, catkVal };
 };
