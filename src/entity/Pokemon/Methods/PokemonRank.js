@@ -93,6 +93,23 @@ export const PokemonRank = {
     }
   },
 
+  canRankUp(statKey, direction = "up") {
+    const rank = this.tempStatus.rank;
+    let isUp = direction === "up" || (typeof direction === "number" ? direction > 0 : true);
+
+    if (this.abil?.name === "심술꾸러기") {
+      isUp = !isUp;
+    }
+
+    if (statKey === "all") {
+      const stats = ["atk", "def", "catk", "cdef", "speed"];
+      return stats.some((st) => (isUp ? (rank[st] ?? 0) < 6 : (rank[st] ?? 0) > -6));
+    }
+
+    const currentRank = rank[statKey] ?? 0;
+    return isUp ? currentRank < 6 : currentRank > -6;
+  },
+
   rankUp(battle, enqueue, rankType, rankValue, abilText, isOpponent, isMoldBreaker) {
     this.applyRankChange(battle, enqueue, rankType, rankValue, abilText, isOpponent, isMoldBreaker);
     this.checkWhiteHerb(battle, enqueue);

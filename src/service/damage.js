@@ -18,7 +18,6 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   const isNoTextSkill = useSkill.feature?.noText || useSkill.feature?.oneShot;
   // 일격기나 고정데미지 스킬은 상성, 급소 텍스트가 뜨지 않는다
 
-
   let commonText = null;
   if (serialAttackObject) {
     commonText = "(" + serialAttackObject.num + "타) ";
@@ -271,7 +270,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
 
   if (!isConfuseSelfHit) {
-    applyOnHitEvents(battle, enqueue);
+    applyOnHitEvents(battle, enqueue, false);
     // 혼란 자해는 피격 이벤트가 발생하지 않음 (풍선도 안 터짐)
   }
 }

@@ -77,12 +77,14 @@ const getFavoriteItemsForPokemon = (pokemon) => {
   // 타입
   const types = [pokemon.type1, pokemon.type2, pokemon.megaData?.type1, pokemon.megaData?.type2].filter(Boolean);
 
-  // 막이 / 딜탱인 경우 -> 돌격조끼, 먹다남은음식, 자뭉열매, 울퉁불퉁멧
+  // 막이 / 딜탱인 경우 -> 돌격조끼, 먹다남은음식, 자뭉열매, 울퉁불퉁멧, 악키열매, 타라프열매
   if (isTanker) {
     add("돌격조끼");
     add("먹다남은음식");
     add("자뭉열매");
     add("울퉁불퉁멧");
+    add("악키열매");
+    add("타라프열매");
 
     // 독타입인 경우 -> 검은진흙
     if (types.includes("독")) {

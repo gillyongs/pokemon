@@ -25,10 +25,29 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
 
   const noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
   if (defPokemon.item === "슈케열매" && useSkill?.type === "땅" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
+    // 뎀감 자체는 damageCalculate에서 적용
     const typeDamage = typeCheckOnBattle(battle, useSkill.type, defPokemon.type1, defPokemon.type2);
     if (typeDamage > 1) {
       defPokemon.consumeItem();
       enqueue({ id: "7c0782c7-e4a8-4dc9-9bc6-22738696e17e", battle, text: `${defPokemon.names("는")} 슈케열매로 땅타입 기술의 위력을 반감시켰다!` });
+    }
+  }
+
+  // 악키열매 (물리 기술 피격 시 방어 1랭크 상승)
+  // 탁떨 맞으면 발동 안함.
+  // 악타입 반감 열매는 발동 하는게 맞음
+  if (defPokemon.item === "악키열매" && !defPokemon.faint && useSkill?.stype === "atk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
+    if (defPokemon.canRankUp("def", "up")) {
+      defPokemon.consumeItem();
+      defPokemon.rankUp(battle, enqueue, "def", 1, "[악키열매]");
+    }
+  }
+
+  // 타라프열매 (특수 기술 피격 시 특수방어 1랭크 상승)
+  if (defPokemon.item === "타라프열매" && !defPokemon.faint && useSkill?.stype === "catk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
+    if (defPokemon.canRankUp("cdef", "up")) {
+      defPokemon.consumeItem();
+      defPokemon.rankUp(battle, enqueue, "cdef", 1, "[타라프열매]");
     }
   }
 
