@@ -2,30 +2,63 @@
 import { speedCheck } from "../../calc/speedCheck";
 
 export class Weather {
-  #type = null; // 현재 날씨: "쾌청", "비", null
+  #type = null; // 현재 날씨: "쾌청", "비", "모래바람", "설경", null
   #turnRemain = null; // 남은 턴 수
+  field = null;
+  battle = null;
 
-  get() {
-    return this.#type;
+  constructor(field = null) {
+    this.field = field;
+  }
+
+  get battleRef() {
+    return this.battle || this.field?.battle || null;
+  }
+
+  // 날씨부정 / 에어록에 의한 날씨 무효화 여부
+  isSuppressed(battle = null) {
+    const bt = battle || this.battleRef;
+    if (!bt) return false;
+    const p1 = bt.player;
+    const p2 = bt.npc;
+    const noWeatherAbils = ["에어록", "날씨부정"];
+    return Boolean(
+      (p1 && !p1.faint && noWeatherAbils.includes(p1.abil?.name)) ||
+      (p2 && !p2.faint && noWeatherAbils.includes(p2.abil?.name))
+    );
   }
 
   get isSunny() {
+    if (this.isSuppressed()) return false;
     return this.#type === "쾌청";
     // 고대활성, 아침햇살, 진홍빛고동, 번개/폭풍 명중률, 얼음 상태이상 실패
   }
 
   get isRainy() {
+    if (this.isSuppressed()) return false;
     return this.#type === "비";
     // 번개/폭풍 필중
   }
 
   get isSandstorm() {
+    if (this.isSuppressed()) return false;
     return this.#type === "모래바람";
   }
 
   get isSnow() {
+    if (this.isSuppressed()) return false;
     return this.#type === "설경";
     // 얼음타입 방어 1.5배, 눈보라 필중, 오로라베일 사용 조건
+  }
+
+  // 현재 유효한 날씨가 존재하는지 여부 (무효화 시 false)
+  get hasWeather() {
+    return this.isSunny || this.isRainy || this.isSandstorm || this.isSnow;
+  }
+
+  // 턴 카운트 등 내부 전용 실제 설치 날씨
+  get rawType() {
+    return this.#type;
   }
 
   #setWeather(weatherType, turnRemain, enqueue, battle, weatherText) {
@@ -35,6 +68,7 @@ export class Weather {
   }
 
   setWeatherOnBattle(battle, enqueue, pokemon, weatherType, weatherText) {
+    if (battle) this.battle = battle;
     if (this.#type === weatherType) return; // 이미 같은 날씨면 무시
     const endedType = this.#type;
 
@@ -56,6 +90,7 @@ export class Weather {
 
   // 턴 종료시 날씨 처리
   handleWeatherTurnEnd(battle, enqueue) {
+    if (battle) this.battle = battle;
     if (this.#type === null) return;
 
     this.#turnRemain--;
@@ -83,7 +118,8 @@ export class Weather {
 
   // 날씨 데미지 처리 (턴 종료 시 1개체 대상)
   handleWeatherDamageTurnEnd(battle, enqueue, user) {
-    if (battle.field.weather.get() === "모래바람") {
+    if (battle) this.battle = battle;
+    if (this.isSandstorm) {
       const p = battle[user];
       if (p.faint) return;
       const immune = p.type1 === "바위" || p.type2 === "바위" || p.type1 === "땅" || p.type2 === "땅" || p.type1 === "강철" || p.type2 === "강철";

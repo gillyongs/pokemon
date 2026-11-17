@@ -307,12 +307,12 @@ function skillEffectSearch(name) {
       const skillUser = battle[battle.turn.atk];
       const hp = skillUser.maxHp;
       let value = hp / 2;
-      if (battle.field.weather.get() === null) {
-        value = hp / 2;
-      } else if (battle.field.weather.isSunny) {
+      if (battle.field.weather.isSunny) {
         value = (hp * 2) / 3;
-      } else {
+      } else if (battle.field.weather.isRainy || battle.field.weather.isSandstorm || battle.field.weather.isSnow) {
         value = hp / 4;
+      } else {
+        value = hp / 2;
       }
       skillUser.recover(battle, Math.floor(value), enqueue);
     },

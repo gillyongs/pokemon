@@ -346,7 +346,7 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 1.5;
       defStr += " * 1.5 (진화의휘석)";
     }
-    if (battle.field.weather.get() === "모래바람" && (defensePokemon.type1 === "바위" || defensePokemon.type2 === "바위")) {
+    if (battle.field.weather.isSandstorm && (defensePokemon.type1 === "바위" || defensePokemon.type2 === "바위")) {
       defStat *= 1.5;
       defStr += " * 1.5 (모래바람+바위)";
     }
@@ -431,8 +431,7 @@ export const damageCalculate = (battle, obj, ai) => {
   attackPokemon.log.damage1 = "22 * " + power + "(위력) * [" + atkStr + "] / 50 / [" + defStr + "]";
 
   // 날씨 ==========================================================
-  const weather = battle.field.weather.get(); // 날씨 보정
-  if (weather === "비") {
+  if (battle.field.weather.isRainy) {
     if (skill.type === "물") {
       damage *= 1.5;
       attackPokemon.log.damage1 += " * 1.5 (비+물)";
@@ -442,7 +441,7 @@ export const damageCalculate = (battle, obj, ai) => {
       attackPokemon.log.damage1 += " * 0.5 (비+불꽃)";
     }
   }
-  if (weather === "쾌청") {
+  if (battle.field.weather.isSunny) {
     if (skill.type === "불꽃") {
       damage *= 1.5;
       attackPokemon.log.damage1 += " * 1.5 (쾌청+불)";
@@ -982,13 +981,13 @@ const powerCalculate = (battle, skill, obj, ai) => {
   }
   if (skill.name === "솔라빔") {
     const weather = battle.field.weather;
-    if (weather.isRainy || weather.isSandstorm || weather.get() === "설경" || weather.get() === "눈") {
+    if (weather.isRainy || weather.isSandstorm || weather.isSnow) {
       power = Math.floor(power * 0.5);
     }
   }
   if (skill.name === "웨더볼") {
     const weather = battle.field?.weather;
-    if (weather && weather.get() !== null) {
+    if (weather?.hasWeather) {
       power = 100;
     }
   }

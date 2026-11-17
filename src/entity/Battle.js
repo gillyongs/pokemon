@@ -33,7 +33,11 @@ class Battle {
       //선 유턴이면 skillUseNpc를 실행하고 그 외엔 turnEnd를 실행한다
     };
     //turnEnd 같은 변수때문에 턴이 시작될때 = battleStart.js에서 초기화된다
-    this.field = new Field();
+
+    // weather에서 battle 접근할 수 있게 전달
+    this.field = new Field(this);
+    this.field.battle = this;
+    if (this.field.weather) this.field.weather.battle = this;
 
     this.common = {
       player: {
@@ -68,9 +72,7 @@ class Battle {
     if (side !== "npc" && side !== "player") return false;
     const active = side === "npc" ? this.npc : this.player;
     if (!active || active.faint || active.hp <= 0) return false;
-    const benches = side === "npc"
-      ? [this.npcBench1, this.npcBench2].filter(Boolean)
-      : [this.playerBench1, this.playerBench2].filter(Boolean);
+    const benches = side === "npc" ? [this.npcBench1, this.npcBench2].filter(Boolean) : [this.playerBench1, this.playerBench2].filter(Boolean);
     return benches.length > 0 && benches.every((p) => p.faint || p.hp <= 0);
   }
 }

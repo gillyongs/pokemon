@@ -21,6 +21,8 @@ export const abilObject = {
   일렉트릭메이커: { text: "전투에 나오면 지형을 일렉트릭필드로 만든다." },
   미스트메이커: { text: "전투에 나오면 지형을 미스트필드로 만든다." },
   잔비: { text: "전투에 나오면 날씨를 5턴 간 비로 바꾼다." },
+  에어록: { text: "모든 날씨의 영향이 없어진다." },
+  날씨부정: { text: "모든 날씨의 영향이 없어진다." },
   가뭄: { text: "전투에 나오면 날씨를 5턴 간 쾌청으로 바꾼다." },
   진홍빛고동: {
     text: "등장했을 때 날씨를 맑음으로 만든다. 햇살이 강하면 고대의 고동에 의해 공격이 1.3배가 된다.",
@@ -234,13 +236,16 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     테라볼티지: { text: "세차게 튀는 오라를 발산하고 있다!", head: "names" },
     터보블레이즈: { text: "활활 타오르는 오라를 발산하고 있다!", head: "names" },
     틀깨기: { text: "상대 특성에 방해받지 않고 기술을 사용할 수 있다.", head: "names" },
+    에어록: { text: "모든 날씨의 영향이 없어졌다!", head: "none" },
+    날씨부정: { text: "모든 날씨의 영향이 없어졌다!", head: "none" },
   };
 
   if (messageAbilities[atkAbil]) {
+    let head = messageAbilities[atkAbil].head;
     enqueue({
       id: "c04ebf99-9277-41cd-9271-c0a9270ea942",
       battle: bt,
-      text: `[특성 ${atkAbil}] ${messageAbilities[atkAbil].head === "names" ? atk.names("는") : atk.name} ${messageAbilities[atkAbil].text}`,
+      text: `[특성 ${atkAbil}] ${head === "names" ? atk.names("는") : head === "name" ? atk.name : ""} ${messageAbilities[atkAbil].text}`,
     });
   }
 
@@ -357,6 +362,13 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // 기타 특성
   if (atkAbil === "고대활성" && atk.tempStatus.protosynthesis === null) {
     atk.handleProtosynthesis(bt, enqueue);
+  }
+
+  // 에어록 / 날씨부정 등장 시 상대방의 쾌청 기반 고대활성 해제
+  if (atkAbil === "에어록" || atkAbil === "날씨부정") {
+    if (def?.tempStatus?.protosynthesisBySun) {
+      def.handleProtosynthesisEnd(bt, enqueue);
+    }
   }
   if (atkAbil === "쿼크차지" && atk.tempStatus.quarkDrive === null) {
     atk.handleQuarkDrive(bt, enqueue);

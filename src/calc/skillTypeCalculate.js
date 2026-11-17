@@ -15,8 +15,7 @@ export const skillTypeCalculate = (battle, skill, pokemon = null) => {
     if (weather?.isSunny) return "불꽃";
     if (weather?.isRainy) return "물";
     if (weather?.isSandstorm) return "바위";
-    const w = typeof weather?.get === "function" ? weather.get() : weather?.get;
-    if (w === "설경" || w === "눈") return "얼음";
+    if (weather?.isSnow) return "얼음";
     type = "노말";
   }
 
