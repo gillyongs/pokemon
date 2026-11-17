@@ -270,7 +270,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
 
   if (!isConfuseSelfHit) {
-    applyOnHitEvents(battle, enqueue, false);
+    applyOnHitEvents(battle, enqueue, false, talTrigger);
     // 혼란 자해는 피격 이벤트가 발생하지 않음 (풍선도 안 터짐)
   }
 }

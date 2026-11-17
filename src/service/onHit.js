@@ -3,7 +3,7 @@ import { random } from "../util/randomCheck";
 import { typeCheckOnBattle } from "../calc/typeEffectCalculate";
 import { josa } from "josa";
 
-export const applyOnHitEvents = (battle, enqueue, substitute) => {
+export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = false) => {
   // 피격시 발동되는 특성, 아이템 모음
   // 연속기면 여러번 터진다
   // 독치장(킬라플로르), 울퉁불퉁멧, 철가시(까칠한피부), 정전기, 풍선 터짐
@@ -36,7 +36,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   // 악키열매 (물리 기술 피격 시 방어 1랭크 상승)
   // 탁떨 맞으면 발동 안함.
   // 악타입 반감 열매는 발동 하는게 맞음
-  if (defPokemon.item === "악키열매" && !defPokemon.faint && useSkill?.stype === "atk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
+  if (!isDisguiseHit && defPokemon.item === "악키열매" && !defPokemon.faint && useSkill?.stype === "atk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     if (defPokemon.canRankUp("def", "up")) {
       defPokemon.consumeItem();
       defPokemon.rankUp(battle, enqueue, "def", 1, "[악키열매]");
@@ -44,7 +44,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute) => {
   }
 
   // 타라프열매 (특수 기술 피격 시 특수방어 1랭크 상승)
-  if (defPokemon.item === "타라프열매" && !defPokemon.faint && useSkill?.stype === "catk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
+  if (!isDisguiseHit && defPokemon.item === "타라프열매" && !defPokemon.faint && useSkill?.stype === "catk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     if (defPokemon.canRankUp("cdef", "up")) {
       defPokemon.consumeItem();
       defPokemon.rankUp(battle, enqueue, "cdef", 1, "[타라프열매]");
