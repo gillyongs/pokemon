@@ -15,7 +15,6 @@ import AugmentRouletteView from "./select/AugmentRouletteView";
 import AugmentSkillSelectView from "./select/AugmentSkillSelectView";
 import AugmentTypeSelectView from "./select/AugmentTypeSelectView";
 
-
 import { AUGMENT_POKEMON_PREVIEW_MAP, getAugmentGrantInfo } from "./augmentPreviewConstants";
 export { AUGMENT_POKEMON_PREVIEW_MAP, getAugmentGrantInfo };
 
@@ -240,7 +239,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       return;
     }
 
-    if (["allOrNothing", "russianRoulette", "doOrDie", "highRiskHighReturn", "randomAbility", "oddEven"].includes(targetAug.id)) {
+    if (["allOrNothing", "russianRoulette", "highRiskHighReturn", "randomAbility", "oddEven"].includes(targetAug.id)) {
       setRouletteAug(targetAug);
       return;
     }
@@ -437,21 +436,17 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                                 <CardDescription>{getAugmentSelDesc(aug, activePokemon, battle)}</CardDescription>
                               </CardContent>
                               {isCardSelected && (
-                                <CardActionOverlay onClick={(e) => { e.stopPropagation(); setSelectedAugment(null); }}>
-                                  <CardActionButton
-                                    type="button"
-                                    $variant="confirm"
-                                    onClick={(e) => handleConfirm(e, aug)}
-                                  >
+                                <CardActionOverlay
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedAugment(null);
+                                  }}
+                                >
+                                  <CardActionButton type="button" $variant="confirm" onClick={(e) => handleConfirm(e, aug)}>
                                     선택
                                   </CardActionButton>
                                   {hasPreview && (
-                                    <CardActionButton
-                                      type="button"
-                                      $variant="info"
-                                      onClick={(e) => handleOpenPreview(e, aug.id)}
-                                      title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"}
-                                    >
+                                    <CardActionButton type="button" $variant="info" onClick={(e) => handleOpenPreview(e, aug.id)} title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"}>
                                       상세정보
                                     </CardActionButton>
                                   )}
@@ -503,8 +498,8 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                       const isBuff = isBuffAugment(aug);
                       const previewSample = getPreviewSample(aug.id);
                       const synergyData = getAugmentSynergyInfo(aug.id);
-                          const grantData = getAugmentGrantInfo(aug.id);
-                          const hasPreview = Boolean(previewSample || synergyData || grantData);
+                      const grantData = getAugmentGrantInfo(aug.id);
+                      const hasPreview = Boolean(previewSample || synergyData || grantData);
                       return (
                         <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => handleCardClick(e, aug)}>
                           <IconCol>
@@ -521,21 +516,17 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                             <CardDescription>{getAugmentSelDesc(aug, activePokemon, battle)}</CardDescription>
                           </CardContent>
                           {isCardSelected && (
-                            <CardActionOverlay onClick={(e) => { e.stopPropagation(); setSelectedAugment(null); }}>
-                              <CardActionButton
-                                type="button"
-                                $variant="confirm"
-                                onClick={(e) => handleConfirm(e, aug)}
-                              >
+                            <CardActionOverlay
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedAugment(null);
+                              }}
+                            >
+                              <CardActionButton type="button" $variant="confirm" onClick={(e) => handleConfirm(e, aug)}>
                                 선택
                               </CardActionButton>
                               {hasPreview && (
-                                <CardActionButton
-                                  type="button"
-                                  $variant="info"
-                                  onClick={(e) => handleOpenPreview(e, aug.id)}
-                                  title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"}
-                                >
+                                <CardActionButton type="button" $variant="info" onClick={(e) => handleOpenPreview(e, aug.id)} title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"}>
                                   상세정보
                                 </CardActionButton>
                               )}
@@ -549,12 +540,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
 
                 {showAllList && (
                   <SearchContainer onClick={(e) => e.stopPropagation()}>
-                    <SearchInput
-                      type="text"
-                      placeholder="증강 이름으로 검색..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                    <SearchInput type="text" placeholder="증강 이름으로 검색..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                     {searchTerm && (
                       <SearchClearButton
                         type="button"
@@ -581,15 +567,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       {isStatusOpen && <AugmentStatusModal battle={battle} team={resolvedTeam} onClose={() => setIsStatusOpen(false)} />}
       {previewInfo && <AugmentPokemonPreviewModal augmentId={previewInfo.augmentId} pokemon={previewInfo.pokemon} onClose={() => setPreviewInfo(null)} />}
       {synergyPreviewInfo && <AugmentSynergyPreviewModal synergy={synergyPreviewInfo.synergy} activeAugmentId={synergyPreviewInfo.augmentId} activePokemon={activePokemon} battle={battle} team={resolvedTeam} onClose={() => setSynergyPreviewInfo(null)} />}
-      {grantPreviewInfo && (
-        <AugmentGrantPreviewModal
-          augmentId={grantPreviewInfo.augmentId}
-          grantInfo={grantPreviewInfo.grant}
-          pokemon={activePokemon}
-          battle={battle}
-          onClose={() => setGrantPreviewInfo(null)}
-        />
-      )}
+      {grantPreviewInfo && <AugmentGrantPreviewModal augmentId={grantPreviewInfo.augmentId} grantInfo={grantPreviewInfo.grant} pokemon={activePokemon} battle={battle} onClose={() => setGrantPreviewInfo(null)} />}
     </>
   );
 };

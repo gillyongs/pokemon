@@ -29,10 +29,12 @@ const AugmentSkillSelectView = ({
   const handleConfirm = (e) => {
     e?.stopPropagation();
     if (!selectedSlot) return;
+    const prevSkill = activePokemon?.skill?.[selectedSlot];
     onSelect(skillSelectAug, {
       replaceSlot: selectedSlot,
       targetPokemon: activePokemon,
       selectedType: selectedType || "노말",
+      replacedSkillName: prevSkill?.name || "기존 기술",
     });
     setSelectedSlot(null);
   };

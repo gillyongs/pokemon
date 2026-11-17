@@ -50,7 +50,7 @@ export const hasGamblingAddict = (team) => {
 };
 
 // 도박 중독 시 해금 및 확정 등장하는 도박 증강 ID 목록
-export const GAMBLE_BONUS_AUGMENT_IDS = ["russianRoulette", "oddEven", "doOrDie", "highRiskHighReturn"];
+export const GAMBLE_BONUS_AUGMENT_IDS = ["russianRoulette", "oddEven", "highRiskHighReturn"];
 
 export const getHhgghggDesc = (pokemon, battle = null) => {
   const highest = getHighestStatInfo(pokemon, battle);
@@ -666,8 +666,7 @@ export const AUGMENT_LIST = [
     name: "과거의 영광 (눈보라)",
     desc: "눈보라의 위력이 120, 명중률이 90이 됩니다. 30% 확률로 적을 얼리며 절대 녹지 않습니다.",
     screenText: function (target) {
-      const names = target ? target.names("는") : "포켓몬은";
-      return `[증강] ${names} 눈보라의 과거 위상을 되찾았다!`;
+      return `[증강]눈보라가 과거 위상을 되찾았다!`;
     },
     cost: 3,
     weight: 100,
@@ -700,8 +699,7 @@ export const AUGMENT_LIST = [
     name: "과거의 영광 (에스퍼)",
     desc: "고스트 타입 공격을 무효로 받습니다.\n추가로 강철, 악 타입과 모든 상성 계산이 1배로 적용됩니다.",
     screenText: function (target) {
-      const names = target ? target.names("는") : "포켓몬은";
-      return `[증강] ${names} 에스퍼타입의 과거 위상을 되찾았다!`;
+      return `[증강] 에스퍼타입이 과거의 위상을 되찾았다!`;
     },
     cost: 0,
     weight: 200,
@@ -712,8 +710,7 @@ export const AUGMENT_LIST = [
     name: "과거의 영광 (파괴광선)",
     desc: "파괴광선으로 적을 쓰러뜨리면 반동을 받지 않습니다. 공격, 특수공격 중 더 높은 능력치를 사용합니다.",
     screenText: function (target) {
-      const names = target ? target.names("는") : "포켓몬은";
-      return `[증강] ${names} 파괴광선의 과거 위상을 되찾았다!`;
+      return `[증강] 파괴광선이 과거의 위상을 되찾았다!`;
     },
     cost: 1,
     weight: 100,
@@ -766,8 +763,7 @@ export const AUGMENT_LIST = [
   {
     id: "hhgghgg",
     name: "H.H.G.G.H.G.G",
-    desc: "항상 가장 높은 값의 능력치를 사용합니다.",
-    statusModalText: function (pokemon, battle) {
+    desc: function (pokemon, battle) {
       return getHhgghggDesc(pokemon, battle);
     },
     cost: 10,
@@ -784,14 +780,27 @@ export const AUGMENT_LIST = [
       return "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.";
     },
     screenText: function (target, prevPokeName, options) {
-      const chosenType = options?.selectedType || this?.selectedType || "";
-      const names = target ? target.names("는") : "포켓몬은";
-      return chosenType ? `[증강] ${names} ${chosenType} 타입 테라버스트를 얻었다!` : `[증강] ${names} 테라버스트를 얻었다!`;
+      const augOnPoke = target?.augments?.find((a) => a.id === "teraBlast");
+      const chosenType = options?.selectedType || this?.selectedType || augOnPoke?.selectedType || "노말";
+      const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || augOnPoke?.replacedSkillName || "기존 기술";
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return josa(`[증강] ${names} ${prevSkillName}#{을} ${chosenType}타입 테라버스트와 교체했다!`);
     },
     logModalText: function (target, prevPokeName, options) {
-      const chosenType = options?.selectedType || this?.selectedType || "";
-      const names = target ? target.names("는") : "포켓몬은";
-      return chosenType ? `${names} ${chosenType} 타입 테라버스트를 얻었다!` : "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.";
+      const augOnPoke = target?.augments?.find((a) => a.id === "teraBlast");
+      const chosenType = options?.selectedType || this?.selectedType || augOnPoke?.selectedType || "노말";
+      const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || augOnPoke?.replacedSkillName || "기존 기술";
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return josa(`${names} ${prevSkillName}#{을} ${chosenType}타입 테라버스트와 교체했다!`);
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const augOnPoke = pokemon?.augments?.find((a) => a.id === "teraBlast");
+      const chosenType = options?.selectedType || this?.selectedType || augOnPoke?.selectedType || "노말";
+      const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || augOnPoke?.replacedSkillName;
+      if (prevSkillName) {
+        return josa(`${prevSkillName}#{을} ${chosenType}타입 테라버스트와 교체했습니다.`);
+      }
+      return this.desc;
     },
     cost: 1,
     weight: 100,
@@ -1551,15 +1560,15 @@ export const AUGMENT_LIST = [
     desc: "현재 필드에 나와있는 두 포켓몬 중 하나가 기절합니다.",
     screenText: function (target, prevPokeName, options) {
       const faintedName = options?.resolvedFaintTargetName || options?.faintedPokemonName;
-      return faintedName ? josa(`[증강] 러시안룰렛의 총구가 ${faintedName}#{를} 향했다!`) : "[증강] 러시안룰렛의 총구가 멈췄다!";
+      return faintedName ? josa(`[증강] 러시안룰렛의 총구는 ${faintedName}#{를} 향했다!`) : "[증강] 러시안룰렛의 총구가 멈췄다!";
     },
     logModalText: function (target, prevPokeName, options) {
       const faintedName = options?.resolvedFaintTargetName || options?.faintedPokemonName;
-      return faintedName ? josa(`현재 필드에 나와있는 두 포켓몬 중 ${faintedName}#{이} 기절했습니다.`) : this.desc;
+      return faintedName ? josa(`필드의 두 포켓몬 중 ${faintedName}#{이} 기절했습니다.`) : this.desc;
     },
     statusModalText: function (pokemon, battle, options) {
       const faintedName = options?.resolvedFaintTargetName || options?.faintedPokemonName;
-      return faintedName ? josa(`현재 필드에 나와있는 두 포켓몬 중 ${faintedName}#{이} 기절했습니다.`) : this.desc;
+      return faintedName ? josa(`필드의 두 포켓몬 중 ${faintedName}#{이} 기절했습니다.`) : this.desc;
     },
     cost: "-",
     weight: 100,
@@ -1632,59 +1641,28 @@ export const AUGMENT_LIST = [
     },
   },
   {
-    id: "doOrDie",
-    name: "이판사판",
-    desc: "10% 확률로 상대 엔트리의 대기중인 포켓몬을 전부 기절시킵니다.",
-    screenText: function (target, prevPokeName, options) {
-      const success = options?.resolvedSuccess ?? options?.doOrDieSuccess;
-      return success ? "[증강] 이판사판 성공! 상대 엔트리의 대기 중인 포켓몬을 전부 기절시킨다!" : "[증강] 이판사판... 하지만 실패했다!";
-    },
-    logModalText: function (target, prevPokeName, options) {
-      const success = options?.resolvedSuccess ?? options?.doOrDieSuccess;
-      return success ? "이판사판에 성공하여 상대 엔트리의 대기 중인 포켓몬을 전부 기절시켰습니다." : "이판사판에 실패하여 아무 일도 일어나지 않았습니다.";
-    },
-    statusModalText: function (pokemon, battle, options) {
-      const success = options?.resolvedSuccess ?? options?.doOrDieSuccess;
-      return success ? "이판사판에 성공하여 상대 엔트리의 대기 중인 포켓몬을 전부 기절시켰습니다." : "이판사판에 실패하여 아무 일도 일어나지 않았습니다.";
-    },
-    cost: "-",
-    weight: 100,
-    isEligible: (pokemon, battle, team) => {
-      if (!hasGamblingAddict(team)) return false;
-      if (!battle) return false;
-      if (!pokemon || pokemon.faint || pokemon.hp <= 0) return false;
-      const side = pokemon?.team === "npc" ? "npc" : "player";
-      if (!battle.isLastPokemon?.(side)) return false;
-      const isNpcAlive = (p) => Boolean(p && !p.faint && !(p.hp <= 0));
-      const npcBenchAlive = [battle.npcBench1, battle.npcBench2].some(isNpcAlive);
-      const npcAliveCount = [battle.npc, battle.npcBench1, battle.npcBench2].filter(isNpcAlive).length;
-      return npcBenchAlive && npcAliveCount >= 2;
-    },
-    onApply: function (pokemon, battle, options) {
-      const success = typeof options?.doOrDieSuccess === "boolean" ? options.doOrDieSuccess : Math.random() < 0.1;
-      const faintedNames = [];
-      if (success && battle) {
-        const benches = [battle.npcBench1, battle.npcBench2];
-        benches.forEach((bp) => {
-          if (bp && !bp.faint && !(bp.hp <= 0)) {
-            faintedNames.push(bp.name || "");
-            bp.hp = 0;
-            if (!options?.deferFaint) {
-              bp.handleFaint?.(battle, options?.enqueue || (() => {}));
-            }
-          }
-        });
-      }
-      if (options && typeof options === "object") {
-        options.resolvedSuccess = success;
-        options.resolvedFaintedBenchNames = faintedNames;
-      }
-    },
-  },
-  {
     id: "highRiskHighReturn",
     name: "하이리스크 하이리턴",
     desc: "모든 공격의 데미지가 3배가 되는 버프 또는 절반이 되는 디버프를 얻습니다.",
+    screenText: function (target, prevPokeName, options) {
+      const res = options?.resolvedHighRiskResult || options?.highRiskResult;
+      const names = target ? target.names("는") : "포켓몬은";
+      if (res === "buff") return `[증강] ${names} "하이 리턴" 버프를 얻었다!`;
+      if (res === "curse") return `[증강] ${names} "하이 리스크" 디버프를 얻었다!`;
+      return `[증강] ${names} "하이리스크 하이리턴" 효과를 얻었다!`;
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const res = options?.resolvedHighRiskResult || options?.highRiskResult;
+      if (res === "buff") return "모든 공격의 데미지가 3배가 됩니다.";
+      if (res === "curse") return "모든 공격의 데미지가 절반이 됩니다.";
+      return this.desc;
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const res = options?.resolvedHighRiskResult || options?.highRiskResult;
+      if (res === "buff") return "모든 공격의 데미지가 3배가 됩니다.";
+      if (res === "curse") return "모든 공격의 데미지가 절반이 됩니다.";
+      return this.desc;
+    },
     cost: "-",
     weight: 100,
     isEligible: (pokemon, battle, team) => hasGamblingAddict(team) && !pokemon.hasAugment?.("highRiskBuff") && !pokemon.hasAugment?.("highRiskCurse"),
@@ -1782,7 +1760,7 @@ export const AUGMENT_LIST = [
     },
     statusModalText: function (pokemon) {
       const abilName = this?.pickedAbility || pokemon?.pickedAbility || pokemon?.abil?.name || pokemon?.abil;
-      return abilName ? `특성이 [${abilName}]으로 변경되었습니다.` : "현재 포켓몬의 특성을 무작위 특성으로 변경합니다.";
+      return abilName ? `특성이 ${abilName}으로 변경되었습니다.` : "현재 포켓몬의 특성을 무작위 특성으로 변경합니다.";
     },
     cost: 0,
     weight: 100,
@@ -1871,8 +1849,11 @@ export const AUGMENT_LIST = [
     id: "soulDew",
     name: "마음의물방울",
     desc: "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
-    selDesc: function () {
-      return "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
+    selDesc: function (pokemon) {
+      const isHolding = (pokemon?.item?.name || pokemon?.item) === "마음의물방울";
+      return isHolding
+        ? "마음의물방울이 옛날의 영광을 되찾습니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다."
+        : "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
     },
     screenText: function (target, prevPokeName, options) {
       const isHolding = options?.wasHoldingSoulDew !== undefined ? options.wasHoldingSoulDew : target?._wasHoldingSoulDew !== undefined ? target._wasHoldingSoulDew : target?.item === "마음의물방울";

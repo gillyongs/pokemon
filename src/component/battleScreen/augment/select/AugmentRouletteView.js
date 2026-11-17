@@ -250,9 +250,7 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
     if (rouletteAug.id === "russianRoulette") {
       pick = Math.random() < 0.5 ? "player" : "npc";
       hitAngle = pick === "npc" ? 30 + Math.random() * 120 : 210 + Math.random() * 120;
-    } else if (rouletteAug.id === "doOrDie") {
-      pick = Math.random() < 0.1 ? "success" : "fail";
-      hitAngle = pick === "success" ? 78 + Math.random() * 24 : 118 + Math.random() * 304;
+
     } else if (rouletteAug.id === "highRiskHighReturn") {
       pick = Math.random() < 0.5 ? "buff" : "curse";
       const matchingSlices = pick === "buff" ? [0, 2, 4] : [1, 3, 5];
@@ -288,8 +286,7 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
     const payload = { targetPokemon: activePokemon };
     if (rouletteAug.id === "russianRoulette") {
       payload.faintTarget = rouletteResult;
-    } else if (rouletteAug.id === "doOrDie") {
-      payload.doOrDieSuccess = rouletteResult === "success";
+
     } else if (rouletteAug.id === "highRiskHighReturn") {
       payload.highRiskResult = rouletteResult;
     } else if (rouletteAug.id === "randomAbility") {
@@ -315,9 +312,6 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
     if (rouletteAug.id === "russianRoulette") {
       const targetName = rouletteResult === "npc" ? battle?.npc?.name || "상대 포켓몬" : battle?.player?.name || activePokemon?.name || "내 포켓몬";
       return `${targetName} 기절!`;
-    }
-    if (rouletteAug.id === "doOrDie") {
-      return rouletteResult === "success" ? "성공! 상대 대기 포켓몬 전부 기절" : "실패...";
     }
     if (rouletteAug.id === "highRiskHighReturn") {
       return rouletteResult === "buff" ? "하이 리턴! 모든 공격 데미지 3배" : "하이 리스크... 모든 공격 데미지 절반";
@@ -375,41 +369,6 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
       );
     }
 
-    if (rouletteAug?.id === "doOrDie") {
-      const startDeg = 72;
-      const endDeg = 108;
-      const x1 = cx + r * Math.sin(toRad(startDeg));
-      const y1 = cy - r * Math.cos(toRad(startDeg));
-      const x2 = cx + r * Math.sin(toRad(endDeg));
-      const y2 = cy - r * Math.cos(toRad(endDeg));
-      const successPath = `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
-      const failPath = `M ${cx} ${cy} L ${x2.toFixed(2)} ${y2.toFixed(2)} A ${r} ${r} 0 1 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z`;
-
-      return (
-        <svg viewBox="0 0 220 220" width="212" height="212" xmlns="http://www.w3.org/2000/svg">
-          <circle cx={cx} cy={cy} r="105" fill="#182130" stroke="#475569" strokeWidth="2.5" />
-          <path d={failPath} fill="#334155" stroke="#0f172a" strokeWidth="2" />
-          <path d={successPath} fill="#0d9488" stroke="#0f172a" strokeWidth="2" />
-          <g transform={`rotate(90 ${cx} ${cy})`}>
-            <text x={cx} y={cy - 68} textAnchor="middle" fill="#f8fafc" fontSize="12" fontWeight="800">
-              성공
-            </text>
-            <text x={cx} y={cy - 53} textAnchor="middle" fill="rgba(248,250,252,0.9)" fontSize="10.5" fontWeight="700">
-              10%
-            </text>
-          </g>
-          <g>
-            <text x="60" y="106" textAnchor="middle" fill="#e2e8f0" fontSize="15" fontWeight="700">
-              실패
-            </text>
-            <text x="60" y="124" textAnchor="middle" fill="rgba(226,232,240,0.8)" fontSize="12.5" fontWeight="700">
-              90%
-            </text>
-          </g>
-          <circle cx={cx} cy={cy} r={r} fill="none" stroke="#0f172a" strokeWidth="2" />
-        </svg>
-      );
-    }
 
     const slices = rouletteAug?.id === "highRiskHighReturn" ? HIGH_RISK_SLICES : ALL_OR_NOTHING_SLICES;
 

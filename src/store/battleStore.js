@@ -404,7 +404,7 @@ export const useBattleStore = createStore((set, get) => ({
     const collectEnqueue = (item) => {
       followUpItems.push(cloneWithMethods(item));
     };
-    const shouldDeferFaint = selectedAugment?.id === "russianRoulette" || selectedAugment?.id === "doOrDie";
+    const shouldDeferFaint = selectedAugment?.id === "russianRoulette";
     const augOptions = {
       ...(options || {}),
       enqueue: collectEnqueue,
@@ -414,8 +414,10 @@ export const useBattleStore = createStore((set, get) => ({
     target.applyAugment(selectedAugment, curBattle, augOptions);
     set({ augmentTargetPoke: target });
 
+    const appliedAug = augOptions?.resolvedGrantedAug || target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
+
     const headBattle = cloneWithMethods(curBattle);
-    const gainText = getAugmentScreenText(selectedAugment, target, prevPokeName, augOptions);
+    const gainText = getAugmentScreenText(appliedAug, target, prevPokeName, augOptions);
     const gainLogText = gainText;
 
     const rawAfterText = selectedAugment?.afterText ?? AUGMENT_LIST.find((a) => a.id === selectedAugment?.id)?.afterText;
@@ -486,14 +488,6 @@ export const useBattleStore = createStore((set, get) => ({
 
     let dropRemaining = false;
     let handledStartAbilities = false;
-
-    if (selectedAugment.id === "doOrDie" && augOptions.resolvedSuccess) {
-      [curBattle.npcBench1, curBattle.npcBench2].forEach((bp) => {
-        if (bp && !bp.faint) {
-          bp.handleFaint?.(curBattle, collectEnqueue);
-        }
-      });
-    }
 
     if (selectedAugment.id === "russianRoulette" && augOptions.resolvedFaintTarget) {
       const faintTarget = augOptions.resolvedFaintTarget;
@@ -574,7 +568,6 @@ export const useBattleStore = createStore((set, get) => ({
       }
     }
 
-    const appliedAug = augOptions?.resolvedGrantedAug || target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
     const isReplacement = isReplacementAugment(selectedAugment);
     const logTargetName = isReplacement ? prevPokeName : target.name;
 
@@ -587,11 +580,11 @@ export const useBattleStore = createStore((set, get) => ({
         id: appliedAug.id,
         name: appliedAug.name,
         shortName: appliedAug.shortName,
-        desc: getAugmentLogModalText(selectedAugment, target, prevPokeName, augOptions),
-        logModalText: getAugmentLogModalText(selectedAugment, target, prevPokeName, augOptions),
+        desc: getAugmentLogModalText(appliedAug, target, prevPokeName, augOptions),
+        logModalText: getAugmentLogModalText(appliedAug, target, prevPokeName, augOptions),
         screenText: gainText,
-        statusModalText: getAugmentStatusModalText(selectedAugment, target, curBattle, augOptions),
-        selDesc: getAugmentSelDesc(selectedAugment, target, curBattle),
+        statusModalText: getAugmentStatusModalText(appliedAug, target, curBattle, augOptions),
+        selDesc: getAugmentSelDesc(appliedAug, target, curBattle),
         cost: appliedAug.cost,
         buf: isSelectedBuf,
         curse: isSelectedCurse,
