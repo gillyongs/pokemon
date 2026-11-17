@@ -5,6 +5,7 @@ import { itemText, getItemDesc } from "../../../entity/Item";
 import { TYPE_COLORS } from "../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 import { AugmentIcon } from "./AugmentIcon";
+import { getAugmentDesc } from "../../../entity/Augment/AugmentData";
 import { AUGMENT_LIST, hasPokemonName, isNimbleSkill } from "../../../entity/Augment/AugmentData";
 
 const PREVIEW_IMG_ID_MAP = {
@@ -450,7 +451,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
                     <SubModalAugNameRow>
                       <SubModalAugName>{aug.name}</SubModalAugName>
                     </SubModalAugNameRow>
-                    <SubModalAugDesc>{aug.desc}</SubModalAugDesc>
+                    <SubModalAugDesc>{getAugmentDesc(aug, pokemon)}</SubModalAugDesc>
                   </SubModalAugMeta>
                 </SubModalAugCard>
               ))}
@@ -475,7 +476,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
                       <SubModalBuffName>{replacementAugmentInfo.synAug.name}</SubModalBuffName>
                       <SubModalSynergyPill>시너지</SubModalSynergyPill>
                     </SubModalBuffNameRow>
-                    <SubModalBuffDesc>{replacementAugmentInfo.synAug.getDesc ? replacementAugmentInfo.synAug.getDesc(pokemon) : replacementAugmentInfo.synAug.desc}</SubModalBuffDesc>
+                    <SubModalBuffDesc>{getAugmentDesc(replacementAugmentInfo.synAug, pokemon)}</SubModalBuffDesc>
                   </SubModalBuffMeta>
                 </SubModalBuffHeader>
               </SubModalBuffCard>

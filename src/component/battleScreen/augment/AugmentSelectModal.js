@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST, compareAugmentNames, getAugmentDesc, isCurseAugment, isBuffAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, compareAugmentNames, getAugmentSelDesc, isCurseAugment, isBuffAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
 import { rollTeamAugments } from "../../../calc/augmentRoll";
 import { testmode, subscribeTestMode } from "../../../config/testMode";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
@@ -434,7 +434,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                                   <CardTitle>{aug.name}</CardTitle>
                                   {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                                 </CardTitleRow>
-                                <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
+                                <CardDescription>{getAugmentSelDesc(aug, activePokemon, battle)}</CardDescription>
                               </CardContent>
                               {isCardSelected && (
                                 <CardActionOverlay onClick={(e) => { e.stopPropagation(); setSelectedAugment(null); }}>
@@ -484,7 +484,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                                       {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                                       <IneligibleBadge>선택 불가</IneligibleBadge>
                                     </CardTitleRow>
-                                    <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
+                                    <CardDescription>{getAugmentSelDesc(aug, activePokemon, battle)}</CardDescription>
                                   </CardContent>
                                 </AugmentCard>
                               );
@@ -518,7 +518,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                               <CardTitle>{aug.name}</CardTitle>
                               {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                             </CardTitleRow>
-                            <CardDescription>{getAugmentDesc(aug, activePokemon, battle)}</CardDescription>
+                            <CardDescription>{getAugmentSelDesc(aug, activePokemon, battle)}</CardDescription>
                           </CardContent>
                           {isCardSelected && (
                             <CardActionOverlay onClick={(e) => { e.stopPropagation(); setSelectedAugment(null); }}>

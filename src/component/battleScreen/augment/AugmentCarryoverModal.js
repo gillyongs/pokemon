@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { getAugmentText, isBuffAugment, isCurseAugment, isNormalAugment, isSynergyAugment } from "../../../entity/Augment/AugmentData";
+import { getAugmentStatusModalText, isBuffAugment, isCurseAugment, isNormalAugment, isSynergyAugment } from "../../../entity/Augment/AugmentData";
 
 // 다음 라운드로 넘길 증강 선택 모달
 
@@ -129,8 +129,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           swordBonusAtk: item.augment.swordBonusAtk,
           swordName: item.augment.swordName,
           pickedAbility: item.augment.pickedAbility || (item.augment.id === "randomAbility" ? item.pokemon?.abil?.name || item.pokemon?.abil : undefined),
-          nimbleSkillName: item.augment.nimbleSkillName || item.augment.enhancedSkillName || item.pokemon?.nimbleSkillName,
-          enhancedSkillName: item.augment.enhancedSkillName || item.augment.nimbleSkillName || item.pokemon?.nimbleSkillName,
+          nimbleSkillName: item.augment.nimbleSkillName || item.pokemon?.nimbleSkillName,
           soulDiceStats: item.augment.soulDiceStats || item.pokemon?.soulDiceStats,
         });
       }
@@ -182,7 +181,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
                             </CardMeta>
                             <CheckIndicator $selected={isSelected}>{isSelected ? "✓" : ""}</CheckIndicator>
                           </CardHeader>
-                          <AugDesc>{getAugmentText(item.augment, item.pokemon)}</AugDesc>
+                          <AugDesc>{getAugmentStatusModalText(item.augment, item.pokemon, battle)}</AugDesc>
                         </AugmentCard>
                       );
                     })}

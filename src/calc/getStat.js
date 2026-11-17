@@ -107,7 +107,7 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     }
     // 모 아니면 도
     else if (augId === "allOrNothing") {
-      const pick = aug?.allOrNothingResult ?? aug?.revolutionResult;
+      const pick = aug?.allOrNothingResult;
       if (pick === "atk") {
         if (statKey === "atk") {
           val = Math.round(val * 2);

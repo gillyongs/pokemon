@@ -42,6 +42,22 @@ export const PokemonInstanceAccess = {
     return this.o.megaData;
   },
 
+  get megaAbil() {
+    return this.o?.megaData?.abil;
+  },
+  set megaAbil(v) {
+    if (this.o?.megaData) {
+      this.o.megaData.abil = v;
+    }
+  },
+
+  get megaDataAbil() {
+    return this.megaAbil;
+  },
+  set megaDataAbil(v) {
+    this.megaAbil = v;
+  },
+
   get baseHp() {
     return this.o.hp;
   },
@@ -172,13 +188,6 @@ export const PokemonInstanceAccess = {
   set pickedAbility(v) {
     if (!this.agument) this.agument = {};
     this.agument.pickedAbility = v;
-  },
-
-  get enhancedSkillName() {
-    return this.nimbleSkillName;
-  },
-  set enhancedSkillName(v) {
-    this.nimbleSkillName = v;
   },
 
   get maxHp() {

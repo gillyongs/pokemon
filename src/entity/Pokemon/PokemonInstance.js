@@ -194,14 +194,10 @@ class PokemonInstance {
   }
 
   // --- 원본 복원 전용 메서드 ---
+  // 메가진화할떄 o.abil이랑 o.type까지 덮어씌우므로 신경 안 써도 됨
   resetType() {
-    if (this.isMega && this.o.megaData) {
-      this.type1 = this.o.megaData.type1;
-      this.type2 = this.o.megaData.type2;
-    } else {
-      this.type1 = this.o.type1;
-      this.type2 = this.o.type2;
-    }
+    this.type1 = this.o.type1;
+    this.type2 = this.o.type2;
   }
 
   resetAbil() {

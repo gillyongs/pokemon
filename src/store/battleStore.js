@@ -4,7 +4,7 @@ import { defaultOption } from "../config/defaultOption";
 import { setSelectedNpcAct } from "../config/testMode";
 import { consoleLog } from "../util/consoleLog";
 import { rollAugments } from "../calc/augmentRoll";
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, syncTeamEchoOfHeroBuff, stripEmoji, isReplacementAugment } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentScreenText, getAugmentLogModalText, getAugmentStatusModalText, getAugmentSelDesc, getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, syncTeamEchoOfHeroBuff, stripEmoji, isReplacementAugment } from "../entity/Augment/AugmentData";
 import { generatePokemonInstance } from "../entity/Pokemon/PokemonInstance";
 import { switchNpcAuto } from "../service/switch";
 import { speedCheck } from "../calc/speedCheck";
@@ -153,15 +153,14 @@ export const useBattleStore = createStore((set, get) => ({
                   p.applyAugment(fullAug, nextBattle, {
                     replaceSlot: savedAug?.replacedSlot,
                     selectedType: savedAug?.selectedType,
-                    targetStat: savedAug?.allOrNothingResult ?? savedAug?.revolutionResult,
+                    targetStat: savedAug?.allOrNothingResult,
                     replacedSkillName: savedAug?.replacedSkillName,
                     swordLevel: savedAug?.swordLevel,
                     swordFailed: savedAug?.swordFailed,
                     swordBonusAtk: savedAug?.swordBonusAtk,
                     swordName: savedAug?.swordName,
                     pickedAbility: savedAug?.pickedAbility,
-                    nimbleSkillName: savedAug?.nimbleSkillName ?? savedAug?.enhancedSkillName,
-                    enhancedSkillName: savedAug?.enhancedSkillName ?? savedAug?.nimbleSkillName,
+                    nimbleSkillName: savedAug?.nimbleSkillName,
                     dragonKillCount: savedAug?.dragonKillCount ?? p.dragonKillCount,
                     mejaiStack: savedAug?.mejaiStack ?? p.mejaiStack,
                     practiceCritStack: savedAug?.practiceCritStack ?? p.practiceCritStack,
@@ -178,15 +177,14 @@ export const useBattleStore = createStore((set, get) => ({
                 p.applyAugment(fullAug, nextBattle, {
                   replaceSlot: savedAug?.replacedSlot,
                   selectedType: savedAug?.selectedType,
-                  targetStat: savedAug?.allOrNothingResult ?? savedAug?.revolutionResult,
+                  targetStat: savedAug?.allOrNothingResult,
                   replacedSkillName: savedAug?.replacedSkillName,
                   swordLevel: savedAug?.swordLevel,
                   swordFailed: savedAug?.swordFailed,
                   swordBonusAtk: savedAug?.swordBonusAtk,
                   swordName: savedAug?.swordName,
                   pickedAbility: savedAug?.pickedAbility,
-                    nimbleSkillName: savedAug?.nimbleSkillName ?? savedAug?.enhancedSkillName,
-                    enhancedSkillName: savedAug?.enhancedSkillName ?? savedAug?.nimbleSkillName,
+                  nimbleSkillName: savedAug?.nimbleSkillName,
                   dragonKillCount: savedAug?.dragonKillCount ?? p.dragonKillCount,
                   mejaiStack: savedAug?.mejaiStack ?? p.mejaiStack,
                   practiceCritStack: savedAug?.practiceCritStack ?? p.practiceCritStack,
@@ -417,7 +415,7 @@ export const useBattleStore = createStore((set, get) => ({
     set({ augmentTargetPoke: target });
 
     const headBattle = cloneWithMethods(curBattle);
-    const gainText = getAugmentText(selectedAugment, target, true, prevPokeName, augOptions);
+    const gainText = getAugmentScreenText(selectedAugment, target, prevPokeName, augOptions);
     const gainLogText = gainText;
 
     const rawAfterText = selectedAugment?.afterText ?? AUGMENT_LIST.find((a) => a.id === selectedAugment?.id)?.afterText;
@@ -589,7 +587,11 @@ export const useBattleStore = createStore((set, get) => ({
         id: appliedAug.id,
         name: appliedAug.name,
         shortName: appliedAug.shortName,
-        desc: isSelectedBuf || isSelectedCurse || isSelectedSynergy ? AUGMENT_LIST.find((a) => a.id === appliedAug.id)?.desc || appliedAug.desc || selectedAugment.desc || "" : getAugmentText(selectedAugment, target, false, prevPokeName, augOptions),
+        desc: getAugmentLogModalText(selectedAugment, target, prevPokeName, augOptions),
+        logModalText: getAugmentLogModalText(selectedAugment, target, prevPokeName, augOptions),
+        screenText: gainText,
+        statusModalText: getAugmentStatusModalText(selectedAugment, target, curBattle, augOptions),
+        selDesc: getAugmentSelDesc(selectedAugment, target, curBattle),
         cost: appliedAug.cost,
         buf: isSelectedBuf,
         curse: isSelectedCurse,
@@ -783,7 +785,7 @@ export const useBattleStore = createStore((set, get) => ({
         isStackMeta: Boolean(aug.isStackMeta),
         replacedSlot: aug.replacedSlot,
         selectedType: aug.selectedType,
-        targetStat: aug.targetStat ?? aug.allOrNothingResult ?? aug.revolutionResult,
+        targetStat: aug.targetStat ?? aug.allOrNothingResult,
         allOrNothingResult: aug.allOrNothingResult,
         replacedSkillName: aug.replacedSkillName,
         swordLevel: aug.swordLevel,
@@ -791,8 +793,7 @@ export const useBattleStore = createStore((set, get) => ({
         swordBonusAtk: aug.swordBonusAtk,
         swordName: aug.swordName,
         pickedAbility: aug.pickedAbility,
-        nimbleSkillName: aug.nimbleSkillName ?? aug.enhancedSkillName,
-        enhancedSkillName: aug.enhancedSkillName ?? aug.nimbleSkillName,
+        nimbleSkillName: aug.nimbleSkillName,
         dragonKillCount: aug.dragonKillCount,
         mejaiStack: aug.mejaiStack,
         practiceCritStack: aug.practiceCritStack,

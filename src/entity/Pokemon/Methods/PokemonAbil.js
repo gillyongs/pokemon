@@ -8,9 +8,8 @@ export const PokemonAbil = {
     baseObj.used = false;
 
     this.abil = { ...baseObj };
-    if (this.o) {
-      this.o.abil = { ...baseObj };
-    }
+    this.o.abil = { ...baseObj };
+    // 트레이스 등을 고려하여 포켓몬이 교체하여 나올때 p.abil은 p.o.abil로 덮어씌워진다
 
     return baseObj;
   },

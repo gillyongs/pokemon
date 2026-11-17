@@ -6,7 +6,7 @@ import AugmentGrantPreviewModal from "./AugmentGrantPreviewModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
-import { getAugmentText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo, hasAnvilStats, getAnvilStatsStatusDesc } from "../../../entity/Augment/AugmentData";
+import { getAugmentStatusModalText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo, hasAnvilStats, getAnvilStatsStatusDesc } from "../../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
   const [previewInfo, setPreviewInfo] = useState(null);
@@ -129,7 +129,7 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                       <CardTitle>{aug.shortName || aug.name}</CardTitle>
                       {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
                     </CardTitleRow>
-                    <CardDescription>{getAugmentText(aug, activePokemon, false, "", { battle, showCurrentStats: true }) || aug.desc}</CardDescription>
+                    <CardDescription>{getAugmentStatusModalText(aug, activePokemon, battle, { showCurrentStats: true })}</CardDescription>
                   </CardContent>
                   {isCardSelected && hasPreview && (
                     <CardPreviewOverlay>

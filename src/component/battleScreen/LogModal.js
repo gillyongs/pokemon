@@ -329,7 +329,7 @@ export default function LogModal({ log, onClose }) {
                 const isBuff = isBuffAugment(augment);
                 const augCost = augment.cost;
                 const augName = augment.shortName || augment.name || augment.augmentName || (isCurse ? "디버프" : isSynergy ? "시너지" : isBuff ? "버프" : "증강");
-                const augDesc = augment.desc;
+                const augDesc = augment.logModalText || augment.desc;
                 const badgeText = isCurse ? "디버프 획득" : isSynergy ? "시너지 활성화" : isBuff ? "버프 획득" : "증강 획득";
                 return (
                   <AugmentLogCard key={index} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy}>

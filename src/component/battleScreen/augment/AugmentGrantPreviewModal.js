@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
+import { getAugmentDesc } from "../../../entity/Augment/AugmentData";
 import { AUGMENT_LIST } from "../../../entity/Augment/AugmentData";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
@@ -124,7 +125,7 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
               <AugList>
                 {grantItems.map((item, idx) => {
                   const isBuff = Boolean(item.buf);
-                  const descText = typeof item.getDesc === "function" ? item.getDesc(pokemon, battle) : item.desc;
+                  const descText = getAugmentDesc(item, pokemon, battle);
                   return (
                     <AugCard key={item.id || idx} $isBuff={isBuff}>
                       <IconCol>

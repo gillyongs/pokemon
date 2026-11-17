@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
+import { getAugmentDesc } from "../../../entity/Augment/AugmentData";
 import { AUGMENT_LIST, MUTUALLY_EXCLUSIVE_MAP } from "../../../entity/Augment/AugmentData";
 
 const checkSynergyAugmentUnobtainable = (aug, pokemon, battle = null, team = null) => {
@@ -109,7 +110,7 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
                       {statusLabel}
                     </StatusBadge>
                   </AugNameRow>
-                  <AugDesc>{aug.desc}</AugDesc>
+                  <AugDesc>{getAugmentDesc(aug)}</AugDesc>
                 </AugmentMeta>
               </AugmentRowCard>
             );
@@ -133,7 +134,7 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
                   <BuffName>{buffAugment.name}</BuffName>
                   <BuffPill>시너지</BuffPill>
                 </BuffNameRow>
-                <BuffDesc>{buffAugment.desc}</BuffDesc>
+                <BuffDesc>{getAugmentDesc(buffAugment)}</BuffDesc>
               </BuffMeta>
             </BuffHeader>
           </BuffRewardCard>

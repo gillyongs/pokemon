@@ -207,7 +207,7 @@ export const priCalculate = (battle, pokemon, skill) => {
   const pokeObj = typeof pokemon === "string" ? battle?.[pokemon] : pokemon;
 
   // 민첩한 몸놀림: 증강 보유 중이고 강화 대상으로 선택된 기술과 일치할 때 우선도 +1
-  const nimbleSkillName = pokeObj?.nimbleSkillName || pokeObj?.augments?.find((a) => a.id === "nimbleMoves")?.enhancedSkillName;
+  const nimbleSkillName = pokeObj?.nimbleSkillName || pokeObj?.augments?.find((a) => a.id === "nimbleMoves")?.nimbleSkillName;
   if (pokeObj?.hasAugment?.("nimbleMoves") && nimbleSkillName && nimbleSkillName === skill.name) {
     prior += 1;
   }

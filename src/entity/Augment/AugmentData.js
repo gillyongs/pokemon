@@ -52,6 +52,50 @@ export const hasGamblingAddict = (team) => {
 // 도박 중독 시 해금 및 확정 등장하는 도박 증강 ID 목록
 export const GAMBLE_BONUS_AUGMENT_IDS = ["russianRoulette", "oddEven", "doOrDie", "highRiskHighReturn"];
 
+export const getHhgghggDesc = (pokemon, battle = null) => {
+  const highest = getHighestStatInfo(pokemon, battle);
+  if (highest) {
+    return `항상 가장 높은 값의 능력치를 사용합니다. (${highest.label} ${highest.displayValue})`;
+  }
+  return "항상 가장 높은 값의 능력치를 사용합니다.";
+};
+
+export const isNimbleSkill = (pokemon, skill) => {
+  if (!pokemon || !skill) return false;
+  const nimbleSkillName = pokemon.nimbleSkillName || pokemon.augments?.find((a) => a.id === "nimbleMoves")?.nimbleSkillName;
+  return Boolean(pokemon.hasAugment?.("nimbleMoves") && nimbleSkillName && nimbleSkillName === skill.name);
+};
+
+export const hasAnvilStats = (pokemon) => {
+  if (!pokemon) return false;
+  const stats = pokemon.anvilStats;
+  if (!stats) return false;
+  return Object.values(stats).some((v) => Number(v) > 0);
+};
+
+export const getAnvilStatsStatusDesc = (pokemon) => {
+  const stats = pokemon?.anvilStats;
+  if (!stats) return "누적되는 추가 능력치를 획득합니다.";
+  const labels = {
+    atk: "공격",
+    catk: "특공",
+    def: "방어",
+    cdef: "특방",
+    speed: "스피드",
+  };
+  const parts = [];
+  ["atk", "def", "catk", "cdef", "speed"].forEach((k) => {
+    const val = Number(stats[k] || 0);
+    if (val > 0) {
+      parts.push(`${labels[k]}: ${val}`);
+    }
+  });
+  if (parts.length > 0) {
+    return `누적되는 추가 능력치를 획득합니다.\n${parts.join("  ")}`;
+  }
+  return "누적되는 추가 능력치를 획득합니다.";
+};
+
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
   {
@@ -75,7 +119,7 @@ export const AUGMENT_LIST = [
   {
     id: "lifeIsOneShot",
     name: "인생은 한방 🎲",
-    desc: "기술 위력이 10배가 되지만 공격 기술이 50% 확률로 실패합니다.",
+    desc: "공격 기술 위력이 10배로 증가하지만 50% 확률로 실패합니다.",
     cost: 0,
     weight: 100,
     // damageCalculate.js, skillCheck.js에 구현
@@ -83,7 +127,7 @@ export const AUGMENT_LIST = [
   {
     id: "onePunchMan",
     name: "진심 펀치",
-    desc: "공격기술의 위력이 999배 증가합니다.",
+    desc: "공격 기술의 위력이 999배 증가합니다.",
     cost: 999,
     weight: 10,
     // damageCalculate.js에 구현
@@ -104,7 +148,7 @@ export const AUGMENT_LIST = [
   {
     id: "dragonSlayer",
     name: "드래곤 슬레이어 🐲",
-    desc: "드래곤 타입 포켓몬을 쓰러뜨리면 모든 능력이 1랭크 상승합니다.",
+    desc: "드래곤 타입인 포켓몬을 쓰러뜨리면 모든 능력이 1랭크 상승합니다.",
     cost: 1,
     weight: 100,
     isEligible: (pokemon) => {
@@ -117,7 +161,7 @@ export const AUGMENT_LIST = [
   {
     id: "dragonKiller",
     name: "용살자 🐲",
-    desc: "드래곤 타입에게 1.5배 데미지를 입힙니다.",
+    desc: "드래곤 타입인 포켓몬에게 1.5배 데미지를 입힙니다.",
     cost: 1,
     weight: 100,
     isEligible: (pokemon) => {
@@ -156,7 +200,7 @@ export const AUGMENT_LIST = [
     id: "unboundChoice",
     name: "구애받지않는",
     desc: "기술 고정 효과를 받지 않습니다.",
-    cost: 1,
+    cost: 2,
     weight: 300,
     isEligible: (pokemon) => Boolean((pokemon?.item && pokemon.item.startsWith("구애")) || pokemon?.abil?.name === "무아지경"),
     onApply: (pokemon) => {
@@ -172,6 +216,7 @@ export const AUGMENT_LIST = [
     desc: "화상을 입힐 확률이 3배 증가합니다.\n추가로 화상 데미지가 5배 증가합니다.",
     cost: 2,
     weight: 100,
+    // 적에게 화상을 입힐 수 있을때만 등장
     isEligible: (pokemon) => {
       if (pokemon?.abil?.name === "불꽃몸") return true;
       if (!pokemon?.skill) return false;
@@ -262,6 +307,28 @@ export const AUGMENT_LIST = [
     id: "swordEnhance",
     name: "검 강화하기",
     desc: "검을 강화하여 강화 단계에 따라 공격과 특수공격을 획득합니다.",
+    selDesc: function () {
+      return "검을 강화하여 강화 단계에 따라 공격과 특수공격을 획득합니다.";
+    },
+    screenText: function (target, prevPokeName, options) {
+      const failed = Boolean(options?.swordFailed ?? this?.swordFailed ?? target?.swordFailed);
+      const level = Number(options?.swordLevel ?? this?.swordLevel ?? target?.swordLevel ?? 0);
+      const bonusAtk = options?.swordBonusAtk !== undefined ? Number(options.swordBonusAtk) : this?.swordBonusAtk !== undefined ? Number(this.swordBonusAtk) : target?.swordBonusAtk !== undefined ? Number(target.swordBonusAtk) : failed ? 0 : 20 + level * 20;
+      return failed ? "[증강] 강화에 실패하였다..." : `[증강] 검 강화에 성공하여 공격과 특수공격을 ${bonusAtk} 얻었다!`;
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const failed = Boolean(options?.swordFailed ?? this?.swordFailed ?? target?.swordFailed);
+      const level = Number(options?.swordLevel ?? this?.swordLevel ?? target?.swordLevel ?? 0);
+      const bonusAtk = options?.swordBonusAtk !== undefined ? Number(options.swordBonusAtk) : this?.swordBonusAtk !== undefined ? Number(this.swordBonusAtk) : target?.swordBonusAtk !== undefined ? Number(target.swordBonusAtk) : failed ? 0 : 20 + level * 20;
+      return failed ? "강화에 실패하였다..." : `검 강화에 성공하여 공격과 특수공격을 ${bonusAtk} 얻었다!`;
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const failed = Boolean(options?.swordFailed ?? this?.swordFailed ?? pokemon?.swordFailed);
+      const level = Number(options?.swordLevel ?? this?.swordLevel ?? pokemon?.swordLevel ?? 0);
+      const bonusAtk = options?.swordBonusAtk !== undefined ? Number(options.swordBonusAtk) : this?.swordBonusAtk !== undefined ? Number(this.swordBonusAtk) : pokemon?.swordBonusAtk !== undefined ? Number(pokemon.swordBonusAtk) : failed ? 0 : 20 + level * 20;
+      if (failed) return "강화에 실패하였습니다.";
+      return `검 강화에 성공하여 공격과 특수공격을 ${bonusAtk} 획득하였습니다.`;
+    },
     cost: 1,
     weight: 50,
     onApply: function (pokemon, battle, options) {
@@ -285,10 +352,20 @@ export const AUGMENT_LIST = [
     id: "soulDice",
     name: "영혼의 주사위 🎲",
     desc: "주사위를 굴려 총 50의 스탯을 얻습니다.\n주사위는 계속 굴릴 수 있습니다.",
+    screenText: function () {
+      return "[증강] 주사위를 굴려 스탯을 얻었다!";
+    },
+    logModalText: function (pokemon, battle, options) {
+      const stats = options?.soulDiceStats || this?.soulDiceStats || pokemon?.soulDiceStats;
+      return `주사위를 굴려 스탯을 얻었습니다.\n(공격:${stats.atk} 방어:${stats.def} 특공:${stats.catk} 특방:${stats.cdef} 스피드:${stats.speed})`;
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const stats = options?.soulDiceStats || this?.soulDiceStats || pokemon?.soulDiceStats;
+      return `주사위를 굴려 스탯을 얻었습니다.\n(공격:${stats.atk} 방어:${stats.def} 특공:${stats.catk} 특방:${stats.cdef} 스피드:${stats.speed})`;
+    },
     cost: 1,
     weight: 60,
     onApply: function (pokemon, battle, options) {
-      if (!pokemon) return;
       const stats = options?.soulDiceStats || rollSoulDiceStats();
       this.soulDiceStats = stats;
       pokemon.soulDiceStats = stats;
@@ -299,6 +376,20 @@ export const AUGMENT_LIST = [
     id: "nullifyGetto",
     name: "이 공격 무효일세",
     desc: "해당 포켓몬에게 무효 타입을 하나 추가합니다.",
+    screenText: function (target, prevPokeName, options) {
+      const nullType = options?.selectedType || this?.selectedType || target?._nullifyType || "";
+      const names = target ? target.names("는") : "포켓몬은";
+      return `[증강] ${names} ${nullType} 타입 무효 효과를 얻었다!`;
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const nullType = options?.selectedType || this?.selectedType || target?._nullifyType || "";
+      const names = target ? target.names("는") : "포켓몬은";
+      return `${names} ${nullType} 타입 무효 효과를 얻었다!`;
+    },
+    statusModalText: function (pokemon) {
+      const chosen = this?.selectedType || pokemon?._nullifyType || pokemon?.augments?.find((a) => a.id === "nullifyGetto")?.selectedType;
+      return `${chosen} 타입 무효 효과를 획득하였습니다.`;
+    },
     cost: 2,
     weight: 100,
     onApply: function (pokemon, battle, options) {
@@ -311,12 +402,55 @@ export const AUGMENT_LIST = [
     id: "allOrNothing",
     name: "모 아니면 도 🎲",
     desc: "공격과 특수공격 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.",
+    selDesc: function (pokemon, battle) {
+      const stat = pokemon?.stat;
+      if (stat && typeof stat.atk === "number" && typeof stat.catk === "number") {
+        const atkRank = Number(pokemon?.tempStatus?.rank?.atk ?? 0);
+        const catkRank = Number(pokemon?.tempStatus?.rank?.catk ?? 0);
+        const atkVal = Math.floor(getAugmentedStat(pokemon, "atk", battle) * getMultiplier(atkRank));
+        const catkVal = Math.floor(getAugmentedStat(pokemon, "catk", battle) * getMultiplier(catkRank));
+        return `공격(${atkVal})과 특수공격(${catkVal}) 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.`;
+      }
+      return this.desc;
+    },
+    screenText: function (target, prevPokeName, options) {
+      const pick = options?.targetStat || this?.allOrNothingResult;
+      return pick === "atk" ? "[증강] 공격이 2배, 특수공격이 절반이 되었다!" : "[증강] 특수공격이 2배, 공격이 절반이 되었다!";
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const pick = options?.targetStat || this?.allOrNothingResult;
+      return pick === "atk" ? "공격이 2배, 특수공격이 절반이 되었다!" : "특수공격이 2배, 공격이 절반이 되었다!";
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const pick = options?.targetStat || pokemon?.augments?.find((a) => a.id === "allOrNothing")?.allOrNothingResult || this?.allOrNothingResult;
+      const stat = pokemon?.stat;
+      if (stat && typeof stat.atk === "number" && typeof stat.catk === "number") {
+        const atkRank = Number(pokemon?.tempStatus?.rank?.atk ?? 0);
+        const catkRank = Number(pokemon?.tempStatus?.rank?.catk ?? 0);
+        const atkVal = Math.floor(getAugmentedStat(pokemon, "atk", battle) * getMultiplier(atkRank));
+        const catkVal = Math.floor(getAugmentedStat(pokemon, "catk", battle) * getMultiplier(catkRank));
+        if (pick === "atk") {
+          return `공격(${atkVal})이 2배가 되고 특수공격(${catkVal})이 절반이 되었습니다.`;
+        }
+        if (pick === "catk") {
+          return `특수공격(${catkVal})이 2배가 되고 공격(${atkVal})이 절반이 되었습니다.`;
+        }
+      }
+      if (pick === "atk") {
+        return "공격이 2배가 되고 특수공격이 절반이 되었습니다.";
+      }
+      if (pick === "catk") {
+        return "특수공격이 2배가 되고 공격이 절반이 되었습니다.";
+      }
+      return this.desc;
+    },
     cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     onApply: function (pokemon, battle, options) {
       if (!pokemon) return;
       const pick = options?.targetStat || (Math.random() < 0.5 ? "atk" : "catk");
       this.allOrNothingResult = pick;
+      pokemon.allOrNothingResult = pick;
     },
   },
 
@@ -325,6 +459,9 @@ export const AUGMENT_LIST = [
     id: "tailwind",
     name: "순풍",
     desc: "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올리는 순풍을 전개한다.",
+    screenText: function (target) {
+      return `[증강] ${target?.name || "포켓몬"}의 순풍!`;
+    },
     afterText: "우리 편의 뒤에서 순풍이 불기 시작했다!",
     cost: "-",
     weight: 50,
@@ -346,8 +483,12 @@ export const AUGMENT_LIST = [
     id: "abilityInversion",
     name: "특성의 역전",
     desc: "기본 특성과 메가진화 특성을 교환합니다.",
+    screenText: function (target) {
+      return `[증강] ${target?.name}의 기본 특성과 메가진화 특성이 뒤바뀌었다!`;
+    },
     cost: 1,
     weight: 300,
+    // 선파워 리자몽Y와 예리함 엘레이드
     isEligible: (pokemon) => {
       const isCharizardY = (hasPokemonName(pokemon, "리자몽") || pokemon?.sampleName?.includes("리자몽")) && pokemon?.item === "리자몽나이트Y";
       const isGallade = (hasPokemonName(pokemon, "엘레이드") || pokemon?.sampleName?.includes("엘레이드")) && pokemon?.item === "엘레이드나이트";
@@ -355,26 +496,10 @@ export const AUGMENT_LIST = [
     },
     onApply: function (pokemon) {
       if (!pokemon || !pokemon.megaData) return;
-      if (pokemon._hasInvertedAbility) return;
-      pokemon._hasInvertedAbility = true;
-
-      const baseAbilName = pokemon.o?.abil?.name || pokemon.abil?.name || pokemon.abil;
+      const baseAbilName = pokemon.abil.name;
       const megaAbilName = pokemon.megaData.abil;
-
-      if (pokemon.isMega) {
-        pokemon.changeAbil(baseAbilName);
-        pokemon.megaData.abil = baseAbilName;
-        if (pokemon.o) {
-          pokemon.o.abil = { ...pokemon.abil };
-          if (pokemon.o.megaData) pokemon.o.megaData.abil = baseAbilName;
-        }
-      } else {
-        pokemon.changeAbil(megaAbilName);
-        pokemon.megaData.abil = baseAbilName;
-        if (pokemon.o?.megaData) {
-          pokemon.o.megaData.abil = baseAbilName;
-        }
-      }
+      pokemon.changeAbil(megaAbilName);
+      pokemon.megaAbil = baseAbilName;
     },
   },
   // 위협 ====================================================================
@@ -382,6 +507,9 @@ export const AUGMENT_LIST = [
     id: "intimidate",
     name: "위협",
     desc: "상대를 위축시켜 공격을 떨어뜨립니다.",
+    screenText: function (target) {
+      return `[증강] ${target?.name || "포켓몬"}의 위협!`;
+    },
     cost: "-",
     weight: 70,
     isEligible: (pokemon, battle) => {
@@ -409,6 +537,9 @@ export const AUGMENT_LIST = [
     id: "stealthRock",
     name: "스텔스록",
     desc: "상대의 주위에 무수한 바위를 띄워 교체되어 나온 상대 포켓몬에게 데미지를 입힙니다.",
+    screenText: function (target) {
+      return `[증강] ${target?.name || "포켓몬"}의 스텔스록!`;
+    },
     afterText: (target) => {
       const team = target?.team || "player";
       return team === "npc" ? "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!" : "상대의 주변에 뾰족한 바위가 떠다니기 시작했다!";
@@ -433,8 +564,11 @@ export const AUGMENT_LIST = [
   // 끈적끈적네트 ================================================================
   {
     id: "stickyWeb",
-    name: "끈적끈적네트 🕸️",
+    name: "끈적끈적네트",
     desc: "상대의 주위에 끈적끈적한 네트를 쳐 교체되어 나온 상대 포켓몬의 스피드를 1랭크 떨어뜨립니다.",
+    screenText: function (target) {
+      return `[증강] ${target?.name || "포켓몬"}의 끈적끈적네트!`;
+    },
     afterText: (target) => {
       const team = target?.team || "player";
       return team === "npc" ? "아군의 발밑에 끈적끈적한 네트가 펼쳐졌다!" : "상대의 발밑에 끈적끈적한 네트가 펼쳐졌다!";
@@ -462,6 +596,27 @@ export const AUGMENT_LIST = [
     id: "anvilStat",
     name: "모루 능력치",
     desc: "누적되는 추가 능력치를 획득합니다.",
+    selDesc: function () {
+      return "누적되는 추가 능력치를 획득합니다.";
+    },
+    screenText: function (target, prevPokeName, options) {
+      const statLabels = { atk: "공격", catk: "특공", def: "방어", cdef: "특방", speed: "스피드" };
+      const pickedStat = options?.pickedStat || this?.pickedStat;
+      const pickedAmount = options?.pickedAmount || this?.pickedAmount;
+      const statLabel = statLabels[pickedStat] || "능력치";
+      const pokeName = target?.name || "포켓몬";
+      return pickedStat && pickedAmount ? josa(`[증강] 능력치 파편으로 ${pokeName}의 ${statLabel}#{이} ${pickedAmount} 올랐다!`) : `[증강] ${target ? target.names("는") : "포켓몬은"} 모루 능력치를 획득했다!`;
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const statLabels = { atk: "공격", catk: "특공", def: "방어", cdef: "특방", speed: "스피드" };
+      const pickedStat = options?.pickedStat || this?.pickedStat;
+      const pickedAmount = options?.pickedAmount || this?.pickedAmount;
+      const statLabel = statLabels[pickedStat] || "능력치";
+      return pickedStat && pickedAmount ? josa(`능력치 파편으로 ${statLabel}#{이} ${pickedAmount} 올랐습니다.`) : "누적되는 추가 능력치를 획득합니다.";
+    },
+    statusModalText: function (pokemon) {
+      return getAnvilStatsStatusDesc(pokemon);
+    },
     cost: "-",
     weight: 100,
     isEligible: () => true,
@@ -487,7 +642,9 @@ export const AUGMENT_LIST = [
   {
     id: "swordAndShield",
     name: "오른손엔 방패 왼손엔 검",
-    desc: "항상 공격과 방어 중 더 유리한 수치를 사용합니다.",
+    desc: function (pokemon, battle) {
+      return getStatCompareDesc(pokemon, "atk", "def", battle);
+    },
     cost: 2,
     weight: 100,
     isEligible: (pokemon, battle) => canPickStatSwapAugment(pokemon) && isPhysicalPokemon(pokemon) && hasStatRatioDiff(pokemon, "atk", "def", 1.5, battle),
@@ -496,7 +653,9 @@ export const AUGMENT_LIST = [
   {
     id: "specialSwordAndShield",
     name: "과거의 영광 (특수)",
-    desc: "항상 특공과 특방 중 더 유리한 수치를 사용합니다.",
+    desc: function (pokemon, battle) {
+      return getStatCompareDesc(pokemon, "catk", "cdef", battle);
+    },
     cost: 2,
     weight: 100,
     isEligible: (pokemon, battle) => canPickStatSwapAugment(pokemon) && isSpecialPokemon(pokemon) && hasStatRatioDiff(pokemon, "catk", "cdef", 1.5, battle),
@@ -506,6 +665,10 @@ export const AUGMENT_LIST = [
     id: "lostTechnologyBlizzard",
     name: "과거의 영광 (눈보라)",
     desc: "눈보라의 위력이 120, 명중률이 90이 됩니다. 30% 확률로 적을 얼리며 절대 녹지 않습니다.",
+    screenText: function (target) {
+      const names = target ? target.names("는") : "포켓몬은";
+      return `[증강] ${names} 눈보라의 과거 위상을 되찾았다!`;
+    },
     cost: 3,
     weight: 100,
     isEligible: (pokemon) => hasSkill(pokemon, "눈보라"),
@@ -536,6 +699,10 @@ export const AUGMENT_LIST = [
     id: "lostTechnologyPsychic",
     name: "과거의 영광 (에스퍼)",
     desc: "고스트 타입 공격을 무효로 받습니다.\n추가로 강철, 악 타입과 모든 상성 계산이 1배로 적용됩니다.",
+    screenText: function (target) {
+      const names = target ? target.names("는") : "포켓몬은";
+      return `[증강] ${names} 에스퍼타입의 과거 위상을 되찾았다!`;
+    },
     cost: 0,
     weight: 200,
     isEligible: (pokemon) => hasPokemonName(pokemon, "뮤츠"),
@@ -544,6 +711,10 @@ export const AUGMENT_LIST = [
     id: "lostTechnologyHyperBeam",
     name: "과거의 영광 (파괴광선)",
     desc: "파괴광선으로 적을 쓰러뜨리면 반동을 받지 않습니다. 공격, 특수공격 중 더 높은 능력치를 사용합니다.",
+    screenText: function (target) {
+      const names = target ? target.names("는") : "포켓몬은";
+      return `[증강] ${names} 파괴광선의 과거 위상을 되찾았다!`;
+    },
     cost: 1,
     weight: 100,
     isEligible: (pokemon) => hasSkill(pokemon, "파괴광선"),
@@ -583,7 +754,9 @@ export const AUGMENT_LIST = [
   {
     id: "ksante",
     name: "체력 4700 방어력 329 마저201 인 챔피언👤이 저지불가🚫, 쉴드🛡, 벽🧱 넘기는 거 있고요. 에어본🌪 있고, 심지어 쿨타임은 1️⃣초밖에 안되고 마나🧙♂️는 1️⃣5️⃣ 들고 w는 심지어 변신💫하면 쿨 초기화에다가 패시브는 고정피해🗡가 들어가며 그 다음에 방마저🥋 올리면📈 올릴수록📈 스킬 가속⏰이 생기고! q에 스킬가속⏰이 생기고 스킬 속도🚀가 빨라지고📈 그 다음에 공격력🗡 계수가 있어가지고 W가 그 이익-으아아아악😱",
-    desc: "항상 방어와 특수방어 중 더 유리한 수치를 사용합니다.",
+    desc: function (pokemon, battle) {
+      return getStatCompareDesc(pokemon, "def", "cdef", battle);
+    },
     cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
     shortName: "그 긴거",
@@ -594,6 +767,9 @@ export const AUGMENT_LIST = [
     id: "hhgghgg",
     name: "H.H.G.G.H.G.G",
     desc: "항상 가장 높은 값의 능력치를 사용합니다.",
+    statusModalText: function (pokemon, battle) {
+      return getHhgghggDesc(pokemon, battle);
+    },
     cost: 10,
     weight: 20,
     isEligible: canPickStatSwapAugment,
@@ -604,6 +780,19 @@ export const AUGMENT_LIST = [
     id: "teraBlast",
     name: "테라버스트",
     desc: "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.",
+    selDesc: function () {
+      return "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.";
+    },
+    screenText: function (target, prevPokeName, options) {
+      const chosenType = options?.selectedType || this?.selectedType || "";
+      const names = target ? target.names("는") : "포켓몬은";
+      return chosenType ? `[증강] ${names} ${chosenType} 타입 테라버스트를 얻었다!` : `[증강] ${names} 테라버스트를 얻었다!`;
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const chosenType = options?.selectedType || this?.selectedType || "";
+      const names = target ? target.names("는") : "포켓몬은";
+      return chosenType ? `${names} ${chosenType} 타입 테라버스트를 얻었다!` : "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.";
+    },
     cost: 1,
     weight: 100,
     onApply: function (pokemon, battle, options) {
@@ -637,6 +826,16 @@ export const AUGMENT_LIST = [
     id: "rouletteWheel",
     name: "돌려 돌려 돌림판",
     desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      const toName = target?.name || "";
+      return josa(`[증강] ${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      const toName = target?.name || "";
+      return josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+    },
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     // 가중치 기본 200, 증강이 많을수록 감소 (200 / 1+n)
@@ -661,6 +860,16 @@ export const AUGMENT_LIST = [
     id: "marriedPokemon",
     name: "포켓몬과 결혼한 사람이 있었다",
     desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다. 인생의 동반자 증강을 추가로 획득합니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      const toName = target?.name || "";
+      return josa(`[증강] ${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      const toName = target?.name || "";
+      return josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+    },
     // 메가가디안, 님피아(딜탱), 메가이어롭, 마스카나 중 1 교체 + 인생의 동반자 획득
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
@@ -711,6 +920,16 @@ export const AUGMENT_LIST = [
     id: "sacrificeGod",
     name: "신을 제물로",
     desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다.  영혼의 심복 버프를 추가로 획득합니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      const toName = target?.name || "";
+      return josa(`[증강] ${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      const toName = target?.name || "";
+      return josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+    },
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     isEligible: (pokemon) => {
@@ -752,6 +971,16 @@ export const AUGMENT_LIST = [
     id: "threeBears",
     name: "곰은 사람을 찢어",
     desc: "해당 포켓몬을 곰 포켓몬 중 한마리와 교체합니다. 곰 세마리가 한 집에 있어 증강을 추가로 획득합니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      const toName = target?.name || "";
+      return josa(`[증강] ${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      const toName = target?.name || "";
+      return josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+    },
     cost: "-",
     weight: (pokemon, battle) => {
       const side = pokemon?.team === "npc" ? "npc" : "player";
@@ -801,6 +1030,24 @@ export const AUGMENT_LIST = [
     id: "threeBearsHouse",
     name: "곰 세마리가 한 집에 있어",
     desc: "팀의 곰 포켓몬 수에 따라 모든 능력치가 증가합니다.",
+    selDesc: function () {
+      return "팀의 곰 포켓몬 수에 따라 모든 능력치가 증가합니다.";
+    },
+    screenText: function (target) {
+      return `[증강] ${target ? target.names("는") : "포켓몬은"} 팀의 곰 포켓몬 수에 따라 모든 능력치가 증가했다!`;
+    },
+    logModalText: function () {
+      return "팀의 곰 포켓몬 수에 따라 모든 능력치가 증가합니다.";
+    },
+    statusModalText: function (pokemon, battle) {
+      const b = battle || (typeof window !== "undefined" && window.__battle) || null;
+      const side = pokemon?.team === "npc" ? "npc" : "player";
+      const team = b ? (side === "npc" ? [b.npc, b.npcBench1, b.npcBench2] : [b.player, b.playerBench1, b.playerBench2]).filter(Boolean) : [];
+      const count = team.length > 0 ? Math.min(3, Math.max(1, team.filter(isBearPokemon).length)) : this?.bearCount || 1;
+      const multMap = { 1: "1.1", 2: "1.3", 3: "1.5" };
+      const mult = multMap[count] || (this?.mult ? String(this.mult) : "1.1");
+      return `팀에 곰 포켓몬이 ${count}마리 있어 능력치가 ${mult}배 상승합니다.`;
+    },
     getDesc: (pokemon, battle, options = null) => {
       if (options?.showCurrentStats) {
         const b = battle || (typeof window !== "undefined" && window.__battle) || null;
@@ -861,6 +1108,14 @@ export const AUGMENT_LIST = [
     id: "soaring",
     name: '"메가" 플라이곤',
     desc: "현재 포켓몬을 메가진화가 가능한 플라이곤과 교체합니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`[증강] ${fromName}#{이} 플라이곤으로 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`${fromName}#{이} 플라이곤으로 교체되었다!`);
+    },
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
@@ -874,6 +1129,14 @@ export const AUGMENT_LIST = [
     id: "legendaryTitan",
     name: "전설의 거인",
     desc: `현재 포켓몬을 레지기가스와 교체합니다.\n특성과 관련된 증강을 추가로 획득합니다.`,
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`[증강] ${fromName}#{이} 레지기가스로 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`${fromName}#{이} 레지기가스로 교체되었다!`);
+    },
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
@@ -887,6 +1150,14 @@ export const AUGMENT_LIST = [
     id: "magikarpJump",
     name: "튀어올라라! 잉어킹",
     desc: "현재 포켓몬을 조금 많이 특별한 잉어킹과 교체합니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`[증강] ${fromName}#{이} 잉어킹으로 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`${fromName}#{이} 잉어킹으로 교체되었다!`);
+    },
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
@@ -900,6 +1171,14 @@ export const AUGMENT_LIST = [
     id: "klinklangGear",
     name: "기기기기기기기기기기어르",
     desc: "현재 포켓몬을 조금 특별한 기기기어르와 교체합니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`[증강] ${fromName}#{이} 기기기어르로 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`${fromName}#{이} 기기기어르로 교체되었다!`);
+    },
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
@@ -918,6 +1197,14 @@ export const AUGMENT_LIST = [
     name: "가라르의 미래를 지키기 위해 지금부터 블랙 나이트를 일으킬 거란다!",
     shortName: "블랙 나이트",
     desc: "현재 포켓몬을 무한다이노와 교체합니다.\n무한다이맥스 증강을 추가로 획득합니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`[증강] ${fromName}#{이} 무한다이노로 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`${fromName}#{이} 무한다이노로 교체되었다!`);
+    },
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: false,
@@ -936,6 +1223,14 @@ export const AUGMENT_LIST = [
     id: "mewtwoStrikesBack",
     name: "뮤츠의 역습",
     desc: `현재 포켓몬을 조금 옛날의 뮤츠와 교체합니다.\n특정 증강 3개를 추가로 얻습니다.`,
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`[증강] ${fromName}#{이} 뮤츠로 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`${fromName}#{이} 뮤츠로 교체되었다!`);
+    },
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
@@ -961,6 +1256,14 @@ export const AUGMENT_LIST = [
     id: "veteranPrivilege",
     name: "전관예우",
     desc: `현재 포켓몬을 조금 옛날의 켄타로스와 교체합니다.\n특정 증강 3개를 추가로 얻습니다.`,
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`[증강] ${fromName}#{이} 켄타로스로 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`${fromName}#{이} 켄타로스로 교체되었다!`);
+    },
     cost: "-",
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
@@ -1033,6 +1336,21 @@ export const AUGMENT_LIST = [
     id: "nimbleMoves",
     name: "민첩한 몸놀림 🍁",
     desc: "랜덤한 기술 하나에 우선도 +1을 추가합니다.",
+    selDesc: function () {
+      return "랜덤한 기술 하나에 우선도 +1을 추가합니다.";
+    },
+    screenText: function (target, prevPokeName, options) {
+      const skillName = options?.nimbleSkillName || this?.nimbleSkillName || target?.nimbleSkillName;
+      return skillName ? `[증강] ${skillName}의 우선도가 1 증가했다!` : "[증강] 랜덤한 기술 하나의 우선도가 1 증가했다!";
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const skillName = options?.nimbleSkillName || this?.nimbleSkillName || target?.nimbleSkillName;
+      return skillName ? `${skillName}의 우선도가 1 증가했다!` : "랜덤한 기술 하나의 우선도가 1 증가했다!";
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const skillName = options?.nimbleSkillName || this?.nimbleSkillName || pokemon?.nimbleSkillName;
+      return skillName ? `${skillName}의 우선도가 1 증가했습니다.` : "랜덤한 기술 하나의 우선도가 1 증가합니다.";
+    },
     cost: 4,
     weight: 100,
     onApply: function (pokemon, battle, options) {
@@ -1040,7 +1358,7 @@ export const AUGMENT_LIST = [
       const validSlots = [1, 2, 3, 4].filter((slot) => pokemon.skill[slot]);
       if (validSlots.length === 0) return;
 
-      const skillName = options?.nimbleSkillName || options?.enhancedSkillName;
+      const skillName = options?.nimbleSkillName;
       let targetSkill = null;
       if (skillName) {
         const foundSlot = validSlots.find((s) => pokemon.skill[s]?.name === skillName);
@@ -1054,7 +1372,6 @@ export const AUGMENT_LIST = [
 
       pokemon.nimbleSkillName = targetSkill.name;
       this.nimbleSkillName = targetSkill.name;
-      this.enhancedSkillName = targetSkill.name;
     },
   },
   {
@@ -1094,6 +1411,10 @@ export const AUGMENT_LIST = [
     id: "dragonDie",
     name: "용용 죽겠지 🐲",
     desc: "드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승합니다.",
+    statusModalText: function (pokemon) {
+      const count = Number(pokemon?.dragonKillCount ?? this?.dragonKillCount ?? 0);
+      return `${this.desc}\n(현재 드래곤 처치: ${count}마리)`;
+    },
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "dragonDie");
       const count = Number(pokemon?.dragonKillCount ?? aug?.dragonKillCount ?? 0);
@@ -1122,6 +1443,10 @@ export const AUGMENT_LIST = [
     id: "mejaisSoulstealer",
     name: "메자이의 영혼약탈자 🪄",
     desc: "중첩당 20의 특수공격을 얻습니다. 적을 쓰러뜨릴 때마다 중첩을 하나 얻으며 해당 포켓몬이 기절할 때마다 중첩을 하나 잃습니다.",
+    statusModalText: function (pokemon) {
+      const stack = Number(pokemon?.mejaiStack ?? this?.mejaiStack ?? 0);
+      return `${this.desc}\n(현재 스택: ${stack} / 특수공격 +${stack * 20})`;
+    },
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "mejaisSoulstealer");
       const stack = Number(pokemon?.mejaiStack ?? aug?.mejaiStack ?? 0);
@@ -1142,6 +1467,10 @@ export const AUGMENT_LIST = [
     id: "practiceMakesCritical",
     name: "연습이 치명타를 낳는다 💥",
     desc: "공격 시 스택이 쌓이고 스택 당 급소 확률이 1% 증가합니다.",
+    statusModalText: function (pokemon) {
+      const stack = Number(pokemon?.practiceCritStack ?? this?.practiceCritStack ?? 0);
+      return `${this.desc}\n(현재 스택: ${stack} / 급소율 +${stack}%)`;
+    },
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "practiceMakesCritical");
       const stack = Number(pokemon?.practiceCritStack ?? aug?.practiceCritStack ?? 0);
@@ -1162,6 +1491,10 @@ export const AUGMENT_LIST = [
     id: "giantAbsorption",
     name: "거인의 흡수 🛡️",
     desc: "매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치 만큼 추가 HP를 얻습니다.",
+    statusModalText: function (pokemon) {
+      const bonusHp = Number(pokemon?.giantBonusHp ?? this?.giantBonusHp ?? 0);
+      return `${this.desc}\n(현재 추가 HP: +${bonusHp})`;
+    },
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "giantAbsorption");
       const bonusHp = Number(pokemon?.giantBonusHp ?? aug?.giantBonusHp ?? 0);
@@ -1195,6 +1528,10 @@ export const AUGMENT_LIST = [
     id: "lostTechnologyCritical",
     name: "과거의 영광 (급소)",
     desc: "과거의 급소 확률 공식을 사용합니다.\n급소 확률이 스피드 종족값에 비례합니다.",
+    screenText: function (target) {
+      const names = target ? target.names("는") : "포켓몬은";
+      return `[증강] ${names} 과거의 급소 확률 공식을 되찾았다!`;
+    },
     synergy: true,
     isRandom: false,
     weight: "-",
@@ -1212,6 +1549,18 @@ export const AUGMENT_LIST = [
     id: "russianRoulette",
     name: "러시안룰렛",
     desc: "현재 필드에 나와있는 두 포켓몬 중 하나가 기절합니다.",
+    screenText: function (target, prevPokeName, options) {
+      const faintedName = options?.resolvedFaintTargetName || options?.faintedPokemonName;
+      return faintedName ? josa(`[증강] 러시안룰렛의 총구가 ${faintedName}#{를} 향했다!`) : "[증강] 러시안룰렛의 총구가 멈췄다!";
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const faintedName = options?.resolvedFaintTargetName || options?.faintedPokemonName;
+      return faintedName ? josa(`현재 필드에 나와있는 두 포켓몬 중 ${faintedName}#{이} 기절했습니다.`) : this.desc;
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const faintedName = options?.resolvedFaintTargetName || options?.faintedPokemonName;
+      return faintedName ? josa(`현재 필드에 나와있는 두 포켓몬 중 ${faintedName}#{이} 기절했습니다.`) : this.desc;
+    },
     cost: "-",
     weight: 100,
     isEligible: (pokemon, battle, team) => {
@@ -1243,6 +1592,26 @@ export const AUGMENT_LIST = [
     id: "oddEven",
     name: "홀짝",
     desc: "랜덤한 수치의 랭크업을 얻습니다.",
+    logModalText: function (target, prevPokeName, options) {
+      const statKey = options?.resolvedStat || options?.statKey;
+      const delta = options?.resolvedDelta ?? options?.delta;
+      const statLabel = STAT_LABELS[statKey];
+      if (statLabel && typeof delta === "number" && !Number.isNaN(delta)) {
+        const signed = delta > 0 ? `+${delta}` : `${delta}`;
+        return `랜덤한 수치의 랭크업을 얻습니다. (${statLabel} ${signed})`;
+      }
+      return this.desc;
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const statKey = options?.resolvedStat || options?.statKey;
+      const delta = options?.resolvedDelta ?? options?.delta;
+      const statLabel = STAT_LABELS[statKey];
+      if (statLabel && typeof delta === "number" && !Number.isNaN(delta)) {
+        const signed = delta > 0 ? `+${delta}` : `${delta}`;
+        return `랜덤한 수치의 랭크업을 얻습니다. (${statLabel} ${signed})`;
+      }
+      return this.desc;
+    },
     cost: "-",
     weight: 100,
     isEligible: (pokemon, battle, team) => hasGamblingAddict(team),
@@ -1266,6 +1635,18 @@ export const AUGMENT_LIST = [
     id: "doOrDie",
     name: "이판사판",
     desc: "10% 확률로 상대 엔트리의 대기중인 포켓몬을 전부 기절시킵니다.",
+    screenText: function (target, prevPokeName, options) {
+      const success = options?.resolvedSuccess ?? options?.doOrDieSuccess;
+      return success ? "[증강] 이판사판 성공! 상대 엔트리의 대기 중인 포켓몬을 전부 기절시킨다!" : "[증강] 이판사판... 하지만 실패했다!";
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const success = options?.resolvedSuccess ?? options?.doOrDieSuccess;
+      return success ? "이판사판에 성공하여 상대 엔트리의 대기 중인 포켓몬을 전부 기절시켰습니다." : "이판사판에 실패하여 아무 일도 일어나지 않았습니다.";
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const success = options?.resolvedSuccess ?? options?.doOrDieSuccess;
+      return success ? "이판사판에 성공하여 상대 엔트리의 대기 중인 포켓몬을 전부 기절시켰습니다." : "이판사판에 실패하여 아무 일도 일어나지 않았습니다.";
+    },
     cost: "-",
     weight: 100,
     isEligible: (pokemon, battle, team) => {
@@ -1343,6 +1724,12 @@ export const AUGMENT_LIST = [
     id: "eternamax",
     name: "무한 다이맥스",
     desc: "무한 다이맥스 상태가 됩니다.",
+    screenText: function (target) {
+      return josa(`[증강] ${target?.name || "무한다이노"}#{이} 무한 다이맥스 상태가 되었다!`);
+    },
+    logModalText: function (target) {
+      return josa(`${target?.name || "무한다이노"}#{이} 무한 다이맥스 상태가 되었다!`);
+    },
     cost: 5,
     weight: 500,
     shiftUp: false,
@@ -1380,6 +1767,23 @@ export const AUGMENT_LIST = [
     id: "randomAbility",
     name: "특성 야바위 🎲",
     desc: "현재 포켓몬의 특성을 랜덤으로 변경합니다.",
+    selDesc: function () {
+      return "현재 포켓몬의 특성을 무작위 특성으로 변경합니다.";
+    },
+    screenText: function (target, prevPokeName, options) {
+      const abilName = options?.pickedAbility || this?.pickedAbility || target?.pickedAbility || target?.abil?.name || target?.abil;
+      const pokeName = target?.name || "포켓몬";
+      return abilName ? josa(`[증강] ${pokeName}의 특성이 ${abilName}#{으로} 바뀌었다!`) : `[증강] ${pokeName}의 특성이 바뀌었다!`;
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const abilName = options?.pickedAbility || this?.pickedAbility || target?.pickedAbility || target?.abil?.name || target?.abil;
+      const pokeName = target?.name || "포켓몬";
+      return abilName ? josa(`${pokeName}의 특성이 ${abilName}#{으로} 바뀌었다!`) : "현재 포켓몬의 특성을 무작위 특성으로 변경합니다.";
+    },
+    statusModalText: function (pokemon) {
+      const abilName = this?.pickedAbility || pokemon?.pickedAbility || pokemon?.abil?.name || pokemon?.abil;
+      return abilName ? `특성이 [${abilName}]으로 변경되었습니다.` : "현재 포켓몬의 특성을 무작위 특성으로 변경합니다.";
+    },
     cost: 0,
     weight: 100,
     onApply: function (pokemon, battle, options) {
@@ -1397,6 +1801,15 @@ export const AUGMENT_LIST = [
     id: "revivePiece",
     name: "기력의 조각",
     desc: "기절한 포켓몬의 HP를 절반 회복하고 부활시킵니다.",
+    screenText: function (target) {
+      return `[증강] ${target?.name || "포켓몬"}에게 기력의 조각을 사용했다!`;
+    },
+    logModalText: function (target) {
+      return josa(`${target?.name || "포켓몬"}#{이} HP를 절반 회복하고 부활했습니다.`);
+    },
+    statusModalText: function (pokemon) {
+      return josa(`${pokemon?.name || "포켓몬"}#{이} HP를 절반 회복하고 부활했습니다.`);
+    },
     cost: "-",
     weight: 70,
     isEligible: (pokemon) => Boolean(pokemon && (pokemon.faint || pokemon.hp <= 0)),
@@ -1408,6 +1821,15 @@ export const AUGMENT_LIST = [
     id: "maxRevive",
     name: "기력의 덩어리",
     desc: "기절한 포켓몬의 HP를 전부 회복하고 부활시킵니다.",
+    screenText: function (target) {
+      return `[증강] ${target?.name || "포켓몬"}에게 기력의 덩어리를 사용했다!`;
+    },
+    logModalText: function (target) {
+      return josa(`${target?.name || "포켓몬"}#{이} HP를 최대로 회복하고 부활했습니다.`);
+    },
+    statusModalText: function (pokemon) {
+      return josa(`${pokemon?.name || "포켓몬"}#{이} HP를 최대로 회복하고 부활했습니다.`);
+    },
     cost: "-",
     weight: 50,
     isEligible: (pokemon) => Boolean(pokemon && (pokemon.faint || pokemon.hp <= 0)),
@@ -1419,6 +1841,15 @@ export const AUGMENT_LIST = [
     id: "fullRestore",
     name: "회복약",
     desc: "해당 포켓몬의 HP를 모두 회복하고 모든 상태이상을 치료합니다.",
+    screenText: function (target) {
+      return josa(`[증강] ${target?.name || "포켓몬"}#{은} 회복약으로 건강해졌다!`);
+    },
+    logModalText: function (target) {
+      return josa(`${target?.name || "포켓몬"}#{이} 체력과 상태이상을 모두 회복했습니다.`);
+    },
+    statusModalText: function (pokemon) {
+      return josa(`${pokemon?.name || "포켓몬"}#{이} 체력과 상태이상을 모두 회복했습니다.`);
+    },
     cost: "-",
     weight: 100,
     isEligible: (pokemon) => {
@@ -1440,6 +1871,23 @@ export const AUGMENT_LIST = [
     id: "soulDew",
     name: "마음의물방울",
     desc: "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
+    selDesc: function () {
+      return "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
+    },
+    screenText: function (target, prevPokeName, options) {
+      const isHolding = options?.wasHoldingSoulDew !== undefined ? options.wasHoldingSoulDew : target?._wasHoldingSoulDew !== undefined ? target._wasHoldingSoulDew : target?.item === "마음의물방울";
+      delete target?._wasHoldingSoulDew;
+      return isHolding ? "[증강] 마음의물방울이 옛날의 영광을 되찾았다!" : "[증강] 지닌 아이템이 마음의물방울로 교체되었다!";
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const isHolding = options?.wasHoldingSoulDew !== undefined ? options.wasHoldingSoulDew : target?._wasHoldingSoulDew !== undefined ? target._wasHoldingSoulDew : target?.item === "마음의물방울";
+      return isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다." : "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
+    },
+    statusModalText: function (pokemon) {
+      const isHolding = pokemon?.item === "마음의물방울";
+      const header = isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다." : "지닌 아이템을 마음의물방울로 교체합니다.";
+      return `${header}\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.`;
+    },
     cost: 0,
     weight: 20,
     isEligible: (pokemon) => {
@@ -1801,448 +2249,79 @@ const hasSkill = (pokemon, skillName) => {
   });
 };
 
-// 증강 텍스트 생성 단일 통합 함수
-export const getAugmentText = (selectedAugment, target, isTextScreen = false, prevPokeName = "", options = null) => {
-  if (!selectedAugment) return "";
-  const id = selectedAugment.id;
+// ====================================================================================
+// 4대 텍스트 시스템: selDesc / screenText / logModalText / statusModalText
+// ====================================================================================
+
+/**
+ * 1. 선택 모달 / 상세정보 미리보기 전용 (selDesc)
+ */
+export const getAugmentSelDesc = (augment, pokemon = null, battle = null) => {
+  if (!augment) return "";
+  if (typeof augment.selDesc === "function") return augment.selDesc(pokemon, battle);
+  if (augment.selDesc) return augment.selDesc;
+  if (typeof augment.desc === "function") return augment.desc(pokemon);
+  return augment.desc || "";
+};
+
+/**
+ * 2. 배틀 상단 화면 실시간 텍스트창 전용 (screenText)
+ * - 증강에 개별 screenText가 없으면 공통 로직으로 자동 생성
+ */
+export const getAugmentScreenText = (augment, target = null, prevPokeName = "", options = null) => {
+  if (!augment) return "";
+  if (typeof augment.screenText === "function") return augment.screenText(target, prevPokeName, options);
+  if (augment.screenText) return augment.screenText;
+
+  // 공통 로직
   const names = target ? target.names("는") : "포켓몬은";
+  const rawName = stripEmoji(augment.shortName || augment.name || "");
+  if (isSynergyAugment(augment)) return `3개의 증강이 공명하여 "${rawName}" 시너지가 활성화되었다!`;
+  if (isCurseAugment(augment)) return `[증강] ${names} "${rawName}" 디버프를 얻었다!`;
+  if (isBuffAugment(augment)) return `[증강] ${names} "${rawName}" 버프를 얻었다!`;
+  return `[증강] ${names} "${rawName}" 효과를 얻었다!`;
+};
 
-  // 특수 증강 목록 체크 (개별 desc 생성)
-  let individualDesc = null;
+/**
+ * 3. 우측 상단 로그 보기 모달 카드 전용 (logModalText)
+ */
+export const getAugmentLogModalText = (augment, target = null, prevPokeName = "", options = null) => {
+  if (!augment) return "";
+  if (typeof augment.logModalText === "function") return augment.logModalText(target, prevPokeName, options);
+  if (augment.logModalText) return augment.logModalText;
+  if (typeof augment.selDesc === "function") return augment.selDesc(target);
+  if (augment.selDesc) return augment.selDesc;
+  if (typeof augment.desc === "function") return augment.desc(target);
+  return augment.desc || "";
+};
 
-  if (id === "tailwind") {
-    if (isTextScreen) {
-      const pokeName = target?.name || "포켓몬";
-      individualDesc = `${pokeName}의 순풍!`;
-    } else {
-      return selectedAugment.desc || "4턴 동안 자신 편의 포켓몬의 스피드를 2배로 올리는 순풍을 전개한다.";
-    }
-  } else if (id === "abilityInversion") {
-    if (isTextScreen) {
-      const pokeName = target?.name || "포켓몬";
-      individualDesc = `${pokeName}의 기본 특성과 메가진화 특성이 뒤바뀌었다!`;
-    } else {
-      return selectedAugment.desc || "기본 특성과 메가진화 특성을 교환합니다.";
-    }
-  } else if (id === "intimidate") {
-    if (isTextScreen) {
-      const pokeName = target?.name || "포켓몬";
-      individualDesc = `${pokeName}의 위협!`;
-    } else {
-      return selectedAugment.desc || "상대를 위축시켜 공격을 떨어뜨립니다.";
-    }
-  } else if (id === "stealthRock") {
-    if (isTextScreen) {
-      const pokeName = target?.name || "포켓몬";
-      individualDesc = `${pokeName}의 스텔스록!`;
-    } else {
-      return selectedAugment.desc || "상대의 주위에 무수한 바위를 띄워 교체되어 나온 상대 포켓몬에게 데미지를 입힙니다.";
-    }
-  } else if (id === "stickyWeb") {
-    if (isTextScreen) {
-      const pokeName = target?.name || "포켓몬";
-      individualDesc = `${pokeName}의 끈적끈적네트!`;
-    } else {
-      return selectedAugment.desc || "상대의 주위에 끈적끈적한 네트를 쳐 교체되어 나온 상대 포켓몬의 스피드를 1랭크 떨어뜨립니다.";
-    }
-  } else if (id === "anvilStat" || id === "anvilStatBuff") {
-    const statLabels = {
-      atk: "공격",
-      catk: "특공",
-      def: "방어",
-      cdef: "특방",
-      speed: "스피드",
-    };
-    const pickedStat = options?.pickedStat || selectedAugment?.pickedStat;
-    const pickedAmount = options?.pickedAmount || selectedAugment?.pickedAmount;
-    const statLabel = statLabels[pickedStat] || "능력치";
-    if (isTextScreen) {
-      const pokeName = target?.name || "포켓몬";
-      individualDesc = pickedStat && pickedAmount ? josa(`능력치 파편으로 ${pokeName}의 ${statLabel}#{이} ${pickedAmount} 올랐다!`) : `${names} 모루 능력치를 획득했다!`;
-    } else {
-      if (options?.showCurrentStats) {
-        return getAnvilStatsStatusDesc(target);
-      }
-      if (pickedStat && pickedAmount) {
-        individualDesc = `능력치 파편으로 ${josa(`${statLabel}#{이}`)} ${pickedAmount} 올랐습니다.`;
-      } else {
-        return "누적되는 추가 능력치를 획득합니다.";
-      }
-    }
-  } else if (id === "soulDew") {
-    if (isTextScreen) {
-      const isHolding = options?.wasHoldingSoulDew !== undefined ? options.wasHoldingSoulDew : target?._wasHoldingSoulDew !== undefined ? target._wasHoldingSoulDew : target?.item === "마음의물방울";
-      delete target?._wasHoldingSoulDew;
-      individualDesc = isHolding ? "마음의물방울이 옛날의 영광을 되찾았다!" : "지닌 아이템이 마음의물방울로 교체되었다!";
-    }
-  } else if (id === "lostTechnologyBlizzard") {
-    if (isTextScreen) {
-      individualDesc = `${names} 눈보라의 과거 위상을 되찾았다!`;
-    }
-  } else if (id === "mewtwoStrikesBack") {
-    const fromName = prevPokeName || "포켓몬";
-    individualDesc = josa(`${fromName}#{이} 뮤츠로 교체되었다!`);
-  } else if (id === "veteranPrivilege") {
-    const fromName = prevPokeName || "포켓몬";
-    individualDesc = josa(`${fromName}#{이} 켄타로스로 교체되었다!`);
-  } else if (id === "lostTechnologyPsychic") {
-    if (isTextScreen) {
-      individualDesc = `${names} 에스퍼타입의 과거 위상을 되찾았다!`;
-    }
-  } else if (id === "lostTechnologyHyperBeam") {
-    if (isTextScreen) {
-      individualDesc = `${names} 파괴광선의 과거 위상을 되찾았다!`;
-    }
-  } else if (id === "lostTechnologyCritical") {
-    if (isTextScreen) {
-      individualDesc = `${names} 과거의 급소 확률 공식을 되찾았다!`;
-    }
-  } else if (id === "threeBearsHouse") {
-    if (options?.showCurrentStats) {
-      const b = options?.battle || (typeof window !== "undefined" && window.__battle) || null;
-      const side = target?.team === "npc" ? "npc" : "player";
-      const team = b ? (side === "npc" ? [b.npc, b.npcBench1, b.npcBench2] : [b.player, b.playerBench1, b.playerBench2]).filter(Boolean) : [];
-      const count = team.length > 0 ? Math.min(3, Math.max(1, team.filter(isBearPokemon).length)) : selectedAugment?.bearCount || 1;
-      const multMap = { 1: "1.1", 2: "1.3", 3: "1.5" };
-      const mult = multMap[count] || (selectedAugment?.mult ? String(selectedAugment.mult) : "1.1");
-      return `팀에 곰 포켓몬이 ${count}마리 있어 능력치가 ${mult}배 상승합니다.`;
-    }
-    if (isTextScreen) {
-      individualDesc = `${names} 팀의 곰 포켓몬 수에 따라 모든 능력치가 증가했다!`;
-    } else {
-      return "팀의 곰 포켓몬 수에 따라 모든 능력치가 증가합니다.";
-    }
-  } else if (id === "rouletteWheel" || id === "marriedPokemon" || id === "sacrificeGod" || id === "threeBears") {
-    const fromName = prevPokeName || target?.name || "포켓몬";
-    const toName = target?.name || "";
-    individualDesc = josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);
-  } else if (id === "soaring") {
-    const fromName = prevPokeName || "포켓몬";
-    individualDesc = josa(`${fromName}#{이} 플라이곤으로 교체되었다!`);
-  } else if (id === "legendaryTitan") {
-    const fromName = prevPokeName || "포켓몬";
-    individualDesc = josa(`${fromName}#{이} 레지기가스로 교체되었다!`);
-  } else if (id === "magikarpJump") {
-    const fromName = prevPokeName || "포켓몬";
-    individualDesc = josa(`${fromName}#{이} 잉어킹으로 교체되었다!`);
-  } else if (id === "klinklangGear") {
-    const fromName = prevPokeName || "포켓몬";
-    individualDesc = josa(`${fromName}#{이} 기기기어르로 교체되었다!`);
-  } else if (id === "blackNight") {
-    const fromName = prevPokeName || "포켓몬";
-    individualDesc = josa(`${fromName}#{이} 무한다이노로 교체되었다!`);
-  } else if (id === "nimbleMoves") {
-    const nimbleAug = target?.augments?.find((a) => a.id === "nimbleMoves") || selectedAugment;
-    const skillName = options?.nimbleSkillName || options?.enhancedSkillName || nimbleAug?.nimbleSkillName || nimbleAug?.enhancedSkillName || target?.nimbleSkillName;
-    if (skillName) {
-      individualDesc = `${skillName}의 우선도가 1 증가했다!`;
-    }
-  } else if (id === "eternamax") {
-    individualDesc = josa(`${target?.name || "무한다이노"}#{이} 무한 다이맥스 상태가 되었다!`);
-  } else if (id === "swordEnhance") {
-    const swordAug = target?.augments?.find((a) => a.id === "swordEnhance") || selectedAugment;
-    const hasResult = options?.swordFailed !== undefined || options?.swordBonusAtk !== undefined || swordAug?.swordFailed !== undefined || swordAug?.swordBonusAtk !== undefined;
-    if (hasResult) {
-      const failed = Boolean(options?.swordFailed ?? swordAug?.swordFailed);
-      const level = Number(options?.swordLevel ?? swordAug?.swordLevel ?? 0);
-      const bonusAtk = options?.swordBonusAtk !== undefined ? Number(options.swordBonusAtk) : swordAug?.swordBonusAtk !== undefined ? Number(swordAug.swordBonusAtk) : failed ? 0 : 20 + level * 20;
-      individualDesc = failed ? "강화에 실패하였다..." : `검 강화에 성공하여 공격과 특수공격을 ${bonusAtk} 얻었다!`;
-    }
-  } else if (id === "soulDice") {
-    if (isTextScreen) {
-      individualDesc = "주사위를 굴려 스탯을 얻었다!";
-    } else {
-      const diceAug = target?.augments?.find((a) => a.id === "soulDice") || selectedAugment;
-      const stats = options?.soulDiceStats || diceAug?.soulDiceStats || target?.soulDiceStats;
-      if (stats) {
-        individualDesc = `주사위를 굴려 스탯을 얻었습니다.\n(공격:${stats.atk} 방어:${stats.def} 특공:${stats.catk} 특방:${stats.cdef} 스피드:${stats.speed})`;
-      } else {
-        individualDesc = "주사위를 굴려 총 50의 스탯을 얻습니다.\n주사위는 계속 굴릴 수 있습니다.";
-      }
-    }
-  } else if (id === "randomAbility") {
-    const randomAug = target?.augments?.find((a) => a.id === "randomAbility");
-    const abilName = options?.pickedAbility || selectedAugment?.pickedAbility || randomAug?.pickedAbility || (randomAug ? target?.abil?.name || target?.abil : "");
-    if (abilName) {
-      const pokeName = target?.name || "포켓몬";
-      individualDesc = `${pokeName}의 특성이 ${josa(`${abilName}#{으로}`)} 바뀌었다!`;
-    }
-  } else if (id === "revivePiece") {
-    const revivedName = target?.name || "포켓몬";
-    if (isTextScreen) {
-      individualDesc = `${revivedName}에게 기력의 조각을 사용했다!`;
-    } else {
-      individualDesc = `${josa(`${revivedName}#{이}`)} HP를 절반 회복하고 부활했습니다.`;
-    }
-  } else if (id === "maxRevive") {
-    const revivedName = target?.name || "포켓몬";
-    if (isTextScreen) {
-      individualDesc = `${revivedName}에게 기력의 덩어리를 사용했다!`;
-    } else {
-      individualDesc = `${josa(`${revivedName}#{이}`)} HP를 최대로 회복하고 부활했습니다.`;
-    }
-  } else if (id === "fullRestore") {
-    const pokeName = target?.name || "포켓몬";
-    if (isTextScreen) {
-      individualDesc = josa(`${pokeName}#{은} 회복약으로 건강해졌다!`);
-    } else {
-      individualDesc = `${josa(`${pokeName}#{이}`)} 체력과 상태이상을 모두 회복했습니다.`;
-    }
-  } else if (id === "allOrNothing") {
-    const revAug = target?.augments?.find((a) => a.id === "allOrNothing") || selectedAugment;
-    const pick = options?.targetStat || revAug?.allOrNothingResult || revAug?.revolutionResult;
-    if (pick === "atk") {
-      individualDesc = "공격이 2배, 특수공격이 절반이 되었다!";
-    } else if (pick === "catk") {
-      individualDesc = "특수공격이 2배, 공격이 절반이 되었다!";
-    } else if (isTextScreen) {
-      individualDesc = "공격이 2배, 특수공격이 절반이 되었다!";
-    }
-  } else if (id === "russianRoulette") {
-    const faintedName = options?.resolvedFaintTargetName || options?.faintedPokemonName;
-    if (isTextScreen) {
-      individualDesc = faintedName ? `러시안룰렛의 총구가 ${josa(`${faintedName}#{를}`)} 향했다!` : "러시안룰렛의 총구가 멈췄다!";
-    } else {
-      individualDesc = faintedName ? `현재 필드에 나와있는 두 포켓몬 중 ${josa(`${faintedName}#{이}`)} 기절했습니다.` : selectedAugment.desc || "현재 필드에 나와있는 두 포켓몬 중 하나가 기절합니다.";
-    }
-  } else if (id === "oddEven") {
-    const statKey = options?.resolvedStat || options?.statKey;
-    const delta = options?.resolvedDelta ?? options?.delta;
-    const statLabel = STAT_LABELS[statKey];
-    if (!isTextScreen && statLabel && typeof delta === "number" && !Number.isNaN(delta)) {
-      const signed = delta > 0 ? `+${delta}` : `${delta}`;
-      individualDesc = `랜덤한 수치의 랭크업을 얻습니다. (${statLabel} ${signed})`;
-    }
-  } else if (id === "doOrDie") {
-    const success = options?.resolvedSuccess ?? options?.doOrDieSuccess;
-    if (typeof success === "boolean") {
-      if (isTextScreen) {
-        individualDesc = success ? "이판사판 성공! 상대 엔트리의 대기 중인 포켓몬을 전부 기절시킨다!" : "이판사판... 하지만 실패했다!";
-      } else {
-        individualDesc = success ? "이판사판에 성공하여 상대 엔트리의 대기 중인 포켓몬을 전부 기절시켰습니다." : "이판사판에 실패하여 아무 일도 일어나지 않았습니다.";
-      }
-    }
-  } else if (id === "highRiskHighReturn") {
-    const grantedAug = options?.resolvedGrantedAug || (options?.resolvedGrantedId ? AUGMENT_LIST.find((a) => a.id === options.resolvedGrantedId) : null);
-    if (grantedAug) {
-      return getAugmentText(grantedAug, target, isTextScreen, prevPokeName, options);
-    }
-  } else if (id === "nullifyGetto") {
-    const nullType = options?.selectedType || selectedAugment?.selectedType || target?.augments?.find((a) => a.id === "nullifyGetto")?.selectedType || target?._nullifyType || "";
-    if (nullType) {
-      individualDesc = `${names} ${nullType} 타입 무효 효과를 얻었다!`;
-    }
-  } else if (id === "teraBlast") {
-    const teraAug = target?.augments?.find((a) => a.id === "teraBlast") || selectedAugment;
-    const chosenType = options?.selectedType || teraAug?.selectedType || "";
-    if (chosenType) {
-      individualDesc = `${names} ${chosenType} 타입 테라버스트를 얻었다!`;
-    }
-  } else if (id === "swordAndShield" && !isTextScreen && options?.showCurrentStats) {
-    return getSwordAndShieldDesc(target, options?.battle || null);
-  } else if (id === "specialSwordAndShield" && !isTextScreen && options?.showCurrentStats) {
-    return getSpecialSwordAndShieldDesc(target, options?.battle || null);
-  } else if (id === "ksante" && !isTextScreen && options?.showCurrentStats) {
-    return getKsanteDesc(target, options?.battle || null);
-  } else if (id === "hhgghgg" && !isTextScreen && options?.showCurrentStats) {
-    return getHhgghggDesc(target, options?.battle || null);
-  }
+/**
+ * 4. 증강 현황 모달 / 증강 유지(전달) 모달 전용 (statusModalText)
+ */
+export const getAugmentStatusModalText = (augment, pokemon = null, battle = null, options = null) => {
+  if (!augment) return "";
+  if (typeof augment.statusModalText === "function") return augment.statusModalText(pokemon, battle, options);
+  if (augment.statusModalText) return augment.statusModalText;
+  if (typeof augment.selDesc === "function") return augment.selDesc(pokemon, battle);
+  if (augment.selDesc) return augment.selDesc;
+  if (typeof augment.desc === "function") return augment.desc(pokemon);
+  return augment.desc || "";
+};
 
-  const foundInList = AUGMENT_LIST.find((a) => a.id === id);
-  const isCurse = isCurseAugment(selectedAugment) || isCurseAugment(foundInList);
-  const isSynergy = isSynergyAugment(selectedAugment) || isSynergyAugment(foundInList);
-  const isBuf = isBuffAugment(selectedAugment) || isBuffAugment(foundInList);
-  if (isCurse || isSynergy || isBuf) {
-    if (isTextScreen) {
-      const rawName = selectedAugment?.shortName || selectedAugment?.name || foundInList?.shortName || foundInList?.name || "";
-      const displayAugName = stripEmoji(rawName);
-      if (isSynergy) {
-        return `3개의 증강이 공명하여 "${displayAugName}" 시너지가 활성화되었다!`;
-      }
-      if (isCurse) {
-        return `${names} "${displayAugName}" 디버프를 얻었다!`;
-      }
-      return `${names} "${displayAugName}" 버프를 얻었다!`;
-    }
-    const applied = target?.augments?.find((a) => a.id === id);
-    if (typeof foundInList?.getDesc === "function") {
-      return foundInList.getDesc(target);
-    }
-    if (typeof applied?.getDesc === "function") {
-      return applied.getDesc(target);
-    }
-    return applied?.desc || selectedAugment?.desc || foundInList?.desc || "";
-  }
-
-  // 특수 증강인 경우 (individualDesc 가 존재하는 경우)
-  if (individualDesc !== null) {
-    return isTextScreen ? `[증강] ${individualDesc}` : individualDesc;
-  }
-
-  // 일반 증강인 경우
+// 하위 호환성 래퍼
+export const getAugmentText = (augment, target, isTextScreen = false, prevPokeName = "", options = null) => {
   if (isTextScreen) {
-    const rawName = selectedAugment.shortName || selectedAugment.name;
-    const displayAugName = stripEmoji(rawName);
-    return `[증강] ${names} "${displayAugName}" 효과를 얻었다!`;
-  } else {
-    const applied = target?.augments?.find((a) => a.id === id);
-    return applied?.desc || selectedAugment.desc || "";
+    return getAugmentScreenText(augment, target, prevPokeName, options);
   }
-};
-
-const getSwordAndShieldDesc = (pokemon, battle = null) => {
-  const stat = pokemon?.stat;
-  if (stat && typeof stat.atk === "number" && typeof stat.def === "number") {
-    const atkRank = Number(pokemon?.tempStatus?.rank?.atk ?? 0);
-    const defRank = Number(pokemon?.tempStatus?.rank?.def ?? 0);
-    const atkVal = Math.floor(getAugmentedStat(pokemon, "atk", battle) * getMultiplier(atkRank));
-    const defVal = Math.floor(getAugmentedStat(pokemon, "def", battle) * getMultiplier(defRank));
-    return `항상 공격(${atkVal})과 방어(${defVal}) 중 더 유리한 수치를 사용합니다.`;
+  if (options?.showCurrentStats || options?.isCarryover) {
+    return getAugmentStatusModalText(augment, target, options?.battle, options);
   }
-  return "항상 공격과 방어 중 더 유리한 수치를 사용합니다.";
-};
-
-const getSpecialSwordAndShieldDesc = (pokemon, battle = null) => {
-  const stat = pokemon?.stat;
-  if (stat && typeof stat.catk === "number" && typeof stat.cdef === "number") {
-    const catkRank = Number(pokemon?.tempStatus?.rank?.catk ?? 0);
-    const cdefRank = Number(pokemon?.tempStatus?.rank?.cdef ?? 0);
-    const catkVal = Math.floor(getAugmentedStat(pokemon, "catk", battle) * getMultiplier(catkRank));
-    const cdefVal = Math.floor(getAugmentedStat(pokemon, "cdef", battle) * getMultiplier(cdefRank));
-    return `항상 특공(${catkVal})과 특방(${cdefVal}) 중 더 유리한 수치를 사용합니다.`;
-  }
-  return "항상 특공과 특방 중 더 유리한 수치를 사용합니다.";
-};
-
-const getKsanteDesc = (pokemon, battle = null) => {
-  const stat = pokemon?.stat;
-  if (stat && typeof stat.def === "number" && typeof stat.cdef === "number") {
-    const defRank = Number(pokemon?.tempStatus?.rank?.def ?? 0);
-    const cdefRank = Number(pokemon?.tempStatus?.rank?.cdef ?? 0);
-    const defVal = Math.floor(getAugmentedStat(pokemon, "def", battle) * getMultiplier(defRank));
-    const cdefVal = Math.floor(getAugmentedStat(pokemon, "cdef", battle) * getMultiplier(cdefRank));
-    return `항상 방어(${defVal})와 특수방어(${cdefVal}) 중 더 유리한 수치를 사용합니다.`;
-  }
-  return "항상 방어와 특수방어 중 더 유리한 수치를 사용합니다.";
-};
-
-const getHhgghggDesc = (pokemon, battle = null) => {
-  const highest = getHighestStatInfo(pokemon, battle);
-  if (highest) {
-    return `항상 가장 높은 값의 능력치를 사용합니다. (${highest.label} ${highest.displayValue})`;
-  }
-  return "항상 가장 높은 값의 능력치를 사용합니다.";
-};
-
-export const isNimbleSkill = (pokemon, skill) => {
-  if (!pokemon || !skill) return false;
-  const nimbleSkillName = pokemon.nimbleSkillName || pokemon.augments?.find((a) => a.id === "nimbleMoves")?.enhancedSkillName;
-  return Boolean(pokemon.hasAugment?.("nimbleMoves") && nimbleSkillName && nimbleSkillName === skill.name);
-};
-
-export const hasAnvilStats = (pokemon) => {
-  if (!pokemon) return false;
-  const stats = pokemon.anvilStats;
-  if (!stats) return false;
-  return Object.values(stats).some((v) => Number(v) > 0);
-};
-
-export const getAnvilStatsStatusDesc = (pokemon) => {
-  const stats = pokemon?.anvilStats;
-  if (!stats) return "누적되는 추가 능력치를 획득합니다.";
-  const labels = {
-    atk: "공격",
-    catk: "특공",
-    def: "방어",
-    cdef: "특방",
-    speed: "스피드",
-  };
-  const parts = [];
-  ["atk", "def", "catk", "cdef", "speed"].forEach((k) => {
-    const val = Number(stats[k] || 0);
-    if (val > 0) {
-      parts.push(`${labels[k]}: ${val}`);
-    }
-  });
-  if (parts.length > 0) {
-    return `누적되는 추가 능력치를 획득합니다.\n${parts.join("  ")}`;
-  }
-  return "누적되는 추가 능력치를 획득합니다.";
+  return getAugmentLogModalText(augment, target, prevPokeName, options);
 };
 
 export const getAugmentDesc = (augment, pokemon = null, battle = null) => {
   if (!augment) return "";
-  const stat = pokemon?.stat;
-
-  if (augment.id === "anvilStat" || augment.id === "anvilStatBuff") {
-    return "누적되는 추가 능력치를 획득합니다.";
-  }
-
-  if (augment.id === "swordAndShield") {
-    return getSwordAndShieldDesc(pokemon, battle);
-  }
-
-  if (augment.id === "specialSwordAndShield") {
-    return getSpecialSwordAndShieldDesc(pokemon, battle);
-  }
-
-  if (augment.id === "ksante") {
-    return getKsanteDesc(pokemon, battle);
-  }
-
-  if (augment.id === "hhgghgg") {
-    return getHhgghggDesc(pokemon, battle);
-  }
-
-  if (augment.id === "soulDew") {
-    const isHolding = pokemon?.item === "마음의물방울";
-    const header = isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다." : "지닌 아이템을 마음의물방울로 교체합니다.";
-    return `${header}\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.`;
-  }
-
-  if (augment.id === "teraBlast") {
-    return "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.";
-  }
-
-  if (augment.id === "swordEnhance") {
-    return "검을 강화하여 강화 단계에 따라 공격과 특수공격을 증가시킵니다.";
-  }
-
-  if (augment.id === "stickyWeb") {
-    return "상대의 주위에 끈적끈적한 네트를 쳐 교체되어 나온 상대 포켓몬의 스피드를 1랭크 떨어뜨립니다.";
-  }
-
-  if (augment.id === "soulDice") {
-    const stats = augment.soulDiceStats || pokemon?.soulDiceStats;
-    if (stats) {
-      return `주사위를 굴려 스탯을 얻었습니다.\n(공격:${stats.atk} 방어:${stats.def} 특공:${stats.catk} 특방:${stats.cdef} 스피드:${stats.speed})`;
-    }
-    return "주사위를 굴려 총 50의 스탯을 얻습니다.\n주사위는 계속 굴릴 수 있습니다.";
-  }
-
-  if (augment.id === "allOrNothing") {
-    if (stat && typeof stat.atk === "number" && typeof stat.catk === "number") {
-      const atk = getAugmentedStat ? getAugmentedStat(pokemon, "atk") : stat.atk;
-      const catk = getAugmentedStat ? getAugmentedStat(pokemon, "catk") : stat.catk;
-      return `공격(${atk})과 특수공격(${catk}) 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.`;
-    }
-    return "공격과 특수공격 중 하나가 2배가 되고 다른 하나가 절반이 됩니다.";
-  }
-
-  if (augment.id === "nullifyGetto") {
-    const chosen = augment.selectedType || pokemon?._nullifyType;
-    if (chosen) {
-      return `해당 포켓몬에게 [${chosen}] 무효 타입을 추가했습니다.`;
-    }
-    return "해당 포켓몬에게 무효 타입을 하나 추가합니다.";
-  }
-
-  if (typeof augment.getDesc === "function") {
-    return augment.getDesc(pokemon);
-  }
-  if (typeof augment.desc === "function") {
-    return augment.desc(pokemon);
-  }
+  if (typeof augment.desc === "function") return augment.desc(pokemon);
   return augment.desc || "";
 };
 
@@ -2360,3 +2439,50 @@ function hasStatRatioDiff(pokemon, statKey1, statKey2, ratio = 1.5, battle = nul
   const min = Math.min(val1, val2);
   return max >= min * ratio - 1e-9;
 }
+
+export const getStatCompareDesc = (pokemon, stat1, stat2, battle = null, label1 = null, label2 = null) => {
+  const defaultLabels = {
+    atk: "공격",
+    def: "방어",
+    catk: "특공",
+    cdef: stat1 === "def" ? "특수방어" : "특방",
+    speed: "스피드",
+  };
+  const name1 = label1 || defaultLabels[stat1] || stat1;
+  const name2 = label2 || defaultLabels[stat2] || stat2;
+  const stat = pokemon?.stat;
+  if (stat && typeof stat[stat1] === "number" && typeof stat[stat2] === "number") {
+    const rank1 = Number(pokemon?.tempStatus?.rank?.[stat1] ?? 0);
+    const rank2 = Number(pokemon?.tempStatus?.rank?.[stat2] ?? 0);
+    const val1 = Math.floor(getAugmentedStat(pokemon, stat1, battle) * getMultiplier(rank1));
+    const val2 = Math.floor(getAugmentedStat(pokemon, stat2, battle) * getMultiplier(rank2));
+    return josa(`항상 ${name1}(${val1})#{와} ${name2}(${val2}) 중 더 유리한 수치를 사용합니다.`);
+  }
+  return josa(`항상 ${name1}#{와} ${name2} 중 더 유리한 수치를 사용합니다.`);
+};
+
+export const getSwordAndShieldDesc = (pokemon, battle = null) => getStatCompareDesc(pokemon, "atk", "def", battle);
+export const getSpecialSwordAndShieldDesc = (pokemon, battle = null) => getStatCompareDesc(pokemon, "catk", "cdef", battle);
+export const getKsanteDesc = (pokemon, battle = null) => getStatCompareDesc(pokemon, "def", "cdef", battle);
+
+export const getAllOrNothingStatValues = (pokemon, battle = null, pick = null) => {
+  const stat = pokemon?.stat;
+  if (!stat || typeof stat.atk !== "number" || typeof stat.catk !== "number") return null;
+  const atkRank = Number(pokemon?.tempStatus?.rank?.atk ?? 0);
+  const catkRank = Number(pokemon?.tempStatus?.rank?.catk ?? 0);
+  let atkVal = Math.floor(getAugmentedStat(pokemon, "atk", battle) * getMultiplier(atkRank));
+  let catkVal = Math.floor(getAugmentedStat(pokemon, "catk", battle) * getMultiplier(catkRank));
+
+  const hasApplied = pokemon?.augments?.some((a) => (typeof a === "string" ? a === "allOrNothing" : a.id === "allOrNothing") && (a.allOrNothingResult || pokemon.allOrNothingResult));
+  if (!hasApplied && pick) {
+    if (pick === "atk") {
+      atkVal = Math.round(atkVal * 2);
+      catkVal = Math.max(1, Math.floor(catkVal / 2));
+    } else if (pick === "catk") {
+      catkVal = Math.round(catkVal * 2);
+      atkVal = Math.max(1, Math.floor(atkVal / 2));
+    }
+  }
+
+  return { atkVal, catkVal };
+};

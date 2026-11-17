@@ -1,6 +1,6 @@
 // 배틀 중 포켓몬 기술 사용 화면
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SkillButton from "./SkillButton"; // 경로에 맞게 수정
 import TextBox from "../common/TextBox";
 import SwitchButton from "../common/SwitchButton";
@@ -51,6 +51,29 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
   const [logOpen, setLogOpen] = useState(false);
   const [useMega, setUseMega] = useState(false);
 
+  const curBattle = btObj || battle;
+
+  // 1. 다음 라운드 진입, 배틀 변경, 출전 포켓몬 변경 시 메가진화 선택 상태 강제 초기화
+  useEffect(() => {
+    setUseMega(false);
+    if (btObj?.megaTrigger) btObj.megaTrigger.player = false;
+    if (battle?.megaTrigger && !Object.isFrozen(battle.megaTrigger)) battle.megaTrigger.player = false;
+  }, [curBattle?.round, curBattle?.player?.uniqueKey, curBattle?.player?.name]);
+
+  // 2. 메가진화가 완료되었거나 이미 메가진화를 사용한 경우 선택 해제
+  useEffect(() => {
+    if (curBattle?.player?.isMega || curBattle?.megaUsed?.player) {
+      setUseMega(false);
+      if (btObj?.megaTrigger) btObj.megaTrigger.player = false;
+      if (battle?.megaTrigger && !Object.isFrozen(battle.megaTrigger)) battle.megaTrigger.player = false;
+    }
+  }, [curBattle?.player?.isMega, curBattle?.megaUsed?.player]);
+
+  const handleBattleStartBySkillButton = (skillIndex) => {
+    setUseMega(false);
+    battleStartBySkillButton(skillIndex);
+  };
+
   const isMegaEvolveAble = battle.player.isMegaEvolveAble?.(battle);
   const isAllSkillsDisabled = ![1, 2, 3, 4].some((num) => isSkillUsable(battle.player, num));
 
@@ -73,13 +96,13 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         }}
       />
 
-      <SkillButton battle={battle} skillNumber={1} queueObject={queueObject} setText={setText} battleStartBySkillButton={battleStartBySkillButton} />
+      <SkillButton battle={battle} skillNumber={1} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} />
       
-      <SkillButton battle={battle} skillNumber={2} queueObject={queueObject} setText={setText} battleStartBySkillButton={battleStartBySkillButton} />
+      <SkillButton battle={battle} skillNumber={2} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} />
 
-      <SkillButton battle={battle} skillNumber={3} queueObject={queueObject} setText={setText} battleStartBySkillButton={battleStartBySkillButton} />
+      <SkillButton battle={battle} skillNumber={3} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} />
 
-      <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} setText={setText} battleStartBySkillButton={battleStartBySkillButton} />
+      <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} />
 
       {isAllSkillsDisabled && (
         <StruggleButton
@@ -91,7 +114,7 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
               queueObject.dequeue();
             }
             if (!queueObject.queueCheck()) return;
-            battleStartBySkillButton(5);
+            handleBattleStartBySkillButton(5);
           }}>
           <span>발버둥</span>
         </StruggleButton>
@@ -99,7 +122,7 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
 
       {isMegaEvolveAble && (
         <MegaButton
-          $active={useMega}
+          $active={Boolean(useMega && curBattle?.megaTrigger?.player)}
           $disabled={!queueObject.queueCheck()}
           onClick={(e) => {
             if (!queueObject.queueCheck()) return;
@@ -121,6 +144,9 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         disabled={!queueObject.queueCheck()}
         onClick={() => {
           if (queueObject.queueCheck()) {
+            setUseMega(false);
+            if (btObj?.megaTrigger) btObj.megaTrigger.player = false;
+            if (battle?.megaTrigger && !Object.isFrozen(battle.megaTrigger)) battle.megaTrigger.player = false;
             setText(" 누구로 교체할까?");
             setBottom("switch");
           }
