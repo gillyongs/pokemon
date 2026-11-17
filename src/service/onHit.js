@@ -36,7 +36,9 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
   // 악키열매 (물리 기술 피격 시 방어 1랭크 상승)
   // 탁떨 맞으면 발동 안함.
   // 악타입 반감 열매는 발동 하는게 맞음
-  if (!isDisguiseHit && defPokemon.item === "악키열매" && !defPokemon.faint && useSkill?.stype === "atk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
+  // 7세대의 악마 증강 보유 시 탈이 벗겨지는 공격에도 발동
+  const canTriggerDisguiseBerry = !isDisguiseHit || defPokemon.hasAugment?.("devilOfGen7");
+  if (canTriggerDisguiseBerry && defPokemon.item === "악키열매" && !defPokemon.faint && useSkill?.stype === "atk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     if (defPokemon.canRankUp("def", "up")) {
       defPokemon.consumeItem();
       defPokemon.rankUp(battle, enqueue, "def", 1, "[악키열매]");
@@ -44,7 +46,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
   }
 
   // 타라프열매 (특수 기술 피격 시 특수방어 1랭크 상승)
-  if (!isDisguiseHit && defPokemon.item === "타라프열매" && !defPokemon.faint && useSkill?.stype === "catk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
+  if (canTriggerDisguiseBerry && defPokemon.item === "타라프열매" && !defPokemon.faint && useSkill?.stype === "catk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     if (defPokemon.canRankUp("cdef", "up")) {
       defPokemon.consumeItem();
       defPokemon.rankUp(battle, enqueue, "cdef", 1, "[타라프열매]");

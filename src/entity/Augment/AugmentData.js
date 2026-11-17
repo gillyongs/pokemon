@@ -1848,23 +1848,23 @@ export const AUGMENT_LIST = [
   {
     id: "soulDew",
     name: "마음의물방울",
-    desc: "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
+    desc: "지닌 물건을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
     selDesc: function (pokemon) {
       const isHolding = (pokemon?.item?.name || pokemon?.item) === "마음의물방울";
-      return isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다." : "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
+      return isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다." : "지닌 물건을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
     },
     screenText: function (target, prevPokeName, options) {
       const isHolding = options?.wasHoldingSoulDew !== undefined ? options.wasHoldingSoulDew : target?._wasHoldingSoulDew !== undefined ? target._wasHoldingSoulDew : target?.item === "마음의물방울";
       delete target?._wasHoldingSoulDew;
-      return isHolding ? "[증강] 마음의물방울이 옛날의 영광을 되찾았다!" : "[증강] 지닌 아이템이 마음의물방울로 교체되었다!";
+      return isHolding ? "[증강] 마음의물방울이 옛날의 영광을 되찾았다!" : "[증강] 지닌 물건이 마음의물방울로 교체되었다!";
     },
     logModalText: function (target, prevPokeName, options) {
       const isHolding = options?.wasHoldingSoulDew !== undefined ? options.wasHoldingSoulDew : target?._wasHoldingSoulDew !== undefined ? target._wasHoldingSoulDew : target?.item === "마음의물방울";
-      return isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다." : "지닌 아이템을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
+      return isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다." : "지닌 물건을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
     },
     statusModalText: function (pokemon) {
       const isHolding = pokemon?.item === "마음의물방울";
-      const header = isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다." : "지닌 아이템을 마음의물방울로 교체합니다.";
+      const header = isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다." : "지닌 물건을 마음의물방울로 교체합니다.";
       return `${header}\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.`;
     },
     cost: 0,
@@ -1880,6 +1880,62 @@ export const AUGMENT_LIST = [
           options.wasHoldingSoulDew = wasHolding;
         }
         pokemon.item = "마음의물방울";
+      }
+    },
+  },
+  // 7세대의 악마 (따라큐 전용 증강)
+  {
+    id: "devilOfGen7",
+    name: "7세대의 악마",
+    desc: function (pokemon) {
+      if (!pokemon) {
+        return "특성 탈이 체력을 소모하지 않습니다.\n(지닌 물건이 기합의띠가 아닌 경우)추가로 지닌 물건을 기합의 띠와 교체합니다.";
+      }
+      const isHolding = (pokemon?.item?.name || pokemon?.item) === "기합의띠";
+      return isHolding
+        ? "특성 탈이 체력을 소모하지 않습니다."
+        : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+    },
+    selDesc: function (pokemon) {
+      const isHolding = (pokemon?.item?.name || pokemon?.item) === "기합의띠";
+      return isHolding
+        ? "특성 탈이 체력을 소모하지 않습니다."
+        : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+    },
+    screenText: function (target, prevPokeName, options) {
+      const isHolding = options?.wasHoldingFocusSash !== undefined ? options.wasHoldingFocusSash : target?._wasHoldingFocusSash !== undefined ? target._wasHoldingFocusSash : (target?.item?.name || target?.item) === "기합의띠";
+      delete target?._wasHoldingFocusSash;
+      return isHolding
+        ? "[증강] 특성 탈이 체력을 소모하지 않게 되었다!"
+        : "[증강] 특성 탈이 체력을 소모하지 않고 지닌 물건이 기합의 띠로 교체되었다!";
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const isHolding = options?.wasHoldingFocusSash !== undefined ? options.wasHoldingFocusSash : target?._wasHoldingFocusSash !== undefined ? target._wasHoldingFocusSash : (target?.item?.name || target?.item) === "기합의띠";
+      return isHolding
+        ? "특성 탈이 체력을 소모하지 않습니다."
+        : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+    },
+    statusModalText: function (pokemon) {
+      const isHolding = (pokemon?.item?.name || pokemon?.item) === "기합의띠";
+      return isHolding
+        ? "특성 탈이 체력을 소모하지 않습니다."
+        : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+    },
+    cost: 1,
+    weight: 300,
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -6, offsetX: 2, scale: 1.15 },
+    isEligible: (pokemon) => hasPokemonName(pokemon, "따라큐"),
+    onApply: function (pokemon, battle, options) {
+      if (pokemon) {
+        const wasHolding = (pokemon.item?.name || pokemon.item) === "기합의띠";
+        pokemon._wasHoldingFocusSash = wasHolding;
+        if (options) {
+          options.wasHoldingFocusSash = wasHolding;
+        }
+        if (!wasHolding) {
+          pokemon.item = "기합의띠";
+        }
       }
     },
   },
@@ -1996,7 +2052,7 @@ export const getAugmentSynergyInfo = (augId) => {
 
 // 동시에 2개 이상 등장하지 않는 상호 배타적 증강 그룹 목록 (배열 안의 배열 형태)
 const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
-  // 1. 부활 아이템: 기력의 조각과 기력의 덩어리는 동시에 나오지 않음
+  // 1. 부활 물건: 기력의 조각과 기력의 덩어리는 동시에 나오지 않음
   ["revivePiece", "maxRevive"],
 
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음

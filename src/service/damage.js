@@ -79,10 +79,15 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       //틀깨기
       talTrigger = true;
       defPokemon.abil.used = true;
-      const talHp = Math.floor(defPokemon.maxHp / 8);
-      if (skDamage > talHp) {
-        skDamage = talHp;
-        actualGiveDamage = talHp;
+      if (defPokemon.hasAugment?.("devilOfGen7")) {
+        skDamage = 0;
+        actualGiveDamage = 0;
+      } else {
+        const talHp = Math.floor(defPokemon.maxHp / 8);
+        if (skDamage > talHp) {
+          skDamage = talHp;
+          actualGiveDamage = talHp;
+        }
       }
     }
   }

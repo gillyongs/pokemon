@@ -16,6 +16,7 @@ const DEDICATED_AUGMENT_POKEMON = {
   magikarpJump: "0129-g",
   mewtwoStrikesBack: "0150-a",
   veteranPrivilege: "0128-a",
+  devilOfGen7: "0778",
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
@@ -32,6 +33,8 @@ const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   "0890-m": { shiftUp: false, offsetY: 2.5, scale: 1.02 },
   harmfulBird: { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
   "0663": { shiftUp: true, offsetY: -3.5, offsetX: 2.5, scale: 1.15 },
+  devilOfGen7: { shiftUp: true, offsetY: -6, offsetX: 2, scale: 1.15 },
+  "0778": { shiftUp: true, offsetY: -6, offsetX: 2, scale: 1.15 },
   klinklangGear: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0601": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   magikarpJump: { shiftUp: true, offsetY: -4.5, scale: 1.35 },
@@ -45,7 +48,7 @@ const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null }) => {
-  const pokeId = pokemonId || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird") ? pokemon.uniqueKey : null);
+  const pokeId = pokemonId || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird" || id === "devilOfGen7") ? pokemon.uniqueKey : null);
 
   const augOptions = imageOptions || DEDICATED_AUGMENT_IMAGE_OPTIONS[id] || (pokeId ? DEDICATED_AUGMENT_IMAGE_OPTIONS[pokeId] : null) || {};
 
