@@ -12,13 +12,17 @@ export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
   battle.turn.turnEnd = null;
   let isFaintSwitch = battle.player.faint;
   enqueue({ id: "b83eb420-1c0d-47c1-aa65-c3b7115a7268", battle, text: battle.player.baseName + " 돌아와!" });
-  switchPokemon(battle, "player", actNumber, options, enqueue);
+  const leavingPokemon = switchPokemon(battle, "player", actNumber, options, enqueue);
   battle.turn.turnEnd = null;
   enqueue({
     id: "d62ecb46-560e-40ad-a16a-e57235acf4e2",
     battle,
     text: "가랏! " + battle.player.baseName + "!",
   });
+
+  if (!isFaintSwitch && leavingPokemon && !leavingPokemon.faint) {
+    battle.emit("pokemonLeave", { leavingPokemon, enqueue, reason: "switch" });
+  }
 
   applyFieldEffects(battle, "player", enqueue); // 장판 효과가 특성보다 먼저임
   if (!battle.player.faint) {
@@ -38,12 +42,15 @@ export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
 };
 
 export const switchPlayerForce = (battle, actNumber, enqueue) => {
-  switchPokemon(battle, "player", actNumber, {}, enqueue);
+  const leavingPokemon = switchPokemon(battle, "player", actNumber, {}, enqueue);
   enqueue({
     id: "5635931b-ab6f-4b80-ab18-55df5ec2cd2f",
     battle,
     text: battle.player.names("는") + " 배틀에 끌려나왔다!",
   });
+  if (leavingPokemon && !leavingPokemon.faint) {
+    battle.emit("pokemonLeave", { leavingPokemon, enqueue, reason: "switch" });
+  }
   applyFieldEffects(battle, "player", enqueue);
   if (!battle.player.faint) {
     applyAbilityEffects(battle, "player", enqueue);
@@ -54,8 +61,9 @@ export const switchNpc = (battle, actNumber, enqueue, force, options = {}) => {
   // NPC 교체 함수
   // NPC가 교체를 골랐을 때(BattleStart.js), 날려버리기 강제교체(skillEffect.js)에서만 직접 사용
   // 그 외의 경우엔 switchNpcAuto를 호출하여 사용
+  let leavingPokemon;
   if (force) {
-    switchPokemon(battle, "npc", actNumber, {}, enqueue);
+    leavingPokemon = switchPokemon(battle, "npc", actNumber, {}, enqueue);
     enqueue({
       id: "cbe52210-aa36-4e06-9244-9807127f2e58",
       battle,
@@ -67,12 +75,15 @@ export const switchNpc = (battle, actNumber, enqueue, force, options = {}) => {
       battle,
       text: "상대는 " + battle.npc.baseNames("를") + " 넣어 버렸다!",
     });
-    switchPokemon(battle, "npc", actNumber, options, enqueue);
+    leavingPokemon = switchPokemon(battle, "npc", actNumber, options, enqueue);
     enqueue({
       id: "50befd61-7787-45c3-ba72-b3ed7b1892f1",
       battle,
       text: "상대는 " + battle.npc.baseNames("를") + " 내보냈다!",
     });
+  }
+  if (leavingPokemon && !leavingPokemon.faint) {
+    battle.emit("pokemonLeave", { leavingPokemon, enqueue, reason: "switch" });
   }
   applyFieldEffects(battle, "npc", enqueue);
   if (!battle.npc.faint) {
@@ -254,12 +265,6 @@ const switchPokemon = (battle, IN, OUT, options = {}, enqueue = null) => {
 
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
 
-  // 델타스트림 / 시작의바다 / 끝의대지 포켓몬이 교체되어 들어갈 때 날씨 종료 처리
-  // 기절로 인한 교체일땐 handleFaint에서 처리하므로 여기선 패스
-  if (!pokemonIn.faint) {
-    battle.emit("pokemonLeave", { leavingPokemon: pokemonIn, enqueue, reason: "switch" });
-  }
-
   if (batonState && battle[IN]?.tempStatus) {
     Object.assign(battle[IN].tempStatus.rank, batonState.rank);
     battle[IN].tempStatus.confuse = batonState.confuse;
@@ -279,4 +284,6 @@ const switchPokemon = (battle, IN, OUT, options = {}, enqueue = null) => {
     if (IN === "player") battle.turn.playerSwitched = true;
     if (IN === "npc") battle.turn.npcSwitched = true;
   }
+
+  return pokemonIn;
 };

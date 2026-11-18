@@ -116,7 +116,7 @@ export class Weather {
   }
 
   // 필드 위에 극단적 날씨(난기류/폭우/큰가뭄)를 유지할 수 있는 특성 포켓몬이 여전히 존재하는지 검사
-  handleExtremeWeatherCheck(battle, enqueue) {
+  handleExtremeWeatherEnd(battle, enqueue) {
     if (!this.#type) return;
 
     const requiredAbil = EXTREME_WEATHER_ABIL_MAP[this.#type];
@@ -131,11 +131,6 @@ export class Weather {
     if (!hasActiveSupplier) {
       this.#handleWeatherEnd(battle, enqueue);
     }
-  }
-
-  // 포켓몬 기절/교체/증강변경 시 델타스트림/시작의바다/끝의대지 날씨 종료 처리 (하위 호환 유지)
-  handleExtremeWeatherEnd(battle, enqueue, leavingPokemon) {
-    this.handleExtremeWeatherCheck(battle, enqueue);
   }
 
   // 턴 종료시 날씨 처리

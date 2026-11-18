@@ -40,7 +40,8 @@ const isNameMatch = (searchStr, pokemon) => {
   if (s === "위협" && (pAbil === "위협" || pokemon.megaData?.abil === "위협")) return true;
   if (s === "날씨" && (WEATHER_ABILITIES.includes(pAbil) || (pokemon.megaData && WEATHER_ABILITIES.includes(pokemon.megaData.abil)))) return true;
   if (s === "초전설" && pokemon.feature?.legendary) return true;
-  if ((s === "메가진화" || s === "메가") && pokemon.megaData) return true;
+  if ((s === "메가진화" || s === "메가") && pokemon.megaData && !pokemon.megaData.isPrimal) return true;
+  if ((s === "원시회귀" || s === "원시") && pokemon.megaData?.isPrimal) return true;
 
   if (cleanId.includes(s) || cleanName.includes(s)) return true;
 
@@ -77,7 +78,7 @@ export const filterSamplePokemons = (
 
     let megaMatch = true;
     if (isMegaFilter) {
-      megaMatch = !!pokemon.megaData;
+      megaMatch = Boolean(pokemon.megaData && !pokemon.megaData.isPrimal);
     }
 
     let legendaryMatch = true;

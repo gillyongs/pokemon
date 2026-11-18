@@ -77,10 +77,10 @@ export const BattleAccess = {
 
   initEventListeners() {
     this.on("pokemonLeave", ({ battle, enqueue }) => {
-      battle.field?.weather?.handleExtremeWeatherCheck?.(battle, enqueue);
+      battle.field?.weather?.handleExtremeWeatherEnd?.(battle, enqueue);
     });
     this.on("pokemonChange", ({ battle, enqueue }) => {
-      battle.field?.weather?.handleExtremeWeatherCheck?.(battle, enqueue);
+      battle.field?.weather?.handleExtremeWeatherEnd?.(battle, enqueue);
     });
   },
 };
