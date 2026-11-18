@@ -85,11 +85,7 @@ function skillEffectSearch(name) {
         if (skill.type === "불꽃" || meltSkills.includes(skill.name)) {
           let freezeCureText = def.name + "의 얼음이 녹았다!";
           def.ailment.freeze = null;
-          enqueue({
-            id: "a1347bb8-63d7-485a-9147-ba2e2100707a",
-            battle: battle,
-            text: freezeCureText,
-          });
+          enqueue(battle, freezeCureText, "eff_thaw_hit");
         }
       }
 
@@ -98,11 +94,7 @@ function skillEffectSearch(name) {
         const userName = battle.turn.destinyBondUser;
         battle.turn.destinyBondUser = null;
         if (atkPokemon && !atkPokemon.faint) {
-          enqueue({
-            id: "e3a9f6c2-1b7d-4c8e-a5f0-6d2b9c4e8a17",
-            battle,
-            text: userName + ` ${atkPokemon.names("를")} 길동무로 삼았다!`,
-          });
+          enqueue(battle, userName + ` ${atkPokemon.names("를")} 길동무로 삼았다!`, "eff_destiny_bond_ko");
           atkPokemon.handleFaint(battle, enqueue);
         }
       }
@@ -229,11 +221,7 @@ function skillEffectSearch(name) {
       const def = battle[battle.turn.def];
       if (def.ailment.burn && !def.faint) {
         def.ailment.burn = null;
-        enqueue({
-          id: "e10ceb1e-26eb-4614-9bcb-0938682e7f6d",
-          battle: battle,
-          text: def.name + "의 화상이 나았다!",
-        });
+        enqueue(battle, def.name + "의 화상이 나았다!", "eff_cure_burn");
       }
     },
     트라이어택: (battle, enqueue, skillEffect) => {
@@ -358,11 +346,7 @@ function skillEffectSearch(name) {
         if (def.abil?.name !== "무아지경") {
           def.tempStatus.onlySkill = null; // 구애 시리즈로 고정된 스킬
         }
-        enqueue({
-          id: "26b1ce80-ef54-42f9-a6ba-4322c480c728",
-          battle,
-          text: def.name + "의 " + josa(`${itemName}#{를} `) + "탁쳐서 떨구었다!",
-        });
+        enqueue(battle, def.name + "의 " + josa(`${itemName}#{를} `) + "탁쳐서 떨구었다!", "eff_knock_off");
       }
     },
     유턴: (battle, enqueue, skillEffect) => {
@@ -384,10 +368,7 @@ function skillEffectSearch(name) {
           // battleScrren.js에서 useEffect(setBottom("switchBySkill"))으로 교체화면을 띄운다
 
           battle.turn.textFreeze = true; // 텍스트가 넘어가지 않게 처리
-          enqueue({
-            id: "7a02186c-33ec-4a93-94e9-9643022af3d8",
-            battle,
-            text: "누구로 교체할까?",
+          enqueue(battle, "누구로 교체할까?", "eff_uturn_prompt", {
             allowAct: true, // 교체 가능하게
             bottomMode: "switchBySkill",
             waitInput: true,
@@ -412,10 +393,7 @@ function skillEffectSearch(name) {
           battle.turn.switchBySkill = true;
           battle.turn.batonPass = true;
           battle.turn.textFreeze = true;
-          enqueue({
-            id: "a4b8f12c-3d9e-4f5a-b821-7e90c3d41a5f",
-            battle,
-            text: "누구로 교체할까?",
+          enqueue(battle, "누구로 교체할까?", "eff_baton_prompt", {
             allowAct: true,
             bottomMode: "switchBySkill",
             waitInput: true,
@@ -446,24 +424,12 @@ function skillEffectSearch(name) {
         if (battle.field?.terrian?.isElectircField && !def.isFlying(battle, true)) {
           // 일렉트릭필드면 실패함 (잠드는 것만 실패하는게 아님 그냥 하품 자체가 실패함)
           // 미스트필드면 하품은 쓸 수 있음, 잠들지는 않음. 다음턴에 필드 꺼지면 잠듦
-          enqueue({
-            id: "b52cae05-d917-4901-8034-61039917ee30",
-            battle,
-            text: "하지만 실패했다!",
-          });
+          enqueue(battle, "하지만 실패했다!", "eff_yawn_efield_fail");
         }
         def.tempStatus.hapum = 1;
-        enqueue({
-          id: "eee89d87-1741-4dd6-86d6-4280d7330eea",
-          battle,
-          text: `${def.name}의 졸음을 유도했다!`,
-        });
+        enqueue(battle, `${def.name}의 졸음을 유도했다!`, "eff_yawn_apply");
       } else {
-        enqueue({
-          id: "8a72c801-8b0d-44e8-99e6-4e64ac4fac04",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_yawn_fail");
       }
     },
     소리기술금지: (battle, enqueue, skillEffect) => {
@@ -473,32 +439,20 @@ function skillEffectSearch(name) {
       const def = battle[battle.turn.def];
       if (!def.faint) {
         def.tempStatus.noSound = 2;
-        enqueue({
-          id: "38e49189-0df7-4c1a-bda8-7552853df759",
-          battle,
-          text: def.names("는") + " 한동안 소리 기술을 사용할 수 없게 됐다!",
-        });
+        enqueue(battle, def.names("는") + " 한동안 소리 기술을 사용할 수 없게 됐다!", "eff_throat_chop");
       }
     },
     방어: (battle, enqueue, skillEffect) => {
       // 방어 성공 여부는 skillRequirement에서 처리
       const skillUser = battle[battle.turn.atk];
       skillUser.turn.protect = true;
-      enqueue({
-        id: "f647a247-0db6-4dc5-bc52-8ed51b1b6d1e",
-        battle,
-        text: skillUser.names("는") + " 방어 태세에 들어갔다!",
-      });
+      enqueue(battle, skillUser.names("는") + " 방어 태세에 들어갔다!", "eff_protect");
     },
     니들가드: (battle, enqueue, skillEffect) => {
       const skillUser = battle[battle.turn.atk];
       skillUser.turn.protect = true;
       skillUser.turn.spikyShield = true;
-      enqueue({
-        id: "f48c4cb4-e808-4d70-821a-6bfb3c398f82",
-        battle,
-        text: skillUser.names("는") + " 방어 태세에 들어갔다!",
-      });
+      enqueue(battle, skillUser.names("는") + " 방어 태세에 들어갔다!", "eff_spiky_shield");
     },
 
     스텔스록: (battle, enqueue, skillEffect) => {
@@ -512,17 +466,9 @@ function skillEffectSearch(name) {
         } else {
           sRockText = "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!";
         }
-        enqueue({
-          id: "6d1e04b2-3607-4cb4-9543-0b5d203e2aa3",
-          battle,
-          text: sRockText,
-        });
+        enqueue(battle, sRockText, "eff_srock_set");
       } else {
-        enqueue({
-          id: "f7eba472-eb0b-414c-abce-f3b4c18c3ce9",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_srock_fail");
       }
     },
 
@@ -532,7 +478,7 @@ function skillEffectSearch(name) {
       if (!field.sRock) {
         field.sRock = true;
         const text = def === "npc" ? "상대의 주변에 뾰족한 바위가 떠다니기 시작했다!" : "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!";
-        enqueue({ id: "3731810a-b429-4d17-9567-be94d012faf3", battle, text });
+        enqueue(battle, text, "eff_stone_axe_srock");
       }
     },
 
@@ -547,11 +493,7 @@ function skillEffectSearch(name) {
         } else {
           sRockText = "아군의 발밑에 독압정이 뿌려졌다!";
         }
-        enqueue({
-          id: "8c0789f4-02d7-42fd-afbe-87dcf09a61e1",
-          battle,
-          text: sRockText,
-        });
+        enqueue(battle, sRockText, "eff_tspikes_1");
       } else if (field.poisonSpikes === 1) {
         field.poisonSpikes = 2; // 맹독압정
         let sRockText;
@@ -560,17 +502,9 @@ function skillEffectSearch(name) {
         } else {
           sRockText = "아군의 발밑에 맹독압정이 뿌려졌다!";
         }
-        enqueue({
-          id: "ee0357a5-eb04-4dbd-93a4-bb0c716af5a1",
-          battle,
-          text: sRockText,
-        });
+        enqueue(battle, sRockText, "eff_tspikes_2");
       } else {
-        enqueue({
-          id: "f5906a16-82e2-4c75-b89a-0259818aa3c2",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_tspikes_fail");
       }
     },
 
@@ -581,17 +515,13 @@ function skillEffectSearch(name) {
       if ((field.spikes || 0) >= 3) {
         if (battle[battle.turn.atk].turn.useSkill?.stype === "buf") {
           // 비검천중파는 실패 텍스트가 뜨지 않음
-          enqueue({
-            id: "3387c5e4-bf00-4fb4-9c13-f5373677f9ef",
-            battle,
-            text: "하지만 실패했다!",
-          });
+          enqueue(battle, "하지만 실패했다!", "eff_spikes_fail");
         }
         return;
       }
       field.spikes = (field.spikes || 0) + 1;
       const text = def === "npc" ? "상대의 발밑에 압정이 뿌려졌다!" : "아군의 발밑에 압정이 뿌려졌다!";
-      enqueue({ id: "19c93aad-0ab7-41c7-a74c-acf6605d37b1", battle, text });
+      enqueue(battle, text, "eff_spikes_set");
     },
 
     끈적끈적네트: (battle, enqueue, skillEffect) => {
@@ -605,17 +535,9 @@ function skillEffectSearch(name) {
         } else {
           text = "아군의 발밑에 끈적끈적네트가 펼쳐졌다!";
         }
-        enqueue({
-          id: "8acab66c-7f97-4517-98d0-b20e6a769f2f",
-          battle,
-          text: text,
-        });
+        enqueue(battle, text, "eff_web_set");
       } else {
-        enqueue({
-          id: "5ddd8791-c5d9-4ad7-a1a8-46029dc849d8",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_web_fail");
       }
     },
 
@@ -641,19 +563,11 @@ function skillEffectSearch(name) {
       const atkPokemon = battle[battle.turn.atk];
       if (atkPokemon.faint) return;
       if (defPokemon.abil?.name === "둔감" && !atkPokemon?.abil?.feature?.tgg) {
-        enqueue({
-          id: "ffce1bdf-4b5b-4da4-bb49-6ec64b3d713c",
-          battle,
-          text: `[특성 둔감] ${defPokemon.names("는")} 도발에 넘어가지 않는다!`,
-        });
+        enqueue(battle, `[특성 둔감] ${defPokemon.names("는")} 도발에 넘어가지 않는다!`, "eff_taunt_oblivious");
         return;
       }
       if (defPokemon.tempStatus.taunt !== null) {
-        enqueue({
-          id: "67cc957c-5b25-46f2-8579-0a8d498082cb",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_taunt_fail");
       } else {
         let num = 4;
         if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].turn.useSkill) {
@@ -664,11 +578,7 @@ function skillEffectSearch(name) {
         // 후도발의 경우 그 다음턴 부터 3턴
         // 도발은 3'턴'이 아닌 3'회' 적의 변화기를 막는다.
         defPokemon.tempStatus.taunt = num;
-        enqueue({
-          id: "c66c9e96-f65c-4ad0-a59d-d9708ab78329",
-          battle,
-          text: defPokemon.names("는") + " 도발에 넘어가 버렸다!",
-        });
+        enqueue(battle, defPokemon.names("는") + " 도발에 넘어가 버렸다!", "eff_taunt_apply");
       }
     },
 
@@ -677,11 +587,7 @@ function skillEffectSearch(name) {
       const atk = battle[battle.turn.atk];
 
       if (noNullItem.includes(atk.item) || noNullItem.includes(def.item)) {
-        enqueue({
-          id: "cf71f074-0b88-47a6-9a96-39972116a572",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_trick_fail");
         return;
       }
       // 아이템 교환
@@ -690,11 +596,7 @@ function skillEffectSearch(name) {
       // 구애 시리즈로 고정된 스킬 초기화
       if (atk.abil?.name !== "무아지경") atk.tempStatus.onlySkill = null;
       if (def.abil?.name !== "무아지경") def.tempStatus.onlySkill = null;
-      enqueue({
-        id: "ea3b5107-90e2-4c4e-8cba-60e3b48af238",
-        battle,
-        text: atk.names("는") + " 서로의 도구를 교체했다!",
-      });
+      enqueue(battle, atk.names("는") + " 서로의 도구를 교체했다!", "eff_trick_swap");
     },
 
     트릭룸: (battle, enqueue, skillEffect) => {
@@ -737,18 +639,10 @@ function skillEffectSearch(name) {
       const def = battle.turn.def;
       const defPokemon = battle[def];
       if (defPokemon.tempStatus.seed !== null || defPokemon.type1 === "풀" || defPokemon.type2 === "풀") {
-        enqueue({
-          id: "98bdd9de-3aea-4b4b-a9b5-8ad3f2c4b473",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_seed_fail");
       } else {
         defPokemon.tempStatus.seed = true;
-        enqueue({
-          id: "b5e68e7e-61bb-4948-8f48-eb4084c935ae",
-          battle,
-          text: defPokemon.name + "에게 씨앗을 심었다!",
-        });
+        enqueue(battle, defPokemon.name + "에게 씨앗을 심었다!", "eff_seed_apply");
       }
     },
     배북: (battle, enqueue, skillEffect) => {
@@ -757,11 +651,7 @@ function skillEffectSearch(name) {
       const needHp = Math.floor(atkPokemon.maxHp / 2);
 
       if (atkPokemon.hp <= needHp || atkPokemon.tempStatus.rank.atk >= 6) {
-        enqueue({
-          id: "dc3196d7-c4af-40bf-b5e4-8edf01535650",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_bellydrum_fail");
         return;
       }
 
@@ -775,11 +665,7 @@ function skillEffectSearch(name) {
       const needHp = Math.floor(atkPokemon.maxHp / 4);
 
       if (atkPokemon.tempStatus.substitute !== null || atkPokemon.hp <= needHp) {
-        enqueue({
-          id: "9ebed236-fd8e-4b63-a745-ee0f3a9fa3ef",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_sub_fail");
       } else {
         atkPokemon.tempStatus.substitute = true;
         atkPokemon.tempStatus.substituteHp = needHp;
@@ -801,23 +687,19 @@ function skillEffectSearch(name) {
         }
       });
       if (hazardRemoved) {
-        enqueue({ id: "68712ac3-ad21-42de-a0e1-2844d01d46fa", battle, text: atk.names("는") + " 자신의 필드를 정리했다!" });
+        enqueue(battle, atk.names("는") + " 자신의 필드를 정리했다!", "eff_spin_hazard");
       }
       if (atk.tempStatus.seed) {
         //씨뿌리기 제거
         atk.tempStatus.seed = null;
-        enqueue({ id: "312f9c6b-4ae8-4730-96f4-bf6d2d408f4e", battle, text: atk.names("는") + " 씨뿌리기에게서 벗어났다!" });
+        enqueue(battle, atk.names("는") + " 씨뿌리기에게서 벗어났다!", "eff_spin_seed");
       }
       if (atk.tempStatus.switchLock) {
         let skillName = atk.tempStatus.switchLock;
         //교체불가 제거
         atk.tempStatus.switchLock = null;
         atk.tempStatus.switchLockTurnRemain = null;
-        enqueue({
-          id: "c1ec77c2-36ef-434a-aa47-cba739355644",
-          battle,
-          text: atk.names("는") + " " + skillName + "에게서 벗어났다!",
-        });
+        enqueue(battle, atk.names("는") + " " + skillName + "에게서 벗어났다!", "eff_spin_trap");
       }
     },
 
@@ -846,7 +728,7 @@ function skillEffectSearch(name) {
         def.tempStatus.switchLock = skillEffect.skillName;
         def.tempStatus.switchLockTurnRemain = Math.random() < 0.5 ? 4 : 5;
         //4~5턴인데 확률은 모르겠음
-        enqueue({ id: "4255ff9b-961a-428c-9cfe-05a52ef07753", battle, text: def.names("는") + " " + skillEffect.text });
+        enqueue(battle, def.names("는") + " " + skillEffect.text, "eff_trap_apply");
       }
     },
 
@@ -856,11 +738,7 @@ function skillEffectSearch(name) {
       if ((skill?.stype === "atk" || skill?.stype === "catk") && isTargetSubstituteBlocked(battle)) return;
       const def = battle[battle.turn.def];
       def.resetRank();
-      enqueue({
-        id: "5ae8c51d-ea8f-4c3c-ad7d-7f214c63a523",
-        battle,
-        text: def.name + "의 능력치 변화가 원래대로 되돌아갔다!",
-      });
+      enqueue(battle, def.name + "의 능력치 변화가 원래대로 되돌아갔다!", "eff_clear_rank");
     },
     치유소원: (battle, enqueue, skillEffect) => {
       battle.field[battle.turn.atk].handleHealingWish(battle, enqueue);
@@ -871,7 +749,7 @@ function skillEffectSearch(name) {
     길동무: (battle, enqueue, skillEffect) => {
       const atk = battle[battle.turn.atk];
       atk.tempStatus.destinyBond = true;
-      enqueue({ id: "b7c2e8a1-4d3f-4e6a-9b1c-2f5d8e7a0c31", battle, text: atk.names("는") + " 상대를 길동무로 삼으려 하고 있다!" });
+      enqueue(battle, atk.names("는") + " 상대를 길동무로 삼으려 하고 있다!", "eff_destiny_bond");
     },
     목숨걸기: (battle, enqueue, skillEffect) => {
       if (battle[battle.turn.atk].faint) return;
@@ -911,21 +789,13 @@ function skillEffectSearch(name) {
       const skillUser = battle[user];
       const field = battle.field[user].noClean;
       if (field.reflect !== null) {
-        enqueue({
-          id: "fcccce9e-4c53-4ad3-b6e5-2052f60e565c",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_reflect_fail");
         return;
       }
       let num = 5;
       if (skillUser.item === "빛의점토") num = 8;
       battle.field[user].noClean.reflect = num;
-      enqueue({
-        id: "95b7f21f-b6c4-4d47-b6c5-67d4741682e4",
-        battle,
-        text: battle.common[user].teamKr + " 편은 리플렉터로 물리공격에 강해졌다!",
-      });
+      enqueue(battle, battle.common[user].teamKr + " 편은 리플렉터로 물리공격에 강해졌다!", "eff_reflect_set");
     },
 
     빛의장막: (battle, enqueue, skillEffect) => {
@@ -933,21 +803,13 @@ function skillEffectSearch(name) {
       const skillUser = battle[user];
       const field = battle.field[user].noClean;
       if (field.lightScreen !== null) {
-        enqueue({
-          id: "7d39c72d-fabb-46a6-a73e-925ed031f01b",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_lscreen_fail");
         return;
       }
       let num = 5;
       if (skillUser.item === "빛의점토") num = 8;
       battle.field[user].noClean.lightScreen = num;
-      enqueue({
-        id: "28c03b92-8494-44c6-ba42-9725e203fc6f",
-        battle,
-        text: battle.common[user].teamKr + " 편은 빛의장막으로 특수공격에 강해졌다!",
-      });
+      enqueue(battle, battle.common[user].teamKr + " 편은 빛의장막으로 특수공격에 강해졌다!", "eff_lscreen_set");
     },
 
     오로라베일: (battle, enqueue, skillEffect) => {
@@ -956,49 +818,29 @@ function skillEffectSearch(name) {
       const field = battle.field[user].noClean;
       // 설경이 아니거나 이미 오로라베일이 있으면 실패
       if (!battle.isSnow || field.auroraVeil !== null) {
-        enqueue({
-          id: "a89d6c3d-6c8f-44f1-8866-34ea01fd934d",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_aveil_fail");
         return;
       }
       let num = 5;
       if (skillUser.item === "빛의점토") num = 8;
       field.auroraVeil = num;
-      enqueue({
-        id: "4de313b1-64ec-4418-bbce-1c6e5f8ffa5e",
-        battle,
-        text: battle.common[user].teamKr + " 편은 오로라베일로 물리공격과 특수공격에 강해졌다!",
-      });
+      enqueue(battle, battle.common[user].teamKr + " 편은 오로라베일로 물리공격과 특수공격에 강해졌다!", "eff_aveil_set");
     },
 
     순풍: (battle, enqueue, skillEffect) => {
       const user = battle.turn.atk;
       const field = battle.field[user].noClean;
       if (field.tailwind !== null) {
-        enqueue({
-          id: "91e99e57-c597-4c6d-b2f1-de39f86cd278",
-          battle,
-          text: "하지만 실패했다!",
-        });
+        enqueue(battle, "하지만 실패했다!", "eff_tailwind_fail");
         return;
       }
       field.tailwind = 4;
       const teamText = battle.common[user].teamKr;
-      enqueue({
-        id: "11741873-ba17-40aa-9c9e-f2213707f877",
-        battle,
-        text: teamText + " 편의 뒤에서 순풍이 불기 시작했다!",
-      });
+      enqueue(battle, teamText + " 편의 뒤에서 순풍이 불기 시작했다!", "eff_tailwind_set");
     },
 
         튀어오르기: (battle, enqueue) => {
-      enqueue({
-        id: "splash-nothing",
-        battle,
-        text: "그러나 아무 일도 일어나지 않았다!",
-      });
+      enqueue(battle, "그러나 아무 일도 일어나지 않았다!", "eff_splash");
     },
     벽부수기: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
@@ -1008,27 +850,15 @@ function skillEffectSearch(name) {
       }
       if (field.reflect !== null) {
         field.reflect = null;
-        enqueue({
-          id: "fa56e285-7f15-4487-b919-4d13905c1e42",
-          battle,
-          text: battle.common[battle.turn.def].teamKr + " 편의 리플렉터가 깨졌다!",
-        });
+        enqueue(battle, battle.common[battle.turn.def].teamKr + " 편의 리플렉터가 깨졌다!", "eff_break_reflect");
       }
       if (field.lightScreen !== null) {
         field.lightScreen = null;
-        enqueue({
-          id: "b528d8e6-6c13-460f-9afe-06f645fa0707",
-          battle,
-          text: battle.common[battle.turn.def].teamKr + " 편의 빛의장막이 깨졌다!",
-        });
+        enqueue(battle, battle.common[battle.turn.def].teamKr + " 편의 빛의장막이 깨졌다!", "eff_break_lscreen");
       }
       if (field.auroraVeil !== null) {
         field.auroraVeil = null;
-        enqueue({
-          id: "a5ee6350-521b-490c-827c-f1deebd21e2a",
-          battle,
-          text: battle.common[battle.turn.def].teamKr + " 편의 오로라베일이 깨졌다!",
-        });
+        enqueue(battle, battle.common[battle.turn.def].teamKr + " 편의 오로라베일이 깨졌다!", "eff_break_aveil");
       }
     },
   };
@@ -1056,7 +886,7 @@ const handleForceSwitch = (battle, enqueue, bench1Key, bench2Key, switchFn) => {
     // 드래곤테일은 텍스트는 뜨지 않는다
     const skill = battle[battle.turn.atk]?.turn?.useSkill;
     if (skill?.stype !== "atk" && skill?.stype !== "catk") {
-      enqueue({ id: "474bbad7-726d-4802-a13f-0677abd8bacf", battle, text: "하지만 실패했다!" });
+      enqueue(battle, "하지만 실패했다!", "eff_force_switch_fail");
     }
   }
 };

@@ -61,7 +61,7 @@ export const useBattleStore = createStore((set, get) => ({
 
   enqueueBattleStart: (bt, queueObject, options = {}) => {
     if (!options.skipStartText) {
-      queueObject.enqueue({ id: "75857006-b1b6-489c-b77b-bb3bfdcf8d78", battle: bt, text: "배틀시작!" });
+      queueObject.enqueue(bt, "배틀시작!", "bs_battle_start");
     }
     if (!options.skipAbilities) {
       const fastUser = speedCheck(bt);
@@ -207,10 +207,7 @@ export const useBattleStore = createStore((set, get) => ({
       const target = [nextBattle.player, nextBattle.playerBench1, nextBattle.playerBench2].find((p) => p && (p.augments || []).filter((a) => isNormalAugment(a)).length < 3);
       if (target) {
         get().enqueueBattleStart(nextBattle, queueObject, { skipAbilities: true });
-        queueObject.enqueue({
-          id: "82c455ab-c426-4986-80c4-f030b3742f94",
-          battle: nextBattle,
-          text: "증강을 선택하세요.",
+        queueObject.enqueue(nextBattle, "증강을 선택하세요.", "bs_start_augment", {
           logText: "증강을 선택하지 않았습니다.",
           isAugment: true,
           isBattleStartAugment: true,
@@ -404,8 +401,8 @@ export const useBattleStore = createStore((set, get) => ({
     });
 
     const followUpItems = [];
-    const collectEnqueue = (item) => {
-      followUpItems.push(cloneWithMethods(item));
+    const collectEnqueue = (battle, text, id, option = {}) => {
+      followUpItems.push(cloneWithMethods({ battle, text, id, ...option }));
     };
     const shouldDeferFaint = selectedAugment?.id === "russianRoulette";
     const augOptions = {
@@ -426,10 +423,7 @@ export const useBattleStore = createStore((set, get) => ({
     const rawAfterText = selectedAugment?.afterText ?? AUGMENT_LIST.find((a) => a.id === selectedAugment?.id)?.afterText;
     const resolvedAfterText = typeof rawAfterText === "function" ? rawAfterText(target, curBattle) : rawAfterText;
     if (resolvedAfterText) {
-      collectEnqueue({
-        id: `${selectedAugment.id}-after-${Math.random().toString(36).substring(2, 9)}`,
-        battle: curBattle,
-        text: resolvedAfterText,
+      collectEnqueue(curBattle, resolvedAfterText, `bs_aug_after_${selectedAugment.id}`, {
         logText: resolvedAfterText,
       });
     }
@@ -439,10 +433,7 @@ export const useBattleStore = createStore((set, get) => ({
       const buffName = stripEmoji(buffAug?.shortName || buffAug?.name || buffId);
       if (!hadSynergyBefore[buffId] && target.hasAugment?.(buffId) && selectedAugment.id !== buffId) {
         const synergyText = `3개의 증강이 공명하여 "${buffName}" 시너지가 활성화되었다!`;
-        collectEnqueue({
-          id: `${buffId}-synergy-gain`,
-          battle: curBattle,
-          text: synergyText,
+        collectEnqueue(curBattle, synergyText, `bs_synergy_gain_${buffId}`, {
           logText: synergyText,
           augmentData: {
             targetName: target.name,
@@ -455,18 +446,12 @@ export const useBattleStore = createStore((set, get) => ({
           },
         });
         if (buffAug?.synergyEffectText) {
-          collectEnqueue({
-            id: `${buffId}-synergy-effect`,
-            battle: curBattle,
-            text: buffAug.synergyEffectText,
+          collectEnqueue(curBattle, buffAug.synergyEffectText, `bs_synergy_eff_${buffId}`, {
             logText: buffAug.synergyEffectText,
           });
         }
       } else if (selectedAugment.id === buffId && buffAug?.synergyEffectText) {
-        collectEnqueue({
-          id: `${buffId}-synergy-effect`,
-          battle: curBattle,
-          text: buffAug.synergyEffectText,
+        collectEnqueue(curBattle, buffAug.synergyEffectText, `bs_synergy_sel_${buffId}`, {
           logText: buffAug.synergyEffectText,
         });
       }
@@ -530,10 +515,7 @@ export const useBattleStore = createStore((set, get) => ({
           }
           curBattle.turn.turnEnd = true;
           curBattle.turn.textFreeze = true;
-          collectEnqueue({
-            id: "roulette-must-switch-" + Math.random().toString(36).substring(2, 9),
-            battle: curBattle,
-            text: "누구로 교체 할까?",
+          collectEnqueue(curBattle, "누구로 교체 할까?", "bs_roulette_switch", {
             bottomMode: "mustSwitch",
             waitInput: true,
           });
@@ -607,9 +589,9 @@ export const useBattleStore = createStore((set, get) => ({
 
     if (isTitanSecond) {
       const secondItem = {
-        id: "titan-second-" + (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11)),
         battle: headBattle,
         text: gainText,
+        id: "bs_titan_second",
         logText: gainLogText,
         augmentData,
       };
@@ -631,14 +613,11 @@ export const useBattleStore = createStore((set, get) => ({
       );
       set({ text: gainText });
     } else {
-      queueObject.enqueue({
-        id: "d7391e86-25e9-459f-abc7-588560b20d83",
-        battle: headBattle,
-        text: gainText,
+      queueObject.enqueue(headBattle, gainText, "bs_aug_gain", {
         logText: gainLogText,
         augmentData,
       });
-      followUpItems.forEach((item) => queueObject.enqueue(item));
+      followUpItems.forEach(({ battle, text, id, ...option }) => queueObject.enqueue(battle, text, id, option));
     }
 
     set({ battle: cloneWithMethods(headBattle) });
@@ -658,8 +637,8 @@ export const useBattleStore = createStore((set, get) => ({
     const shouldTriggerStart = Boolean(head?.isBattleStartAugment) || isTitanPendingStart;
     set({ isTitanPendingStart: false });
     const followUpItems = [];
-    const collectEnqueue = (item) => {
-      followUpItems.push(cloneWithMethods(item));
+    const collectEnqueue = (battle, text, id, option = {}) => {
+      followUpItems.push(cloneWithMethods({ battle, text, id, ...option }));
     };
 
     if (shouldTriggerStart) {
@@ -686,13 +665,10 @@ export const useBattleStore = createStore((set, get) => ({
       );
       set({ text: noAugText });
     } else {
-      queueObject.enqueue({
-        id: "no-augment-selected-msg",
-        battle: headBattle,
-        text: noAugText,
+      queueObject.enqueue(headBattle, noAugText, "bs_aug_skip", {
         logText: noAugText,
       });
-      followUpItems.forEach((item) => queueObject.enqueue(item));
+      followUpItems.forEach(({ battle, text, id, ...option }) => queueObject.enqueue(battle, text, id, option));
     }
     set({ battle: cloneWithMethods(headBattle) });
   },

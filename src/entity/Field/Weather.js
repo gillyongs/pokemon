@@ -72,7 +72,7 @@ export class Weather {
   #setWeather(weatherType, turnRemain, enqueue, battle, weatherText) {
     this.#type = weatherType;
     this.#turnRemain = turnRemain;
-    if (weatherText) enqueue({ id: "e89aa2ed-051a-4539-8c4a-4504306726f0", battle, text: weatherText });
+    if (weatherText) enqueue(battle, weatherText, "weather_set");
   }
 
   setWeatherOnBattle(battle, enqueue, pokemon, weatherType, weatherText) {
@@ -89,11 +89,7 @@ export class Weather {
         폭우: "[특성 시작의바다] 강한 비의 기세는 멈추지 않는다!",
         큰가뭄: "[특성 끝의대지] 강한 햇살의 기세는 멈추지 않는다!",
       };
-      enqueue({
-        id: "e89aa2ed-051a-4539-8c4a-4504306726f1",
-        battle,
-        text: blockTextMap[this.#type],
-      });
+      enqueue(battle, blockTextMap[this.#type], "weather_extreme_block");
       return;
     }
 
@@ -159,7 +155,7 @@ export class Weather {
       난기류: "수수께끼의 난기류가 사라졌다!",
     };
     if (endTextMap[endedType]) {
-      enqueue({ id: "73eac5c5-08df-41f7-8eee-388297d2c5ab", battle, text: endTextMap[endedType] });
+      enqueue(battle, endTextMap[endedType], "weather_end");
     }
 
     // 날씨별 종료 효과

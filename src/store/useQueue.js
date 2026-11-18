@@ -6,7 +6,8 @@ export function useQueue() {
   const [queue, setQueue] = useRecoilState(queueState);
   const [log, setLog] = useRecoilState(logState);
 
-  // item = {battle, text, allowAct=true, autoActTurn=true, noLog=true, onlyLog=true, bottomMode, waitInput}
+  // enqueue(battle, text, id, option = {})
+  // option = { allowAct, autoActTurn, noLog, onlyLog, bottomMode, waitInput, logText, augmentData, ... }
   // bottomMode: 화면 하단 UI(bottom)의 모드를 지정 ("skill" | "mustSwitch" | "switchBySkill" | "auto")
   // waitInput: 유저의 입력(기술/교체 선택 등)을 기다리기 위해 큐 진행을 멈춰야 하는 아이템인지 여부 (true/false)
 
@@ -29,10 +30,8 @@ export function useQueue() {
   // battleScreen에서 onlyLog면 바로 dequeue함
   // battleStart에서 시작할때마다 넣음
 
-  const enqueue = (item) => {
-    if (item && !item.id) {
-      item.id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11);
-    }
+  const enqueue = (battle, text, id, option = {}) => {
+    const item = { battle, text, id, ...option };
     const deepCopiedItem = cloneWithMethods(item); // 메서드까지 깊은 복사하는 함수
     setQueue((prevQueue) => [...prevQueue, deepCopiedItem]);
   };
@@ -65,16 +64,7 @@ export function useQueue() {
       if (prevQueue.length === 0) return prevQueue;
       const head = typeof updater === "function" ? updater(prevQueue[0]) : updater;
       const deepCopiedHead = cloneWithMethods(head);
-      const deepCopiedExtras = (extraAfterHead || []).map((item) => {
-        const nextItem = { ...item };
-        if (!nextItem.id) {
-          nextItem.id =
-            typeof crypto !== "undefined" && crypto.randomUUID
-              ? crypto.randomUUID()
-              : Math.random().toString(36).substring(2, 11);
-        }
-        return cloneWithMethods(nextItem);
-      });
+      const deepCopiedExtras = (extraAfterHead || []).map((item) => cloneWithMethods({ ...item }));
 
       if (options?.dropRemaining) {
         return [deepCopiedHead, ...deepCopiedExtras];
@@ -130,16 +120,7 @@ export function useQueue() {
   const insertAfterHead = (items = []) => {
     setQueue((prevQueue) => {
       if (prevQueue.length === 0) return items.map(cloneWithMethods);
-      const deepCopiedItems = items.map((item) => {
-        const nextItem = { ...item };
-        if (!nextItem.id) {
-          nextItem.id =
-            typeof crypto !== "undefined" && crypto.randomUUID
-              ? crypto.randomUUID()
-              : Math.random().toString(36).substring(2, 11);
-        }
-        return cloneWithMethods(nextItem);
-      });
+      const deepCopiedItems = items.map((item) => cloneWithMethods({ ...item }));
       return [prevQueue[0], ...deepCopiedItems, ...prevQueue.slice(1)];
     });
   };

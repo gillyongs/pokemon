@@ -23,7 +23,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
     atk.recharge = null;
     atk.autoSN = null;
     let rechargeText = atk.names("는") + " 반동으로 움직일 수 없다!";
-    enqueue({ id: "33b98f0d-dfab-4d2a-89bc-0b43af4812df", battle: bt, text: rechargeText });
+    enqueue(bt, rechargeText, "chk_recharge");
     return false;
   }
 
@@ -36,18 +36,18 @@ export const beforeSkillCheck = (bt, enqueue) => {
     if (atk.ailment.sleep === 0) {
       let wakeUpText = atk.names("는") + " 눈을 떴다!";
       atk.ailment.sleep = null;
-      enqueue({ id: "3b47dc2c-a80f-4e51-aa05-5a811099e9cd", battle: bt, text: wakeUpText });
+      enqueue(bt, wakeUpText, "chk_sleep_wake");
     }
   }
   if (atk.ailment.sleep !== null) {
-    enqueue({ id: "4eb5351e-f598-4541-83c3-4a0a42131e66", battle: bt, text: atk.names("는") + " 쿨쿨 잠들어 있다" });
+    enqueue(bt, atk.names("는") + " 쿨쿨 잠들어 있다", "chk_sleeping");
     return false;
   }
 
   // 얼음 (영구 동결 - freezeBug)
   if (atk.ailment.freezeBug !== null) {
     let freezeText = atk.names("는") + " 꽁꽁 얼어버려서 움직일 수 없다!";
-    enqueue({ id: "e902bf15-97a6-4318-aa8f-b00e1e5415d0", battle: bt, text: freezeText });
+    enqueue(bt, freezeText, "chk_freeze_bug");
     return false;
   }
 
@@ -55,19 +55,19 @@ export const beforeSkillCheck = (bt, enqueue) => {
   if (atk.ailment.freeze !== null) {
     if (random(80) && useSkill.type !== "불꽃") {
       let freezeText = atk.names("는") + " 얼어버려서 움직일 수 없다!";
-      enqueue({ id: "e902bf15-97a6-4318-aa8f-b00e1e5415d0", battle: bt, text: freezeText });
+      enqueue(bt, freezeText, "chk_frozen");
       return false;
     } else {
       atk.ailment.freeze = null;
       let freezeText = atk.name + "의 얼음이 녹았다!";
-      enqueue({ id: "93801c0b-6f57-4b07-85b9-a8516fee3234", battle: bt, text: freezeText });
+      enqueue(bt, freezeText, "chk_thaw");
     }
   }
 
   // 풀죽음
   if (atk.turn.fullDeath !== null) {
     let fullDeathText = atk.names("는") + " 풀이 죽어 기술을 쓸 수 없다!";
-    enqueue({ id: "6ddbb128-61f9-4f56-8c3f-43096d43b872", battle: bt, text: fullDeathText });
+    enqueue(bt, fullDeathText, "chk_flinch");
     return false;
   }
 
@@ -76,9 +76,9 @@ export const beforeSkillCheck = (bt, enqueue) => {
   if (atk.tempStatus.confuse === 0) {
     let confuseText = atk.name + " 의 혼란이 풀렸다!";
     atk.tempStatus.confuse = null;
-    enqueue({ id: "c5366654-4664-47a0-92c4-b28527fda080", battle: bt, text: confuseText });
+    enqueue(bt, confuseText, "chk_confuse_end");
   } else if (atk.tempStatus.confuse && atk.tempStatus.confuse > 0) {
-    enqueue({ id: "eabd0e37-e9c2-4266-baab-b7b793c04886", battle: bt, text: atk.names("는") + " 혼란에 빠져있다!" });
+    enqueue(bt, atk.names("는") + " 혼란에 빠져있다!", "chk_confused");
 
     atk.tempStatus.confuse -= 1;
     if (random(33)) {
@@ -95,7 +95,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
   if (atk.ailment.mabi !== null) {
     if (random(25)) {
       let mabiText = atk.names("는") + " 몸이 저려서 움직일 수 없다!";
-      enqueue({ id: "dda35d2c-15c5-4b22-a575-84413b568acf", battle: bt, text: mabiText });
+      enqueue(bt, mabiText, "chk_paralyzed");
       return false;
     }
   }
@@ -126,7 +126,7 @@ export const afterSkillCheck = (bt, enqueue) => {
     if (typeof skillFunction === "function") {
       const skillCheck = skillFunction(bt, enqueue, skill.requirement);
       if (!skillCheck) {
-        enqueue({ id: "2d8de02f-4a8c-4155-8e7c-230477a7864d", battle: bt, text: "하지만 실패했다!" });
+        enqueue(bt, "하지만 실패했다!", "chk_req_fail");
         return false;
       }
     }
@@ -135,33 +135,33 @@ export const afterSkillCheck = (bt, enqueue) => {
   if (def.faint === true && skillType !== "buf") {
     // 상대가 이미 기절한 경우
     // 마찬가지로 리베로가 발동하지 않는다
-    enqueue({ id: "04949d41-70c0-4107-8e28-589488c29acc", battle: bt, text: "하지만 실패했다!" });
+    enqueue(bt, "하지만 실패했다!", "chk_def_faint");
     return false;
   }
 
   // 상대 선도발을 맞은 턴에 변화기를 쓴 경우
   if (atk.tempStatus.taunt !== null) {
     if (skill.stype === "buf" || skill.stype === "natk") {
-      enqueue({ id: "4f1bcc9f-5ffa-40d4-928d-6e8901973f8d", battle: bt, text: atk.names("는") + " 도발당한 상태라서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!" });
+      enqueue(bt, atk.names("는") + " 도발당한 상태라서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!", "chk_taunt_block");
       return false;
     }
   }
 
   // 상대 선 지옥찌르기를 맞은 턴에 소리 기술을 쓴 경우
   if (skill.feature?.sound && atk.tempStatus.noSound) {
-    enqueue({ id: "96f7d192-c54c-4b34-aec3-eec856c67c51", battle: bt, text: atk.names("는") + " 소리 기술을 사용할 수 없다!" });
+    enqueue(bt, atk.names("는") + " 소리 기술을 사용할 수 없다!", "chk_nosound_block");
     return false;
   }
 
   // 사슬묶기로 봉인된 기술을 쓴 경우
   if (atk.tempStatus.disable && atk.tempStatus.disable === skill.name) {
-    enqueue({ id: "8b4e2f1a-6c9d-4a3e-b5f0-1d2c3b4a5e6f", battle: bt, text: atk.names("는") + " 기술이 봉인되어 있어서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!" });
+    enqueue(bt, atk.names("는") + " 기술이 봉인되어 있어서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!", "chk_disable_block");
     return false;
   }
 
   // 짓궃은마음 포켓몬이 악타입에게 변화기를 쓴 경우
   if (atk.abil?.name === "짓궂은마음" && skillType === "natk" && (def.type1 === "악" || def.type2 === "악")) {
-    enqueue({ id: "133e723b-c60e-4e53-9740-acb76008ec33", battle: bt, text: def.name + "에겐 효과가 없는 것 같다..." });
+    enqueue(bt, def.name + "에겐 효과가 없는 것 같다...", "chk_prankster_dark");
     return false;
   }
 
@@ -176,11 +176,7 @@ export const afterSkillCheck = (bt, enqueue) => {
     } else {
       atk.type1 = skill.type;
       atk.type2 = null;
-      enqueue({
-        id: "8f405c79-2fe8-4f35-9d89-44855f0dcf16",
-        battle: bt,
-        text: `[${atk.abil?.name}] ` + atk.names("는") + " " + skill.type + " 타입이 됐다!",
-      });
+      enqueue(bt, `[${atk.abil?.name}] ` + atk.names("는") + " " + skill.type + " 타입이 됐다!", "chk_libero");
     }
   }
 
@@ -189,14 +185,14 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 폭우(시작의바다): 불꽃 타입 공격기 무효화
   if (bt?.isHeavyRain && (skillType === "atk" || skillType === "catk") && skill.type === "불꽃") {
     atk.turn.jumpKickFail = true;
-    enqueue({ id: "heavy-rain-block-fire", battle: bt, text: "강한 비의 영향으로 불꽃타입의 공격이 사라졌다!" });
+    enqueue(bt, "강한 비의 영향으로 불꽃타입의 공격이 사라졌다!", "chk_heavy_rain_fire");
     return false;
   }
 
   // 큰가뭄(끝의대지): 물 타입 공격기 무효화
   if (bt?.isHarshSun && (skillType === "atk" || skillType === "catk") && skill.type === "물") {
     atk.turn.jumpKickFail = true;
-    enqueue({ id: "harsh-sun-block-water", battle: bt, text: "강한 햇살의 영향으로 물타입의 공격이 증발했다!" });
+    enqueue(bt, "강한 햇살의 영향으로 물타입의 공격이 증발했다!", "chk_harsh_sun_water");
     return false;
   }
 
@@ -209,14 +205,14 @@ export const afterSkillCheck = (bt, enqueue) => {
     if (atk.abil?.name === "보이지않는주먹" && skill.feature?.touch && atk.item !== "펀치글러브") {
       //특성 보이지않는 주먹 : 접촉기가 방어를 무시한다
       //펀치글러브를 끼면 접촉판정이 사라지므로 해당 특성 적용 안됨
-      enqueue({ id: "8e9f3210-0203-47d9-8d29-8620de754ae9", battle: bt, text: "[특성 보이지않는주먹] " + atk.name + "의 공격은 막을 수 없다!" });
+      enqueue(bt, "[특성 보이지않는주먹] " + atk.name + "의 공격은 막을 수 없다!", "chk_unseen_fist");
       protectSuccess = false;
     }
 
     if (skill.feature?.feint) {
       // 페인트: 방어를 뚫고 공격한다
       def.turn.protect = null;
-      enqueue({ id: "79f4e42d-8293-48a9-8984-247cc98d0e38", battle: bt, text: `${def.name}의 방어가 해제되었다!` });
+      enqueue(bt, `${def.name}의 방어가 해제되었다!`, "chk_feint_break");
       protectSuccess = false;
     }
 
@@ -228,7 +224,7 @@ export const afterSkillCheck = (bt, enqueue) => {
     if (protectSuccess) {
       //방어로 막은 경우
       atk.turn.jumpKickFail = true;
-      enqueue({ id: "b589a84c-906b-42ef-a93d-6290a42e38a4", battle: bt, text: def.names("는") + " 공격으로부터 몸을 지켰다!" });
+      enqueue(bt, def.names("는") + " 공격으로부터 몸을 지켰다!", "chk_protect_block");
 
       // 니들가드(spikyShield): 직접 접촉 공격한 상대에게 최대 체력 1/8 데미지
       // 펀치글러브 착용 시 접촉 판정이 사라져 피해 없음
@@ -256,10 +252,10 @@ export const afterSkillCheck = (bt, enqueue) => {
   if (skill.type === "불꽃" && skill.stype !== "buf" && def.abil?.name === "타오르는불꽃" && atk.abil?.feature?.tgg !== true) {
     if (def.tempStatus.flashFire) {
       // 이미 발동된 경우
-      enqueue({ id: "84be829f-283f-46ef-b787-a0114ade9edb", battle: bt, text: "[특성 타오르는불꽃] " + def.name + "에겐 효과가 없는 것 같다..." });
+      enqueue(bt, "[특성 타오르는불꽃] " + def.name + "에겐 효과가 없는 것 같다...", "chk_flash_fire_immune");
     } else {
       def.tempStatus.flashFire = true;
-      enqueue({ id: "b5fc8809-5555-4877-a22c-c574c38f8559", battle: bt, text: "[특성 타오르는불꽃] " + def.names("는") + " 불꽃의 위력이 올라갔다!" });
+      enqueue(bt, "[특성 타오르는불꽃] " + def.names("는") + " 불꽃의 위력이 올라갔다!", "chk_flash_fire_boost");
     }
     return false;
   }
@@ -271,7 +267,7 @@ export const afterSkillCheck = (bt, enqueue) => {
 
   if (skill.name === "절대영도" && (def.type1 === "얼음" || def.type2 === "얼음")) {
     // 얼음타입 포켓몬에게 절대영도를 쓰는 경우
-    enqueue({ id: "141c95f2-4df5-4f01-8e57-0e8c2dc63a69", battle: bt, text: def.name + "에겐 효과가 없는 것 같다..." });
+    enqueue(bt, def.name + "에겐 효과가 없는 것 같다...", "chk_sheer_cold_ice");
     return false;
   }
 
@@ -279,7 +275,7 @@ export const afterSkillCheck = (bt, enqueue) => {
   if (atk?.hasAugment?.("lifeIsOneShot") && (skillType === "atk" || skillType === "catk")) {
     if (!random(50)) {
       atk.turn.jumpKickFail = true;
-      enqueue({ id: "88ab9135-e51c-4b30-9b36-58352b21c469", battle: bt, text: "[증강 인생은 한방] 하지만 실패했다!" });
+      enqueue(bt, "[증강 인생은 한방] 하지만 실패했다!", "chk_life_oneshot_fail");
       return false;
     }
   }
@@ -294,7 +290,7 @@ export const afterSkillCheck = (bt, enqueue) => {
   if (!accurCheck && skillType !== "buf") {
     // 상대방이 대타출동 상태일때 씨뿌리기가 빗나갈 수 있다 (명중해도 실패한다)
     atk.turn.jumpKickFail = true;
-    enqueue({ id: "0ff249b3-7ed3-4362-be30-b719a0a33e7d", battle: bt, text: "하지만 빗나갔다!" });
+    enqueue(bt, "하지만 빗나갔다!", "chk_miss");
     return false;
   }
 

@@ -58,7 +58,7 @@ export const skillUse = (bt, enqueue) => {
 
     // 스킬 사용 텍스트
     const skillUseText = atk.name + "의 " + skill.name + "!";
-    enqueue({ id: "33cefe63-14a3-45d9-8775-a903464ee681", battle: bt, text: skillUseText });
+    enqueue(bt, skillUseText, "use_skill");
 
     //충전 기술
     // 충전 후 리베로가 발동된다
@@ -69,7 +69,7 @@ export const skillUse = (bt, enqueue) => {
         atk.autoSN = null;
       } else {
         const chargeObj = skill.feature.charge;
-        enqueue({ id: "d55115e1-460f-4120-bdcc-fdee3157b69c", battle: bt, text: (chargeObj.head === "names" ? atk.names("는") : atk.name) + skill.feature.charge.text });
+        enqueue(bt, (chargeObj.head === "names" ? atk.names("는") : atk.name) + skill.feature.charge.text, "use_charge");
         // 충전 텍스트 (ex:"제르네아스는 파워를 모으고 있다!", "텅비드에게서 우주의 힘이 넘쳐난다!")
 
         if (chargeObj.rankUpStat) {
@@ -81,11 +81,11 @@ export const skillUse = (bt, enqueue) => {
         const isWeatherSkip = (chargeObj.weatherSkip === "sunny" && bt.isSunny) || (chargeObj.weatherSkip === "rain" && bt.isRainy);
 
         if (isWeatherSkip) {
-          enqueue({ id: "2eadbf55-e934-439a-bb56-133d4f6d4022", battle: bt, text: skillUseText }); // 스킬 텍스트 2번 뜨는게 맞음
+          enqueue(bt, skillUseText, "use_charge_weather"); // 스킬 텍스트 2번 뜨는게 맞음
         } else if (atk.item === "파워풀허브") {
           atk.consumeItem();
-          enqueue({ id: "5584b7a1-3115-45f1-8b80-9597bed46fd3", battle: bt, text: `${atk.names("는")} 파워풀허브로 힘이 넘쳐흐른다!` });
-          enqueue({ id: "b3212fe0-7e8a-4302-8dfe-a239852d0f6f", battle: bt, text: skillUseText }); // 스킬 텍스트 2번 뜨는게 맞음
+          enqueue(bt, `${atk.names("는")} 파워풀허브로 힘이 넘쳐흐른다!`, "use_power_herb");
+          enqueue(bt, skillUseText, "use_charge_herb"); // 스킬 텍스트 2번 뜨는게 맞음
         } else {
           atk.charge = true;
           atk.autoSN = skillNumber;
@@ -134,7 +134,7 @@ export const skillUse = (bt, enqueue) => {
       if (typeDamage === 0) {
         atk.turn.jumpKickFail = true;
         const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
-        enqueue({ id: "5a41d8cb-8cce-486e-b039-86d554a09793", battle: bt, text: typeText });
+        enqueue(bt, typeText, "use_type_immune");
         handleSkillFail(bt);
         return;
       }
@@ -187,7 +187,7 @@ export const skillUse = (bt, enqueue) => {
         effectsApplied = true;
         if (typeText) {
           // 연속기의 경우 상성 텍스트는 맨 마지막에 한번만 출력
-          enqueue({ id: "d30232f7-cc22-4c55-895c-189dd64bf709", battle: bt, text: typeText });
+          enqueue(bt, typeText, "use_serial_type");
         }
       } else {
         // 연속기 아닌 경우
@@ -215,14 +215,14 @@ export const skillUse = (bt, enqueue) => {
         // 근데 전기자석파는 제외
         // 뱀눈초리는 고스트 타입한테 정상적으로 들어감
         const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
-        enqueue({ id: "a1bfc639-8664-4816-8def-a72d936f1b42", battle: bt, text: typeText });
+        enqueue(bt, typeText, "use_twave_ground");
         return;
       }
 
       if (skill.feature?.powder && (def.type1 === "풀" || def.type2 === "풀" || def.abil?.name === "방진")) {
         // 풀 타입 포켓몬과 방진 특성은 가루 기술 무효
         const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
-        enqueue({ id: "f5bb2e94-9dd0-4041-80c1-ea0488f02f9b", battle: bt, text: typeText });
+        enqueue(bt, typeText, "use_powder_immune");
         return;
       }
 
@@ -234,7 +234,7 @@ export const skillUse = (bt, enqueue) => {
         if (noSubstituteSkills.includes(skill.name) || skill.feature.sound || bt[bt.turn.atk].abil?.name === "틈새포착") {
           // 소리 변화기 및 틈새포착 사용자의 변화기는 대타를 뚫는다 ex) 막말내뱉기
         } else {
-          enqueue({ id: "942dc7a3-e0d0-4632-80ce-f9a095e38272", battle: bt, text: "하지만 실패했다!" });
+          enqueue(bt, "하지만 실패했다!", "use_natk_sub_fail");
           return;
         }
       }

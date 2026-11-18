@@ -72,25 +72,16 @@ export const turnEnd = (battle, enqueue) => {
     if (!p || p.hp <= 0 || p.faint) return;
     p.tempStatus.turnsOnField = (p.tempStatus.turnsOnField || 0) + 1;
     if (p.abil?.name === "패스트스타트" && p.tempStatus.turnsOnField === 5) {
-      enqueue({
-        battle,
-        text: `[특성: 패스트스타트] ${p.names("는")} 더 강한 힘을 낼 수 있게 되었다!`,
-      });
+      enqueue(battle, `[특성: 패스트스타트] ${p.names("는")} 더 강한 힘을 낼 수 있게 되었다!`, "end_fast_start");
     }
     if (p.abil?.name === "슬로스타트" && p.tempStatus.turnsOnField === 5) {
-      enqueue({
-        battle,
-        text: `[특성: 슬로스타트] ${p.names("는")} 마침내 제 힘을 낼 수 있게 되었다!`,
-      });
+      enqueue(battle, `[특성: 슬로스타트] ${p.names("는")} 마침내 제 힘을 낼 수 있게 되었다!`, "end_slow_start");
     }
     if (p.abil?.name === "기어메이킹") {
       p.gearStack = (p.gearStack || 0) + 1;
       const visualStack = Math.min(p.gearStack, 7);
       p.img_id = `0601-${visualStack}`;
-      enqueue({
-        battle,
-        text: `[특성: 기어메이킹] ${p.name}의 새로운 ${p.gearStack}번째 기어가 맞물렸다!`,
-      });
+      enqueue(battle, `[특성: 기어메이킹] ${p.name}의 새로운 ${p.gearStack}번째 기어가 맞물렸다!`, "end_gear_making");
     }
   });
 
@@ -146,10 +137,7 @@ export const turnEnd = (battle, enqueue) => {
   if (battle.isMayhem && !battle.hasKnockoutAugmentThisRound && hasSurvivingKnockoutAttacker) {
     const hasSlot = playerTeam.some((p) => (p.augments || []).filter((a) => isNormalAugment(a)).length < 3);
     if (hasSlot) {
-      enqueue({
-        id: "122fb584-429d-4b41-9558-755143829687",
-        battle: battle,
-        text: "증강을 선택하세요.",
+      enqueue(battle, "증강을 선택하세요.", "end_ko_augment", {
         logText: "증강을 선택하지 않았습니다.",
         isAugment: true,
         isKnockoutAugment: true,
@@ -159,28 +147,19 @@ export const turnEnd = (battle, enqueue) => {
 
   if (battle.player.faint) {
     battle.turn.textFreeze = true;
-    enqueue({
-      id: "bf1b2882-a834-49f8-8ef4-aebc64735142",
-      battle: battle,
-      text: "누구로 교체 할까?",
+    enqueue(battle, "누구로 교체 할까?", "end_must_switch", {
       bottomMode: "mustSwitch",
       waitInput: true,
     });
   } else if (battle.player.auto || battle.player.charge || battle.player.recharge) {
-    enqueue({
-      id: "2ef883d0-9649-4aee-92ae-9e16e5010e62",
-      battle: battle,
-      text: "",
+    enqueue(battle, "", "end_auto_turn", {
       autoActTurn: true,
       bottomMode: "auto",
       waitInput: false,
       allowAct: true,
     });
   } else {
-    enqueue({
-      id: "a5b4b821-d398-45a0-8169-dfad0859a11b",
-      battle: battle,
-      text: battle.player.names("는") + " 무엇을 할까?",
+    enqueue(battle, battle.player.names("는") + " 무엇을 할까?", "end_next_turn", {
       bottomMode: "skill",
       waitInput: true,
       allowAct: true,
@@ -300,7 +279,7 @@ function switchLock(battle, enqueue, getter) {
     if (skillGetter.tempStatus.switchLockTurnRemain === 0) {
       skillGetter.tempStatus.switchLock = null;
       skillGetter.tempStatus.switchLockTurnRemain = null;
-      enqueue({ id: "8c6a1aa2-f25d-45bf-bbe3-f5aea20fdb22", battle, text: `${skillGetter.names("는")} ${skillName}에게서 벗어났다!` });
+      enqueue(battle, `${skillGetter.names("는")} ${skillName}에게서 벗어났다!`, "end_trap_free");
     } else {
       skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.maxHp / 8), `${skillGetter.names("는")} ${skillName}의 데미지를 입고 있다.`);
     }
@@ -319,7 +298,7 @@ function taunt(battle, enqueue, getter) {
   if (skillGetter.tempStatus.taunt === 0) {
     let wakeUpText = skillGetter.names("는") + " 도발의 효과가 풀렸다!";
     skillGetter.tempStatus.taunt = null;
-    enqueue({ id: "e40f7ddc-71fe-4cd9-b3ac-36031dbbdf26", battle: battle, text: wakeUpText });
+    enqueue(battle, wakeUpText, "end_taunt_free");
   }
 }
 
@@ -335,7 +314,7 @@ function noSound(battle, enqueue, getter) {
   if (skillGetter.tempStatus.noSound === 0) {
     let wakeUpText = skillGetter.names("는") + " 다시 소리 기술을 사용할 수 있게 됐다!";
     skillGetter.tempStatus.noSound = null;
-    enqueue({ id: "10facab5-d501-4e07-a21d-ab5d777c55db", battle: battle, text: wakeUpText });
+    enqueue(battle, wakeUpText, "end_nosound_free");
   }
 }
 
@@ -352,7 +331,7 @@ function disable(battle, enqueue, getter) {
     skillGetter.tempStatus.disable = null;
     skillGetter.tempStatus.disableTurnRemain = null;
     let wakeUpText = `${skillGetter.name}의 ${disabledSkill} 봉인이 풀렸다!`;
-    enqueue({ id: "3f8a9c1b-7d2e-4f5a-8b3c-9e1d2f3a4b5c", battle: battle, text: wakeUpText });
+    enqueue(battle, wakeUpText, "end_disable_free");
   }
 }
 

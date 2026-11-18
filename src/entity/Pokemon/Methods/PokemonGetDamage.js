@@ -11,7 +11,7 @@ export const PokemonGetDamage = {
     }
 
     if (text) {
-      enqueue({ id: "7ca5ce1a-303b-4665-b41d-48905926319b", battle, text });
+      enqueue(battle, text, "poke_get_dmg");
     }
 
     if (this.hp <= 0) {
@@ -48,11 +48,7 @@ export const PokemonGetDamage = {
         mejaiAug.mejaiStack = nextStack;
       }
     }
-    enqueue({
-      id: "04606dda-a370-46f8-97d6-155e4f7722c2",
-      battle,
-      text: `${this.names("는")} 쓰러졌다!`,
-    });
+    enqueue(battle, `${this.names("는")} 쓰러졌다!`, "poke_faint");
 
     // 델타스트림 / 시작의바다 / 끝의대지 기절 시 날씨 종료 처리
     battle.emit("pokemonLeave", { leavingPokemon: this, enqueue, reason: "faint" });

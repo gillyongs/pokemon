@@ -254,24 +254,12 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
 
   if (messageAbilities[atkAbil]) {
     let head = messageAbilities[atkAbil].head;
-    enqueue({
-      id: "c04ebf99-9277-41cd-9271-c0a9270ea942",
-      battle: bt,
-      text: `[특성 ${atkAbil}] ${head === "names" ? atk.names("는") : head === "name" ? atk.name : ""} ${messageAbilities[atkAbil].text}`,
-    });
+    enqueue(bt, `[특성 ${atkAbil}] ${head === "names" ? atk.names("는") : head === "name" ? atk.name : ""} ${messageAbilities[atkAbil].text}`, "abil_enter_msg");
   }
 
   if (atkAbil === "혼연일체(흑)" || atkAbil === "혼연일체(백)") {
-    enqueue({
-      id: "c669af3f-013e-4dae-879b-b23cd5b820c1",
-      battle: bt,
-      text: `[특성 혼연일체] ${atk.names("는")} 두 가지 특성을 겸비한다!`,
-    });
-    enqueue({
-      id: "547eae7b-c087-4ee3-8e08-1ed46aa71b58",
-      battle: bt,
-      text: `[특성 혼연일체] ${bt.common[atk.team].teamKrReverse} 편은 긴장해서 나무열매를 먹을 수 없게 되었다!`,
-    });
+    enqueue(bt, `[특성 혼연일체] ${atk.names("는")} 두 가지 특성을 겸비한다!`, "abil_as_one");
+    enqueue(bt, `[특성 혼연일체] ${bt.common[atk.team].teamKrReverse} 편은 긴장해서 나무열매를 먹을 수 없게 되었다!`, "abil_as_one_unnerve");
   }
 
   // ==================================================================================
@@ -291,12 +279,12 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // 위협
   if (atkAbil === "위협" && def && !def.faint) {
     const abilText = "[특성 위협]";
-    enqueue({ id: "fe000494-7206-4668-890e-33d172b69877", battle: bt, text: `${abilText} ${atk.names("는")} 적을 위협했다!` });
+    enqueue(bt, `${abilText} ${atk.names("는")} 적을 위협했다!`, "abil_intimidate");
     if (def.tempStatus.substitute) {
       // 위협은 대타에 막힘
-      enqueue({ id: "950f472a-f4f2-4f2f-9b74-d3fc00b3f853", battle: bt, text: `${abilText} ${def.name}에겐 효과가 없는 것 같다...` });
+      enqueue(bt, `${abilText} ${def.name}에겐 효과가 없는 것 같다...`, "abil_intimidate_sub");
     } else if (def.abil?.name === "정신력" || def.abil?.name === "둔감" || def.abil?.name === "배짱") {
-      enqueue({ id: "5f404d87-dc6b-4b99-b8d8-3c3c54ee298b", battle: bt, text: `[특성 ${def.abil?.name}] ${def.name}의 공격은 떨어지지 않는다!` });
+      enqueue(bt, `[특성 ${def.abil?.name}] ${def.name}의 공격은 떨어지지 않는다!`, "abil_intimidate_immune");
     } else {
       def.rankUp(bt, enqueue, "atk", -1, abilText, true);
     }
@@ -349,11 +337,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
 
   if (atkAbil === "진홍빛고동") {
     if (bt.isSunny) {
-      enqueue({
-        id: "f466ee8f-6a1f-4e45-934d-f0092a0c5d31",
-        battle: bt,
-        text: `[특성 진홍빛고동] ${atk.names("는")} 햇살을 받아 고대의 고동을 폭발시켰다!`,
-      });
+      enqueue(bt, `[특성 진홍빛고동] ${atk.names("는")} 햇살을 받아 고대의 고동을 폭발시켰다!`, "abil_orichalcum_pulse");
     } else {
       let text = `[특성 진홍빛고동] ${atk.names("는")} 햇살을 강하게 하여 고대의 고동을 폭발시켰다!`;
       bt.field.weather.setWeatherOnBattle(bt, enqueue, atk, "쾌청", text);
@@ -362,11 +346,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
 
   if (atkAbil === "하드론엔진") {
     if (bt.field.terrain.isElectricField) {
-      enqueue({
-        id: "c8f4ae61-58d5-4bb2-8097-01d65d1059e4",
-        battle: bt,
-        text: `[특성 하드론엔진] ${atk.names("는")} 일렉트릭필드의 힘으로 미래 기관을 가동했다!`,
-      });
+      enqueue(bt, `[특성 하드론엔진] ${atk.names("는")} 일렉트릭필드의 힘으로 미래 기관을 가동했다!`, "abil_hadron_engine");
     } else {
       const text = `[특성 하드론엔진] ${atk.names("는")} 일렉트릭필드를 전개하여 미래 기관을 가동했다!`;
       bt.field.terrain.setTerrainOnBattle(bt, enqueue, atk, "일렉트릭필드", text);
@@ -396,11 +376,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
       return;
     } else {
       atk.abil = { ...def.abil };
-      enqueue({
-        id: "9ef304eb-b117-4c2d-984d-6d4af03ab4aa",
-        battle: bt,
-        text: `[특성 트레이스] ${atk.names("는")} ${josa(`${def.name}의 ${def.abil?.name}#{을}`)} 트레이스했다!`,
-      });
+      enqueue(bt, `[특성 트레이스] ${atk.names("는")} ${josa(`${def.name}의 ${def.abil?.name}#{을}`)} 트레이스했다!`, "abil_trace_self");
       applyAbilityEffects(bt, atks, enqueue, true);
     }
   }
@@ -412,16 +388,12 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
       return;
     } else {
       def.abil = { ...atk.abil };
-      enqueue({
-        id: "4a7114ef-c9eb-474b-9fda-fd9c847a35b5",
-        battle: bt,
-        text: `[특성 트레이스] ${def.names("는")} ${josa(`${atk.name}의 ${atk.abil?.name}#{을}`)} 트레이스했다!`,
-      });
+      enqueue(bt, `[특성 트레이스] ${def.names("는")} ${josa(`${atk.name}의 ${atk.abil?.name}#{을}`)} 트레이스했다!`, "abil_trace_opp");
       applyAbilityEffects(bt, defs, enqueue, true);
     }
   }
 
   if (atk.item === "풍선") {
-    enqueue({ id: "a643b7eb-ef96-4324-b416-20afbd9248b4", battle: bt, text: atk.names("는") + " 풍선으로 떠 있다!" });
+    enqueue(bt, atk.names("는") + " 풍선으로 떠 있다!", "abil_air_balloon");
   }
 };

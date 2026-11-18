@@ -20,11 +20,7 @@ export class userField {
   handleWish(battle, enqueue, obj) {
     if (this.noClean.wish !== null) {
       //연속사용 안됨
-      enqueue({
-        id: "705eb9d6-848f-408b-a8fa-f9b682a40089",
-        battle,
-        text: "하지만 실패했다!",
-      });
+      enqueue(battle, "하지만 실패했다!", "field_wish_fail");
       return;
     }
 
@@ -73,7 +69,7 @@ export class userField {
       this.noClean[key]--;
       if (this.noClean[key] <= 0) {
         this.noClean[key] = null;
-        enqueue({ id: "a218b691-cbef-44b4-8256-e27eec0e6b62", battle, text: `${teamText} 편의 ${name} 효과가 사라졌다!` });
+        enqueue(battle, `${teamText} 편의 ${name} 효과가 사라졌다!`, "field_wall_end");
       }
     });
   }
@@ -84,7 +80,7 @@ export class userField {
     if (this.noClean.tailwind <= 0) {
       this.noClean.tailwind = null;
       const teamText = battle.common[this.team].teamKr;
-      enqueue({ id: "56d5b37e-d493-475b-9aa9-d956ccfed381", battle, text: `${teamText} 편의 순풍이 멎었다!` });
+      enqueue(battle, `${teamText} 편의 순풍이 멎었다!`, "field_tailwind_end");
     }
   }
 }
