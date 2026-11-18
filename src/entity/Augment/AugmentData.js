@@ -288,6 +288,14 @@ export const AUGMENT_LIST = [
     // damage.js에 구현
   },
   {
+    id: "axeOfDespair",
+    name: "데몬의 도끼",
+    desc: "장착 몬스터의 공격력은 100 올린다.",
+    cost: 4,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
+    isEligible: (pokemon) => isPhysicalPokemon(pokemon),
+  },
+  {
     id: "sunfireAegis",
     name: "태양불꽃방패 🛡️",
     desc: "매 턴 내 최대 HP의 10%만큼 상대에게 데미지를 입힙니다.",
@@ -1892,34 +1900,24 @@ export const AUGMENT_LIST = [
         return "특성 탈이 체력을 소모하지 않습니다.\n(지닌 물건이 기합의띠가 아닌 경우)추가로 지닌 물건을 기합의 띠와 교체합니다.";
       }
       const isHolding = (pokemon?.item?.name || pokemon?.item) === "기합의띠";
-      return isHolding
-        ? "특성 탈이 체력을 소모하지 않습니다."
-        : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+      return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
     },
     selDesc: function (pokemon) {
       const isHolding = (pokemon?.item?.name || pokemon?.item) === "기합의띠";
-      return isHolding
-        ? "특성 탈이 체력을 소모하지 않습니다."
-        : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+      return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
     },
     screenText: function (target, prevPokeName, options) {
       const isHolding = options?.wasHoldingFocusSash !== undefined ? options.wasHoldingFocusSash : target?._wasHoldingFocusSash !== undefined ? target._wasHoldingFocusSash : (target?.item?.name || target?.item) === "기합의띠";
       delete target?._wasHoldingFocusSash;
-      return isHolding
-        ? "[증강] 특성 탈이 체력을 소모하지 않게 되었다!"
-        : "[증강] 특성 탈이 체력을 소모하지 않고 지닌 물건이 기합의 띠로 교체되었다!";
+      return isHolding ? "[증강] 특성 탈이 체력을 소모하지 않게 되었다!" : "[증강] 특성 탈이 체력을 소모하지 않고 지닌 물건이 기합의 띠로 교체되었다!";
     },
     logModalText: function (target, prevPokeName, options) {
       const isHolding = options?.wasHoldingFocusSash !== undefined ? options.wasHoldingFocusSash : target?._wasHoldingFocusSash !== undefined ? target._wasHoldingFocusSash : (target?.item?.name || target?.item) === "기합의띠";
-      return isHolding
-        ? "특성 탈이 체력을 소모하지 않습니다."
-        : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+      return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
     },
     statusModalText: function (pokemon) {
       const isHolding = (pokemon?.item?.name || pokemon?.item) === "기합의띠";
-      return isHolding
-        ? "특성 탈이 체력을 소모하지 않습니다."
-        : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+      return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
     },
     cost: 1,
     weight: 300,

@@ -72,6 +72,9 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
         val += bonus;
         logText += ` + ${bonus} (영혼의 주사위)`;
       }
+    } else if (augId === "axeOfDespair" && statKey === "atk") {
+      val += 100;
+      logText += ` + 100 (데몬의 도끼)`;
     }
   }
 
