@@ -166,6 +166,8 @@ export const useBattleStore = createStore((set, get) => ({
                     practiceCritStack: savedAug?.practiceCritStack ?? p.practiceCritStack,
                     giantBonusHp: savedAug?.giantBonusHp ?? p.giantBonusHp,
                     soulDiceStats: savedAug?.soulDiceStats,
+                    kingStatBonus: savedAug?.kingStatBonus,
+                    kingCost: savedAug?.cost,
                     isForced: true,
                     isCarryover: true,
                   });
@@ -190,6 +192,8 @@ export const useBattleStore = createStore((set, get) => ({
                   practiceCritStack: savedAug?.practiceCritStack ?? p.practiceCritStack,
                   giantBonusHp: savedAug?.giantBonusHp ?? p.giantBonusHp,
                   soulDiceStats: savedAug?.soulDiceStats,
+                  kingStatBonus: savedAug?.kingStatBonus,
+                  kingCost: savedAug?.cost,
                   isCarryover: true,
                 });
               }
@@ -787,6 +791,8 @@ export const useBattleStore = createStore((set, get) => ({
         giantBonusHp: aug.giantBonusHp,
         anvilStats: aug.anvilStats ? { ...aug.anvilStats } : undefined,
         soulDiceStats: aug.soulDiceStats ? { ...aug.soulDiceStats } : undefined,
+        kingStatBonus: aug.kingStatBonus,
+        cost: aug.cost,
       }));
       return acc;
     }, {});

@@ -291,9 +291,38 @@ export const AUGMENT_LIST = [
     id: "axeOfDespair",
     name: "데몬의 도끼",
     desc: "장착 몬스터의 공격력은 100 올린다.",
-    cost: 4,
+    cost: 2,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     isEligible: (pokemon) => isPhysicalPokemon(pokemon),
+  },
+  {
+    id: "powerOfKing",
+    name: "그 힘이야말로 왕인 까닭이다",
+    desc: "해당 포켓몬의 공격과 특수공격을 최대 200만큼 올립니다. 수치 20당 코스트가 1 증가합니다.",
+    screenText: function (target, prevPokeName, options) {
+      const bonus = Number(options?.kingStatBonus ?? this?.kingStatBonus ?? target?.kingStatBonus ?? 20);
+      return `[증강] 공격과 특수공격을 ${bonus} 얻었다!`;
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const bonus = Number(options?.kingStatBonus ?? this?.kingStatBonus ?? target?.kingStatBonus ?? 20);
+      const cost = Number(options?.kingCost ?? this?.cost ?? bonus / 20);
+      return `공격과 특수공격을 ${bonus} 획득하였습니다.`;
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const bonus = Number(options?.kingStatBonus ?? this?.kingStatBonus ?? pokemon?.kingStatBonus ?? 20);
+      const cost = Number(options?.kingCost ?? this?.cost ?? bonus / 20);
+      return `공격과 특수공격을 ${bonus} 획득하였습니다.`;
+    },
+    cost: "?",
+    weight: 100,
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon) return;
+      const bonus = Number(options?.kingStatBonus ?? this?.kingStatBonus ?? 20);
+      const cost = Number(options?.kingCost ?? this?.cost ?? bonus / 20);
+      this.kingStatBonus = bonus;
+      this.cost = cost;
+      pokemon.kingStatBonus = bonus;
+    },
   },
   {
     id: "sunfireAegis",
