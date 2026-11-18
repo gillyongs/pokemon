@@ -15,7 +15,7 @@ export const getReplacementAugmentWeight = (pokemon) => {
 };
 
 // 포켓몬 교체 증강
-export const REPLACEMENT_AUGMENT_IDS = ["legendaryTitan", "rouletteWheel", "soaring", "marriedPokemon", "magikarpJump", "klinklangGear", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle"];
+export const REPLACEMENT_AUGMENT_IDS = ["legendaryTitan", "rouletteWheel", "soaring", "marriedPokemon", "magikarpJump", "klinklangGear", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle", "ninjaAppeared"];
 
 export const isReplacementAugment = (augmentOrId) => {
   const id = typeof augmentOrId === "string" ? augmentOrId : augmentOrId?.id;
@@ -1408,6 +1408,29 @@ export const AUGMENT_LIST = [
   },
   // =================================================================================================
   {
+    id: "ninjaAppeared",
+    name: "그런데 그때 닌자가 나타났다",
+    desc: "현재 포켓몬을 개굴닌자와 교체합니다.\n지닌 물건을 선택할 수 있습니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`[증강] ${fromName}#{이} 개굴닌자로 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`${fromName}#{이} 개굴닌자로 교체되었다!`);
+    },
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0658"),
+    onApply: function (pokemon, battle, options) {
+      const candidateNames = ["개굴닌자", "메가개굴닌자", "지우개굴닌자"];
+      const picked = options?.selectedSampleName || candidateNames[Math.floor(Math.random() * candidateNames.length)];
+      replacePokemon(pokemon, picked, battle, { resetAugments: true });
+    },
+  },
+  {
     id: "nameIsSalamence",
     name: "보 만 다 지 진 !!",
     desc: '지니고 있는 기술 중 하나를 "지진"으로 변경합니다.',
@@ -2156,7 +2179,7 @@ const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   ["revivePiece", "maxRevive"],
 
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
-  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle"],
+  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle", "ninjaAppeared"],
 
   // 3. 능력치 전환 증강: 동시에 2개 이상 나오지 않음
   ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"],

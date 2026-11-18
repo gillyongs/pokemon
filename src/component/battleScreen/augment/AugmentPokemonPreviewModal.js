@@ -180,7 +180,6 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
     return null;
   }, [isMewtwoPokemon, isEternatusPokemon, isTitanPokemon, isTaurosPokemon, isEvioliteFloette, isShucklePokemon]);
 
-
   const eternamaxData = useMemo(() => {
     if (!isEternatusPokemon) return null;
     return {
@@ -217,13 +216,13 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
 
   const displayName = isMegaView ? pokemon.megaData.name : isEternamaxView ? eternamaxData.name : pokemon.name;
 
-  const displayPokemonId = isMegaView ? pokemon.megaData.uniqueKey : isEternamaxView ? eternamaxData.uniqueKey : (pokemon.img_id || PREVIEW_IMG_ID_MAP[augmentId] || pokemon.uniqueKey);
+  const displayPokemonId = isMegaView ? pokemon.megaData.uniqueKey : isEternamaxView ? eternamaxData.uniqueKey : pokemon.img_id || PREVIEW_IMG_ID_MAP[augmentId] || pokemon.uniqueKey;
 
   const displayType1 = isMegaView ? pokemon.megaData.type1 : isEternamaxView ? eternamaxData.type1 : pokemon.type1;
 
   const displayType2 = isMegaView ? pokemon.megaData.type2 : isEternamaxView ? eternamaxData.type2 : pokemon.type2;
 
-  const displayAbil = isMegaView ? pokemon.megaData.abil : isEternamaxView ? eternamaxData.abil : (pokemon.abil?.name || pokemon.abil);
+  const displayAbil = isMegaView ? pokemon.megaData.abil : isEternamaxView ? eternamaxData.abil : pokemon.abil?.name || pokemon.abil;
 
   const displayHp = isEternamaxView ? eternamaxData.hp : pokemon.hp;
   const displayStat = isMegaView ? pokemon.megaData.stat : isEternamaxView ? eternamaxData.stat : pokemon.stat || {};
@@ -297,7 +296,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
                 setShowMegaForm(true);
               }}
             >
-              {pokemon.megaData?.name || "메가진화"} (메가진화)
+              {pokemon.megaData?.name}
             </FormToggleButton>
             <FormToggleButton
               type="button"
@@ -307,7 +306,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
                 setShowMegaForm(false);
               }}
             >
-              {pokemon.name} (진화 전)
+              {pokemon.name}
             </FormToggleButton>
           </FormToggleRow>
         )}

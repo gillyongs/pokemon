@@ -147,7 +147,11 @@ export const skillUse = (bt, enqueue) => {
         const serialType = skill.feature.serial;
         if (serialType === "twoFive") {
           //2~5회 공격. 확률은 35 35 15 15
-          num = randomTwoFive(bt, atk.item);
+          if (skill.name === "물수리검" && atk.abil?.name === "유대진화") {
+            num = 3;
+          } else {
+            num = randomTwoFive(bt, atk.item);
+          }
         } else if (serialType === "suru") {
           // 수류연타 3회 고정
           num = 3;

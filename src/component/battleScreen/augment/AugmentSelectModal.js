@@ -12,6 +12,7 @@ import AugmentGrantPreviewModal from "./AugmentGrantPreviewModal";
 import AugmentSwordEnhanceView from "./select/AugmentSwordEnhanceView";
 import AugmentPowerOfKingView from "./select/AugmentPowerOfKingView";
 import AugmentThreeThousandYearsView from "./select/AugmentThreeThousandYearsView";
+import AugmentNinjaAppearedView from "./select/AugmentNinjaAppearedView";
 import AugmentSoulDiceView from "./select/AugmentSoulDiceView";
 import AugmentRouletteView from "./select/AugmentRouletteView";
 import AugmentSkillSelectView from "./select/AugmentSkillSelectView";
@@ -52,6 +53,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   const [swordEnhanceAug, setSwordEnhanceAug] = useState(null);
   const [powerOfKingAug, setPowerOfKingAug] = useState(null);
   const [threeThousandYearsAug, setThreeThousandYearsAug] = useState(null);
+  const [ninjaAppearedAug, setNinjaAppearedAug] = useState(null);
   const [soulDiceAug, setSoulDiceAug] = useState(null);
   const [rouletteAug, setRouletteAug] = useState(null);
 
@@ -200,6 +202,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     setSwordEnhanceAug(null);
     setPowerOfKingAug(null);
     setThreeThousandYearsAug(null);
+    setNinjaAppearedAug(null);
     setSoulDiceAug(null);
     setRouletteAug(null);
   };
@@ -237,6 +240,11 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
 
     if (targetAug.id === "threeThousandYears") {
       setThreeThousandYearsAug(targetAug);
+      return;
+    }
+
+    if (targetAug.id === "ninjaAppeared") {
+      setNinjaAppearedAug(targetAug);
       return;
     }
 
@@ -298,6 +306,16 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                   setThreeThousandYearsAug(null);
                 }}
                 onCancel={() => setThreeThousandYearsAug(null)}
+              />
+            ) : ninjaAppearedAug ? (
+              <AugmentNinjaAppearedView
+                ninjaAppearedAug={ninjaAppearedAug}
+                activePokemon={activePokemon}
+                onSelect={(aug, opts) => {
+                  onSelect(aug, opts);
+                  setNinjaAppearedAug(null);
+                }}
+                onCancel={() => setNinjaAppearedAug(null)}
               />
             ) : swordEnhanceAug ? (
               <AugmentSwordEnhanceView

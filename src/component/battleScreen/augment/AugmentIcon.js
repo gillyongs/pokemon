@@ -18,11 +18,14 @@ const DEDICATED_AUGMENT_POKEMON = {
   veteranPrivilege: "0128-a",
   devilOfGen7: "0778",
   evioliteShuckle: "0213",
+  ninjaAppeared: "0658",
 
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
 const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
+  ninjaAppeared: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0658-a": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   evioliteShuckle: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0213": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
 
