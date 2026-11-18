@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { getAugmentDesc } from "../../../entity/Augment/AugmentData";
+import { getAugmentDesc, isPermanentBuff } from "../../../entity/Augment/AugmentData";
 import { AUGMENT_LIST } from "../../../entity/Augment/AugmentData";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
@@ -135,7 +135,7 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
                       <AugMeta>
                         <AugNameRow>
                           <AugName>{item.name}</AugName>
-                          <CategoryBadge $isBuff={isBuff}>{isBuff ? "버프" : "추가 증강"}</CategoryBadge>
+                          <CategoryBadge $isBuff={isBuff}>{isPermanentBuff(item) ? "영구 버프" : isBuff ? "버프" : "추가 증강"}</CategoryBadge>
                         </AugNameRow>
                         <AugDesc>{descText}</AugDesc>
                       </AugMeta>

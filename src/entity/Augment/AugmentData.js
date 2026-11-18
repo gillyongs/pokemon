@@ -290,7 +290,7 @@ export const AUGMENT_LIST = [
   {
     id: "axeOfDespair",
     name: "데몬의 도끼",
-    desc: "장착 몬스터의 공격력은 100 올린다.",
+    desc: "장착 몬스터의 공격력을 100 올린다.",
     cost: 2,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     isEligible: (pokemon) => isPhysicalPokemon(pokemon),
@@ -1145,6 +1145,7 @@ export const AUGMENT_LIST = [
     name: "영혼의 심복",
     desc: "모든 능력치가 1.5배 증가합니다.",
     buf: true,
+    permanent: true,
     isRandom: false,
     weight: "-",
     isEligible: () => false,
@@ -1817,7 +1818,7 @@ export const AUGMENT_LIST = [
   {
     id: "highRiskBuff",
     name: "하이 리턴",
-    desc: "모든 공격의 데미지가 3배가 됩니다.",
+    desc: "모든 공격의 데미지가 3배가 됩니다. (현재 라운드 한정)",
     buf: true,
     isRandom: false,
     weight: "-",
@@ -1975,6 +1976,33 @@ export const AUGMENT_LIST = [
       pokemon.hp = pokemon.maxHp;
       pokemon.resetAilment();
       pokemon.tempStatus.confuse = null;
+    },
+  },
+  // 돌진 (즉발형 버프 - 라운드 종료시까지 공격력 +70, 이월되지 않음)
+  {
+    id: "rush",
+    name: "돌진",
+    desc: "몬스터의 공격력을 라운드 종료시까지 70 올린다.",
+    cost: "-",
+    buf: true,
+    noCarryover: true,
+    weight: 100,
+    isEligible: (pokemon) => isPhysicalPokemon(pokemon) && !pokemon?.hasAugment?.("rush"),
+  },
+  // 커져라! (즉발형 버프 - 이번 라운드 동안 체력 1.5배 증가, 이월되지 않음)
+  {
+    id: "growUp",
+    name: "커져라!",
+    desc: "이번 라운드 동안 해당 포켓몬의 체력이 1.5배 증가합니다.",
+    cost: "-",
+    buf: true,
+    noCarryover: true,
+    weight: 100,
+    isEligible: (pokemon) => !pokemon?.hasAugment?.("growUp") && (pokemon?.hp === undefined || pokemon?.hp >= pokemon?.maxHp),
+    onApply: (pokemon) => {
+      if (pokemon && typeof pokemon.hp === "number") {
+        pokemon.hp = Math.min(pokemon.maxHp, Math.round(pokemon.hp * 1.5));
+      }
     },
   },
   // 마음의물방울 (라티아스/라티오스 전용 증강)
@@ -2419,7 +2447,9 @@ export const getAugmentScreenText = (augment, target = null, prevPokeName = "", 
   const names = target ? target.names("는") : "포켓몬은";
   const rawName = stripEmoji(augment.shortName || augment.name || "");
   if (isSynergyAugment(augment)) return `3개의 증강이 공명하여 "${rawName}" 시너지가 활성화되었다!`;
+  if (isPermanentCurse(augment)) return `[증강] ${names} "${rawName}" 영구 디버프를 얻었다!`;
   if (isCurseAugment(augment)) return `[증강] ${names} "${rawName}" 디버프를 얻었다!`;
+  if (isPermanentBuff(augment)) return `[증강] ${names} "${rawName}" 영구 버프를 얻었다!`;
   if (isBuffAugment(augment)) return `[증강] ${names} "${rawName}" 버프를 얻었다!`;
   return `[증강] ${names} "${rawName}" 효과를 얻었다!`;
 };
@@ -2468,6 +2498,24 @@ export const isBuffAugment = (augment) => {
   const id = typeof augment === "string" ? augment : augment.id;
   const found = AUGMENT_LIST.find((a) => a.id === id);
   return Boolean(found?.buf);
+};
+
+export const isPermanentBuff = (augment) => {
+  if (!augment) return false;
+  if (!isBuffAugment(augment)) return false;
+  if (typeof augment === "object" && augment.permanent) return true;
+  const id = typeof augment === "string" ? augment : augment.id;
+  const found = AUGMENT_LIST.find((a) => a.id === id);
+  return Boolean(found?.permanent || id === "soulMinion");
+};
+
+export const isPermanentCurse = (augment) => {
+  if (!augment) return false;
+  if (!isCurseAugment(augment)) return false;
+  if (typeof augment === "object" && augment.permanent) return true;
+  const id = typeof augment === "string" ? augment : augment.id;
+  const found = AUGMENT_LIST.find((a) => a.id === id);
+  return Boolean(found?.permanent);
 };
 
 export const isNormalAugment = (augment) => {

@@ -131,8 +131,8 @@ export const PokemonAugment = {
       return false;
     }
 
-    // 코스트 '-'인 즉발형 증강은 누적되지 않음
-    if (!isInstant) {
+    // 코스트 '-'인 일반 즉발형 증강은 누적되지 않음 (단, 버프는 라운드 동안 유지)
+    if (!isInstant || augObj.buf) {
       if (Array.isArray(this.augments) && Object.isExtensible(this.augments)) {
         this.augments.push(augObj);
       } else {

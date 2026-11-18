@@ -6,7 +6,7 @@ import AugmentGrantPreviewModal from "./AugmentGrantPreviewModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
-import { getAugmentStatusModalText, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo, hasAnvilStats, getAnvilStatsStatusDesc } from "../../../entity/Augment/AugmentData";
+import { getAugmentStatusModalText, isBuffAugment, isCurseAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo, hasAnvilStats, getAnvilStatsStatusDesc } from "../../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
   const [previewInfo, setPreviewInfo] = useState(null);
@@ -127,7 +127,7 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                   <CardContent>
                     <CardTitleRow>
                       <CardTitle>{aug.shortName || aug.name}</CardTitle>
-                      {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
+                      {isCurse ? <CurseBadge>{isPermanentCurse(aug) ? "영구 디버프" : "디버프"}</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>{isPermanentBuff(aug) ? "영구 버프" : "버프"}</BuffBadge> : null}
                     </CardTitleRow>
                     <CardDescription>{getAugmentStatusModalText(aug, activePokemon, battle, { showCurrentStats: true })}</CardDescription>
                   </CardContent>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { getAugmentStatusModalText, isBuffAugment, isCurseAugment, isNormalAugment, isSynergyAugment } from "../../../entity/Augment/AugmentData";
+import { getAugmentStatusModalText, isPermanentBuff, isPermanentCurse, isNormalAugment, isSynergyAugment } from "../../../entity/Augment/AugmentData";
 
 // 다음 라운드로 넘길 증강 선택 모달
 
@@ -73,16 +73,18 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
     // 영구 버프/저주/시너지 및 스택은 무조건 같이 넘어감
     teamMembers.forEach(({ poke, index }) => {
       (poke.augments || []).forEach((aug) => {
-        const isBuf = isBuffAugment(aug);
-        const isCurse = isCurseAugment(aug);
+        const isPermBuf = isPermanentBuff(aug);
+        const isPermCurse = isPermanentCurse(aug);
         const isSyn = isSynergyAugment(aug);
-        if (isBuf || isCurse || isSyn) {
+        if (aug.noCarryover) return;
+        if (isPermBuf || isPermCurse || isSyn) {
           carriedMap[index].push({
             id: aug.id,
             name: aug.name,
             cost: aug.cost,
-            buf: isBuf,
-            curse: isCurse,
+            buf: isPermBuf,
+            permanent: isPermBuf || isPermCurse,
+            curse: isPermCurse,
             synergy: isSyn,
             isForced: Boolean(aug.isForced),
             dragonKillCount: aug.dragonKillCount ?? poke.dragonKillCount ?? 0,

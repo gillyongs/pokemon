@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST, compareAugmentNames, getAugmentSelDesc, isCurseAugment, isBuffAugment, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, compareAugmentNames, getAugmentSelDesc, isCurseAugment, isBuffAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
 import { rollTeamAugments } from "../../../calc/augmentRoll";
 import { testmode, subscribeTestMode } from "../../../config/testMode";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
@@ -485,7 +485,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                               <CardContent>
                                 <CardTitleRow>
                                   <CardTitle>{aug.name}</CardTitle>
-                                  {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
+                                  {isCurse ? <CurseBadge>{isPermanentCurse(aug) ? "영구 디버프" : "디버프"}</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>{isPermanentBuff(aug) ? "영구 버프" : "버프"}</BuffBadge> : null}
                                 </CardTitleRow>
                                 <CardDescription>{getAugmentSelDesc(aug, activePokemon, battle)}</CardDescription>
                               </CardContent>
@@ -530,7 +530,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                                   <CardContent>
                                     <CardTitleRow>
                                       <CardTitle>{aug.name}</CardTitle>
-                                      {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
+                                      {isCurse ? <CurseBadge>{isPermanentCurse(aug) ? "영구 디버프" : "디버프"}</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>{isPermanentBuff(aug) ? "영구 버프" : "버프"}</BuffBadge> : null}
                                       <IneligibleBadge>선택 불가</IneligibleBadge>
                                     </CardTitleRow>
                                     <CardDescription>{getAugmentSelDesc(aug, activePokemon, battle)}</CardDescription>
@@ -565,7 +565,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                           <CardContent>
                             <CardTitleRow>
                               <CardTitle>{aug.name}</CardTitle>
-                              {isCurse ? <CurseBadge>디버프</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>버프</BuffBadge> : null}
+                              {isCurse ? <CurseBadge>{isPermanentCurse(aug) ? "영구 디버프" : "디버프"}</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>{isPermanentBuff(aug) ? "영구 버프" : "버프"}</BuffBadge> : null}
                             </CardTitleRow>
                             <CardDescription>{getAugmentSelDesc(aug, activePokemon, battle)}</CardDescription>
                           </CardContent>

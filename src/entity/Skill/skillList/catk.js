@@ -30,7 +30,7 @@ export const catkSkills = [
 
   // 선공기
   new Skill("진공파", "격투", 40, 100, 30, 1, "catk", null, "우선도 +1", []),
-  new Skill("물수리검", "물", 15, 100, 20, 1, "catk", null, "2-5회 동안 연속으로 쓴다. (우선도 +1)", [], { serial: "twoFive" }),
+  new Skill("물수리검", "물", 15, 100, 20, 1, "catk", null, "물수리검을 2-5회 연속으로 던진다. (우선도 +1)", [], { serial: "twoFive" }),
   new Skill("물수리검(유대진화)", "물", 20, 100, 20, 1, "catk", null, "물수리검을 3번 연속으로 던진다. (우선도 +1)", [], { serial: "suru" }),
 
   // 랭크 변화 (상대)

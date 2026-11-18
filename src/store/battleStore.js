@@ -4,7 +4,7 @@ import { defaultOption } from "../config/defaultOption";
 import { setSelectedNpcAct } from "../config/testMode";
 import { consoleLog } from "../util/consoleLog";
 import { rollAugments } from "../calc/augmentRoll";
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentScreenText, getAugmentLogModalText, getAugmentStatusModalText, getAugmentSelDesc, isBuffAugment, isCurseAugment, isSynergyAugment, isNormalAugment, syncTeamEchoOfHeroBuff, stripEmoji, isReplacementAugment } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentScreenText, getAugmentLogModalText, getAugmentStatusModalText, getAugmentSelDesc, isBuffAugment, isCurseAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, syncTeamEchoOfHeroBuff, stripEmoji, isReplacementAugment } from "../entity/Augment/AugmentData";
 import { generatePokemonInstance } from "../entity/Pokemon/PokemonInstance";
 import { switchNpcAuto } from "../service/switch";
 import { speedCheck } from "../calc/speedCheck";
@@ -725,16 +725,18 @@ export const useBattleStore = createStore((set, get) => ({
       const pIdx = p.originalIndex ?? idx;
       if (!effectiveCarriedMap[pIdx]) effectiveCarriedMap[pIdx] = [];
       (p.augments || []).forEach((aug) => {
-        const isBuf = isBuffAugment(aug);
-        const isCurse = isCurseAugment(aug);
+        const isPermBuf = isPermanentBuff(aug);
+        const isPermCurse = isPermanentCurse(aug);
         const isSyn = isSynergyAugment(aug);
-        if ((isBuf || isCurse || isSyn) && !effectiveCarriedMap[pIdx].some((a) => (a.id || a) === aug.id)) {
+        if (aug.noCarryover) return;
+        if ((isPermBuf || isPermCurse || isSyn) && !effectiveCarriedMap[pIdx].some((a) => (a.id || a) === aug.id)) {
           effectiveCarriedMap[pIdx].push({
             id: aug.id,
             name: aug.name,
             cost: aug.cost,
-            buf: isBuf,
-            curse: isCurse,
+            buf: isPermBuf,
+            permanent: isPermBuf || isPermCurse,
+            curse: isPermCurse,
             synergy: isSyn,
             isForced: Boolean(aug.isForced),
             dragonKillCount: aug.dragonKillCount ?? p.dragonKillCount ?? 0,

@@ -22,6 +22,13 @@ export const hpCalculate = (pokemon) => {
     }
   }
 
+  // 곱적용 증강 =============================================================
+  // 커져라!: 이번 라운드 동안 체력 1.5배 증가
+  if (hasAugmentId(pokemon, "growUp")) {
+    hp = Math.round(hp * 1.5);
+    logText += ` * 1.5 (커져라!)`;
+  }
+
   logText += ` = ${hp}`;
   pokemon.log.hpCalculate = logText;
 

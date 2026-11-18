@@ -75,6 +75,9 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     } else if (augId === "axeOfDespair" && statKey === "atk") {
       val += 100;
       logText += ` + 100 (데몬의 도끼)`;
+    } else if (augId === "rush" && statKey === "atk") {
+      val += 70;
+      logText += ` + 70 (돌진)`;
     } else if (augId === "powerOfKing" && (statKey === "atk" || statKey === "catk")) {
       const bonus = Number(aug?.kingStatBonus ?? pokemon?.kingStatBonus ?? 20);
       if (bonus > 0) {
