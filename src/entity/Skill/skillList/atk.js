@@ -198,6 +198,8 @@ export const atkSkills = [
   new Skill("블리자드랜스", "얼음", 120, 100, 5, 0, "atk", null, "얼음의 창을 상대에게 던져서 공격한다.", [], {}),
   new Skill("10만마력", "땅", 95, 95, 10, 0, "atk", null, "온몸을 써서 상대를 맹렬히 공격한다.", [], { touch: true }),
   new Skill("헤비봄버", "강철", 120, 100, 10, 0, "atk", null, "무거운 몸으로 상대에게 부딪쳐 공격한다. ", [], { touch: true }),
+  new Skill("히트스탬프", "불꽃", 120, 100, 10, 0, "atk", null, "불타는 몸으로 상대에게 부딪쳐 공격한다.", [], { touch: true }),
+  new Skill("단애의칼", "땅", 120, 85, 10, 0, "atk", null, "대지의 힘을 칼날로 바꾸어 상대를 공격한다.", [], {}),
   new Skill("드래곤클로", "드래곤", 80, 100, 15, 0, "atk", null, "날카로운 발톱으로 상대를 베어가른다.", [], { touch: true, slice: true }),
   new Skill("시저크로스", "벌레", 80, 100, 15, 0, "atk", null, "날카로운 낫이나 발톱으로 상대를 베어가른다.", [], { touch: true, slice: true }),
   new Skill("메가톤킥", "노말", 120, 75, 5, 0, "atk", null, "엄청난 힘을 담아 상대를 걷어찬다.", [], { touch: true }),
