@@ -222,6 +222,12 @@ const switchPokemon = (battle, IN, OUT, options = {}, enqueue = null) => {
   });
   // 리베로 타입 초기화 (메가진화 포켓몬은 메가진화 타입 유지)
   pokemonIn.resetType();
+  if (pokemonIn.abil) {
+    pokemonIn.abil.used = false;
+  }
+  if (battle[OUT]?.abil) {
+    battle[OUT].abil.used = false;
+  }
 
   // 트레이스 특성 초기화
   if (pokemonIn.abil?.name !== pokemonIn.baseAbil?.name) {

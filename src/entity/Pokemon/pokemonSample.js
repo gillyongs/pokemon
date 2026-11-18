@@ -80,7 +80,8 @@ class samplePokemon {
     this.abil = {
       name: abil,
       ...baseAbilObj,
-      used: false, // 특성 '탈'과 같은 1회용 특성 사용 여부
+      used: false, // 변환자재, 리베로 등 교체 시 리셋되는 1회용 플래그
+      usedOnce: false, // 탈, 불요의검, 불굴의방패 등 배틀 중 1회 한정 플래그
     };
 
 

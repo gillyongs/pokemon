@@ -278,7 +278,7 @@ const TradeInfoModal = ({ pokemon, pokemonList = [], battle, onClose }) => {
               <MetaLabel>특성:</MetaLabel>
               <ClickableBadge onClick={handleAbilClick}>
                 {pokemon.abil?.name || pokemon.abil || "없음"}
-                {pokemon.abil?.used ? " (사용됨)" : ""}
+                {(pokemon.abil?.usedOnce || pokemon.abil?.used) ? " (사용됨)" : ""}
               </ClickableBadge>
             </MetaRow>
 

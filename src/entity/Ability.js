@@ -273,7 +273,9 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
 
   Object.entries(rankUpAbilities).forEach(([abil, cfg]) => {
     const abilText = `[특성 ${abil}]`;
-    if (atkAbil === abil && cfg.cond) {
+    if (atkAbil === abil && cfg.cond && !atk.abil?.usedOnce) {
+      atk.abil.usedOnce = true;
+      if (atk.o?.abil) atk.o.abil.usedOnce = true;
       atk.rankUp(bt, enqueue, cfg.stat, cfg.value, abilText, false);
     }
   });

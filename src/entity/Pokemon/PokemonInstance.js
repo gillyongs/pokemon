@@ -45,6 +45,7 @@ class PokemonInstance {
     this.abil = {
       ...this.o.abil,
       used: false,
+      usedOnce: false,
     };
 
     this.pp = {
@@ -204,6 +205,7 @@ class PokemonInstance {
     this.abil = {
       ...this.o.abil,
       used: false,
+      usedOnce: Boolean(this.o.abil?.usedOnce),
     };
   }
 

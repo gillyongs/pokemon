@@ -6,6 +6,7 @@ export const PokemonAbil = {
     const baseObj = abilObject[abilityName] ? { ...abilObject[abilityName] } : { text: fallbackText || "설명이 없습니다." };
     baseObj.name = abilityName;
     baseObj.used = false;
+    baseObj.usedOnce = false;
 
     this.abil = { ...baseObj };
     this.o.abil = { ...baseObj };

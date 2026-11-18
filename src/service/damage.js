@@ -74,11 +74,12 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   // 특성 "탈" 처리
   let talTrigger = false;
-  if (defPokemon.abil?.name === "탈" && !defPokemon.abil?.used) {
+  if (defPokemon.abil?.name === "탈" && !defPokemon.abil?.usedOnce) {
     if (!atkPokemon.abil?.feature?.tgg) {
       //틀깨기
       talTrigger = true;
-      defPokemon.abil.used = true;
+      defPokemon.abil.usedOnce = true;
+      if (defPokemon.o?.abil) defPokemon.o.abil.usedOnce = true;
       if (defPokemon.hasAugment?.("devilOfGen7")) {
         skDamage = 0;
         actualGiveDamage = 0;
