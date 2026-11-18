@@ -341,6 +341,14 @@ export const AUGMENT_LIST = [
     // turnEnd.js에 구현
   },
   {
+    id: "spiritVisage",
+    name: "정령의 형상 🛡️",
+    desc: "해당 포켓몬이 받는 모든 회복 효과가 50% 증가합니다.",
+    cost: 3,
+    weight: (pokemon) => (isTankPokemon(pokemon) ? 200 : 30),
+    // PokemonRecover.js에 구현
+  },
+  {
     id: "swordEnhance",
     name: "검 강화하기",
     desc: "검을 강화하여 강화 단계에 따라 공격과 특수공격을 획득합니다.",
@@ -2097,6 +2105,7 @@ export const AUGMENT_LIST = [
 const SYNERGY_ACTIVATION_THRESHOLD = {
   lostTechnologyCritical: 3, // 과거의 영광 증강 배열 중 3개 이상 보유 시 활성화
   echoOfHero: 3, // 초보자 시너지 증강 4개 중 3개 이상 보유 시 활성화
+  giantAbsorption: 3, // 가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상 4개 중 3개 이상 보유 시 활성화
 };
 
 export const getSynergyThreshold = (synergyId, requiredIds = []) => {
@@ -2113,7 +2122,7 @@ export const AUGMENT_SYNERGY_MAP = {
   mejaisSoulstealer: ["rabadonsDeathcap", "voidStaff", "ludensEcho"], // 메자이의 영혼약탈자: [라바돈의 죽음모자, 공허의 지팡이, 루덴의 메아리]
   practiceMakesCritical: ["infinityEdge", "bladeOfTheRuinedKing", "collector"], // 연습이 치명타를 낳는다: [무한의 대검, 몰락한 왕의 검, 징수의 총]
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
-  giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패]
+  giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis", "spiritVisage"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상]
   lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic", "lostTechnologyHyperBeam"], // 과거의 영광 (급소)
 };
 

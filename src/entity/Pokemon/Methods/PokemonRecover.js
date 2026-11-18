@@ -1,4 +1,3 @@
-
 export const PokemonRecover = {
   _doRecover(battle, recoverValue, { enqueue, text, silent = false } = {}) {
     if (this.hp <= 0) return; // 이미 기절했으면 무시
@@ -18,8 +17,13 @@ export const PokemonRecover = {
     }
 
     // 회복량 계산
-    const amount = Math.floor(recoverValue || 0);
+    let amount = Math.floor(recoverValue || 0);
     if (amount <= 0) return;
+
+    // 정령의 형상: 해당 포켓몬이 받는 모든 회복 효과가 25% 증가합니다.
+    if (this.hasAugment?.("spiritVisage")) {
+      amount = Math.round(amount * 1.5);
+    }
 
     this.hp = Math.min(maxHp, this.hp + amount);
 
