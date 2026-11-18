@@ -25,18 +25,18 @@ export function getAccuracy(bt, skill, attacker) {
   }
 
   // 설경 눈보라 필중
-  if (skill.name === "눈보라" && bt.field.weather.isSnow) {
+  if (skill.name === "눈보라" && bt.isSnow) {
     return 100;
   }
 
   // 비바라기 번개 폭풍 필중
   const weatherSkill = ["번개", "폭풍"];
-  if (weatherSkill.includes(skill.name) && bt.field.weather.isRainy) {
+  if (weatherSkill.includes(skill.name) && bt.isRainy) {
     return 100;
   }
 
   // 쾌청 번개 폭풍 보정
-  if (weatherSkill.includes(skill.name) && bt.field.weather.isSunny) {
+  if (weatherSkill.includes(skill.name) && bt.isSunny) {
     accur = 50;
   }
 

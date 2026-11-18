@@ -37,6 +37,8 @@ const EXCLUSIVE_ITEMS = {
   개굴닌자나이트: (p) => isPokemon(p, "개굴닌자"),
   갸라도스나이트: (p) => isPokemon(p, "갸라도스"),
   잉어킹나이트: (p) => isPokemon(p, "잉어킹"),
+  쪽빛구슬: (p) => isPokemon(p, "가이오가"),
+  주홍구슬: (p) => isPokemon(p, "그란돈"),
   마음의물방울: (p) => isPokemon(p, "라티오스") || isPokemon(p, "라티아스"),
   진화의휘석: (p) => Boolean(p?.feature?.evo),
 };

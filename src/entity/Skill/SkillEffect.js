@@ -307,9 +307,9 @@ function skillEffectSearch(name) {
       const skillUser = battle[battle.turn.atk];
       const hp = skillUser.maxHp;
       let value = hp / 2;
-      if (battle.field.weather.isSunny) {
+      if (battle.isSunny) {
         value = (hp * 2) / 3;
-      } else if (battle.field.weather.isRainy || battle.field.weather.isSandstorm || battle.field.weather.isSnow) {
+      } else if (battle.isRainy || battle.isSandstorm || battle.isSnow) {
         value = hp / 4;
       } else {
         value = hp / 2;
@@ -955,7 +955,7 @@ function skillEffectSearch(name) {
       const skillUser = battle[user];
       const field = battle.field[user].noClean;
       // 설경이 아니거나 이미 오로라베일이 있으면 실패
-      if (!battle.field.weather.isSnow || field.auroraVeil !== null) {
+      if (!battle.isSnow || field.auroraVeil !== null) {
         enqueue({
           id: "a89d6c3d-6c8f-44f1-8866-34ea01fd934d",
           battle,

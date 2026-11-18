@@ -1,5 +1,7 @@
 import { generatePokemonInstance } from "./Pokemon/PokemonInstance";
 import { Field } from "./Field/Field";
+import { BattleAccess } from "./BattleAccess";
+
 class Battle {
   constructor(player, npc, playerBench1, playerBench2, npcBench1, npcBench2) {
     this.player = player;
@@ -33,11 +35,7 @@ class Battle {
       //선 유턴이면 skillUseNpc를 실행하고 그 외엔 turnEnd를 실행한다
     };
     //turnEnd 같은 변수때문에 턴이 시작될때 = battleStart.js에서 초기화된다
-
-    // weather에서 battle 접근할 수 있게 전달
-    this.field = new Field(this);
-    this.field.battle = this;
-    if (this.field.weather) this.field.weather.battle = this;
+    this.field = new Field();
 
     this.common = {
       player: {
@@ -77,6 +75,8 @@ class Battle {
   }
 }
 
+Object.defineProperties(Battle.prototype, Object.getOwnPropertyDescriptors(BattleAccess));
+
 export function createBattle(playerArray, npcArray, options = { difficulty: "이지", round: 1 }) {
   const player = generatePokemonInstance(playerArray[0], "player");
   player.originalIndex = 0;
@@ -97,5 +97,3 @@ export function createBattle(playerArray, npcArray, options = { difficulty: "이
   b.isMayhem = Boolean(options.mayhemMode);
   return b;
 }
-
-export default Battle;

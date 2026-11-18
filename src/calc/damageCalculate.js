@@ -101,9 +101,7 @@ export const damageCalculate = (battle, obj, ai) => {
   // (atk와 def 중 높은 값으로 덮어 씌움, catk와 cdef 중 높은 값으로 덮어 씌움 등)
 
   // 3. atk랑 catk중 더 높은 값 구하는 공통함수를 파서 테라버스트랑 파괴광선에서 사용
-  const isAdaptiveSkill =
-    skill?.name === "테라버스트" ||
-    (attackPokemon?.hasAugment?.("lostTechnologyHyperBeam") && skill?.name === "파괴광선");
+  const isAdaptiveSkill = skill?.name === "테라버스트" || (attackPokemon?.hasAugment?.("lostTechnologyHyperBeam") && skill?.name === "파괴광선");
 
   if (isAdaptiveSkill) {
     skill = { ...skill, stype: getHigherAtkStat(atk, catk) };
@@ -234,7 +232,7 @@ export const damageCalculate = (battle, obj, ai) => {
         atkStr += " * 0.75 (재앙의목간)";
       }
     }
-    if (atkAbil === "진홍빛고동" && battle.field.weather.isSunny) {
+    if (atkAbil === "진홍빛고동" && battle.isSunny) {
       atkStat *= 1.3;
       atkStr += " * 1.3 (진홍빛고동)";
     }
@@ -242,7 +240,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 특공 (catk) ===================================
   if (skill.stype === "catk") {
-    if (atkAbil === "선파워" && battle.field.weather.isSunny) {
+    if (atkAbil === "선파워" && battle.isSunny) {
       atkStat *= 1.5;
       atkStr += " * 1.5 (선파워)";
     }
@@ -250,11 +248,7 @@ export const damageCalculate = (battle, obj, ai) => {
       atkStat *= 1.5;
       atkStr += " * 1.5 (구애안경)";
     }
-    if (
-      attackPokemon.item === "마음의물방울" &&
-      attackPokemon.hasAugment?.("soulDew") &&
-      (attackPokemon.name.includes("라티오스") || attackPokemon.name.includes("라티아스"))
-    ) {
+    if (attackPokemon.item === "마음의물방울" && attackPokemon.hasAugment?.("soulDew") && (attackPokemon.name.includes("라티오스") || attackPokemon.name.includes("라티아스"))) {
       atkStat *= 1.5;
       atkStr += " * 1.5 (마음의물방울)";
     }
@@ -310,7 +304,7 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 1.5;
       defStr += " * 1.5 (진화의휘석)";
     }
-    if (battle.field.weather.isSnow && (defensePokemon.type1 === "얼음" || defensePokemon.type2 === "얼음")) {
+    if (battle.isSnow && (defensePokemon.type1 === "얼음" || defensePokemon.type2 === "얼음")) {
       defStat *= 1.5;
       defStr += " * 1.5 (설경+얼음)";
     }
@@ -322,11 +316,7 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 1.5;
       defStr += " * 1.5 (돌격조끼)";
     }
-    if (
-      defensePokemon.item === "마음의물방울" &&
-      defensePokemon.hasAugment?.("soulDew") &&
-      (defensePokemon.name.includes("라티오스") || defensePokemon.name.includes("라티아스"))
-    ) {
+    if (defensePokemon.item === "마음의물방울" && defensePokemon.hasAugment?.("soulDew") && (defensePokemon.name.includes("라티오스") || defensePokemon.name.includes("라티아스"))) {
       defStat *= 1.5;
       defStr += " * 1.5 (마음의물방울)";
     }
@@ -346,7 +336,7 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 1.5;
       defStr += " * 1.5 (진화의휘석)";
     }
-    if (battle.field.weather.isSandstorm && (defensePokemon.type1 === "바위" || defensePokemon.type2 === "바위")) {
+    if (battle.isSandstorm && (defensePokemon.type1 === "바위" || defensePokemon.type2 === "바위")) {
       defStat *= 1.5;
       defStr += " * 1.5 (모래바람+바위)";
     }
@@ -431,7 +421,15 @@ export const damageCalculate = (battle, obj, ai) => {
   attackPokemon.log.damage1 = "22 * " + power + "(위력) * [" + atkStr + "] / 50 / [" + defStr + "]";
 
   // 날씨 ==========================================================
-  if (battle.field.weather.isRainy) {
+
+  // 폭우, 큰 가뭄 -> 애초에 skillCheck에서 무효처리 해버려서 상관은 없는데 일단 넣어놓음
+  if (battle.isHeavyRain && skill.type === "불꽃") {
+    return 0;
+  }
+  if (battle.isHarshSun && skill.type === "물") {
+    return 0;
+  }
+  if (battle.isRainy) {
     if (skill.type === "물") {
       damage *= 1.5;
       attackPokemon.log.damage1 += " * 1.5 (비+물)";
@@ -441,7 +439,7 @@ export const damageCalculate = (battle, obj, ai) => {
       attackPokemon.log.damage1 += " * 0.5 (비+불꽃)";
     }
   }
-  if (battle.field.weather.isSunny) {
+  if (battle.isSunny) {
     if (skill.type === "불꽃") {
       damage *= 1.5;
       attackPokemon.log.damage1 += " * 1.5 (쾌청+불)";
@@ -516,12 +514,7 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.2 (요정의깃털)";
   }
 
-  if (
-    attackPokemon.item === "마음의물방울" &&
-    (skill.type === "에스퍼" || skill.type === "드래곤") &&
-    !attackPokemon.hasAugment?.("soulDew") &&
-    (attackPokemon.name.includes("라티오스") || attackPokemon.name.includes("라티아스"))
-  ) {
+  if (attackPokemon.item === "마음의물방울" && (skill.type === "에스퍼" || skill.type === "드래곤") && !attackPokemon.hasAugment?.("soulDew") && (attackPokemon.name.includes("라티오스") || attackPokemon.name.includes("라티아스"))) {
     damage *= 1.2;
     attackPokemon.log.damage1 += " * 1.2 (마음의물방울)";
   }
@@ -659,7 +652,7 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
-  if (atkAbil === "모래의힘" && battle.field.weather.isSandstorm && ["바위", "땅", "강철"].includes(skill.type)) {
+  if (atkAbil === "모래의힘" && battle.isSandstorm && ["바위", "땅", "강철"].includes(skill.type)) {
     damage *= 1.3;
     attackPokemon.log.damage1 += " * 1.3 (모래의힘)";
   }
@@ -980,14 +973,12 @@ const powerCalculate = (battle, skill, obj, ai) => {
     power = Math.max(1, Math.min(150, calculatedPower));
   }
   if (skill.name === "솔라빔") {
-    const weather = battle.field.weather;
-    if (weather.isRainy || weather.isSandstorm || weather.isSnow) {
+    if (battle.isRainy || battle.isSandstorm || battle.isSnow) {
       power = Math.floor(power * 0.5);
     }
   }
   if (skill.name === "웨더볼") {
-    const weather = battle.field?.weather;
-    if (weather?.hasWeather) {
+    if (battle?.hasWeather) {
       power = 100;
     }
   }

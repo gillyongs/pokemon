@@ -3,7 +3,7 @@ import { getAugmentedStat, getHighestStatInfo } from "./getStat";
 import { skillTypeCalculate } from "./skillTypeCalculate";
 
 // 스피드 실 수치 계산 함수
-export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = (pokemon?.abil?.name || pokemon?.abil), rankOverride = null) => {
+export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = pokemon?.abil?.name || pokemon?.abil, rankOverride = null) => {
   let speedStatKey = "speed";
   let speed;
   let rankNum = pokemon?.tempStatus?.rank?.speed ?? 0;
@@ -61,12 +61,12 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
     pokemon.log.speedCalculate += " * 2 (순풍)";
   }
   // 쓱쓱: 비가 내릴 때 스피드 2배
-  if (abil === "쓱쓱" && battle?.field?.weather?.isRainy) {
+  if (abil === "쓱쓱" && battle.isRainy) {
     speed *= 2;
     pokemon.log.speedCalculate += " * 2 (쓱쓱)";
   }
   // 눈치우기: 설경일 때 스피드 2배
-  if (abil === "눈치우기" && battle?.field?.weather?.isSnow) {
+  if (abil === "눈치우기" && battle.isSnow) {
     speed *= 2;
     pokemon.log.speedCalculate += " * 2 (눈치우기)";
   }
@@ -79,7 +79,7 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
     pokemon.log.speedCalculate += " * 0.5 (슬로스타트)";
   }
   if (battle && pokemon?.hasAugment?.("dragonHunter")) {
-    const opponent = pokemon.team === "player" ? battle.npc : (pokemon.team === "npc" ? battle.player : (battle.player === pokemon ? battle.npc : battle.player));
+    const opponent = pokemon.team === "player" ? battle.npc : pokemon.team === "npc" ? battle.player : battle.player === pokemon ? battle.npc : battle.player;
     if (opponent && (opponent.type1 === "드래곤" || opponent.type2 === "드래곤")) {
       speed *= 1.5;
       pokemon.log.speedCalculate += " * 1.5 (용 사냥꾼)";

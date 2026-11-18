@@ -78,7 +78,7 @@ export const skillUse = (bt, enqueue) => {
         }
 
         // 날씨에 따른 충전 스킵 *솔라빔, 일렉트로빔)
-        const isWeatherSkip = (chargeObj.weatherSkip === "sunny" && bt.field.weather.isSunny) || (chargeObj.weatherSkip === "rain" && bt.field.weather.isRainy);
+        const isWeatherSkip = (chargeObj.weatherSkip === "sunny" && bt.isSunny) || (chargeObj.weatherSkip === "rain" && bt.isRainy);
 
         if (isWeatherSkip) {
           enqueue({ id: "2eadbf55-e934-439a-bb56-133d4f6d4022", battle: bt, text: skillUseText }); // 스킬 텍스트 2번 뜨는게 맞음

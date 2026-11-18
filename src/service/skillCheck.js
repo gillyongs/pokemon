@@ -186,6 +186,20 @@ export const afterSkillCheck = (bt, enqueue) => {
 
   // ==================================================================================================================
 
+  // 폭우(시작의바다): 불꽃 타입 공격기 무효화
+  if (bt?.isHeavyRain && (skillType === "atk" || skillType === "catk") && skill.type === "불꽃") {
+    atk.turn.jumpKickFail = true;
+    enqueue({ id: "heavy-rain-block-fire", battle: bt, text: "강한 비의 영향으로 불꽃타입의 공격이 사라졌다!" });
+    return false;
+  }
+
+  // 큰가뭄(끝의대지): 물 타입 공격기 무효화
+  if (bt?.isHarshSun && (skillType === "atk" || skillType === "catk") && skill.type === "물") {
+    atk.turn.jumpKickFail = true;
+    enqueue({ id: "harsh-sun-block-water", battle: bt, text: "강한 햇살의 영향으로 물타입의 공격이 증발했다!" });
+    return false;
+  }
+
   // 방어에 공격이 막힌경우
   // 리베로가 발동된다
 

@@ -57,7 +57,7 @@ function ailmentAbleCheck(battle, ailment, pokemon) {
       return false;
     }
     // 추가 조건: 쾌청 상태면 얼지 않는다
-    if (battle?.field?.weather?.isSunny) {
+    if (battle?.isSunny) {
       return false;
     }
   }

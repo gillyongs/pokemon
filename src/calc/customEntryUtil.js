@@ -5,7 +5,7 @@ import { getItemListForPokemon } from "../component/customScreen/sampleInfo/Item
 import { getSkillListForPokemon } from "../entity/Skill/PokemonSkillList";
 import { STAT_KEYS, getNatureInfo, calculateStat } from "../component/customScreen/sampleInfo/StatAdjustmentModal";
 
-const WEATHER_ABILITIES = ["잔비", "가뭄", "진홍빛고동", "모래날림"];
+const WEATHER_ABILITIES = ["잔비", "가뭄", "진홍빛고동", "모래날림", "눈퍼뜨리기", "시작의바다", "끝의대지", "델타스트림"];
 const WALL_SKILLS = ["리플렉터", "빛의장막", "오로라베일"];
 
 const isWallPokemon = (pokemon) => {

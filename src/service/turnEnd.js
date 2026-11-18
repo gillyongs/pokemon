@@ -54,7 +54,7 @@ export const turnEnd = (battle, enqueue) => {
   [fastUser, slowUser].forEach((user) => {
     const p = battle[user];
     if (!p || p.faint || p.hp <= 0) return;
-    if (p.abil?.name === "선파워" && battle.field.weather.isSunny) {
+    if (p.abil?.name === "선파워" && battle.isSunny) {
       p.getDamage(battle, enqueue, Math.max(1, Math.floor(p.maxHp / 8)), `[특성 선파워] ${p.name}의 생명이 조금 깎였다!`);
     }
   });
