@@ -72,16 +72,16 @@ export const turnEnd = (battle, enqueue) => {
     if (!p || p.hp <= 0 || p.faint) return;
     p.tempStatus.turnsOnField = (p.tempStatus.turnsOnField || 0) + 1;
     if (p.abil?.name === "패스트스타트" && p.tempStatus.turnsOnField === 5) {
-      enqueue(battle, `[특성: 패스트스타트] ${p.names("는")} 더 강한 힘을 낼 수 있게 되었다!`, "end_fast_start");
+      enqueue(battle, `[특성 패스트스타트] ${p.names("는")} 더 강한 힘을 낼 수 있게 되었다!`, "end_fast_start");
     }
     if (p.abil?.name === "슬로스타트" && p.tempStatus.turnsOnField === 5) {
-      enqueue(battle, `[특성: 슬로스타트] ${p.names("는")} 마침내 제 힘을 낼 수 있게 되었다!`, "end_slow_start");
+      enqueue(battle, `[특성 슬로스타트] ${p.names("는")} 마침내 제 힘을 낼 수 있게 되었다!`, "end_slow_start");
     }
     if (p.abil?.name === "기어메이킹") {
       p.gearStack = (p.gearStack || 0) + 1;
       const visualStack = Math.min(p.gearStack, 7);
       p.img_id = `0601-${visualStack}`;
-      enqueue(battle, `[특성: 기어메이킹] ${p.name}의 새로운 ${p.gearStack}번째 기어가 맞물렸다!`, "end_gear_making");
+      enqueue(battle, `[특성 기어메이킹] ${p.name}의 새로운 ${p.gearStack}번째 기어가 맞물렸다!`, "end_gear_making");
     }
   });
 
@@ -147,7 +147,7 @@ export const turnEnd = (battle, enqueue) => {
 
   if (battle.player.faint) {
     battle.turn.textFreeze = true;
-    enqueue(battle, "누구로 교체 할까?", "end_must_switch", {
+    enqueue(battle, "누구로 교체할까?", "end_must_switch", {
       bottomMode: "mustSwitch",
       waitInput: true,
     });
@@ -279,9 +279,9 @@ function switchLock(battle, enqueue, getter) {
     if (skillGetter.tempStatus.switchLockTurnRemain === 0) {
       skillGetter.tempStatus.switchLock = null;
       skillGetter.tempStatus.switchLockTurnRemain = null;
-      enqueue(battle, `${skillGetter.names("는")} ${skillName}에게서 벗어났다!`, "end_trap_free");
+      enqueue(battle, `${skillGetter.names("는")} ${skillName}에서 벗어났다!`, "end_trap_free");
     } else {
-      skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.maxHp / 8), `${skillGetter.names("는")} ${skillName}의 데미지를 입고 있다.`);
+      skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.maxHp / 8), `${skillGetter.names("는")} ${skillName}의 데미지를 입고 있다!`);
     }
   }
 }

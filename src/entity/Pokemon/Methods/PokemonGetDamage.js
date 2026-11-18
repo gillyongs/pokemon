@@ -66,7 +66,7 @@ export const PokemonGetDamage = {
     if (this.item === "자뭉열매") {
       const maxHp = this.maxHp;
       if (this.hp <= Math.floor(maxHp / 2)) {
-        this.recover(battle, Math.floor(maxHp / 4), enqueue, `${this.names("는")} 자뭉열매로 인해 조금 회복했다.`);
+        this.recover(battle, Math.floor(maxHp / 4), enqueue, `${this.names("는")} 자뭉열매로 인해 조금 회복했다!`);
         this.consumeItem();
       }
     }

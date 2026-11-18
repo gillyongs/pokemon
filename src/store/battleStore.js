@@ -61,7 +61,7 @@ export const useBattleStore = createStore((set, get) => ({
 
   enqueueBattleStart: (bt, queueObject, options = {}) => {
     if (!options.skipStartText) {
-      queueObject.enqueue(bt, "배틀시작!", "bs_battle_start");
+      queueObject.enqueue(bt, "배틀 시작!", "bs_battle_start");
     }
     if (!options.skipAbilities) {
       const fastUser = speedCheck(bt);
@@ -515,7 +515,7 @@ export const useBattleStore = createStore((set, get) => ({
           }
           curBattle.turn.turnEnd = true;
           curBattle.turn.textFreeze = true;
-          collectEnqueue(curBattle, "누구로 교체 할까?", "bs_roulette_switch", {
+          collectEnqueue(curBattle, "누구로 교체할까?", "bs_roulette_switch", {
             bottomMode: "mustSwitch",
             waitInput: true,
           });

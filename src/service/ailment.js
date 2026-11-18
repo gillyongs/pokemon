@@ -132,12 +132,12 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
   // 독: 부가효과(skillEffect.js), 독압정(field.js)
   if (ailment === "독" || ailment === "poison") {
     pokemon.ailment.poison = true;
-    text = `${pokemon.name}은(는) 독에 걸렸다!`;
+    text = `${pokemon.names("는")} 독에 걸렸다!`;
   }
   // 맹독: 부가효과(skillEffect.js), 맹독압정(field.js)
   if (ailment === "맹독" || ailment === "mpoison") {
     pokemon.ailment.mpoison = 1; // 맹독 카운터 시작
-    text = `${pokemon.name}은(는) 맹독에 걸렸다!`;
+    text = `${pokemon.names("는")} 맹독에 걸렸다!`;
   }
 
   // 맹독: 부가효과(skillEffect.js)
@@ -154,7 +154,7 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
   if (ailment === "잠듦" || ailment === "수면" || ailment === "sleep") {
     //잠듦이 맞는데 수면이랑 헷갈릴까봐...
     pokemon.ailment.sleep = Math.floor(Math.random() * 3) + 2; // 2 ~ 4턴 잠듦
-    text = `${pokemon.names("는")} 잠들어버렸다!`;
+    text = `${pokemon.names("는")} 잠들어 버렸다!`;
   }
 
   // 출력 텍스트

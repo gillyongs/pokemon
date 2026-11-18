@@ -42,7 +42,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     };
 
     // ① PP 소진
-    if (pp <= 0) return reject("해당 스킬은 더 이상 사용할 수 없다!");
+    if (pp <= 0) return reject("해당 기술은 더 이상 사용할 수 없다!");
 
     // 구애 시리즈 또는 무아지경으로 인해 사용 가능한 스킬이 고정된 경우
     const { onlySkill } = player.tempStatus;
@@ -52,7 +52,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
 
     if (onlySkill && (isChoiceLocked || isGorillaLocked) && onlySkill !== skill.name) {
       const lockSource = isGorillaLocked ? "특성 무아지경" : player.item;
-      return reject(lockSource + " 효과로 인해 해당 스킬은 사용할 수 없다!");
+      return reject(lockSource + " 효과로 인해 해당 기술은 사용할 수 없다!");
     }
 
     // 연속 사용 불가 스킬 (ex: 블러드문)

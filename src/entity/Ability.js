@@ -247,14 +247,15 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     페어리오라: { text: "페어리오라를 발산하고 있다!", head: "names" },
     테라볼티지: { text: "세차게 튀는 오라를 발산하고 있다!", head: "names" },
     터보블레이즈: { text: "활활 타오르는 오라를 발산하고 있다!", head: "names" },
-    틀깨기: { text: "상대 특성에 방해받지 않고 기술을 사용할 수 있다.", head: "names" },
+    틀깨기: { text: "상대 특성에 방해받지 않고 기술을 사용할 수 있다!", head: "names" },
     에어록: { text: "모든 날씨의 영향이 없어졌다!", head: "none" },
     날씨부정: { text: "모든 날씨의 영향이 없어졌다!", head: "none" },
   };
 
   if (messageAbilities[atkAbil]) {
     let head = messageAbilities[atkAbil].head;
-    enqueue(bt, `[특성 ${atkAbil}] ${head === "names" ? atk.names("는") : head === "name" ? atk.name : ""} ${messageAbilities[atkAbil].text}`, "abil_enter_msg");
+    const headText = head === "names" ? `${atk.names("는")} ` : head === "name" ? `${atk.name} ` : "";
+    enqueue(bt, `[특성 ${atkAbil}] ${headText}${messageAbilities[atkAbil].text}`, "abil_enter_msg");
   }
 
   if (atkAbil === "혼연일체(흑)" || atkAbil === "혼연일체(백)") {
@@ -314,7 +315,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     눈퍼뜨리기: { weatherType: "설경", text: "주변에 눈이 내리기 시작했다!" },
     시작의바다: { weatherType: "폭우", text: "주변에 강한 비가 내리기 시작했다!" },
     끝의대지: { weatherType: "큰가뭄", text: "주변의 햇살이 아주 강해졌다!" },
-    델타스트림: { weatherType: "난기류", text: "수수께끼의 난기류가 비행포켓몬을 지킨다!", noName: true },
+    델타스트림: { weatherType: "난기류", text: "수수께끼의 난기류가 비행 포켓몬을 지킨다!", noName: true },
   };
   Object.entries(weatherAbilities).forEach(([abil, { weatherType, text, noName }]) => {
     if (atkAbil === abil) {

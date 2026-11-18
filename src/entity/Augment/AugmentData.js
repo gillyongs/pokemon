@@ -666,7 +666,7 @@ export const AUGMENT_LIST = [
     name: "과거의 영광 (눈보라)",
     desc: "눈보라의 위력이 120, 명중률이 90이 됩니다. 30% 확률로 적을 얼리며 절대 녹지 않습니다.",
     screenText: function (target) {
-      return `[증강]눈보라가 과거 위상을 되찾았다!`;
+      return `[증강] 눈보라가 과거의 위상을 되찾았다!`;
     },
     cost: 3,
     weight: 100,
@@ -1703,10 +1703,10 @@ export const AUGMENT_LIST = [
     name: "무한 다이맥스",
     desc: "무한 다이맥스 상태가 됩니다.",
     screenText: function (target) {
-      return josa(`[증강] ${target?.name || "무한다이노"}#{이} 무한 다이맥스 상태가 되었다!`);
+      return josa(`[증강] ${target?.name || "무한다이노"}#{이} 무한다이맥스 상태가 되었다!`);
     },
     logModalText: function (target) {
-      return josa(`${target?.name || "무한다이노"}#{이} 무한 다이맥스 상태가 되었다!`);
+      return josa(`${target?.name || "무한다이노"}#{이} 무한다이맥스 상태가 되었다!`);
     },
     cost: 5,
     weight: 500,

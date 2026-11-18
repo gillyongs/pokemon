@@ -346,7 +346,7 @@ function skillEffectSearch(name) {
         if (def.abil?.name !== "무아지경") {
           def.tempStatus.onlySkill = null; // 구애 시리즈로 고정된 스킬
         }
-        enqueue(battle, def.name + "의 " + josa(`${itemName}#{를} `) + "탁쳐서 떨구었다!", "eff_knock_off");
+        enqueue(battle, def.name + "의 " + josa(`${itemName}#{를} `) + "탁 쳐서 떨구었다!", "eff_knock_off");
       }
     },
     유턴: (battle, enqueue, skillEffect) => {
@@ -692,14 +692,14 @@ function skillEffectSearch(name) {
       if (atk.tempStatus.seed) {
         //씨뿌리기 제거
         atk.tempStatus.seed = null;
-        enqueue(battle, atk.names("는") + " 씨뿌리기에게서 벗어났다!", "eff_spin_seed");
+        enqueue(battle, atk.names("는") + " 씨뿌리기에서 벗어났다!", "eff_spin_seed");
       }
       if (atk.tempStatus.switchLock) {
         let skillName = atk.tempStatus.switchLock;
         //교체불가 제거
         atk.tempStatus.switchLock = null;
         atk.tempStatus.switchLockTurnRemain = null;
-        enqueue(battle, atk.names("는") + " " + skillName + "에게서 벗어났다!", "eff_spin_trap");
+        enqueue(battle, atk.names("는") + " " + skillName + "에서 벗어났다!", "eff_spin_trap");
       }
     },
 

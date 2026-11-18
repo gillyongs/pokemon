@@ -40,7 +40,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
     }
   }
   if (atk.ailment.sleep !== null) {
-    enqueue(bt, atk.names("는") + " 쿨쿨 잠들어 있다", "chk_sleeping");
+    enqueue(bt, atk.names("는") + " 쿨쿨 잠들어 있다.", "chk_sleeping");
     return false;
   }
 
@@ -74,11 +74,11 @@ export const beforeSkillCheck = (bt, enqueue) => {
   // 혼란
   // 잠듦, 풀죽음 등으로 행동 하지 못한 턴은 계산 x
   if (atk.tempStatus.confuse === 0) {
-    let confuseText = atk.name + " 의 혼란이 풀렸다!";
+    let confuseText = atk.name + "의 혼란이 풀렸다!";
     atk.tempStatus.confuse = null;
     enqueue(bt, confuseText, "chk_confuse_end");
   } else if (atk.tempStatus.confuse && atk.tempStatus.confuse > 0) {
-    enqueue(bt, atk.names("는") + " 혼란에 빠져있다!", "chk_confused");
+    enqueue(bt, atk.names("는") + " 혼란에 빠져 있다!", "chk_confused");
 
     atk.tempStatus.confuse -= 1;
     if (random(33)) {
