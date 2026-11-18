@@ -168,7 +168,7 @@ class PokemonInstance {
       hpCalculate: null, // 증강으로 인한 최대 HP 변화
       damage1: null,
       damage2: null,
-      speedCalculate: null,
+      speedCalc: null,
       speedVS: null,
     };
   }

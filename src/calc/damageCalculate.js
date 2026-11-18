@@ -886,6 +886,7 @@ const powerCalculate = (battle, skill, obj, ai) => {
     }
     if (skill.name === "아가미물기") {
       if (speedCheck(battle) === "npc") return power * 2;
+      // npc가 더 빠르면 2배 데미지 줄 것으로 예측 후 보정
       else return power;
     }
   }

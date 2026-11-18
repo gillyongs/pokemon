@@ -27,62 +27,62 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
   }
 
   pokemon.log = pokemon.log || {};
-  pokemon.log.speedCalculate = speedStatKey !== "speed" ? `${speed}(${speedStatKey})` : speed;
+  pokemon.log.speedCalc = speedStatKey !== "speed" ? `${speed}(${speedStatKey})` : speed;
   const rankMult = getMultiplier(rankNum);
   speed *= rankMult; // 랭크업
   if (rankNum !== 0) {
-    pokemon.log.speedCalculate += " * " + rankMult + " (랭크)";
+    pokemon.log.speedCalc += " * " + rankMult + " (랭크)";
   }
   if (pokemon.ailment.mabi) {
     // 마비에 걸릴시 스피드 절반 감소
     speed *= 0.5;
-    pokemon.log.speedCalculate += " * 0.5 (마비)";
+    pokemon.log.speedCalc += " * 0.5 (마비)";
   }
   if (pokemon.item === "구애스카프") {
     speed *= 1.5;
-    pokemon.log.speedCalculate += " * 1.5 (구애스카프)";
+    pokemon.log.speedCalc += " * 1.5 (구애스카프)";
   }
   if (pokemon.tempStatus.protosynthesis === "speed") {
     speed *= 1.5;
-    pokemon.log.speedCalculate += " * 1.5 (고대활성)";
+    pokemon.log.speedCalc += " * 1.5 (고대활성)";
   }
   if (pokemon.tempStatus.quarkDrive === "speed") {
     speed *= 1.5;
-    pokemon.log.speedCalculate += " * 1.5 (쿼크차지)";
+    pokemon.log.speedCalc += " * 1.5 (쿼크차지)";
   }
   // 곡예: 도구가 없어지고 곡예 상태일 때 스피드 2배 (교체 시 초기화)
   if (abil === "곡예" && pokemon?.tempStatus?.unburden) {
     speed *= 2;
-    pokemon.log.speedCalculate += " * 2 (곡예)";
+    pokemon.log.speedCalc += " * 2 (곡예)";
   }
   // 순풍: 아군 필드에 순풍이 활성화되어 있는 경우 스피드 2배
   if (battle?.field?.[pokemon.team]?.noClean?.tailwind) {
     speed *= 2;
-    pokemon.log.speedCalculate += " * 2 (순풍)";
+    pokemon.log.speedCalc += " * 2 (순풍)";
   }
   // 쓱쓱: 비가 내릴 때 스피드 2배
   if (abil === "쓱쓱" && battle.isRainy) {
     speed *= 2;
-    pokemon.log.speedCalculate += " * 2 (쓱쓱)";
+    pokemon.log.speedCalc += " * 2 (쓱쓱)";
   }
   // 눈치우기: 설경일 때 스피드 2배
   if (abil === "눈치우기" && battle.isSnow) {
     speed *= 2;
-    pokemon.log.speedCalculate += " * 2 (눈치우기)";
+    pokemon.log.speedCalc += " * 2 (눈치우기)";
   }
   if (abil === "패스트스타트" && (pokemon.tempStatus?.turnsOnField ?? 0) >= 5) {
     speed *= 2;
-    pokemon.log.speedCalculate += " * 2 (패스트스타트)";
+    pokemon.log.speedCalc += " * 2 (패스트스타트)";
   }
   if (abil === "슬로스타트" && (pokemon.tempStatus?.turnsOnField ?? 0) < 5) {
     speed *= 0.5;
-    pokemon.log.speedCalculate += " * 0.5 (슬로스타트)";
+    pokemon.log.speedCalc += " * 0.5 (슬로스타트)";
   }
   if (battle && pokemon?.hasAugment?.("dragonHunter")) {
     const opponent = pokemon.team === "player" ? battle.npc : pokemon.team === "npc" ? battle.player : battle.player === pokemon ? battle.npc : battle.player;
     if (opponent && (opponent.type1 === "드래곤" || opponent.type2 === "드래곤")) {
       speed *= 1.5;
-      pokemon.log.speedCalculate += " * 1.5 (용 사냥꾼)";
+      pokemon.log.speedCalc += " * 1.5 (용 사냥꾼)";
     }
   }
   if (pokemon?.hasAugment?.("dragonDie")) {
@@ -91,62 +91,22 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
     if (stacks > 0) {
       const mult = Number((1 + stacks * 0.1).toFixed(2));
       speed *= mult;
-      pokemon.log.speedCalculate += ` * ${mult} (용용 죽겠지)`;
+      pokemon.log.speedCalc += ` * ${mult} (용용 죽겠지)`;
     }
   }
   if (pokemon?.hasAugment?.("lifePartner")) {
     speed *= 1.1;
-    pokemon.log.speedCalculate += " * 1.1 (인생의 동반자)";
+    pokemon.log.speedCalc += " * 1.1 (인생의 동반자)";
   }
   if (battle && pokemon?.hasAugment?.("lastWarrior")) {
     const side = pokemon?.team === "npc" ? "npc" : "player";
     if (battle.isLastPokemon?.(side)) {
       speed *= 1.6;
-      pokemon.log.speedCalculate += " * 1.6 (최후의 전사)";
+      pokemon.log.speedCalc += " * 1.6 (최후의 전사)";
     }
   }
-  pokemon.log.speedCalculate += " = " + speed;
+  pokemon.log.speedCalc += " = " + speed;
   return speed;
-};
-
-const getExpectedMegaSpeed = (pokemon, battle = null) => {
-  const megaStat = pokemon.megaData?.stat;
-  const megaAbil = pokemon.megaData?.abil ?? pokemon.abil?.name ?? pokemon.abil;
-  if (megaStat) {
-    const megaPokemonView = {
-      ...pokemon,
-      o: { ...pokemon.o, stat: megaStat },
-    };
-    if (pokemon?.hasAugment?.("hhgghgg")) {
-      const highest = getHighestStatInfo(megaPokemonView, battle);
-      if (highest) {
-        return speedCalculate(pokemon, highest.augmented, battle, megaAbil, highest.rank);
-      }
-    }
-    const megaBaseSpeed = getAugmentedStat(megaPokemonView, "speed", battle);
-    return speedCalculate(pokemon, megaBaseSpeed, battle, megaAbil);
-  }
-  return speedCalculate(pokemon, null, battle, megaAbil);
-};
-
-export const megaSpeedCheck = (battle) => {
-  const playerSpeed = getExpectedMegaSpeed(battle.player, battle);
-  const npcSpeed = getExpectedMegaSpeed(battle.npc, battle);
-  battle.player.log = battle.player.log || {};
-  battle.player.log.megaSpeedVS = "Player Mega: " + playerSpeed + " vs NPC Mega: " + npcSpeed;
-
-  if (playerSpeed === npcSpeed) {
-    battle.player.log.megaSpeedVS += " (동점)";
-    return Math.random() < 0.5 ? "player" : "npc";
-  }
-
-  let faster = playerSpeed > npcSpeed ? "player" : "npc";
-  if (battle.field?.room?.isTrickRoom) {
-    battle.player.log.megaSpeedVS += " (트릭룸)";
-    faster = faster === "player" ? "npc" : "player";
-  }
-  battle.player.log.megaSpeedVS += " => " + faster;
-  return faster;
 };
 
 export const speedCheck = (battle) => {

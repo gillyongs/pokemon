@@ -1,4 +1,4 @@
-import { speedCheck, skillSpeedCheck, megaSpeedCheck } from "../calc/speedCheck";
+import { speedCheck, skillSpeedCheck } from "../calc/speedCheck";
 import { turnEnd } from "./turnEnd";
 import { switchNpc, switchPlayer } from "./switch";
 import { skillUse } from "./skillUse";
@@ -35,7 +35,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
   const npcCanMega = Boolean(isAttack(npcActNumber) && battle.npc.isMegaEvolveAble?.(battle));
 
   if (playerCanMega && npcCanMega) {
-    const faster = megaSpeedCheck(battle);
+    const faster = speedCheck(battle);
     if (faster === "player") {
       battle.player.megaEvolve(battle, enqueue);
       battle.npc.megaEvolve(battle, enqueue);
