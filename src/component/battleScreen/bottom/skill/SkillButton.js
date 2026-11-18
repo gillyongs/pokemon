@@ -132,7 +132,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
         {skill.name}
         {skill.nimbleMoves || isNimbleSkill(battle.player, skill) ? " +1" : ""}
       </NAME>
-      <EFFECT>{getTypeEffectText(battle.player, displayType, battle.npc.type1, battle.npc.type2, skill.stype, skill.name)}</EFFECT>
+      <EFFECT>{getTypeEffectText(battle, battle.player, skill, displayType)}</EFFECT>
       <PP>
         {pp}/{skill.pp}
       </PP>

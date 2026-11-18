@@ -63,7 +63,7 @@ const AugmentSkillSelectView = ({
           if (!sk) return null;
           const currentPp = activePokemon?.pp?.[slot] ?? sk.pp;
           const displayType = skillTypeCalculate(battle, sk, activePokemon);
-          const effectText = battle?.npc ? getTypeEffectText(activePokemon, displayType, battle.npc.type1, battle.npc.type2, sk.stype, sk.name) : "";
+          const effectText = getTypeEffectText(battle, activePokemon, sk, displayType) || "";
           const isSelected = selectedSlot === slot;
           return (
             <SkillCard

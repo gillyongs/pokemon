@@ -2,9 +2,9 @@ import React, { useState, useMemo } from "react";
 import styled from "styled-components";
 import { getSkillListForPokemon } from "../../../entity/Skill/PokemonSkillList";
 import skillList from "../../../entity/Skill/skillList";
-import { TYPE_COLORS } from "./SampleInfoModal";
+import { ALL_POKEMON_TYPES as ALL_TYPES, TYPE_COLORS } from "../../../entity/TypeData";
 
-const ALL_TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투", "독", "땅", "비행", "에스퍼", "벌레", "바위", "고스트", "드래곤", "악", "강철", "페어리"];
+
 
 const CATEGORIES = ["전체", "물리", "특수", "변화"];
 

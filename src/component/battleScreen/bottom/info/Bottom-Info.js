@@ -2,7 +2,7 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
 import TextBox from "../common/TextBox";
-import { TYPE_COLORS } from "../../../customScreen/sampleInfo/SampleInfoModal";
+import { TYPE_COLORS } from "../../../../entity/TypeData";
 import { isOnlyPrioritySkillText } from "../../../customScreen/sampleInfo/SkillSearchModal";
 import { getAugmentedStat } from "../../../../calc/getStat";
 import { getMultiplier } from "../../../../calc/rankStat";
@@ -328,7 +328,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
               if (!skill || !skill.name) return null;
               const pp = pokemon.pp?.[skillNumber] ?? skill.pp;
               const displayType = skillTypeCalculate(battle, skill, pokemon);
-              const effectText = getTypeEffectText(pokemon, displayType, battle.npc.type1, battle.npc.type2, skill.stype, skill.name);
+              const effectText = getTypeEffectText(battle, pokemon, skill, displayType);
 
               return (
                 <SkillRowButton key={skillNumber} onClick={(e) => handleSkillClick(e, skill)}>

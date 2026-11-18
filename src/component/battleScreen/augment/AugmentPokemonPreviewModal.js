@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { abilObject } from "../../../entity/Ability";
 import { itemText, getItemDesc } from "../../../entity/Item";
-import { TYPE_COLORS } from "../../../calc/typeEffectCalculate";
+import { TYPE_COLORS } from "../../../entity/TypeData";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 import { AugmentIcon } from "./AugmentIcon";
 import { getAugmentDesc } from "../../../entity/Augment/AugmentData";

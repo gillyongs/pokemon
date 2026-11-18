@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { ALL_POKEMON_TYPES, TYPE_COLORS, isNoEffect } from "../../../../calc/typeEffectCalculate";
+import { ALL_POKEMON_TYPES, TYPE_COLORS } from "../../../../entity/TypeData";
+import { isNoEffect } from "../../../../calc/typeEffectCalculate";
 import { HeaderArea, HeaderTopRow, Title, SubTitleText, CloseButton, ButtonGroup, ActionButton } from "./selectStyles";
 
 const AugmentTypeSelectView = ({

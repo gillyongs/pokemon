@@ -7,10 +7,10 @@ export const skillTypeCalculate = (battle, skill, pokemon = null) => {
 
   // 웨더볼: 날씨가 있는 경우 날씨에 따라 타입 결정
   if (skill.name === "웨더볼") {
-    if (battle.isSunny) return "불꽃";
-    if (battle.isRainy) return "물";
-    if (battle.isSandstorm) return "바위";
-    if (battle.isSnow) return "얼음";
+    if (battle?.isSunny) return "불꽃";
+    if (battle?.isRainy) return "물";
+    if (battle?.isSandstorm) return "바위";
+    if (battle?.isSnow) return "얼음";
     type = "노말";
   }
 

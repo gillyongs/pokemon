@@ -1,308 +1,148 @@
-const hasType = (type, t1, t2) => t1 === type || t2 === type;
-const isOneOf = (value, list) => list.includes(value);
+import { TYPE_CHART } from "../entity/TypeData";
 
-export const ALL_POKEMON_TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투", "독", "땅", "비행", "에스퍼", "벌레", "바위", "고스트", "드래곤", "악", "강철", "페어리"];
-
-export const TYPE_COLORS = {
-  노말: "#A0A29F",
-  불꽃: "#E73B3C",
-  물: "#3390F8",
-  풀: "#56B13F",
-  전기: "#F3C523",
-  얼음: "#3BD2DA",
-  격투: "#EB812A",
-  독: "#9E4ED7",
-  땅: "#A76735",
-  비행: "#8FA8DD",
-  에스퍼: "#E44B79",
-  벌레: "#9DB922",
-  바위: "#B5B08C",
-  고스트: "#664082",
-  드래곤: "#4A6DE0",
-  악: "#4B4242",
-  강철: "#6093A8",
-  페어리: "#F37CE6",
+// 심안 / 배짱: 노말·격투 기술로 고스트 타입 면역 관통
+const isMindEye = (atk, skillType) => {
+  const abilName = atk?.abil?.name;
+  return (abilName === "심안" || abilName === "배짱") && (skillType === "격투" || skillType === "노말");
 };
 
-// 심안(고스트 면역 무시)
-const isMindEye = (pokemon, skillType, t1, t2) => {
-  return (pokemon?.abil?.name === "심안" || pokemon?.abil?.name === "배짱") && isOneOf(skillType, ["격투", "노말"]) && hasType("고스트", t1, t2);
+// [증강: 이 공격 무효일세] 방어자가 선택한 무효 타입 일치 여부
+const hasNullifyAugment = (def, skillType) => {
+  if (!def?.hasAugment?.("nullifyGetto")) return false;
+  return def.augments.some((a) => typeof a === "object" && a.id === "nullifyGetto" && a.selectedType === skillType);
 };
 
-/**
- * [증강] 상성 변경 보정 처리 함수
- * 기존의 순수 상성 계산 공식(onlyTypeEffectCalculate)을 수정하지 않고,
- * 증강에 의해 특수하게 변경되는 상성 배율을 우선 계산하여 반환합니다.
- * @returns {number|null} 증강에 의해 상성이 재정의되면 배율(0, 1 등), 해당 없으면 null
- */
-const getAugmentTypeMultiplier = (atk, def, skillType, t1, t2) => {
-  // [증강: 과거의 영광 (에스퍼)] - 피격 시: 고스트 무효(0배), 악/강철 공격 1배
-  if (def?.hasAugment?.("lostTechnologyPsychic")) {
+// 단일 방어 타입(t1 또는 t2)에 대한 상성 배율 계산 (0배 포함)
+const getSingleTypeMultiplier = (skillType, defType, { atk, def, skillName, isDeltaStream }) => {
+  const chart = TYPE_CHART[skillType];
+
+  // 특수 기술: 프리즈드라이는 물 타입에 2배
+  if (skillName === "프리즈드라이" && defType === "물") return 2;
+
+  // 공격자 특성: 심안/배짱은 고스트 면역(0배)을 1배로 관통
+  if (defType === "고스트" && isMindEye(atk, skillType)) return 1;
+
+  // [증강: 과거의 영광 (에스퍼)] - 피격 시: 에스퍼 타입에 한해 고스트 무효(0배), 악/강철 1배
+  // (메가뮤츠X 등 복합 타입은 나머지 타입의 상성과 그대로 곱해짐)
+  if (defType === "에스퍼" && def?.hasAugment?.("lostTechnologyPsychic")) {
     if (skillType === "고스트") return 0;
     if (skillType === "악" || skillType === "강철") return 1;
   }
 
-  // [증강: 과거의 영광 (에스퍼)] - 공격 시: 에스퍼 기술로 공격 시 악(원래 0배) 및 강철(원래 0.5배)을 1배로 계산
-  if (atk?.hasAugment?.("lostTechnologyPsychic") && skillType === "에스퍼") {
-    const chart = typeChart[skillType] || {};
-    const mult1 = t1 === "악" || t1 === "강철" ? 1 : (chart[t1] ?? 1);
-    const mult2 = t2 === "악" || t2 === "강철" ? 1 : (chart[t2] ?? 1);
-    return mult1 * mult2;
+  // [증강: 과거의 영광 (에스퍼)] - 공격 시: 에스퍼 기술로 악/강철 공격 시 1배
+  if (skillType === "에스퍼" && atk?.hasAugment?.("lostTechnologyPsychic")) {
+    if (defType === "악" || defType === "강철") return 1;
   }
 
-  return null;
+  let mult = chart[defType] ?? 1;
+
+  // 날씨: 난기류(델타스트림) - 비행 타입의 약점(2배)을 1배로 완화
+  if (isDeltaStream && defType === "비행" && mult > 1) {
+    mult = 1;
+  }
+
+  return mult;
 };
 
-export const typeCheck = (skillType, t1, t2, skillName) => {
-  // 특성, 아이템등을 반영하지 않고 오직 상성만을 체크
-  // field.js: 스텔스록 데미지 계산
-  // npc 교체 판단에 사용
+// 공통 상성 계산 코어 (순수 상성 / 배틀 실상성 / UI 표시 모두 이 파이프라인 공유)
+const calculateTypeMultiplier = ({ skillType, t1, t2 = null, skillName = null, atk = null, def = null, battle = null, includeDefHidden = false }) => {
   if (skillName === "발버둥") return 1;
-  if (isNoEffect(skillType, t1, t2)) return 0;
-  return onlyTypeEffectCalculate(skillType, t1, t2, skillName);
-};
 
-export const typeCheckOnBattle = (battle, skillType, t1, t2, skillName, defPoke = null) => {
-  // 배틀에 적용되는 실제 상성
-  // damageCalculate(상성보정 데미지계산), skillUse("효과가 굉장했다!" 상성 텍스트 및 무효 스킬 실패 처리)에서 호출된다
-  // 타오르는불꽃은 버프 효과가 있기에 skillCheck에서 따로 처리
-  const atk = battle?.[battle?.turn?.atk];
-  const def = defPoke || battle?.[battle?.turn?.def];
-  const activeSkillName = skillName || atk?.turn?.useSkill?.name || atk?.skill?.[battle?.turn?.atkSN]?.name;
-  if (activeSkillName === "발버둥") return 1;
+  // 극단적 날씨: 폭우(불꽃 공격 무효), 큰가뭄(물 공격 무효)
+  if (battle?.isHeavyRain && skillType === "불꽃") return 0;
+  if (battle?.isHarshSun && skillType === "물") return 0;
 
-  // [증강: 과거의 영광 (에스퍼) 등 증강 상성 보정]
-  const augmentMult = getAugmentTypeMultiplier(atk, def, skillType, t1, t2);
-  if (augmentMult !== null) return augmentMult;
+  // [증강: 이 공격 무효일세]
+  if (hasNullifyAugment(def, skillType)) return 0;
 
-  // [증강: 무효 겟또다제]
-  if (def?.hasAugment?.("nullifyGetto")) {
-    const aug = def.augments?.find((a) => typeof a === "object" && a.id === "nullifyGetto");
-    if (aug?.selectedType && aug.selectedType === skillType) {
-      return 0;
-    }
-  }
-
-  if (isNoEffect(skillType, t1, t2) && !isMindEye(atk, skillType, t1, t2)) {
+  // 배틀 전용 숨겨진 방어 판정 (부유, 풍선 등 - UI에서는 스포일러 방지를 위해 미반영)
+  if (includeDefHidden && skillType === "땅" && def?.isFlying?.(battle, true)) {
     return 0;
   }
 
-  // 부유, 풍선 처리
-  if (skillType === "땅" && def?.isFlying && def.isFlying(battle, true)) {
-    return 0;
-  }
+  const ctx = {
+    atk,
+    def,
+    skillName,
+    isDeltaStream: Boolean(battle?.isDeltaStream),
+  };
 
-  // 델타스트림(난기류): 비행타입의 약점(전기, 얼음, 바위)을 1배로 반감
-  const isDeltaStream = Boolean(battle?.isDeltaStream);
-
-  return onlyTypeEffectCalculate(skillType, t1, t2, activeSkillName, { deltaStream: isDeltaStream });
+  return getSingleTypeMultiplier(skillType, t1, ctx) * getSingleTypeMultiplier(skillType, t2, ctx);
 };
 
+// 순수 타입 상성상 0배(무효) 여부
+export const isNoEffect = (skillType, t1, t2) => {
+  const chart = TYPE_CHART[skillType];
+  if (!chart) return false;
+  return chart[t1] === 0 || chart[t2] === 0;
+};
+
+// 특성·아이템·날씨·증강을 반영하지 않은 순수 상성 계산
+// field.js(스텔스록), easy.js(NPC 교체 점수), ItemSearchModal(추천 아이템)에서 사용
+export const typeCheck = (skillType, t1, t2 = null, skillName = null) => {
+  return calculateTypeMultiplier({ skillType, t1, t2, skillName });
+};
+
+// 배틀에 적용되는 실제 상성 계산
+// damageCalculate(상성보정 데미지), skillUse(상성 텍스트 및 무효 실패 처리), onHit(슈케열매)에서 사용
+// (타오르는불꽃 등 버프형 무효 특성은 skillCheck에서 별도 처리)
+export const typeCheckOnBattle = (battle, skill, atkPoke = null, defPoke = null) => {
+  const atk = atkPoke || battle[battle.turn.atk];
+  const def = defPoke || battle[battle.turn.def];
+
+  return calculateTypeMultiplier({
+    skillType: skill.type,
+    t1: def.type1,
+    t2: def.type2,
+    skillName: skill.name,
+    atk,
+    def,
+    battle,
+    includeDefHidden: true,
+  });
+};
+
+// 배틀 로그용 상성 텍스트 반환 (skillUse에서 사용)
 export const getTypeText = (typeDamage) => {
-  // 상성 텍스트 출력
-  // skillUse에서 typeEffectCalculateOnBattle을 호출하여 나온 계산값에 따라 텍스트를 리턴한다
-  if (typeDamage === 1) {
-    return null;
-  }
-  if (typeDamage > 1) {
-    return "효과가 굉장했다!";
-  }
-  if (typeDamage === 0) {
-    return "효과가 없는 것 같다...";
-  }
-  if (typeDamage < 1) {
-    return "효과가 별로인 것 같다...";
-  }
+  if (typeDamage === 0) return "효과가 없는 것 같다...";
+  if (typeDamage >= 4) return "효과가 매우 굉장했다!";
+  if (typeDamage > 1) return "효과가 굉장했다!";
+  if (typeDamage === 1) return null;
+  if (typeDamage <= 0.25) return "효과가 매우 별로인 것 같다...";
+  return "효과가 별로인 것 같다...";
 };
 
-export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass, skillName, defPokemon = null) => {
-  // 스킬창 밑에 뜨는 상성 텍스트
-  // 부유, 건조피부, 저수 등 상대방의 특성은 반영하지 않고
-  // 심안 등 본인의 특성은 반영해서 보여준다.
-  // skillButton(메인화면), InfoSkillButton(교체화면)에서 사용
-
-  if (skillClass === "natk" || skillClass === "buf") {
+// 스킬창 하단 상성 표시 텍스트
+// 부유·풍선 등 상대의 숨겨진 특성·도구는 반영하지 않고,
+// 본인 특성(심안 등)과 공개된 필드 날씨(난기류·폭우·큰가뭄) 및 증강을 반영한다.
+// SkillButton, Bottom-Info, AugmentSkillSelectView에서 사용
+export const getTypeEffectText = (battle, pokemon, skill, displayType = null, defPokemon = null) => {
+  if (skill.stype === "natk" || skill.stype === "buf") {
     return;
   }
-  if (skillName === "발버둥") {
-    return "○ 효과가 있음";
-  }
+  const def = defPokemon || battle?.npc;
+  if (!def) return;
 
-  // [증강: 과거의 영광 (에스퍼) 등 증강 상성 보정]
-  const augmentMult = getAugmentTypeMultiplier(pokemon, defPokemon, skillType, t1, t2);
-  if (augmentMult !== null) {
-    if (augmentMult === 1) return "○ 효과가 있음";
-    if (augmentMult > 1) return "◎ 효과가 굉장함";
-    if (augmentMult === 0) return "✕ 효과가 없음";
-    return "△ 효과가 별로";
-  }
+  const mult = calculateTypeMultiplier({
+    skillType: displayType || skill.type,
+    t1: def.type1,
+    t2: def.type2,
+    skillName: skill.name,
+    atk: pokemon,
+    def,
+    battle,
+    includeDefHidden: false,
+  });
 
-  // npc한테 증강 없어서 상관없긴 한데 굳이 뺼 필욘 없으니까...
-  if (defPokemon?.hasAugment?.("nullifyGetto")) {
-    const aug = defPokemon.augments?.find((a) => typeof a === "object" && a.id === "nullifyGetto");
-    if (aug?.selectedType && aug.selectedType === skillType) {
-      return "✕ 효과가 없음";
-    }
-  }
-  if (isNoEffect(skillType, t1, t2) && !isMindEye(pokemon, skillType, t1, t2)) {
-    return "✕ 효과가 없음";
-  }
+  return formatTypeEffectText(mult);
+};
 
-  const mult = onlyTypeEffectCalculate(skillType, t1, t2, skillName);
-
-  if (mult === 1) return "○ 효과가 있음";
-  if (mult > 1) return "◎ 효과가 굉장함";
+// UI용 상성 배율 포맷터
+const formatTypeEffectText = (mult) => {
   if (mult === 0) return "✕ 효과가 없음";
+  if (mult >= 4) return "☆ 효과가 매우 굉장";
+  if (mult > 1) return "◎ 효과가 굉장함";
+  if (mult === 1) return "○ 효과가 있음";
+  if (mult <= 0.25) return "⟁ 효과가 매우 별로";
   return "△ 효과가 별로";
-};
-
-// 순수 상성 보정 계산
-const onlyTypeEffectCalculate = (skillType, t1, t2, skillName, options = {}) => {
-  let result = 1;
-  const chart = typeChart[skillType];
-  if (!chart) {
-    console.error("존재하지 않는 타입");
-    return 1;
-  }
-
-  const isDeltaStream = Boolean(options?.deltaStream);
-
-  // 1배는 chart[t1]이 null이여서 계산 생략됨
-  if (skillName === "프리즈드라이" && t1 === "물") result *= 2;
-  else if (isDeltaStream && t1 === "비행" && (chart[t1] ?? 1) > 1) result *= 1;
-  else if (chart[t1]) result *= chart[t1];
-
-  if (skillName === "프리즈드라이" && t2 === "물") result *= 2;
-  else if (isDeltaStream && t2 === "비행" && (chart[t2] ?? 1) > 1) result *= 1;
-  else if (chart[t2]) result *= chart[t2];
-
-  return result;
-};
-
-// 0배 상성 여부 (순수 타입)
-export const isNoEffect = (skillType, t1, t2) => {
-  return typeChart[skillType][t1] === 0 || typeChart[skillType][t2] === 0;
-};
-
-const typeChart = {
-  노말: { 바위: 0.5, 고스트: 0, 강철: 0.5, 기타: 1 },
-  불꽃: {
-    풀: 2,
-    얼음: 2,
-    벌레: 2,
-    강철: 2,
-    불꽃: 0.5,
-    물: 0.5,
-    바위: 0.5,
-    드래곤: 0.5,
-    기타: 1,
-  },
-  물: { 불꽃: 2, 땅: 2, 바위: 2, 물: 0.5, 풀: 0.5, 드래곤: 0.5, 기타: 1 },
-  풀: {
-    물: 2,
-    땅: 2,
-    바위: 2,
-    불꽃: 0.5,
-    풀: 0.5,
-    독: 0.5,
-    비행: 0.5,
-    벌레: 0.5,
-    드래곤: 0.5,
-    강철: 0.5,
-    기타: 1,
-  },
-  전기: { 물: 2, 비행: 2, 전기: 0.5, 풀: 0.5, 땅: 0, 드래곤: 0.5, 기타: 1 },
-  얼음: {
-    풀: 2,
-    땅: 2,
-    비행: 2,
-    드래곤: 2,
-    불꽃: 0.5,
-    물: 0.5,
-    강철: 0.5,
-    얼음: 0.5,
-    기타: 1,
-  },
-  격투: {
-    노말: 2,
-    얼음: 2,
-    바위: 2,
-    악: 2,
-    강철: 2,
-    독: 0.5,
-    비행: 0.5,
-    에스퍼: 0.5,
-    벌레: 0.5,
-    페어리: 0.5,
-    고스트: 0,
-    기타: 1,
-  },
-  독: {
-    풀: 2,
-    페어리: 2,
-    독: 0.5,
-    땅: 0.5,
-    바위: 0.5,
-    고스트: 0.5,
-    강철: 0,
-    기타: 1,
-  },
-  땅: {
-    불꽃: 2,
-    전기: 2,
-    독: 2,
-    바위: 2,
-    강철: 2,
-    풀: 0.5,
-    벌레: 0.5,
-    비행: 0,
-    기타: 1,
-  },
-  비행: { 풀: 2, 격투: 2, 벌레: 2, 전기: 0.5, 바위: 0.5, 강철: 0.5, 기타: 1 },
-  에스퍼: { 격투: 2, 독: 2, 에스퍼: 0.5, 악: 0, 강철: 0.5, 기타: 1 },
-  벌레: {
-    풀: 2,
-    에스퍼: 2,
-    악: 2,
-    불꽃: 0.5,
-    격투: 0.5,
-    독: 0.5,
-    비행: 0.5,
-    고스트: 0.5,
-    강철: 0.5,
-    페어리: 0.5,
-    기타: 1,
-  },
-  바위: {
-    불꽃: 2,
-    얼음: 2,
-    벌레: 2,
-    비행: 2,
-    격투: 0.5,
-    땅: 0.5,
-    강철: 0.5,
-    기타: 1,
-  },
-  고스트: { 고스트: 2, 에스퍼: 2, 노말: 0, 악: 0.5, 기타: 1 },
-  드래곤: { 드래곤: 2, 강철: 0.5, 페어리: 0, 기타: 1 },
-  악: { 에스퍼: 2, 고스트: 2, 격투: 0.5, 악: 0.5, 페어리: 0.5, 기타: 1 },
-  강철: {
-    얼음: 2,
-    바위: 2,
-    페어리: 2,
-    불꽃: 0.5,
-    물: 0.5,
-    전기: 0.5,
-    강철: 0.5,
-    기타: 1,
-  },
-  페어리: {
-    격투: 2,
-    드래곤: 2,
-    악: 2,
-    불꽃: 0.5,
-    독: 0.5,
-    강철: 0.5,
-    기타: 1,
-  },
 };

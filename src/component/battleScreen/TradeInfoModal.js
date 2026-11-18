@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { skillTypeCalculate } from "../../calc/skillTypeCalculate";
 import { getAugmentedStat } from "../../calc/getStat";
 import { getMultiplier } from "../../calc/rankStat";
-import { TYPE_COLORS } from "../../calc/typeEffectCalculate";
+import { TYPE_COLORS } from "../../entity/TypeData";
 import { abilObject } from "../../entity/Ability";
 import { itemText, getItemDesc } from "../../entity/Item";
 import { isOnlyPrioritySkillText } from "../customScreen/sampleInfo/SkillSearchModal";

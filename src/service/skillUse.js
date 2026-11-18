@@ -126,7 +126,7 @@ export const skillUse = (bt, enqueue) => {
         }
       }
 
-      let typeDamage = typeCheckOnBattle(bt, skill.type, def.type1, def.type2);
+      let typeDamage = typeCheckOnBattle(bt, skill, atk, def);
       // 0배 여부 체크, "효과가 굉장했다!"" 텍스트 처리에만 사용
       // 상성 관련 데미지 계산은 damageCalculate 안에서 처리
       let typeText = getTypeText(typeDamage);

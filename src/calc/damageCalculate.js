@@ -45,7 +45,7 @@ export const damageCalculate = (battle, obj, ai) => {
   const noTggAtk = !attackPokemon.abil?.feature?.tgg;
 
   if (ai) {
-    const typeDamage = typeCheckOnBattle(battle, skill.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
+    const typeDamage = typeCheckOnBattle(battle, skill, attackPokemon, defensePokemon); // 상성 보정
     if (typeDamage === 0) return 0; // 고스트포켓몬에게 지구던지기를 쓰는 경우
     if (skill.feature.oneShot && defAbil === "옹골참") return 0; // 특성이 옹골참인 상대에게 일격기를 쓰는 경우
     if (skill.name === "절대영도" && (defensePokemon.type1 === "얼음" || defensePokemon.type2 === "얼음")) return 0; // 얼음타입 포켓몬에게 절대영도를 쓰는 경우
@@ -422,13 +422,6 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 날씨 ==========================================================
 
-  // 폭우, 큰 가뭄 -> 애초에 skillCheck에서 무효처리 해버려서 상관은 없는데 일단 넣어놓음
-  if (battle.isHeavyRain && skill.type === "불꽃") {
-    return 0;
-  }
-  if (battle.isHarshSun && skill.type === "물") {
-    return 0;
-  }
   if (battle.isRainy) {
     if (skill.type === "물") {
       damage *= 1.5;
@@ -721,7 +714,7 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 상성보정 ================================================================
-  const typeDamage = typeCheckOnBattle(battle, skill.type, defensePokemon.type1, defensePokemon.type2); // 상성 보정
+  const typeDamage = typeCheckOnBattle(battle, skill, attackPokemon, defensePokemon); // 상성 보정
   damage *= typeDamage;
   attackPokemon.log.damage2 += " * " + typeDamage + "(상성보정)";
 

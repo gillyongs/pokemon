@@ -26,7 +26,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
   const noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
   if (defPokemon.item === "슈케열매" && useSkill?.type === "땅" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     // 뎀감 자체는 damageCalculate에서 적용
-    const typeDamage = typeCheckOnBattle(battle, useSkill.type, defPokemon.type1, defPokemon.type2);
+    const typeDamage = typeCheckOnBattle(battle, useSkill, atkPokemon, defPokemon);
     if (typeDamage > 1) {
       defPokemon.consumeItem();
       enqueue({ id: "7c0782c7-e4a8-4dc9-9bc6-22738696e17e", battle, text: `${defPokemon.names("는")} 슈케열매로 땅타입 기술의 위력을 반감시켰다!` });

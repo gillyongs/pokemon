@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { abilObject } from "../../../entity/Ability";
 import { itemText } from "../../../entity/Item";
 import skillList from "../../../entity/Skill/skillList";
+import { TYPE_COLORS } from "../../../entity/TypeData";
 import { getMegaData } from "../../../entity/Pokemon/MegaData";
 import ItemSearchModal from "./ItemSearchModal";
 import AbilSearchModal from "./AbilSearchModal";
@@ -435,27 +436,6 @@ const CloseButton = styled.button`
     background-color: #f0f0f0;
   }
 `;
-
-export const TYPE_COLORS = {
-  노말: "#A0A29F",
-  불꽃: "#E73B3C",
-  물: "#3390F8",
-  풀: "#56B13F",
-  전기: "#F3C523",
-  얼음: "#3BD2DA",
-  격투: "#EB812A",
-  독: "#9E4ED7",
-  땅: "#A76735",
-  비행: "#8FA8DD",
-  에스퍼: "#E44B79",
-  벌레: "#9DB922",
-  바위: "#B5B08C",
-  고스트: "#664082",
-  드래곤: "#4A6DE0",
-  악: "#4B4242",
-  강철: "#6093A8",
-  페어리: "#F37CE6",
-};
 
 const TypeBadge = styled.span`
   background-color: ${({ $type }) => TYPE_COLORS[$type] || "#f0f0f0"};
