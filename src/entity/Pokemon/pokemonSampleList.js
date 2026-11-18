@@ -522,7 +522,7 @@ new samplePokemon("라티오스", "0381", "CS252", "speed", "atk",
     if (skills) {
       [1, 2, 3, 4].forEach((n) => {
         const skillName = typeof skills[n] === "object" ? skills[n]?.name : skills[n];
-        if (skillName) sample.skill[n] = { ...skillList.search(skillName), skillNumber: n };
+        if (skillName) sample.skill[n] = { ...skillList.search(skillName, sample.abil), skillNumber: n };
       });
     }
     if (hp !== undefined && hp !== null) sample.hp = hp;

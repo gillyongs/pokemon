@@ -869,15 +869,11 @@ const powerCalculate = (battle, skill, obj, ai) => {
   // 인공지능 데미지 계산시 연속기는 기대값으로 측정
   if (ai) {
     if (skill.name === "트리플악셀") return 94;
-    if (skill.name === "수류연타") return 75;
-    if (skill.feature?.serial === "double") {
-      power *= 2;
-    }
+    if (skill.feature?.serial === "suru") return skill.power * 3;
+    if (skill.feature?.serial === "double") return skill.power * 2;
+
     if (skill.feature?.serial === "twoFive") {
       // 2~5회 연속 공격기
-      if (skill.name === "물수리검" && battle[battle.turn.atk]?.abil?.name === "유대진화") {
-        return 20 * 3;
-      }
       power = skill.power * 3.1;
       if (battle[battle.turn.atk].item === "속임수주사위") {
         power = skill.power * 4.14;
@@ -961,9 +957,6 @@ const powerCalculate = (battle, skill, obj, ai) => {
     if (atk.item === null || atk.item === undefined || atk.item === "") {
       power *= 2;
     }
-  }
-  if (skill.name === "물수리검" && atk?.abil?.name === "유대진화") {
-    power = 20;
   }
   if (skill.name === "자이로볼") {
     const atkSpeed = Math.max(speedCalculate(atk, null, battle) || 1, 1);

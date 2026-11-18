@@ -68,10 +68,10 @@ class samplePokemon {
     this.sampleName = sampleName;
 
     this.skill = {
-      1: { ...skillList.search(sk1), skillNumber: 1 },
-      2: { ...skillList.search(sk2), skillNumber: 2 },
-      3: { ...skillList.search(sk3), skillNumber: 3 },
-      4: { ...skillList.search(sk4), skillNumber: 4 },
+      1: { ...skillList.search(sk1, abil), skillNumber: 1 },
+      2: { ...skillList.search(sk2, abil), skillNumber: 2 },
+      3: { ...skillList.search(sk3, abil), skillNumber: 3 },
+      4: { ...skillList.search(sk4, abil), skillNumber: 4 },
       5: { ...skillList.search("발버둥"), skillNumber: 5 },
     };
 

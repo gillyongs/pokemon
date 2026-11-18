@@ -10,12 +10,19 @@ class SkillList {
   constructor() {
     this.items = allSkills;
   }
-  search(name) {
+  search(name, abil = null) {
+    const abilName = typeof abil === "object" ? abil?.name : abil;
+    if (name === "물수리검" && abilName === "유대진화") {
+      const bondSkill = this.items.find((item) => item.name === "물수리검(유대진화)");
+      if (bondSkill) {
+        return { ...bondSkill, name: "물수리검" };
+      }
+    }
     return this.items.find((item) => item.name === name) || this.items.find((item) => item.name === "임시스킬");
   }
-  getDataById(name) {
+  getDataById(name, abil = null) {
     if (!name) return null;
-    return this.search(name);
+    return this.search(name, abil);
   }
 }
 
