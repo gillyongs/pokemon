@@ -44,4 +44,43 @@ export const BattleAccess = {
   get hasWeather() {
     return Boolean(this.field?.weather?.hasWeather?.(this));
   },
+
+  // --- 이벤트 시스템 (pub/sub) ---
+  on(event, callback) {
+    if (!this._events) this._events = {};
+    if (!this._events[event]) this._events[event] = [];
+    this._events[event].push(callback);
+    return this;
+  },
+
+  off(event, callback) {
+    if (!this._events || !this._events[event]) return this;
+    if (!callback) {
+      delete this._events[event];
+    } else {
+      this._events[event] = this._events[event].filter((cb) => cb !== callback);
+    }
+    return this;
+  },
+
+  emit(event, payload = {}) {
+    if (!this._events) {
+      this._events = {};
+      this.initEventListeners?.();
+    }
+    if (!this._events[event]) return;
+    const handlers = [...this._events[event]];
+    for (const handler of handlers) {
+      handler({ battle: this, ...payload });
+    }
+  },
+
+  initEventListeners() {
+    this.on("pokemonLeave", ({ battle, enqueue }) => {
+      battle.field?.weather?.handleExtremeWeatherCheck?.(battle, enqueue);
+    });
+    this.on("pokemonChange", ({ battle, enqueue }) => {
+      battle.field?.weather?.handleExtremeWeatherCheck?.(battle, enqueue);
+    });
+  },
 };

@@ -1,3 +1,5 @@
+import { getMegaData } from "./MegaData";
+import PokemonData from "./PokemonData";
 import samplePokemon from "./pokemonSample";
 import skillList from "../Skill/skillList";
 import { abilObject } from "../Ability";
@@ -141,7 +143,16 @@ new samplePokemon("메가메타그로스", "0376", "AS252", "speed", "catk",
 new samplePokemon("가이오가", "0382", "CS252", "catk", "atk",
   "해수스파우팅", "근원의파동", "번개", "냉동빔", "구애스카프", "잔비", "특수어태커"),
 
-new samplePokemon("레쿠쟈", "0384", "AS252", "atk", "catk",
+new samplePokemon("원시가이오가", "0382", "CS252", "catk", "atk",
+  "해수스파우팅", "근원의파동", "번개", "냉동빔", "쪽빛구슬", "잔비", "특수어태커"),
+
+new samplePokemon("그란돈", "0383", "HA252", "atk", "catk",
+  "단애의칼", "히트스탬프", "암석봉인", "스텔스록", "자뭉열매", "가뭄", "물리딜탱"),
+
+new samplePokemon("원시그란돈", "0383", "HA252", "atk", "catk",
+  "단애의칼", "히트스탬프", "암석봉인", "스텔스록", "주홍구슬", "가뭄", "물리딜탱"),
+
+new samplePokemon("메가레쿠쟈", "0384", "AS252", "atk", "catk",
   "화룡점정", "지진", "신속", "칼춤", "생명의구슬", "에어록", "물리어태커"),
 
 new samplePokemon("엠페르트 (특수)", "0395", "HC252", "catk", "atk",
@@ -513,6 +524,36 @@ new samplePokemon("라티오스", "0381", "CS252", "speed", "atk",
     if (evs) sample.evs = evs;
     if (nature) sample.nature = nature;
     if (megaData && sample.megaData) sample.megaData = { ...sample.megaData, ...megaData };
+    const targetMega = getMegaData(sample);
+    if (targetMega) {
+      const megaPokemon = PokemonData.getPokemonDataByUniqueKey(targetMega.megaFormId);
+      if (megaPokemon) {
+        const evObj = sample.evs || { hp: 0, atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
+        const nat = sample.nature || { up: null, down: null };
+        let mAtk = Math.floor((megaPokemon.atk * 2 + Math.floor((evObj.atk || 0) / 4) + 31) / 2) + 5;
+        let mDef = Math.floor((megaPokemon.def * 2 + Math.floor((evObj.def || 0) / 4) + 31) / 2) + 5;
+        let mCatk = Math.floor((megaPokemon.catk * 2 + Math.floor((evObj.catk || 0) / 4) + 31) / 2) + 5;
+        let mCdef = Math.floor((megaPokemon.cdef * 2 + Math.floor((evObj.cdef || 0) / 4) + 31) / 2) + 5;
+        let mSpeed = Math.floor((megaPokemon.speed * 2 + Math.floor((evObj.speed || 0) / 4) + 31) / 2) + 5;
+        const mStat = { atk: mAtk, def: mDef, catk: mCatk, cdef: mCdef, speed: mSpeed };
+        if (nat.up && nat.up !== nat.down && mStat[nat.up]) mStat[nat.up] = Math.floor(mStat[nat.up] * 1.1);
+        if (nat.down && nat.up !== nat.down && mStat[nat.down]) mStat[nat.down] = Math.floor(mStat[nat.down] * 0.9);
+        sample.megaData = {
+          name: megaPokemon.name,
+          dexNo: megaPokemon.dexNo,
+          uniqueKey: megaPokemon.uniqueKey,
+          type1: megaPokemon.type1,
+          type2: megaPokemon.type2,
+          abil: targetMega.abil,
+          stone: targetMega.stone,
+          requiredSkill: targetMega.requiredSkill || null,
+          isPrimal: Boolean(targetMega.isPrimal),
+          stat: megaData?.stat || mStat,
+        };
+      }
+    } else {
+      sample.megaData = null;
+    }
     return sample;
   }
 }

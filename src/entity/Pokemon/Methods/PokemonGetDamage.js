@@ -53,6 +53,9 @@ export const PokemonGetDamage = {
       battle,
       text: `${this.names("는")} 쓰러졌다!`,
     });
+
+    // 델타스트림 / 시작의바다 / 끝의대지 기절 시 날씨 종료 처리
+    battle.emit("pokemonLeave", { leavingPokemon: this, enqueue, reason: "faint" });
   },
 
   tryBerry(battle, enqueue) {

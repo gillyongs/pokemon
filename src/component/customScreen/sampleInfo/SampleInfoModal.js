@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { abilObject } from "../../../entity/Ability";
 import { itemText } from "../../../entity/Item";
 import skillList from "../../../entity/Skill/skillList";
+import { getMegaData } from "../../../entity/Pokemon/MegaData";
 import ItemSearchModal from "./ItemSearchModal";
 import AbilSearchModal from "./AbilSearchModal";
 import SkillSearchModal, { isOnlyPrioritySkillText } from "./SkillSearchModal";
@@ -202,7 +203,7 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
 
         <div style={{ display: "flex", alignItems: "stretch", marginBottom: "15px" }}>
           <div style={{ flex: "0 0 115px", minHeight: "115px", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#f5f5f5", borderRadius: "10px", padding: "6px", border: "1px solid #eee", boxSizing: "border-box", overflow: "hidden" }}>
-            <img src={`/pokemon/img/pokemon/${p.megaData?.uniqueKey || p.uniqueKey}.webp`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", transform: "scale(1.2) translateY(-5px)" }} />
+            <img src={getPokemonImgSrc(p, selectedItem, selectedSkills)} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", transform: "scale(1.2) translateY(-5px)" }} />
           </div>
           <div style={{ flex: "1", minWidth: 0, paddingLeft: "12px", textAlign: "left", display: "flex", flexDirection: "column", justifyContent: "center", gap: "6px" }}>
             <h2 style={{ color: "#333", margin: "0 0 2px 0", fontSize: "1.4rem", whiteSpace: "nowrap" }}>{p.name}</h2>
@@ -216,11 +217,19 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
               <ClickableBadge {...bindLongPress(() => setIsAbilSearchOpen(true), showAbilDesc)} title="클릭하여 특성 변경 / 꾹 눌러서 설명 보기">
                 {selectedAbil}
               </ClickableBadge>
-              {p.megaData && (
-                <ClickableBadge {...bindLongPress(showMegaAbilDesc, showMegaAbilDesc)} title="클릭 또는 꾹 눌러서 설명 보기">
-                  {p.megaData.abil}
-                </ClickableBadge>
-              )}
+              {(() => {
+                const activeMega = getMegaData({ ...p, item: selectedItem, skill: selectedSkills });
+                if (!activeMega) return null;
+                const showActiveMegaAbilDesc = () => {
+                  const desc = abilObject[activeMega.abil]?.text || "설명이 없습니다.";
+                  setInfoText(`[${activeMega.abil}] ${desc}`);
+                };
+                return (
+                  <ClickableBadge {...bindLongPress(showActiveMegaAbilDesc, showActiveMegaAbilDesc)} title="클릭 또는 꾹 눌러서 설명 보기">
+                    {activeMega.abil}
+                  </ClickableBadge>
+                );
+              })()}
             </div>
             <div style={{ display: "flex", gap: "6px", alignItems: "center", fontSize: "0.85rem", whiteSpace: "nowrap" }}>
               <span style={{ color: "#777", width: "48px" }}>아이템:</span>
@@ -580,3 +589,34 @@ const ModalButton = styled.button`
     }
   `}
 `;
+
+
+// 조건(가이오가-쪽빛구슬, 그란돈-주홍구슬, 레쿠쟈-화룡점정, 메진몬-megaData+나이트)에 따라 이미지 경로를 반환하는 함수
+function getPokemonImgSrc(pokemon, selectedItem, selectedSkills) {
+  if (!pokemon) return "/pokemon/img/pokemon/0000.webp";
+  const baseKey = pokemon.uniqueKey;
+  const skillNames = Object.values(selectedSkills || {});
+
+  // 1. 가이오가 - 쪽빛구슬
+  if (baseKey === "0382" && selectedItem === "쪽빛구슬") {
+    return "/pokemon/img/pokemon/0382-m.webp";
+  }
+  // 2. 그란돈 - 주홍구슬
+  if (baseKey === "0383" && selectedItem === "주홍구슬") {
+    return "/pokemon/img/pokemon/0383-m.webp";
+  }
+  // 3. 레쿠쟈 - 화룡점정
+  if (baseKey === "0384" && skillNames.includes("화룡점정")) {
+    return "/pokemon/img/pokemon/0384-m.webp";
+  }
+  // 4. 메진몬 - megaData + 나이트
+  const targetMega = getMegaData({ ...pokemon, item: selectedItem, skill: selectedSkills });
+  if (targetMega && targetMega.stone && selectedItem === targetMega.stone) {
+    return `/pokemon/img/pokemon/${targetMega.megaFormId}.webp`;
+  }
+  if (pokemon.megaData && pokemon.megaData.stone && selectedItem === pokemon.megaData.stone) {
+    return `/pokemon/img/pokemon/${pokemon.megaData.uniqueKey}.webp`;
+  }
+
+  return `/pokemon/img/pokemon/${baseKey}.webp`;
+}

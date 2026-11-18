@@ -23,6 +23,15 @@ export const abilObject = {
   잔비: { text: "전투에 나오면 날씨를 5턴 간 비로 바꾼다." },
   에어록: { text: "모든 날씨의 영향이 없어진다." },
   날씨부정: { text: "모든 날씨의 영향이 없어진다." },
+  델타스트림: {
+    text: "전투에 나오면 날씨를 난기류 상태로 만든다. 난기류 상태에서는 날씨 기술이 실패하고 비행타입의 약점이 없어진다.",
+  },
+  시작의바다: {
+    text: "전투에 나오면 날씨를 폭우 상태로 만든다. 폭우 상태에서는 날씨 기술이 실패하고 불꽃타입의 공격이 무효가 된다.",
+  },
+  끝의대지: {
+    text: "전투에 나오면 날씨를 큰가뭄 상태로 만든다. 큰가뭄 상태에서는 날씨 기술이 실패하고 물타입의 공격이 무효가 된다.",
+  },
   가뭄: { text: "전투에 나오면 날씨를 5턴 간 쾌청으로 바꾼다." },
   진홍빛고동: {
     text: "등장했을 때 날씨를 맑음으로 만든다. 햇살이 강하면 고대의 고동에 의해 공격이 1.3배가 된다.",
@@ -211,7 +220,7 @@ const augmentAbill = ["패스트스타트", "기어메이킹", "최강의잉어�
 
 // 트레이스로 베낄 수 없는 특성 (기본 불가 특성 + 아수라장 전용 특성)
 // 테라볼티지, 터보블레이즈, 재앙시리즈, 불가사의부적는 트레이스 가능한게 맞음
-const noTraceAbil = ["트레이스", "혼연일체(흑)", "혼연일체(백)", "탈", "배틀스위치", "고대활성", "쿼크차지", "테라체인지", "테라셀", "제로포밍", "어군", "절대안깸", "플라워기프트", "화학의힘", "일루전", "유대변화", "스웜체인지", "리시버", "리밋실드", "달마모드", "기분파", "괴짜", "AR시스템", "그대로꿀꺽미사일", "아이스페이스", ...augmentAbill];
+const noTraceAbil = ["트레이스", "델타스트림", "혼연일체(흑)", "혼연일체(백)", "탈", "배틀스위치", "고대활성", "쿼크차지", "테라체인지", "테라셀", "제로포밍", "어군", "절대안깸", "플라워기프트", "화학의힘", "일루전", "유대변화", "스웜체인지", "리시버", "리밋실드", "달마모드", "기분파", "괴짜", "AR시스템", "그대로꿀꺽미사일", "아이스페이스", ...augmentAbill];
 
 // 랜덤 특성 증강에서 제외할 특성 목록 (noTraceAbil과 동일한 값을 가짐)
 export const noRandomAbil = noTraceAbil;
@@ -220,6 +229,9 @@ export const noRandomAbil = noTraceAbil;
 // 첫대면(battleScreen.js), 교체(switch.js), 메가진화 후(pokemonMage.js) 발동
 export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   const atk = bt[atks];
+  if (!trace && atk.isPrimalRevertAble()) {
+    atk.primalRevert(bt, enqueue);
+  }
   const defs = atks === "player" ? "npc" : "player";
   const def = bt[defs];
   const atkAbil = atk.abil?.name;
@@ -312,10 +324,13 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     가뭄: { weatherType: "쾌청", text: "주변의 햇살이 강해졌다!" },
     모래날림: { weatherType: "모래바람", text: "주변에 모래바람이 불기 시작했다!" },
     눈퍼뜨리기: { weatherType: "설경", text: "주변에 눈이 내리기 시작했다!" },
+    시작의바다: { weatherType: "폭우", text: "주변에 강한 비가 내리기 시작했다!" },
+    끝의대지: { weatherType: "큰가뭄", text: "주변의 햇살이 아주 강해졌다!" },
+    델타스트림: { weatherType: "난기류", text: "수수께끼의 난기류가 비행포켓몬을 지킨다!", noName: true },
   };
-  Object.entries(weatherAbilities).forEach(([abil, { weatherType, text }]) => {
+  Object.entries(weatherAbilities).forEach(([abil, { weatherType, text, noName }]) => {
     if (atkAbil === abil) {
-      let weatherAbiltext = `[특성 ${abil}] ${atk.name} ${text}`;
+      let weatherAbiltext = noName ? `[특성 ${abil}] ${text}` : `[특성 ${abil}] ${atk.name} ${text}`;
       bt.field.weather.setWeatherOnBattle(bt, enqueue, atk, weatherType, weatherAbiltext);
     }
   });
@@ -333,7 +348,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   });
 
   if (atkAbil === "진홍빛고동") {
-    if (bt.field.weather.isSunny) {
+    if (bt.isSunny) {
       enqueue({
         id: "f466ee8f-6a1f-4e45-934d-f0092a0c5d31",
         battle: bt,

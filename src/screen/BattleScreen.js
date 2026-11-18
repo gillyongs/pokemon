@@ -176,14 +176,7 @@ const Battle = () => {
           >
             Round {location.state?.round || defaultOption.round}
           </RoundIndicator>
-          <RoundOptionsModal
-            isOpen={isRoundOptionsOpen}
-            onClose={() => setIsRoundOptionsOpen(false)}
-            difficulty={location.state?.difficulty || gameOption.difficulty}
-            round={location.state?.round || defaultOption.round}
-            teamOption={location.state?.teamOption || gameOption.teamOption}
-            mayhemMode={location.state?.mayhemMode ?? battle?.mayhemMode ?? gameOption.mayhemMode}
-          />
+          <RoundOptionsModal isOpen={isRoundOptionsOpen} onClose={() => setIsRoundOptionsOpen(false)} difficulty={location.state?.difficulty || gameOption.difficulty} round={location.state?.round || defaultOption.round} teamOption={location.state?.teamOption || gameOption.teamOption} mayhemMode={location.state?.mayhemMode ?? battle?.mayhemMode ?? gameOption.mayhemMode} />
           {testmode &&
             battle?.npc &&
             (() => {
@@ -230,41 +223,9 @@ const Battle = () => {
           <PokemonInfo battle={battle} type="plr" />
         </TOP>
         <BOTTOM>
-          {bottom === "skill" && (
-            <BottomSectionSkill
-              battle={battle}
-              text={text}
-              setText={setText}
-              setBottom={setBottom}
-              queueObject={queueObject}
-              battleStartBySkillButton={battleStartBySkillButton}
-              textSkip={textSkip}
-              btObj={battleLive}
-            />
-          )}
-          {(bottom === "switch" || bottom === "mustSwitch" || bottom === "switchBySkill") && (
-            <BottomSectionSwitch
-              battle={battle}
-              text={text}
-              bottom={bottom}
-              setBottom={setBottom}
-              setBench={setBench}
-              queueObject={queueObject}
-              setText={setText}
-              btObj={battleLive}
-            />
-          )}
-          {bottom === "info" && (
-            <BottomSectionInfo
-              battle={battle}
-              text={text}
-              setText={setText}
-              setBottom={setBottom}
-              bench={bench}
-              setBench={setBench}
-              onOpenAugmentStatus={(poke) => openAugmentStatus(poke || null)}
-            />
-          )}
+          {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} battleStartBySkillButton={battleStartBySkillButton} textSkip={textSkip} btObj={battleLive} />}
+          {(bottom === "switch" || bottom === "mustSwitch" || bottom === "switchBySkill") && <BottomSectionSwitch battle={battle} text={text} bottom={bottom} setBottom={setBottom} setBench={setBench} queueObject={queueObject} setText={setText} btObj={battleLive} />}
+          {bottom === "info" && <BottomSectionInfo battle={battle} text={text} setText={setText} setBottom={setBottom} bench={bench} setBench={setBench} onOpenAugmentStatus={(poke) => openAugmentStatus(poke || null)} />}
           {bottom === "skill" && (
             <AugmentStatusButton
               onClick={(e) => {
@@ -276,42 +237,11 @@ const Battle = () => {
             </AugmentStatusButton>
           )}
         </BOTTOM>
-        <GameResultModal
-          gameResult={!isTradeModalOpen ? gameResult : null}
-          onMainMenu={() => navigate("/")}
-          onNextRound={handleNextRound}
-        />
-        <AfterBattleTradeModal
-          isOpen={isTradeModalOpen}
-          battle={activeBattle}
-          onConfirmTrade={submitTrade}
-          onSkipTrade={handleSkipTrade}
-        />
-        {augmentModalOpen && (
-          <AugmentSelectModal
-            team={
-              isTitanSelection && augmentTargetPoke
-                ? [augmentTargetPoke]
-                : [battleLive?.player, battleLive?.playerBench1, battleLive?.playerBench2].filter(Boolean)
-            }
-            initialTarget={augmentTargetPoke || battleLive?.player}
-            augments={augmentChoices}
-            targetPokemon={augmentTargetPoke || battleLive?.player}
-            battle={activeBattle}
-            onSelect={handleSelectAugment}
-            onClose={handleCloseAugment}
-            isTestMode={testmode}
-            isTitanSelection={isTitanSelection}
-          />
-        )}
+        <GameResultModal gameResult={!isTradeModalOpen ? gameResult : null} onMainMenu={() => navigate("/")} onNextRound={handleNextRound} />
+        <AfterBattleTradeModal isOpen={isTradeModalOpen} battle={activeBattle} onConfirmTrade={submitTrade} onSkipTrade={handleSkipTrade} />
+        {augmentModalOpen && <AugmentSelectModal team={isTitanSelection && augmentTargetPoke ? [augmentTargetPoke] : [battleLive?.player, battleLive?.playerBench1, battleLive?.playerBench2].filter(Boolean)} initialTarget={augmentTargetPoke || battleLive?.player} augments={augmentChoices} targetPokemon={augmentTargetPoke || battleLive?.player} battle={activeBattle} onSelect={handleSelectAugment} onClose={handleCloseAugment} isTestMode={testmode} isTitanSelection={isTitanSelection} />}
         {isAugmentStatusOpen && <AugmentStatusModal battle={battle} initialPokemon={augmentStatusInitialPoke} onClose={closeAugmentStatus} />}
-        {isAugmentCarryModalOpen && (
-          <AugmentCarryoverModal
-            battle={battle}
-            round={location.state?.round || defaultOption.round}
-            onConfirm={handleCarryoverConfirm}
-          />
-        )}
+        {isAugmentCarryModalOpen && <AugmentCarryoverModal battle={battle} round={location.state?.round || defaultOption.round} onConfirm={handleCarryoverConfirm} />}
         <TestingTools
           visible={(testmode || isTestMode) && !gameResult}
           isDebugOpen={isDebugModalOpen}

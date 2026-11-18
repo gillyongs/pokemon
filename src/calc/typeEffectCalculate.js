@@ -45,8 +45,8 @@ const getAugmentTypeMultiplier = (atk, def, skillType, t1, t2) => {
   // [증강: 과거의 영광 (에스퍼)] - 공격 시: 에스퍼 기술로 공격 시 악(원래 0배) 및 강철(원래 0.5배)을 1배로 계산
   if (atk?.hasAugment?.("lostTechnologyPsychic") && skillType === "에스퍼") {
     const chart = typeChart[skillType] || {};
-    const mult1 = (t1 === "악" || t1 === "강철") ? 1 : (chart[t1] ?? 1);
-    const mult2 = (t2 === "악" || t2 === "강철") ? 1 : (chart[t2] ?? 1);
+    const mult1 = t1 === "악" || t1 === "강철" ? 1 : (chart[t1] ?? 1);
+    const mult2 = t2 === "악" || t2 === "강철" ? 1 : (chart[t2] ?? 1);
     return mult1 * mult2;
   }
 
@@ -92,7 +92,10 @@ export const typeCheckOnBattle = (battle, skillType, t1, t2, skillName, defPoke 
     return 0;
   }
 
-  return onlyTypeEffectCalculate(skillType, t1, t2, activeSkillName);
+  // 델타스트림(난기류): 비행타입의 약점(전기, 얼음, 바위)을 1배로 반감
+  const isDeltaStream = Boolean(battle?.isDeltaStream);
+
+  return onlyTypeEffectCalculate(skillType, t1, t2, activeSkillName, { deltaStream: isDeltaStream });
 };
 
 export const getTypeText = (typeDamage) => {
@@ -154,7 +157,7 @@ export const getTypeEffectText = (pokemon, skillType, t1, t2, skillClass, skillN
 };
 
 // 순수 상성 보정 계산
-const onlyTypeEffectCalculate = (skillType, t1, t2, skillName) => {
+const onlyTypeEffectCalculate = (skillType, t1, t2, skillName, options = {}) => {
   let result = 1;
   const chart = typeChart[skillType];
   if (!chart) {
@@ -162,11 +165,15 @@ const onlyTypeEffectCalculate = (skillType, t1, t2, skillName) => {
     return 1;
   }
 
+  const isDeltaStream = Boolean(options?.deltaStream);
+
   // 1배는 chart[t1]이 null이여서 계산 생략됨
   if (skillName === "프리즈드라이" && t1 === "물") result *= 2;
+  else if (isDeltaStream && t1 === "비행" && (chart[t1] ?? 1) > 1) result *= 1;
   else if (chart[t1]) result *= chart[t1];
 
   if (skillName === "프리즈드라이" && t2 === "물") result *= 2;
+  else if (isDeltaStream && t2 === "비행" && (chart[t2] ?? 1) > 1) result *= 1;
   else if (chart[t2]) result *= chart[t2];
 
   return result;

@@ -199,6 +199,9 @@ export const useBattleStore = createStore((set, get) => ({
       });
     }
 
+    const initialSnapshot = cloneWithMethods(nextBattle);
+    set({ battleLive: initialSnapshot, battle: initialSnapshot });
+
     if (isMayhem) {
       // 무조건 "배틀시작!"이 먼저 나오고 그 다음에 "증강을 선택하세요"가 나옴
       const target = [nextBattle.player, nextBattle.playerBench1, nextBattle.playerBench2].find((p) => p && (p.augments || []).filter((a) => isNormalAugment(a)).length < 3);
@@ -559,8 +562,18 @@ export const useBattleStore = createStore((set, get) => ({
         const isActivePoke = activeSidePoke === target || activeSidePoke?.originalIndex === target.originalIndex;
         const enemySide = userSide === "player" ? "npc" : "player";
         const enemyPoke = curBattle[enemySide];
+        const isReplacement = isReplacementAugment(selectedAugment);
+        if (isActivePoke && (target.abil?.name !== prevAbilName || isReplacement)) {
+          curBattle.emit("pokemonChange", {
+            target,
+            prevAbilName,
+            prevPokeName,
+            enqueue: collectEnqueue,
+            reason: "augment",
+          });
+        }
         if (isActivePoke && activeSidePoke && !activeSidePoke.faint && enemyPoke && !enemyPoke.faint) {
-          const isReplacement = isReplacementAugment(selectedAugment);
+
           if (target.abil?.name !== prevAbilName || isReplacement || isTitanSecond) {
             applyAbilityEffects(curBattle, userSide, collectEnqueue);
           }
@@ -628,13 +641,15 @@ export const useBattleStore = createStore((set, get) => ({
       followUpItems.forEach((item) => queueObject.enqueue(item));
     }
 
-    set({ battle: cloneWithMethods(curBattle) });
+    set({ battle: cloneWithMethods(headBattle) });
   },
 
   handleCloseAugment: (queueObject) => {
     const { isTitanSelection, isTitanPendingStart, battleLive: curBattle } = get();
     set({ augmentModalOpen: false, isTitanSelection: false });
     if (!curBattle) return;
+
+    const headBattle = cloneWithMethods(curBattle);
 
     const head = queueObject.queue[0];
     if (!isTitanSelection && (head?.isKnockoutAugment || (head?.isAugment && !head?.isBattleStartAugment))) {
@@ -643,12 +658,15 @@ export const useBattleStore = createStore((set, get) => ({
     const shouldTriggerStart = Boolean(head?.isBattleStartAugment) || isTitanPendingStart;
     set({ isTitanPendingStart: false });
     const followUpItems = [];
+    const collectEnqueue = (item) => {
+      followUpItems.push(cloneWithMethods(item));
+    };
 
     if (shouldTriggerStart) {
       const fastUser = speedCheck(curBattle);
       const slowUser = fastUser === "player" ? "npc" : "player";
-      applyAbilityEffects(curBattle, fastUser, (item) => followUpItems.push(item));
-      applyAbilityEffects(curBattle, slowUser, (item) => followUpItems.push(item));
+      applyAbilityEffects(curBattle, fastUser, collectEnqueue);
+      applyAbilityEffects(curBattle, slowUser, collectEnqueue);
     }
 
     const noAugText = "증강을 선택하지 않았습니다.";
@@ -657,7 +675,7 @@ export const useBattleStore = createStore((set, get) => ({
       queueObject.updateHead(
         (prev) => ({
           ...prev,
-          battle: curBattle,
+          battle: headBattle,
           text: noAugText,
           logText: noAugText,
           isAugment: false,
@@ -670,13 +688,13 @@ export const useBattleStore = createStore((set, get) => ({
     } else {
       queueObject.enqueue({
         id: "no-augment-selected-msg",
-        battle: curBattle,
+        battle: headBattle,
         text: noAugText,
         logText: noAugText,
       });
       followUpItems.forEach((item) => queueObject.enqueue(item));
     }
-    set({ battle: cloneWithMethods(curBattle) });
+    set({ battle: cloneWithMethods(headBattle) });
   },
 
   openCarryoverOrProceed: ({ nextTeam = null, locationState, gameOption, queueObject, navigate }) => {

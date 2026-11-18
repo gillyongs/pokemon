@@ -23,7 +23,7 @@ export const PokemonAbil = {
 
     // 쾌청에 의한 발동
     // 부스트에너지보다 쾌청이 우선 발동됨
-    if (battle.field.weather.isSunny) {
+    if (battle.isSunny) {
       this.tempStatus.protosynthesis = maxKey;
       this.tempStatus.protosynthesisBySun = true; // 쾌청으로 발동한 경우 쾌청 끝나면 고대활성 종료됨
       enqueue({

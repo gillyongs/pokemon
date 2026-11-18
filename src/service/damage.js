@@ -150,6 +150,15 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   // 고정 데미지 기술, 일격기
 
   if (!isNoTextSkill) {
+    const isDeltaStreamWeaken = Boolean(
+      battle?.isDeltaStream &&
+      (defPokemon.type1 === "비행" || defPokemon.type2 === "비행") &&
+      ["전기", "얼음", "바위"].includes(useSkill.type)
+    );
+    if (isDeltaStreamWeaken) {
+      enqueue({ id: "delta-stream-weaken", battle, text: (commonText || "") + "수수께끼의 난기류가 공격을 약하게 만들었다!" });
+      defaultText = false;
+    }
     if (typeText) {
       // 효과가 굉장했다!
       enqueue({ id: "1ade4efe-3baf-400a-9f3e-102d8f1db3a8", battle, text: (commonText || "") + typeText });

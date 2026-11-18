@@ -1,7 +1,7 @@
 /**
- * 포켓몬 메가진화 관계 데이터
+ * 포켓몬 메가진화 및 원시회귀 관계 데이터
  * 키: 기본 포켓몬 ID (uniqueKey)
- * 값: 메가진화 정보 배열 (리자몽, 뮤츠 등 여러 메가진화가 존재하는 포켓몬 지원)
+ * 값: 메가진화/원시회귀 정보 배열 (리자몽, 뮤츠 등 여러 폼이 존재하는 포켓몬 지원)
  */
 const megaDataList = {
   // 라이츄 (Y)
@@ -127,6 +127,36 @@ const megaDataList = {
       abil: "단단한발톱",
     },
   ],
+  // 가이오가 (원시회귀)
+  "0382": [
+    {
+      stone: "쪽빛구슬",
+      isPrimal: true,
+      megaFormId: "0382-m",
+      name: "원시가이오가",
+      abil: "시작의바다",
+    },
+  ],
+  // 그란돈 (원시회귀)
+  "0383": [
+    {
+      stone: "주홍구슬",
+      isPrimal: true,
+      megaFormId: "0383-m",
+      name: "원시그란돈",
+      abil: "끝의대지",
+    },
+  ],
+  // 레쿠쟈 (화룡점정 보유 시 메가진화)
+  "0384": [
+    {
+      stone: null,
+      requiredSkill: "화룡점정",
+      megaFormId: "0384-m",
+      name: "메가레쿠쟈",
+      abil: "델타스트림",
+    },
+  ],
   // 엘레이드
   "0475": [
     {
@@ -223,10 +253,21 @@ const megaDataList = {
 };
 
 /**
- * 포켓몬 ID와 지닌 도구(메가스톤)를 기반으로 해당하는 메가진화 정보를 반환합니다.
+ * 포켓몬 객체를 인자로 받아 지닌 도구(메가스톤/구슬) 또는 보유 기술을 기반으로 해당하는 메가진화/원시회귀 정보를 반환합니다.
  */
-export const getMegaData = (pokemonId, item) => {
-  const list = megaDataList[pokemonId];
-  if (!list || !item) return null;
-  return list.find((entry) => entry.stone === item) || null;
+export const getMegaData = (p) => {
+  if (!p) return null;
+  const list = megaDataList[p.uniqueKey];
+  if (!list) return null;
+  return (
+    list.find((entry) => {
+      if (entry.requiredSkill) {
+        const skills = p.skill || p.skills;
+        if (!skills) return false;
+        const skillNames = Object.values(skills).map((s) => (typeof s === "object" && s ? s.name : s));
+        return skillNames.includes(entry.requiredSkill);
+      }
+      return Boolean(entry.stone && entry.stone === p.item);
+    }) || null
+  );
 };

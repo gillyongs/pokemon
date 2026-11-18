@@ -12,7 +12,7 @@ export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
   battle.turn.turnEnd = null;
   let isFaintSwitch = battle.player.faint;
   enqueue({ id: "b83eb420-1c0d-47c1-aa65-c3b7115a7268", battle, text: battle.player.baseName + " 돌아와!" });
-  switchPokemon(battle, "player", actNumber, options);
+  switchPokemon(battle, "player", actNumber, options, enqueue);
   battle.turn.turnEnd = null;
   enqueue({
     id: "d62ecb46-560e-40ad-a16a-e57235acf4e2",
@@ -38,7 +38,7 @@ export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
 };
 
 export const switchPlayerForce = (battle, actNumber, enqueue) => {
-  switchPokemon(battle, "player", actNumber);
+  switchPokemon(battle, "player", actNumber, {}, enqueue);
   enqueue({
     id: "5635931b-ab6f-4b80-ab18-55df5ec2cd2f",
     battle,
@@ -55,7 +55,7 @@ export const switchNpc = (battle, actNumber, enqueue, force, options = {}) => {
   // NPC가 교체를 골랐을 때(BattleStart.js), 날려버리기 강제교체(skillEffect.js)에서만 직접 사용
   // 그 외의 경우엔 switchNpcAuto를 호출하여 사용
   if (force) {
-    switchPokemon(battle, "npc", actNumber);
+    switchPokemon(battle, "npc", actNumber, {}, enqueue);
     enqueue({
       id: "cbe52210-aa36-4e06-9244-9807127f2e58",
       battle,
@@ -67,7 +67,7 @@ export const switchNpc = (battle, actNumber, enqueue, force, options = {}) => {
       battle,
       text: "상대는 " + battle.npc.baseNames("를") + " 넣어 버렸다!",
     });
-    switchPokemon(battle, "npc", actNumber, options);
+    switchPokemon(battle, "npc", actNumber, options, enqueue);
     enqueue({
       id: "50befd61-7787-45c3-ba72-b3ed7b1892f1",
       battle,
@@ -190,18 +190,13 @@ const extraSwitchWhenTurnEnd = (battle, user, enqueue) => {
 
 // ===================================================================================================
 
-const switchPokemon = (battle, IN, OUT, options = {}) => {
+const switchPokemon = (battle, IN, OUT, options = {}, enqueue = null) => {
   // 교체 함수.
   // 실제 객체의 값을 바꾸고
   // pokemon.tempStatus 값을 초기화한다
 
-  //IN: player or npc
+  //IN: "player" or "npc"
   //OUT: playerBench1,2 // npcBench1,2
-
-  if (!battle || !battle[IN] || !battle[OUT]) {
-    console.error("Invalid battle object or keys");
-    return;
-  }
 
   const pokemonIn = battle[IN]; //교체로 들어가는 포켓몬
 
@@ -258,6 +253,12 @@ const switchPokemon = (battle, IN, OUT, options = {}) => {
   }
 
   [battle[IN], battle[OUT]] = [battle[OUT], battle[IN]];
+
+  // 델타스트림 / 시작의바다 / 끝의대지 포켓몬이 교체되어 들어갈 때 날씨 종료 처리
+  // 기절로 인한 교체일땐 handleFaint에서 처리하므로 여기선 패스
+  if (!pokemonIn.faint) {
+    battle.emit("pokemonLeave", { leavingPokemon: pokemonIn, enqueue, reason: "switch" });
+  }
 
   if (batonState && battle[IN]?.tempStatus) {
     Object.assign(battle[IN].tempStatus.rank, batonState.rank);

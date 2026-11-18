@@ -85,7 +85,7 @@ class samplePokemon {
 
 
 
-    const targetMega = getMegaData(this.uniqueKey, this.item);
+    const targetMega = getMegaData(this);
     if (targetMega) {
       const megaPokemon = PokemonData.getPokemonDataByUniqueKey(targetMega.megaFormId);
       if (megaPokemon) {
@@ -107,6 +107,8 @@ class samplePokemon {
           type2: megaPokemon.type2,
           abil: targetMega.abil,
           stone: targetMega.stone,
+          requiredSkill: targetMega.requiredSkill || null,
+          isPrimal: Boolean(targetMega.isPrimal),
           stat: mStat,
         };
         // 메가 진화시 바뀔 스탯을 미리 계산해놓고 메가진화시 값만 바꾼다

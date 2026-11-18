@@ -1,15 +1,10 @@
 import sampleList from "../entity/Pokemon/pokemonSampleList";
 
 const isSupporter = (pokemon) => pokemon?.role === "기점잡이";
-const isTanker = (pokemon) =>
-  pokemon?.role === "물리막이" || pokemon?.role === "특수막이" || pokemon?.role === "막이";
-const isAttacker = (pokemon) =>
-  pokemon?.role === "물리어태커" ||
-  pokemon?.role === "특수어태커" ||
-  pokemon?.role === "물리딜탱" ||
-  pokemon?.role === "특수딜탱";
+const isTanker = (pokemon) => pokemon?.role === "물리막이" || pokemon?.role === "특수막이" || pokemon?.role === "막이";
+const isAttacker = (pokemon) => pokemon?.role === "물리어태커" || pokemon?.role === "특수어태커" || pokemon?.role === "물리딜탱" || pokemon?.role === "특수딜탱";
 export const isLegendary = (pokemon) => !!pokemon?.feature?.legendary;
-const isMega = (pokemon) => !!pokemon?.megaData;
+const isMega = (pokemon) => Boolean(pokemon?.megaData && !pokemon.megaData.isPrimal);
 
 /**
  * 포켓몬의 타입이 주어진 타입 집합과 겹치는 개수를 반환합니다.
@@ -249,7 +244,10 @@ export const fillRandomTeam = (existingTeam = [null, null, null], teamSize = 3) 
 
   if (emptyIndices.length === 0) return team;
 
-  const existingPokemons = team.filter(Boolean).map((id) => sampleList.getDataBySampleName(id)).filter(Boolean);
+  const existingPokemons = team
+    .filter(Boolean)
+    .map((id) => sampleList.getDataBySampleName(id))
+    .filter(Boolean);
   const hasExistingLegendary = existingPokemons.some(isLegendary);
   const hasExistingMega = existingPokemons.some(isMega);
   const existingSupporters = existingPokemons.filter(isSupporter).length;
