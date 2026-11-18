@@ -267,8 +267,11 @@ new samplePokemon("개굴닌자", "0658", "CS252", "speed", "atk",
 new samplePokemon("메가개굴닌자", "0658", "CS252", "speed", "atk",
   "물수리검", "악의파동", "냉동빔", "파도타기", "개굴닌자나이트", "변환자재", "특수어태커"),
 
+new samplePokemon("플라엣테", "0670", "CS252", "speed", "atk",
+  "문포스", "명상", "드레인키스", "파멸의빛", "구애스카프", "공생", "특수어태커"),
+
 new samplePokemon("메가플라엣테", "0670", "CS252", "speed", "atk",
-  "문포스", "명상", "드레인키스", "파멸의빛", "플라엣테나이트", "플라워베일", "특수어태커"),
+  "문포스", "명상", "드레인키스", "파멸의빛", "플라엣테나이트", "공생", "특수어태커"),
 
 new samplePokemon("견고라스", "0697", "AS252", "speed", "catk",
   "양날박치기", "스케일샷", "용의춤", "불꽃엄니", "기합의띠", "돌머리", "물리어태커"),
@@ -494,6 +497,7 @@ new samplePokemon("라티오스", "0381", "CS252", "speed", "atk",
     if (sampleName === "잉어킹") return magikarpSample;
     if (sampleName === "켄타로스 (증강)") return taurosAugmentSample;
     if (sampleName === "뮤츠 (증강)") return mewtwoAugmentSample;
+    if (sampleName === "휘석 플라엣테") return evioliteFloetteSample;
     const exact = this.items.find((item) => item.sampleName === sampleName);
     if (exact) return exact;
     return (
@@ -566,6 +570,7 @@ const magikarpSample = new samplePokemon("잉어킹", "0129-g", "H28 C252 S228",
 const klinklangSample = new samplePokemon("기기기어르", "0601", "HA252", "atk", "catk", "기어소서", "기어체인지", "와일드볼트", "방어", "먹다남은음식", "기어메이킹", "물리딜탱", "매 턴마다 기어를 추가하여 능력치가 조금씩 오릅니다.");
 const taurosAugmentSample = new samplePokemon("켄타로스 (증강)", "0128", "AS252", "speed", "catk", "파괴광선", "눈보라", "지진", "10만볼트", "생명의구슬", "전관예우", "물리어태커", "선택 시 전용 증강 3개와 시너지 버프를 획득합니다.");
 const mewtwoAugmentSample = new samplePokemon("뮤츠 (증강)", "0150", "CS252", "catk", "atk", "사이코키네시스", "눈보라", "나쁜음모", "HP회복", "생명의구슬", "프레셔", "특수어태커", "선택 시 전용 증강 3개와 시너지 버프를 획득합니다.");
+const evioliteFloetteSample = new samplePokemon("휘석 플라엣테", "0670", "HC252", "catk", "atk", "문포스", "명상", "드레인키스", "파멸의빛", "진화의휘석", "공생", "특수딜탱", "진화의 휘석 효과를 받아 방어와 특수방어가 1.5배 상승합니다.");
 
 // 싱글턴 객체 생성 (전역에서 사용 가능)
 const sampleList = new SamplePokemonList();

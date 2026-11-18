@@ -102,6 +102,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
   const isMewtwoPokemon = hasPokemonName(pokemon, "뮤츠") || augmentId === "mewtwoStrikesBack";
   const isTitanPokemon = hasPokemonName(pokemon, "레지기가스") || augmentId === "legendaryTitan";
   const isTaurosPokemon = hasPokemonName(pokemon, "켄타로스") || augmentId === "veteranPrivilege";
+  const isEvioliteFloette = hasPokemonName(pokemon, "휘석 플라엣테") || (pokemon?.item === "진화의휘석" && hasPokemonName(pokemon, "플라엣테"));
 
   const replacementAugmentInfo = useMemo(() => {
     if (isMewtwoPokemon) {
@@ -154,8 +155,19 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
       };
     }
 
+    if (isEvioliteFloette) {
+      const augs = [AUGMENT_LIST.find((a) => a.id === "eviolite")].filter(Boolean);
+      return {
+        type: "evioliteFloette",
+        btnLabel: "증강 확인 (1종)",
+        modalTitle: "휘석 플라엣테 전용 증강",
+        headerNotice: "교체 시 아래 전용 증강을 추가로 획득합니다.",
+        augs,
+      };
+    }
     return null;
-  }, [isMewtwoPokemon, isEternatusPokemon, isTitanPokemon, isTaurosPokemon]);
+  }, [isMewtwoPokemon, isEternatusPokemon, isTitanPokemon, isTaurosPokemon, isEvioliteFloette]);
+
 
   const eternamaxData = useMemo(() => {
     if (!isEternatusPokemon) return null;
@@ -273,7 +285,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
                 setShowMegaForm(true);
               }}
             >
-              메가플라이곤 (메가진화)
+              {pokemon.megaData?.name || "메가진화"} (메가진화)
             </FormToggleButton>
             <FormToggleButton
               type="button"
@@ -283,7 +295,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
                 setShowMegaForm(false);
               }}
             >
-              플라이곤 (진화 전)
+              {pokemon.name} (진화 전)
             </FormToggleButton>
           </FormToggleRow>
         )}

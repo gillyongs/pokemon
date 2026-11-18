@@ -300,7 +300,7 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 0.75;
       defStr += " * 0.75 (재앙의검)";
     }
-    if (defensePokemon.item === "진화의휘석" && defensePokemon.feature?.evo) {
+    if (defensePokemon.item === "진화의휘석" && (defensePokemon.feature?.evo || defensePokemon.hasAugment?.("eviolite"))) {
       defStat *= 1.5;
       defStr += " * 1.5 (진화의휘석)";
     }
@@ -332,7 +332,7 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 0.75;
       defStr += " * 0.75 (재앙의구슬)";
     }
-    if (defensePokemon.item === "진화의휘석" && defensePokemon.feature?.evo) {
+    if (defensePokemon.item === "진화의휘석" && (defensePokemon.feature?.evo || defensePokemon.hasAugment?.("eviolite") || defensePokemon.hasAugment?.("진화의 휘석"))) {
       defStat *= 1.5;
       defStr += " * 1.5 (진화의휘석)";
     }

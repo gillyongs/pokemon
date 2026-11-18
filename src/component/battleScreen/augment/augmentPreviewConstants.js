@@ -39,6 +39,15 @@ export const AUGMENT_GRANT_PREVIEW_MAP = {
       { sampleName: "이븐곰", name: "이븐곰", imgId: "0760", dexNo: "0760" },
     ],
   },
+  threeThousandYears: {
+    modalTitle: "증강 상세 안내",
+    headerNotice: "다음 플라엣테 중 1마리와 교체됩니다.",
+    candidates: [
+      { sampleName: "플라엣테", name: "스카프 플라엣테", imgId: "0670", dexNo: "0670" },
+      { sampleName: "메가플라엣테", name: "메가플라엣테", imgId: "0670-m", dexNo: "0670" },
+      { sampleName: "휘석 플라엣테", name: "휘석 플라엣테", imgId: "0670", dexNo: "0670" },
+    ],
+  },
 };
 
 export const getAugmentGrantInfo = (augId) => {

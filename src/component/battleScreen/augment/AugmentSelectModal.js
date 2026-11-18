@@ -11,6 +11,7 @@ import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import AugmentGrantPreviewModal from "./AugmentGrantPreviewModal";
 import AugmentSwordEnhanceView from "./select/AugmentSwordEnhanceView";
 import AugmentPowerOfKingView from "./select/AugmentPowerOfKingView";
+import AugmentThreeThousandYearsView from "./select/AugmentThreeThousandYearsView";
 import AugmentSoulDiceView from "./select/AugmentSoulDiceView";
 import AugmentRouletteView from "./select/AugmentRouletteView";
 import AugmentSkillSelectView from "./select/AugmentSkillSelectView";
@@ -50,6 +51,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   const [selectedAugment, setSelectedAugment] = useState(null);
   const [swordEnhanceAug, setSwordEnhanceAug] = useState(null);
   const [powerOfKingAug, setPowerOfKingAug] = useState(null);
+  const [threeThousandYearsAug, setThreeThousandYearsAug] = useState(null);
   const [soulDiceAug, setSoulDiceAug] = useState(null);
   const [rouletteAug, setRouletteAug] = useState(null);
 
@@ -197,6 +199,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     setSkillSelectAug(null);
     setSwordEnhanceAug(null);
     setPowerOfKingAug(null);
+    setThreeThousandYearsAug(null);
     setSoulDiceAug(null);
     setRouletteAug(null);
   };
@@ -229,6 +232,11 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     if (targetAug.id === "teraBlast") {
       setTypeSelectAug(targetAug);
       setSelectedType(null);
+      return;
+    }
+
+    if (targetAug.id === "threeThousandYears") {
+      setThreeThousandYearsAug(targetAug);
       return;
     }
 
@@ -280,6 +288,16 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                   setPowerOfKingAug(null);
                 }}
                 onCancel={() => setPowerOfKingAug(null)}
+              />
+            ) : threeThousandYearsAug ? (
+              <AugmentThreeThousandYearsView
+                threeThousandYearsAug={threeThousandYearsAug}
+                activePokemon={activePokemon}
+                onSelect={(aug, opts) => {
+                  onSelect(aug, opts);
+                  setThreeThousandYearsAug(null);
+                }}
+                onCancel={() => setThreeThousandYearsAug(null)}
               />
             ) : swordEnhanceAug ? (
               <AugmentSwordEnhanceView

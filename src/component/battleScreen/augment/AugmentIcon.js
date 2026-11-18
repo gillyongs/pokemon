@@ -17,10 +17,13 @@ const DEDICATED_AUGMENT_POKEMON = {
   mewtwoStrikesBack: "0150-a",
   veteranPrivilege: "0128-a",
   devilOfGen7: "0778",
+  threeThousandYears: "0670",
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
 const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
+  threeThousandYears: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0670": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   nameIsSalamence: { shiftUp: true, offsetY: -5.5, scale: 1.15 },
   "0373": { shiftUp: true, offsetY: -5.5, scale: 1.15 },
   legendaryTitan: { shiftUp: true, offsetY: -5, scale: 1.15 },
@@ -1053,6 +1056,18 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <image href="/pokemon/img/augment/wujuStyle.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#wsBorderGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#67e8f9" strokeWidth="0.5" strokeOpacity="0.4" />
+          </g>
+        )}
+
+        {/* 진화의 휘석 */}
+        {id === "eviolite" && (
+          <g>
+            <circle cx="32" cy="32" r="22" fill="#ec4899" opacity="0.22" filter="url(#glow)" />
+            <circle cx="32" cy="32" r="16" fill="#a855f7" opacity="0.28" filter="url(#glow)" />
+            <image href="/pokemon/img/item/진화의휘석.webp" x="7" y="7" width="50" height="50" style={{ filter: "drop-shadow(0 0 6px rgba(244, 114, 182, 0.7)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))" }} />
+            <path d="M 49 14 Q 49 16.5 51.5 16.5 Q 49 16.5 49 14 Z" fill="#fdf2f8" opacity="0.95" />
+            <circle cx="15" cy="46" r="1.2" fill="#f472b6" opacity="0.85" />
+            <circle cx="48" cy="45" r="1" fill="#c084fc" opacity="0.85" />
           </g>
         )}
 
