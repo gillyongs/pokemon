@@ -15,7 +15,7 @@ export const getReplacementAugmentWeight = (pokemon) => {
 };
 
 // 포켓몬 교체 증강
-export const REPLACEMENT_AUGMENT_IDS = ["legendaryTitan", "rouletteWheel", "soaring", "marriedPokemon", "magikarpJump", "klinklangGear", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears"];
+export const REPLACEMENT_AUGMENT_IDS = ["legendaryTitan", "rouletteWheel", "soaring", "marriedPokemon", "magikarpJump", "klinklangGear", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle"];
 
 export const isReplacementAugment = (augmentOrId) => {
   const id = typeof augmentOrId === "string" ? augmentOrId : augmentOrId?.id;
@@ -1364,6 +1364,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "eviolite",
+    isEligible: () => false,
     name: "진화의 휘석",
     desc: "지닌 물건을 진화의 휘석과 교체합니다.\n해당 포켓몬이 진화의 휘석 효과를 받습니다.",
     cost: 0,
@@ -1377,6 +1378,34 @@ export const AUGMENT_LIST = [
   },
 
   // 특정 포켓몬 전용 증강 =============================================================================
+  {
+    id: "evioliteShuckle",
+    name: "휘석 단단지",
+    desc: "현재 포켓몬을 단단지와 교체합니다.\n진화의 휘석 증강을 추가로 획득합니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`[증강] ${fromName}#{이} 단단지로 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      return josa(`${fromName}#{이} 단단지로 교체되었다!`);
+    },
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0213"),
+    onApply: function (pokemon, battle, options) {
+      const newPoke = replacePokemon(pokemon, "단단지", battle, { resetAugments: true });
+      if (newPoke) {
+        const evioliteAug = AUGMENT_LIST.find((a) => a.id === "eviolite");
+        if (evioliteAug) {
+          const grantOptions = { ...options, replaceSlot: undefined };
+          newPoke.applyAugment(evioliteAug, battle, grantOptions);
+        }
+      }
+    },
+  },
   // =================================================================================================
   {
     id: "nameIsSalamence",
@@ -2127,7 +2156,7 @@ const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   ["revivePiece", "maxRevive"],
 
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
-  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears"],
+  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle"],
 
   // 3. 능력치 전환 증강: 동시에 2개 이상 나오지 않음
   ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"],

@@ -7,6 +7,7 @@ export const AUGMENT_POKEMON_PREVIEW_MAP = {
   eternamax: "무한다이노",
   mewtwoStrikesBack: "뮤츠 (증강)",
   veteranPrivilege: "켄타로스 (증강)",
+  evioliteShuckle: "단단지",
 };
 
 export const AUGMENT_GRANT_PREVIEW_MAP = {

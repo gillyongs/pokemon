@@ -103,6 +103,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
   const isTitanPokemon = hasPokemonName(pokemon, "레지기가스") || augmentId === "legendaryTitan";
   const isTaurosPokemon = hasPokemonName(pokemon, "켄타로스") || augmentId === "veteranPrivilege";
   const isEvioliteFloette = hasPokemonName(pokemon, "휘석 플라엣테") || (pokemon?.item === "진화의휘석" && hasPokemonName(pokemon, "플라엣테"));
+  const isShucklePokemon = hasPokemonName(pokemon, "단단지") || augmentId === "evioliteShuckle";
 
   const replacementAugmentInfo = useMemo(() => {
     if (isMewtwoPokemon) {
@@ -165,8 +166,19 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
         augs,
       };
     }
+
+    if (isShucklePokemon) {
+      const augs = [AUGMENT_LIST.find((a) => a.id === "eviolite")].filter(Boolean);
+      return {
+        type: "evioliteShuckle",
+        btnLabel: "증강 확인 (1종)",
+        modalTitle: "단단지 전용 증강",
+        headerNotice: "교체 시 아래 전용 증강을 추가로 획득합니다.",
+        augs,
+      };
+    }
     return null;
-  }, [isMewtwoPokemon, isEternatusPokemon, isTitanPokemon, isTaurosPokemon, isEvioliteFloette]);
+  }, [isMewtwoPokemon, isEternatusPokemon, isTitanPokemon, isTaurosPokemon, isEvioliteFloette, isShucklePokemon]);
 
 
   const eternamaxData = useMemo(() => {

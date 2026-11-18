@@ -17,12 +17,15 @@ const DEDICATED_AUGMENT_POKEMON = {
   mewtwoStrikesBack: "0150-a",
   veteranPrivilege: "0128-a",
   devilOfGen7: "0778",
-  threeThousandYears: "0670",
+  evioliteShuckle: "0213",
+
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
 const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
-  threeThousandYears: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  evioliteShuckle: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0213": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+
   "0670": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   nameIsSalamence: { shiftUp: true, offsetY: -5.5, scale: 1.15 },
   "0373": { shiftUp: true, offsetY: -5.5, scale: 1.15 },
@@ -1020,7 +1023,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -3603,6 +3606,15 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {id === "powerOfKing" && (
           <g clipPath="url(#lwClip)">
             <image href="/pokemon/img/augment/powerOfKing.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#60a5fa" strokeWidth="0.5" strokeOpacity="0.75" />
+          </g>
+        )}
+
+        {/* 3000년 만이구나... (AZ 일러스트 이미지 + 원형 클리핑 & 링) */}
+        {id === "threeThousandYears" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/threeThousandYears.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#60a5fa" strokeWidth="0.5" strokeOpacity="0.75" />
           </g>
