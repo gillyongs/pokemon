@@ -159,6 +159,11 @@ export const useBattleStore = createStore((set, get) => ({
                     swordFailed: savedAug?.swordFailed,
                     swordBonusAtk: savedAug?.swordBonusAtk,
                     swordName: savedAug?.swordName,
+                    arcaneSuccessCount: savedAug?.arcaneSuccessCount,
+                    arcaneBonusAtk: savedAug?.arcaneBonusAtk,
+                    arcaneBonusCatk: savedAug?.arcaneBonusCatk,
+                    arcaneBonusSpeed: savedAug?.arcaneBonusSpeed,
+                    arcaneSwordName: savedAug?.arcaneSwordName,
                     pickedAbility: savedAug?.pickedAbility,
                     nimbleSkillName: savedAug?.nimbleSkillName,
                     dragonKillCount: savedAug?.dragonKillCount ?? p.dragonKillCount,
@@ -176,7 +181,8 @@ export const useBattleStore = createStore((set, get) => ({
               }
               const isBufOrCurse = fullAug ? Boolean(isBuffAugment(fullAug) || isCurseAugment(fullAug)) : Boolean(savedAug?.buf || savedAug?.curse);
               if (fullAug && isBufOrCurse === isBufPass) {
-                p.applyAugment(fullAug, nextBattle, {
+                const augToApply = savedAug?.name ? { ...fullAug, name: savedAug.name } : fullAug;
+                p.applyAugment(augToApply, nextBattle, {
                   replaceSlot: savedAug?.replacedSlot,
                   selectedType: savedAug?.selectedType,
                   targetStat: savedAug?.allOrNothingResult,
@@ -185,6 +191,11 @@ export const useBattleStore = createStore((set, get) => ({
                   swordFailed: savedAug?.swordFailed,
                   swordBonusAtk: savedAug?.swordBonusAtk,
                   swordName: savedAug?.swordName,
+                  arcaneSuccessCount: savedAug?.arcaneSuccessCount,
+                  arcaneBonusAtk: savedAug?.arcaneBonusAtk,
+                  arcaneBonusCatk: savedAug?.arcaneBonusCatk,
+                  arcaneBonusSpeed: savedAug?.arcaneBonusSpeed,
+                  arcaneSwordName: savedAug?.arcaneSwordName || savedAug?.name,
                   pickedAbility: savedAug?.pickedAbility,
                   nimbleSkillName: savedAug?.nimbleSkillName,
                   dragonKillCount: savedAug?.dragonKillCount ?? p.dragonKillCount,
@@ -785,6 +796,11 @@ export const useBattleStore = createStore((set, get) => ({
         swordFailed: aug.swordFailed,
         swordBonusAtk: aug.swordBonusAtk,
         swordName: aug.swordName,
+        arcaneSuccessCount: aug.arcaneSuccessCount,
+        arcaneBonusAtk: aug.arcaneBonusAtk,
+        arcaneBonusCatk: aug.arcaneBonusCatk,
+        arcaneBonusSpeed: aug.arcaneBonusSpeed,
+        arcaneSwordName: aug.arcaneSwordName,
         pickedAbility: aug.pickedAbility,
         nimbleSkillName: aug.nimbleSkillName,
         dragonKillCount: aug.dragonKillCount,

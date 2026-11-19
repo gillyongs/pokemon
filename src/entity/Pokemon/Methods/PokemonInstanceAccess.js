@@ -182,6 +182,51 @@ export const PokemonInstanceAccess = {
     this.agument.sword.name = v;
   },
 
+  get arcaneSuccessCount() {
+    return this._arcaneSuccessCount ?? this.agument?.arcaneSuccessCount ?? 0;
+  },
+  set arcaneSuccessCount(v) {
+    this._arcaneSuccessCount = v;
+    if (!this.agument) this.agument = {};
+    this.agument.arcaneSuccessCount = v;
+  },
+
+  get arcaneBonusAtk() {
+    return this._arcaneBonusAtk ?? this.agument?.arcaneBonusAtk ?? 0;
+  },
+  set arcaneBonusAtk(v) {
+    this._arcaneBonusAtk = v;
+    if (!this.agument) this.agument = {};
+    this.agument.arcaneBonusAtk = v;
+  },
+
+  get arcaneBonusCatk() {
+    return this._arcaneBonusCatk ?? this.agument?.arcaneBonusCatk ?? 0;
+  },
+  set arcaneBonusCatk(v) {
+    this._arcaneBonusCatk = v;
+    if (!this.agument) this.agument = {};
+    this.agument.arcaneBonusCatk = v;
+  },
+
+  get arcaneBonusSpeed() {
+    return this._arcaneBonusSpeed ?? this.agument?.arcaneBonusSpeed ?? 0;
+  },
+  set arcaneBonusSpeed(v) {
+    this._arcaneBonusSpeed = v;
+    if (!this.agument) this.agument = {};
+    this.agument.arcaneBonusSpeed = v;
+  },
+
+  get arcaneSwordName() {
+    return this._arcaneSwordName ?? this.agument?.arcaneSwordName ?? null;
+  },
+  set arcaneSwordName(v) {
+    this._arcaneSwordName = v;
+    if (!this.agument) this.agument = {};
+    this.agument.arcaneSwordName = v;
+  },
+
   get pickedAbility() {
     return this.agument?.pickedAbility ?? null;
   },

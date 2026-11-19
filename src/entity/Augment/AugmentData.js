@@ -273,7 +273,7 @@ export const AUGMENT_LIST = [
     id: "axeOfDespair",
     name: "데몬의 도끼",
     desc: "장착 몬스터의 공격력을 100 올린다.",
-    cost: 2,
+    cost: 3,
     weight: (pokemon) => (isTankPokemon(pokemon) ? 30 : 100),
     isEligible: (pokemon) => isPhysicalPokemon(pokemon),
   },
@@ -372,6 +372,65 @@ export const AUGMENT_LIST = [
       pokemon.swordFailed = failed;
       pokemon.swordBonusAtk = bonusAtk;
       pokemon.swordName = sName;
+    },
+  },
+  {
+    id: "arcaneShadeSword",
+    name: "아케인셰이드 투핸드소드",
+    desc: "검을 원하는 주문서로 강화할 수 있습니다.",
+    selDesc: function () {
+      return "검을 원하는 주문서로 강화할 수 있습니다.";
+    },
+    screenText: function (target, prevPokeName, options) {
+      const successes = Number(options?.arcaneSuccessCount ?? this?.arcaneSuccessCount ?? target?.arcaneSuccessCount ?? 0);
+      const atk = Number(options?.arcaneBonusAtk ?? this?.arcaneBonusAtk ?? target?.arcaneBonusAtk ?? 0);
+      const catk = Number(options?.arcaneBonusCatk ?? this?.arcaneBonusCatk ?? target?.arcaneBonusCatk ?? 0);
+      const speed = Number(options?.arcaneBonusSpeed ?? this?.arcaneBonusSpeed ?? target?.arcaneBonusSpeed ?? 0);
+      let statText = `공격 +${atk}, 특공 +${catk}`;
+      if (speed > 0) statText += `, 스피드 +${speed}`;
+      const name = successes > 0 ? `아케인셰이드 투핸드소드 (+${successes})` : "아케인셰이드 투핸드소드";
+      return `[증강] ${name} 강화 완료!\n(${statText})`;
+    },
+    logModalText: function (pokemon, battle, options) {
+      const successes = Number(options?.arcaneSuccessCount ?? this?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
+      const atk = Number(options?.arcaneBonusAtk ?? this?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
+      const catk = Number(options?.arcaneBonusCatk ?? this?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
+      const speed = Number(options?.arcaneBonusSpeed ?? this?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
+      let statText = `공격 +${atk}, 특공 +${catk}`;
+      if (speed > 0) statText += `, 스피드 +${speed}`;
+      const name = successes > 0 ? `아케인셰이드 투핸드소드 (+${successes})` : "아케인셰이드 투핸드소드";
+      return `${name}로 강화하여 ${statText}을 획득했습니다.`;
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const atk = Number(options?.arcaneBonusAtk ?? this?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
+      const catk = Number(options?.arcaneBonusCatk ?? this?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
+      const speed = Number(options?.arcaneBonusSpeed ?? this?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
+      let statText = `공격 +${atk}, 특공 +${catk}`;
+      if (speed > 0) statText += `, 스피드 +${speed}`;
+      return `${statText}`;
+    },
+    cost: 2,
+    weight: 50,
+    onApply: function (pokemon, battle, options) {
+      const successes = Number(options?.arcaneSuccessCount ?? this?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
+      const bonusAtk = Number(options?.arcaneBonusAtk ?? this?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
+      const bonusCatk = Number(options?.arcaneBonusCatk ?? this?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
+      const speed = Number(options?.arcaneBonusSpeed ?? this?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
+      const swordName = options?.arcaneSwordName || this?.arcaneSwordName || (successes > 0 ? `아케인셰이드 투핸드소드 (+${successes})` : "아케인셰이드 투핸드소드");
+
+      this.name = swordName;
+      this.shortName = swordName;
+      this.arcaneSuccessCount = successes;
+      this.arcaneBonusAtk = bonusAtk;
+      this.arcaneBonusCatk = bonusCatk;
+      this.arcaneBonusSpeed = speed;
+      this.arcaneSwordName = swordName;
+
+      pokemon.arcaneSuccessCount = successes;
+      pokemon.arcaneBonusAtk = bonusAtk;
+      pokemon.arcaneBonusCatk = bonusCatk;
+      pokemon.arcaneBonusSpeed = speed;
+      pokemon.arcaneSwordName = swordName;
     },
   },
   {
