@@ -66,11 +66,11 @@ export const PokemonInstanceAccess = {
     return this.o.name;
   },
 
-  get baseItem() {
+  get originalItem() {
     return this.o.item;
   },
 
-  get baseAbil() {
+  get originalAbil() {
     return this.o.abil;
   },
 

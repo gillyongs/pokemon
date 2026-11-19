@@ -230,7 +230,7 @@ const switchPokemon = (battle, IN, OUT, options = {}, enqueue = null) => {
   }
 
   // 트레이스 특성 초기화
-  if (pokemonIn.abil?.name !== pokemonIn.baseAbil?.name) {
+  if (pokemonIn.abil?.name !== pokemonIn.originalAbil?.name) {
     pokemonIn.resetAbil();
   }
 

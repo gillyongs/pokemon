@@ -568,7 +568,7 @@ const CustomScreen = () => {
           return (
             <>
               <Grid>{filteredSamples.map((pokemon) => renderSampleCard(pokemon))}</Grid>
-              {filteredAugmentSamples.length > 0 && (
+              {mayhemMode && filteredAugmentSamples.length > 0 && (
                 <>
                   <MayhemDivider>
                     <MayhemDividerLine />

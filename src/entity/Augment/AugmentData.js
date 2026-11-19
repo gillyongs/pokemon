@@ -2063,8 +2063,8 @@ export const AUGMENT_LIST = [
       return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
     },
     statusModalText: function (pokemon) {
-      const baseItem = pokemon?.baseItem?.name || pokemon?.baseItem || pokemon?.o?.item?.name || pokemon?.o?.item;
-      const wasHolding = baseItem === "기합의띠";
+      const originalItem = pokemon?.originalItem?.name || pokemon?.originalItem;
+      const wasHolding = originalItem === "기합의띠";
       return wasHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
     },
     cost: 1,
@@ -2093,15 +2093,15 @@ export const AUGMENT_LIST = [
     weight: 200,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon) => (pokemon?.abil?.name === "리베로" || pokemon?.baseAbil?.name === "리베로" || pokemon?.abil === "리베로") && !pokemon?.hasAugment?.("libero"),
+    isEligible: (pokemon) => hasCurrentAndOriginalAbil(pokemon, "리베로") && !pokemon?.hasAugment?.("libero"),
     onApply: (pokemon) => {
       if (pokemon?.abil?.name === "리베로") {
         pokemon.abil.used = false;
         pokemon.abil.text = "자신이 사용한 기술과 같은 타입으로 변화한다.";
       }
-      if (pokemon?.o?.abil?.name === "리베로") {
-        pokemon.o.abil.used = false;
-        pokemon.o.abil.text = "자신이 사용한 기술과 같은 타입으로 변화한다.";
+      if (pokemon?.originalAbil?.name === "리베로") {
+        pokemon.originalAbil.used = false;
+        pokemon.originalAbil.text = "자신이 사용한 기술과 같은 타입으로 변화한다.";
       }
     },
   },
@@ -2114,15 +2114,15 @@ export const AUGMENT_LIST = [
     weight: 200,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon) => (pokemon?.abil?.name === "변환자재" || pokemon?.baseAbil?.name === "변환자재" || pokemon?.abil === "변환자재") && !pokemon?.hasAugment?.("protean"),
+    isEligible: (pokemon) => hasCurrentAndOriginalAbil(pokemon, "변환자재") && !pokemon?.hasAugment?.("protean"),
     onApply: (pokemon) => {
       if (pokemon?.abil?.name === "변환자재") {
         pokemon.abil.used = false;
         pokemon.abil.text = "자신이 사용한 기술과 같은 타입으로 변화한다.";
       }
-      if (pokemon?.o?.abil?.name === "변환자재") {
-        pokemon.o.abil.used = false;
-        pokemon.o.abil.text = "자신이 사용한 기술과 같은 타입으로 변화한다.";
+      if (pokemon?.originalAbil?.name === "변환자재") {
+        pokemon.originalAbil.used = false;
+        pokemon.originalAbil.text = "자신이 사용한 기술과 같은 타입으로 변화한다.";
       }
     },
   },
@@ -2135,15 +2135,15 @@ export const AUGMENT_LIST = [
     weight: 200,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon) => (pokemon?.abil?.name === "불요의검" || pokemon?.baseAbil?.name === "불요의검" || pokemon?.abil === "불요의검") && !pokemon?.hasAugment?.("intrepidSword"),
+    isEligible: (pokemon) => hasCurrentAndOriginalAbil(pokemon, "불요의검") && !pokemon?.hasAugment?.("intrepidSword"),
     onApply: (pokemon) => {
       if (pokemon?.abil) {
         pokemon.abil.usedOnce = false;
         if (pokemon.abil.name === "불요의검") pokemon.abil.text = "등장했을 때 공격이 1랭크 올라간다.";
       }
-      if (pokemon?.o?.abil) {
-        pokemon.o.abil.usedOnce = false;
-        if (pokemon.o.abil.name === "불요의검") pokemon.o.abil.text = "등장했을 때 공격이 1랭크 올라간다.";
+      if (pokemon?.originalAbil) {
+        pokemon.originalAbil.usedOnce = false;
+        if (pokemon.originalAbil.name === "불요의검") pokemon.originalAbil.text = "등장했을 때 공격이 1랭크 올라간다.";
       }
     },
   },
@@ -2156,15 +2156,15 @@ export const AUGMENT_LIST = [
     weight: 200,
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon) => (pokemon?.abil?.name === "불굴의방패" || pokemon?.baseAbil?.name === "불굴의방패" || pokemon?.abil === "불굴의방패") && !pokemon?.hasAugment?.("dauntlessShield"),
+    isEligible: (pokemon) => hasCurrentAndOriginalAbil(pokemon, "불굴의방패") && !pokemon?.hasAugment?.("dauntlessShield"),
     onApply: (pokemon) => {
       if (pokemon?.abil) {
         pokemon.abil.usedOnce = false;
         if (pokemon.abil.name === "불굴의방패") pokemon.abil.text = "등장했을 때 방어가 1랭크 올라간다.";
       }
-      if (pokemon?.o?.abil) {
-        pokemon.o.abil.usedOnce = false;
-        if (pokemon.o.abil.name === "불굴의방패") pokemon.o.abil.text = "등장했을 때 방어가 1랭크 올라간다.";
+      if (pokemon?.originalAbil) {
+        pokemon.originalAbil.usedOnce = false;
+        if (pokemon.originalAbil.name === "불굴의방패") pokemon.originalAbil.text = "등장했을 때 방어가 1랭크 올라간다.";
       }
     },
   },
@@ -2205,7 +2205,7 @@ export const AUGMENT_LIST = [
 
       const newPoke = replacePokemon(pokemon, pickedName, battle, { resetAugments: true });
       if (newPoke) {
-        const grantAugId = newPoke.abil?.name === "리베로" || newPoke.baseAbil?.name === "리베로" ? "libero" : "protean";
+        const grantAugId = newPoke.abil?.name === "리베로" || newPoke.originalAbil?.name === "리베로" ? "libero" : "protean";
         const grantAug = AUGMENT_LIST.find((a) => a.id === grantAugId);
         if (grantAug) {
           const grantOptions = { ...options, replaceSlot: undefined };
@@ -2658,6 +2658,14 @@ export const stripEmoji = (str) => {
 
 function isHpAtLeast(pokemon, ratio = 0.5) {
   return pokemon.hp >= pokemon.maxHp * ratio;
+}
+
+// 현재 특성과 원본 특성(originalAbil)이 모두 지정한 특성인지 확인
+function hasCurrentAndOriginalAbil(pokemon, abilName) {
+  if (!pokemon || !abilName) return false;
+  const curAbil = pokemon.abil?.name || pokemon.abil;
+  const origAbil = pokemon.originalAbil?.name || pokemon.originalAbil;
+  return curAbil === abilName && origAbil === abilName;
 }
 
 function hasPokemonOnTeam(team, dexNo) {

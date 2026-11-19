@@ -277,7 +277,7 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
     if (atkAbil === abil && cfg.cond && (!atk.abil?.usedOnce || hasInfiniteTrigger)) {
       if (!hasInfiniteTrigger) {
         atk.abil.usedOnce = true;
-        if (atk.o?.abil) atk.o.abil.usedOnce = true;
+        if (atk.originalAbil) atk.originalAbil.usedOnce = true;
       }
       atk.rankUp(bt, enqueue, cfg.stat, cfg.value, abilText, false);
     }

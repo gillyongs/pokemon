@@ -79,7 +79,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       //틀깨기
       talTrigger = true;
       defPokemon.abil.usedOnce = true;
-      if (defPokemon.o?.abil) defPokemon.o.abil.usedOnce = true;
+      if (defPokemon.originalAbil) defPokemon.originalAbil.usedOnce = true;
       if (defPokemon.hasAugment?.("devilOfGen7")) {
         skDamage = 0;
         actualGiveDamage = 0;
