@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST, compareAugmentNames, getAugmentSelDesc, isCurseAugment, isBuffAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, getAugmentSelDesc, isCurseAugment, isBuffAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
 import { rollTeamAugments } from "../../../calc/augmentRoll";
 import { testmode, subscribeTestMode } from "../../../config/testMode";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
@@ -627,6 +627,18 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
 };
 
 export default AugmentSelectModal;
+
+// 증강 이름 정렬 비교 함수 (" 로 시작하는 항목은 맨 뒤로 배치)
+const compareAugmentNames = (a, b) => {
+  const nameA = typeof a === "string" ? a : a?.name || "";
+  const nameB = typeof b === "string" ? b : b?.name || "";
+  const aQuote = nameA.startsWith('"') || nameA.startsWith("“");
+  const bQuote = nameB.startsWith('"') || nameB.startsWith("“");
+
+  if (aQuote && !bQuote) return 1;
+  if (!aQuote && bQuote) return -1;
+  return nameA.localeCompare(nameB, "ko");
+};
 
 const fadeIn = keyframes`
   from {

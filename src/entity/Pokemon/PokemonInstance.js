@@ -86,6 +86,7 @@ class PokemonInstance {
       knockedOutNpcThisTurn: null, // 이번 턴 공격기로 상대 포켓몬을 쓰러뜨렸는지 여부
       damagedThisTurn: null, // 이번 턴 데미지 받았는지 여부 (워모그)
       skillLaunched: null, // 이번 턴 기술이 실제로 시전 단계(afterSkillCheck 발동부)에 진입했는지 여부
+      butItRefused: null, // [증강] 하지만 버텨냈다: 이번 턴 기절 방지 활성화 여부
     };
     this.tempStatus = {
       //교체시 초기화
@@ -141,6 +142,7 @@ class PokemonInstance {
       giantBonusHp: 0, // 거인의 흡수
       nimbleSkillName: null, // 민첩한 몸놀림으로 강화된 기술명
       pickedAbility: null, // 특성 야바위 뽑은 특성 (증강 유지시 필요)
+      butItRefusedUsed: false, // [증강] 하지만 버텨냈다: 배틀 중 1회 발동 여부
       sword: {
         level: 0, // 검 강화 레벨
         failed: false, // 검 강화 실패 여부

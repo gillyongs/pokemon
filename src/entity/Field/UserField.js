@@ -46,12 +46,20 @@ export class userField {
   }
 
   handleHealingWish(battle, enqueue) {
+    if (battle[this.team]?.turn?.butItRefused) {
+      enqueue(battle, "하지만 실패하고 말았다!", "field_healing_wish_fail");
+      return;
+    }
     // 연속 사용해도 실패하지 않는다 (하지만 효과가 중첩되지는 않는다)
     this.noClean.healingWish = true;
     battle[this.team].handleFaint(battle, enqueue);
   }
 
   handleLunarDance(battle, enqueue) {
+    if (battle[this.team]?.turn?.butItRefused) {
+      enqueue(battle, "하지만 실패하고 말았다!", "field_lunar_dance_fail");
+      return;
+    }
     this.noClean.lunarDance = true;
     battle[this.team].handleFaint(battle, enqueue);
   }

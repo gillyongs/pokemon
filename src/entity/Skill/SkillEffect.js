@@ -93,8 +93,12 @@ function skillEffectSearch(name) {
       if (battle?.turn?.destinyBondUser) {
         const userName = battle.turn.destinyBondUser;
         battle.turn.destinyBondUser = null;
-        if (atkPokemon && !atkPokemon.faint) {
+        if (!atkPokemon.faint) {
           enqueue(battle, userName + ` ${atkPokemon.names("를")} 길동무로 삼았다!`, "eff_destiny_bond_ko");
+          if (atkPokemon.hasAugment?.("butItRefused") && !atkPokemon.agument?.butItRefusedUsed) {
+            atkPokemon.turn.butItRefused = true;
+            atkPokemon.agument.butItRefusedUsed = true;
+          }
           atkPokemon.handleFaint(battle, enqueue);
         }
       }
@@ -622,11 +626,7 @@ function skillEffectSearch(name) {
       let atkPokemon = battle[battle.turn.atk];
       let defPokemon = battle[battle.turn.def];
       const usedSkill = atkPokemon?.turn?.useSkill;
-      if (
-        atkPokemon?.hasAugment?.("lostTechnologyHyperBeam") &&
-        usedSkill?.name === "파괴광선" &&
-        (defPokemon?.hp <= 0 || defPokemon?.faint)
-      ) {
+      if (atkPokemon?.hasAugment?.("lostTechnologyHyperBeam") && usedSkill?.name === "파괴광선" && defPokemon?.faint) {
         return;
       }
       if (!atkPokemon.faint) {
@@ -763,7 +763,6 @@ function skillEffectSearch(name) {
       const atkPokemon = battle[battle.turn.atk];
       if (atkPokemon.faint) return;
 
-
       const damage = Math.ceil(atkPokemon.maxHp / 2);
       const text = atkPokemon.names("는") + " 반동으로 데미지를 입었다!";
       atkPokemon.getDamage(battle, enqueue, damage, text);
@@ -839,7 +838,7 @@ function skillEffectSearch(name) {
       enqueue(battle, teamText + " 편의 뒤에서 순풍이 불기 시작했다!", "eff_tailwind_set");
     },
 
-        튀어오르기: (battle, enqueue) => {
+    튀어오르기: (battle, enqueue) => {
       enqueue(battle, "그러나 아무 일도 일어나지 않았다!", "eff_splash");
     },
     벽부수기: (battle, enqueue, skillEffect) => {

@@ -6,7 +6,6 @@ import sampleList from "../Pokemon/pokemonSampleList";
 import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
 import { Skill } from "../Skill/Skill";
-import { SWORD_ENHANCE_TIERS, getSwordEnhanceTier, getSwordEnhanceProb } from "./swordEnhance";
 import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
 
 export const getReplacementAugmentWeight = (pokemon) => {
@@ -22,28 +21,10 @@ export const isReplacementAugment = (augmentOrId) => {
   return REPLACEMENT_AUGMENT_IDS.includes(id);
 };
 
-// 증강 이름 정렬 비교 함수 (" 로 시작하는 항목은 맨 뒤로 배치)
-/**
- * 증강 목록을 가나다순으로 정렬하되, 큰따옴표(")로 시작하는 증강은 맨 마지막에 배치하는 비교 함수
- * @param {Object|string} a - 증강 객체 또는 증강 이름
- * @param {Object|string} b - 증강 객체 또는 증강 이름
- * @returns {number}
- */
-export const compareAugmentNames = (a, b) => {
-  const nameA = typeof a === "string" ? a : a?.name || "";
-  const nameB = typeof b === "string" ? b : b?.name || "";
-  const aQuote = nameA.startsWith('"') || nameA.startsWith("“");
-  const bQuote = nameB.startsWith('"') || nameB.startsWith("“");
-
-  if (aQuote && !bQuote) return 1;
-  if (!aQuote && bQuote) return -1;
-  return nameA.localeCompare(nameB, "ko");
-};
-
 // 포켓몬 이름 확인
 export const hasPokemonName = (pokemon, keyword) => Boolean(pokemon && keyword && pokemon.name.includes(keyword));
 
-// 도박 중독 여부 확인
+// 도박 중독 증강 소유 여부 확인
 export const hasGamblingAddict = (team) => {
   if (!Array.isArray(team)) return false;
   return team.some((p) => p && p.hasAugment?.("gamblingAddict"));
@@ -51,14 +32,6 @@ export const hasGamblingAddict = (team) => {
 
 // 도박 중독 시 해금 및 확정 등장하는 도박 증강 ID 목록
 export const GAMBLE_BONUS_AUGMENT_IDS = ["russianRoulette", "oddEven", "highRiskHighReturn"];
-
-export const getHhgghggDesc = (pokemon, battle = null) => {
-  const highest = getHighestStatInfo(pokemon, battle);
-  if (highest) {
-    return `항상 가장 높은 값의 능력치를 사용합니다. (${highest.label} ${highest.displayValue})`;
-  }
-  return "항상 가장 높은 값의 능력치를 사용합니다.";
-};
 
 export const isNimbleSkill = (pokemon, skill) => {
   if (!pokemon || !skill) return false;
@@ -115,6 +88,15 @@ export const AUGMENT_LIST = [
     cost: 2,
     weight: 100,
     // damege.js의 attackDamage에 구현
+  },
+  {
+    id: "butItRefused",
+    name: "하지만 버텨냈다.",
+    desc: "기절할 공격을 받을 때 HP 1로 버팁니다.\n해당 턴 무슨 일이 있어도 기절하지 않습니다.",
+    cost: 3,
+    weight: 100,
+    isEligible: (pokemon) => (pokemon?.item?.name || pokemon?.item) !== "기합의띠",
+    // damage.js, PokemonGetDamage.js에 구현
   },
   {
     id: "lifeIsOneShot",
@@ -377,11 +359,10 @@ export const AUGMENT_LIST = [
     cost: 1,
     weight: 50,
     onApply: function (pokemon, battle, options) {
-      if (!pokemon) return;
       const level = Number(options?.swordLevel ?? 0);
       const failed = Boolean(options?.swordFailed ?? false);
       const bonusAtk = options?.swordBonusAtk !== undefined ? Number(options.swordBonusAtk) : failed ? 0 : 20 + level * 20;
-      const sName = options?.swordName || getSwordEnhanceTier(level).name;
+      const sName = options?.swordName;
 
       this.swordLevel = level;
       this.swordFailed = failed;
@@ -809,7 +790,11 @@ export const AUGMENT_LIST = [
     id: "hhgghgg",
     name: "H.H.G.G.H.G.G",
     desc: function (pokemon, battle) {
-      return getHhgghggDesc(pokemon, battle);
+      const highest = getHighestStatInfo(pokemon, battle);
+      if (highest) {
+        return `항상 가장 높은 값의 능력치를 사용합니다. (${highest.label} ${highest.displayValue})`;
+      }
+      return "항상 가장 높은 값의 능력치를 사용합니다.";
     },
     cost: 10,
     weight: 20,

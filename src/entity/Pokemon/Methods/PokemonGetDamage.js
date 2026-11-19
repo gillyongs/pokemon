@@ -16,7 +16,9 @@ export const PokemonGetDamage = {
 
     if (this.hp <= 0) {
       this.handleFaint(battle, enqueue);
-    } else {
+    }
+    // handleFaint에서 하지만 버텨냈다! 발동시 피 1
+    if (this.hp > 0) {
       this.tryBerry(battle, enqueue);
     }
 
@@ -31,7 +33,13 @@ export const PokemonGetDamage = {
 
   // 기절 처리
   handleFaint(battle, enqueue) {
-    // attackDmage, 길동무, 초승달춤에서도 사용
+    // getDamage, attackDmage, 길동무, 치유소원 & 초승달춤, 자폭, 목숨걸기, 증강 러시안룰렛에서도 사용
+    if (this.turn?.butItRefused) {
+      this.hp = 1;
+      this.faint = false;
+      enqueue(battle, "하지만 버텨냈다!", "poke_but_it_refused");
+      return;
+    }
     this.hp = 0;
     this.faint = true;
     this.resetAilment();
