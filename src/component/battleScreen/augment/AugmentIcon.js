@@ -19,6 +19,8 @@ const DEDICATED_AUGMENT_POKEMON = {
   devilOfGen7: "0778",
   evioliteShuckle: "0213",
   ninjaAppeared: "0658",
+  libero: "0815",
+  protean: "0658",
 
 };
 
@@ -54,10 +56,15 @@ const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   veteranPrivilege: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0128-a": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0128": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  libero: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  protean: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0815": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0658": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0908": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null }) => {
-  const pokeId = pokemonId || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird" || id === "devilOfGen7") ? pokemon.uniqueKey : null);
+  const pokeId = pokemonId || ((id === "libero" || id === "protean") && (pokemon?.uniqueKey || pokemon?.dexNo) ? (pokemon.uniqueKey || pokemon.dexNo) : null) || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird" || id === "devilOfGen7") ? pokemon.uniqueKey : null);
 
   const augOptions = imageOptions || DEDICATED_AUGMENT_IMAGE_OPTIONS[id] || (pokeId ? DEDICATED_AUGMENT_IMAGE_OPTIONS[pokeId] : null) || {};
 
@@ -121,6 +128,16 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="60%" stopColor="#ff416c" stopOpacity="0.3" />
             <stop offset="100%" stopColor="#ff416c" stopOpacity="0" />
           </radialGradient>
+
+          <clipPath id="geniusLeftClip">
+            <rect x="0" y="0" width="21.5" height="64" />
+          </clipPath>
+          <clipPath id="geniusMidClip">
+            <rect x="21.5" y="0" width="21" height="64" />
+          </clipPath>
+          <clipPath id="geniusRightClip">
+            <rect x="42.5" y="0" width="21.5" height="64" />
+          </clipPath>
 
           <linearGradient id="prismRing" x1="0%" y1="100%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#64ffda" />
@@ -1026,7 +1043,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -1344,6 +1361,34 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <path d="M13 18 C9 15 7 12 7 9 A 3 3 0 0 1 13 8 A 3 3 0 0 1 19 9 C 19 12 17 15 13 18 Z" fill="url(#heartPinkGrad)" transform="scale(0.65) translate(3, 5)" opacity="0.85" />
             {/* 좌하단 골드 스파클 */}
             <path d="M12 43 Q12 46 15 46 Q12 46 12 49 Q12 46 9 46 Q12 46 12 43 Z" fill="#fef08a" />
+          </g>
+        )}
+
+        {/* 변환자재 (에이스번, 마스카나, 개굴닌자 가로 3분할 원형 아이콘) */}
+        {id === "geniusOfTransformation" && (
+          <g>
+            <g clipPath="url(#lwClip)">
+              {/* 좌측 1/3: 에이스번 */}
+              <g clipPath="url(#geniusLeftClip)">
+                <rect x="0" y="0" width="21.5" height="64" fill="#3c1419" />
+                <image href="/pokemon/img/pokemon/0815.webp" x="-13.5" y="4" width="52" height="52" preserveAspectRatio="xMidYMid meet" />
+              </g>
+              {/* 중앙 1/3: 마스카나 */}
+              <g clipPath="url(#geniusMidClip)">
+                <rect x="21.5" y="0" width="21" height="64" fill="#0f3220" />
+                <image href="/pokemon/img/pokemon/0908.webp" x="5.5" y="3" width="52" height="52" preserveAspectRatio="xMidYMid meet" />
+              </g>
+              {/* 우측 1/3: 개굴닌자 */}
+              <g clipPath="url(#geniusRightClip)">
+                <rect x="42.5" y="0" width="21.5" height="64" fill="#0f2341" />
+                <image href="/pokemon/img/pokemon/0658.webp" x="25.5" y="-7" width="54" height="54" preserveAspectRatio="xMidYMid meet" />
+              </g>
+              {/* 3분할 구분선 */}
+              <line x1="21.5" y1="0" x2="21.5" y2="64" stroke="#94a3b8" strokeOpacity="0.85" strokeWidth="1" />
+              <line x1="42.5" y1="0" x2="42.5" y2="64" stroke="#94a3b8" strokeOpacity="0.85" strokeWidth="1" />
+            </g>
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#60a5fa" strokeWidth="0.5" strokeOpacity="0.75" />
           </g>
         )}
 

@@ -58,6 +58,16 @@ export const AUGMENT_GRANT_PREVIEW_MAP = {
       { sampleName: "지우개굴닌자", name: "지우개굴닌자", imgId: "0658-a", dexNo: "0658" },
     ],
   },
+  geniusOfTransformation: {
+    modalTitle: "증강 상세 안내",
+    headerNotice: "다음 변환자재 포켓몬 중 1마리와 무작위로 교체됩니다.",
+    items: ["protean"],
+    candidates: [
+      { sampleName: "에이스번", name: "에이스번", imgId: "0815", dexNo: "0815" },
+      { sampleName: "마스카나", name: "마스카나", imgId: "0908", dexNo: "0908" },
+      { sampleName: "개굴닌자", name: "개굴닌자", imgId: "0658", dexNo: "0658" },
+    ],
+  },
 };
 
 export const getAugmentGrantInfo = (augId) => {

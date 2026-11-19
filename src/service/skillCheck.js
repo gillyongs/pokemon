@@ -170,11 +170,18 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 기술 시전 직전 체크 통과: 이후 단계(방어/무효/빗나감 포함)부터는 기술이 발동된 것으로 간주
   atk.turn.skillLaunched = true;
 
-  if ((atk.abil?.name === "리베로" || atk.abil?.name === "변환자재") && !atk.abil?.used) {
+  const hasInfiniteTypeChange = Boolean(
+    (atk.abil?.name === "리베로" && atk.hasAugment?.("libero")) ||
+    (atk.abil?.name === "변환자재" && atk.hasAugment?.("protean"))
+  );
+
+  if ((atk.abil?.name === "리베로" || atk.abil?.name === "변환자재") && (!atk.abil?.used || hasInfiniteTypeChange)) {
     if (skill.type === atk.type1 && atk.type2 === null) {
       //사용자 타입이랑 스킬 타입 같으면 발동 안함
     } else {
-      atk.abil.used = true;
+      if (!hasInfiniteTypeChange) {
+        atk.abil.used = true;
+      }
       atk.type1 = skill.type;
       atk.type2 = null;
       enqueue(bt, `[${atk.abil?.name}] ` + atk.names("는") + " " + skill.type + " 타입이 됐다!", "chk_libero");

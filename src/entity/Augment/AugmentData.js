@@ -15,7 +15,7 @@ export const getReplacementAugmentWeight = (pokemon) => {
 };
 
 // 포켓몬 교체 증강
-export const REPLACEMENT_AUGMENT_IDS = ["legendaryTitan", "rouletteWheel", "soaring", "marriedPokemon", "magikarpJump", "klinklangGear", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle", "ninjaAppeared"];
+export const REPLACEMENT_AUGMENT_IDS = ["legendaryTitan", "rouletteWheel", "soaring", "marriedPokemon", "magikarpJump", "klinklangGear", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle", "ninjaAppeared", "geniusOfTransformation"];
 
 export const isReplacementAugment = (augmentOrId) => {
   const id = typeof augmentOrId === "string" ? augmentOrId : augmentOrId?.id;
@@ -913,7 +913,7 @@ export const AUGMENT_LIST = [
   {
     id: "marriedPokemon",
     name: "포켓몬과 결혼한 사람이 있었다",
-    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다. 인생의 동반자 증강을 추가로 획득합니다.",
+    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다. 모든 능력치가 1.1배 증가하는 증강을 추가로 얻습니다.",
     screenText: function (target, prevPokeName) {
       const fromName = prevPokeName || "포켓몬";
       const toName = target?.name || "";
@@ -973,7 +973,7 @@ export const AUGMENT_LIST = [
   {
     id: "sacrificeGod",
     name: "신을 제물로",
-    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다.  영혼의 심복 버프를 추가로 획득합니다.",
+    desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다. 모든 능력치가 1.5배 증가하는 영구적인 버프를 추가로 획득합니다.",
     screenText: function (target, prevPokeName) {
       const fromName = prevPokeName || "포켓몬";
       const toName = target?.name || "";
@@ -1024,7 +1024,7 @@ export const AUGMENT_LIST = [
   {
     id: "threeBears",
     name: "곰은 사람을 찢어",
-    desc: "현재 포켓몬을 곰 포켓몬 중 한마리와 교체합니다. 곰 세마리가 한 집에 있어 증강을 추가로 획득합니다.",
+    desc: "현재 포켓몬을 곰 포켓몬 중 한마리와 교체합니다. 곰 포켓몬의 수에 따라 능력치가 증가하는 증강을 추가로 획득합니다.",
     screenText: function (target, prevPokeName) {
       const fromName = prevPokeName || "포켓몬";
       const toName = target?.name || "";
@@ -2057,28 +2057,18 @@ export const AUGMENT_LIST = [
     id: "devilOfGen7",
     name: "7세대의 악마",
     desc: function (pokemon) {
-      if (!pokemon) {
-        return "특성 탈이 체력을 소모하지 않습니다.\n(지닌 물건이 기합의띠가 아닌 경우)추가로 지닌 물건을 기합의 띠와 교체합니다.";
-      }
       const isHolding = (pokemon?.item?.name || pokemon?.item) === "기합의띠";
       return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
     },
-    selDesc: function (pokemon) {
-      const isHolding = (pokemon?.item?.name || pokemon?.item) === "기합의띠";
-      return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
-    },
-    screenText: function (target, prevPokeName, options) {
-      const isHolding = options?.wasHoldingFocusSash !== undefined ? options.wasHoldingFocusSash : target?._wasHoldingFocusSash !== undefined ? target._wasHoldingFocusSash : (target?.item?.name || target?.item) === "기합의띠";
-      delete target?._wasHoldingFocusSash;
-      return isHolding ? "[증강] 특성 탈이 체력을 소모하지 않게 되었다!" : "[증강] 특성 탈이 체력을 소모하지 않고 지닌 물건이 기합의 띠로 교체되었다!";
-    },
+    screenText: "[증강] 특성 탈이 체력을 소모하지 않게 되었다!",
     logModalText: function (target, prevPokeName, options) {
-      const isHolding = options?.wasHoldingFocusSash !== undefined ? options.wasHoldingFocusSash : target?._wasHoldingFocusSash !== undefined ? target._wasHoldingFocusSash : (target?.item?.name || target?.item) === "기합의띠";
+      const isHolding = options?.wasHoldingFocusSash !== undefined ? options.wasHoldingFocusSash : (target?.item?.name || target?.item) === "기합의띠";
       return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
     },
     statusModalText: function (pokemon) {
-      const isHolding = (pokemon?.item?.name || pokemon?.item) === "기합의띠";
-      return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+      const baseItem = pokemon?.baseItem?.name || pokemon?.baseItem || pokemon?.o?.item?.name || pokemon?.o?.item;
+      const wasHolding = baseItem === "기합의띠";
+      return wasHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
     },
     cost: 1,
     weight: 300,
@@ -2088,12 +2078,79 @@ export const AUGMENT_LIST = [
     onApply: function (pokemon, battle, options) {
       if (pokemon) {
         const wasHolding = (pokemon.item?.name || pokemon.item) === "기합의띠";
-        pokemon._wasHoldingFocusSash = wasHolding;
         if (options) {
           options.wasHoldingFocusSash = wasHolding;
         }
         if (!wasHolding) {
           pokemon.item = "기합의띠";
+        }
+      }
+    },
+  },
+  // 리베로
+  {
+    id: "libero",
+    name: "리베로",
+    desc: "특성 리베로가 매 공격마다 발동됩니다.",
+    cost: 0,
+    weight: 200,
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon) => (pokemon?.abil?.name === "리베로" || pokemon?.baseAbil?.name === "리베로" || pokemon?.abil === "리베로") && !pokemon?.hasAugment?.("libero"),
+  },
+  // 변환자재
+  {
+    id: "protean",
+    name: "변환자재",
+    desc: "특성 변환자재가 매 공격마다 발동됩니다.",
+    cost: 0,
+    weight: 200,
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon) => (pokemon?.abil?.name === "변환자재" || pokemon?.baseAbil?.name === "변환자재" || pokemon?.abil === "변환자재") && !pokemon?.hasAugment?.("protean"),
+  },
+  // 변신의 천재
+  {
+    id: "geniusOfTransformation",
+    name: "변환자재",
+    desc: "현재 포켓몬을 변환자재 포켓몬 중 하나와 교체합니다.\n변환자재가 매 공격마다 발동되는 증강을 추가로 획득합니다.",
+    screenText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      const toName = target?.name || "";
+      return josa(`[증강] ${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      const fromName = prevPokeName || "포켓몬";
+      const toName = target?.name || "";
+      return josa(`${fromName}#{이} ${toName}#{으로} 교체되었다!`);
+    },
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    isEligible: (pokemon, battle, team) => {
+      if (!isHpAtLeast(pokemon, 0.5)) return false;
+      const proteanDexes = ["0815", "0908", "0658"];
+      if (proteanDexes.includes(pokemon?.dexNo)) return false;
+      const allOwned = proteanDexes.every((dex) => hasPokemonOnTeam(team, dex));
+      if (allOwned) return false;
+      return true;
+    },
+    onApply: function (pokemon, battle, options) {
+      const candidates = ["에이스번", "마스카나", "개굴닌자"];
+      const team = battle ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [];
+      const available = candidates.filter((name) => {
+        const sample = sampleList.getDataBySampleName(name);
+        return !hasPokemonOnTeam(team, sample?.dexNo);
+      });
+      const pool = available.length > 0 ? available : candidates;
+      const pickedName = pool[Math.floor(Math.random() * pool.length)];
+
+      const newPoke = replacePokemon(pokemon, pickedName, battle, { resetAugments: true });
+      if (newPoke) {
+        const grantAugId = newPoke.abil?.name === "리베로" || newPoke.baseAbil?.name === "리베로" ? "libero" : "protean";
+        const grantAug = AUGMENT_LIST.find((a) => a.id === grantAugId);
+        if (grantAug) {
+          const grantOptions = { ...options, replaceSlot: undefined };
+          newPoke.applyAugment(grantAug, battle, grantOptions);
         }
       }
     },
@@ -2216,7 +2273,7 @@ const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   ["revivePiece", "maxRevive"],
 
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
-  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle", "ninjaAppeared"],
+  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle", "ninjaAppeared", "geniusOfTransformation"],
 
   // 3. 능력치 전환 증강: 동시에 2개 이상 나오지 않음
   ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"],

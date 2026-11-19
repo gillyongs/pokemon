@@ -31,12 +31,7 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
   const otherTeammates = useMemo(() => {
     if (!battle && !pokemon) return [];
     const side = pokemon?.team === "npc" ? "npc" : "player";
-    const team = battle
-      ? (side === "npc"
-          ? [battle.npc, battle.npcBench1, battle.npcBench2]
-          : [battle.player, battle.playerBench1, battle.playerBench2]
-        ).filter(Boolean)
-      : [];
+    const team = battle ? (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean) : [];
     return team.filter((p) => p !== pokemon);
   }, [battle, pokemon]);
 
@@ -45,7 +40,7 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
     const candDex = cand.dexNo || (cand.imgId ? String(cand.imgId).split("-")[0] : null);
     if (!candDex) return false;
     return otherTeammates.some((p) => {
-      const pDex = p?.dexNo || (p?.uniqueKey ? String(p.uniqueKey).split("-")[0] : (p?.id ? String(p.id).split("-")[0] : null));
+      const pDex = p?.dexNo || (p?.uniqueKey ? String(p.uniqueKey).split("-")[0] : p?.id ? String(p.id).split("-")[0] : null);
       return pDex === candDex;
     });
   };
@@ -63,11 +58,7 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
                 ✕
               </CloseButton>
             </ModalHeaderTop>
-            <ModalNotice>
-              {hasCandidates
-                ? (grantInfo?.headerNotice || "다음 포켓몬 중 1마리와 교체됩니다.")
-                : (grantInfo?.headerNotice || "해당 증강 선택 시 아래 효과를 추가로 획득합니다.")}
-            </ModalNotice>
+            <ModalNotice>{hasCandidates ? grantInfo?.headerNotice || "다음 포켓몬 중 1마리와 교체됩니다." : grantInfo?.headerNotice || "해당 증강 선택 시 아래 효과를 추가로 획득합니다."}</ModalNotice>
           </ModalHeader>
 
           {/* 1. 포켓몬 목록 (상단 배치) */}
@@ -85,11 +76,7 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
                         const sample = sampleList.getDataBySampleName(cand.sampleName || cand.name);
                         if (sample) setPreviewPokemon(sample);
                       }}
-                      title={
-                        isUnavailable
-                          ? `${cand.name} (팀 내 동일 포켓몬 보유로 획득 불가 - 클릭 시 상세정보 확인)`
-                          : `${cand.name} 상세정보 보기`
-                      }
+                      title={isUnavailable ? `${cand.name} (팀 내 동일 포켓몬 보유로 획득 불가 - 클릭 시 상세정보 확인)` : `${cand.name} 상세정보 보기`}
                     >
                       <CandidateImgWrapper>
                         <CandidateImg
@@ -106,11 +93,7 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
                         />
                       </CandidateImgWrapper>
                       <CandidateName $isUnavailable={isUnavailable}>{cand.name}</CandidateName>
-                      {isUnavailable ? (
-                        <UnavailableBadge>획득 불가</UnavailableBadge>
-                      ) : (
-                        <CandidatePreviewBadge>상세보기</CandidatePreviewBadge>
-                      )}
+                      {isUnavailable ? <UnavailableBadge>획득 불가</UnavailableBadge> : <CandidatePreviewBadge>상세보기</CandidatePreviewBadge>}
                     </CandidateCard>
                   );
                 })}
@@ -121,7 +104,15 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
           {/* 2. 버프 및 추가 효과 목록 (하단 배치) */}
           {grantItems.length > 0 && (
             <EffectSection>
-              {hasCandidates && <EffectSectionTitle>추가 획득 효과</EffectSectionTitle>}
+              {hasCandidates && (
+                <EffectSectionTitle>
+                  {grantItems.every((item) => Boolean(item.buf) || isPermanentBuff(item))
+                    ? "추가 획득 버프"
+                    : grantItems.every((item) => !item.buf && !isPermanentBuff(item))
+                      ? "추가 획득 증강"
+                      : "추가 획득 보상"}
+                </EffectSectionTitle>
+              )}
               <AugList>
                 {grantItems.map((item, idx) => {
                   const isBuff = Boolean(item.buf);
@@ -135,7 +126,7 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
                       <AugMeta>
                         <AugNameRow>
                           <AugName>{item.name}</AugName>
-                          <CategoryBadge $isBuff={isBuff}>{isPermanentBuff(item) ? "영구 버프" : isBuff ? "버프" : "추가 증강"}</CategoryBadge>
+                          <CategoryBadge $isBuff={isBuff}>{isPermanentBuff(item) ? "영구 버프" : isBuff ? "버프" : "증강"}</CategoryBadge>
                         </AugNameRow>
                         <AugDesc>{descText}</AugDesc>
                       </AugMeta>
@@ -154,13 +145,7 @@ const AugmentGrantPreviewModal = ({ augmentId, grantInfo, pokemon, battle, onClo
         </ModalContainer>
       </ModalOverlay>
 
-      {previewPokemon && (
-        <AugmentPokemonPreviewModal
-          augmentId={augmentId}
-          pokemon={previewPokemon}
-          onClose={() => setPreviewPokemon(null)}
-        />
-      )}
+      {previewPokemon && <AugmentPokemonPreviewModal augmentId={augmentId} pokemon={previewPokemon} onClose={() => setPreviewPokemon(null)} />}
     </>
   );
 };
