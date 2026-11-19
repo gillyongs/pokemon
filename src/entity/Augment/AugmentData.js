@@ -2097,6 +2097,16 @@ export const AUGMENT_LIST = [
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
     isEligible: (pokemon) => (pokemon?.abil?.name === "리베로" || pokemon?.baseAbil?.name === "리베로" || pokemon?.abil === "리베로") && !pokemon?.hasAugment?.("libero"),
+    onApply: (pokemon) => {
+      if (pokemon?.abil?.name === "리베로") {
+        pokemon.abil.used = false;
+        pokemon.abil.text = "자신이 사용한 기술과 같은 타입으로 변화한다.";
+      }
+      if (pokemon?.o?.abil?.name === "리베로") {
+        pokemon.o.abil.used = false;
+        pokemon.o.abil.text = "자신이 사용한 기술과 같은 타입으로 변화한다.";
+      }
+    },
   },
   // 변환자재
   {
@@ -2108,6 +2118,58 @@ export const AUGMENT_LIST = [
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
     isEligible: (pokemon) => (pokemon?.abil?.name === "변환자재" || pokemon?.baseAbil?.name === "변환자재" || pokemon?.abil === "변환자재") && !pokemon?.hasAugment?.("protean"),
+    onApply: (pokemon) => {
+      if (pokemon?.abil?.name === "변환자재") {
+        pokemon.abil.used = false;
+        pokemon.abil.text = "자신이 사용한 기술과 같은 타입으로 변화한다.";
+      }
+      if (pokemon?.o?.abil?.name === "변환자재") {
+        pokemon.o.abil.used = false;
+        pokemon.o.abil.text = "자신이 사용한 기술과 같은 타입으로 변화한다.";
+      }
+    },
+  },
+  // 불요의 검
+  {
+    id: "intrepidSword",
+    name: "불요의 검",
+    desc: "해당 포켓몬이 필드에 등장할 때마다 불요의 검 특성이 발동됩니다.",
+    cost: 0,
+    weight: 200,
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon) => (pokemon?.abil?.name === "불요의검" || pokemon?.baseAbil?.name === "불요의검" || pokemon?.abil === "불요의검") && !pokemon?.hasAugment?.("intrepidSword"),
+    onApply: (pokemon) => {
+      if (pokemon?.abil) {
+        pokemon.abil.usedOnce = false;
+        if (pokemon.abil.name === "불요의검") pokemon.abil.text = "등장했을 때 공격이 1랭크 올라간다.";
+      }
+      if (pokemon?.o?.abil) {
+        pokemon.o.abil.usedOnce = false;
+        if (pokemon.o.abil.name === "불요의검") pokemon.o.abil.text = "등장했을 때 공격이 1랭크 올라간다.";
+      }
+    },
+  },
+  // 불굴의 방패
+  {
+    id: "dauntlessShield",
+    name: "불굴의 방패",
+    desc: "해당 포켓몬이 필드에 등장할 때마다 불굴의 방패 특성이 발동됩니다.",
+    cost: 0,
+    weight: 200,
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon) => (pokemon?.abil?.name === "불굴의방패" || pokemon?.baseAbil?.name === "불굴의방패" || pokemon?.abil === "불굴의방패") && !pokemon?.hasAugment?.("dauntlessShield"),
+    onApply: (pokemon) => {
+      if (pokemon?.abil) {
+        pokemon.abil.usedOnce = false;
+        if (pokemon.abil.name === "불굴의방패") pokemon.abil.text = "등장했을 때 방어가 1랭크 올라간다.";
+      }
+      if (pokemon?.o?.abil) {
+        pokemon.o.abil.usedOnce = false;
+        if (pokemon.o.abil.name === "불굴의방패") pokemon.o.abil.text = "등장했을 때 방어가 1랭크 올라간다.";
+      }
+    },
   },
   // 변신의 천재
   {

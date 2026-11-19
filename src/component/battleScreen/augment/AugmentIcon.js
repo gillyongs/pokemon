@@ -21,6 +21,8 @@ const DEDICATED_AUGMENT_POKEMON = {
   ninjaAppeared: "0658",
   libero: "0815",
   protean: "0658",
+  intrepidSword: "0888",
+  dauntlessShield: "0889",
 
 };
 
@@ -61,10 +63,14 @@ const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   "0815": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0658": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0908": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  intrepidSword: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  dauntlessShield: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0888": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0889": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null }) => {
-  const pokeId = pokemonId || ((id === "libero" || id === "protean") && (pokemon?.uniqueKey || pokemon?.dexNo) ? (pokemon.uniqueKey || pokemon.dexNo) : null) || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird" || id === "devilOfGen7") ? pokemon.uniqueKey : null);
+  const pokeId = pokemonId || ((id === "libero" || id === "protean" || id === "intrepidSword" || id === "dauntlessShield") && (pokemon?.uniqueKey || pokemon?.dexNo) ? (pokemon.uniqueKey || pokemon.dexNo) : null) || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird" || id === "devilOfGen7") ? pokemon.uniqueKey : null);
 
   const augOptions = imageOptions || DEDICATED_AUGMENT_IMAGE_OPTIONS[id] || (pokeId ? DEDICATED_AUGMENT_IMAGE_OPTIONS[pokeId] : null) || {};
 

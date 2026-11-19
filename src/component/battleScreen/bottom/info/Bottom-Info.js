@@ -270,7 +270,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
               <MetaLabel>특성:</MetaLabel>
               <ClickableBadge onClick={handleAbilClick}>
                 {pokemon.abil?.name || pokemon.abil}
-                {(pokemon.abil?.usedOnce || (pokemon.abil?.used && !pokemon.hasAugment?.("libero") && !pokemon.hasAugment?.("protean"))) ? " (사용됨)" : ""}
+                {((pokemon.abil?.usedOnce && !pokemon.hasAugment?.("intrepidSword") && !pokemon.hasAugment?.("dauntlessShield")) || (pokemon.abil?.used && !pokemon.hasAugment?.("libero") && !pokemon.hasAugment?.("protean"))) ? " (사용됨)" : ""}
               </ClickableBadge>
             </MetaRow>
 

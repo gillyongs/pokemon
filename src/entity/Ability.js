@@ -267,15 +267,18 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   // ==================================================================================
   // 랭크 관련
   const rankUpAbilities = {
-    불요의검: { cond: atk.item === "녹슨검", stat: "atk", value: 1 },
-    불굴의방패: { cond: atk.item === "녹슨방패", stat: "def", value: 1 },
+    불요의검: { cond: atk.item === "녹슨검", stat: "atk", value: 1, augId: "intrepidSword" },
+    불굴의방패: { cond: atk.item === "녹슨방패", stat: "def", value: 1, augId: "dauntlessShield" },
   };
 
   Object.entries(rankUpAbilities).forEach(([abil, cfg]) => {
     const abilText = `[특성 ${abil}]`;
-    if (atkAbil === abil && cfg.cond && !atk.abil?.usedOnce) {
-      atk.abil.usedOnce = true;
-      if (atk.o?.abil) atk.o.abil.usedOnce = true;
+    const hasInfiniteTrigger = Boolean(cfg.augId && atk.hasAugment?.(cfg.augId));
+    if (atkAbil === abil && cfg.cond && (!atk.abil?.usedOnce || hasInfiniteTrigger)) {
+      if (!hasInfiniteTrigger) {
+        atk.abil.usedOnce = true;
+        if (atk.o?.abil) atk.o.abil.usedOnce = true;
+      }
       atk.rankUp(bt, enqueue, cfg.stat, cfg.value, abilText, false);
     }
   });
