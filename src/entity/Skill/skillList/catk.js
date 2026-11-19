@@ -120,4 +120,5 @@ export const catkSkills = [
   new Skill("에어로블라스트", "비행", 100, 95, 5, 0, "catk", null, "공기의 소용돌이를 발사하여 공격한다. 급소에 맞기 쉽다.", [{ name: "급소" }], {}),
   new Skill("사이코노이즈", "에스퍼", 75, 100, 10, 0, "catk", null, "상대에게 불쾌한 음파를 날려 공격한다. 2턴 동안 상대는 회복할 수 없게 된다.", [{ name: "회복봉인", probability: 100 }], { sound: true }),
   new Skill("하이드로스팀", "물", 80, 100, 15, 0, "catk", null, "끓어오르는 물을 상대에게 발사하여 공격한다. 햇살이 강할 때는 위력이 떨어지지 않고 1.5배가 된다.", [], {}),
+  new Skill("플레어송", "불꽃", 80, 100, 10, 0, "catk", null, "노랫소리와 함께 불꽃을 발사하여 공격한다. 자신의 특수공격을 1랭크 올린다.", [{ name: "랭크변화", probability: 100, stat: "catk", target: "atk", value: 1 }], { sound: true }),
 ];
