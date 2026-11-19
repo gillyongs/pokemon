@@ -124,7 +124,7 @@ const AugmentArcaneShadeSwordView = ({ arcaneShadeSwordAug, activePokemon, onSel
 
   return (
     <Container>
-      <HeaderArea>
+      <HeaderArea style={{ marginBottom: "8px" }}>
         <HeaderTopRow>
           <Title>{currentSwordTitle}</Title>
         </HeaderTopRow>
@@ -269,12 +269,12 @@ const ScrollContent = styled.div`
   flex: 1;
   width: 100%;
   overflow-y: auto;
-  gap: 10px;
-  padding-right: 2px;
+  overflow-x: hidden;
+  gap: 8px;
   box-sizing: border-box;
 
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 4px;
   }
   &::-webkit-scrollbar-thumb {
     background: rgba(168, 85, 247, 0.3);
@@ -289,12 +289,12 @@ const SwordBox = styled.div`
   background: radial-gradient(circle at 50% 30%, rgba(59, 7, 100, 0.35) 0%, rgba(15, 23, 42, 0.75) 100%);
   border: 1.5px solid ${(props) => (props.$status === "success" ? "#c084fc" : props.$status === "fail" ? "#f87171" : "rgba(168, 85, 247, 0.4)")};
   border-radius: 12px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   box-sizing: border-box;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   ${(props) =>
     props.$status === "success" &&
@@ -315,15 +315,15 @@ const SwordTopRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
   width: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 `;
 
 const SwordVisualWrap = styled.div`
   position: relative;
-  width: 76px;
-  height: 76px;
+  width: 68px;
+  height: 68px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -331,8 +331,8 @@ const SwordVisualWrap = styled.div`
 `;
 
 const SwordImg = styled.img`
-  width: 70px;
-  height: 70px;
+  width: 62px;
+  height: 62px;
   object-fit: contain;
   z-index: 2;
   user-select: none;
@@ -347,52 +347,52 @@ const SwordAuraRing = styled.div`
   opacity: 0.6;
   animation: ${auraPulse} 2.5s infinite ease-in-out;
   pointer-events: none;
-  box-shadow: inset 0 0 10px ${(props) => (props.$status === "success" ? "rgba(251, 191, 36, 0.4)" : props.$status === "fail" ? "rgba(248, 113, 113, 0.4)" : "rgba(168, 85, 247, 0.3)")};
+  box-shadow: inset 0 0 8px ${(props) => (props.$status === "success" ? "rgba(251, 191, 36, 0.4)" : props.$status === "fail" ? "rgba(248, 113, 113, 0.4)" : "rgba(168, 85, 247, 0.3)")};
 `;
 
 const StatValuesCol = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   flex: 1;
-  max-width: 160px;
+  max-width: 150px;
 `;
 
 const StatItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 3px 10px;
+  padding: 2.5px 8px;
   background: rgba(15, 23, 42, 0.85);
   border: 1px solid ${(props) => props.$color || "#94a3b8"};
-  border-radius: 6px;
+  border-radius: 5px;
   box-sizing: border-box;
 `;
 
 const StatName = styled.span`
   color: #94a3b8;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 500;
 `;
 
 const StatValue = styled.span`
   color: #f1f5f9;
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
 `;
 
 const SlotContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 `;
 
 const SlotHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: #94a3b8;
   padding: 0 2px;
 `;
@@ -408,20 +408,20 @@ const SlotList = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 4px 6px;
+  padding: 3px 5px;
   background: rgba(10, 14, 26, 0.6);
   border-radius: 6px;
   box-sizing: border-box;
 `;
 
 const SlotCircle = styled.div`
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 700;
   transition: all 0.2s ease;
 
@@ -453,10 +453,10 @@ const SlotCircle = styled.div`
 
 const ResultBanner = styled.div`
   width: 100%;
-  padding: 6px 10px;
+  padding: 5px 8px;
   border-radius: 6px;
-  font-size: 0.73rem;
-  line-height: 1.35;
+  font-size: 0.72rem;
+  line-height: 1.3;
   text-align: center;
   box-sizing: border-box;
   word-break: keep-all;
@@ -490,11 +490,11 @@ const ScrollSelectSection = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 6px;
+  gap: 5px;
 `;
 
 const SectionTitle = styled.div`
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   font-weight: 700;
   color: #cbd5e1;
   padding-left: 2px;
@@ -503,7 +503,7 @@ const SectionTitle = styled.div`
 const ScrollGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   box-sizing: border-box;
 `;
@@ -511,11 +511,15 @@ const ScrollGrid = styled.div`
 const ScrollCard = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 8px 10px;
+  padding: 7px 9px;
+  min-height: 48px;
   border-radius: 8px;
   cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
   opacity: ${(props) => (props.$disabled ? 0.55 : 1)};
-  transition: all 0.2s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
   user-select: none;
   box-sizing: border-box;
 
@@ -530,9 +534,8 @@ const ScrollCard = styled.div`
       !props.$disabled &&
       !props.$isSelected &&
       `
-      background: rgba(25, 33, 56, 0.8);
-      border-color: rgba(255, 255, 255, 0.25);
-      transform: translateY(-1px);
+      background: rgba(25, 33, 56, 0.9);
+      border-color: rgba(255, 255, 255, 0.28);
     `}
   }
 `;
@@ -540,40 +543,42 @@ const ScrollCard = styled.div`
 const ScrollCardHeader = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 `;
 
 const ScrollName = styled.span`
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
   color: ${(props) => props.$color || "#f1f5f9"};
 `;
 
 const ScrollDesc = styled.span`
-  font-size: 0.6rem;
+  font-size: 0.57rem;
   letter-spacing: -0.2px;
   color: #94a3b8;
-  line-height: 1.3;
+  line-height: 1.25;
   word-break: keep-all;
 `;
 
 const FooterArea = styled.div`
   width: 100%;
   margin-top: auto;
-  padding-top: 10px;
+  padding-top: 8px;
   box-sizing: border-box;
 `;
 
 const EnhanceButton = styled.button`
   width: 100%;
-  padding: 11px 0;
+  padding: 10px 0;
   border-radius: 8px;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 700;
   font-family: inherit;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   user-select: none;
-  transition: all 0.2s ease;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 
   background: ${(props) => (props.disabled ? "rgba(100, 116, 139, 0.3)" : "linear-gradient(135deg, #7c3aed, #9333ea)")};
   border: 1px solid ${(props) => (props.disabled ? "rgba(255, 255, 255, 0.1)" : "#c084fc")};
@@ -586,7 +591,6 @@ const EnhanceButton = styled.button`
       `
       background: linear-gradient(135deg, #8b5cf6, #a855f7);
       box-shadow: 0 0 18px rgba(192, 132, 252, 0.65);
-      transform: translateY(-1px);
     `}
   }
 
@@ -597,14 +601,16 @@ const EnhanceButton = styled.button`
 
 const FinishButton = styled.button`
   width: 100%;
-  padding: 11px 0;
+  padding: 10px 0;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   user-select: none;
-  transition: all 0.2s ease;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 
   background: linear-gradient(135deg, #059669, #10b981);
   border: 1px solid #6ee7b7;
@@ -614,7 +620,6 @@ const FinishButton = styled.button`
   &:hover {
     background: linear-gradient(135deg, #047857, #059669);
     box-shadow: 0 0 20px rgba(16, 185, 129, 0.7);
-    transform: translateY(-1px);
   }
 
   &:active {
