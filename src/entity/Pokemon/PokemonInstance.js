@@ -126,7 +126,7 @@ class PokemonInstance {
       turnsOnField: 0, // 필드에 나온 턴 수 (슬로스타트)
       unburden: false, // 곡예: 도구 소모/상실 시 true, 교체 시 초기화
     };
-    this.img_id = null; // 포켓몬 스프라이트만 바꾸고 싶을때 사용 (기기기어르, 1세대 뮤츠)
+    this.img_id = this.o.img_id || null; // 포켓몬 스프라이트만 바꾸고 싶을때 사용 (기기기어르, 1세대 뮤츠)
     this.faint = null; //기절 여부
     this.isMega = false; //메가진화 여부
     this.auto = null; //자동 행동 여부 (역린)

@@ -84,7 +84,7 @@ const CustomScreen = () => {
     setActiveLogic("OR");
   };
 
-  const filteredSamples = filterSamplePokemons(sampleList.items, {
+  const filterOptions = {
     searchTerm,
     activeTypes,
     activeLogic,
@@ -95,7 +95,10 @@ const CustomScreen = () => {
     isWeatherFilter,
     isWallFilter,
     isStealthRockFilter,
-  });
+  };
+
+  const filteredSamples = filterSamplePokemons(sampleList.items, filterOptions);
+  const filteredAugmentSamples = filterSamplePokemons(sampleList.augmentItems || [], filterOptions);
 
   const getActiveTeam = () => (activeTab === "player" ? selectedTeam : npcTeam);
   const setActiveTeam = (newTeam) => {
@@ -395,7 +398,7 @@ const CustomScreen = () => {
                     </RemoveBtn>
                     <ImageWrapper>
                       <img
-                        src={`/pokemon/img/pokemon/${pokemonData.megaData?.uniqueKey || pokemonData.uniqueKey}.webp`}
+                        src={`/pokemon/img/pokemon/${pokemonData.img_id || pokemonData.megaData?.uniqueKey || pokemonData.uniqueKey}.webp`}
                         alt={pokemonData.name}
                         style={{ height: "70px", width: "70px", objectFit: "contain", transform: "scale(1.15) translateY(-4px)" }}
                         onError={(e) => {
@@ -487,15 +490,15 @@ const CustomScreen = () => {
             </FilterButton>
           </SearchWrapper>
         </SectionHeader>
-        <Grid>
-          {filteredSamples.map((pokemon) => {
+        {(() => {
+          const renderSampleCard = (pokemon) => {
             const sName = pokemon.sampleName || pokemon.id;
             const isSelected = currentTeam.some((entry) => (typeof entry === "object" && entry ? entry.sampleName || entry.id : entry) === sName);
             return (
               <ListItem key={sName} $isSelected={isSelected} onClick={() => handleSelect(sName)}>
                 <ImageWrapper style={{ flexShrink: 0 }}>
                   <img
-                    src={`/pokemon/img/pokemon/${pokemon.megaData?.uniqueKey || pokemon.uniqueKey}.webp`}
+                    src={`/pokemon/img/pokemon/${pokemon.img_id || pokemon.megaData?.uniqueKey || pokemon.uniqueKey}.webp`}
                     alt={pokemon.name}
                     style={{ height: "76px", width: "76px", objectFit: "contain", transform: "scale(1.2) translate(-3px, -6px)" }}
                     onError={(e) => {
@@ -560,8 +563,24 @@ const CustomScreen = () => {
                 </DetailButton>
               </ListItem>
             );
-          })}
-        </Grid>
+          };
+
+          return (
+            <>
+              <Grid>{filteredSamples.map((pokemon) => renderSampleCard(pokemon))}</Grid>
+              {filteredAugmentSamples.length > 0 && (
+                <>
+                  <MayhemDivider>
+                    <MayhemDividerLine />
+                    <MayhemDividerText>아수라장</MayhemDividerText>
+                    <MayhemDividerLine />
+                  </MayhemDivider>
+                  <Grid>{filteredAugmentSamples.map((pokemon) => renderSampleCard(pokemon))}</Grid>
+                </>
+              )}
+            </>
+          );
+        })()}
       </ListArea>
 
       {isFilterModalOpen && (
@@ -1238,4 +1257,31 @@ const SkillNameText = styled.span`
   @media (max-width: 500px) {
     font-size: 0.51rem;
   }
+`;
+
+
+const MayhemDivider = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 6px;
+  padding: 0 20px;
+
+  @media (max-width: 500px) {
+    padding: 0 12px;
+  }
+`;
+
+const MayhemDividerLine = styled.div`
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #94a3b8, transparent);
+`;
+
+const MayhemDividerText = styled.span`
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 `;

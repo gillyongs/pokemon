@@ -9,7 +9,7 @@ import { getMegaData } from "./MegaData";
 // pokemonInstance에서 getter로만 접근 가능
 class samplePokemon {
   // prettier-ignore
-  constructor(sampleName, uniqueKey, evs, up, down, sk1, sk2, sk3, sk4, item, abil, role, tip = ""){
+  constructor(sampleName, uniqueKey, evs, up, down, sk1, sk2, sk3, sk4, item, abil, role, tip = "", img_id = null){
 
     const pokemon = PokemonData.getPokemonDataByUniqueKey(uniqueKey);
     this.dexNo = pokemon.dexNo; 
@@ -66,6 +66,7 @@ class samplePokemon {
     this.tip = tip;
     this.item = item;
     this.sampleName = sampleName;
+    this.img_id = img_id;
 
     this.skill = {
       1: { ...skillList.search(sk1, abil), skillNumber: 1 },

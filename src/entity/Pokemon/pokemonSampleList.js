@@ -481,6 +481,20 @@ new samplePokemon("라티오스", "0381", "CS252", "speed", "atk",
 
   // 체력 공격력 방어력 특공 특방 스피드
     ];
+
+    // 증강(아수라장)에서만 등장하는 전용 샘플 포켓몬 목록
+    this.augmentItems = [
+      new samplePokemon("레지기가스", "0486", "HA252", "atk", "catk", "묵사발", "화풀이", "드레인펀치", "냉동펀치", "돌격조끼", "슬로스타트", "물리딜탱", "선택 시 특성과 관련된 증강을 추가로 획득합니다."),
+      new samplePokemon("이븐곰", "0760", "HA252", "atk", "catk", "이판사판태클", "드레인펀치", "냉동펀치", "지진", "돌격조끼", "복슬복슬", "물리딜탱"),
+      new samplePokemon("메가 플라이곤", "0330", "AS252", "speed", "catk", "지진", "스케일샷", "용의춤", "유턴", "플라이곤나이트", "부유", "물리어태커", "메가진화 시 벌레/드래곤 타입으로 변하며, 특성 색안경은 반감되는 기술의 위력을 2배로 만듭니다."),
+      new samplePokemon("최강의 잉어킹", "0129-g", "H28 C252 S228", "speed", "atk", "튀어오르기", "튀어오르기", "튀어오르기", "튀어오르기", "잉어킹나이트", "최강의잉어킹", "특수어태커", `모든 능력치가 999로 고정됩니다.\n기술만 어떻게든 바꾼다면...?`),
+      new samplePokemon("기기기어르", "0601", "HA252", "atk", "catk", "기어소서", "기어체인지", "와일드볼트", "방어", "먹다남은음식", "기어메이킹", "물리딜탱", "매 턴마다 기어를 추가하여 능력치가 조금씩 오릅니다.", "0601-7"),
+      new samplePokemon("켄타로스 (1세대)", "0128", "AS252", "speed", "catk", "파괴광선", "눈보라", "지진", "10만볼트", "생명의구슬", "전관예우", "물리어태커", "선택 시 전용 증강 3개와 시너지 버프를 획득합니다.", "0128-a"),
+      new samplePokemon("뮤츠 (1세대)", "0150", "CS252", "catk", "atk", "사이코키네시스", "눈보라", "나쁜음모", "HP회복", "생명의구슬", "프레셔", "특수어태커", "선택 시 전용 증강 3개와 시너지 버프를 획득합니다.", "0150-a"),
+      new samplePokemon("휘석 플라엣테", "0670", "HC252", "catk", "atk", "문포스", "명상", "드레인키스", "파멸의빛", "진화의휘석", "공생", "특수딜탱", "진화의 휘석 효과를 받아 방어와 특수방어가 1.5배 상승합니다."),
+      new samplePokemon("휘석 단단지", "0213", "HA252", "atk", "catk", "철벽", "바디프레스", "HP회복", "스텔스록", "진화의휘석", "옹골참", "막이", "진화의 휘석 효과를 받아 방어와 특수방어가 1.5배 상승합니다."),
+      new samplePokemon("지우개굴닌자", "0658-a", "CS252", "speed", "atk", "물수리검", "악의파동", "냉동빔", "오물웨이브", "생명의구슬", "유대진화", "특수어태커", "특성 유대진화로 물수리검의 위력이 20이 되며 3회 공격으로 고정됩니다."),
+    ];
   }
   // sampleName으로 객체 찾기
   getDataBySampleName(sampleName) {
@@ -490,16 +504,18 @@ new samplePokemon("라티오스", "0381", "CS252", "speed", "atk",
       if (!sampleName) return null;
     }
     if (typeof sampleName !== "string") return null;
-    if (sampleName === "레지기가스") return regigigasSample;
-    if (sampleName === "이븐곰") return bewearSample;
-    if (sampleName === "메가플라이곤" || sampleName === "플라이곤") return megaFlygonSample;
-    if (sampleName === "기기기어르") return klinklangSample;
-    if (sampleName === "잉어킹") return magikarpSample;
-    if (sampleName === "켄타로스 (증강)") return taurosAugmentSample;
-    if (sampleName === "뮤츠 (증강)") return mewtwoAugmentSample;
-    if (sampleName === "휘석 플라엣테") return evioliteFloetteSample;
-    if (sampleName === "단단지") return shuckleSample;
-    if (sampleName === "지우개굴닌자" || sampleName === "지우 개굴닌자") return ashGreninjaSample;
+    const augmentAliasMap = {
+      플라이곤: "메가 플라이곤",
+      메가플라이곤: "메가 플라이곤",
+      잉어킹: "최강의 잉어킹",
+      "켄타로스 (증강)": "켄타로스 (1세대)",
+      "뮤츠 (증강)": "뮤츠 (1세대)",
+      "지우 개굴닌자": "지우개굴닌자",
+      단단지: "휘석 단단지",
+    };
+    const normalizedAugName = augmentAliasMap[sampleName] || sampleName;
+    const augExact = this.augmentItems.find((item) => item.sampleName === normalizedAugName);
+    if (augExact) return augExact;
     const exact = this.items.find((item) => item.sampleName === sampleName);
     if (exact) return exact;
     return (
@@ -564,18 +580,6 @@ new samplePokemon("라티오스", "0381", "CS252", "speed", "atk",
   }
 }
 
-// 증강으로만 나오는 포켓몬들
-const regigigasSample = new samplePokemon("레지기가스", "0486", "HA252", "atk", "catk", "묵사발", "화풀이", "드레인펀치", "냉동펀치", "돌격조끼", "슬로스타트", "물리딜탱", "선택 시 특성과 관련된 증강을 추가로 획득합니다.");
-const bewearSample = new samplePokemon("이븐곰", "0760", "HA252", "atk", "catk", "이판사판태클", "드레인펀치", "냉동펀치", "지진", "돌격조끼", "복슬복슬", "물리딜탱");
-const megaFlygonSample = new samplePokemon("플라이곤", "0330", "AS252", "speed", "catk", "지진", "스케일샷", "용의춤", "유턴", "플라이곤나이트", "부유", "물리어태커", "메가진화 시 벌레/드래곤 타입으로 변하며, 특성 색안경은 반감되는 기술의 위력을 2배로 만듭니다.");
-const magikarpSample = new samplePokemon("잉어킹", "0129-g", "H28 C252 S228", "speed", "atk", "튀어오르기", "튀어오르기", "튀어오르기", "튀어오르기", "잉어킹나이트", "최강의잉어킹", "특수어태커", `모든 능력치가 999로 고정됩니다.\n기술만 어떻게든 바꾼다면...?`);
-const klinklangSample = new samplePokemon("기기기어르", "0601", "HA252", "atk", "catk", "기어소서", "기어체인지", "와일드볼트", "방어", "먹다남은음식", "기어메이킹", "물리딜탱", "매 턴마다 기어를 추가하여 능력치가 조금씩 오릅니다.");
-const taurosAugmentSample = new samplePokemon("켄타로스 (증강)", "0128", "AS252", "speed", "catk", "파괴광선", "눈보라", "지진", "10만볼트", "생명의구슬", "전관예우", "물리어태커", "선택 시 전용 증강 3개와 시너지 버프를 획득합니다.");
-const mewtwoAugmentSample = new samplePokemon("뮤츠 (증강)", "0150", "CS252", "catk", "atk", "사이코키네시스", "눈보라", "나쁜음모", "HP회복", "생명의구슬", "프레셔", "특수어태커", "선택 시 전용 증강 3개와 시너지 버프를 획득합니다.");
-const evioliteFloetteSample = new samplePokemon("휘석 플라엣테", "0670", "HC252", "catk", "atk", "문포스", "명상", "드레인키스", "파멸의빛", "진화의휘석", "공생", "특수딜탱", "진화의 휘석 효과를 받아 방어와 특수방어가 1.5배 상승합니다.");
-const shuckleSample = new samplePokemon("단단지", "0213", "HA252", "atk", "catk", "철벽", "바디프레스", "HP회복", "스텔스록", "진화의휘석", "옹골참", "막이", "진화의 휘석 효과를 받아 방어와 특수방어가 1.5배 상승합니다.");
-const ashGreninjaSample = new samplePokemon("지우개굴닌자", "0658-a", "CS252", "speed", "atk", "물수리검", "악의파동", "냉동빔", "오물웨이브", "생명의구슬", "유대진화", "특수어태커", "특성 유대진화로 물수리검의 위력이 20이 되며 3회 공격으로 고정됩니다.");
-
 // 싱글턴 객체 생성 (전역에서 사용 가능)
 const sampleList = new SamplePokemonList();
 export default sampleList;
@@ -586,5 +590,6 @@ function buildAbil(name) {
     ...(abilObject[name] || { text: "설명이 없습니다." }),
     name,
     used: false,
+    usedOnce: false,
   };
 }

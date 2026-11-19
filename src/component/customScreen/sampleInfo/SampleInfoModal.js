@@ -574,6 +574,7 @@ const ModalButton = styled.button`
 // 조건(가이오가-쪽빛구슬, 그란돈-주홍구슬, 레쿠쟈-화룡점정, 메진몬-megaData+나이트)에 따라 이미지 경로를 반환하는 함수
 function getPokemonImgSrc(pokemon, selectedItem, selectedSkills) {
   if (!pokemon) return "/pokemon/img/pokemon/0000.webp";
+  if (pokemon.img_id) return `/pokemon/img/pokemon/${pokemon.img_id}.webp`;
   const baseKey = pokemon.uniqueKey;
   const skillNames = Object.values(selectedSkills || {});
 

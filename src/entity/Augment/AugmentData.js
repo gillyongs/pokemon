@@ -1084,14 +1084,8 @@ export const AUGMENT_LIST = [
     id: "threeBearsHouse",
     name: "곰 세마리가 한 집에 있어",
     desc: "팀의 곰 포켓몬 수에 따라 모든 능력치가 증가합니다.",
-    selDesc: function () {
-      return "팀의 곰 포켓몬 수에 따라 모든 능력치가 증가합니다.";
-    },
     screenText: function (target) {
       return `[증강] ${target ? target.names("는") : "포켓몬은"} 팀의 곰 포켓몬 수에 따라 모든 능력치가 증가했다!`;
-    },
-    logModalText: function () {
-      return "팀의 곰 포켓몬 수에 따라 모든 능력치가 증가합니다.";
     },
     statusModalText: function (pokemon, battle) {
       const b = battle || (typeof window !== "undefined" && window.__battle) || null;
@@ -1292,7 +1286,7 @@ export const AUGMENT_LIST = [
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
     isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0150"),
     onApply: function (pokemon, battle, options) {
-      const newPoke = replacePokemon(pokemon, "뮤츠 (증강)", battle, { resetAugments: true });
+      const newPoke = replacePokemon(pokemon, "뮤츠 (1세대)", battle, { resetAugments: true });
       if (newPoke) {
         newPoke.img_id = "0150-a";
         const grantIds = ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic"];
@@ -1325,7 +1319,7 @@ export const AUGMENT_LIST = [
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
     isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0128"),
     onApply: function (pokemon, battle, options) {
-      const newPoke = replacePokemon(pokemon, "켄타로스 (증강)", battle, { resetAugments: true });
+      const newPoke = replacePokemon(pokemon, "켄타로스 (1세대)", battle, { resetAugments: true });
       if (newPoke) {
         newPoke.img_id = "0128-a";
         const grantIds = ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyHyperBeam"];
@@ -1874,11 +1868,14 @@ export const AUGMENT_LIST = [
     id: "fastStarter",
     name: "패스트스타트",
     desc: "현재 포켓몬의 특성을 패스트스타트로 변경합니다.\n(전투에 나오고 5턴 뒤 공격과 스피드가 2배가 됩니다.)",
-    cost: 1,
-    weight: 100,
+    cost: "-",
+    buf: true,
+    permanent: true,
+    isRandom: false,
+    weight: "-",
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -5, scale: 1.15 },
-    isEligible: (pokemon) => hasPokemonName(pokemon, "레지기가스"),
+    isEligible: (pokemon) => hasPokemonName(pokemon, "레지기가스") && (pokemon?.abil?.name || pokemon?.abil) === "슬로스타트",
     onApply: (pokemon) => {
       pokemon.changeAbil("패스트스타트");
     },

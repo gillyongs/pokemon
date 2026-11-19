@@ -69,6 +69,33 @@ function getForcedSynergyAugment(pokemon) {
   return null;
 }
 
+
+/**
+ * 특정 조건을 만족할 때 증강 선택지 최상단(0번 슬롯)에 확정 등장하는 증강 반환
+ */
+function getPriorityTopAugment(pokemon) {
+  if (!pokemon) return null;
+  const abilName = pokemon.abil?.name || pokemon.abil;
+  const itemName = pokemon.item?.name || pokemon.item;
+
+  // 1. 레지기가스의 특성이 슬로스타트일 때 -> 패스트스타트 (영구 버프)
+  if ((pokemon.dexNo === "0486" || pokemon.name?.includes("레지기가스")) && abilName === "슬로스타트" && !pokemon.hasAugment?.("fastStarter")) {
+    return AUGMENT_LIST.find((a) => a.id === "fastStarter") || null;
+  }
+
+  // 2. 플라엣테 또는 단단지의 지닌 물건이 진화의휘석일 때 -> 진화의 휘석 증강
+  const isFloetteOrShuckle =
+    pokemon.dexNo === "0670" ||
+    pokemon.dexNo === "0213" ||
+    pokemon.name?.includes("플라엣테") ||
+    pokemon.name?.includes("단단지");
+  if (isFloetteOrShuckle && itemName === "진화의휘석" && !pokemon.hasAugment?.("eviolite")) {
+    return AUGMENT_LIST.find((a) => a.id === "eviolite") || null;
+  }
+
+  return null;
+}
+
 const getForcedBeginnerAugment = getForcedSynergyAugment;
 
 /**
@@ -89,6 +116,8 @@ export function rollAugments(pokemon, count = 3, battle = null) {
     if (typeof aug.isEligible === "function" && !aug.isEligible(pokemon, battle, team)) return false;
     return true;
   });
+  const priorityTopRaw = getPriorityTopAugment(pokemon);
+  const priorityTop = priorityTopRaw && (!isFull || !isNormalAugment(priorityTopRaw)) ? priorityTopRaw : null;
   const forced = getForcedBeginnerAugment(pokemon);
   const selected = [];
   let pool = [...available];
@@ -97,14 +126,20 @@ export function rollAugments(pokemon, count = 3, battle = null) {
     pool = filterExclusiveAugments(pool, pickedId);
   };
 
+  if (priorityTop) {
+    selected.push(priorityTop);
+    pool = pool.filter((a) => a.id !== priorityTop.id);
+    filterExclusives(priorityTop.id);
+  }
+
   if (isFull) {
     const anvilAug = AUGMENT_LIST.find((a) => a.id === "anvilStat");
-    if (anvilAug && !selected.some((a) => a.id === "anvilStat")) {
+    if (anvilAug && selected.length < count && !selected.some((a) => a.id === "anvilStat")) {
       selected.push(anvilAug);
       pool = pool.filter((a) => a.id !== "anvilStat");
       filterExclusives("anvilStat");
     }
-  } else if (forced && pool.some((a) => a.id === forced.id)) {
+  } else if (forced && selected.length < count && !selected.some((a) => a.id === forced.id) && pool.some((a) => a.id === forced.id)) {
     selected.push(forced);
     pool = pool.filter((a) => a.id !== forced.id);
     filterExclusives(forced.id);
@@ -149,6 +184,17 @@ export function rollAugments(pokemon, count = 3, battle = null) {
     }
   }
 
+  if (priorityTop) {
+    const pIdx = selected.findIndex((a) => a.id === priorityTop.id);
+    if (pIdx > 0) {
+      const [pAug] = selected.splice(pIdx, 1);
+      selected.unshift(pAug);
+    } else if (pIdx === -1) {
+      if (selected.length >= count) selected.pop();
+      selected.unshift(priorityTop);
+    }
+  }
+
   return selected;
 }
 
@@ -178,14 +224,19 @@ export function rollTeamAugments(team, battle = null) {
       return true;
     });
 
+    const priorityTopRaw = getPriorityTopAugment(poke);
+    const priorityTop = priorityTopRaw && (!isFull || !isNormalAugment(priorityTopRaw)) ? priorityTopRaw : null;
     const forced = getForcedBeginnerAugment(poke);
     const chosen = [];
+    if (priorityTop) {
+      chosen.push(priorityTop);
+    }
     if (isFull) {
       const anvilAug = AUGMENT_LIST.find((a) => a.id === "anvilStat");
-      if (anvilAug && !chosen.some((a) => a.id === "anvilStat")) {
+      if (anvilAug && chosen.length < 3 && !chosen.some((a) => a.id === "anvilStat")) {
         chosen.push(anvilAug);
       }
-    } else if (forced && available.some((a) => a.id === forced.id)) {
+    } else if (forced && chosen.length < 3 && !chosen.some((a) => a.id === forced.id) && available.some((a) => a.id === forced.id)) {
       chosen.push(forced);
       globalPickedIds.add(forced.id);
     }
@@ -255,6 +306,17 @@ export function rollTeamAugments(team, battle = null) {
           if (chosen.length >= 3) chosen.pop();
           chosen.unshift(anvilAug);
         }
+      }
+    }
+
+    if (priorityTop) {
+      const pIdx = chosen.findIndex((a) => a.id === priorityTop.id);
+      if (pIdx > 0) {
+        const [pAug] = chosen.splice(pIdx, 1);
+        chosen.unshift(pAug);
+      } else if (pIdx === -1) {
+        if (chosen.length >= 3) chosen.pop();
+        chosen.unshift(priorityTop);
       }
     }
 
