@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled, { keyframes, css } from "styled-components";
-import { getArcaneSwordFullName } from "../../../../entity/Augment/AugmentData";
+import { getArcaneSwordFullName, getArcaneSwordData } from "../../../../entity/Augment/AugmentData";
 export { getArcaneSwordFullName };
 
 export const getStarforceProb = (currentStar) => {
@@ -19,10 +19,7 @@ export const isSafeStarforceLevel = (star) => [0, 5, 10, 15, 20].includes(star);
 export const getStarforceCost = (currentStar) => (2 * currentStar + 1) * 10000;
 
 const AugmentStarforceView = ({ starforceAug, activePokemon, onSelect, onCancel }) => {
-  const swordAug = (activePokemon?.augments || []).find((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword"));
-  const initialStar = Number(swordAug?.arcaneStarCount ?? activePokemon?.arcaneStarCount ?? 0);
-  const scrollCount = Number(swordAug?.arcaneSuccessCount ?? activePokemon?.arcaneSuccessCount ?? 0);
-  const hasSoul = Boolean(swordAug?.hasGreatTuskSoul ?? activePokemon?.hasGreatTuskSoul);
+  const { starCount: initialStar, successes: scrollCount, hasSoul } = getArcaneSwordData(activePokemon);
 
   const [currentStar, setCurrentStar] = useState(initialStar);
   const [meso, setMeso] = useState(1000000);

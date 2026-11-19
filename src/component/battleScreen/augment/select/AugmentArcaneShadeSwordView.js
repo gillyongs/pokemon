@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes, css } from "styled-components";
 import { HeaderArea, HeaderTopRow, Title, SubTitleText } from "./selectStyles";
+import { getArcaneSwordFullName, getArcaneSwordData } from "../../../../entity/Augment/AugmentData";
 
 export const ARCANE_SCROLLS = [
   {
@@ -54,20 +55,35 @@ export const ARCANE_SCROLLS = [
 ];
 
 const AugmentArcaneShadeSwordView = ({ arcaneShadeSwordAug, activePokemon, onSelect }) => {
+  const isCleanSlate = arcaneShadeSwordAug?.id === "cleanSlateScroll";
+
+  const { successes: currentSuccess, atk: currentAtk, catk: currentCatk, speed: currentSpeed, starCount: currentStar, hasSoul, failCount } = getArcaneSwordData(activePokemon);
+
+  const initialAttempts = isCleanSlate ? failCount : 10;
+  const initialSuccess = isCleanSlate ? currentSuccess : 0;
+  const initialAtk = isCleanSlate ? currentAtk : 0;
+  const initialCatk = isCleanSlate ? currentCatk : 0;
+  const initialSpeed = isCleanSlate ? currentSpeed : 0;
+  const initialHistory = isCleanSlate ? Array.from({ length: currentSuccess }, () => ({ success: true, scrollName: "기존 성공" })) : [];
+
   const [selectedScrollId, setSelectedScrollId] = useState("100");
-  const [remainingAttempts, setRemainingAttempts] = useState(10);
-  const [successCount, setSuccessCount] = useState(0);
-  const [bonusAtk, setBonusAtk] = useState(0);
-  const [bonusCatk, setBonusCatk] = useState(0);
-  const [bonusSpeed, setBonusSpeed] = useState(0);
-  const [history, setHistory] = useState([]);
+  const [remainingAttempts, setRemainingAttempts] = useState(initialAttempts);
+  const [successCount, setSuccessCount] = useState(initialSuccess);
+  const [bonusAtk, setBonusAtk] = useState(initialAtk);
+  const [bonusCatk, setBonusCatk] = useState(initialCatk);
+  const [bonusSpeed, setBonusSpeed] = useState(initialSpeed);
+  const [history, setHistory] = useState(initialHistory);
   const [lastResult, setLastResult] = useState(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [animKey, setAnimKey] = useState(0);
 
   const selectedScroll = ARCANE_SCROLLS.find((s) => s.id === selectedScrollId) || ARCANE_SCROLLS[0];
 
-  const currentSwordTitle = successCount > 0 ? `아케인셰이드 투핸드소드 (+${successCount})` : "아케인셰이드 투핸드소드";
+  const currentSwordTitle = getArcaneSwordFullName({
+    starCount: currentStar,
+    hasSoul,
+    scrollCount: successCount,
+  });
 
   const handleEnhance = (e) => {
     e?.stopPropagation();
@@ -110,7 +126,11 @@ const AugmentArcaneShadeSwordView = ({ arcaneShadeSwordAug, activePokemon, onSel
     e?.stopPropagation();
     if (!arcaneShadeSwordAug || !activePokemon) return;
 
-    const finalName = successCount > 0 ? `아케인셰이드 투핸드소드 (+${successCount})` : "아케인셰이드 투핸드소드";
+    const finalName = getArcaneSwordFullName({
+      starCount: currentStar,
+      hasSoul,
+      scrollCount: successCount,
+    });
 
     onSelect(arcaneShadeSwordAug, {
       targetPokemon: activePokemon,
@@ -119,6 +139,8 @@ const AugmentArcaneShadeSwordView = ({ arcaneShadeSwordAug, activePokemon, onSel
       arcaneBonusCatk: bonusCatk,
       arcaneBonusSpeed: bonusSpeed,
       arcaneSwordName: finalName,
+      arcaneStarCount: currentStar,
+      hasGreatTuskSoul: hasSoul,
     });
   };
 
@@ -128,7 +150,7 @@ const AugmentArcaneShadeSwordView = ({ arcaneShadeSwordAug, activePokemon, onSel
         <HeaderTopRow>
           <Title>{currentSwordTitle}</Title>
         </HeaderTopRow>
-        <SubTitleText>검을 원하는 주문서로 강화할 수 있습니다. (최대 10회)</SubTitleText>
+        <SubTitleText>{isCleanSlate ? `순백의 주문서로 차감된 강화 횟수를 초기화했습니다.` : "검을 원하는 주문서로 강화할 수 있습니다. (최대 10회)"}</SubTitleText>
       </HeaderArea>
 
       <ScrollContent>

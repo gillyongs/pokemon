@@ -49,14 +49,9 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
 
     // 아케인셰이드 투핸드소드
     if (augId === "arcaneShadeSword") {
-      const successes = Number(aug?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
-      const hasSoul = Boolean(aug?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
       const starCount = Number(aug?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
       const starBonus = starCount * 10;
-      const starPrefix = starCount > 0 ? `[★${starCount}] ` : "";
-      const soulPrefix = hasSoul ? "위대한 엄니의 " : "";
-      const scrollSuffix = successes > 0 ? ` (+${successes})` : "";
-      const name = aug?.arcaneSwordName || `${starPrefix}${soulPrefix}아케인셰이드 투핸드소드${scrollSuffix}`;
+      const name = "아케인셰이드 투핸드소드";
       if (statKey === "atk") {
         const bonus = Number(aug?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0) + starBonus;
         if (bonus > 0) {

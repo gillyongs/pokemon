@@ -76,6 +76,34 @@ export const getArcaneSwordFullName = ({ starCount = 0, hasSoul = false, scrollC
   return `${starPrefix}${soulPrefix}아케인셰이드 투핸드소드${scrollSuffix}`;
 };
 
+export const hasArcaneShadeSword = (pokemon) => Boolean(pokemon?.hasAugment?.("arcaneShadeSword"));
+
+export const getArcaneSwordData = (pokemon = null, source = null, options = null) => {
+  const successes = Number(options?.arcaneSuccessCount ?? source?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
+  const atk = Number(options?.arcaneBonusAtk ?? source?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
+  const catk = Number(options?.arcaneBonusCatk ?? source?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
+  const speed = Number(options?.arcaneBonusSpeed ?? source?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
+  const starCount = Number(options?.arcaneStarCount ?? source?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
+  const hasSoul = Boolean(options?.hasGreatTuskSoul ?? source?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
+  const failCount = Math.max(0, 10 - successes);
+  const starBonus = starCount * 10;
+  const swordAug = (pokemon?.augments || []).find((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword"));
+  const name = options?.arcaneSwordName || source?.arcaneSwordName || swordAug?.arcaneSwordName || pokemon?.arcaneSwordName || getArcaneSwordFullName({ starCount, hasSoul, scrollCount: successes });
+
+  return {
+    successes,
+    atk,
+    catk,
+    speed,
+    starCount,
+    hasSoul,
+    failCount,
+    starBonus,
+    swordAug,
+    name,
+  };
+};
+
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
   {
@@ -385,74 +413,49 @@ export const AUGMENT_LIST = [
   {
     id: "arcaneShadeSword",
     name: "아케인셰이드 투핸드소드",
-    desc: "검을 원하는 주문서로 강화할 수 있습니다.",
-    selDesc: function () {
-      return "검을 원하는 주문서로 강화할 수 있습니다.\n이후 추가 강화 증강이 등장합니다.";
-    },
+    cost: 3,
+    weight: 100,
+    desc: "검을 원하는 주문서로 강화할 수 있습니다.\n이후 추가 강화 증강이 등장합니다.",
     screenText: function (target, prevPokeName, options) {
-      const successes = Number(options?.arcaneSuccessCount ?? this?.arcaneSuccessCount ?? target?.arcaneSuccessCount ?? 0);
-      const atk = Number(options?.arcaneBonusAtk ?? this?.arcaneBonusAtk ?? target?.arcaneBonusAtk ?? 0);
-      const catk = Number(options?.arcaneBonusCatk ?? this?.arcaneBonusCatk ?? target?.arcaneBonusCatk ?? 0);
-      const speed = Number(options?.arcaneBonusSpeed ?? this?.arcaneBonusSpeed ?? target?.arcaneBonusSpeed ?? 0);
-      const starCount = Number(options?.arcaneStarCount ?? this?.arcaneStarCount ?? target?.arcaneStarCount ?? 0);
-      const hasSoul = Boolean(options?.hasGreatTuskSoul ?? this?.hasGreatTuskSoul ?? target?.hasGreatTuskSoul);
-      let statText = `공격 +${atk + starCount * 10}, 특공 +${catk + starCount * 10}`;
+      const { atk, catk, speed, starBonus, name } = getArcaneSwordData(target, this, options);
+      let statText = `공격 +${atk + starBonus}, 특공 +${catk + starBonus}`;
       if (speed > 0) statText += `, 스피드 +${speed}`;
-      const name = options?.arcaneSwordName || this?.arcaneSwordName || getArcaneSwordFullName({ starCount, hasSoul, scrollCount: successes });
       return `[증강] ${name} 강화 완료!\n(${statText})`;
     },
     logModalText: function (pokemon, battle, options) {
-      const successes = Number(options?.arcaneSuccessCount ?? this?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
-      const atk = Number(options?.arcaneBonusAtk ?? this?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
-      const catk = Number(options?.arcaneBonusCatk ?? this?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
-      const speed = Number(options?.arcaneBonusSpeed ?? this?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
-      const starCount = Number(options?.arcaneStarCount ?? this?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
-      const hasSoul = Boolean(options?.hasGreatTuskSoul ?? this?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
-      let statText = `공격 +${atk + starCount * 10}, 특공 +${catk + starCount * 10}`;
+      const { atk, catk, speed, starBonus, name } = getArcaneSwordData(pokemon, this, options);
+      let statText = `공격 +${atk + starBonus}, 특공 +${catk + starBonus}`;
       if (speed > 0) statText += `, 스피드 +${speed}`;
-      const name = options?.arcaneSwordName || this?.arcaneSwordName || getArcaneSwordFullName({ starCount, hasSoul, scrollCount: successes });
       return `${name}로 강화하여 ${statText}을 획득했습니다.`;
     },
     statusModalText: function (pokemon, battle, options) {
-      const atk = Number(options?.arcaneBonusAtk ?? this?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
-      const catk = Number(options?.arcaneBonusCatk ?? this?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
-      const speed = Number(options?.arcaneBonusSpeed ?? this?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
-      const starCount = Number(options?.arcaneStarCount ?? this?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
-      const hasSoul = Boolean(options?.hasGreatTuskSoul ?? this?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
-      const starBonus = starCount * 10;
+      const { atk, catk, speed, starCount, starBonus, hasSoul } = getArcaneSwordData(pokemon, this, options);
       let statText = `공격 +${atk + starBonus} 특공 +${catk + starBonus}`;
       if (speed > 0) statText += ` 스피드 +${speed}`;
+      if (starCount > 0) statText += `\n스타포스 [★${starCount}]성 (공/특공 +${starBonus})`;
       if (hasSoul) statText += `\n공격 +30% 특공 +30%`;
       return `${statText}`;
     },
-    cost: 2,
-    weight: 50,
     onApply: function (pokemon, battle, options) {
-      const successes = Number(options?.arcaneSuccessCount ?? this?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
-      const bonusAtk = Number(options?.arcaneBonusAtk ?? this?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
-      const bonusCatk = Number(options?.arcaneBonusCatk ?? this?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
-      const speed = Number(options?.arcaneBonusSpeed ?? this?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
-      const starCount = Number(options?.arcaneStarCount ?? this?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
-      const hasSoul = Boolean(options?.hasGreatTuskSoul ?? this?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
-      const swordName = options?.arcaneSwordName || this?.arcaneSwordName || getArcaneSwordFullName({ starCount, hasSoul, scrollCount: successes });
+      const { successes, atk, catk, speed, starCount, hasSoul, name } = getArcaneSwordData(pokemon, this, options);
 
-      this.name = swordName;
-      this.shortName = swordName;
+      this.name = name;
+      this.shortName = name;
       this.hasGreatTuskSoul = hasSoul;
       this.arcaneStarCount = starCount;
       this.arcaneSuccessCount = successes;
-      this.arcaneBonusAtk = bonusAtk;
-      this.arcaneBonusCatk = bonusCatk;
+      this.arcaneBonusAtk = atk;
+      this.arcaneBonusCatk = catk;
       this.arcaneBonusSpeed = speed;
-      this.arcaneSwordName = swordName;
+      this.arcaneSwordName = name;
 
       pokemon.hasGreatTuskSoul = hasSoul;
       pokemon.arcaneStarCount = starCount;
       pokemon.arcaneSuccessCount = successes;
-      pokemon.arcaneBonusAtk = bonusAtk;
-      pokemon.arcaneBonusCatk = bonusCatk;
+      pokemon.arcaneBonusAtk = atk;
+      pokemon.arcaneBonusCatk = catk;
       pokemon.arcaneBonusSpeed = speed;
-      pokemon.arcaneSwordName = swordName;
+      pokemon.arcaneSwordName = name;
     },
   },
   {
@@ -460,14 +463,8 @@ export const AUGMENT_LIST = [
     name: "위대한 엄니의 소울",
     desc: "아케인셰이드 투핸드소드에 공격 +30%, 특수공격 +30% 효과를 부여합니다.",
     cost: "-",
-    weight: (pokemon) => {
-      const hasSword = Boolean(pokemon?.hasAugment?.("arcaneShadeSword") || (pokemon?.augments || []).some((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword")));
-      return hasSword && !pokemon?.hasGreatTuskSoul ? 100 : 0;
-    },
-    isEligible: (pokemon) => {
-      const hasSword = Boolean(pokemon?.hasAugment?.("arcaneShadeSword") || (pokemon?.augments || []).some((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword")));
-      return hasSword && !pokemon?.hasGreatTuskSoul;
-    },
+    weight: (pokemon) => (hasArcaneShadeSword(pokemon) && !getArcaneSwordData(pokemon).hasSoul ? 200 : 0),
+    isEligible: (pokemon) => hasArcaneShadeSword(pokemon) && !getArcaneSwordData(pokemon).hasSoul,
     screenText: function (target) {
       return `[증강] ${target?.name}의 검에 위대한 엄니의 소울이 깃들었다!`;
     },
@@ -475,9 +472,7 @@ export const AUGMENT_LIST = [
       return "검에 위대한 엄니의 소울을 부여하여 공격과 특수공격을 30% 증가시킵니다.";
     },
     onApply: function (pokemon, battle, options) {
-      const swordAug = (pokemon?.augments || []).find((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword"));
-      const successes = Number(swordAug?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
-      const starCount = Number(swordAug?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
+      const { swordAug, successes, starCount } = getArcaneSwordData(pokemon, this, options);
       const newName = getArcaneSwordFullName({ starCount, hasSoul: true, scrollCount: successes });
 
       pokemon.hasGreatTuskSoul = true;
@@ -496,39 +491,71 @@ export const AUGMENT_LIST = [
     name: "스타포스",
     desc: "별의 힘으로 아케인셰이드 투핸드소드를 강화합니다.",
     cost: "-",
-    weight: (pokemon) => {
-      const hasSword = Boolean(pokemon?.hasAugment?.("arcaneShadeSword") || (pokemon?.augments || []).some((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword")));
-      const starCount = Number(pokemon?.arcaneStarCount ?? 0);
-      return hasSword && starCount < 25 ? 100 : 0;
-    },
-    isEligible: (pokemon) => {
-      const hasSword = Boolean(pokemon?.hasAugment?.("arcaneShadeSword") || (pokemon?.augments || []).some((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword")));
-      const starCount = Number(pokemon?.arcaneStarCount ?? 0);
-      return hasSword && starCount < 25;
-    },
+    weight: (pokemon) => (hasArcaneShadeSword(pokemon) && getArcaneSwordData(pokemon).starCount < 25 ? 150 : 0),
+    isEligible: (pokemon) => hasArcaneShadeSword(pokemon) && getArcaneSwordData(pokemon).starCount < 25,
     screenText: function (target, prevPokeName, options) {
-      const starCount = Number(options?.arcaneStarCount ?? target?.arcaneStarCount ?? 0);
+      const { starCount } = getArcaneSwordData(target, this, options);
       return `[증강] ${target?.name}의 검이 [★${starCount}]성으로 강화되었다!`;
     },
     logModalText: function (pokemon, battle, options) {
-      const starCount = Number(options?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
+      const { starCount } = getArcaneSwordData(pokemon, this, options);
       return `스타포스 강화를 통해 검을 [★${starCount}]성으로 강화했습니다. (공격 +${starCount * 10}, 특수공격 +${starCount * 10})`;
     },
     onApply: function (pokemon, battle, options) {
-      const swordAug = (pokemon?.augments || []).find((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword"));
-      const starCount = Number(options?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
-      const successes = Number(swordAug?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
-      const hasSoul = Boolean(swordAug?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
-      const newName = options?.arcaneSwordName || getArcaneSwordFullName({ starCount, hasSoul, scrollCount: successes });
+      const { swordAug, starCount, name } = getArcaneSwordData(pokemon, this, options);
 
       pokemon.arcaneStarCount = starCount;
-      pokemon.arcaneSwordName = newName;
+      pokemon.arcaneSwordName = name;
 
       if (swordAug && typeof swordAug === "object") {
-        swordAug.name = newName;
-        swordAug.shortName = newName;
+        swordAug.name = name;
+        swordAug.shortName = name;
         swordAug.arcaneStarCount = starCount;
-        swordAug.arcaneSwordName = newName;
+        swordAug.arcaneSwordName = name;
+      }
+    },
+  },
+  {
+    id: "cleanSlateScroll",
+    name: "순백의 주문서",
+    desc: function (pokemon) {
+      const { name, failCount } = getArcaneSwordData(pokemon);
+      return `${name}의 차감된 업그레이드 가능 횟수 ${failCount}회를 회복시킵니다. 이후 다시 강화를 진행할 수 있습니다.`;
+    },
+    cost: "-",
+    weight: (pokemon) => {
+      if (!hasArcaneShadeSword(pokemon)) return 0;
+      const { failCount } = getArcaneSwordData(pokemon);
+      return failCount * 10;
+    },
+    isEligible: (pokemon) => hasArcaneShadeSword(pokemon) && getArcaneSwordData(pokemon).failCount > 0,
+    screenText: function (target, prevPokeName, options) {
+      const { atk, catk, speed, starBonus, name } = getArcaneSwordData(target, this, options);
+      let statText = `공격 +${atk + starBonus}, 특공 +${catk + starBonus}`;
+      if (speed > 0) statText += `, 스피드 +${speed}`;
+      return `[증강] ${name} 강화 완료!\n(${statText})`;
+    },
+    logModalText: function (pokemon, battle, options) {
+      const { name } = getArcaneSwordData(pokemon, this, options);
+      return `순백의 주문서로 재강화를 진행하여 ${name}을 완성했습니다.`;
+    },
+    onApply: function (pokemon, battle, options) {
+      const { swordAug, successes, atk, catk, speed, name } = getArcaneSwordData(pokemon, this, options);
+
+      pokemon.arcaneSuccessCount = successes;
+      pokemon.arcaneBonusAtk = atk;
+      pokemon.arcaneBonusCatk = catk;
+      pokemon.arcaneBonusSpeed = speed;
+      pokemon.arcaneSwordName = name;
+
+      if (swordAug && typeof swordAug === "object") {
+        swordAug.name = name;
+        swordAug.shortName = name;
+        swordAug.arcaneSuccessCount = successes;
+        swordAug.arcaneBonusAtk = atk;
+        swordAug.arcaneBonusCatk = catk;
+        swordAug.arcaneBonusSpeed = speed;
+        swordAug.arcaneSwordName = name;
       }
     },
   },

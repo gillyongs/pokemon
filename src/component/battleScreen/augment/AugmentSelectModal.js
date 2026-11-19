@@ -55,6 +55,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   const [swordEnhanceAug, setSwordEnhanceAug] = useState(null);
   const [arcaneShadeSwordAug, setArcaneShadeSwordAug] = useState(null);
   const [starforceAug, setStarforceAug] = useState(null);
+  const [cleanSlateAug, setCleanSlateAug] = useState(null);
   const [powerOfKingAug, setPowerOfKingAug] = useState(null);
   const [threeThousandYearsAug, setThreeThousandYearsAug] = useState(null);
   const [ninjaAppearedAug, setNinjaAppearedAug] = useState(null);
@@ -206,6 +207,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     setSwordEnhanceAug(null);
     setArcaneShadeSwordAug(null);
     setStarforceAug(null);
+    setCleanSlateAug(null);
     setPowerOfKingAug(null);
     setThreeThousandYearsAug(null);
     setNinjaAppearedAug(null);
@@ -271,6 +273,11 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
 
     if (targetAug.id === "starforce") {
       setStarforceAug(targetAug);
+      return;
+    }
+
+    if (targetAug.id === "cleanSlateScroll") {
+      setCleanSlateAug(targetAug);
       return;
     }
 
@@ -351,6 +358,15 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                   setStarforceAug(null);
                 }}
                 onCancel={() => setStarforceAug(null)}
+              />
+            ) : cleanSlateAug ? (
+              <AugmentArcaneShadeSwordView
+                arcaneShadeSwordAug={cleanSlateAug}
+                activePokemon={activePokemon}
+                onSelect={(aug, opts) => {
+                  onSelect(aug, opts);
+                  setCleanSlateAug(null);
+                }}
               />
             ) : swordEnhanceAug ? (
               <AugmentSwordEnhanceView
