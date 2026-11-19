@@ -231,10 +231,13 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
 
     if (defPokemon.hp > 0) {
+      if (!isConfuseSelfHit && useSkill.skillEffectList?.some((e) => e.name === "회복봉인") && defPokemon.tempStatus.healBlock === null) {
+        defPokemon.tempStatus.healBlock = "ready";
+      }
       const noBerrySkill = useSkill.name === "탁쳐서떨구기";
       // 탁떨을 맞고 반피 이하가 되면 열매를 먹기 전에 떨군다
       if (!noBerrySkill) {
-        defPokemon.tryBerry(battle, enqueue);
+        defPokemon.tryJamung(battle, enqueue);
       }
     }
   }

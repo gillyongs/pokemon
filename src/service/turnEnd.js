@@ -343,6 +343,8 @@ function healBlock(battle, enqueue, getter) {
   if (skillGetter.tempStatus.healBlock === 0) {
     skillGetter.tempStatus.healBlock = null;
     enqueue(battle, skillGetter.name + "의 회복 봉인이 풀렸다!", "end_heal_block_free");
+    skillGetter.tryJamung?.(battle, enqueue);
+    // 회복봉인 풀리자마자 자뭉 먹는거 맞음
   }
 }
 

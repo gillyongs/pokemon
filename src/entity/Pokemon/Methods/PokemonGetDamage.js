@@ -19,7 +19,7 @@ export const PokemonGetDamage = {
     }
     // handleFaint에서 하지만 버텨냈다! 발동시 피 1
     if (this.hp > 0) {
-      this.tryBerry(battle, enqueue);
+      this.tryJamung(battle, enqueue);
     }
 
     return actualDamage;
@@ -62,7 +62,7 @@ export const PokemonGetDamage = {
     battle.emit("pokemonLeave", { leavingPokemon: this, enqueue, reason: "faint" });
   },
 
-  tryBerry(battle, enqueue) {
+  tryJamung(battle, enqueue) {
     // attackDmage에서도 사용
     const atkTeam = this.team === "npc" ? "player" : "npc";
     const atkPokemon = battle[atkTeam];

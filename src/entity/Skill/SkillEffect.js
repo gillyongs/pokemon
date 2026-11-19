@@ -452,7 +452,7 @@ function skillEffectSearch(name) {
       }
       const def = battle[battle.turn.def];
       if (!def || def.faint) return;
-      if (def.tempStatus.healBlock === null) {
+      if (def.tempStatus.healBlock === "ready" || def.tempStatus.healBlock === null) {
         enqueue(battle, def.names("는") + " 회복 동작을 봉인당했다!", "eff_heal_block");
         def.tempStatus.healBlock = 2;
       }

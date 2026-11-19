@@ -28,6 +28,8 @@ export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
       battle.player.checkWhiteHerb?.(battle, enqueue);
       // 배턴터치로 넘겨받은 랭크다운은 교체 즉시 하양허브로 원복됨
     }
+    battle.player.tryJamung?.(battle, enqueue);
+    // 회복봉인을 맞고 교체 후 다시 나왔을때 반피 이하면 바로 자뭉을 먹는다
   } else {
     if (isFaintSwitch) {
       // 배틀 중 기절하거나 유턴으로 교체해 나온 포켓몬이 기절했을 경우엔 턴 종료시까지 대기하지만
@@ -46,6 +48,7 @@ export const switchPlayerForce = (battle, actNumber, enqueue) => {
   applyFieldEffects(battle, "player", enqueue);
   if (!battle.player.faint) {
     applyAbilityEffects(battle, "player", enqueue);
+    battle.player.tryJamung?.(battle, enqueue);
   }
 };
 
@@ -71,6 +74,7 @@ export const switchNpc = (battle, actNumber, enqueue, force, options = {}) => {
     if (options?.batonPass && !battle.npc.faint) {
       battle.npc.checkWhiteHerb?.(battle, enqueue);
     }
+    battle.npc.tryJamung?.(battle, enqueue);
   } else {
     if (battle.turn.turnEnd) {
       extraSwitchWhenTurnEnd(battle, "npc", enqueue);
@@ -129,10 +133,12 @@ export const switchBothFaint = (battle, actNumber, enqueue) => {
   applyFieldEffects(battle, fastUser, enqueue);
   if (!battle[fastUser].faint) {
     applyAbilityEffects(battle, fastUser, enqueue);
+    battle[fastUser].tryJamung?.(battle, enqueue);
   }
   applyFieldEffects(battle, slowUser, enqueue);
   if (!battle[slowUser].faint) {
     applyAbilityEffects(battle, slowUser, enqueue);
+    battle[slowUser].tryJamung?.(battle, enqueue);
   }
 
   if (battle[fastUser].faint && battle[slowUser].faint) {
