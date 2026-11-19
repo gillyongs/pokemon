@@ -446,6 +446,17 @@ function skillEffectSearch(name) {
         enqueue(battle, def.names("는") + " 한동안 소리 기술을 사용할 수 없게 됐다!", "eff_throat_chop");
       }
     },
+    회복봉인: (battle, enqueue, skillEffect) => {
+      if (isTargetSubstituteBlocked(battle)) {
+        return;
+      }
+      const def = battle[battle.turn.def];
+      if (!def || def.faint) return;
+      if (def.tempStatus.healBlock === null) {
+        enqueue(battle, def.names("는") + " 회복 동작을 봉인당했다!", "eff_heal_block");
+        def.tempStatus.healBlock = 2;
+      }
+    },
     방어: (battle, enqueue, skillEffect) => {
       // 방어 성공 여부는 skillRequirement에서 처리
       const skillUser = battle[battle.turn.atk];

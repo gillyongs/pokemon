@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { isNimbleSkill } from "../../../../entity/Augment/AugmentData";
+import { getSkillUnusableReason } from "../../../../service/skillCheck";
 
 const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {
   let pp = battle.player.pp[skillNumber];
@@ -27,8 +28,6 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     //stopPropagation 해놓고 dequeue를 추가로 앞에 넣음
 
     const player = battle.player;
-    const skill = player.skill[skillIndex]; // 실제 스킬 정보
-    let pp = battle.player.pp[skillIndex];
     if (!queueObject.queueCheck()) return;
 
     const reject = (message) => {
@@ -41,45 +40,8 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
       return true;
     };
 
-    // ① PP 소진
-    if (pp <= 0) return reject("해당 기술은 더 이상 사용할 수 없다!");
-
-    // 구애 시리즈 또는 무아지경으로 인해 사용 가능한 스킬이 고정된 경우
-    const { onlySkill } = player.tempStatus;
-    const hasUnbound = player.hasAugment?.("unboundChoice");
-    const isChoiceLocked = Boolean(player.item?.startsWith("구애") && !hasUnbound);
-    const isGorillaLocked = Boolean(player.abil?.name === "무아지경" && !hasUnbound);
-
-    if (onlySkill && (isChoiceLocked || isGorillaLocked) && onlySkill !== skill.name) {
-      const lockSource = isGorillaLocked ? "특성 무아지경" : player.item;
-      return reject(lockSource + " 효과로 인해 해당 기술은 사용할 수 없다!");
-    }
-
-    // 연속 사용 불가 스킬 (ex: 블러드문)
-    const recentSkill = player.tempStatus.recentSkillUse?.name;
-    if (recentSkill === skill.name && skill.feature?.noDouble) {
-      return reject("해당 기술은 연속으로 사용할 수 없다!");
-    }
-
-    // 돌조 입고 변화기 사용
-    if (player.item === "돌격조끼" && (skill.stype === "natk" || skill.stype === "buf")) {
-      return reject(player.names("는") + " 돌격조끼 때문에 변화기를 사용할 수 없다!");
-    }
-
-    // 도발 상태에서 변화기 사용
-    if (player.tempStatus.taunt !== null && (skill.stype === "natk" || skill.stype === "buf")) {
-      return reject(player.names("는") + " 도발 때문에 변화기를 사용할 수 없다!");
-    }
-
-    // 소리기술금지 상태에서 소리 기술 사용
-    if (player.tempStatus.noSound !== null && skill.feature?.sound) {
-      return reject(player.names("는") + " 한동안 소리 기술을 사용할 수 없다!");
-    }
-
-    // 저주받은바디로 봉인된 기술 사용
-    if (player.tempStatus.disable && player.tempStatus.disable === skill.name) {
-      return reject("해당 기술은 봉인되어 사용할 수 없다!");
-    }
+    const unusableReason = getSkillUnusableReason(player, skillIndex);
+    if (unusableReason) return reject(unusableReason);
 
     // 모든 조건 통과 시 전투 시작
     battleStartBySkillButton(skillIndex);

@@ -188,6 +188,8 @@ const switchPokemon = (battle, IN, OUT, options = {}, enqueue = null) => {
   if (pokemonIn.abil?.name === "재생력") {
     // 재생력 특성을 지닌 포켓몬은 교체시 체력이 회복
     const hp = pokemonIn.maxHp;
+    pokemonIn.tempStatus.healBlock = null;
+    // 회복봉인 당해도 교체로 들어간 상태이므로 재생력 적용됨
     pokemonIn.recoverNoText(battle, Math.floor(hp / 3), pokemonIn);
   }
   if (pokemonIn.abil?.name === "자연회복") {

@@ -2,6 +2,11 @@ export const PokemonRecover = {
   _doRecover(battle, recoverValue, { enqueue, text, silent = false } = {}) {
     if (this.hp <= 0) return; // 이미 기절했으면 무시
 
+    // 사이코노이즈 회복 봉인 상태
+    if (this.tempStatus?.healBlock) {
+      return;
+    }
+
     const maxHp = this.maxHp;
 
     // 풀피 상태

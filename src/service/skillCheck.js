@@ -153,6 +153,12 @@ export const afterSkillCheck = (bt, enqueue) => {
     return false;
   }
 
+  // 사이코노이즈(회복 봉인) 상태에서 회복 기술을 쓴 경우
+  if (skill.feature?.heal && atk.tempStatus?.healBlock) {
+    enqueue(bt, atk.names("는") + " 회복 봉인 효과로 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!", "chk_heal_block");
+    return false;
+  }
+
   // 사슬묶기로 봉인된 기술을 쓴 경우
   if (atk.tempStatus.disable && atk.tempStatus.disable === skill.name) {
     enqueue(bt, atk.names("는") + " 기술이 봉인되어 있어서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!", "chk_disable_block");

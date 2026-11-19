@@ -51,6 +51,13 @@ export class Terrain {
   handleTerrainTurnEnd(battle, enqueue) {
     if (this.#type === null) return;
 
+    // 그래스필드 없어지는 턴에 회복 안 함
+    this.#turnRemain--;
+    if (this.#turnRemain <= 0) {
+      this.#handleTerrainEnd(battle, enqueue);
+      return;
+    }
+
     if (this.#type === "그래스필드") {
       const fastUser = speedCheck(battle);
       const slowUser = fastUser === "npc" ? "player" : "npc";
@@ -62,11 +69,6 @@ export class Terrain {
           p.recover(battle, Math.floor(maxHp / 16), enqueue, `[그래스필드] ${p.name}의 체력이 회복되었다!`);
         }
       }
-    }
-
-    this.#turnRemain--;
-    if (this.#turnRemain <= 0) {
-      this.#handleTerrainEnd(battle, enqueue);
     }
   }
 

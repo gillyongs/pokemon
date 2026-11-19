@@ -106,6 +106,7 @@ class PokemonInstance {
       recentSkillGet: null,
       hapum: null, //하품
       noSound: null, // 지옥찌르기 -> 소리 기술 사용 금지
+      healBlock: null, // 사이코노이즈 -> 회복 봉인 (남은 턴)
       protectUse: null, //방어 연속 사용 횟수 -> 방어 성공률 계산에 사용
       taunt: null, //도발
       protosynthesis: null, //고대활성

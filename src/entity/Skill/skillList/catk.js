@@ -117,4 +117,6 @@ export const catkSkills = [
   new Skill("아스트랄비트", "고스트", 120, 100, 5, 0, "catk", null, "수많은 작은 영체를 상대에게 부딪쳐서 공격한다.", [], {}),
   new Skill("하이퍼보이스", "노말", 90, 100, 10, 0, "catk", null, "시끄럽게 울리는 큰 진동을 상대에게 전달하여 공격한다.", [], { sound: true }),
   new Skill("전자포", "전기", 120, 50, 5, 0, "catk", null, "대포처럼 전격을 발사하여 공격한다. 상대를 반드시 마비 상태로 만든다.", [{ name: "마비", probability: 100, printTextIfFail: false }], {}),
+  new Skill("에어로블라스트", "비행", 100, 95, 5, 0, "catk", null, "공기의 소용돌이를 발사하여 공격한다. 급소에 맞기 쉽다.", [{ name: "급소" }], {}),
+  new Skill("사이코노이즈", "에스퍼", 75, 100, 10, 0, "catk", null, "상대에게 불쾌한 음파를 날려 공격한다. 2턴 동안 상대는 회복할 수 없게 된다.", [{ name: "회복봉인", probability: 100 }], { sound: true }),
 ];

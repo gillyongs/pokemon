@@ -8,20 +8,16 @@ export const turnEnd = (battle, enqueue) => {
   // 화상딜, 독딜, 날개쉬기 타입복구, NPC 기절시 교체
   // turnEnd를 trigger로 사용하여 모든 이벤트가 끝나야 교체화면이 나오게 함
 
-  const fastUser = speedCheck(battle);
-  const slowUser = fastUser === "player" ? "npc" : "player";
-
   // 트릭룸, 날씨, 필드 카운트
   battle.field.room.handleTrickRoomTurnEnd(battle, enqueue);
   battle.field.weather.handleWeatherTurnEnd(battle, enqueue);
   battle.field.terrain.handleTerrainTurnEnd(battle, enqueue);
 
-  // ====================================================================
+  // 트릭룸이 끝나고 스피드 계산
+  const fastUser = speedCheck(battle);
+  const slowUser = fastUser === "player" ? "npc" : "player";
 
-  // 희망사항
-  battle.field[fastUser].handleWishTurnEnd(battle, enqueue);
-  battle.field[slowUser].handleWishTurnEnd(battle, enqueue);
-  // 희망사항 -> 먹밥 -> 독뎀 순서, 어지간하면 회복이 먼저
+  // ====================================================================
 
   // 순풍
   battle.field[fastUser].handleTailwindTurnEnd(battle, enqueue);
@@ -31,6 +27,13 @@ export const turnEnd = (battle, enqueue) => {
   battle.field[fastUser].handleWallTurnEnd(battle, enqueue);
   battle.field[slowUser].handleWallTurnEnd(battle, enqueue);
 
+  // 회복 =============================================================================================
+
+  // 희망사항
+  battle.field[fastUser].handleWishTurnEnd(battle, enqueue);
+  battle.field[slowUser].handleWishTurnEnd(battle, enqueue);
+  // 희망사항 -> 먹밥 -> 독뎀 순서, 어지간하면 회복이 먼저
+
   // 아이템 (먹밥)
   battle[fastUser].leftOver(battle, enqueue);
   battle[slowUser].leftOver(battle, enqueue);
@@ -39,11 +42,43 @@ export const turnEnd = (battle, enqueue) => {
   applyWarmogsArmor(battle, enqueue, fastUser);
   applyWarmogsArmor(battle, enqueue, slowUser);
 
-  // 기술 (씨뿌리기, 마그마스톰, 도발, 하품, 역린)
-  processSkillEffects(battle, enqueue, fastUser, slowUser);
+  // 기술 ==========================================================================================
 
-  // 상태이상 처리
-  processAilment(battle, enqueue, fastUser, slowUser);
+  // 씨뿌리기
+  seed(battle, enqueue, fastUser, slowUser);
+  seed(battle, enqueue, slowUser, fastUser);
+
+  // 묶기 (마그마스톰)
+  switchLock(battle, enqueue, fastUser);
+  switchLock(battle, enqueue, slowUser);
+
+  // 도발
+  taunt(battle, enqueue, fastUser);
+  taunt(battle, enqueue, slowUser);
+
+  // 하품
+  hapum(battle, enqueue, fastUser);
+  hapum(battle, enqueue, slowUser);
+
+  // 역린 등 자동행동
+  autoEnd(battle, enqueue, fastUser);
+  autoEnd(battle, enqueue, slowUser);
+
+  // 소리 기술 금지 (지옥찌르기)
+  noSound(battle, enqueue, fastUser);
+  noSound(battle, enqueue, slowUser);
+
+  // 기술 봉인 (저주받은 바디,)
+  disable(battle, enqueue, fastUser);
+  disable(battle, enqueue, slowUser);
+
+  // 상태이상 처리 ============================================================================
+  applyStatusDamage(battle, enqueue, fastUser);
+  applyStatusDamage(battle, enqueue, slowUser);
+
+  // 화염구슬로 화상을 입은 턴엔 화상 데미지가 들어가지 않음
+  flameOrb(battle, enqueue, fastUser);
+  flameOrb(battle, enqueue, slowUser);
 
   // 날씨 데미지 (모래바람)
   // 모래바람이 종료되는 턴엔 데미지를 입지 않는다.
@@ -66,6 +101,10 @@ export const turnEnd = (battle, enqueue) => {
   // [증강] 거인의 흡수 (매 턴 상대에게 최대 HP의 1% 데미지 + 해당 수치만큼 추가 HP 획득, 회복 X)
   applyGiantAbsorption(battle, enqueue, fastUser);
   applyGiantAbsorption(battle, enqueue, slowUser);
+
+  // 회복봉인 풀리는 턴에 먹밥 발동 안하므로 최대한 뒤에
+  healBlock(battle, enqueue, fastUser);
+  healBlock(battle, enqueue, slowUser);
 
   [battle[fastUser], battle[slowUser]].forEach((p) => {
     // 능력치 증감은 어차피 damageCalculate, speedCalculate에서 처리하므로 그냥 text만 enqueue하면 됨
@@ -226,36 +265,6 @@ function applyWarmogsArmor(battle, enqueue, user) {
   p.recover(battle, heal, enqueue, text);
 }
 
-function processSkillEffects(battle, enqueue, fastUser, slowUser) {
-  // 씨뿌리기
-  seed(battle, enqueue, fastUser, slowUser);
-  seed(battle, enqueue, slowUser, fastUser);
-
-  // 묶기
-  switchLock(battle, enqueue, fastUser);
-  switchLock(battle, enqueue, slowUser);
-
-  // 도발
-  taunt(battle, enqueue, fastUser);
-  taunt(battle, enqueue, slowUser);
-
-  // 하품
-  hapum(battle, enqueue, fastUser);
-  hapum(battle, enqueue, slowUser);
-
-  // 역린 등 자동행동
-  autoEnd(battle, enqueue, fastUser);
-  autoEnd(battle, enqueue, slowUser);
-
-  // 지옥찌르기 소리 기술 금지
-  noSound(battle, enqueue, fastUser);
-  noSound(battle, enqueue, slowUser);
-
-  // 저주받은바디 기술 봉인
-  disable(battle, enqueue, fastUser);
-  disable(battle, enqueue, slowUser);
-}
-
 function seed(battle, enqueue, getter, user) {
   const skillUser = battle[user]; // 씨뿌리기 쓴 놈
   const skillGetter = battle[getter]; // 씨뿌리기 맞은놈
@@ -263,8 +272,12 @@ function seed(battle, enqueue, getter, user) {
 
   // 씨뿌리기
   if (skillGetter.tempStatus.seed) {
-    const dmg = skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.maxHp / 8));
-    skillUser.recover(battle, Math.floor(dmg), enqueue, `씨뿌리기가 ${skillGetter.name}의 체력을 빼앗는다!`);
+    if (skillUser.tempStatus?.healBlock) {
+      skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.maxHp / 8), `씨뿌리기가 ${skillGetter.name}의 체력을 빼앗는다!`);
+    } else {
+      const dmg = skillGetter.getDamage(battle, enqueue, Math.floor(skillGetter.maxHp / 8));
+      skillUser.recover(battle, Math.floor(dmg), enqueue, `씨뿌리기가 ${skillGetter.name}의 체력을 빼앗는다!`);
+    }
   }
 }
 
@@ -318,6 +331,21 @@ function noSound(battle, enqueue, getter) {
   }
 }
 
+function healBlock(battle, enqueue, getter) {
+  const skillGetter = battle[getter];
+  if (skillGetter.faint) return;
+  if (skillGetter.tempStatus.healBlock === null) return;
+
+  if (skillGetter.tempStatus.healBlock > 0) {
+    skillGetter.tempStatus.healBlock--;
+  }
+
+  if (skillGetter.tempStatus.healBlock === 0) {
+    skillGetter.tempStatus.healBlock = null;
+    enqueue(battle, skillGetter.name + "의 회복 봉인이 풀렸다!", "end_heal_block_free");
+  }
+}
+
 function disable(battle, enqueue, getter) {
   const skillGetter = battle[getter];
   if (skillGetter.faint) return;
@@ -362,15 +390,6 @@ function autoEnd(battle, enqueue, user) {
     p.autoSN = null;
     applyAilment("혼란", battle, user, enqueue, null, autoConfuseText);
   }
-}
-
-function processAilment(battle, enqueue, fastUser, slowUser) {
-  applyStatusDamage(battle, enqueue, fastUser);
-  applyStatusDamage(battle, enqueue, slowUser);
-
-  // 화염구슬로 화상을 입은 턴엔 화상 데미지가 들어가지 않음
-  flameOrb(battle, enqueue, fastUser);
-  flameOrb(battle, enqueue, slowUser);
 }
 
 function applyStatusDamage(battle, enqueue, user) {
