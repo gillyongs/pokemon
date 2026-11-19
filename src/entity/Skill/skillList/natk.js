@@ -26,4 +26,5 @@ export const natkSkills = [
   new Skill("뱀눈초리", "노말", "-", 100, 30, 0, "natk", null, "배의 무늬로 겁을 주어 상대를 마비 상태로 만든다.", [{ name: "마비", probability: 100, printTextIfFail: true }], {}),
   new Skill("도깨비불", "불꽃", "-", 85, 15, 0, "natk", null, "으스스하고 괴상한 불꽃을 쏘아 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 100, printTextIfFail: true }], {}),
   new Skill("맹독", "독", "-", 90, 10, 0, "natk", null, "상대를 맹독 상태로 만든다. 턴이 진행될수록 독의 데미지가 증가한다.", [{ name: "맹독", probability: 100, printTextIfFail: true }], {}),
+  new Skill("물붓기", "물", "-", 100, 20, 0, "natk", null, "대량의 물을 끼얹어 상대의 타입을 물타입으로 바꾼다.", [{ name: "물붓기" }], {}),
 ];

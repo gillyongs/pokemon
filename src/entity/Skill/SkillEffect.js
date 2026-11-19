@@ -23,6 +23,12 @@ function skillEffectSearch(name) {
       let def = battle[battle.turn.def];
       let skill = atkPokemon.turn.useSkill;
       if (!atkPokemon.faint && skill.feature?.protect !== true) atkPokemon.tempStatus.protectUse = null;
+
+      // 전기로바꾸기 충전 해제
+      if (skill?.type === "전기" && (skill?.stype === "atk" || skill?.stype === "catk") && atkPokemon.tempStatus?.changeElectronic) {
+        atkPokemon.tempStatus.changeElectronic = null;
+      }
+
       // 방어 외에 다른 스킬을 사용하였을때 방어 스택 초기화
 
       // [증강: 달팽이 세마리] 공격 후 적에게 추가 고정 데미지 (10/25/40)
@@ -852,6 +858,19 @@ function skillEffectSearch(name) {
     튀어오르기: (battle, enqueue) => {
       enqueue(battle, "그러나 아무 일도 일어나지 않았다!", "eff_splash");
     },
+    물붓기: (battle, enqueue, skillEffect) => {
+      if (isTargetSubstituteBlocked(battle)) return;
+      const def = battle[battle.turn.def];
+      if (!def || def.faint) return;
+      if (def.type1 === "물" && !def.type2) {
+        enqueue(battle, "하지만 실패했다!", "eff_soak_fail");
+        return;
+      }
+      def.type1 = "물";
+      def.type2 = null;
+      enqueue(battle, def.names("는") + " 물 타입이 되었다!", "eff_soak");
+    },
+
     벽부수기: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const field = battle.field[def].noClean;

@@ -53,6 +53,12 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
     }
   }
 
+  if (defPokemon.abil?.name === "전기로바꾸기" && !defPokemon.faint && !defPokemon.tempStatus.changeElectronic && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
+    defPokemon.tempStatus.changeElectronic = true;
+    const chargeMsg = "[특성 전기로바꾸기] " + defPokemon.names("는") + " 공격에 맞아 충전되었다!";
+    enqueue(battle, chargeMsg, "hit_electromorphosis");
+  }
+
   if (defPokemon.abil?.name === "열교환" && !defPokemon.faint && useSkill.type === "불꽃" && (useSkill.stype === "atk" || useSkill.stype === "catk")) {
     defPokemon.rankUp(battle, enqueue, "atk", 1, "[특성 열교환]");
     // 데미지 무효 효과는 없음

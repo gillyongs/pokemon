@@ -568,6 +568,11 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 1.5 (용의턱)";
   }
 
+  if (attackPokemon.tempStatus.changeElectronic && skill.type === "전기") {
+    damage *= 2;
+    attackPokemon.log.damage1 += " * 2 (전기로바꾸기)";
+  }
+
   if (atkAbil === "트랜지스터" && skill.type === "전기") {
     damage *= 1.3;
     attackPokemon.log.damage1 += " * 1.3 (트랜지스터)";

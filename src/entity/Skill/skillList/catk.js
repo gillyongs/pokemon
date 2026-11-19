@@ -27,6 +27,7 @@ export const catkSkills = [
   new Skill("데스윙", "비행", 80, 100, 10, 0, "catk", null, "준 데미지의 ¾만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.75 }]),
   new Skill("드레인키스", "페어리", 50, 100, 10, 0, "catk", null, "준 데미지의 ¾만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.75 }], { touch: true }),
   new Skill("기가드레인", "풀", 75, 100, 10, 0, "catk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], {}),
+  new Skill("파라볼라차지", "전기", 65, 100, 20, 0, "catk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], {}),
 
   // 선공기
   new Skill("진공파", "격투", 40, 100, 30, 1, "catk", null, "우선도 +1", []),
