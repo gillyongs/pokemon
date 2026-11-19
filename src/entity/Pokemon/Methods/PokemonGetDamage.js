@@ -71,7 +71,7 @@ export const PokemonGetDamage = {
     const noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
     if (noBerryAbil.includes(atkAbil)) return;
 
-    if (this.item === "자뭉열매") {
+    if (this.item === "자뭉열매" && !this.tempStatus?.healBlock) {
       const maxHp = this.maxHp;
       if (this.hp <= Math.floor(maxHp / 2)) {
         this.recover(battle, Math.floor(maxHp / 4), enqueue, `${this.names("는")} 자뭉열매로 인해 조금 회복했다!`);

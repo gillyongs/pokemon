@@ -8,44 +8,7 @@ import LogButton from "../common/LogButton";
 import LogModal from "../../LogModal";
 
 import styled from "styled-components";
-
-const isSkillUsable = (player, skillIndex) => {
-  const skill = player?.skill?.[skillIndex];
-  const pp = player?.pp?.[skillIndex];
-  if (!skill) return false;
-  if (pp <= 0) return false;
-
-  const { onlySkill } = player.tempStatus || {};
-  const hasUnbound = player.hasAugment?.("unboundChoice");
-  const isChoiceLocked = Boolean(player.item?.startsWith("구애") && !hasUnbound);
-  const isGorillaLocked = Boolean(player.abil?.name === "무아지경" && !hasUnbound);
-  if (onlySkill && (isChoiceLocked || isGorillaLocked) && onlySkill !== skill.name) {
-    return false;
-  }
-
-  const recentSkill = player.tempStatus?.recentSkillUse?.name;
-  if (recentSkill === skill.name && skill.feature?.noDouble) {
-    return false;
-  }
-
-  if (player.item === "돌격조끼" && (skill.stype === "natk" || skill.stype === "buf")) {
-    return false;
-  }
-
-  if (player.tempStatus?.taunt !== null && (skill.stype === "natk" || skill.stype === "buf")) {
-    return false;
-  }
-
-  if (player.tempStatus?.noSound !== null && skill.feature?.sound) {
-    return false;
-  }
-
-  if (player.tempStatus?.disable && player.tempStatus.disable === skill.name) {
-    return false;
-  }
-
-  return true;
-};
+import { isSkillUsable } from "../../../../service/skillCheck";
 
 const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, battleStartBySkillButton, textSkip, btObj }) => {
   const [logOpen, setLogOpen] = useState(false);
