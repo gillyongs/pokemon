@@ -83,8 +83,10 @@ Object.defineProperties(Battle.prototype, Object.getOwnPropertyDescriptors(Battl
 export function createBattle(playerArray, npcArray, options = { difficulty: "이지", round: 1 }) {
   const player = generatePokemonInstance(playerArray[0], "player");
   player.originalIndex = 0;
+  player.isFirst = true;
   const npc = generatePokemonInstance(npcArray[0], "npc", options);
   npc.originalIndex = 0;
+  npc.isFirst = true;
 
   const playerBench1 = generatePokemonInstance(playerArray[1], "player");
   playerBench1.originalIndex = 1;

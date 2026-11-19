@@ -1382,7 +1382,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => getReplacementAugmentWeight(pokemon),
     shiftUp: true,
     imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
-    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0213"),
+    isEligible: (pokemon, battle, team) => Boolean(pokemon?.isFirst) && isHpAtLeast(pokemon, 0.5) && !hasPokemonOnTeam(team, "0213"),
     onApply: function (pokemon, battle, options) {
       const newPoke = replacePokemon(pokemon, "단단지", battle, { resetAugments: true });
       if (newPoke) {
@@ -2470,6 +2470,7 @@ const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) => {
   const newPoke = typeof newPokemonOrId === "string" ? generatePokemonInstance(newPokemonOrId, pokemon.team || "player") : newPokemonOrId;
   if (!newPoke) return pokemon;
   newPoke.originalIndex = pokemon.originalIndex !== undefined ? pokemon.originalIndex : 0;
+  newPoke.isFirst = Boolean(pokemon.isFirst);
 
   // 포켓몬 교체 시 기본적으로 해당 포켓몬의 증강, 버프, 저주를 전부 초기화 (resetAugments === false 인 경우만 유지)
   const shouldResetAugments = options?.resetAugments !== false;
