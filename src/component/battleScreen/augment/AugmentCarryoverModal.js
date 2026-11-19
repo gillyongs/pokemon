@@ -135,6 +135,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           arcaneBonusCatk: item.augment.arcaneBonusCatk ?? item.pokemon?.arcaneBonusCatk ?? 0,
           arcaneBonusSpeed: item.augment.arcaneBonusSpeed ?? item.pokemon?.arcaneBonusSpeed ?? 0,
           arcaneSwordName: item.augment.arcaneSwordName || item.pokemon?.arcaneSwordName || item.augment.name,
+          hasGreatTuskSoul: item.augment.hasGreatTuskSoul || item.pokemon?.hasGreatTuskSoul || false,
           pickedAbility: item.augment.pickedAbility || (item.augment.id === "randomAbility" ? item.pokemon?.abil?.name || item.pokemon?.abil : undefined),
           nimbleSkillName: item.augment.nimbleSkillName || item.pokemon?.nimbleSkillName,
           soulDiceStats: item.augment.soulDiceStats || item.pokemon?.soulDiceStats,

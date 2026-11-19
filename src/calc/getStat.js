@@ -49,7 +49,10 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
 
     // 아케인셰이드 투핸드소드
     if (augId === "arcaneShadeSword") {
-      const name = "아케인셰이드 투핸드소드";
+      const successes = Number(aug?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
+      const hasSoul = Boolean(aug?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
+      const prefix = hasSoul ? "위대한 엄니의 아케인셰이드 투핸드소드" : "아케인셰이드 투핸드소드";
+      const name = aug?.arcaneSwordName || (successes > 0 ? `${prefix} (+${successes})` : prefix);
       if (statKey === "atk") {
         const bonus = Number(aug?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
         if (bonus > 0) {
@@ -111,6 +114,14 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   // 곱적용 =============================================================
   for (const aug of augments) {
     const augId = typeof aug === "string" ? aug : aug?.id;
+
+    // 위대한 엄니의 소울 (아케인셰이드 투핸드소드 장착 시 공격/특공 +30%)
+    if (augId === "arcaneShadeSword" && (aug?.hasGreatTuskSoul || pokemon?.hasGreatTuskSoul)) {
+      if (statKey === "atk" || statKey === "catk") {
+        val = Math.round(val * 1.3);
+        logText += " * 1.3 (위대한 엄니의 소울)";
+      }
+    }
 
     // 인생의 동반자: 모든 능력치 1.1배
     if (augId === "lifePartner") {

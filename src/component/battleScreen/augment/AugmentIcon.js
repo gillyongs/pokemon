@@ -1049,7 +1049,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -3701,6 +3701,15 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <image href="/pokemon/img/augment/arcaneShadeSword.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#c084fc" strokeWidth="0.5" strokeOpacity="0.8" />
+          </g>
+        )}
+
+        {/* 위대한 엄니의 소울 (소울 일러스트 이미지 + 원형 클리핑 & 마젠타 링) */}
+        {id === "greatTuskSoul" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/greatTuskSoul.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#f43f5e" strokeWidth="0.5" strokeOpacity="0.8" />
           </g>
         )}
 

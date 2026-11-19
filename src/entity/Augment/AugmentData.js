@@ -379,7 +379,7 @@ export const AUGMENT_LIST = [
     name: "아케인셰이드 투핸드소드",
     desc: "검을 원하는 주문서로 강화할 수 있습니다.",
     selDesc: function () {
-      return "검을 원하는 주문서로 강화할 수 있습니다.";
+      return "검을 원하는 주문서로 강화할 수 있습니다.\n이후 관련 증강이 추가로 등장합니다.";
     },
     screenText: function (target, prevPokeName, options) {
       const successes = Number(options?.arcaneSuccessCount ?? this?.arcaneSuccessCount ?? target?.arcaneSuccessCount ?? 0);
@@ -405,8 +405,10 @@ export const AUGMENT_LIST = [
       const atk = Number(options?.arcaneBonusAtk ?? this?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
       const catk = Number(options?.arcaneBonusCatk ?? this?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
       const speed = Number(options?.arcaneBonusSpeed ?? this?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
-      let statText = `공격 +${atk}, 특공 +${catk}`;
-      if (speed > 0) statText += `, 스피드 +${speed}`;
+      const hasSoul = Boolean(options?.hasGreatTuskSoul ?? this?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
+      let statText = `공격 +${atk} 특공 +${catk}`;
+      if (speed > 0) statText += ` 스피드 +${speed}`;
+      if (hasSoul) statText += `\n공격 +30% 특공 +30%`;
       return `${statText}`;
     },
     cost: 2,
@@ -416,21 +418,60 @@ export const AUGMENT_LIST = [
       const bonusAtk = Number(options?.arcaneBonusAtk ?? this?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
       const bonusCatk = Number(options?.arcaneBonusCatk ?? this?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
       const speed = Number(options?.arcaneBonusSpeed ?? this?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
-      const swordName = options?.arcaneSwordName || this?.arcaneSwordName || (successes > 0 ? `아케인셰이드 투핸드소드 (+${successes})` : "아케인셰이드 투핸드소드");
+      const hasSoul = Boolean(options?.hasGreatTuskSoul ?? this?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
+      const prefix = hasSoul ? "위대한 엄니의 아케인셰이드 투핸드소드" : "아케인셰이드 투핸드소드";
+      const swordName = options?.arcaneSwordName || this?.arcaneSwordName || (successes > 0 ? `${prefix} (+${successes})` : prefix);
 
       this.name = swordName;
       this.shortName = swordName;
+      this.hasGreatTuskSoul = hasSoul;
       this.arcaneSuccessCount = successes;
       this.arcaneBonusAtk = bonusAtk;
       this.arcaneBonusCatk = bonusCatk;
       this.arcaneBonusSpeed = speed;
       this.arcaneSwordName = swordName;
 
+      pokemon.hasGreatTuskSoul = hasSoul;
       pokemon.arcaneSuccessCount = successes;
       pokemon.arcaneBonusAtk = bonusAtk;
       pokemon.arcaneBonusCatk = bonusCatk;
       pokemon.arcaneBonusSpeed = speed;
       pokemon.arcaneSwordName = swordName;
+    },
+  },
+  {
+    id: "greatTuskSoul",
+    name: "위대한 엄니의 소울",
+    desc: "아케인셰이드 투핸드소드에 공격 +30%, 특수공격 +30% 효과를 부여합니다.",
+    cost: "-",
+    weight: (pokemon) => {
+      const hasSword = Boolean(pokemon?.hasAugment?.("arcaneShadeSword") || (pokemon?.augments || []).some((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword")));
+      return hasSword && !pokemon?.hasGreatTuskSoul ? 100 : 0;
+    },
+    isEligible: (pokemon) => {
+      const hasSword = Boolean(pokemon?.hasAugment?.("arcaneShadeSword") || (pokemon?.augments || []).some((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword")));
+      return hasSword && !pokemon?.hasGreatTuskSoul;
+    },
+    screenText: function (target) {
+      return `[증강] ${target?.name}의 검에 위대한 엄니의 소울이 깃들었다!`;
+    },
+    logModalText: function (pokemon) {
+      return "검에 위대한 엄니의 소울을 부여하여 공격과 특수공격을 30% 증가시킵니다.";
+    },
+    onApply: function (pokemon, battle, options) {
+      const swordAug = (pokemon?.augments || []).find((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword"));
+      const successes = Number(swordAug?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
+      const newName = successes > 0 ? `위대한 엄니의 아케인셰이드 투핸드소드 (+${successes})` : "위대한 엄니의 아케인셰이드 투핸드소드";
+
+      pokemon.hasGreatTuskSoul = true;
+      pokemon.arcaneSwordName = newName;
+
+      if (swordAug && typeof swordAug === "object") {
+        swordAug.name = newName;
+        swordAug.shortName = newName;
+        swordAug.hasGreatTuskSoul = true;
+        swordAug.arcaneSwordName = newName;
+      }
     },
   },
   {

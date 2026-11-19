@@ -227,6 +227,15 @@ export const PokemonInstanceAccess = {
     this.agument.arcaneSwordName = v;
   },
 
+  get hasGreatTuskSoul() {
+    return this._hasGreatTuskSoul ?? this.agument?.hasGreatTuskSoul ?? false;
+  },
+  set hasGreatTuskSoul(v) {
+    this._hasGreatTuskSoul = Boolean(v);
+    if (!this.agument) this.agument = {};
+    this.agument.hasGreatTuskSoul = Boolean(v);
+  },
+
   get pickedAbility() {
     return this.agument?.pickedAbility ?? null;
   },
