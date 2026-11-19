@@ -131,6 +131,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           swordBonusAtk: item.augment.swordBonusAtk,
           swordName: item.augment.swordName,
           arcaneSuccessCount: item.augment.arcaneSuccessCount ?? item.pokemon?.arcaneSuccessCount ?? 0,
+          arcaneStarCount: item.augment.arcaneStarCount ?? item.pokemon?.arcaneStarCount ?? 0,
           arcaneBonusAtk: item.augment.arcaneBonusAtk ?? item.pokemon?.arcaneBonusAtk ?? 0,
           arcaneBonusCatk: item.augment.arcaneBonusCatk ?? item.pokemon?.arcaneBonusCatk ?? 0,
           arcaneBonusSpeed: item.augment.arcaneBonusSpeed ?? item.pokemon?.arcaneBonusSpeed ?? 0,

@@ -1049,7 +1049,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -3701,6 +3701,52 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <image href="/pokemon/img/augment/arcaneShadeSword.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#c084fc" strokeWidth="0.5" strokeOpacity="0.8" />
+          </g>
+        )}
+
+        
+        {/* 스타포스 (메이플 스타일 골든 스타 & 별빛 섬광) */}
+        {id === "starforce" && (
+          <g>
+            {/* 심우주 배경 원 */}
+            <circle cx="32" cy="32" r="30" fill="url(#starforceBg)" stroke="url(#starforceRing)" strokeWidth="1.8" />
+            
+            {/* 은하수 성간 먼지 및 작은 별빛들 */}
+            <circle cx="16" cy="18" r="1.2" fill="#fde047" opacity="0.85" />
+            <circle cx="48" cy="16" r="1.5" fill="#fef08a" opacity="0.9" />
+            <circle cx="14" cy="46" r="1" fill="#fde047" opacity="0.75" />
+            <circle cx="50" cy="46" r="1.3" fill="#fef08a" opacity="0.85" />
+            <circle cx="21" cy="30" r="0.9" fill="#ffffff" opacity="0.7" />
+            <circle cx="43" cy="33" r="0.9" fill="#ffffff" opacity="0.7" />
+            
+            {/* 골든 스타 발광 오라 */}
+            <circle cx="32" cy="32" r="19" fill="url(#starforceGlow)" />
+            
+            {/* 십자 섬광 (Sparkle flare) */}
+            <path d="M 32 10 Q 32 32 10 32 Q 32 32 32 54 Q 32 32 54 32 Q 32 32 32 10 Z" fill="#fef08a" opacity="0.4" filter="url(#glow)" />
+            
+            {/* 메이플 황금 별 베이스 테두리 */}
+            <polygon points="32,14 36.8,25 48.5,26.5 40,34.8 42.2,46.5 32,41 21.8,46.5 24,34.8 15.5,26.5 27.2,25" fill="#78350f" stroke="#451a03" strokeWidth="0.8" />
+            
+            {/* 3D 각진 단면 (Faceted Star) */}
+            <polygon points="32,14 32,33 27.2,25" fill="#fef08a" />
+            <polygon points="32,33 15.5,26.5 24,34.8" fill="#fde047" />
+            <polygon points="32,33 24,34.8 21.8,46.5" fill="#eab308" />
+            <polygon points="32,33 32,41 21.8,46.5" fill="#ca8a04" />
+            
+            <polygon points="32,14 36.8,25 32,33" fill="#fde047" />
+            <polygon points="32,33 36.8,25 48.5,26.5" fill="#eab308" />
+            <polygon points="32,33 48.5,26.5 40,34.8" fill="#ca8a04" />
+            <polygon points="32,33 40,34.8 42.2,46.5" fill="#a16207" />
+            <polygon points="32,33 42.2,46.5 32,41" fill="#854d0e" />
+            
+            {/* 중앙 반짝임 다이아몬드 코어 */}
+            <polygon points="32,29 34.5,33 32,37 29.5,33" fill="#ffffff" opacity="0.9" />
+            <circle cx="32" cy="33" r="2" fill="#ffffff" filter="url(#glow)" />
+            
+            {/* 외곽선 골든 링 */}
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#starforceRing)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#fde047" strokeWidth="0.6" strokeOpacity="0.8" />
           </g>
         )}
 

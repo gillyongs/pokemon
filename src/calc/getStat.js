@@ -51,16 +51,20 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     if (augId === "arcaneShadeSword") {
       const successes = Number(aug?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
       const hasSoul = Boolean(aug?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
-      const prefix = hasSoul ? "위대한 엄니의 아케인셰이드 투핸드소드" : "아케인셰이드 투핸드소드";
-      const name = aug?.arcaneSwordName || (successes > 0 ? `${prefix} (+${successes})` : prefix);
+      const starCount = Number(aug?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
+      const starBonus = starCount * 10;
+      const starPrefix = starCount > 0 ? `[★${starCount}] ` : "";
+      const soulPrefix = hasSoul ? "위대한 엄니의 " : "";
+      const scrollSuffix = successes > 0 ? ` (+${successes})` : "";
+      const name = aug?.arcaneSwordName || `${starPrefix}${soulPrefix}아케인셰이드 투핸드소드${scrollSuffix}`;
       if (statKey === "atk") {
-        const bonus = Number(aug?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
+        const bonus = Number(aug?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0) + starBonus;
         if (bonus > 0) {
           val += bonus;
           logText += ` + ${bonus} (${name})`;
         }
       } else if (statKey === "catk") {
-        const bonus = Number(aug?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
+        const bonus = Number(aug?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0) + starBonus;
         if (bonus > 0) {
           val += bonus;
           logText += ` + ${bonus} (${name})`;

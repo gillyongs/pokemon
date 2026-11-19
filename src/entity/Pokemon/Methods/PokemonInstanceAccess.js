@@ -191,6 +191,15 @@ export const PokemonInstanceAccess = {
     this.agument.arcaneSuccessCount = v;
   },
 
+  get arcaneStarCount() {
+    return this._arcaneStarCount ?? this.agument?.arcaneStarCount ?? 0;
+  },
+  set arcaneStarCount(v) {
+    this._arcaneStarCount = v;
+    if (!this.agument) this.agument = {};
+    this.agument.arcaneStarCount = v;
+  },
+
   get arcaneBonusAtk() {
     return this._arcaneBonusAtk ?? this.agument?.arcaneBonusAtk ?? 0;
   },
