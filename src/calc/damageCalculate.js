@@ -438,8 +438,13 @@ export const damageCalculate = (battle, obj, ai) => {
       attackPokemon.log.damage1 += " * 1.5 (쾌청+불)";
     }
     if (skill.type === "물") {
-      damage *= 0.5;
-      attackPokemon.log.damage1 += " * 0.5 (쾌청+물)";
+      if (skill.name === "하이드로스팀") {
+        damage *= 1.5;
+        attackPokemon.log.damage1 += " * 1.5 (쾌청+하이드로스팀)";
+      } else {
+        damage *= 0.5;
+        attackPokemon.log.damage1 += " * 0.5 (쾌청+물)";
+      }
     }
   }
 

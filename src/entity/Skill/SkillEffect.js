@@ -81,7 +81,7 @@ function skillEffectSearch(name) {
         // 얼음치료와 상태이상 부여 이벤트가 동시에 있으면 상태이상 부여가 먼저 발생한다
         // => 상태이상 부여가 실패하고 얼음이 녹아 상태이상이 없는 상태가 된다
         // 상대가 대타출동이면 적용 안될것같긴 한데 얼음+대타출동이 동시에 안될듯?
-        const meltSkills = ["열탕", "스팀버스트", "열사의대지", "휘적휘적포"]; //불꽃 타입이 아니지만 얼음을 녹이는 기술들
+        const meltSkills = ["열탕", "스팀버스트", "열사의대지", "휘적휘적포", "하이드로스팀"]; //불꽃 타입이 아니지만 얼음을 녹이는 기술들
         if (skill.type === "불꽃" || meltSkills.includes(skill.name)) {
           let freezeCureText = def.name + "의 얼음이 녹았다!";
           def.ailment.freeze = null;
