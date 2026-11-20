@@ -3619,52 +3619,28 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 제로섬게임 (저울 일러스트 이미지 + 원형 클리핑 & 퍼플 링 + 강화(▲ 초록 삼각화살표)/하락(▼ 빨간 삼각화살표) 오버레이) */}
+        {/* 제로섬게임 (저울 일러스트 이미지 + 원형 클리핑 & 퍼플 링 + 강화(초록 +)/하락(빨간 -) 오버레이) */}
         {id === "zeroSumGame" && (
           <g clipPath="url(#lwClip)">
             <image href="/pokemon/img/augment/zeroSumGame.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#zeroSumRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#d8b4fe" strokeWidth="0.5" strokeOpacity="0.5" />
-            {(sign === "up" || sign === "+") && (
-              <g>
-                {/* 강화: 손잡이 없는 초록색 윗 삼각화살표 (▲) */}
-                <path
-                  d="M 32 14 L 49 48 L 15 48 Z"
-                  fill="#22c55e"
-                  stroke="#000000"
-                  strokeWidth="3.2"
-                  strokeLinejoin="round"
-                  style={{ filter: "drop-shadow(0 0 4px rgba(34, 197, 94, 0.95))" }}
-                />
-                <path
-                  d="M 32 18 L 45 45 L 19 45 Z"
-                  fill="none"
-                  stroke="#86efac"
-                  strokeWidth="0.8"
-                  strokeLinejoin="round"
-                  opacity="0.8"
-                />
+            {(sign === "+" || sign === "up") && (
+              <g style={{ filter: "drop-shadow(0 0 3px rgba(34, 197, 94, 0.95))" }}>
+                {/* 검은 외곽선으로 골드 저울 및 배경과의 대비 확보 */}
+                <line x1="32" y1="19" x2="32" y2="45" stroke="#000000" strokeWidth="9" strokeLinecap="round" />
+                <line x1="19" y1="32" x2="45" y2="32" stroke="#000000" strokeWidth="9" strokeLinecap="round" />
+                {/* 짧고 두꺼운 초록색 + 바 */}
+                <line x1="32" y1="19" x2="32" y2="45" stroke="#22c55e" strokeWidth="5.6" strokeLinecap="round" />
+                <line x1="19" y1="32" x2="45" y2="32" stroke="#22c55e" strokeWidth="5.6" strokeLinecap="round" />
               </g>
             )}
-            {(sign === "down" || sign === "-") && (
-              <g>
-                {/* 하락: 손잡이 없는 빨간색 아래 삼각화살표 (▼) */}
-                <path
-                  d="M 15 16 L 49 16 L 32 50 Z"
-                  fill="#ef4444"
-                  stroke="#000000"
-                  strokeWidth="3.2"
-                  strokeLinejoin="round"
-                  style={{ filter: "drop-shadow(0 0 4px rgba(239, 68, 68, 0.95))" }}
-                />
-                <path
-                  d="M 19 19 L 45 19 L 32 46 Z"
-                  fill="none"
-                  stroke="#fca5a5"
-                  strokeWidth="0.8"
-                  strokeLinejoin="round"
-                  opacity="0.8"
-                />
+            {(sign === "-" || sign === "down") && (
+              <g style={{ filter: "drop-shadow(0 0 3px rgba(239, 68, 68, 0.95))" }}>
+                {/* 검은 외곽선 */}
+                <line x1="19" y1="32" x2="45" y2="32" stroke="#000000" strokeWidth="9" strokeLinecap="round" />
+                {/* 짧고 두꺼운 빨간색 - 바 */}
+                <line x1="19" y1="32" x2="45" y2="32" stroke="#ef4444" strokeWidth="5.6" strokeLinecap="round" />
               </g>
             )}
           </g>

@@ -11,6 +11,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
   let skill = battle.player.skill[skillNumber];
   const displayType = skillTypeCalculate(battle, skill, battle.player);
   const enhanceBadges = getSkillEnhanceBadges(battle.player, skill);
+  const isUnusable = Boolean(getSkillUnusableReason(battle.player, skillNumber));
 
   const sn = getNumberText(skillNumber);
 
@@ -76,6 +77,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     <SKILL
       className={sn}
       $disabled={!queueObject.queueCheck()}
+      $isUnusable={isUnusable}
       onPointerDown={handlePressStart}
       onPointerUp={clearPress}
       onPointerLeave={clearPress}
@@ -132,17 +134,17 @@ const SKILL = styled.div`
   width: 47vw;
   height: 13vh;
   border-radius: 5px;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: ${({ $isUnusable }) => ($isUnusable ? "rgba(127, 29, 29, 0.78)" : "rgba(0, 0, 0, 0.7)")};
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
 
-  ${({ $disabled }) =>
+  ${({ $disabled, $isUnusable }) =>
     !$disabled &&
     `
     &:active {
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: ${$isUnusable ? "rgba(160, 40, 40, 0.85)" : "rgba(255, 255, 255, 0.2)"};
     }
   `}
 
@@ -242,18 +244,18 @@ export const getSkillEnhanceBadges = (pokemon, skill) => {
     });
   }
 
-  // 3. 제로섬게임 (강화: 위력 2배 (초록 윗화살표), 실패: 위력 0.5배 (빨간 아래화살표))
+  // 3. 제로섬게임 (강화: 위력 2배 (초록 +), 실패: 위력 0.5배 (빨간 -))
   if (isZeroSumBuffSkill(pokemon, skill)) {
     badges.push({
       id: "zeroSumGame_buff",
       title: "제로섬게임 (위력 2배)",
-      render: () => <AugmentIcon key="zeroSumGame_buff" id="zeroSumGame" size={19} sign="up" />,
+      render: () => <AugmentIcon key="zeroSumGame_buff" id="zeroSumGame" size={19} sign="+" />,
     });
   } else if (isZeroSumNerfSkill(pokemon, skill)) {
     badges.push({
       id: "zeroSumGame_nerf",
       title: "제로섬게임 (위력 0.5배)",
-      render: () => <AugmentIcon key="zeroSumGame_nerf" id="zeroSumGame" size={19} sign="down" />,
+      render: () => <AugmentIcon key="zeroSumGame_nerf" id="zeroSumGame" size={19} sign="-" />,
     });
   }
 
