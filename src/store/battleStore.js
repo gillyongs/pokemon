@@ -135,6 +135,20 @@ export const useBattleStore = createStore((set, get) => ({
                 p.anvilStats[k] = Math.max(Number(p.anvilStats[k] || 0), Number(savedAug.anvilStats[k] || 0));
               });
             }
+            if (savedAug?.cubeLines) {
+              p.cubeLines = savedAug.cubeLines;
+              p.cubeStats = savedAug.cubeStats;
+              p.hasRolledCube = true;
+            }
+            if (savedAug?.arcaneSuccessCount !== undefined) {
+              p.arcaneSuccessCount = savedAug.arcaneSuccessCount;
+              p.arcaneStarCount = savedAug.arcaneStarCount;
+              p.arcaneScrollAtk = savedAug.arcaneScrollAtk ?? 0;
+              p.arcaneScrollCatk = savedAug.arcaneScrollCatk ?? 0;
+              p.arcaneScrollSpeed = savedAug.arcaneScrollSpeed ?? 0;
+              p.arcaneSwordName = savedAug.arcaneSwordName;
+              p.hasGreatTuskSoul = savedAug.hasGreatTuskSoul;
+            }
           });
         }
       });
@@ -161,10 +175,14 @@ export const useBattleStore = createStore((set, get) => ({
                     swordName: savedAug?.swordName,
                     arcaneSuccessCount: savedAug?.arcaneSuccessCount,
                     arcaneStarCount: savedAug?.arcaneStarCount,
-                    arcaneBonusAtk: savedAug?.arcaneBonusAtk,
-                    arcaneBonusCatk: savedAug?.arcaneBonusCatk,
-                    arcaneBonusSpeed: savedAug?.arcaneBonusSpeed,
+                    arcaneScrollAtk: savedAug?.arcaneScrollAtk ?? 0,
+                    arcaneScrollCatk: savedAug?.arcaneScrollCatk ?? 0,
+                    arcaneScrollSpeed: savedAug?.arcaneScrollSpeed ?? 0,
                     arcaneSwordName: savedAug?.arcaneSwordName,
+                    hasGreatTuskSoul: savedAug?.hasGreatTuskSoul,
+                    cubeLines: savedAug?.cubeLines,
+                    cubeStats: savedAug?.cubeStats,
+                    hasRolledCube: savedAug?.hasRolledCube,
                     pickedAbility: savedAug?.pickedAbility,
                     nimbleSkillName: savedAug?.nimbleSkillName,
                     dragonKillCount: savedAug?.dragonKillCount ?? p.dragonKillCount,
@@ -194,11 +212,14 @@ export const useBattleStore = createStore((set, get) => ({
                   swordName: savedAug?.swordName,
                   arcaneSuccessCount: savedAug?.arcaneSuccessCount,
                   arcaneStarCount: savedAug?.arcaneStarCount,
-                  arcaneBonusAtk: savedAug?.arcaneBonusAtk,
-                  arcaneBonusCatk: savedAug?.arcaneBonusCatk,
-                  arcaneBonusSpeed: savedAug?.arcaneBonusSpeed,
+                  arcaneScrollAtk: savedAug?.arcaneScrollAtk,
+                  arcaneScrollCatk: savedAug?.arcaneScrollCatk,
+                  arcaneScrollSpeed: savedAug?.arcaneScrollSpeed,
                   arcaneSwordName: savedAug?.arcaneSwordName || savedAug?.name,
                   hasGreatTuskSoul: savedAug?.hasGreatTuskSoul,
+                  cubeLines: savedAug?.cubeLines,
+                  cubeStats: savedAug?.cubeStats,
+                  hasRolledCube: savedAug?.hasRolledCube,
                   pickedAbility: savedAug?.pickedAbility,
                   nimbleSkillName: savedAug?.nimbleSkillName,
                   dragonKillCount: savedAug?.dragonKillCount ?? p.dragonKillCount,
@@ -757,6 +778,16 @@ export const useBattleStore = createStore((set, get) => ({
             mejaiStack: aug.mejaiStack ?? p.mejaiStack ?? 0,
             practiceCritStack: aug.practiceCritStack ?? p.practiceCritStack ?? 0,
             giantBonusHp: aug.giantBonusHp ?? p.giantBonusHp ?? 0,
+            arcaneSuccessCount: aug.arcaneSuccessCount ?? p.arcaneSuccessCount ?? 0,
+            arcaneStarCount: aug.arcaneStarCount ?? p.arcaneStarCount ?? 0,
+            arcaneScrollAtk: aug.arcaneScrollAtk ?? p.arcaneScrollAtk ?? 0,
+            arcaneScrollCatk: aug.arcaneScrollCatk ?? p.arcaneScrollCatk ?? 0,
+            arcaneScrollSpeed: aug.arcaneScrollSpeed ?? p.arcaneScrollSpeed ?? 0,
+            arcaneSwordName: aug.arcaneSwordName || p.arcaneSwordName || aug.name,
+            hasGreatTuskSoul: aug.hasGreatTuskSoul ?? p.hasGreatTuskSoul ?? false,
+            cubeLines: aug.cubeLines || p.cubeLines || null,
+            cubeStats: aug.cubeStats || p.cubeStats || null,
+            hasRolledCube: aug.hasRolledCube ?? p.hasRolledCube ?? false,
           });
         }
       });
@@ -785,6 +816,7 @@ export const useBattleStore = createStore((set, get) => ({
     const serializedCarried = Object.entries(effectiveCarriedMap).reduce((acc, [idx, augs]) => {
       acc[idx] = (augs || []).map((aug) => ({
         id: aug.id || aug,
+        name: aug.arcaneSwordName || aug.name,
         buf: Boolean(aug.buf),
         curse: Boolean(aug.curse),
         synergy: Boolean(aug.synergy),
@@ -801,11 +833,14 @@ export const useBattleStore = createStore((set, get) => ({
         swordName: aug.swordName,
         arcaneSuccessCount: aug.arcaneSuccessCount,
         arcaneStarCount: aug.arcaneStarCount,
-        arcaneBonusAtk: aug.arcaneBonusAtk,
-        arcaneBonusCatk: aug.arcaneBonusCatk,
-        arcaneBonusSpeed: aug.arcaneBonusSpeed,
+        arcaneScrollAtk: aug.arcaneScrollAtk,
+        arcaneScrollCatk: aug.arcaneScrollCatk,
+        arcaneScrollSpeed: aug.arcaneScrollSpeed,
         arcaneSwordName: aug.arcaneSwordName,
         hasGreatTuskSoul: aug.hasGreatTuskSoul,
+        cubeLines: aug.cubeLines,
+        cubeStats: aug.cubeStats,
+        hasRolledCube: aug.hasRolledCube,
         pickedAbility: aug.pickedAbility,
         nimbleSkillName: aug.nimbleSkillName,
         dragonKillCount: aug.dragonKillCount,

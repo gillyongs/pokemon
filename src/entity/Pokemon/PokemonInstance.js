@@ -151,6 +151,35 @@ class PokemonInstance {
         bonusAtk: 0, // 검 강화 공격/특공 보너스
         name: null, // 검 강화 명칭
       },
+      // 아케인셰이드 투핸드소드, 스타포스, 위대한 엄니의 소울, 큐브 관련 프로퍼티
+      arcaneSword: {
+        successCount: 0, // 주문서 강화 성공 횟수
+        starCount: 0, // 스타포스 강화 단계 (0 ~ 25성)
+        scrollAtk: 0, // 주문서 공격 보너스
+        scrollCatk: 0, // 주문서 특수공격 보너스
+        scrollSpeed: 0, // 주문서 스피드 보너스
+        name: null, // 전체 무기 명칭
+        hasSoul: false, // 위대한 엄니의 소울 장착 여부
+        hasRolledCube: false, // 큐브 사용 여부
+        cubeLines: null, // 큐브 잠재능력 3줄 객체 배열 [{ type, value, text, color }, ...]
+        cubeStats: {
+          defIgnore: 0, // 몬스터 방어율 무시 (%)
+          atkRate: 0, // 공격 (%)
+          catkRate: 0, // 특수공격 (%)
+          speedRate: 0, // 스피드 (%)
+          defRate: 0, // 방어 (%)
+          cdefRate: 0, // 특수방어 (%)
+          atkFlat: 0, // 공격 (+)
+          catkFlat: 0, // 특수공격 (+)
+          defFlat: 0, // 방어 (+)
+          cdefFlat: 0, // 특수방어 (+)
+          speedFlat: 0, // 스피드 (+)
+          damageRate: 0, // 데미지 (%)
+          critRate: 0, // 급소 확률 증가 (%)
+          poisonRate: 0, // 공격 시 맹독 부여 (%)
+          freezeRate: 0, // 공격 시 빙결 부여 (%)
+        },
+      },
       // 영혼의주사위 스탯
       soulDiceStats: {
         atk: 0,
@@ -169,6 +198,13 @@ class PokemonInstance {
       },
     };
     this.log = {
+      getStat: {
+        atk: null,
+        def: null,
+        catk: null,
+        cdef: null,
+        speed: null,
+      },
       getAugmentedStat: null, // 증강으로 인한 능력치 변화
       hpCalculate: null, // 증강으로 인한 최대 HP 변화
       damage1: null,

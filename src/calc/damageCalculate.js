@@ -165,6 +165,7 @@ export const damageCalculate = (battle, obj, ai) => {
   // 스탯 보정 ======================================================================================================
   let atkStr = atkStat + "(" + attackStat + ")";
   let defStr = defStat + "(" + defenseStat + ")";
+  const cubeStats = attackPokemon?.cubeStats;
 
   // 공격 (atk) ===================================
   if (skill.stype === "atk") {
@@ -308,6 +309,11 @@ export const damageCalculate = (battle, obj, ai) => {
       defStat *= 1.5;
       defStr += " * 1.5 (설경+얼음)";
     }
+    if (cubeStats?.defIgnore > 0) {
+      const defIgnoreMult = Number(Math.max(0.01, (100 - cubeStats.defIgnore) / 100).toFixed(2));
+      defStat *= defIgnoreMult;
+      defStr += ` * ${defIgnoreMult} (방어율 무시 ${cubeStats.defIgnore}%)`;
+    }
   }
 
   // 특방 (cdef) ===================================
@@ -344,6 +350,11 @@ export const damageCalculate = (battle, obj, ai) => {
     if (hasVoidStaff) {
       defStat *= 0.6;
       defStr += " * 0.6 (공허의 지팡이 마관)";
+    }
+    if (cubeStats?.defIgnore > 0) {
+      const defIgnoreMult = Number(Math.max(0.01, (100 - cubeStats.defIgnore) / 100).toFixed(2));
+      defStat *= defIgnoreMult;
+      defStr += ` * ${defIgnoreMult} (방어율 무시 ${cubeStats.defIgnore}%)`;
     }
   }
 
@@ -754,6 +765,13 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage2 += " * 1.3 (생구)";
   }
 
+  // [증강] 아케인셰이드 투핸드소드 큐브 잠재능력: 데미지 증가
+  if (cubeStats?.damageRate > 0) {
+    const mult = 1 + cubeStats.damageRate / 100;
+    damage *= mult;
+    attackPokemon.log.damage2 += " * " + mult.toFixed(2) + " (잠재 데미지 +" + cubeStats.damageRate + "%)";
+  }
+
   // 급소 =============================================================================
   if (isCritical) {
     const hasIE = attackPokemon?.hasAugment?.("infinityEdge");
@@ -792,7 +810,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
     consoleLog(text);
     if (getAugmentedStat(attackPokemon, attackStat, battle) !== attackPokemon.stat[attackStat]) {
-      consoleLog(attackPokemon.log.getAugmentedStat);
+      consoleLog(attackPokemon.log.getStat?.[attackStat]);
     }
 
     consoleLog(attackPokemon.log.damage1);

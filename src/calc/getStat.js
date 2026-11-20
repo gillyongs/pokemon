@@ -49,27 +49,40 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
 
     // 아케인셰이드 투핸드소드
     if (augId === "arcaneShadeSword") {
-      const starCount = Number(aug?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
-      const starBonus = starCount * 10;
-      const name = "아케인셰이드 투핸드소드";
-      if (statKey === "atk") {
-        const bonus = Number(aug?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0) + starBonus;
-        if (bonus > 0) {
-          val += bonus;
-          logText += ` + ${bonus} (${name})`;
+      const cubeStats = pokemon?.cubeStats;
+
+      // 1. 아케인 주문서 능력치
+      let arcaneBonus = 0;
+      if (statKey === "atk") arcaneBonus = Number(pokemon?.arcaneScrollAtk || 0);
+      else if (statKey === "catk") arcaneBonus = Number(pokemon?.arcaneScrollCatk || 0);
+      else if (statKey === "speed") arcaneBonus = Number(pokemon?.arcaneScrollSpeed || 0);
+
+      if (arcaneBonus > 0) {
+        val += arcaneBonus;
+        logText += ` + ${arcaneBonus} (주흔작)`;
+      }
+
+      // 2. 스타포스 능력치 (공격, 특공만 증가)
+      if (statKey === "atk" || statKey === "catk") {
+        const starBonus = Number(pokemon?.arcaneStarCount || 0) * 10;
+        if (starBonus > 0) {
+          val += starBonus;
+          logText += ` + ${starBonus} (스타포스)`;
         }
-      } else if (statKey === "catk") {
-        const bonus = Number(aug?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0) + starBonus;
-        if (bonus > 0) {
-          val += bonus;
-          logText += ` + ${bonus} (${name})`;
-        }
-      } else if (statKey === "speed") {
-        const bonus = Number(aug?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
-        if (bonus > 0) {
-          val += bonus;
-          logText += ` + ${bonus} (${name})`;
-        }
+      }
+
+      // 3. 잠재능력 (합적용)
+      const flatMap = {
+        atk: cubeStats?.atkFlat,
+        catk: cubeStats?.catkFlat,
+        def: cubeStats?.defFlat,
+        cdef: cubeStats?.cdefFlat,
+        speed: cubeStats?.speedFlat,
+      };
+      const flatBonus = Number(flatMap[statKey] || 0);
+      if (flatBonus > 0) {
+        val += flatBonus;
+        logText += ` + ${flatBonus} (잠재)`;
       }
     } else if (augId === "swordEnhance" && (statKey === "atk" || statKey === "catk")) {
       const failed = Boolean(aug?.swordFailed ?? pokemon?.swordFailed);
@@ -115,10 +128,27 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     const augId = typeof aug === "string" ? aug : aug?.id;
 
     // 위대한 엄니의 소울 (아케인셰이드 투핸드소드 장착 시 공격/특공 +30%)
-    if (augId === "arcaneShadeSword" && (aug?.hasGreatTuskSoul || pokemon?.hasGreatTuskSoul)) {
+    if (augId === "arcaneShadeSword" && pokemon?.hasGreatTuskSoul) {
       if (statKey === "atk" || statKey === "catk") {
         val = Math.round(val * 1.3);
         logText += " * 1.3 (위대한 엄니의 소울)";
+      }
+    }
+
+    // 아케인셰이드 투핸드소드 잠재능력 (% 증가)
+    if (augId === "arcaneShadeSword") {
+      const cubeStats = pokemon?.cubeStats;
+      const rateMap = {
+        atk: cubeStats?.atkRate,
+        catk: cubeStats?.catkRate,
+        def: cubeStats?.defRate,
+        cdef: cubeStats?.cdefRate,
+        speed: cubeStats?.speedRate,
+      };
+      const rateBonus = Number(rateMap[statKey] || 0);
+      if (rateBonus > 0) {
+        val = Math.round(val * (1 + rateBonus / 100));
+        logText += ` * ${(1 + rateBonus / 100).toFixed(2)} (잠재)`;
       }
     }
 
@@ -184,12 +214,7 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   }
 
   logText += ` = ${val}`;
-  try {
-    if (pokemon) {
-      if (!pokemon.log) pokemon.log = {};
-      pokemon.log.getAugmentedStat = logText;
-    }
-  } catch (e) {}
+  pokemon.log.getStat[statKey] = logText;
 
   return val;
 };

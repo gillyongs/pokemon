@@ -76,6 +76,19 @@ function skillEffectSearch(name) {
         }
       }
 
+      // [증강: 아케인셰이드 투핸드소드] 큐브 잠재능력: 공격 시 맹독/빙결 부여
+      const cubeStats = atkPokemon?.cubeStats;
+      if (cubeStats && def && !def.faint && (def.hp === undefined || def.hp > 0) && atkPokemon && !atkPokemon.faint) {
+        if (skill && (skill.stype === "atk" || skill.stype === "catk") && !isTargetSubstituteBlocked(battle)) {
+          if (cubeStats.poisonRate > 0 && Math.random() * 100 < cubeStats.poisonRate) {
+            applyAilment("맹독", battle, battle.turn.def, enqueue, false, `[잠재능력] ${def.names("는")} 맹독에 걸렸다!`);
+          }
+          if (cubeStats.freezeRate > 0 && Math.random() * 100 < cubeStats.freezeRate) {
+            applyAilment("얼음", battle, battle.turn.def, enqueue, false, `[잠재능력] ${def.names("는")} 얼어붙었다!`);
+          }
+        }
+      }
+
       if (atkPokemon.item === "생명의구슬" && !atkPokemon.faint) {
         if (skill.stype === "atk" || skill.stype === "catk") {
           const text = atkPokemon.name + "의 생명이 조금 깎였다!";

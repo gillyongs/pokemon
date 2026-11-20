@@ -79,28 +79,37 @@ export const getArcaneSwordFullName = ({ starCount = 0, hasSoul = false, scrollC
 export const hasArcaneShadeSword = (pokemon) => Boolean(pokemon?.hasAugment?.("arcaneShadeSword"));
 
 export const getArcaneSwordData = (pokemon = null, source = null, options = null) => {
-  const successes = Number(options?.arcaneSuccessCount ?? source?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? 0);
-  const atk = Number(options?.arcaneBonusAtk ?? source?.arcaneBonusAtk ?? pokemon?.arcaneBonusAtk ?? 0);
-  const catk = Number(options?.arcaneBonusCatk ?? source?.arcaneBonusCatk ?? pokemon?.arcaneBonusCatk ?? 0);
-  const speed = Number(options?.arcaneBonusSpeed ?? source?.arcaneBonusSpeed ?? pokemon?.arcaneBonusSpeed ?? 0);
-  const starCount = Number(options?.arcaneStarCount ?? source?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? 0);
-  const hasSoul = Boolean(options?.hasGreatTuskSoul ?? source?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul);
+  const arcaneObj = pokemon?.arcaneSword || pokemon?.agument?.arcaneSword;
+  const successes = Number(options?.arcaneSuccessCount ?? source?.arcaneSuccessCount ?? pokemon?.arcaneSuccessCount ?? arcaneObj?.successCount ?? 0);
+  const atk = Number(options?.arcaneScrollAtk ?? source?.arcaneScrollAtk ?? pokemon?.arcaneScrollAtk ?? arcaneObj?.scrollAtk ?? 0);
+  const catk = Number(options?.arcaneScrollCatk ?? source?.arcaneScrollCatk ?? pokemon?.arcaneScrollCatk ?? arcaneObj?.scrollCatk ?? 0);
+  const speed = Number(options?.arcaneScrollSpeed ?? source?.arcaneScrollSpeed ?? pokemon?.arcaneScrollSpeed ?? arcaneObj?.scrollSpeed ?? 0);
+  const starCount = Number(options?.arcaneStarCount ?? source?.arcaneStarCount ?? pokemon?.arcaneStarCount ?? arcaneObj?.starCount ?? 0);
+  const hasSoul = Boolean(options?.hasGreatTuskSoul ?? source?.hasGreatTuskSoul ?? pokemon?.hasGreatTuskSoul ?? arcaneObj?.hasSoul);
   const failCount = Math.max(0, 10 - successes);
   const starBonus = starCount * 10;
   const swordAug = (pokemon?.augments || []).find((a) => (typeof a === "string" ? a === "arcaneShadeSword" : a?.id === "arcaneShadeSword"));
-  const name = options?.arcaneSwordName || source?.arcaneSwordName || swordAug?.arcaneSwordName || pokemon?.arcaneSwordName || getArcaneSwordFullName({ starCount, hasSoul, scrollCount: successes });
+  const name = options?.arcaneSwordName || source?.arcaneSwordName || swordAug?.arcaneSwordName || pokemon?.arcaneSwordName || arcaneObj?.name || getArcaneSwordFullName({ starCount, hasSoul, scrollCount: successes });
+
+  const cubeLines = options?.cubeLines ?? source?.cubeLines ?? pokemon?.cubeLines ?? null;
+  const cubeStats = options?.cubeStats ?? source?.cubeStats ?? pokemon?.cubeStats ?? null;
 
   return {
     successes,
     atk,
     catk,
     speed,
+    scrollAtk: atk,
+    scrollCatk: catk,
+    scrollSpeed: speed,
     starCount,
     hasSoul,
     failCount,
     starBonus,
     swordAug,
     name,
+    cubeLines,
+    cubeStats,
   };
 };
 
@@ -429,33 +438,51 @@ export const AUGMENT_LIST = [
       return `${name}로 강화하여 ${statText}을 획득했습니다.`;
     },
     statusModalText: function (pokemon, battle, options) {
-      const { atk, catk, speed, starCount, starBonus, hasSoul } = getArcaneSwordData(pokemon, this, options);
+      const { atk, catk, speed, starCount, starBonus, hasSoul, cubeLines } = getArcaneSwordData(pokemon, this, options);
       let statText = `공격 +${atk + starBonus} 특공 +${catk + starBonus}`;
       if (speed > 0) statText += ` 스피드 +${speed}`;
-      if (starCount > 0) statText += `\n스타포스 [★${starCount}]성 (공/특공 +${starBonus})`;
       if (hasSoul) statText += `\n공격 +30% 특공 +30%`;
+      if (cubeLines && cubeLines.length > 0) {
+        statText += `\n[잠재능력]\n` + cubeLines.map((l) => l.text).join("\n");
+      }
       return `${statText}`;
     },
     onApply: function (pokemon, battle, options) {
-      const { successes, atk, catk, speed, starCount, hasSoul, name } = getArcaneSwordData(pokemon, this, options);
+      const { successes, atk, catk, speed, starCount, hasSoul, name, cubeLines, cubeStats } = getArcaneSwordData(pokemon, this, options);
 
       this.name = name;
       this.shortName = name;
       this.hasGreatTuskSoul = hasSoul;
       this.arcaneStarCount = starCount;
       this.arcaneSuccessCount = successes;
-      this.arcaneBonusAtk = atk;
-      this.arcaneBonusCatk = catk;
-      this.arcaneBonusSpeed = speed;
+      this.arcaneScrollAtk = atk;
+      this.arcaneScrollCatk = catk;
+      this.arcaneScrollSpeed = speed;
       this.arcaneSwordName = name;
 
       pokemon.hasGreatTuskSoul = hasSoul;
       pokemon.arcaneStarCount = starCount;
       pokemon.arcaneSuccessCount = successes;
-      pokemon.arcaneBonusAtk = atk;
-      pokemon.arcaneBonusCatk = catk;
-      pokemon.arcaneBonusSpeed = speed;
+      pokemon.arcaneScrollAtk = atk;
+      pokemon.arcaneScrollCatk = catk;
+      pokemon.arcaneScrollSpeed = speed;
       pokemon.arcaneSwordName = name;
+
+      const lines = cubeLines || options?.cubeLines || this.cubeLines || pokemon?.cubeLines;
+      const stats = cubeStats || options?.cubeStats || this.cubeStats || pokemon?.cubeStats;
+      const hasCube = Boolean(options?.hasRolledCube || this.hasRolledCube || pokemon?.hasRolledCube || (lines && lines.length > 0));
+
+      if (lines && lines.length > 0) {
+        this.cubeLines = lines;
+        this.cubeStats = stats;
+        this.hasRolledCube = true;
+        pokemon.cubeLines = lines;
+        pokemon.cubeStats = stats;
+        pokemon.hasRolledCube = true;
+      } else if (hasCube) {
+        this.hasRolledCube = true;
+        pokemon.hasRolledCube = true;
+      }
     },
   },
   {
@@ -520,7 +547,7 @@ export const AUGMENT_LIST = [
     name: "순백의 주문서",
     desc: function (pokemon) {
       const { name, failCount } = getArcaneSwordData(pokemon);
-      return `${name}의 차감된 업그레이드 가능 횟수 ${failCount}회를 회복시킵니다. 이후 다시 강화를 진행할 수 있습니다.`;
+      return `${name}의 주문서 적용 실패로 차감된 업그레이드 가능 횟수 ${failCount}회를 회복시킵니다. 이후 다시 강화를 진행할 수 있습니다.`;
     },
     cost: "-",
     weight: (pokemon) => {
@@ -543,19 +570,48 @@ export const AUGMENT_LIST = [
       const { swordAug, successes, atk, catk, speed, name } = getArcaneSwordData(pokemon, this, options);
 
       pokemon.arcaneSuccessCount = successes;
-      pokemon.arcaneBonusAtk = atk;
-      pokemon.arcaneBonusCatk = catk;
-      pokemon.arcaneBonusSpeed = speed;
+      pokemon.arcaneScrollAtk = atk;
+      pokemon.arcaneScrollCatk = catk;
+      pokemon.arcaneScrollSpeed = speed;
       pokemon.arcaneSwordName = name;
 
       if (swordAug && typeof swordAug === "object") {
         swordAug.name = name;
         swordAug.shortName = name;
         swordAug.arcaneSuccessCount = successes;
-        swordAug.arcaneBonusAtk = atk;
-        swordAug.arcaneBonusCatk = catk;
-        swordAug.arcaneBonusSpeed = speed;
+        swordAug.arcaneScrollAtk = atk;
+        swordAug.arcaneScrollCatk = catk;
+        swordAug.arcaneScrollSpeed = speed;
         swordAug.arcaneSwordName = name;
+      }
+    },
+  },
+  {
+    id: "cube",
+    name: "큐브",
+    desc: "장비 아이템의 잠재능력을 새롭게 설정시켜주는 신비한 큐브를 10개 획득합니다.",
+    cost: "-",
+    weight: (pokemon) => {
+      if (!hasArcaneShadeSword(pokemon)) return 0;
+      const hasLines = pokemon?.cubeLines?.length > 0 || Boolean(pokemon?.hasRolledCube);
+      return hasLines ? 30 : 150;
+    },
+    isEligible: (pokemon) => hasArcaneShadeSword(pokemon),
+    screenText: `[증강] 신비한 큐브를 사용하여 검의 잠재능력을 부여하였다!`,
+    logModalText: `신비한 큐브를 사용하여 검에 잠재능력을 부여했습니다.`,
+    onApply: function (pokemon, battle, options) {
+      const { swordAug } = getArcaneSwordData(pokemon, this, options);
+      const lines = options?.cubeLines || [];
+      const stats = options?.cubeStats || pokemon.cubeStats;
+
+      pokemon.cubeLines = lines;
+      pokemon.cubeStats = stats;
+      pokemon.hasRolledCube = true;
+
+      if (swordAug && typeof swordAug === "object") {
+        swordAug.cubeLines = lines;
+        swordAug.cubeStats = stats;
+        swordAug.hasRolledCube = true;
       }
     },
   },

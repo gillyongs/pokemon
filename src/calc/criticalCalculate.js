@@ -46,6 +46,12 @@ export const criticalCalculate = (input, pokemon = null) => {
     }
   }
 
+  // 아케인셰이드 투핸드소드 큐브 잠재능력: 급소 확률 증가
+  const cubeStats = pokemon?.cubeStats;
+  if (cubeStats?.critRate > 0) {
+    probability += cubeStats.critRate / 100;
+  }
+
   if (probability >= 1) return true;
   return Math.random() < probability;
 };

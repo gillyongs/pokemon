@@ -135,9 +135,9 @@ const AugmentArcaneShadeSwordView = ({ arcaneShadeSwordAug, activePokemon, onSel
     onSelect(arcaneShadeSwordAug, {
       targetPokemon: activePokemon,
       arcaneSuccessCount: successCount,
-      arcaneBonusAtk: bonusAtk,
-      arcaneBonusCatk: bonusCatk,
-      arcaneBonusSpeed: bonusSpeed,
+      arcaneScrollAtk: bonusAtk,
+      arcaneScrollCatk: bonusCatk,
+      arcaneScrollSpeed: bonusSpeed,
       arcaneSwordName: finalName,
       arcaneStarCount: currentStar,
       hasGreatTuskSoul: hasSoul,
