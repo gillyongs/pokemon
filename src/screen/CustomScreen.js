@@ -275,12 +275,30 @@ const CustomScreen = () => {
   };
 
   const handleTestSetup = () => {
-    let testTeam = ["칠색조", "에이스번", "다투곰"];
-    if (selectedTeam[0] === "가이오가") {
+    const staraptorRaw = sampleList.getDataBySampleName("찌르호크");
+    const customStats = {
+      hp: staraptorRaw.hp,
+      evs: staraptorRaw.evs,
+      nature: staraptorRaw.nature,
+      megaData: staraptorRaw.megaData,
+      stat: {
+        ...staraptorRaw.stat,
+        atk: staraptorRaw.stat.atk * 10,
+        speed: staraptorRaw.stat.speed * 10,
+      },
+    };
+    const staraptorEntry = buildCustomSlotEntry(staraptorRaw, undefined, undefined, undefined, customStats);
+    let testTeam = ["에이스번", "칠색조", "다투곰"];
+
+    const isKyogre = (typeof selectedTeam[0] === "object" && selectedTeam[0] ? selectedTeam[0].sampleName || selectedTeam[0].id : selectedTeam[0]) === "가이오가";
+    const isStaraptor = (typeof selectedTeam[1] === "object" && selectedTeam[1] ? selectedTeam[1].sampleName || selectedTeam[1].id : selectedTeam[1]) === "찌르호크";
+
+    if (isKyogre && isStaraptor) {
       setSelectedTeam(testTeam);
-      setNpcTeam(["가이오가", npcTeam[1], npcTeam[2]]);
+      setNpcTeam(["가이오가", staraptorEntry, npcTeam[2]]);
     } else {
-      setSelectedTeam(["가이오가", selectedTeam[1], selectedTeam[2]]);
+      const thirdSlot = (typeof selectedTeam[2] === "object" ? selectedTeam[2]?.sampleName || selectedTeam[2]?.id : selectedTeam[2]) === "찌르호크" ? null : selectedTeam[2];
+      setSelectedTeam(["가이오가", staraptorEntry, thirdSlot]);
       setNpcTeam(testTeam);
     }
     setActiveTab("player");

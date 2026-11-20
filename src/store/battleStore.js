@@ -331,10 +331,10 @@ export const useBattleStore = createStore((set, get) => ({
       const playerAllFaint = qBattle.player.faint && qBattle.playerBench1.faint && qBattle.playerBench2.faint;
       if (npcAllFaint && queue.length === 1) {
         set({ gameResult: "win" });
-      }
-      if (playerAllFaint && queue.length === 1) {
+      } else if (playerAllFaint && queue.length === 1) {
         set({ gameResult: "lose" });
       }
+      // 일단 무승부 없애고 플레이어 승리로 처리
     } else {
       const curBattle = get().battleLive;
       if (curBattle && (curBattle.player.auto || curBattle.player.charge || curBattle.player.recharge)) {
@@ -594,7 +594,6 @@ export const useBattleStore = createStore((set, get) => ({
           });
         }
         if (isActivePoke && activeSidePoke && !activeSidePoke.faint && enemyPoke && !enemyPoke.faint) {
-
           if (target.abil?.name !== prevAbilName || isReplacement || isTitanSecond) {
             applyAbilityEffects(curBattle, userSide, collectEnqueue);
           }
