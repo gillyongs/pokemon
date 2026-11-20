@@ -7,7 +7,7 @@ import { TYPE_COLORS } from "../../entity/TypeData";
 import { abilObject } from "../../entity/Ability";
 import { itemText, getItemDesc } from "../../entity/Item";
 import { isOnlyPrioritySkillText } from "../customScreen/sampleInfo/SkillSearchModal";
-import { isNormalAugment, isNimbleSkill } from "../../entity/Augment/AugmentData";
+import { isNormalAugment } from "../../entity/Augment/AugmentData";
 import AugmentStatusModal from "./augment/AugmentStatusModal";
 
 const statusTexts = {
@@ -326,10 +326,7 @@ const TradeInfoModal = ({ pokemon, pokemonList = [], battle, onClose }) => {
                 <SkillRowButton key={skillNumber} onClick={() => handleSkillClick(skill)}>
                   <SkillTypeImg src={`/pokemon/img/type/${displayType}.svg`} alt={skill.name} />
                   <SkillMainInfo>
-                    <SkillNameText>
-                      {skill.name}
-                      {skill.nimbleMoves || isNimbleSkill(currentPoke, skill) ? " +1" : ""}
-                    </SkillNameText>
+                    <SkillNameText>{skill.name}</SkillNameText>
                   </SkillMainInfo>
                 </SkillRowButton>
               );

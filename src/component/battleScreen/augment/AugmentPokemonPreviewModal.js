@@ -6,7 +6,7 @@ import { TYPE_COLORS } from "../../../entity/TypeData";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 import { AugmentIcon } from "./AugmentIcon";
 import { getAugmentDesc } from "../../../entity/Augment/AugmentData";
-import { AUGMENT_LIST, hasPokemonName, isNimbleSkill } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, hasPokemonName } from "../../../entity/Augment/AugmentData";
 
 const PREVIEW_IMG_ID_MAP = {
   mewtwoStrikesBack: "0150-a",
@@ -409,10 +409,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
                     }}
                   />
                   <SkillMainInfo>
-                    <SkillNameText>
-                      {skill.name}
-                      {skill.nimbleMoves || isNimbleSkill(pokemon, skill) ? " +1" : ""}
-                    </SkillNameText>
+                    <SkillNameText>{skill.name}</SkillNameText>
                   </SkillMainInfo>
                 </SkillRowButton>
               );

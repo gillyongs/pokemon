@@ -9,7 +9,7 @@ import { getMultiplier } from "../../../../calc/rankStat";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { abilObject } from "../../../../entity/Ability";
-import { isNormalAugment, isNimbleSkill } from "../../../../entity/Augment/AugmentData";
+import { isNormalAugment } from "../../../../entity/Augment/AugmentData";
 import { itemText, getItemDesc } from "../../../../entity/Item";
 
 const statusTexts = {
@@ -334,10 +334,7 @@ const BottomSectionInfo = ({ battle, text, setBottom, bench, setBench, setText, 
                 <SkillRowButton key={skillNumber} onClick={(e) => handleSkillClick(e, skill)}>
                   <SkillTypeImg src={`/pokemon/img/type/${displayType}.svg`} alt={displayType} />
                   <SkillMainInfo>
-                    <SkillNameText>
-                      {skill.name}
-                      {skill.nimbleMoves || isNimbleSkill(pokemon, skill) ? " +1" : ""}
-                    </SkillNameText>
+                    <SkillNameText>{skill.name}</SkillNameText>
                   </SkillMainInfo>
                   <SkillMetaBox>
                     <SkillEffectText>{effectText || ""}</SkillEffectText>
