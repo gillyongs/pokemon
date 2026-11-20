@@ -252,7 +252,7 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
             {[1, 2, 3, 4].map((num) => {
               const skillName = selectedSkills[num] || p.skill[num]?.name;
               if (!skillName) return null;
-              const skill = skillList.search(skillName, selectedAbil);
+              const skill = skillList.search(skillName);
               return (
                 <SkillButton
                   key={num}
@@ -333,10 +333,10 @@ const SampleInfoModal = ({ pokemon, onClose, onAdd, isFull, submitText = "팀에
               ...p,
               abil: selectedAbil,
               skill: {
-                1: (selectedSkills[1] ? skillList.search(selectedSkills[1], selectedAbil) : null) || p.skill?.[1],
-                2: (selectedSkills[2] ? skillList.search(selectedSkills[2], selectedAbil) : null) || p.skill?.[2],
-                3: (selectedSkills[3] ? skillList.search(selectedSkills[3], selectedAbil) : null) || p.skill?.[3],
-                4: (selectedSkills[4] ? skillList.search(selectedSkills[4], selectedAbil) : null) || p.skill?.[4],
+                1: (selectedSkills[1] ? skillList.search(selectedSkills[1]) : null) || p.skill?.[1],
+                2: (selectedSkills[2] ? skillList.search(selectedSkills[2]) : null) || p.skill?.[2],
+                3: (selectedSkills[3] ? skillList.search(selectedSkills[3]) : null) || p.skill?.[3],
+                4: (selectedSkills[4] ? skillList.search(selectedSkills[4]) : null) || p.skill?.[4],
               },
             }}
             currentItem={selectedItem}
@@ -569,7 +569,6 @@ const ModalButton = styled.button`
     }
   `}
 `;
-
 
 // 조건(가이오가-쪽빛구슬, 그란돈-주홍구슬, 레쿠쟈-화룡점정, 메진몬-megaData+나이트)에 따라 이미지 경로를 반환하는 함수
 function getPokemonImgSrc(pokemon, selectedItem, selectedSkills) {
