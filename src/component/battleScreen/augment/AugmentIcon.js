@@ -1063,7 +1063,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -3643,6 +3643,15 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
                 <line x1="19" y1="32" x2="45" y2="32" stroke="#ef4444" strokeWidth="5.6" strokeLinecap="round" />
               </g>
             )}
+          </g>
+        )}
+
+        {/* 후루베 유라유라 (마허라 법진 일러스트 + 원형 클리핑 & 슬레이트/다크 링 테두리) */}
+        {id === "furubeYurayura" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/furubeYurayura.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#64748b" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#e2e8f0" strokeWidth="0.5" strokeOpacity="0.5" />
           </g>
         )}
 

@@ -33,6 +33,20 @@ export const hasGamblingAddict = (team) => {
 // 도박 중독 시 해금 및 확정 등장하는 도박 증강 ID 목록
 export const GAMBLE_BONUS_AUGMENT_IDS = ["russianRoulette", "oddEven", "highRiskHighReturn"];
 
+/**
+ * 현재 필드에 나와 있는 플레이어 포켓몬(battle.player)인지 확인
+ * 필드 설치기/즉발 배틀 증강(끈적끈적네트, 순풍, 스텔스록, 위협, 후루베 유라유라, 러시안룰렛, 홀짝 등)이
+ * 벤치 포켓몬에게 등장하지 않고 필드 위 포켓몬에게만 등장하도록 제한합니다.
+ */
+export const isBattlePlayerActive = (pokemon, battle) => {
+  if (!battle || !battle.player || !pokemon) return false;
+  if (battle.player.faint || battle.player.hp <= 0) return false;
+  if (pokemon === battle.player) return true;
+  if (pokemon.id && battle.player.id && pokemon.id === battle.player.id) return true;
+  if (pokemon.originalIndex !== undefined && battle.player.originalIndex !== undefined && pokemon.originalIndex === battle.player.originalIndex) return true;
+  return false;
+};
+
 export const isNimbleSkill = (pokemon, skill) => {
   if (!pokemon || !skill) return false;
   const nimbleSkillName = pokemon.nimbleSkillName || pokemon.augments?.find((a) => a.id === "nimbleMoves")?.nimbleSkillName;
@@ -866,6 +880,7 @@ export const AUGMENT_LIST = [
     cost: "-",
     weight: 50,
     isEligible: (pokemon, battle) => {
+      if (!isBattlePlayerActive(pokemon, battle)) return false;
       const teamSide = pokemon?.team || "player";
       if (battle?.field?.[teamSide]?.noClean?.tailwind) return false;
       if (hasSkill(pokemon, "순풍")) return false;
@@ -913,6 +928,7 @@ export const AUGMENT_LIST = [
     cost: "-",
     weight: 70,
     isEligible: (pokemon, battle) => {
+      if (!isBattlePlayerActive(pokemon, battle)) return false;
       const teamSide = pokemon?.team || "player";
       const oppSide = teamSide === "player" ? "npc" : "player";
       const opponent = battle?.[oppSide];
@@ -947,6 +963,7 @@ export const AUGMENT_LIST = [
     cost: "-",
     weight: 70,
     isEligible: (pokemon, battle) => {
+      if (!isBattlePlayerActive(pokemon, battle)) return false;
       const teamSide = pokemon?.team || "player";
       const oppSide = teamSide === "player" ? "npc" : "player";
       if (battle?.field?.[oppSide]?.sRock) return false;
@@ -976,6 +993,7 @@ export const AUGMENT_LIST = [
     cost: "-",
     weight: 70,
     isEligible: (pokemon, battle) => {
+      if (!isBattlePlayerActive(pokemon, battle)) return false;
       const teamSide = pokemon?.team || "player";
       const oppSide = teamSide === "player" ? "npc" : "player";
       const b = battle || (typeof window !== "undefined" && window.__battle) || null;
@@ -2069,10 +2087,8 @@ export const AUGMENT_LIST = [
     weight: 100,
     isEligible: (pokemon, battle, team) => {
       if (!hasGamblingAddict(team)) return false;
-      if (battle) {
-        if (!battle.player || battle.player.faint || battle.player.hp <= 0) return false;
-        if (!battle.npc || battle.npc.faint || battle.npc.hp <= 0) return false;
-      }
+      if (!isBattlePlayerActive(pokemon, battle)) return false;
+      if (!battle.npc || battle.npc.faint || battle.npc.hp <= 0) return false;
       return true;
     },
     onApply: function (pokemon, battle, options) {
@@ -2118,7 +2134,11 @@ export const AUGMENT_LIST = [
     },
     cost: "-",
     weight: 100,
-    isEligible: (pokemon, battle, team) => hasGamblingAddict(team),
+    isEligible: (pokemon, battle, team) => {
+      if (!hasGamblingAddict(team)) return false;
+      if (!isBattlePlayerActive(pokemon, battle)) return false;
+      return true;
+    },
     onApply: function (pokemon, battle, options) {
       if (!pokemon) return;
       const statPool = ["atk", "catk", "cdef", "def", "speed"];
@@ -2366,6 +2386,37 @@ export const AUGMENT_LIST = [
     onApply: (pokemon) => {
       if (pokemon && typeof pokemon.hp === "number") {
         pokemon.hp = Math.min(pokemon.maxHp, Math.round(pokemon.hp * 1.5));
+      }
+    },
+  },
+  // 후루베 유라유라 (즉발형 증강 - 현재 배틀중인 두 포켓몬 동시 기절)
+  {
+    id: "furubeYurayura",
+    name: "후루베 유라유라",
+    desc: "현재 배틀중인 두 포켓몬이 기절합니다.",
+    screenText: function (target) {
+      return "후루베... 유라유라..!";
+    },
+    cost: "-",
+    weight: 30,
+    isEligible: (pokemon, battle) => {
+      if (!isBattlePlayerActive(pokemon, battle)) return false;
+      if (!battle.npc || battle.npc.faint || battle.npc.hp <= 0) return false;
+      return true;
+    },
+    onApply: function (pokemon, battle, options) {
+      if (!battle) return;
+      if (battle.npc) {
+        battle.npc.hp = 0;
+        if (!options?.deferFaint) {
+          battle.npc.handleFaint?.(battle, options?.enqueue || (() => {}));
+        }
+      }
+      if (battle.player) {
+        battle.player.hp = 0;
+        if (!options?.deferFaint) {
+          battle.player.handleFaint?.(battle, options?.enqueue || (() => {}));
+        }
       }
     },
   },
@@ -3063,8 +3114,8 @@ function getPokemonSkills(pokemon) {
 export function isAttackSkill(skill) {
   if (!skill) return false;
   const isTypeValid = skill.stype === "atk" || skill.stype === "catk";
-  const isNumericPower = skill.power !== "-" && typeof skill.power === "number" && !isNaN(skill.power);
-  return isTypeValid && isNumericPower;
+  const isPowerValid = skill.power === "*" || (skill.power !== "-" && typeof skill.power === "number" && !isNaN(skill.power));
+  return isTypeValid && isPowerValid;
 }
 
 export function hasAttackSkill(pokemon) {

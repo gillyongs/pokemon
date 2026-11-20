@@ -449,7 +449,7 @@ export const useBattleStore = createStore((set, get) => ({
     const collectEnqueue = (battle, text, id, option = {}) => {
       followUpItems.push(cloneWithMethods({ battle, text, id, ...option }));
     };
-    const shouldDeferFaint = selectedAugment?.id === "russianRoulette";
+    const shouldDeferFaint = selectedAugment?.id === "russianRoulette" || selectedAugment?.id === "furubeYurayura";
     const augOptions = {
       ...(options || {}),
       enqueue: collectEnqueue,
@@ -568,6 +568,34 @@ export const useBattleStore = createStore((set, get) => ({
           handledStartAbilities = true;
           set({ isTitanPendingStart: false });
         }
+      }
+    } else if (selectedAugment.id === "furubeYurayura") {
+      if (curBattle.turn) {
+        curBattle.turn.turnEnd = null;
+      }
+      curBattle.npc?.handleFaint?.(curBattle, collectEnqueue);
+      curBattle.player?.handleFaint?.(curBattle, collectEnqueue);
+
+      const shouldTriggerStart = isStartAugment || (isTitanSecond && isTitanPendingStart);
+      if (shouldTriggerStart) {
+        handledStartAbilities = true;
+        set({ isTitanPendingStart: false });
+      }
+
+      dropRemaining = true;
+
+      const hasNpcBench = [curBattle.npcBench1, curBattle.npcBench2].some((p) => p && !p.faint);
+      const hasPlayerBench = [curBattle.playerBench1, curBattle.playerBench2].some((p) => p && !p.faint);
+
+      if (hasPlayerBench) {
+        curBattle.turn.turnEnd = true;
+        curBattle.turn.textFreeze = true;
+        collectEnqueue(curBattle, "누구로 교체할까?", "bs_furube_switch", {
+          bottomMode: "mustSwitch",
+          waitInput: true,
+        });
+      } else if (hasNpcBench) {
+        switchNpcAuto(curBattle, collectEnqueue);
       }
     }
 

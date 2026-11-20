@@ -53,7 +53,7 @@ export class Skill {
     if(name === '임시스킬'){return}
     if (typeof name !== "string") console.error("name must be a string", name);
     if (typeof type !== "string") console.error("type must be a string", type);
-    if ((stype === "atk" || stype === "catk") && typeof power !== "number" && power !== '-'){
+    if ((stype === "atk" || stype === "catk") && typeof power !== "number" && power !== '-' && power !== '*'){
       console.error("attack skill power must be a number", power);
       console.error(name)
     }
