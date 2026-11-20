@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import styled, { keyframes, css } from "styled-components";
 import { HeaderArea, HeaderTopRow, Title, SubTitleText } from "./selectStyles";
 import { getArcaneSwordFullName, getArcaneSwordData } from "../../../../entity/Augment/AugmentData";
+import AugmentGrantPreviewModal from "../AugmentGrantPreviewModal";
+import { getAugmentGrantInfo } from "../augmentPreviewConstants";
 
 export const ARCANE_SCROLLS = [
   {
@@ -76,6 +78,9 @@ const AugmentArcaneShadeSwordView = ({ arcaneShadeSwordAug, activePokemon, onSel
   const [lastResult, setLastResult] = useState(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [animKey, setAnimKey] = useState(0);
+  const [showGrantInfo, setShowGrantInfo] = useState(false);
+
+  const grantInfo = getAugmentGrantInfo("arcaneShadeSword");
 
   const selectedScroll = ARCANE_SCROLLS.find((s) => s.id === selectedScrollId) || ARCANE_SCROLLS[0];
 
@@ -149,6 +154,11 @@ const AugmentArcaneShadeSwordView = ({ arcaneShadeSwordAug, activePokemon, onSel
       <HeaderArea style={{ marginBottom: "8px" }}>
         <HeaderTopRow>
           <Title>{currentSwordTitle}</Title>
+          {grantInfo && (
+            <HeaderInfoButton type="button" onClick={() => setShowGrantInfo(true)} title="추가 획득 가능한 증강 안내 보기">
+              상세정보
+            </HeaderInfoButton>
+          )}
         </HeaderTopRow>
         <SubTitleText>{isCleanSlate ? `순백의 주문서로 차감된 강화 횟수를 초기화했습니다.` : "검을 원하는 주문서로 강화할 수 있습니다. (최대 10회)"}</SubTitleText>
       </HeaderArea>
@@ -249,6 +259,15 @@ const AugmentArcaneShadeSwordView = ({ arcaneShadeSwordAug, activePokemon, onSel
           </FinishButton>
         )}
       </FooterArea>
+
+      {showGrantInfo && grantInfo && (
+        <AugmentGrantPreviewModal
+          augmentId="arcaneShadeSword"
+          grantInfo={grantInfo}
+          pokemon={activePokemon}
+          onClose={() => setShowGrantInfo(false)}
+        />
+      )}
     </Container>
   );
 };
@@ -473,39 +492,30 @@ const SlotCircle = styled.div`
     `}
 `;
 
-const ResultBanner = styled.div`
-  width: 100%;
-  padding: 5px 8px;
+const HeaderInfoButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  background: rgba(168, 85, 247, 0.2);
+  border: 1px solid rgba(192, 132, 252, 0.55);
   border-radius: 6px;
-  font-size: 0.72rem;
-  line-height: 1.3;
-  text-align: center;
-  box-sizing: border-box;
-  word-break: keep-all;
+  color: #e9d5ff;
+  font-size: 0.73rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
 
-  ${(props) =>
-    props.$status === "success" &&
-    css`
-      background: rgba(168, 85, 247, 0.15);
-      border: 1px solid rgba(192, 132, 252, 0.4);
-      color: #e9d5ff;
-    `}
+  &:hover {
+    background: rgba(168, 85, 247, 0.38);
+    border-color: #c084fc;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+  }
 
-  ${(props) =>
-    props.$status === "fail" &&
-    css`
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(248, 113, 113, 0.4);
-      color: #fca5a5;
-    `}
-
-  ${(props) =>
-    props.$status === "finish" &&
-    css`
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(52, 211, 153, 0.4);
-      color: #a7f3d0;
-    `}
+  &:active {
+    transform: translateY(1px);
+  }
 `;
 
 const ScrollSelectSection = styled.div`

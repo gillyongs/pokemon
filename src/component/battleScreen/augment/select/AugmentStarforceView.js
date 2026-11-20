@@ -74,7 +74,7 @@ const AugmentStarforceView = ({ starforceAug, activePokemon, onSelect, onCancel 
       }
 
       setIsEnhancing(false);
-    }, 350);
+    }, 100);
   };
 
   const handleClose = (e) => {

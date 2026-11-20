@@ -11,6 +11,11 @@ export const AUGMENT_POKEMON_PREVIEW_MAP = {
 };
 
 export const AUGMENT_GRANT_PREVIEW_MAP = {
+  arcaneShadeSword: {
+    modalTitle: "증강 상세 안내",
+    headerNotice: "해당 증강 선택 시 아래 증강들이 추가로 등장합니다.",
+    items: ["starforce", "greatTuskSoul", "cube", "cleanSlateScroll"],
+  },
   marriedPokemon: {
     modalTitle: "증강 상세 안내",
     headerNotice: "다음 포켓몬 중 1마리와 교체됩니다.",

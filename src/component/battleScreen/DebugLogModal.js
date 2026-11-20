@@ -98,29 +98,15 @@ function TreeNode({ name, value, depth = 0, isRoot = false, ancestors = new Set(
   return (
     <NodeContainer>
       <NodeHeader onClick={toggle} $clickable={!isEmpty}>
-        {!isEmpty ? (
-          <ArrowIcon $expanded={expanded}>▶</ArrowIcon>
-        ) : (
-          <ArrowSpacer />
-        )}
+        {!isEmpty ? <ArrowIcon $expanded={expanded}>▶</ArrowIcon> : <ArrowSpacer />}
         {name !== undefined && <KeyName>{name}: </KeyName>}
-        {isArray ? (
-          <TypeTag $isArray>Array({value.length})</TypeTag>
-        ) : (
-          <TypeTag>Object</TypeTag>
-        )}
+        {isArray ? <TypeTag $isArray>Array({value.length})</TypeTag> : <TypeTag>Object</TypeTag>}
         {!expanded && <PreviewText>{getPreview(value)}</PreviewText>}
       </NodeHeader>
       {expanded && !isEmpty && (
         <ChildrenContainer>
           {keys.map((k) => (
-            <TreeNode
-              key={k}
-              name={isArray ? Number(k) : k}
-              value={value[k]}
-              depth={depth + 1}
-              ancestors={nextAncestors}
-            />
+            <TreeNode key={k} name={isArray ? Number(k) : k} value={value[k]} depth={depth + 1} ancestors={nextAncestors} />
           ))}
           {isArray && (
             <NodeRow style={{ opacity: 0.6, fontSize: "0.85em" }}>
@@ -141,7 +127,6 @@ function TreeNode({ name, value, depth = 0, isRoot = false, ancestors = new Set(
 export default function DebugLogModal({ onClose }) {
   const [logs, setLogs] = useState(() => [...logArr]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [copied, setCopied] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
   const logListRef = useRef(null);
 
@@ -168,30 +153,16 @@ export default function DebugLogModal({ onClose }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  const filteredLogs = searchTerm
-    ? logs.filter((l) => l.text.toLowerCase().includes(searchTerm.toLowerCase()))
-    : logs;
-
-  const handleCopyAll = () => {
-    const fullText = logs.map((l) => l.text).join("\n");
-    navigator.clipboard.writeText(fullText).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
-  };
+  const filteredLogs = searchTerm ? logs.filter((l) => l.text.toLowerCase().includes(searchTerm.toLowerCase())) : logs;
 
   return (
     <ModalBackground onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <Header>
           <TitleArea>
-            <Title>🛠️ 디버깅 콘솔 로그</Title>
-            <CountBadge>{logs.length}개</CountBadge>
+            <Title>디버깅 콘솔 로그</Title>
           </TitleArea>
           <ActionArea>
-            <ActionBtn onClick={handleCopyAll}>
-              {copied ? "✓ 복사됨!" : "전체 복사"}
-            </ActionBtn>
             <ActionBtn $danger onClick={clearDebugLogs}>
               비우기
             </ActionBtn>
@@ -199,30 +170,9 @@ export default function DebugLogModal({ onClose }) {
           </ActionArea>
         </Header>
 
-        <ToolBar>
-          <SearchInput
-            type="text"
-            placeholder="로그 검색..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <AutoScrollToggle>
-            <label>
-              <input
-                type="checkbox"
-                checked={autoScroll}
-                onChange={(e) => setAutoScroll(e.target.checked)}
-              />
-              자동 스크롤
-            </label>
-          </AutoScrollToggle>
-        </ToolBar>
-
         <LogViewArea ref={logListRef}>
           {filteredLogs.length === 0 ? (
-            <EmptyLog>
-              {searchTerm ? "검색 결과와 일치하는 로그가 없습니다." : "기록된 로그가 없습니다.\n(consoleLog('메시지')로 로그를 남겨보세요)"}
-            </EmptyLog>
+            <EmptyLog>{searchTerm ? "검색 결과와 일치하는 로그가 없습니다." : "기록된 로그가 없습니다.\n(consoleLog('메시지')로 로그를 남겨보세요)"}</EmptyLog>
           ) : (
             filteredLogs.map((item, index) => {
               const rawArgs = item.raw && item.raw.length > 0 ? item.raw : [item.text];
@@ -381,25 +331,6 @@ const SearchInput = styled.input`
   }
 `;
 
-const AutoScrollToggle = styled.div`
-  font-size: 0.8rem;
-  color: #aaaaaa;
-  display: flex;
-  align-items: center;
-
-  label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-  }
-
-  input {
-    cursor: pointer;
-    accent-color: #42b883;
-  }
-`;
-
 const LogViewArea = styled.div`
   flex: 1;
   padding: 10px 14px;
@@ -478,7 +409,9 @@ const ArrowIcon = styled.span`
   color: #888888;
   cursor: pointer;
   user-select: none;
-  transition: transform 0.15s ease, color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
   transform: rotate(${(props) => (props.$expanded ? "90deg" : "0deg")});
 
   &:hover {

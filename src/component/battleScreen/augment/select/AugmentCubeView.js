@@ -236,7 +236,7 @@ const AugmentCubeView = ({ cubeAug, activePokemon, onSelect, onCancel }) => {
       setCubesLeft((prev) => Math.max(0, prev - 1));
       setHasRolled(true);
       setIsRolling(false);
-    }, 320);
+    }, 100);
   };
 
   const handleLeftAction = (e) => {
@@ -329,14 +329,7 @@ export default AugmentCubeView;
 
 /* Isometric 3D Glowing Glass Cube (정육면체) */
 const Isometric3DCubeSvg = () => (
-  <svg
-    width="154"
-    height="136"
-    viewBox="0 0 170 150"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    style={{ position: "absolute", pointerEvents: "none" }}
-  >
+  <svg width="154" height="136" viewBox="0 0 170 150" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: "absolute", pointerEvents: "none" }}>
     <defs>
       {/* Top Face Gradient */}
       <linearGradient id="cubeTopGrad" x1="85" y1="10" x2="85" y2="58" gradientUnits="userSpaceOnUse">
@@ -361,38 +354,16 @@ const Isometric3DCubeSvg = () => (
     </defs>
 
     {/* Back Hexagon Glow Backdrop */}
-    <polygon
-      points="85,10 144,36 144,112 85,138 26,112 26,36"
-      fill="rgba(56, 189, 248, 0.16)"
-      filter="url(#cubeOuterGlow)"
-    />
+    <polygon points="85,10 144,36 144,112 85,138 26,112 26,36" fill="rgba(56, 189, 248, 0.16)" filter="url(#cubeOuterGlow)" />
 
     {/* Left Face (Isometric 3D) */}
-    <polygon
-      points="26,36 85,62 85,138 26,112"
-      fill="url(#cubeLeftGrad)"
-      stroke="#7dd3fc"
-      strokeWidth="1.8"
-      strokeLinejoin="round"
-    />
+    <polygon points="26,36 85,62 85,138 26,112" fill="url(#cubeLeftGrad)" stroke="#7dd3fc" strokeWidth="1.8" strokeLinejoin="round" />
 
     {/* Right Face (Isometric 3D) */}
-    <polygon
-      points="85,62 144,36 144,112 85,138"
-      fill="url(#cubeRightGrad)"
-      stroke="#7dd3fc"
-      strokeWidth="1.8"
-      strokeLinejoin="round"
-    />
+    <polygon points="85,62 144,36 144,112 85,138" fill="url(#cubeRightGrad)" stroke="#7dd3fc" strokeWidth="1.8" strokeLinejoin="round" />
 
     {/* Top Face (Isometric 3D) */}
-    <polygon
-      points="85,10 144,36 85,62 26,36"
-      fill="url(#cubeTopGrad)"
-      stroke="#bae6fd"
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
+    <polygon points="85,10 144,36 85,62 26,36" fill="url(#cubeTopGrad)" stroke="#bae6fd" strokeWidth="2" strokeLinejoin="round" />
 
     {/* Center Leading Vertical Edge */}
     <line x1="85" y1="62" x2="85" y2="138" stroke="#bae6fd" strokeWidth="1.8" strokeLinecap="round" />
@@ -402,17 +373,7 @@ const Isometric3DCubeSvg = () => (
     <line x1="114.5" y1="23" x2="55.5" y2="49" stroke="rgba(224, 242, 254, 0.28)" strokeWidth="1" />
 
     {/* Inner Item Placement Slot (Maple dashed pink guide) */}
-    <rect
-      x="61"
-      y="54"
-      width="48"
-      height="48"
-      rx="2"
-      fill="none"
-      stroke="rgba(244, 114, 182, 0.65)"
-      strokeWidth="1.2"
-      strokeDasharray="3 3"
-    />
+    <rect x="61" y="54" width="48" height="48" rx="2" fill="none" stroke="rgba(244, 114, 182, 0.65)" strokeWidth="1.2" strokeDasharray="3 3" />
   </svg>
 );
 
@@ -508,9 +469,7 @@ const RadiatingSunburst = styled.div`
   width: 440px;
   height: 180px;
   transform: translate(-50%, -50%);
-  background:
-    radial-gradient(ellipse at center, rgba(56, 189, 248, 0.35) 0%, rgba(14, 165, 233, 0.12) 50%, transparent 75%),
-    repeating-conic-gradient(from 0deg, rgba(125, 211, 252, 0.07) 0deg 10deg, transparent 10deg 20deg);
+  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.35) 0%, rgba(14, 165, 233, 0.12) 50%, transparent 75%), repeating-conic-gradient(from 0deg, rgba(125, 211, 252, 0.07) 0deg 10deg, transparent 10deg 20deg);
   pointer-events: none;
 `;
 
@@ -540,8 +499,12 @@ const FiligreeRail = styled.div`
     box-shadow: 0 0 6px #38bdf8;
     top: -1px;
   }
-  &::before { left: 4px; }
-  &::after { right: 4px; }
+  &::before {
+    left: 4px;
+  }
+  &::after {
+    right: 4px;
+  }
 `;
 
 const FiligreePillar = styled.div`

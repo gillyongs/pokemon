@@ -490,7 +490,7 @@ export const AUGMENT_LIST = [
     name: "위대한 엄니의 소울",
     desc: "아케인셰이드 투핸드소드에 공격 +30%, 특수공격 +30% 효과를 부여합니다.",
     cost: "-",
-    weight: (pokemon) => (hasArcaneShadeSword(pokemon) && !getArcaneSwordData(pokemon).hasSoul ? 200 : 0),
+    weight: (pokemon) => (hasArcaneShadeSword(pokemon) && !getArcaneSwordData(pokemon).hasSoul ? 300 : 0),
     isEligible: (pokemon) => hasArcaneShadeSword(pokemon) && !getArcaneSwordData(pokemon).hasSoul,
     screenText: function (target) {
       return `[증강] ${target?.name}의 검에 위대한 엄니의 소울이 깃들었다!`;
@@ -518,7 +518,12 @@ export const AUGMENT_LIST = [
     name: "스타포스",
     desc: "별의 힘으로 아케인셰이드 투핸드소드를 강화합니다.",
     cost: "-",
-    weight: (pokemon) => (hasArcaneShadeSword(pokemon) && getArcaneSwordData(pokemon).starCount < 25 ? 150 : 0),
+    weight: (pokemon) => {
+      if (!hasArcaneShadeSword(pokemon)) return 0;
+      const { starCount } = getArcaneSwordData(pokemon);
+      if (starCount >= 25) return 0;
+      return Math.max((10 - starCount) * 20, 0) + 10;
+    },
     isEligible: (pokemon) => hasArcaneShadeSword(pokemon) && getArcaneSwordData(pokemon).starCount < 25,
     screenText: function (target, prevPokeName, options) {
       const { starCount } = getArcaneSwordData(target, this, options);
@@ -546,6 +551,9 @@ export const AUGMENT_LIST = [
     id: "cleanSlateScroll",
     name: "순백의 주문서",
     desc: function (pokemon) {
+      if (!pokemon || !hasArcaneShadeSword(pokemon)) {
+        return "아케인셰이드 투핸드소드의 주문서 적용 실패로 차감된 업그레이드 가능 횟수를 회복시킵니다. 이후 다시 강화를 진행할 수 있습니다.";
+      }
       const { name, failCount } = getArcaneSwordData(pokemon);
       return `${name}의 주문서 적용 실패로 차감된 업그레이드 가능 횟수 ${failCount}회를 회복시킵니다. 이후 다시 강화를 진행할 수 있습니다.`;
     },
@@ -553,7 +561,7 @@ export const AUGMENT_LIST = [
     weight: (pokemon) => {
       if (!hasArcaneShadeSword(pokemon)) return 0;
       const { failCount } = getArcaneSwordData(pokemon);
-      return failCount * 10;
+      return failCount * 20;
     },
     isEligible: (pokemon) => hasArcaneShadeSword(pokemon) && getArcaneSwordData(pokemon).failCount > 0,
     screenText: function (target, prevPokeName, options) {
