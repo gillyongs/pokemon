@@ -122,6 +122,14 @@ export const PokemonInstanceAccess = {
     this.agument.nimbleSkillName = v;
   },
 
+  get choiceAndFocusSkillName() {
+    return this.agument?.choiceAndFocusSkillName ?? null;
+  },
+  set choiceAndFocusSkillName(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.choiceAndFocusSkillName = v;
+  },
+
   get anvilStats() {
     return this.agument?.anvilStats;
   },

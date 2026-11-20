@@ -152,6 +152,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           hasRolledCube: item.augment.hasRolledCube || item.pokemon?.hasRolledCube || false,
           pickedAbility: item.augment.pickedAbility || (item.augment.id === "randomAbility" ? item.pokemon?.abil?.name || item.pokemon?.abil : undefined),
           nimbleSkillName: item.augment.nimbleSkillName || item.pokemon?.nimbleSkillName,
+          choiceAndFocusSkillName: item.augment.choiceAndFocusSkillName || item.pokemon?.choiceAndFocusSkillName,
           soulDiceStats: item.augment.soulDiceStats || item.pokemon?.soulDiceStats,
           kingStatBonus: item.augment.kingStatBonus || item.pokemon?.kingStatBonus,
         });

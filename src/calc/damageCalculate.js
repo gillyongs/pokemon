@@ -714,6 +714,18 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 0.5 (하이 리스크)";
   }
 
+  // 선택과 집중: 선택한 공격기 1.5배, 다른 기술 0.5배
+  if (attackPokemon?.hasAugment?.("choiceAndFocus") && (skill.stype === "atk" || skill.stype === "catk")) {
+    const focusSkillName = attackPokemon.choiceAndFocusSkillName;
+    if (skill.name === focusSkillName) {
+      damage *= 1.5;
+      attackPokemon.log.damage1 += ` * 1.5 (선택과 집중+)`;
+    } else {
+      damage *= 0.5;
+      attackPokemon.log.damage1 += " * 0.5 (선택과 집중-)";
+    }
+  }
+
   // ======================================================================  [고정 공식] ========================================
   // ===========================================================================================================================
   // ===========================================================================================================================

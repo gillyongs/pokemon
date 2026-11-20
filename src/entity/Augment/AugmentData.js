@@ -39,6 +39,12 @@ export const isNimbleSkill = (pokemon, skill) => {
   return Boolean(pokemon.hasAugment?.("nimbleMoves") && nimbleSkillName && nimbleSkillName === skill.name);
 };
 
+export const isChoiceAndFocusSkill = (pokemon, skill) => {
+  if (!pokemon || !skill) return false;
+  const focusSkillName = pokemon.choiceAndFocusSkillName || pokemon.augments?.find((a) => a.id === "choiceAndFocus")?.chosenSkillName;
+  return Boolean(pokemon.hasAugment?.("choiceAndFocus") && focusSkillName && focusSkillName === skill.name);
+};
+
 export const hasAnvilStats = (pokemon) => {
   if (!pokemon) return false;
   const stats = pokemon.anvilStats;
@@ -150,6 +156,47 @@ export const AUGMENT_LIST = [
     weight: 100,
     isEligible: (pokemon) => !hasInnardsOutAnyForm(pokemon) && !hasFocusSash(pokemon),
     // damage.js에 구현
+  },
+  {
+    id: "choiceAndFocus",
+    name: "선택과 집중",
+    desc: "선택한 공격기의 위력이 1.5배가 됩니다.\n다른 기술의 위력은 0.5배로 감소합니다.",
+    cost: 2,
+    weight: 100,
+    isEligible: (pokemon) => !pokemon?.hasAugment?.("choiceAndFocus") && hasAttackSkill(pokemon),
+    screenText: function (target, prevPokeName, options) {
+      const skillName = options?.chosenSkillName || this?.chosenSkillName || target?.choiceAndFocusSkillName;
+      return skillName ? `[증강] ${skillName}의 위력이 증가하였다!` : "[증강] 선택한 기술의 위력이 증가하였다!";
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const skillName = options?.chosenSkillName || this?.chosenSkillName || target?.choiceAndFocusSkillName;
+      return skillName ? `${skillName}의 위력이 증가하였다!` : "기술의 위력이 증가하였다!";
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const skillName = options?.chosenSkillName || this?.chosenSkillName || pokemon?.choiceAndFocusSkillName;
+      return skillName ? `${skillName}의 위력이 증가하였습니다.\n다른 기술의 위력은 0.5배로 감소합니다.` : "선택한 공격기의 위력이 1.5배가 됩니다.\n다른 기술의 위력은 0.5배로 감소합니다.";
+    },
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon?.skill) return;
+      const chosenSkillName = options?.chosenSkillName || options?.replacedSkillName;
+      let slot = Number(options?.chosenSlot || options?.replaceSlot);
+      if (!slot && chosenSkillName) {
+        slot = [1, 2, 3, 4].find((s) => pokemon.skill[s]?.name === chosenSkillName);
+      }
+      if (!slot) {
+        slot = [1, 2, 3, 4].find((s) => pokemon.skill[s] && (pokemon.skill[s].stype === "atk" || pokemon.skill[s].stype === "catk"));
+      }
+      const targetSkill = pokemon.skill[slot];
+      const finalSkillName = targetSkill?.name || chosenSkillName || "공격기";
+      this.chosenSkillName = finalSkillName;
+      this.chosenSlot = slot;
+      pokemon.choiceAndFocusSkillName = finalSkillName;
+      pokemon.choiceAndFocusSlot = slot;
+      if (options && typeof options === "object") {
+        options.chosenSkillName = finalSkillName;
+        options.chosenSlot = slot;
+      }
+    },
   },
   {
     id: "lifeIsOneShot",
@@ -2942,6 +2989,10 @@ function getPokemonSkills(pokemon) {
   const skills = pokemon?.skill;
   if (!skills) return [];
   return [1, 2, 3, 4].map((slot) => skills[slot]).filter((sk) => sk && sk.name !== "발버둥");
+}
+
+function hasAttackSkill(pokemon) {
+  return getPokemonSkills(pokemon).some((sk) => sk?.stype === "atk" || sk?.stype === "catk");
 }
 
 // 막이 포켓몬 여부, pokemon.role로 확인

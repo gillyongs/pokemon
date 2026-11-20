@@ -232,7 +232,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     const targetAug = aug || selectedAugment;
     if (!targetAug || !activePokemon) return;
 
-    if ((targetAug.id === "danceOfGarchomp" || targetAug.id === "nameIsSalamence") && activePokemon?.skill) {
+    if ((targetAug.id === "danceOfGarchomp" || targetAug.id === "nameIsSalamence" || targetAug.id === "choiceAndFocus") && activePokemon?.skill) {
       setSkillSelectAug(targetAug);
       return;
     }

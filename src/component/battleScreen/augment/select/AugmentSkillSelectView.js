@@ -17,6 +17,9 @@ const AugmentSkillSelectView = ({
   const [selectedSlot, setSelectedSlot] = useState(null);
 
   const getSubTitle = () => {
+    if (skillSelectAug?.id === "choiceAndFocus") {
+      return "위력을 1.5배로 강화할 공격 기술을 선택해주세요.";
+    }
     if (skillSelectAug?.id === "teraBlast") {
       return `[${selectedType || "노말"}] 테라버스트와 교체할 기술을 선택해주세요.`;
     }
@@ -31,6 +34,8 @@ const AugmentSkillSelectView = ({
     if (!selectedSlot) return;
     const prevSkill = activePokemon?.skill?.[selectedSlot];
     onSelect(skillSelectAug, {
+      chosenSlot: selectedSlot,
+      chosenSkillName: prevSkill?.name || "기존 기술",
       replaceSlot: selectedSlot,
       targetPokemon: activePokemon,
       selectedType: selectedType || "노말",
@@ -49,7 +54,7 @@ const AugmentSkillSelectView = ({
     <>
       <HeaderArea>
         <HeaderTopRow>
-          <Title>교체할 기술 선택</Title>
+          <Title>{skillSelectAug?.id === "choiceAndFocus" ? "강화할 공격 기술 선택" : "교체할 기술 선택"}</Title>
           <CloseButton onClick={handleBack} title="되돌아가기">
             ✕
           </CloseButton>
@@ -65,13 +70,19 @@ const AugmentSkillSelectView = ({
           const displayType = skillTypeCalculate(battle, sk, activePokemon);
           const effectText = getTypeEffectText(battle, activePokemon, sk, displayType) || "";
           const isSelected = selectedSlot === slot;
+          const isChoiceAndFocus = skillSelectAug?.id === "choiceAndFocus";
+          const isAttack = sk.stype === "atk" || sk.stype === "catk";
+          const isDisabled = isChoiceAndFocus && !isAttack;
+
           return (
             <SkillCard
               key={slot}
               $isSelected={isSelected}
               $isPeek={isPeekMode}
+              $disabled={isDisabled}
               onClick={(e) => {
                 e.stopPropagation();
+                if (isDisabled) return;
                 if (isPeekMode) {
                   if (setIsPeekMode) setIsPeekMode(false);
                   return;
@@ -89,7 +100,7 @@ const AugmentSkillSelectView = ({
                 />
                 <SkillName title={sk.name}>{sk.name}</SkillName>
               </SkillTopRow>
-              <SkillEffectText>{effectText || ""}</SkillEffectText>
+              <SkillEffectText>{isDisabled ? "선택 불가 (변화기)" : (effectText || "")}</SkillEffectText>
               <SkillPP>
                 {currentPp}/{sk.pp}
               </SkillPP>
@@ -103,7 +114,7 @@ const AugmentSkillSelectView = ({
           되돌아가기
         </ActionButton>
         <ActionButton type="button" $variant="confirm" disabled={!selectedSlot} onClick={handleConfirm}>
-          교체
+          {skillSelectAug?.id === "choiceAndFocus" ? "선택" : "교체"}
         </ActionButton>
       </ButtonGroup>
     </>
@@ -134,7 +145,9 @@ const SkillCard = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  cursor: pointer;
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.$disabled ? 0.35 : 1)};
+  filter: ${(props) => (props.$disabled ? "grayscale(0.85)" : "none")};
   box-sizing: border-box;
   user-select: none;
   transition: all 0.2s ease;
@@ -142,13 +155,13 @@ const SkillCard = styled.div`
   box-shadow: ${(props) => (props.$isSelected ? "0 0 14px rgba(100, 255, 218, 0.45), inset 0 0 8px rgba(100, 255, 218, 0.15)" : "0 2px 8px rgba(0, 0, 0, 0.4)")};
 
   &:hover {
-    transform: ${(props) => (props.$isPeek ? "none" : "translateY(-2px)")};
-    border-color: ${(props) => (props.$isSelected ? "#64ffda" : "rgba(100, 255, 218, 0.5)")};
-    background: ${(props) => (props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(20, 30, 44, 0.8)")};
+    transform: ${(props) => (props.$isPeek || props.$disabled ? "none" : "translateY(-2px)")};
+    border-color: ${(props) => (props.$disabled ? "rgba(255, 255, 255, 0.15)" : props.$isSelected ? "#64ffda" : "rgba(100, 255, 218, 0.5)")};
+    background: ${(props) => (props.$disabled ? "rgba(18, 24, 35, 0.85)" : props.$isSelected ? "rgba(22, 45, 64, 0.98)" : "rgba(20, 30, 44, 0.8)")};
   }
 
   &:active {
-    transform: scale(0.98);
+    transform: ${(props) => (props.$disabled ? "none" : "scale(0.98)")};
   }
 `;
 
