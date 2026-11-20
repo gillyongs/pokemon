@@ -302,13 +302,16 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
     defPokemon.handleFaint(battle, enqueue);
 
-    // [특성 내용물분출] 상대의 공격기를 맞고 기절했을 때 공격 시작 전 체력만큼 데미지 반사
+    // [특성 내용물분출 / 증강 함께 폭사하자] 상대의 공격기를 맞고 기절했을 때 공격 시작 전 체력만큼 데미지 반사
     const innardsDamage = defPokemon.turn.hpBeforeAttack;
-    const isInnardsOut = !isConfuseSelfHit && defPokemon.abil?.name === "내용물분출";
-    if (isInnardsOut && typeof innardsDamage === "number" && innardsDamage > 0) {
-      if (atkPokemon && !atkPokemon.faint) {
+    if (!isConfuseSelfHit && typeof innardsDamage === "number" && innardsDamage > 0) {
+      if (atkPokemon && !atkPokemon.faint && defPokemon.abil?.name === "내용물분출") {
         const innardsText = `[특성 내용물분출] ${atkPokemon.name}은 데미지를 입었다!`;
         atkPokemon.getDamage(battle, enqueue, innardsDamage, innardsText);
+      }
+      if (atkPokemon && !atkPokemon.faint && defPokemon.hasAugment?.("letsExplodeTogether")) {
+        const explodeText = `[증강 함께 폭사하자] ${atkPokemon.name}은 데미지를 입었다!`;
+        atkPokemon.getDamage(battle, enqueue, innardsDamage, explodeText);
       }
     }
 

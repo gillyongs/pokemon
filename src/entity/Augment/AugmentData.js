@@ -143,6 +143,15 @@ export const AUGMENT_LIST = [
     // damage.js, PokemonGetDamage.js에 구현
   },
   {
+    id: "letsExplodeTogether",
+    name: "함께 폭사하자",
+    desc: "상대의 공격으로 기절했을 때, 공격받기 전 남은 HP만큼 상대에게 데미지를 줍니다",
+    cost: 2,
+    weight: 100,
+    isEligible: (pokemon) => !hasInnardsOutAnyForm(pokemon) && !hasFocusSash(pokemon),
+    // damage.js에 구현
+  },
+  {
     id: "lifeIsOneShot",
     name: "인생은 한방 🎲",
     desc: "공격 기술 위력이 10배로 증가하지만 50% 확률로 실패합니다.",
@@ -2898,9 +2907,30 @@ function isHpAtLeast(pokemon, ratio = 0.5) {
 // 현재 특성과 원본 특성(originalAbil)이 모두 지정한 특성인지 확인
 function hasCurrentAndOriginalAbil(pokemon, abilName) {
   if (!pokemon || !abilName) return false;
-  const curAbil = pokemon.abil?.name || pokemon.abil;
-  const origAbil = pokemon.originalAbil?.name || pokemon.originalAbil;
+  const curAbil = pokemon.abil.name;
+  const origAbil = pokemon.originalAbil.name;
   return curAbil === abilName && origAbil === abilName;
+}
+
+// 현재, 원본, 또는 메가진화 후 특성이 내용물분출인지 확인
+function hasInnardsOutAnyForm(pokemon) {
+  if (pokemon.abil.name === "내용물분출") return true;
+
+  const origAbil = pokemon.originalAbil?.name;
+  if (origAbil === "내용물분출") return true;
+
+  const megaAbil = pokemon.megaData?.abil;
+  if (megaAbil === "내용물분출") return true;
+
+  return false;
+}
+
+// 지닌 물건이 기합의띠인지 확인 (현재 또는 원본)
+function hasFocusSash(pokemon) {
+  if (!pokemon) return false;
+  const item = pokemon.item?.name || pokemon.item;
+  const origItem = pokemon.originalItem?.name || pokemon.originalItem || pokemon.o?.item?.name || pokemon.o?.item;
+  return item === "기합의띠" || origItem === "기합의띠";
 }
 
 function hasPokemonOnTeam(team, dexNo) {

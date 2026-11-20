@@ -3787,6 +3787,15 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
+        {/* 함께 폭사하자 (일러스트 이미지 + 원형 클리핑 & 퍼플 링) */}
+        {id === "letsExplodeTogether" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/letsExplodeTogether.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#8b5cf6" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#c084fc" strokeWidth="0.5" strokeOpacity="0.65" />
+          </g>
+        )}
+
         {/* 28. 달팽이 세마리 */}
         {id === "threeSnails" && (
           <g>
