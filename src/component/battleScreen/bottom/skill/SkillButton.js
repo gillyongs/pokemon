@@ -2,7 +2,7 @@ import { useRef } from "react";
 import styled from "styled-components";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
-import { isNimbleSkill, isChoiceAndFocusSkill } from "../../../../entity/Augment/AugmentData";
+import { isNimbleSkill, isChoiceAndFocusSkill, isZeroSumBuffSkill, isZeroSumNerfSkill } from "../../../../entity/Augment/AugmentData";
 import { getSkillUnusableReason } from "../../../../service/skillCheck";
 import { AugmentIcon } from "../../augment/AugmentIcon";
 
@@ -207,7 +207,7 @@ const ENHANCE_BADGES_ROW = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   pointer-events: none;
 `;
 
@@ -239,6 +239,21 @@ export const getSkillEnhanceBadges = (pokemon, skill) => {
       id: "choiceAndFocus",
       title: "선택과 집중 (위력 1.5배)",
       render: () => <AugmentIcon key="choiceAndFocus" id="choiceAndFocus" size={19} />,
+    });
+  }
+
+  // 3. 제로섬게임 (강화: 위력 2배 (초록 윗화살표), 실패: 위력 0.5배 (빨간 아래화살표))
+  if (isZeroSumBuffSkill(pokemon, skill)) {
+    badges.push({
+      id: "zeroSumGame_buff",
+      title: "제로섬게임 (위력 2배)",
+      render: () => <AugmentIcon key="zeroSumGame_buff" id="zeroSumGame" size={19} sign="up" />,
+    });
+  } else if (isZeroSumNerfSkill(pokemon, skill)) {
+    badges.push({
+      id: "zeroSumGame_nerf",
+      title: "제로섬게임 (위력 0.5배)",
+      render: () => <AugmentIcon key="zeroSumGame_nerf" id="zeroSumGame" size={19} sign="down" />,
     });
   }
 

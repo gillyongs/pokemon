@@ -69,7 +69,7 @@ const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   "0889": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
 };
 
-export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null }) => {
+export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null, sign = null }) => {
   const pokeId = pokemonId || ((id === "libero" || id === "protean" || id === "intrepidSword" || id === "dauntlessShield") && (pokemon?.uniqueKey || pokemon?.dexNo) ? (pokemon.uniqueKey || pokemon.dexNo) : null) || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird" || id === "devilOfGen7") ? pokemon.uniqueKey : null);
 
   const augOptions = imageOptions || DEDICATED_AUGMENT_IMAGE_OPTIONS[id] || (pokeId ? DEDICATED_AUGMENT_IMAGE_OPTIONS[pokeId] : null) || {};
@@ -600,6 +600,13 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="100%" stopColor="#6d28d9" />
           </linearGradient>
 
+          {/* 제로섬게임 전용 링 그라데이션 (바이올렛-퍼플 테마) */}
+          <linearGradient id="zeroSumRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#c084fc" />
+            <stop offset="50%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#4c1d95" />
+          </linearGradient>
+
 
           {/* 회복 전용 그라데이션 (에메랄드/그린 테마) */}
           <linearGradient id="recoveryCrossGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -1056,7 +1063,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -3609,6 +3616,57 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <image href="/pokemon/img/augment/choiceAndFocus.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#choiceFocusRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#d8b4fe" strokeWidth="0.5" strokeOpacity="0.5" />
+          </g>
+        )}
+
+        {/* 제로섬게임 (저울 일러스트 이미지 + 원형 클리핑 & 퍼플 링 + 강화(▲ 초록 삼각화살표)/하락(▼ 빨간 삼각화살표) 오버레이) */}
+        {id === "zeroSumGame" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/zeroSumGame.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#zeroSumRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#d8b4fe" strokeWidth="0.5" strokeOpacity="0.5" />
+            {(sign === "up" || sign === "+") && (
+              <g>
+                {/* 강화: 손잡이 없는 초록색 윗 삼각화살표 (▲) */}
+                <path
+                  d="M 32 14 L 49 48 L 15 48 Z"
+                  fill="#22c55e"
+                  stroke="#000000"
+                  strokeWidth="3.2"
+                  strokeLinejoin="round"
+                  style={{ filter: "drop-shadow(0 0 4px rgba(34, 197, 94, 0.95))" }}
+                />
+                <path
+                  d="M 32 18 L 45 45 L 19 45 Z"
+                  fill="none"
+                  stroke="#86efac"
+                  strokeWidth="0.8"
+                  strokeLinejoin="round"
+                  opacity="0.8"
+                />
+              </g>
+            )}
+            {(sign === "down" || sign === "-") && (
+              <g>
+                {/* 하락: 손잡이 없는 빨간색 아래 삼각화살표 (▼) */}
+                <path
+                  d="M 15 16 L 49 16 L 32 50 Z"
+                  fill="#ef4444"
+                  stroke="#000000"
+                  strokeWidth="3.2"
+                  strokeLinejoin="round"
+                  style={{ filter: "drop-shadow(0 0 4px rgba(239, 68, 68, 0.95))" }}
+                />
+                <path
+                  d="M 19 19 L 45 19 L 32 46 Z"
+                  fill="none"
+                  stroke="#fca5a5"
+                  strokeWidth="0.8"
+                  strokeLinejoin="round"
+                  opacity="0.8"
+                />
+              </g>
+            )}
           </g>
         )}
 

@@ -726,6 +726,19 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
+  // 제로섬게임: 랜덤한 기술 하나의 위력이 2배, 다른 기술 하나의 위력이 절반
+  if (attackPokemon?.hasAugment?.("zeroSumGame") && (skill.stype === "atk" || skill.stype === "catk")) {
+    const buffSkillName = attackPokemon.zeroSumBuffSkillName;
+    const nerfSkillName = attackPokemon.zeroSumNerfSkillName;
+    if (buffSkillName && skill.name === buffSkillName) {
+      damage *= 2;
+      attackPokemon.log.damage1 += ` * 2 (제로섬게임+)`;
+    } else if (nerfSkillName && skill.name === nerfSkillName) {
+      damage *= 0.5;
+      attackPokemon.log.damage1 += ` * 0.5 (제로섬게임-)`;
+    }
+  }
+
   // ======================================================================  [고정 공식] ========================================
   // ===========================================================================================================================
   // ===========================================================================================================================

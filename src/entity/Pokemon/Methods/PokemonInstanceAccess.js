@@ -130,6 +130,22 @@ export const PokemonInstanceAccess = {
     this.agument.choiceAndFocusSkillName = v;
   },
 
+  get zeroSumBuffSkillName() {
+    return this.agument?.zeroSumBuffSkillName ?? null;
+  },
+  set zeroSumBuffSkillName(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.zeroSumBuffSkillName = v;
+  },
+
+  get zeroSumNerfSkillName() {
+    return this.agument?.zeroSumNerfSkillName ?? null;
+  },
+  set zeroSumNerfSkillName(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.zeroSumNerfSkillName = v;
+  },
+
   get anvilStats() {
     return this.agument?.anvilStats;
   },

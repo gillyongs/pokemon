@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
+import { isAttackSkill } from "../../../../entity/Augment/AugmentData";
 import { HeaderArea, HeaderTopRow, Title, SubTitleText, CloseButton, ButtonGroup, ActionButton } from "./selectStyles";
 
 const AugmentSkillSelectView = ({
@@ -71,7 +72,7 @@ const AugmentSkillSelectView = ({
           const effectText = getTypeEffectText(battle, activePokemon, sk, displayType) || "";
           const isSelected = selectedSlot === slot;
           const isChoiceAndFocus = skillSelectAug?.id === "choiceAndFocus";
-          const isAttack = sk.stype === "atk" || sk.stype === "catk";
+          const isAttack = isAttackSkill(sk);
           const isDisabled = isChoiceAndFocus && !isAttack;
 
           return (

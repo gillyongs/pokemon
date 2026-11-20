@@ -45,6 +45,18 @@ export const isChoiceAndFocusSkill = (pokemon, skill) => {
   return Boolean(pokemon.hasAugment?.("choiceAndFocus") && focusSkillName && focusSkillName === skill.name);
 };
 
+export const isZeroSumBuffSkill = (pokemon, skill) => {
+  if (!pokemon || !skill) return false;
+  const buffName = pokemon.zeroSumBuffSkillName || pokemon.augments?.find((a) => a.id === "zeroSumGame")?.zeroSumBuffSkillName;
+  return Boolean(pokemon.hasAugment?.("zeroSumGame") && buffName && buffName === skill.name);
+};
+
+export const isZeroSumNerfSkill = (pokemon, skill) => {
+  if (!pokemon || !skill) return false;
+  const nerfName = pokemon.zeroSumNerfSkillName || pokemon.augments?.find((a) => a.id === "zeroSumGame")?.zeroSumNerfSkillName;
+  return Boolean(pokemon.hasAugment?.("zeroSumGame") && nerfName && nerfName === skill.name);
+};
+
 export const hasAnvilStats = (pokemon) => {
   if (!pokemon) return false;
   const stats = pokemon.anvilStats;
@@ -195,6 +207,63 @@ export const AUGMENT_LIST = [
       if (options && typeof options === "object") {
         options.chosenSkillName = finalSkillName;
         options.chosenSlot = slot;
+      }
+    },
+  },
+  {
+    id: "zeroSumGame",
+    name: "제로섬게임",
+    desc: "랜덤한 기술 하나의 위력이 2배가 됩니다.\n다른 기술 하나의 위력이 절반이 됩니다.",
+    cost: 2,
+    weight: 100,
+    isEligible: (pokemon) => !pokemon?.hasAugment?.("zeroSumGame") && getAttackSkills(pokemon).length >= 2,
+    screenText: function (target, prevPokeName, options) {
+      const buff = options?.zeroSumBuffSkillName || this?.zeroSumBuffSkillName || target?.zeroSumBuffSkillName;
+      const nerf = options?.zeroSumNerfSkillName || this?.zeroSumNerfSkillName || target?.zeroSumNerfSkillName;
+      if (buff && nerf) {
+        return `[증강] ${buff}의 위력이 2배, ${nerf}의 위력이 절반이 되었다!`;
+      }
+      return "[증강] 제로섬게임의 효과가 적용되었다!";
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const buff = options?.zeroSumBuffSkillName || this?.zeroSumBuffSkillName || target?.zeroSumBuffSkillName;
+      const nerf = options?.zeroSumNerfSkillName || this?.zeroSumNerfSkillName || target?.zeroSumNerfSkillName;
+      if (buff && nerf) {
+        return `${buff}의 위력이 2배, ${nerf}의 위력이 절반이 되었다!`;
+      }
+      return "랜덤한 기술 하나의 위력이 2배, 다른 기술 하나의 위력이 절반이 되었다!";
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const buff = options?.zeroSumBuffSkillName || this?.zeroSumBuffSkillName || pokemon?.zeroSumBuffSkillName;
+      const nerf = options?.zeroSumNerfSkillName || this?.zeroSumNerfSkillName || pokemon?.zeroSumNerfSkillName;
+      if (buff && nerf) {
+        return `${buff}의 위력이 2배가 됩니다.\n${nerf}의 위력은 절반으로 감소합니다.`;
+      }
+      return "랜덤한 기술 하나의 위력이 2배가 됩니다.\n다른 기술 하나의 위력이 절반이 됩니다.";
+    },
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon?.skill) return;
+      let buffSkillName = options?.zeroSumBuffSkillName;
+      let nerfSkillName = options?.zeroSumNerfSkillName;
+
+      if (!buffSkillName || !nerfSkillName) {
+        const attackSkills = getAttackSkills(pokemon);
+        if (attackSkills.length >= 2) {
+          const shuffled = [...attackSkills].sort(() => Math.random() - 0.5);
+          buffSkillName = shuffled[0].name;
+          nerfSkillName = shuffled[1].name;
+        } else if (attackSkills.length === 1) {
+          buffSkillName = attackSkills[0].name;
+        }
+      }
+
+      this.zeroSumBuffSkillName = buffSkillName;
+      this.zeroSumNerfSkillName = nerfSkillName;
+      pokemon.zeroSumBuffSkillName = buffSkillName;
+      pokemon.zeroSumNerfSkillName = nerfSkillName;
+      if (options && typeof options === "object") {
+        options.zeroSumBuffSkillName = buffSkillName;
+        options.zeroSumNerfSkillName = nerfSkillName;
       }
     },
   },
@@ -2991,8 +3060,19 @@ function getPokemonSkills(pokemon) {
   return [1, 2, 3, 4].map((slot) => skills[slot]).filter((sk) => sk && sk.name !== "발버둥");
 }
 
-function hasAttackSkill(pokemon) {
-  return getPokemonSkills(pokemon).some((sk) => sk?.stype === "atk" || sk?.stype === "catk");
+export function isAttackSkill(skill) {
+  if (!skill) return false;
+  const isTypeValid = skill.stype === "atk" || skill.stype === "catk";
+  const isNumericPower = skill.power !== "-" && typeof skill.power === "number" && !isNaN(skill.power);
+  return isTypeValid && isNumericPower;
+}
+
+export function hasAttackSkill(pokemon) {
+  return getPokemonSkills(pokemon).some(isAttackSkill);
+}
+
+export function getAttackSkills(pokemon) {
+  return getPokemonSkills(pokemon).filter(isAttackSkill);
 }
 
 // 막이 포켓몬 여부, pokemon.role로 확인

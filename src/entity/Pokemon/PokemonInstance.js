@@ -145,6 +145,8 @@ class PokemonInstance {
       giantBonusHp: 0, // 거인의 흡수
       nimbleSkillName: null, // 민첩한 몸놀림으로 강화된 기술명
       choiceAndFocusSkillName: null, // 선택과 집중으로 강화된 기술명
+      zeroSumBuffSkillName: null, // 제로섬게임으로 2배 강화된 기술명
+      zeroSumNerfSkillName: null, // 제로섬게임으로 절반 약화된 기술명
       pickedAbility: null, // 특성 야바위 뽑은 특성 (증강 유지시 필요)
       butItRefusedUsed: false, // [증강] 하지만 버텨냈다: 배틀 중 1회 발동 여부
       sword: {
