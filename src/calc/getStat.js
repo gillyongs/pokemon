@@ -199,6 +199,16 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
         }
       }
     }
+    // 아픈 건 싫으니까 방어력에 올인하려고 합니다.
+    else if (augId === "allInDefense") {
+      if (statKey === "def" || statKey === "cdef") {
+        val = Math.round(val * 2);
+        logText += " * 2 (방어력 올인)";
+      } else if (statKey === "atk" || statKey === "catk" || statKey === "speed") {
+        val = Math.max(1, Math.floor(val / 2));
+        logText += " / 2 (방어력 올인)";
+      }
+    }
   }
 
   // 영웅의 메아리: 아군 모든 포켓몬의 공격과 특공 40% 상승

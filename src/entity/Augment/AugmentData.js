@@ -282,6 +282,15 @@ export const AUGMENT_LIST = [
     },
   },
   {
+    id: "allInDefense",
+    name: "아픈 건 싫으니까 방어력에 올인하려고 합니다.",
+    desc: "공격과 특수공격, 스피드가 절반이 됩니다.\n방어와 특수방어가 2배가 됩니다.",
+    cost: 2,
+    weight: 150,
+    isEligible: (pokemon) => isTankPokemon(pokemon),
+    // getStat.js에 구현
+  },
+  {
     id: "lifeIsOneShot",
     name: "인생은 한방 🎲",
     desc: "공격 기술 위력이 10배로 증가하지만 50% 확률로 실패합니다.",
