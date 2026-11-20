@@ -34,6 +34,7 @@ const EXCLUSIVE_ITEMS = {
   가디안나이트: (p) => isPokemon(p, "가디안"),
   엘레이드나이트: (p) => isPokemon(p, "엘레이드"),
   팬텀나이트: (p) => isPokemon(p, "팬텀"),
+  우츠보트나이트: (p) => isPokemon(p, "우츠보트"),
   개굴닌자나이트: (p) => isPokemon(p, "개굴닌자"),
   갸라도스나이트: (p) => isPokemon(p, "갸라도스"),
   잉어킹나이트: (p) => isPokemon(p, "잉어킹"),

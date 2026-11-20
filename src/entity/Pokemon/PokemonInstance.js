@@ -87,6 +87,7 @@ class PokemonInstance {
       damagedThisTurn: null, // 이번 턴 데미지 받았는지 여부 (워모그)
       skillLaunched: null, // 이번 턴 기술이 실제로 시전 단계(afterSkillCheck 발동부)에 진입했는지 여부
       butItRefused: null, // [증강] 하지만 버텨냈다: 이번 턴 기절 방지 활성화 여부
+      hpBeforeAttack: null, // 공격 기술을 맞기 전 HP (내용물분출)
     };
     this.tempStatus = {
       //교체시 초기화

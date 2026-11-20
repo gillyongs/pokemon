@@ -65,6 +65,11 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
     speed *= 2;
     pokemon.log.speedCalc += " * 2 (쓱쓱)";
   }
+  // 엽록소: 쾌청일 때 스피드 2배
+  if (abil === "엽록소" && battle.isSunny) {
+    speed *= 2;
+    pokemon.log.speedCalc += " * 2 (엽록소)";
+  }
   // 눈치우기: 설경일 때 스피드 2배
   if (abil === "눈치우기" && battle.isSnow) {
     speed *= 2;
