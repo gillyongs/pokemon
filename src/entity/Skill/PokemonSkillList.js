@@ -6,16 +6,6 @@ const noLearnSkill = ["테라버스트", "앙코르", "발버둥"];
 // 미구현된 주요 포켓몬 기술 리스트
 const UNIMPLEMENTED_SKILLS = [
   {
-    name: "힘흡수",
-    type: "풀",
-    category: "변화",
-    power: "-",
-    accur: 100,
-    pp: 10,
-    text: "상대의 공격을 1랭크 떨어뜨리고, 상대의 공격 수치만큼 자신의 HP를 회복한다.",
-    isImplemented: false,
-  },
-  {
     name: "바다회오리",
     type: "물",
     category: "특수",

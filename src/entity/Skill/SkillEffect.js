@@ -874,6 +874,22 @@ function skillEffectSearch(name) {
       enqueue(battle, def.names("는") + " 물 타입이 되었다!", "eff_soak");
     },
 
+    힘흡수: (battle, enqueue, skillEffect) => {
+      if (isTargetSubstituteBlocked(battle)) return;
+      const atk = battle[battle.turn.atk];
+      const def = battle[battle.turn.def];
+      if (!def || def.faint) return;
+
+      const targetRank = def.tempStatus?.rank?.atk ?? 0;
+      const targetAtk = Math.floor(getAugmentedStat(def, "atk", battle) * getMultiplier(targetRank));
+      const healAmount = Math.max(1, targetAtk);
+
+      const text = josa(`${def.name}#{으로}`) + "부터 힘을 흡수했다!";
+      atk.recover(battle, healAmount, enqueue, text);
+
+      def.rankUp(battle, enqueue, "atk", -1, null, true, atk.abil?.feature?.tgg);
+    },
+
     벽부수기: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const field = battle.field[def].noClean;

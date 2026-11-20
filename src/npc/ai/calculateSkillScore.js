@@ -288,6 +288,18 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
           log += ` - 1000 (${skillEffect.name} 실패)`;
         }
       }
+      if (skillEffect.name === "힘흡수") {
+        if (player.tempStatus.substitute === null) {
+          const targetRank = player.tempStatus?.rank?.atk ?? 0;
+          const targetAtk = (player.stat?.atk ?? 100) * (targetRank >= 0 ? 1 + targetRank * 0.5 : 1 / (1 - targetRank * 0.5));
+          const needHeal = npc.maxHp - npc.hp;
+          const recoverValue = Math.min(needHeal, targetAtk);
+          let val = (recoverValue / npc.maxHp) * 60;
+          if (player.role === "물리어태커" || player.role === "물리딜탱") val += 30;
+          score += val;
+          log += ` + ${Math.round(val)} (힘흡수)`;
+        }
+      }
       if (skillEffect.name === "씨뿌리기") {
         if (player.tempStatus.seed === null && player.type1 !== "풀" && player.type2 !== "풀") {
           score += 20;
