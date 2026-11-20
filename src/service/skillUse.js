@@ -62,7 +62,7 @@ export const skillUse = (bt, enqueue) => {
 
     //충전 기술
     // 충전 후 리베로가 발동된다
-    if (skill.feature.charge) {
+    if (skill.feature?.charge) {
       if (atk.charge) {
         //이미 충전을 한 경우 그냥 지나간다
         atk.charge = null;
@@ -174,17 +174,19 @@ export const skillUse = (bt, enqueue) => {
           }
           let skillDamage = damageCalculate(bt, { serial: i }); // 트리플악셀 위력 재계산
           attackDamage(bt, skillDamage, bt.turn.def, enqueue, null, { num: i, first: i === 1, last: i === num });
-          if (def.faint) {
+          if (def.faint || atk.faint) {
             break;
-            // 상대 기절하면 연속기 종료
+            // 상대 또는 공격자 기절하면 연속기 종료
           }
           const onHitEffects = skill.skillEffectList.filter((effect) => serialOnHitSkillEffect.includes(effect.name));
           applySkillEffects(bt, enqueue, onHitEffects);
         }
-        // 그 외에 부가효과 마지막 1회에만 적용
-        const afterSerialEffects = skill.skillEffectList.filter((effect) => !serialOnHitSkillEffect.includes(effect.name));
-        applySkillEffects(bt, enqueue, afterSerialEffects);
-        effectsApplied = true;
+        // 그 외에 부가효과 마지막 1회에만 적용 (공격자가 쓰러지지 않은 경우에만)
+        if (!atk.faint) {
+          const afterSerialEffects = skill.skillEffectList.filter((effect) => !serialOnHitSkillEffect.includes(effect.name));
+          applySkillEffects(bt, enqueue, afterSerialEffects);
+          effectsApplied = true;
+        }
         if (typeText) {
           // 연속기의 경우 상성 텍스트는 맨 마지막에 한번만 출력
           enqueue(bt, typeText, "use_serial_type");
@@ -202,8 +204,10 @@ export const skillUse = (bt, enqueue) => {
         }
         let skillDamage = damageCalculate(bt);
         attackDamage(bt, skillDamage, bt.turn.def, enqueue, typeText);
-        applySkillEffects(bt, enqueue, skill.skillEffectList);
-        effectsApplied = true;
+        if (!atk.faint) {
+          applySkillEffects(bt, enqueue, skill.skillEffectList);
+          effectsApplied = true;
+        }
       }
     } else if (skillType === "natk") {
       // 상대방 지정 변화기
@@ -251,7 +255,7 @@ export const skillUse = (bt, enqueue) => {
   } finally {
     // 기술이 실제로 발동 시전된 뒤(방어/무효/빗나감으로 조기 종료한 경우)에만 1회 실행
     // (정상 명중 시에는 applySkillEffects 내부에서 순서대로 이미 실행됨)
-    if (atk.turn.skillLaunched && !effectsApplied) {
+    if (atk.turn.skillLaunched && !effectsApplied && !atk.faint) {
       applyAfterSkillEffects(bt, enqueue);
     }
   }

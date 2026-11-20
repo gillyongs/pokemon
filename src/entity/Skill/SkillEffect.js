@@ -22,7 +22,7 @@ function skillEffectSearch(name) {
       let atkPokemon = battle[battle.turn.atk];
       let def = battle[battle.turn.def];
       let skill = atkPokemon.turn.useSkill;
-      if (!atkPokemon.faint && skill.feature?.protect !== true) atkPokemon.tempStatus.protectUse = null;
+      if (skill.feature?.protect !== true) atkPokemon.tempStatus.protectUse = null;
 
       // 전기로바꾸기 충전 해제
       if (skill?.type === "전기" && (skill?.stype === "atk" || skill?.stype === "catk") && atkPokemon.tempStatus?.changeElectronic) {
@@ -33,7 +33,7 @@ function skillEffectSearch(name) {
 
       // [증강: 달팽이 세마리] 공격 후 적에게 추가 고정 데미지 (10/25/40)
       const hasThreeSnails = atkPokemon?.hasAugment?.("threeSnails");
-      if (hasThreeSnails && def && !def.faint && (def.hp === undefined || def.hp > 0) && atkPokemon && !atkPokemon.faint) {
+      if (hasThreeSnails && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
         if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
           const roll = Math.random();
           let shellColor = "초록";
@@ -55,7 +55,7 @@ function skillEffectSearch(name) {
 
       // [버프: 우주류 검술] 공격 후 적에게 30의 추가 고정 데미지
       const hasWujuStyle = atkPokemon?.hasAugment?.("wujuStyle");
-      if (hasWujuStyle && def && !def.faint && (def.hp === undefined || def.hp > 0) && atkPokemon && !atkPokemon.faint) {
+      if (hasWujuStyle && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
         if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
           const text = `[버프 우주류 검술] ${def.name}에게 30의 추가 고정 데미지를 입혔다!`;
           def.getDamage(battle, enqueue, 30, text);
@@ -64,7 +64,7 @@ function skillEffectSearch(name) {
 
       // [증강: 루덴의 메아리] 공격 후 적에게 특수공격의 5%에 해당하는 추가 데미지
       const hasLudensEcho = atkPokemon?.hasAugment?.("ludensEcho");
-      if (hasLudensEcho && def && !def.faint && (def.hp === undefined || def.hp > 0) && atkPokemon && !atkPokemon.faint) {
+      if (hasLudensEcho && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
         if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
           const rankCatk = Number(atkPokemon?.tempStatus?.rank?.catk ?? 0);
           const curCatk = Math.floor(getAugmentedStat(atkPokemon, "catk", battle) * getMultiplier(rankCatk));
@@ -78,7 +78,7 @@ function skillEffectSearch(name) {
 
       // [증강: 아케인셰이드 투핸드소드] 큐브 잠재능력: 공격 시 맹독/빙결 부여
       const cubeStats = atkPokemon?.cubeStats;
-      if (cubeStats && def && !def.faint && (def.hp === undefined || def.hp > 0) && atkPokemon && !atkPokemon.faint) {
+      if (cubeStats && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
         if (skill && (skill.stype === "atk" || skill.stype === "catk") && !isTargetSubstituteBlocked(battle)) {
           if (cubeStats.poisonRate > 0 && Math.random() * 100 < cubeStats.poisonRate) {
             applyAilment("맹독", battle, battle.turn.def, enqueue, false, `[잠재능력] ${def.names("는")} 맹독에 걸렸다!`);
@@ -89,7 +89,7 @@ function skillEffectSearch(name) {
         }
       }
 
-      if (atkPokemon.item === "생명의구슬" && !atkPokemon.faint) {
+      if (atkPokemon.item === "생명의구슬") {
         if (skill.stype === "atk" || skill.stype === "catk") {
           const text = atkPokemon.name + "의 생명이 조금 깎였다!";
           atkPokemon.getDamage(battle, enqueue, atkPokemon.maxHp / 10, text);
@@ -356,11 +356,10 @@ function skillEffectSearch(name) {
       if (isTargetSubstituteBlocked(battle)) {
         return;
       }
-      const atk = battle[battle.turn.atk];
       const def = battle[battle.turn.def];
       const itemName = def.item;
 
-      if (itemName !== null && !noNullItem.includes(itemName) && !atk.faint) {
+      if (itemName !== null && !noNullItem.includes(itemName)) {
         // 대부분 아이템이 발동하고 떨어진다 (ex: 기합의띠)
         // 울멧이나 철가시로 공격자가 기절하면 아이템은 떨구지 못한다
         // 약보 : 추가뎀은 무조건 적용. 악타입 약점이면 아이템이 써지고 아니면 떨어진다
@@ -373,7 +372,7 @@ function skillEffectSearch(name) {
       }
     },
     유턴: (battle, enqueue, skillEffect) => {
-      if (battle.turn.atk === "player" && !battle.player.faint) {
+      if (battle.turn.atk === "player") {
         // 플레이어가 유턴을 사용한 경우
         const faint1 = battle.playerBench1.faint;
         const faint2 = battle.playerBench2.faint;
@@ -402,7 +401,7 @@ function skillEffectSearch(name) {
       }
     },
     배턴터치: (battle, enqueue, skillEffect) => {
-      if (battle.turn.atk === "player" && !battle.player.faint) {
+      if (battle.turn.atk === "player") {
         const faint1 = battle.playerBench1.faint;
         const faint2 = battle.playerBench2.faint;
         if (faint1 && faint2) {
@@ -435,7 +434,6 @@ function skillEffectSearch(name) {
     },
     발버둥반동: (battle, enqueue, skillEffect) => {
       let atkPokemon = battle[battle.turn.atk];
-      if (atkPokemon.faint) return;
       const text = atkPokemon.names("는") + " 반동으로 데미지를 입었다!";
       atkPokemon.getDamage(battle, enqueue, atkPokemon.maxHp / 4, text);
     },
@@ -595,7 +593,6 @@ function skillEffectSearch(name) {
       const def = battle.turn.def;
       const defPokemon = battle[def];
       const atkPokemon = battle[battle.turn.atk];
-      if (atkPokemon.faint) return;
       if (defPokemon.abil?.name === "둔감" && !atkPokemon?.abil?.feature?.tgg) {
         enqueue(battle, `[특성 둔감] ${defPokemon.names("는")} 도발에 넘어가지 않는다!`, "eff_taunt_oblivious");
         return;
@@ -659,10 +656,8 @@ function skillEffectSearch(name) {
       if (atkPokemon?.hasAugment?.("lostTechnologyHyperBeam") && usedSkill?.name === "파괴광선" && defPokemon?.faint) {
         return;
       }
-      if (!atkPokemon.faint) {
-        atkPokemon.recharge = true;
-        atkPokemon.autoSN = battle[battle.turn.atk].turn.choice;
-      }
+      atkPokemon.recharge = true;
+      atkPokemon.autoSN = battle[battle.turn.atk].turn.choice;
     },
 
     씨뿌리기: (battle, enqueue, skillEffect) => {
@@ -686,7 +681,6 @@ function skillEffectSearch(name) {
       }
 
       atkPokemon.getDamage(battle, enqueue, needHp, `${atkPokemon.names("는")} 체력을 깎아 파워를 최대로 올렸다!`);
-      if (atkPokemon.faint) return;
       atkPokemon.rankUp(battle, enqueue, "atk", 12);
     },
     대타출동: (battle, enqueue, skillEffect) => {
@@ -782,17 +776,13 @@ function skillEffectSearch(name) {
       enqueue(battle, atk.names("는") + " 상대를 길동무로 삼으려 하고 있다!", "eff_destiny_bond");
     },
     목숨걸기: (battle, enqueue, skillEffect) => {
-      if (battle[battle.turn.atk].faint) return;
       battle[battle.turn.atk].handleFaint(battle, enqueue);
     },
     자폭: (battle, enqueue, skillEffect) => {
-      if (battle[battle.turn.atk].faint) return;
       battle[battle.turn.atk].handleFaint(battle, enqueue);
     },
     철제광선반동: (battle, enqueue, skillEffect) => {
       const atkPokemon = battle[battle.turn.atk];
-      if (atkPokemon.faint) return;
-
       const damage = Math.ceil(atkPokemon.maxHp / 2);
       const text = atkPokemon.names("는") + " 반동으로 데미지를 입었다!";
       atkPokemon.getDamage(battle, enqueue, damage, text);

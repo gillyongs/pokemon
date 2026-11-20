@@ -24,7 +24,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
   // 대타출동 상태로 맞을땐 대부분의 피격 이벤트가 발생하지 않음
 
   const noBerryAbil = ["혼연일체(흑)", "혼연일체(백)", "긴장감"];
-  if (defPokemon.item === "슈케열매" && useSkill?.type === "땅" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
+  if (defPokemon.item === "슈케열매" && useSkill.type === "땅" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     // 뎀감 자체는 damageCalculate에서 적용
     const typeDamage = typeCheckOnBattle(battle, useSkill, atkPokemon, defPokemon);
     if (typeDamage > 1) {
@@ -38,7 +38,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
   // 악타입 반감 열매는 발동 하는게 맞음
   // 7세대의 악마 증강 보유 시 탈이 벗겨지는 공격에도 발동
   const canTriggerDisguiseBerry = !isDisguiseHit || defPokemon.hasAugment?.("devilOfGen7");
-  if (canTriggerDisguiseBerry && defPokemon.item === "악키열매" && !defPokemon.faint && useSkill?.stype === "atk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
+  if (canTriggerDisguiseBerry && defPokemon.item === "악키열매" && !defPokemon.faint && useSkill.stype === "atk" && useSkill.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     if (defPokemon.canRankUp("def", "up")) {
       defPokemon.consumeItem();
       defPokemon.rankUp(battle, enqueue, "def", 1, "[악키열매]");
@@ -46,7 +46,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
   }
 
   // 타라프열매 (특수 기술 피격 시 특수방어 1랭크 상승)
-  if (canTriggerDisguiseBerry && defPokemon.item === "타라프열매" && !defPokemon.faint && useSkill?.stype === "catk" && useSkill?.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
+  if (canTriggerDisguiseBerry && defPokemon.item === "타라프열매" && !defPokemon.faint && useSkill.stype === "catk" && useSkill.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     if (defPokemon.canRankUp("cdef", "up")) {
       defPokemon.consumeItem();
       defPokemon.rankUp(battle, enqueue, "cdef", 1, "[타라프열매]");
@@ -109,7 +109,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
     }
   }
 
-  if (defPokemon.abil?.name === "저주받은바디" && !atkPokemon.faint && !atkPokemon.tempStatus.disable && useSkill?.name && useSkill.name !== "발버둥") {
+  if (defPokemon.abil?.name === "저주받은바디" && !atkPokemon.faint && !atkPokemon.tempStatus.disable && useSkill.name && useSkill.name !== "발버둥") {
     if (random(30)) {
       atkPokemon.tempStatus.disable = useSkill.name;
       atkPokemon.tempStatus.disableTurnRemain = 4;
@@ -143,7 +143,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
   const atkMaxHp = atkPokemon.maxHp;
   // 철가시, 울퉁불퉁멧
   if (defPokemon.abil?.feature?.hanka && touch && !atkPokemon.faint) {
-    const text = "[특성 " + defPokemon.abil?.name + "] " + atkPokemon.names("는") + " 상처를 입었다!";
+    const text = "[특성 " + defPokemon.abil.name + "] " + atkPokemon.names("는") + " 상처를 입었다!";
     atkPokemon.getDamage(battle, enqueue, atkMaxHp / 8, text);
     // 별 상관은 없지만 해당 특성이 울멧보다 먼저
   }

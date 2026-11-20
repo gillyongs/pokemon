@@ -8,15 +8,26 @@ import { applyOnHitEvents } from "./onHit.js";
 // skillCheck에서 혼란 자해 데미지
 // 기준: 특성 탈 까짐, 급소 판정 있음
 export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typeText, serialAttackObject) {
-  const isConfuseSelfHit = getDamagePokemon === battle?.turn?.atk;
-  const atkPokemon = battle[getDamagePokemon === "npc" ? "player" : "npc"];
+  const isConfuseSelfHit = getDamagePokemon === battle.turn.atk;
+  const atkPokemon = battle[isConfuseSelfHit ? battle.turn.atk : getDamagePokemon === "npc" ? "player" : "npc"];
   const defPokemon = battle[getDamagePokemon];
-  const useSkill = atkPokemon.turn.useSkill;
-  atkPokemon.tempStatus.recentSkillUse = useSkill;
-  defPokemon.tempStatus.recentSkillGet = useSkill;
+  const useSkill = isConfuseSelfHit ? null : atkPokemon.turn.useSkill;
 
-  const isNoTextSkill = useSkill.feature?.noText || useSkill.feature?.oneShot;
-  // 일격기나 고정데미지 스킬은 상성, 급소 텍스트가 뜨지 않는다
+  if (!isConfuseSelfHit && useSkill) {
+    atkPokemon.tempStatus.recentSkillUse = useSkill;
+    defPokemon.tempStatus.recentSkillGet = useSkill;
+  }
+
+  // [특성 내용물분출] 공격 받기 전 체력 기록
+  // 연속기는 1타 시작 전 체력을 기준으로 반격
+  if (!isConfuseSelfHit && defPokemon.turn) {
+    if (!serialAttackObject || serialAttackObject.first) {
+      defPokemon.turn.hpBeforeAttack = defPokemon.hp;
+    }
+  }
+
+  const isNoTextSkill = isConfuseSelfHit || Boolean(useSkill?.feature?.noText || useSkill?.feature?.oneShot);
+  // 혼란 자해, 일격기나 고정데미지 스킬은 상성, 급소 텍스트가 뜨지 않는다
 
   let commonText = null;
   if (serialAttackObject) {
@@ -31,7 +42,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
   // 대타출동
   if (defPokemon.tempStatus.substitute) {
-    if (useSkill.feature?.sound || atkPokemon.abil?.name === "틈새포착") {
+    if (!isConfuseSelfHit && (useSkill?.feature?.sound || atkPokemon.abil?.name === "틈새포착")) {
       // 소리 기술이나 틈새포착 특성은 대타를 뚫는다
     } else {
       defPokemon.turn.substitute = true;
@@ -165,7 +176,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   // 고정 데미지 기술, 일격기
 
   if (!isNoTextSkill) {
-    const isDeltaStreamWeaken = Boolean(battle?.isDeltaStream && (defPokemon.type1 === "비행" || defPokemon.type2 === "비행") && ["전기", "얼음", "바위"].includes(useSkill.type));
+    const isDeltaStreamWeaken = Boolean(battle?.isDeltaStream && (defPokemon.type1 === "비행" || defPokemon.type2 === "비행") && ["전기", "얼음", "바위"].includes(useSkill?.type));
     if (isDeltaStreamWeaken) {
       enqueue(battle, (commonText || "") + "수수께끼의 난기류가 공격을 약하게 만들었다!", "dmg_delta_weaken");
       defaultText = false;
@@ -231,10 +242,10 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
 
     if (defPokemon.hp > 0) {
-      if (!isConfuseSelfHit && useSkill.skillEffectList?.some((e) => e.name === "회복봉인") && defPokemon.tempStatus.healBlock === null) {
+      if (!isConfuseSelfHit && useSkill?.skillEffectList?.some((e) => e.name === "회복봉인") && defPokemon.tempStatus.healBlock === null) {
         defPokemon.tempStatus.healBlock = "ready";
       }
-      const noBerrySkill = useSkill.name === "탁쳐서떨구기";
+      const noBerrySkill = !isConfuseSelfHit && useSkill?.name === "탁쳐서떨구기";
       // 탁떨을 맞고 반피 이하가 되면 열매를 먹기 전에 떨군다
       if (!noBerrySkill) {
         defPokemon.tryJamung(battle, enqueue);
@@ -243,7 +254,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
 
   if (defPokemon.hp <= 0) {
-    if (useSkill.feature?.oneShot && !executedByCollector) {
+    if (!isConfuseSelfHit && useSkill?.feature?.oneShot && !executedByCollector) {
       //일격기 성공 텍스트
       enqueue(battle, "일격필살!", "dmg_ohko");
     }
@@ -285,14 +296,24 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
 
     // 공격기로 적 포켓몬을 쓰러뜨린 경우 기록 (턴 종료까지 해당 포켓몬 생존 시 증강 선택용)
-    if (!isConfuseSelfHit && !defPokemon.faint && defPokemon.team === "npc" && battle?.turn?.atk === "player" && !atkPokemon.faint && atkPokemon.turn) {
+    if (!isConfuseSelfHit && !defPokemon.faint && defPokemon.team === "npc" && battle.turn.atk === "player" && !atkPokemon.faint && atkPokemon.turn) {
       atkPokemon.turn.knockedOutNpcThisTurn = true;
     }
 
     defPokemon.handleFaint(battle, enqueue);
 
+    // [특성 내용물분출] 상대의 공격기를 맞고 기절했을 때 공격 시작 전 체력만큼 데미지 반사
+    const innardsDamage = defPokemon.turn.hpBeforeAttack;
+    const isInnardsOut = !isConfuseSelfHit && defPokemon.abil?.name === "내용물분출";
+    if (isInnardsOut && typeof innardsDamage === "number" && innardsDamage > 0) {
+      if (atkPokemon && !atkPokemon.faint) {
+        const innardsText = `[특성 내용물분출] ${atkPokemon.name}은 데미지를 입었다!`;
+        atkPokemon.getDamage(battle, enqueue, innardsDamage, innardsText);
+      }
+    }
+
     // 자기과신
-    if (atkPokemon.abil?.feature?.swip) {
+    if (atkPokemon.abil?.feature?.swip && !atkPokemon.faint) {
       let swip = atkPokemon.abil.feature.swip;
       let abilName = atkPokemon.abil.name;
       if (abilName === "혼연일체(흑)" || abilName === "혼연일체(백)") {

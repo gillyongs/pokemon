@@ -42,8 +42,8 @@ export const PokemonGetDamage = {
     }
     this.hp = 0;
     this.faint = true;
+    // resetTurn은 하지 않는다
     this.resetAilment();
-    this.resetTurn();
     this.resetTempStatus();
 
     // 메자이의 영혼약탈자: 기절 시 중첩 1 감소 (스냅샷 반영을 위해 enqueue 직전에 처리)
