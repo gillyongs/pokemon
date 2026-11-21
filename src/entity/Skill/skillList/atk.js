@@ -122,6 +122,7 @@ export const atkSkills = [
   new Skill("무릎차기", "격투", 130, 90, 10, 0, "atk", null, "빗나가면 자신이 전체 HP ½의 데미지를 입는다.", [{ name: "빗나감패널티" }], { touch: true, rebound: true }),
 
   // 흡수
+  new Skill("원념의칼", "불꽃", 90, 100, 10, 0, "atk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], { touch: true, slice: true }),
   new Skill("흡혈", "벌레", 80, 100, 10, 0, "atk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], { touch: true }),
   new Skill("드레인펀치", "격투", 75, 100, 10, 0, "atk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], { touch: true, punch: true }),
   new Skill("우드호른", "풀", 75, 100, 10, 0, "atk", null, "준 데미지의 절반만큼 HP를 회복한다.", [{ name: "흡수", ratio: 0.5 }], { touch: true }),
