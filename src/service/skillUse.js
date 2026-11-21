@@ -7,6 +7,7 @@ import { random } from "../util/randomCheck";
 import { getAccuracy } from "../calc/accuracyCalculate";
 import { skillTypeCalculate } from "../calc/skillTypeCalculate";
 import { criticalCalculate } from "../calc/criticalCalculate";
+import { josa } from "josa";
 
 export const skillUse = (bt, enqueue) => {
   const skillNumber = bt.turn.atkSN;
@@ -141,6 +142,22 @@ export const skillUse = (bt, enqueue) => {
       // 무효면 부가효과 안터지므로 리턴
       // 리베로는 발동된다
 
+      // 스킬이 빗나간 경우
+      // 모든 실패 로직을 체크 한 후 명중 로직을 체크해야함
+      let accurPercent = getAccuracy(bt, skill, atk);
+      let accurCheck = random(accurPercent, true);
+      // 필중기는 random 안에서 처리
+      if (!accurCheck) {
+        atk.turn.jumpKickFail = true;
+        enqueue(bt, "하지만 빗나갔다!", "chk_miss");
+        handleSkillFail(bt);
+        return;
+      }
+
+      if (skill.name === "폴터가이스트") {
+        enqueue(bt, josa(`${def.item}#{이}`) + ` ${def.name}에게 덤벼들었다!`, "use_poltergeist");
+      }
+
       //연속기
       if (skill.feature?.serial) {
         let num = 9999999; // 연속기 공격 횟수
@@ -220,6 +237,7 @@ export const skillUse = (bt, enqueue) => {
         // 뱀눈초리는 고스트 타입한테 정상적으로 들어감
         const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
         enqueue(bt, typeText, "use_twave_ground");
+        handleSkillFail(bt);
         return;
       }
 
@@ -227,6 +245,7 @@ export const skillUse = (bt, enqueue) => {
         // 풀 타입 포켓몬과 방진 특성은 가루 기술 무효
         const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
         enqueue(bt, typeText, "use_powder_immune");
+        handleSkillFail(bt);
         return;
       }
 
@@ -235,12 +254,23 @@ export const skillUse = (bt, enqueue) => {
       // 트릭, 하품, 뽐내기, 전기자석파, 씨뿌리기 등은 실패한다
 
       if (bt[bt.turn.def].tempStatus.substitute) {
-        if (noSubstituteSkills.includes(skill.name) || skill.feature.sound || bt[bt.turn.atk].abil?.name === "틈새포착") {
+        if (noSubstituteSkills.includes(skill.name) || skill.feature?.sound || bt[bt.turn.atk].abil?.name === "틈새포착") {
           // 소리 변화기 및 틈새포착 사용자의 변화기는 대타를 뚫는다 ex) 막말내뱉기
         } else {
           enqueue(bt, "하지만 실패했다!", "use_natk_sub_fail");
+          handleSkillFail(bt);
           return;
         }
+      }
+
+      // 스킬이 빗나간 경우
+      let accurPercent = getAccuracy(bt, skill, atk);
+      let accurCheck = random(accurPercent, true);
+      // 필중기는 random 안에서 처리
+      if (!accurCheck) {
+        enqueue(bt, "하지만 빗나갔다!", "chk_miss");
+        handleSkillFail(bt);
+        return;
       }
 
       applySkillEffects(bt, enqueue, skill.skillEffectList);

@@ -39,6 +39,11 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
     return -999;
   }
 
+  if (skill.name === "폴터가이스트" && !player.item) {
+    skObj.log.score = "도구없음";
+    return -999;
+  }
+
   // 공격기일 경우 (데미지 * 명중률) 값으로 가중치 정산을 시작한다
   // 변화기, 버프기는 0으로 시작
   if (isAttack) {

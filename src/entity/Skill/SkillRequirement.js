@@ -94,6 +94,13 @@ function skillRequirementSearch(name) {
       const bench2Alive = battle[`${side}Bench2`]?.faint !== true;
       return bench1Alive || bench2Alive;
     },
+    폴터가이스트: (battle) => {
+      const def = battle[battle.turn.def];
+      if (!def || def.faint || !def.item || !def.item.trim()) {
+        return false;
+      }
+      return true;
+    },
   };
 
   return functions[name] || null;

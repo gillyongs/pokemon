@@ -928,16 +928,6 @@ const UNIMPLEMENTED_SKILLS = [
     isImplemented: false,
   },
   {
-    name: "폴터가이스트",
-    type: "고스트",
-    category: "물리",
-    power: 110,
-    accur: 90,
-    pp: 5,
-    text: "상대가 지닌 도구를 조종하여 공격한다. 도구가 없으면 실패한다.",
-    isImplemented: false,
-  },
-  {
     name: "핥기",
     type: "고스트",
     category: "물리",

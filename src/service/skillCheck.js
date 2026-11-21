@@ -1,7 +1,6 @@
 import skillRequirementSearch from "../entity/Skill/SkillRequirement";
 import { random } from "../util/randomCheck";
 import { confuseDamageCalculate } from "../calc/damageCalculate";
-import { getAccuracy } from "../calc/accuracyCalculate";
 import { attackDamage } from "./damage";
 import { josa } from "josa";
 
@@ -346,20 +345,6 @@ export const afterSkillCheck = (bt, enqueue) => {
       enqueue(bt, "[증강 인생은 한방] 하지만 실패했다!", "chk_life_oneshot_fail");
       return false;
     }
-  }
-
-  // 스킬이 빗나간 경우
-  // 리베로가 발동된다
-  let accurPercent = getAccuracy(bt, skill, atk);
-
-  let accurCheck = random(accurPercent, true);
-  //필중기는 random 안에서 처리
-
-  if (!accurCheck && skillType !== "buf") {
-    // 상대방이 대타출동 상태일때 씨뿌리기가 빗나갈 수 있다 (명중해도 실패한다)
-    atk.turn.jumpKickFail = true;
-    enqueue(bt, "하지만 빗나갔다!", "chk_miss");
-    return false;
   }
 
   return true;
