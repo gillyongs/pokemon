@@ -291,6 +291,14 @@ export const AUGMENT_LIST = [
     // getStat.js에 구현
   },
   {
+    id: "limiterRemoval",
+    name: "리미트 해제",
+    desc: "해당 포켓몬의 공격과 특공, 스피드가 1.5배가 됩니다.\n상대를 공격할 때마다 최대 HP 40%의 피해를 입습니다.",
+    cost: 3,
+    weight: 100,
+    // getStat.js, SkillEffect.js에 구현
+  },
+  {
     id: "lifeIsOneShot",
     name: "인생은 한방 🎲",
     desc: "공격 기술 위력이 10배로 증가하지만 50% 확률로 실패합니다.",

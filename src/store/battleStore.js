@@ -135,19 +135,21 @@ export const useBattleStore = createStore((set, get) => ({
                 p.anvilStats[k] = Math.max(Number(p.anvilStats[k] || 0), Number(savedAug.anvilStats[k] || 0));
               });
             }
-            if (savedAug?.cubeLines) {
-              p.cubeLines = savedAug.cubeLines;
-              p.cubeStats = savedAug.cubeStats;
-              p.hasRolledCube = true;
-            }
-            if (savedAug?.arcaneSuccessCount !== undefined) {
-              p.arcaneSuccessCount = savedAug.arcaneSuccessCount;
-              p.arcaneStarCount = savedAug.arcaneStarCount;
-              p.arcaneScrollAtk = savedAug.arcaneScrollAtk ?? 0;
-              p.arcaneScrollCatk = savedAug.arcaneScrollCatk ?? 0;
-              p.arcaneScrollSpeed = savedAug.arcaneScrollSpeed ?? 0;
-              p.arcaneSwordName = savedAug.arcaneSwordName;
-              p.hasGreatTuskSoul = savedAug.hasGreatTuskSoul;
+            if (savedAug?.id === "arcaneShadeSword") {
+              if (savedAug?.cubeLines) {
+                p.cubeLines = savedAug.cubeLines;
+                p.cubeStats = savedAug.cubeStats;
+                p.hasRolledCube = true;
+              }
+              if (savedAug?.arcaneSuccessCount !== undefined) {
+                p.arcaneSuccessCount = savedAug.arcaneSuccessCount;
+                p.arcaneStarCount = savedAug.arcaneStarCount;
+                p.arcaneScrollAtk = savedAug.arcaneScrollAtk ?? 0;
+                p.arcaneScrollCatk = savedAug.arcaneScrollCatk ?? 0;
+                p.arcaneScrollSpeed = savedAug.arcaneScrollSpeed ?? 0;
+                p.arcaneSwordName = savedAug.arcaneSwordName;
+                p.hasGreatTuskSoul = savedAug.hasGreatTuskSoul;
+              }
             }
           });
         }
@@ -203,7 +205,8 @@ export const useBattleStore = createStore((set, get) => ({
               }
               const isBufOrCurse = fullAug ? Boolean(isBuffAugment(fullAug) || isCurseAugment(fullAug)) : Boolean(savedAug?.buf || savedAug?.curse);
               if (fullAug && isBufOrCurse === isBufPass) {
-                const augToApply = savedAug?.name ? { ...fullAug, name: savedAug.name } : fullAug;
+                const isDynamicNamedAug = fullAug.id === "arcaneShadeSword" || fullAug.id === "swordEnhance";
+                const augToApply = isDynamicNamedAug && savedAug?.name ? { ...fullAug, name: savedAug.name } : fullAug;
                 p.applyAugment(augToApply, nextBattle, {
                   replaceSlot: savedAug?.replacedSlot,
                   selectedType: savedAug?.selectedType,
@@ -213,16 +216,16 @@ export const useBattleStore = createStore((set, get) => ({
                   swordFailed: savedAug?.swordFailed,
                   swordBonusAtk: savedAug?.swordBonusAtk,
                   swordName: savedAug?.swordName,
-                  arcaneSuccessCount: savedAug?.arcaneSuccessCount,
-                  arcaneStarCount: savedAug?.arcaneStarCount,
-                  arcaneScrollAtk: savedAug?.arcaneScrollAtk,
-                  arcaneScrollCatk: savedAug?.arcaneScrollCatk,
-                  arcaneScrollSpeed: savedAug?.arcaneScrollSpeed,
-                  arcaneSwordName: savedAug?.arcaneSwordName || savedAug?.name,
-                  hasGreatTuskSoul: savedAug?.hasGreatTuskSoul,
-                  cubeLines: savedAug?.cubeLines,
-                  cubeStats: savedAug?.cubeStats,
-                  hasRolledCube: savedAug?.hasRolledCube,
+                  arcaneSuccessCount: fullAug.id === "arcaneShadeSword" ? savedAug?.arcaneSuccessCount : undefined,
+                  arcaneStarCount: fullAug.id === "arcaneShadeSword" ? savedAug?.arcaneStarCount : undefined,
+                  arcaneScrollAtk: fullAug.id === "arcaneShadeSword" ? savedAug?.arcaneScrollAtk : undefined,
+                  arcaneScrollCatk: fullAug.id === "arcaneShadeSword" ? savedAug?.arcaneScrollCatk : undefined,
+                  arcaneScrollSpeed: fullAug.id === "arcaneShadeSword" ? savedAug?.arcaneScrollSpeed : undefined,
+                  arcaneSwordName: fullAug.id === "arcaneShadeSword" ? savedAug?.arcaneSwordName || savedAug?.name : undefined,
+                  hasGreatTuskSoul: fullAug.id === "arcaneShadeSword" ? savedAug?.hasGreatTuskSoul : undefined,
+                  cubeLines: fullAug.id === "arcaneShadeSword" ? savedAug?.cubeLines : undefined,
+                  cubeStats: fullAug.id === "arcaneShadeSword" ? savedAug?.cubeStats : undefined,
+                  hasRolledCube: fullAug.id === "arcaneShadeSword" ? savedAug?.hasRolledCube : undefined,
                   pickedAbility: savedAug?.pickedAbility,
                   nimbleSkillName: savedAug?.nimbleSkillName,
                   choiceAndFocusSkillName: savedAug?.choiceAndFocusSkillName,
@@ -798,6 +801,7 @@ export const useBattleStore = createStore((set, get) => ({
         const isSyn = isSynergyAugment(aug);
         if (aug.noCarryover) return;
         if ((isPermBuf || isPermCurse || isSyn) && !effectiveCarriedMap[pIdx].some((a) => (a.id || a) === aug.id)) {
+          const isArcaneSword = aug.id === "arcaneShadeSword";
           effectiveCarriedMap[pIdx].push({
             id: aug.id,
             name: aug.name,
@@ -811,16 +815,20 @@ export const useBattleStore = createStore((set, get) => ({
             mejaiStack: aug.mejaiStack ?? p.mejaiStack ?? 0,
             practiceCritStack: aug.practiceCritStack ?? p.practiceCritStack ?? 0,
             giantBonusHp: aug.giantBonusHp ?? p.giantBonusHp ?? 0,
-            arcaneSuccessCount: aug.arcaneSuccessCount ?? p.arcaneSuccessCount ?? 0,
-            arcaneStarCount: aug.arcaneStarCount ?? p.arcaneStarCount ?? 0,
-            arcaneScrollAtk: aug.arcaneScrollAtk ?? p.arcaneScrollAtk ?? 0,
-            arcaneScrollCatk: aug.arcaneScrollCatk ?? p.arcaneScrollCatk ?? 0,
-            arcaneScrollSpeed: aug.arcaneScrollSpeed ?? p.arcaneScrollSpeed ?? 0,
-            arcaneSwordName: aug.arcaneSwordName || p.arcaneSwordName || aug.name,
-            hasGreatTuskSoul: aug.hasGreatTuskSoul ?? p.hasGreatTuskSoul ?? false,
-            cubeLines: aug.cubeLines || p.cubeLines || null,
-            cubeStats: aug.cubeStats || p.cubeStats || null,
-            hasRolledCube: aug.hasRolledCube ?? p.hasRolledCube ?? false,
+            ...(isArcaneSword
+              ? {
+                  arcaneSuccessCount: aug.arcaneSuccessCount ?? p.arcaneSuccessCount ?? 0,
+                  arcaneStarCount: aug.arcaneStarCount ?? p.arcaneStarCount ?? 0,
+                  arcaneScrollAtk: aug.arcaneScrollAtk ?? p.arcaneScrollAtk ?? 0,
+                  arcaneScrollCatk: aug.arcaneScrollCatk ?? p.arcaneScrollCatk ?? 0,
+                  arcaneScrollSpeed: aug.arcaneScrollSpeed ?? p.arcaneScrollSpeed ?? 0,
+                  arcaneSwordName: aug.arcaneSwordName || p.arcaneSwordName || aug.name,
+                  hasGreatTuskSoul: aug.hasGreatTuskSoul ?? p.hasGreatTuskSoul ?? false,
+                  cubeLines: aug.cubeLines || p.cubeLines || null,
+                  cubeStats: aug.cubeStats || p.cubeStats || null,
+                  hasRolledCube: aug.hasRolledCube ?? p.hasRolledCube ?? false,
+                }
+              : {}),
           });
         }
       });
@@ -847,47 +855,52 @@ export const useBattleStore = createStore((set, get) => ({
     });
 
     const serializedCarried = Object.entries(effectiveCarriedMap).reduce((acc, [idx, augs]) => {
-      acc[idx] = (augs || []).map((aug) => ({
-        id: aug.id || aug,
-        name: aug.arcaneSwordName || aug.name,
-        buf: Boolean(aug.buf),
-        curse: Boolean(aug.curse),
-        synergy: Boolean(aug.synergy),
-        isForced: Boolean(aug.isForced),
-        isStackMeta: Boolean(aug.isStackMeta),
-        replacedSlot: aug.replacedSlot,
-        selectedType: aug.selectedType,
-        targetStat: aug.targetStat ?? aug.allOrNothingResult,
-        allOrNothingResult: aug.allOrNothingResult,
-        replacedSkillName: aug.replacedSkillName,
-        swordLevel: aug.swordLevel,
-        swordFailed: aug.swordFailed,
-        swordBonusAtk: aug.swordBonusAtk,
-        swordName: aug.swordName,
-        arcaneSuccessCount: aug.arcaneSuccessCount,
-        arcaneStarCount: aug.arcaneStarCount,
-        arcaneScrollAtk: aug.arcaneScrollAtk,
-        arcaneScrollCatk: aug.arcaneScrollCatk,
-        arcaneScrollSpeed: aug.arcaneScrollSpeed,
-        arcaneSwordName: aug.arcaneSwordName,
-        hasGreatTuskSoul: aug.hasGreatTuskSoul,
-        cubeLines: aug.cubeLines,
-        cubeStats: aug.cubeStats,
-        hasRolledCube: aug.hasRolledCube,
-        pickedAbility: aug.pickedAbility,
-        nimbleSkillName: aug.nimbleSkillName,
-        choiceAndFocusSkillName: aug.choiceAndFocusSkillName,
-        zeroSumBuffSkillName: aug.zeroSumBuffSkillName,
-        zeroSumNerfSkillName: aug.zeroSumNerfSkillName,
-        dragonKillCount: aug.dragonKillCount,
-        mejaiStack: aug.mejaiStack,
-        practiceCritStack: aug.practiceCritStack,
-        giantBonusHp: aug.giantBonusHp,
-        anvilStats: aug.anvilStats ? { ...aug.anvilStats } : undefined,
-        soulDiceStats: aug.soulDiceStats ? { ...aug.soulDiceStats } : undefined,
-        kingStatBonus: aug.kingStatBonus,
-        cost: aug.cost,
-      }));
+      acc[idx] = (augs || []).map((aug) => {
+        const augId = aug.id || aug;
+        const isArcaneSword = augId === "arcaneShadeSword";
+        const isSwordEnhance = augId === "swordEnhance";
+        return {
+          id: augId,
+          name: isArcaneSword ? aug.arcaneSwordName || aug.name : isSwordEnhance ? aug.swordName || aug.name : aug.name,
+          buf: Boolean(aug.buf),
+          curse: Boolean(aug.curse),
+          synergy: Boolean(aug.synergy),
+          isForced: Boolean(aug.isForced),
+          isStackMeta: Boolean(aug.isStackMeta),
+          replacedSlot: aug.replacedSlot,
+          selectedType: aug.selectedType,
+          targetStat: aug.targetStat ?? aug.allOrNothingResult,
+          allOrNothingResult: aug.allOrNothingResult,
+          replacedSkillName: aug.replacedSkillName,
+          swordLevel: isSwordEnhance ? aug.swordLevel : undefined,
+          swordFailed: isSwordEnhance ? aug.swordFailed : undefined,
+          swordBonusAtk: isSwordEnhance ? aug.swordBonusAtk : undefined,
+          swordName: isSwordEnhance ? aug.swordName : undefined,
+          arcaneSuccessCount: isArcaneSword ? aug.arcaneSuccessCount : undefined,
+          arcaneStarCount: isArcaneSword ? aug.arcaneStarCount : undefined,
+          arcaneScrollAtk: isArcaneSword ? aug.arcaneScrollAtk : undefined,
+          arcaneScrollCatk: isArcaneSword ? aug.arcaneScrollCatk : undefined,
+          arcaneScrollSpeed: isArcaneSword ? aug.arcaneScrollSpeed : undefined,
+          arcaneSwordName: isArcaneSword ? aug.arcaneSwordName : undefined,
+          hasGreatTuskSoul: isArcaneSword ? aug.hasGreatTuskSoul : undefined,
+          cubeLines: isArcaneSword ? aug.cubeLines : undefined,
+          cubeStats: isArcaneSword ? aug.cubeStats : undefined,
+          hasRolledCube: isArcaneSword ? aug.hasRolledCube : undefined,
+          pickedAbility: aug.pickedAbility,
+          nimbleSkillName: aug.nimbleSkillName,
+          choiceAndFocusSkillName: aug.choiceAndFocusSkillName,
+          zeroSumBuffSkillName: aug.zeroSumBuffSkillName,
+          zeroSumNerfSkillName: aug.zeroSumNerfSkillName,
+          dragonKillCount: aug.dragonKillCount,
+          mejaiStack: aug.mejaiStack,
+          practiceCritStack: aug.practiceCritStack,
+          giantBonusHp: aug.giantBonusHp,
+          anvilStats: aug.anvilStats ? { ...aug.anvilStats } : undefined,
+          soulDiceStats: aug.soulDiceStats ? { ...aug.soulDiceStats } : undefined,
+          kingStatBonus: aug.kingStatBonus,
+          cost: aug.cost,
+        };
+      });
       return acc;
     }, {});
 

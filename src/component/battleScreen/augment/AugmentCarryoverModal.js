@@ -78,6 +78,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
         const isSyn = isSynergyAugment(aug);
         if (aug.noCarryover) return;
         if (isPermBuf || isPermCurse || isSyn) {
+          const isArcaneSword = aug.id === "arcaneShadeSword";
           carriedMap[index].push({
             id: aug.id,
             name: aug.name,
@@ -92,16 +93,20 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
             practiceCritStack: aug.practiceCritStack ?? poke.practiceCritStack ?? 0,
             giantBonusHp: aug.giantBonusHp ?? poke.giantBonusHp ?? 0,
             anvilStats: poke.anvilStats ? { ...poke.anvilStats } : undefined,
-            arcaneSuccessCount: aug.arcaneSuccessCount ?? poke.arcaneSuccessCount ?? 0,
-            arcaneStarCount: aug.arcaneStarCount ?? poke.arcaneStarCount ?? 0,
-            arcaneScrollAtk: aug.arcaneScrollAtk ?? poke.arcaneScrollAtk ?? 0,
-            arcaneScrollCatk: aug.arcaneScrollCatk ?? poke.arcaneScrollCatk ?? 0,
-            arcaneScrollSpeed: aug.arcaneScrollSpeed ?? poke.arcaneScrollSpeed ?? 0,
-            arcaneSwordName: aug.arcaneSwordName || poke.arcaneSwordName || aug.name,
-            hasGreatTuskSoul: aug.hasGreatTuskSoul ?? poke.hasGreatTuskSoul ?? false,
-            cubeLines: aug.cubeLines || poke.cubeLines || null,
-            cubeStats: aug.cubeStats || poke.cubeStats || null,
-            hasRolledCube: aug.hasRolledCube ?? poke.hasRolledCube ?? false,
+            ...(isArcaneSword
+              ? {
+                  arcaneSuccessCount: aug.arcaneSuccessCount ?? poke.arcaneSuccessCount ?? 0,
+                  arcaneStarCount: aug.arcaneStarCount ?? poke.arcaneStarCount ?? 0,
+                  arcaneScrollAtk: aug.arcaneScrollAtk ?? poke.arcaneScrollAtk ?? 0,
+                  arcaneScrollCatk: aug.arcaneScrollCatk ?? poke.arcaneScrollCatk ?? 0,
+                  arcaneScrollSpeed: aug.arcaneScrollSpeed ?? poke.arcaneScrollSpeed ?? 0,
+                  arcaneSwordName: aug.arcaneSwordName || poke.arcaneSwordName || aug.name,
+                  hasGreatTuskSoul: aug.hasGreatTuskSoul ?? poke.hasGreatTuskSoul ?? false,
+                  cubeLines: aug.cubeLines || poke.cubeLines || null,
+                  cubeStats: aug.cubeStats || poke.cubeStats || null,
+                  hasRolledCube: aug.hasRolledCube ?? poke.hasRolledCube ?? false,
+                }
+              : {}),
           });
         }
       });
@@ -128,28 +133,34 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
     });
     allOwnedAugments.forEach((item) => {
       if (selectedKeys.has(item.uniqueKey)) {
+        const isArcaneSword = item.augment.id === "arcaneShadeSword";
+        const isSwordEnhance = item.augment.id === "swordEnhance";
         carriedMap[item.pokeIndex].push({
           id: item.augment.id,
-          name: item.augment.arcaneSwordName || item.pokemon?.arcaneSwordName || item.augment.name,
+          name: isArcaneSword
+            ? item.augment.arcaneSwordName || item.pokemon?.arcaneSwordName || item.augment.name
+            : isSwordEnhance
+            ? item.augment.swordName || item.augment.name
+            : item.augment.name,
           cost: item.augment.cost,
           replacedSlot: item.augment.replacedSlot,
           selectedType: item.augment.selectedType,
           allOrNothingResult: item.augment.allOrNothingResult,
           replacedSkillName: item.augment.replacedSkillName,
-          swordLevel: item.augment.swordLevel,
-          swordFailed: item.augment.swordFailed,
-          swordBonusAtk: item.augment.swordBonusAtk,
-          swordName: item.augment.swordName,
-          arcaneSuccessCount: item.augment.arcaneSuccessCount ?? item.pokemon?.arcaneSuccessCount ?? 0,
-          arcaneStarCount: item.augment.arcaneStarCount ?? item.pokemon?.arcaneStarCount ?? 0,
-          arcaneScrollAtk: item.augment.arcaneScrollAtk ?? item.pokemon?.arcaneScrollAtk ?? 0,
-          arcaneScrollCatk: item.augment.arcaneScrollCatk ?? item.pokemon?.arcaneScrollCatk ?? 0,
-          arcaneScrollSpeed: item.augment.arcaneScrollSpeed ?? item.pokemon?.arcaneScrollSpeed ?? 0,
-          arcaneSwordName: item.augment.arcaneSwordName || item.pokemon?.arcaneSwordName || item.augment.name,
-          hasGreatTuskSoul: item.augment.hasGreatTuskSoul || item.pokemon?.hasGreatTuskSoul || false,
-          cubeLines: item.augment.cubeLines || item.pokemon?.cubeLines || null,
-          cubeStats: item.augment.cubeStats || item.pokemon?.cubeStats || null,
-          hasRolledCube: item.augment.hasRolledCube || item.pokemon?.hasRolledCube || false,
+          swordLevel: isSwordEnhance ? item.augment.swordLevel : undefined,
+          swordFailed: isSwordEnhance ? item.augment.swordFailed : undefined,
+          swordBonusAtk: isSwordEnhance ? item.augment.swordBonusAtk : undefined,
+          swordName: isSwordEnhance ? item.augment.swordName : undefined,
+          arcaneSuccessCount: isArcaneSword ? (item.augment.arcaneSuccessCount ?? item.pokemon?.arcaneSuccessCount ?? 0) : undefined,
+          arcaneStarCount: isArcaneSword ? (item.augment.arcaneStarCount ?? item.pokemon?.arcaneStarCount ?? 0) : undefined,
+          arcaneScrollAtk: isArcaneSword ? (item.augment.arcaneScrollAtk ?? item.pokemon?.arcaneScrollAtk ?? 0) : undefined,
+          arcaneScrollCatk: isArcaneSword ? (item.augment.arcaneScrollCatk ?? item.pokemon?.arcaneScrollCatk ?? 0) : undefined,
+          arcaneScrollSpeed: isArcaneSword ? (item.augment.arcaneScrollSpeed ?? item.pokemon?.arcaneScrollSpeed ?? 0) : undefined,
+          arcaneSwordName: isArcaneSword ? (item.augment.arcaneSwordName || item.pokemon?.arcaneSwordName || item.augment.name) : undefined,
+          hasGreatTuskSoul: isArcaneSword ? (item.augment.hasGreatTuskSoul || item.pokemon?.hasGreatTuskSoul || false) : undefined,
+          cubeLines: isArcaneSword ? (item.augment.cubeLines || item.pokemon?.cubeLines || null) : undefined,
+          cubeStats: isArcaneSword ? (item.augment.cubeStats || item.pokemon?.cubeStats || null) : undefined,
+          hasRolledCube: isArcaneSword ? (item.augment.hasRolledCube || item.pokemon?.hasRolledCube || false) : undefined,
           pickedAbility: item.augment.pickedAbility || (item.augment.id === "randomAbility" ? item.pokemon?.abil?.name || item.pokemon?.abil : undefined),
           nimbleSkillName: item.augment.nimbleSkillName || item.pokemon?.nimbleSkillName,
           choiceAndFocusSkillName: item.augment.choiceAndFocusSkillName || item.pokemon?.choiceAndFocusSkillName,

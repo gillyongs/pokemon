@@ -96,6 +96,13 @@ function skillEffectSearch(name) {
         }
       }
 
+      if (atkPokemon.hasAugment?.("limiterRemoval") && !atkPokemon.faint) {
+        if (skill.stype === "atk" || skill.stype === "catk") {
+          const text = `[증강 리미트 해제] ${atkPokemon.names("는")} 반동으로 데미지를 입었다!`;
+          atkPokemon.getDamage(battle, enqueue, Math.max(1, Math.floor(atkPokemon.maxHp * 0.4)), text);
+        }
+      }
+
       if (def.ailment.freeze && !def.faint) {
         // 얼음치료와 상태이상 부여 이벤트가 동시에 있으면 상태이상 부여가 먼저 발생한다
         // => 상태이상 부여가 실패하고 얼음이 녹아 상태이상이 없는 상태가 된다

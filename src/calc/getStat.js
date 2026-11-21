@@ -209,6 +209,13 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
         logText += " / 2 (방어력 올인)";
       }
     }
+    // 리미트 해제: 공격, 특수공격, 스피드 1.5배
+    else if (augId === "limiterRemoval") {
+      if (statKey === "atk" || statKey === "catk" || statKey === "speed") {
+        val = Math.round(val * 1.5);
+        logText += " * 1.5 (리미트 해제)";
+      }
+    }
   }
 
   // 영웅의 메아리: 아군 모든 포켓몬의 공격과 특공 40% 상승
