@@ -47,6 +47,100 @@ export const isBattlePlayerActive = (pokemon, battle) => {
   return false;
 };
 
+export const SKILL_RENAME_ORIGIN_MAP = {
+  바지락조개: "해수스파우팅",
+};
+
+/**
+ * 기술 이름 변경 후에도 라운드 이월 등 재적용 시 현재 포켓몬이 가진 실제 기술명으로 보정
+ */
+export const resolveCurrentSkillName = (pokemon, skillName) => {
+  if (!pokemon?.skill || !skillName) return skillName;
+  const slots = [1, 2, 3, 4];
+  if (slots.some((s) => pokemon.skill[s]?.name === skillName)) {
+    return skillName;
+  }
+  const byOriginal = slots.find((s) => pokemon.skill[s]?.originalName === skillName);
+  if (byOriginal && pokemon.skill[byOriginal]?.name) {
+    return pokemon.skill[byOriginal].name;
+  }
+  const originName = SKILL_RENAME_ORIGIN_MAP[skillName];
+  if (originName) {
+    const byMappedOrigin = slots.find((s) => pokemon.skill[s]?.name === originName);
+    if (byMappedOrigin && pokemon.skill[byMappedOrigin]?.name) {
+      return pokemon.skill[byMappedOrigin].name;
+    }
+  }
+  return skillName;
+};
+
+// 기술 이름만 변경하고 강화 증강, 상태 등 유지
+export const renamePokemonSkill = (pokemon, oldName, newName) => {
+  if (pokemon.skill) {
+    [1, 2, 3, 4].forEach((slot) => {
+      const sk = pokemon.skill[slot];
+      if (sk && sk.name === oldName) {
+        pokemon.skill[slot] = {
+          ...sk,
+          originalName: sk.originalName || oldName,
+          name: newName,
+        };
+      }
+    });
+  }
+
+  // 1. 포켓몬 인스턴스 직접 참조 스킬명 갱신 (민첩한 몸놀림, 선택과 집중, 제로섬게임)
+  if (pokemon.nimbleSkillName === oldName) {
+    pokemon.nimbleSkillName = newName;
+  }
+  if (pokemon.choiceAndFocusSkillName === oldName) {
+    pokemon.choiceAndFocusSkillName = newName;
+  }
+  if (pokemon.zeroSumBuffSkillName === oldName) {
+    pokemon.zeroSumBuffSkillName = newName;
+  }
+  if (pokemon.zeroSumNerfSkillName === oldName) {
+    pokemon.zeroSumNerfSkillName = newName;
+  }
+
+  // 2. 보유 증강 객체 내부의 스킬명 프로퍼티 갱신
+  if (Array.isArray(pokemon.augments)) {
+    pokemon.augments.forEach((aug) => {
+      if (!aug || typeof aug !== "object") return;
+      if (aug.nimbleSkillName === oldName) aug.nimbleSkillName = newName;
+      if (aug.chosenSkillName === oldName) aug.chosenSkillName = newName;
+      if (aug.choiceAndFocusSkillName === oldName) aug.choiceAndFocusSkillName = newName;
+      if (aug.zeroSumBuffSkillName === oldName) aug.zeroSumBuffSkillName = newName;
+      if (aug.zeroSumNerfSkillName === oldName) aug.zeroSumNerfSkillName = newName;
+      if (aug.replacedSkillName === oldName) aug.replacedSkillName = newName;
+    });
+  }
+
+  // 3. 배틀 중 임시 상태(구애 고정, 최근 사용 기술, 사슬묶기/봉인 등) 스킬명 갱신
+  if (pokemon.tempStatus) {
+    if (pokemon.tempStatus.onlySkill === oldName) {
+      pokemon.tempStatus.onlySkill = newName;
+    }
+    if (pokemon.tempStatus.recentSkillUse === oldName) {
+      pokemon.tempStatus.recentSkillUse = newName;
+    }
+    if (pokemon.tempStatus.disableSkill === oldName) {
+      pokemon.tempStatus.disableSkill = newName;
+    }
+  }
+
+  // 4. 현재 턴 사용 기술 갱신
+  if (pokemon.turn?.useSkill && pokemon.turn.useSkill.name === oldName) {
+    pokemon.turn.useSkill = {
+      ...pokemon.turn.useSkill,
+      originalName: pokemon.turn.useSkill.originalName || oldName,
+      name: newName,
+    };
+  }
+
+  return;
+};
+
 export const isNimbleSkill = (pokemon, skill) => {
   if (!pokemon || !skill) return false;
   const nimbleSkillName = pokemon.nimbleSkillName || pokemon.augments?.find((a) => a.id === "nimbleMoves")?.nimbleSkillName;
@@ -204,7 +298,8 @@ export const AUGMENT_LIST = [
     },
     onApply: function (pokemon, battle, options) {
       if (!pokemon?.skill) return;
-      const chosenSkillName = options?.chosenSkillName || options?.replacedSkillName;
+      const rawChosenSkillName = options?.chosenSkillName || options?.choiceAndFocusSkillName || options?.replacedSkillName;
+      const chosenSkillName = resolveCurrentSkillName(pokemon, rawChosenSkillName);
       let slot = Number(options?.chosenSlot || options?.replaceSlot);
       if (!slot && chosenSkillName) {
         slot = [1, 2, 3, 4].find((s) => pokemon.skill[s]?.name === chosenSkillName);
@@ -257,8 +352,8 @@ export const AUGMENT_LIST = [
     },
     onApply: function (pokemon, battle, options) {
       if (!pokemon?.skill) return;
-      let buffSkillName = options?.zeroSumBuffSkillName;
-      let nerfSkillName = options?.zeroSumNerfSkillName;
+      let buffSkillName = resolveCurrentSkillName(pokemon, options?.zeroSumBuffSkillName);
+      let nerfSkillName = resolveCurrentSkillName(pokemon, options?.zeroSumNerfSkillName);
 
       if (!buffSkillName || !nerfSkillName) {
         const attackSkills = getAttackSkills(pokemon);
@@ -292,7 +387,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "limiterRemoval",
-    name: "리미트 해제",
+    name: "리미터 해제",
     desc: "해당 포켓몬의 공격과 특공, 스피드가 1.5배가 됩니다.\n상대를 공격할 때마다 최대 HP 40%의 피해를 입습니다.",
     cost: 3,
     weight: 100,
@@ -1897,7 +1992,7 @@ export const AUGMENT_LIST = [
       const validSlots = [1, 2, 3, 4].filter((slot) => pokemon.skill[slot]);
       if (validSlots.length === 0) return;
 
-      const skillName = options?.nimbleSkillName;
+      const skillName = resolveCurrentSkillName(pokemon, options?.nimbleSkillName);
       let targetSkill = null;
       if (skillName) {
         const foundSlot = validSlots.find((s) => pokemon.skill[s]?.name === skillName);
@@ -2594,6 +2689,21 @@ export const AUGMENT_LIST = [
         if (pokemon.originalAbil.name === "불굴의방패") pokemon.originalAbil.text = "등장했을 때 방어가 1랭크 올라간다.";
       }
     },
+  },
+  // 바지락조개 (해수스파우팅 보유 포켓몬 전용 증강)
+  {
+    id: "manilaClam",
+    name: "바지락조개",
+    desc: "해수스파우팅의 위력이 100 이하로 떨어지지 않습니다.",
+    cost: 1,
+    weight: 200,
+    shiftUp: true,
+    imageOptions: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+    isEligible: (pokemon) => hasSkill(pokemon, "해수스파우팅") || hasSkill(pokemon, "바지락조개"),
+    onApply: function (pokemon) {
+      renamePokemonSkill(pokemon, "해수스파우팅", "바지락조개");
+    },
+    // damageCalculate.js에 구현
   },
   // 변신의 천재
   {

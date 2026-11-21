@@ -955,6 +955,9 @@ const powerCalculate = (battle, skill, obj, ai) => {
   if (skill.feature?.hpScale) {
     // 체력비례 데미지
     power = (power * atk.hp) / (atk.maxHp || 1);
+    if ((skill.name === "해수스파우팅" || skill.name === "바지락조개") && atk.hasAugment?.("manilaClam")) {
+      power = Math.max(100, power);
+    }
   }
   if (skill.name === "묵사발") {
     // 상대의 남은 HP 비례 (최대 120, 최소 1)

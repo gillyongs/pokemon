@@ -210,7 +210,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
                         <AugmentCard key={item.uniqueKey} $selected={isSelected} onClick={() => toggleSelect(item)}>
                           <CardHeader>
                             <IconWrapper>
-                              <AugmentIcon id={item.augment.id} size={30} />
+                              <AugmentIcon id={item.augment.id} size={30} pokemon={item.pokemon} />
                             </IconWrapper>
                             <CardMeta>
                               <AugName>{item.augment.shortName || item.augment.name}</AugName>

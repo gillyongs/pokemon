@@ -23,7 +23,7 @@ const DEDICATED_AUGMENT_POKEMON = {
   protean: "0658",
   intrepidSword: "0888",
   dauntlessShield: "0889",
-
+  manilaClam: "0382",
 };
 
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
@@ -67,10 +67,13 @@ const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   dauntlessShield: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0888": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0889": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  manilaClam: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0382": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  "0382-m": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null, sign = null }) => {
-  const pokeId = pokemonId || ((id === "libero" || id === "protean" || id === "intrepidSword" || id === "dauntlessShield") && (pokemon?.uniqueKey || pokemon?.dexNo) ? (pokemon.uniqueKey || pokemon.dexNo) : null) || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird" || id === "devilOfGen7") ? pokemon.uniqueKey : null);
+  const pokeId = pokemonId || ((id === "libero" || id === "protean" || id === "intrepidSword" || id === "dauntlessShield" || id === "manilaClam") && (pokemon?.uniqueKey || pokemon?.dexNo) ? pokemon.uniqueKey || pokemon.dexNo : null) || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird" || id === "devilOfGen7") ? pokemon.uniqueKey : null);
 
   const augOptions = imageOptions || DEDICATED_AUGMENT_IMAGE_OPTIONS[id] || (pokeId ? DEDICATED_AUGMENT_IMAGE_OPTIONS[pokeId] : null) || {};
 
@@ -606,7 +609,6 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="50%" stopColor="#8b5cf6" />
             <stop offset="100%" stopColor="#4c1d95" />
           </linearGradient>
-
 
           {/* 회복 전용 그라데이션 (에메랄드/그린 테마) */}
           <linearGradient id="recoveryCrossGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -3609,7 +3611,6 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        
         {/* 선택과 집중 (타겟 & 체크마크 일러스트 이미지 + 원형 클리핑 & 퍼플 링) */}
         {id === "choiceAndFocus" && (
           <g clipPath="url(#lwClip)">
@@ -3664,7 +3665,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 리미트 해제 (계기판 일러스트 이미지 + 원형 클리핑 & 퍼플 링) */}
+        {/* 리미터 해제 (계기판 일러스트 이미지 + 원형 클리핑 & 퍼플 링) */}
         {id === "limiterRemoval" && (
           <g clipPath="url(#lwClip)">
             <image href="/pokemon/img/augment/limiterRemoval.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
@@ -3782,13 +3783,12 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        
         {/* 스타포스 (메이플 스타일 골든 스타 & 별빛 섬광) */}
         {id === "starforce" && (
           <g>
             {/* 심우주 배경 원 */}
             <circle cx="32" cy="32" r="30" fill="url(#starforceBg)" stroke="url(#starforceRing)" strokeWidth="1.8" />
-            
+
             {/* 은하수 성간 먼지 및 작은 별빛들 */}
             <circle cx="16" cy="18" r="1.2" fill="#fde047" opacity="0.85" />
             <circle cx="48" cy="16" r="1.5" fill="#fef08a" opacity="0.9" />
@@ -3796,32 +3796,32 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="50" cy="46" r="1.3" fill="#fef08a" opacity="0.85" />
             <circle cx="21" cy="30" r="0.9" fill="#ffffff" opacity="0.7" />
             <circle cx="43" cy="33" r="0.9" fill="#ffffff" opacity="0.7" />
-            
+
             {/* 골든 스타 발광 오라 */}
             <circle cx="32" cy="32" r="19" fill="url(#starforceGlow)" />
-            
+
             {/* 십자 섬광 (Sparkle flare) */}
             <path d="M 32 10 Q 32 32 10 32 Q 32 32 32 54 Q 32 32 54 32 Q 32 32 32 10 Z" fill="#fef08a" opacity="0.4" filter="url(#glow)" />
-            
+
             {/* 메이플 황금 별 베이스 테두리 */}
             <polygon points="32,14 36.8,25 48.5,26.5 40,34.8 42.2,46.5 32,41 21.8,46.5 24,34.8 15.5,26.5 27.2,25" fill="#78350f" stroke="#451a03" strokeWidth="0.8" />
-            
+
             {/* 3D 각진 단면 (Faceted Star) */}
             <polygon points="32,14 32,33 27.2,25" fill="#fef08a" />
             <polygon points="32,33 15.5,26.5 24,34.8" fill="#fde047" />
             <polygon points="32,33 24,34.8 21.8,46.5" fill="#eab308" />
             <polygon points="32,33 32,41 21.8,46.5" fill="#ca8a04" />
-            
+
             <polygon points="32,14 36.8,25 32,33" fill="#fde047" />
             <polygon points="32,33 36.8,25 48.5,26.5" fill="#eab308" />
             <polygon points="32,33 48.5,26.5 40,34.8" fill="#ca8a04" />
             <polygon points="32,33 40,34.8 42.2,46.5" fill="#a16207" />
             <polygon points="32,33 42.2,46.5 32,41" fill="#854d0e" />
-            
+
             {/* 중앙 반짝임 다이아몬드 코어 */}
             <polygon points="32,29 34.5,33 32,37 29.5,33" fill="#ffffff" opacity="0.9" />
             <circle cx="32" cy="33" r="2" fill="#ffffff" filter="url(#glow)" />
-            
+
             {/* 외곽선 골든 링 */}
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#starforceRing)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#fde047" strokeWidth="0.6" strokeOpacity="0.8" />
@@ -3837,7 +3837,6 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        
         {/* 큐브 (레드 큐브 일러스트 + 원형 클리핑 & 루비 링) */}
         {id === "cube" && (
           <g clipPath="url(#lwClip)">

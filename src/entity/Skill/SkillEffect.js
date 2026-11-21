@@ -98,7 +98,7 @@ function skillEffectSearch(name) {
 
       if (atkPokemon.hasAugment?.("limiterRemoval") && !atkPokemon.faint) {
         if (skill.stype === "atk" || skill.stype === "catk") {
-          const text = `[증강 리미트 해제] ${atkPokemon.names("는")} 반동으로 데미지를 입었다!`;
+          const text = `[증강 리미터 해제] ${atkPokemon.names("는")} 반동으로 데미지를 입었다!`;
           atkPokemon.getDamage(battle, enqueue, Math.max(1, Math.floor(atkPokemon.maxHp * 0.4)), text);
         }
       }
