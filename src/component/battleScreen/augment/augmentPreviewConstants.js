@@ -32,6 +32,11 @@ export const AUGMENT_GRANT_PREVIEW_MAP = {
     headerNotice: "해당 증강 선택시 아래 증강 또는 버프를 추가로 획득합니다.",
     items: ["soulMinion"],
   },
+  rudePureLove: {
+    modalTitle: "증강 상세 안내",
+    headerNotice: "해당 증강 선택시 아래 영구 버프를 획득합니다.",
+    items: ["jinanSangae"],
+  },
   threeBears: {
     modalTitle: "증강 상세 안내",
     headerNotice: "다음 포켓몬 중 1마리와 교체됩니다.",

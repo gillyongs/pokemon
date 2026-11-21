@@ -9,6 +9,7 @@ import { Skill } from "../Skill/Skill";
 import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
 
 export const getReplacementAugmentWeight = (pokemon) => {
+  if (pokemon?.hasAugment?.("jinanSangae") || pokemon?.hasAugment?.("rudePureLove")) return 0;
   const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
   return Math.round(120 / (count + 1));
 };
@@ -392,6 +393,56 @@ export const AUGMENT_LIST = [
     cost: 3,
     weight: 100,
     // getStat.js, SkillEffect.js에 구현
+  },
+  {
+    id: "rudePureLove",
+    name: "무례하긴, 순애야.",
+    desc: "모든 능력치가 1.3배 증가하는 영구적인 버프를 얻습니다.\n해당 포켓몬은 엔트리에서 교체할 수 없습니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon, battle, team) => {
+      if (battle?.teamOption !== "트레이드") return false;
+      const normalCount = Array.isArray(pokemon?.augments) ? pokemon.augments.filter((a) => isNormalAugment(a)).length : 0;
+      if (normalCount > 1) return false;
+      const resolvedTeam =
+        Array.isArray(team) && team.length > 0
+          ? team
+          : battle
+            ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean)
+            : [pokemon].filter(Boolean);
+      if (resolvedTeam.some((p) => p?.hasAugment?.("jinanSangae") || p?.hasAugment?.("rudePureLove"))) {
+        return false;
+      }
+      return true;
+    },
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon) return;
+      const buffAug = AUGMENT_LIST.find((a) => a.id === "jinanSangae");
+      if (buffAug) {
+        if (typeof pokemon.applyAugment === "function") {
+          pokemon.applyAugment(buffAug, battle, options);
+        } else {
+          if (!pokemon.augments) pokemon.augments = [];
+          if (!pokemon.augments.some((a) => a.id === "jinanSangae")) {
+            pokemon.augments.push({ ...buffAug, buf: true, permanent: true });
+          }
+        }
+      }
+      if (options && typeof options === "object") {
+        options.resolvedGrantedId = "jinanSangae";
+        options.resolvedGrantedAug = buffAug;
+      }
+    },
+  },
+  {
+    id: "jinanSangae",
+    name: "진안상애",
+    desc: "모든 능력치가 1.3배 증가합니다.\n해당 포켓몬은 엔트리에서 교체할 수 없습니다.",
+    buf: true,
+    permanent: true,
+    isRandom: false,
+    weight: "-",
+    isEligible: () => false,
   },
   {
     id: "lifeIsOneShot",

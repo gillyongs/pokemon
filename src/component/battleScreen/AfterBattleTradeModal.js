@@ -22,11 +22,13 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
   const selectedNpcPoke = tradeNpcIdx !== null ? npcTeamFixed[tradeNpcIdx] : null;
 
   const checkIsLegendary = (p) => isLegendary(p);
+  const checkIsPureLoveLocked = (p) => Boolean(p?.hasAugment?.("jinanSangae") || p?.hasAugment?.("rudePureLove"));
 
   // 팀 내 초전설 포켓몬은 최대 1마리까지만 보유 가능
   // (내 초전설을 보내고 일반을 받거나, 일반을 보내고 일반을 받거나, 내 초전설을 보내고 상대 초전설을 받는 것은 모두 가능)
   const canTrade = (playerPoke, npcPoke) => {
     if (!playerPoke || !npcPoke) return false;
+    if (checkIsPureLoveLocked(playerPoke)) return false;
     const remainingLegendaryCount = playerTeamFixed.filter(
       (p) => p !== playerPoke && checkIsLegendary(p)
     ).length;
@@ -40,6 +42,9 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
     canTrade(playerTeamFixed[tradePlayerIdx], npcTeamFixed[tradeNpcIdx]);
 
   const handlePlayerCardClick = (idx, p) => {
+    if (checkIsPureLoveLocked(p)) {
+      return;
+    }
     if (tradePlayerIdx === idx) {
       setTradePlayerIdx(null);
       return;
@@ -96,13 +101,16 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
           <TradeColumn>
             <h3 style={{ textAlign: "center", color: "#64ffda", margin: "5px 0" }}>내 엔트리</h3>
             {playerTeamFixed.map((p, idx) => {
-              const isDisabled = selectedNpcPoke ? !canTrade(p, selectedNpcPoke) : false;
+              const isPureLoveLocked = checkIsPureLoveLocked(p);
+              const isDisabled = isPureLoveLocked || (selectedNpcPoke ? !canTrade(p, selectedNpcPoke) : false);
               return (
                 <TradeCard
                   key={idx}
                   $selected={tradePlayerIdx === idx}
                   $disabled={isDisabled}
+                  $pureLoveLocked={isPureLoveLocked}
                   onClick={() => handlePlayerCardClick(idx, p)}
+                  title={isPureLoveLocked ? "진안상애 버프 효과로 트레이드할 수 없습니다." : undefined}
                 >
                   <div
                     style={{
@@ -341,12 +349,22 @@ const TradeCard = styled.div`
   width: 100%;
   height: 9vh;
   border-radius: 5px;
-  background-color: ${(props) => (props.$selected ? "rgba(100, 255, 218, 0.15)" : "rgba(0, 0, 0, 0.7)")};
+  background-color: ${(props) =>
+    props.$pureLoveLocked
+      ? "rgba(255, 68, 102, 0.22)"
+      : props.$selected
+      ? "rgba(100, 255, 218, 0.15)"
+      : "rgba(0, 0, 0, 0.7)"};
   overflow: hidden;
   cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
-  opacity: ${(props) => (props.$disabled ? 0.35 : 1)};
-  filter: ${(props) => (props.$disabled ? "grayscale(0.7)" : "none")};
-  border: ${(props) => (props.$selected ? "2px solid #64ffda" : "2px solid transparent")};
+  opacity: ${(props) => (props.$pureLoveLocked ? 0.7 : props.$disabled ? 0.35 : 1)};
+  filter: ${(props) => (props.$pureLoveLocked ? "none" : props.$disabled ? "grayscale(0.7)" : "none")};
+  border: ${(props) =>
+    props.$pureLoveLocked
+      ? "1px solid rgba(255, 82, 82, 0.45)"
+      : props.$selected
+      ? "2px solid #64ffda"
+      : "2px solid transparent"};
   transition: all 0.2s ease;
   display: flex;
   align-items: center;

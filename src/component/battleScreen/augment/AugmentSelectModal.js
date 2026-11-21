@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
-import { AUGMENT_LIST, getAugmentSelDesc, isCurseAugment, isBuffAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, getAugmentSelDesc, isCurseAugment, isBuffAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, isReplacementAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
 import { rollTeamAugments } from "../../../calc/augmentRoll";
 import { testmode, subscribeTestMode } from "../../../config/testMode";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
@@ -116,6 +116,9 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       return false;
     }
     if (pokemon.hasAugment?.(aug.id)) {
+      return false;
+    }
+    if (isReplacementAugment(aug) && (pokemon.hasAugment?.("jinanSangae") || pokemon.hasAugment?.("rudePureLove"))) {
       return false;
     }
     if (typeof aug.isEligible === "function") {

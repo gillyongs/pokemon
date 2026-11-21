@@ -72,7 +72,7 @@ export const useBattleStore = createStore((set, get) => ({
   },
 
   initBattleRound: ({ locationState, gameOption, queueObject }) => {
-    const { team1, team2, difficulty = gameOption.difficulty, round = defaultOption.round, mayhemMode = gameOption.mayhemMode, carriedAugments, carriedAnvilStats } = locationState || {};
+    const { team1, team2, difficulty = gameOption.difficulty, teamOption = gameOption.teamOption, round = defaultOption.round, mayhemMode = gameOption.mayhemMode, carriedAugments, carriedAnvilStats } = locationState || {};
 
     queueObject.initQueue();
     set({
@@ -86,7 +86,7 @@ export const useBattleStore = createStore((set, get) => ({
     });
 
     const isMayhem = mayhemMode !== undefined ? mayhemMode : gameOption.mayhemMode;
-    const nextBattle = createBattle(team1, team2, { difficulty, round, mayhemMode: isMayhem });
+    const nextBattle = createBattle(team1, team2, { difficulty, round, mayhemMode: isMayhem, teamOption });
     set({ battleLive: nextBattle, battle: nextBattle });
 
     // 모루 능력치(carriedAnvilStats) 직접 복원

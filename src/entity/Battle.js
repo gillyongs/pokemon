@@ -100,5 +100,6 @@ export function createBattle(playerArray, npcArray, options = { difficulty: "이
 
   const b = new Battle(player, npc, playerBench1, playerBench2, npcBench1, npcBench2);
   b.isMayhem = Boolean(options.mayhemMode);
+  b.teamOption = options.teamOption || null;
   return b;
 }
