@@ -304,7 +304,7 @@ export const useBattleStore = createStore((set, get) => ({
 
       if (queue[0].isAugment) {
         const curB = get().battleLive;
-        const target = [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && !p.faint && (p.augments || []).filter((a) => isNormalAugment(a)).length < 3) || [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && !p.faint) || curB.player;
+        const target = curB.player || [curB.player, curB.playerBench1, curB.playerBench2].find((p) => p && !p.faint) || curB.player;
         if (target) {
           const choices = rollAugments(target, 3, curB);
           if (choices && choices.length > 0) {

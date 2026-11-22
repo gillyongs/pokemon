@@ -97,13 +97,15 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   };
 
   const [activePokemon, setActivePokemon] = useState(() => {
-    if (initialTarget && resolvedTeam.some((p) => p === initialTarget || p.id === initialTarget.id)) {
-      return initialTarget;
+    if (isTitanSelection) {
+      if (initialTarget && resolvedTeam.some((p) => p === initialTarget || p.id === initialTarget.id)) {
+        return initialTarget;
+      }
+      if (targetPokemon && resolvedTeam.some((p) => p === targetPokemon || p.id === targetPokemon.id)) {
+        return targetPokemon;
+      }
     }
-    if (targetPokemon && resolvedTeam.some((p) => p === targetPokemon || p.id === targetPokemon.id)) {
-      return targetPokemon;
-    }
-    return resolvedTeam.find((p) => (p.augments || []).filter((a) => isNormalAugment(a)).length < 3) || resolvedTeam[0] || null;
+    return resolvedTeam[0] || null;
   });
 
   const checkEligibility = (aug, pokemon) => {
