@@ -2070,6 +2070,13 @@ export const AUGMENT_LIST = [
     weight: 100,
   },
   {
+    id: "luckyRecovery",
+    name: "운 좋은 회복",
+    desc: "상대 포켓몬을 공격시 30% 확률로 최대 HP의 30%를 회복합니다.",
+    cost: 1,
+    weight: 100,
+  },
+  {
     id: "threeSnails",
     name: "달팽이 세마리",
     desc: "공격 후 적에게 달팽이 껍질을 던져 추가 고정 데미지를 입힙니다.",

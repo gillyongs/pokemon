@@ -31,6 +31,20 @@ function skillEffectSearch(name) {
 
       // 방어 외에 다른 스킬을 사용하였을때 방어 스택 초기화
 
+      // [증강: 운 좋은 회복] 상대 포켓몬을 공격시 30% 확률로 최대 HP의 30%를 회복
+      const hasLuckyRecovery = atkPokemon?.hasAugment?.("luckyRecovery");
+      if (hasLuckyRecovery && !atkPokemon.faint) {
+        if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
+          if (Math.random() < 0.3) {
+            if (atkPokemon.hp < atkPokemon.maxHp) {
+              const healAmount = Math.max(1, Math.floor(atkPokemon.maxHp * 0.3));
+              const text = `[증강 운 좋은 회복] ${atkPokemon.names("는")} 체력을 회복했다!`;
+              atkPokemon.recover(battle, healAmount, enqueue, text);
+            }
+          }
+        }
+      }
+
       // [증강: 달팽이 세마리] 공격 후 적에게 추가 고정 데미지 (10/25/40)
       const hasThreeSnails = atkPokemon?.hasAugment?.("threeSnails");
       if (hasThreeSnails && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
