@@ -3,6 +3,7 @@ import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { AUGMENT_POKEMON_PREVIEW_MAP, getAugmentGrantInfo } from "./augmentPreviewConstants";
 import AugmentGrantPreviewModal from "./AugmentGrantPreviewModal";
+import AugmentNoUnfairMissPreviewModal from "./AugmentNoUnfairMissPreviewModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
@@ -12,6 +13,7 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
   const [previewInfo, setPreviewInfo] = useState(null);
   const [synergyPreviewInfo, setSynergyPreviewInfo] = useState(null);
   const [grantPreviewInfo, setGrantPreviewInfo] = useState(null);
+  const [noUnfairMissPreviewOpen, setNoUnfairMissPreviewOpen] = useState(false);
   const [selectedAugId, setSelectedAugId] = useState(null);
 
   const handleCardClick = (e, aug) => {
@@ -108,7 +110,8 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
               const previewSample = sampleKey ? sampleList.getDataBySampleName(sampleKey) : null;
               const synergyData = getAugmentSynergyInfo(aug.id);
               const grantData = getAugmentGrantInfo(aug.id);
-              const hasPreview = Boolean(previewSample || synergyData || grantData);
+              const isNoUnfairMiss = aug.id === "noUnfairMiss";
+              const hasPreview = Boolean(previewSample || synergyData || grantData || isNoUnfairMiss);
               return (
                 <AugmentCard
                   key={aug.id || index}
@@ -137,7 +140,9 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (previewSample) {
+                          if (aug.id === "noUnfairMiss") {
+                            setNoUnfairMissPreviewOpen(true);
+                          } else if (previewSample) {
                             setPreviewInfo({ augmentId: aug.id, pokemon: previewSample });
                           } else if (synergyData) {
                             setSynergyPreviewInfo({ augmentId: aug.id, synergy: synergyData });
@@ -146,11 +151,13 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                           }
                         }}
                         title={
-                          previewSample
-                            ? (aug.id === "eternamax" || aug.id === "blackNight"
-                                ? "무한다이맥스 / 무한다이노 상세정보 보기"
-                                : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`)
-                            : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"
+                          isNoUnfairMiss
+                            ? "명중률 80~99% 기술 목록 보기"
+                            : previewSample
+                              ? (aug.id === "eternamax" || aug.id === "blackNight"
+                                  ? "무한다이맥스 / 무한다이노 상세정보 보기"
+                                  : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`)
+                              : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"
                         }
                       >
                         상세정보
@@ -193,6 +200,13 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
           pokemon={activePokemon}
           battle={battle}
           onClose={() => setGrantPreviewInfo(null)}
+        />
+      )}
+      {noUnfairMissPreviewOpen && (
+        <AugmentNoUnfairMissPreviewModal
+          pokemon={activePokemon}
+          battle={battle}
+          onClose={() => setNoUnfairMissPreviewOpen(false)}
         />
       )}
     </ModalOverlay>

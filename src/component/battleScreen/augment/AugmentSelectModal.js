@@ -9,6 +9,7 @@ import AugmentStatusModal from "./AugmentStatusModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import AugmentGrantPreviewModal from "./AugmentGrantPreviewModal";
+import AugmentNoUnfairMissPreviewModal from "./AugmentNoUnfairMissPreviewModal";
 import AugmentSwordEnhanceView from "./select/AugmentSwordEnhanceView";
 import AugmentArcaneShadeSwordView from "./select/AugmentArcaneShadeSwordView";
 import AugmentStarforceView from "./select/AugmentStarforceView";
@@ -49,6 +50,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   const [previewInfo, setPreviewInfo] = useState(null);
   const [synergyPreviewInfo, setSynergyPreviewInfo] = useState(null);
   const [grantPreviewInfo, setGrantPreviewInfo] = useState(null);
+  const [noUnfairMissPreviewOpen, setNoUnfairMissPreviewOpen] = useState(false);
   const [skillSelectAug, setSkillSelectAug] = useState(null);
   const [typeSelectAug, setTypeSelectAug] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
@@ -78,6 +80,10 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     e.stopPropagation();
     if (isPeekMode) {
       setIsPeekMode(false);
+    }
+    if (augId === "noUnfairMiss") {
+      setNoUnfairMissPreviewOpen(true);
+      return;
     }
     const sample = getPreviewSample(augId);
     if (sample) {
@@ -547,7 +553,8 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                           const previewSample = getPreviewSample(aug.id);
                           const synergyData = getAugmentSynergyInfo(aug.id);
                           const grantData = getAugmentGrantInfo(aug.id);
-                          const hasPreview = Boolean(previewSample || synergyData || grantData);
+                          const isNoUnfairMiss = aug.id === "noUnfairMiss";
+                          const hasPreview = Boolean(previewSample || synergyData || grantData || isNoUnfairMiss);
                           return (
                             <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => handleCardClick(e, aug)}>
                               <IconCol>
@@ -574,7 +581,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                                     선택
                                   </CardActionButton>
                                   {hasPreview && (
-                                    <CardActionButton type="button" $variant="info" onClick={(e) => handleOpenPreview(e, aug.id)} title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"}>
+                                    <CardActionButton type="button" $variant="info" onClick={(e) => handleOpenPreview(e, aug.id)} title={isNoUnfairMiss ? "명중률 80~99% 기술 목록 보기" : previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"}>
                                       상세정보
                                     </CardActionButton>
                                   )}
@@ -627,7 +634,8 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                       const previewSample = getPreviewSample(aug.id);
                       const synergyData = getAugmentSynergyInfo(aug.id);
                       const grantData = getAugmentGrantInfo(aug.id);
-                      const hasPreview = Boolean(previewSample || synergyData || grantData);
+                      const isNoUnfairMiss = aug.id === "noUnfairMiss";
+                          const hasPreview = Boolean(previewSample || synergyData || grantData || isNoUnfairMiss);
                       return (
                         <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => handleCardClick(e, aug)}>
                           <IconCol>
@@ -654,7 +662,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                                 선택
                               </CardActionButton>
                               {hasPreview && (
-                                <CardActionButton type="button" $variant="info" onClick={(e) => handleOpenPreview(e, aug.id)} title={previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"}>
+                                <CardActionButton type="button" $variant="info" onClick={(e) => handleOpenPreview(e, aug.id)} title={isNoUnfairMiss ? "명중률 80~99% 기술 목록 보기" : previewSample ? (aug.id === "eternamax" || aug.id === "blackNight" ? "무한다이맥스 / 무한다이노 상세정보 보기" : `${previewSample.megaData?.name || previewSample.name} 상세정보 보기`) : synergyData ? `${synergyData?.title || "시너지"} 공명 상세정보 보기` : grantData ? `${grantData.modalTitle} 보기` : "상세정보 보기"}>
                                   상세정보
                                 </CardActionButton>
                               )}
@@ -696,6 +704,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       {previewInfo && <AugmentPokemonPreviewModal augmentId={previewInfo.augmentId} pokemon={previewInfo.pokemon} onClose={() => setPreviewInfo(null)} />}
       {synergyPreviewInfo && <AugmentSynergyPreviewModal synergy={synergyPreviewInfo.synergy} activeAugmentId={synergyPreviewInfo.augmentId} activePokemon={activePokemon} battle={battle} team={resolvedTeam} onClose={() => setSynergyPreviewInfo(null)} />}
       {grantPreviewInfo && <AugmentGrantPreviewModal augmentId={grantPreviewInfo.augmentId} grantInfo={grantPreviewInfo.grant} pokemon={activePokemon} battle={battle} onClose={() => setGrantPreviewInfo(null)} />}
+      {noUnfairMissPreviewOpen && <AugmentNoUnfairMissPreviewModal pokemon={activePokemon} battle={battle} onClose={() => setNoUnfairMissPreviewOpen(false)} />}
     </>
   );
 };
