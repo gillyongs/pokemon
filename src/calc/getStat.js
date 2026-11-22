@@ -170,6 +170,12 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
       logText += " * 1.3 (진안상애)";
     }
 
+    // 포잘알: 모든 능력치 1.3배
+    if (augId === "pokemonQuizExpert") {
+      val = Math.round(val * 1.3);
+      logText += " * 1.3 (포잘알)";
+    }
+
     // 곰 세마리가 한 집에 있어
     if (augId === "threeBearsHouse") {
       const mult = getBearMultiplier(pokemon, battle);

@@ -10,9 +10,7 @@ import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/A
 
 export const getReplacementAugmentWeight = (pokemon) => {
   if (pokemon?.hasAugment?.("jinanSangae") || pokemon?.hasAugment?.("rudePureLove")) return 0;
-  const count = Array.isArray(pokemon?.augments)
-    ? pokemon.augments.filter((a) => a && (typeof isNormalAugment === "function" ? isNormalAugment(a) : !a.buf && !a.curse && !a.synergy)).length
-    : 0;
+  const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter((a) => a && (typeof isNormalAugment === "function" ? isNormalAugment(a) : !a.buf && !a.curse && !a.synergy)).length : 0;
   return 500 / (count + 1);
 };
 
@@ -406,12 +404,7 @@ export const AUGMENT_LIST = [
       if (battle?.teamOption !== "트레이드") return false;
       const normalCount = Array.isArray(pokemon?.augments) ? pokemon.augments.filter((a) => isNormalAugment(a)).length : 0;
       if (normalCount > 1) return false;
-      const resolvedTeam =
-        Array.isArray(team) && team.length > 0
-          ? team
-          : battle
-            ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean)
-            : [pokemon].filter(Boolean);
+      const resolvedTeam = Array.isArray(team) && team.length > 0 ? team : battle ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [pokemon].filter(Boolean);
       if (resolvedTeam.some((p) => p?.hasAugment?.("jinanSangae") || p?.hasAugment?.("rudePureLove"))) {
         return false;
       }
@@ -2562,6 +2555,53 @@ export const AUGMENT_LIST = [
       }
     },
   },
+  {
+    id: "pokemonQuiz",
+    name: "포켓몬 퀴즈",
+    desc: "퀴즈를 맞출 경우 모든 능력치가 1.3배 증가하는 영구적인 버프를 얻습니다.",
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon) => {
+      if (!pokemon) return false;
+      const hasExpertOrQuiz =
+        typeof pokemon.hasAugment === "function"
+          ? pokemon.hasAugment("pokemonQuizExpert") || pokemon.hasAugment("pokemonQuiz")
+          : (pokemon.augments || []).some((a) => {
+              const id = typeof a === "string" ? a : a?.id;
+              return id === "pokemonQuizExpert" || id === "pokemonQuiz";
+            });
+      return !hasExpertOrQuiz;
+    },
+    screenText: function (target, prevPokeName, options) {
+      const targetName = typeof target?.names === "function" ? target.names("는") : `${target?.name || "포켓몬"}은`;
+      if (options?.isCorrect) {
+        return ["정답!", `[증강] ${targetName} 퀴즈를 맞추고 영구 버프를 획득하였다!`];
+      }
+      return ["오답!", `[증강] ${targetName} 퀴즈를 틀려 아무런 효과도 얻지 못했다...`];
+    },
+    logModalText: function (target, prevPokeName, options) {
+      if (options?.isCorrect) {
+        return `퀴즈를 맞추고 모든 능력치가 1.3배 증가하는 영구 버프를 획득했습니다.`;
+      }
+      return `퀴즈를 맞추지 못해 버프를 획득하지 못했습니다.`;
+    },
+
+    onApply: function (pokemon, battle, options) {
+      if (options?.isCorrect) {
+        pokemon.applyAugment("pokemonQuizExpert", battle);
+      }
+    },
+  },
+  // 포켓몬 퀴즈 정답 시 부여되는 영구 버프
+  {
+    id: "pokemonQuizExpert",
+    name: "포켓몬을 잘 아는",
+    desc: "모든 능력치가 1.3배 증가합니다.",
+    buf: true,
+    permanent: true,
+    isRandom: false,
+    weight: "-",
+  },
   // 후루베 유라유라 (즉발형 증강 - 현재 배틀중인 두 포켓몬 동시 기절)
   {
     id: "furubeYurayura",
@@ -3242,7 +3282,7 @@ export const isPermanentBuff = (augment) => {
   if (typeof augment === "object" && augment.permanent) return true;
   const id = typeof augment === "string" ? augment : augment.id;
   const found = AUGMENT_LIST.find((a) => a.id === id);
-  return Boolean(found?.permanent || id === "soulMinion");
+  return Boolean(found?.permanent);
 };
 
 export const isPermanentCurse = (augment) => {

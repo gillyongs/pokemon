@@ -465,11 +465,13 @@ export const useBattleStore = createStore((set, get) => ({
     const appliedAug = augOptions?.resolvedGrantedAug || target.augments?.find((a) => a.id === selectedAugment.id) || selectedAugment;
 
     const headBattle = cloneWithMethods(curBattle);
-    const gainText = getAugmentScreenText(appliedAug, target, prevPokeName, augOptions);
+    const rawGainText = getAugmentScreenText(appliedAug, target, prevPokeName, augOptions);
+    const gainTexts = Array.isArray(rawGainText) ? rawGainText : [rawGainText];
+    const gainText = gainTexts[0];
     const gainLogText = gainText;
 
     const rawAfterText = selectedAugment?.afterText ?? AUGMENT_LIST.find((a) => a.id === selectedAugment?.id)?.afterText;
-    const resolvedAfterText = typeof rawAfterText === "function" ? rawAfterText(target, curBattle) : rawAfterText;
+    const resolvedAfterText = typeof rawAfterText === "function" ? rawAfterText(target, curBattle, augOptions) : rawAfterText;
     if (resolvedAfterText) {
       collectEnqueue(curBattle, resolvedAfterText, `bs_aug_after_${selectedAugment.id}`, {
         logText: resolvedAfterText,
@@ -652,7 +654,7 @@ export const useBattleStore = createStore((set, get) => ({
         shortName: appliedAug.shortName,
         desc: getAugmentLogModalText(appliedAug, target, prevPokeName, augOptions),
         logModalText: getAugmentLogModalText(appliedAug, target, prevPokeName, augOptions),
-        screenText: gainText,
+        screenText: Array.isArray(rawGainText) ? rawGainText.join("\n") : gainText,
         statusModalText: getAugmentStatusModalText(appliedAug, target, curBattle, augOptions),
         selDesc: getAugmentSelDesc(appliedAug, target, curBattle),
         cost: appliedAug.cost,
@@ -662,13 +664,28 @@ export const useBattleStore = createStore((set, get) => ({
       },
     };
 
+    const headAugmentData = gainTexts.length > 1 ? undefined : augmentData;
+    if (gainTexts.length > 1) {
+      for (let i = gainTexts.length - 1; i >= 1; i--) {
+        followUpItems.unshift(
+          cloneWithMethods({
+            battle: headBattle,
+            text: gainTexts[i],
+            id: `bs_aug_gain_extra_${appliedAug.id}_${i}`,
+            logText: gainTexts[i],
+            augmentData: i === 1 ? augmentData : undefined,
+          })
+        );
+      }
+    }
+
     if (isTitanSecond) {
       const secondItem = {
         battle: headBattle,
         text: gainText,
         id: "bs_titan_second",
         logText: gainLogText,
-        augmentData,
+        augmentData: headAugmentData,
       };
       queueObject.insertAfterHead([secondItem, ...followUpItems]);
     } else if (queueObject.queue[0]?.isAugment) {
@@ -678,7 +695,7 @@ export const useBattleStore = createStore((set, get) => ({
           battle: headBattle,
           text: gainText,
           logText: gainLogText,
-          augmentData,
+          augmentData: headAugmentData,
           isAugment: false,
           isKnockoutAugment: false,
         }),
@@ -690,7 +707,7 @@ export const useBattleStore = createStore((set, get) => ({
     } else {
       queueObject.enqueue(headBattle, gainText, "bs_aug_gain", {
         logText: gainLogText,
-        augmentData,
+        augmentData: headAugmentData,
       });
       followUpItems.forEach(({ battle, text, id, ...option }) => queueObject.enqueue(battle, text, id, option));
     }
@@ -863,6 +880,7 @@ export const useBattleStore = createStore((set, get) => ({
           id: augId,
           name: isArcaneSword ? aug.arcaneSwordName || aug.name : isSwordEnhance ? aug.swordName || aug.name : aug.name,
           buf: Boolean(aug.buf),
+          permanent: Boolean(aug.permanent || isPermanentBuff(aug) || isPermanentCurse(aug)),
           curse: Boolean(aug.curse),
           synergy: Boolean(aug.synergy),
           isForced: Boolean(aug.isForced),

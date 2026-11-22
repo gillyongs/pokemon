@@ -21,6 +21,7 @@ import AugmentSoulDiceView from "./select/AugmentSoulDiceView";
 import AugmentRouletteView from "./select/AugmentRouletteView";
 import AugmentSkillSelectView from "./select/AugmentSkillSelectView";
 import AugmentTypeSelectView from "./select/AugmentTypeSelectView";
+import AugmentQuizView from "./select/AugmentQuizView";
 
 import { AUGMENT_POKEMON_PREVIEW_MAP, getAugmentGrantInfo } from "./augmentPreviewConstants";
 export { AUGMENT_POKEMON_PREVIEW_MAP, getAugmentGrantInfo };
@@ -65,6 +66,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   const [ninjaAppearedAug, setNinjaAppearedAug] = useState(null);
   const [soulDiceAug, setSoulDiceAug] = useState(null);
   const [rouletteAug, setRouletteAug] = useState(null);
+  const [quizAug, setQuizAug] = useState(null);
 
   const resolvedTeam = team && team.length > 0 ? team : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
 
@@ -227,6 +229,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     setNinjaAppearedAug(null);
     setSoulDiceAug(null);
     setRouletteAug(null);
+    setQuizAug(null);
   };
 
   const handleCardClick = (e, aug) => {
@@ -305,6 +308,11 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       return;
     }
 
+    if (targetAug.id === "pokemonQuiz") {
+      setQuizAug(targetAug);
+      return;
+    }
+
     if (["allOrNothing", "russianRoulette", "highRiskHighReturn", "randomAbility", "oddEven"].includes(targetAug.id)) {
       setRouletteAug(targetAug);
       return;
@@ -318,7 +326,17 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       <ModalOverlay $isPeek={isPeekMode} onClick={() => setIsPeekMode((prev) => !prev)}>
         <ModalWrapper onClick={(e) => e.stopPropagation()}>
           <ModalContainer $isPeek={isPeekMode} onClick={handleContainerClick}>
-            {rouletteAug ? (
+            {quizAug ? (
+              <AugmentQuizView
+                quizAug={quizAug}
+                activePokemon={activePokemon}
+                onSelect={(aug, opts) => {
+                  onSelect(aug, opts);
+                  setQuizAug(null);
+                }}
+                onCancel={() => setQuizAug(null)}
+              />
+            ) : rouletteAug ? (
               <AugmentRouletteView
                 rouletteAug={rouletteAug}
                 activePokemon={activePokemon}
