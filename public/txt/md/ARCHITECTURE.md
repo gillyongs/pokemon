@@ -8,282 +8,487 @@
 
 모든 개발 및 코드 수정 시 아래 원칙을 반드시 준수해야 합니다:
 
-1. **`pokemon.o`에선 최대한 불변의 값만을 사용하며, 외부에서 `pokemon.o`를 직접 참조하지 않고 `PokemonInstance` 인터페이스를 사용한다**
-   - 포켓몬 인스턴스(`PokemonInstance`) 외부 파일(`service`, `calc`, `component`, `npc`, `screen` 등)에서는 `p.o`에 절대로 직접 접근하지 않는다 (`p.o.skill` ❌ → `p.skill` ⭕, `p.o.stat` ❌ → `p.stat` ⭕, `p.o.feature` ❌ → `p.feature` ⭕, `p.o.role` ❌ → `p.role` ⭕ 등 getter 사용).
-   - 원본 타입/특성 복원은 전용 메서드(`p.resetType()`, `p.resetAbil()`)를 사용한다.
-   - 원본 기준 이름/체력/아이템/조사 확인은 전용 getter/헬퍼(`p.baseName`, `p.baseNames(postposition)`, `p.baseHp`, `p.hasConsumedItem`)를 사용한다.
-   - `o`(`samplePokemon`)는 복제 가능한 순수 기준 불변 데이터여야 한다.
-2. **`entity`에 선언된 인스턴스들은 무조건 존재하는 값이다**
-   - 불필요하게 `if()`문이나 다중 옵셔널 체이닝으로 인스턴스 필드의 존재 여부를 과도하게 체크하지 않는다.
-3. **`pokemon.id === ?? || pokemon.o.id === ?? || ...`와 같은 다중 중복 검사를 금지한다**
-   - 안정성을 이유로 몇 겹의 조건문 체크를 중복 작성하지 않고, 표준화된 단일 프로퍼티(예: `pokemon.name`, `pokemon.uniqueKey`, `pokemon.img_id`)를 사용하여 최소한의 필요한 코드만을 작성한다.
-4. **증강 판정은 최대한 `hasAugment`만을 사용한다**
-   - 증강에 대한 조건문 판정을 위해 기술(`Skill`)이나 포켓몬 객체에 임의의 커스텀 플래그/프로퍼티(예: `isLostTechnologyHyperBeam` 등)를 추가하지 말고, `pokemon.hasAugment("증강ID")`를 통해 직접 판정한다.
-5. **함수는 단 한가지 종류의 인자만을 사용한다**
-   - 각 인자의 type에 따라 유동적으로 다르게 처리(polymorphic argument)하지 않는다.
-   - 인자명과 전달되는 값의 타입이 일치해야 하며(예: 첫 번째 인자가 `hp`라면 객체가 아닌 실제 `hp` 숫자 값이 전달되어야 함), 다형적 인자 처리를 지양하고 명확하고 일관된 단일 타입 시그니처를 유지한다.
-6. **`export`해서 밖에서 사용하지 않는 함수는 `export`로 지정하지 않는다**
-   - 다른 파일에서 참조(import)하지 않는 함수는 불필요하게 `export`를 붙이지 않는다.
-   - 해당 파일 내부에서만 사용하는 작은 규모의 내부 함수는 파일 최대한 밑(하단)에 작성하여 상단의 주요 로직 및 공개 인터페이스의 가독성을 보장한다.
-7. **하위 호환용 래퍼 함수를 두지 말고 무조건 모든 호출부를 바꾼다**
-   - `getDataById(id) { return this.getPokemonDataByUniqueKey(id); }` 같은 과거 이름 지원용 하위 호환 래퍼 함수를 남기지 않는다.
-   - 함수/메서드 이름을 개선하거나 변경할 경우, 코드베이스의 모든 호출부를 전수 조사하여 새로운 표준 함수명으로 일괄 변경한다.
-8. **미리 쓰지도 않는 함수를 구현하지 않고 필요할 때 추가한다 (YAGNI)**
-   - `getDataByDexNo(dexNo)`처럼 현재 코드베이스 어디에서도 쓰이지 않는 미래 예측성 함수/유틸을 사전에 만들지 않는다.
-   - 실제로 기능 요구사항이 발생하여 호출이 필요해졌을 때만 구현한다.
+### 1. `PokemonInstance` 및 `Battle` 내부 값에 직접 접근하지 말고, `PokemonInstanceAccess`와 `BattleAccess`에 getter와 setter를 선언하여 접근 및 수정한다
+- 포켓몬 인스턴스(`PokemonInstance`) 및 배틀(`Battle`) 내부의 프로퍼티에 외부 파일(`service`, `calc`, `component`, `npc`, `screen` 등)에서 직접 접근(`p.o.xxx` 또는 `battle.field.xxx` 등)하여 값을 읽거나 변경하지 않는다.
+- 데이터 조회 및 변경은 반드시 `PokemonInstanceAccess.js`와 `BattleAccess.js`에 명시적으로 선언된 getter와 setter를 통해서만 수행하여 캡슐화와 데이터 무결성을 보장한다.
+
+```javascript
+// ❌ Bad (내부 프로퍼티 직접 침범 및 수정)
+const skill = pokemon.o.skill;
+const isSunny = battle.field?.weather?.isSunny?.(battle);
+pokemon.o.megaData.abil = newAbil;
+
+// ⭕ Good (Access 계층의 getter/setter 사용)
+const skill = pokemon.skill;       // PokemonInstanceAccess getter
+const isSunny = battle.isSunny;    // BattleAccess getter
+pokemon.megaAbil = newAbil;        // PokemonInstanceAccess setter
+```
 
 ---
 
-## 1. 🧭 작업별 수정 위치 빠른 라우팅 테이블 (Task-to-File Routing)
+### 2. 코드는 필요한 코드만 간결하게 작성한다
+- **2-1. 과도한 다중 조건문 금지**: "혹시 몰라서" 조건문을 여러 겹으로 엮지 않는다. 코드를 분석하여 런타임에 보장된 정확한 단일 값만을 조건에 사용한다.
+```javascript
+// ❌ Bad (혹시 몰라 여러 경로를 중복해서 검사)
+if (pokemon.abil?.name === "가뭄" || pokemon.abil === "가뭄" || pokemon.o?.abil === "가뭄" || pokemon.o?.abil?.name === "가뭄")
+
+// ⭕ Good (정확히 필요한 단일 값만 사용)
+if (pokemon.abil.name === "가뭄")
+```
+- **2-2. 사용하지 않는 함수를 미리 작성하지 않는다 (YAGNI)**: 새로운 객체나 모듈을 구현할 때 "나중에 쓸 것 같다"는 추측으로 미리 함수를 작성해놓지 않는다. 모든 함수는 실제로 해당 기능이 필요해지는 시점에 구현한다.
+```javascript
+// ❌ Bad (실제 호출부가 없는 미래 대비용 메서드 사전 작성)
+class PokemonSampleList {
+  getDataByDexNo(dexNo) { ... } // 현재 코드베이스 어디에서도 쓰이지 않음
+}
+
+// ⭕ Good (실제 요구사항에 의해 호출되는 필수 메서드만 작성)
+class PokemonSampleList {
+  getDataBySampleName(name) { ... }
+  getDataByUniqueKey(key) { ... }
+}
+```
+- **2-3. 함수의 인자 타입 및 순서는 고정하여 사용한다**: 각 인자의 type에 따라 유동적으로 다르게 분기 처리(polymorphic argument)하지 않는다. 인자의 이름과 전달되는 값의 타입 및 순서를 명확하게 고정된 단일 시그니처로 유지한다.
+```javascript
+// ❌ Bad (인자 타입에 따라 유동적으로 다르게 처리)
+function calculateHp(pokemonOrHp, optionsOrBattle) {
+  if (typeof pokemonOrHp === "number") { ... }
+  else if (pokemonOrHp.stat) { ... }
+}
+
+// ⭕ Good (명확하고 고정된 단일 타입 시그니처)
+function hpCalculate(pokemon) {
+  const baseHp = pokemon.baseHp;
+  ...
+}
+```
+
+---
+
+### 3. `export`해서 밖에서 사용하지 않는 함수는 `export`로 지정하지 않는다
+- 다른 파일에서 참조(`import`)하지 않는 함수는 불필요하게 `export`를 붙이지 않는다.
+- 해당 파일 내부에서만 사용하는 작은 규모의 내부 함수는 파일 최대한 밑(최하단)에 작성하여 상단의 주요 로직 및 공개 인터페이스의 가독성을 보장한다.
+
+```javascript
+// ❌ Bad (내부 전용 헬퍼에 무분별한 export 남발 & 파일 상단 배치)
+export function parseSpeedModifier(...) { ... } // 이 파일에서만 쓰임
+export const speedCalculate = (pokemon, ...) => { ... };
+
+// ⭕ Good (상단: 주요 공개 API / 하단: export 없는 순수 내부 헬퍼)
+export const speedCalculate = (pokemon, ...) => {
+  ...
+  const modifier = parseSpeedModifier(pokemon);
+};
+
+// --- 내부 헬퍼 함수 (파일 하단에 작성, export 금지) ---
+function parseSpeedModifier(pokemon) { ... }
+```
+
+---
+
+### 4. 특정 함수나 변수명을 바꾸라 지시하였을 때 하위 호환용 래퍼 함수를 두지 말고 무조건 모든 호출부를 바꾼다
+- 함수명이나 프로퍼티명을 변경할 때, 기존 코드가 깨질 것을 염려하여 이전 이름을 남겨두는 하위 호환용 래퍼 함수를 방치하지 않는다.
+- 코드베이스 전체(`git grep`)를 전수 조사하여 모든 호출부를 새로운 표준 명칭으로 일괄 변경한다.
+
+```javascript
+// ❌ Bad (이전 이름 지원용 하위 호환 래퍼 방치)
+getDataById(id) {
+  return this.getPokemonDataByUniqueKey(id); // 기술 부채 누적
+}
+
+// ⭕ Good (래퍼 없이 모든 호출부를 직접 일괄 수정)
+// 코드베이스 전체에서 getDataById(...)를 getPokemonDataByUniqueKey(...)로 일괄 치환
+```
+
+---
+
+### 5. 옵셔널 체이닝(`?.`)을 최대한 사용하지 않는다
+- `PokemonInstance`와 `Battle`은 생성자에서 모든 프로퍼티를 명시적으로 선언하고 `null`, `false`, `0`, 빈 객체 등으로 초기화해두고 있으므로 정상적인 인스턴스에서 특정 프로퍼티가 존재하지 않는 경우는 없다.
+- 습관적으로 `?.`을 남발하면 오타나 구조적 결함 같은 런타임 오류가 조용히 `undefined`로 무마되어 디버깅과 에러 탐지 기회를 놓치게 된다. 필수 불가결한 경우를 제외하고는 직접 접근을 사용하여 오류 발생 시 즉시 발견되도록 한다.
+
+```javascript
+// ❌ Bad (과도한 ? 사용으로 프로퍼티 오타/버그 은폐)
+const atkRank = pokemon?.tempStatus?.rank?.atk;
+if (pokemon?.ailment?.burn) { ... }
+
+// ⭕ Good (명확한 속성 접근 - 구조적 오류 즉각 탐지 가능)
+const atkRank = pokemon.tempStatus.rank.atk;
+if (pokemon.ailment.burn) { ... }
+```
+
+---
+
+### 6. `PokemonInstance`나 `Battle`에 프로퍼티 추가 시 해당 파일에 해당 프로퍼티를 명시적으로 적어놓는다
+- 즉, 해당 파일(`PokemonInstance.js` 또는 `Battle.js`)에 미리 적혀있지 않은 동적 프로퍼티를 외부 파일이나 런타임에서 함부로 선언/할당하지 않는다.
+- 새로운 상태나 플래그가 필요하다면 반드시 해당 클래스의 생성자(`constructor`)에 기본값(`null`, `false`, `0` 등)과 설명을 명시적으로 선언해 둔 뒤 사용한다.
+
+```javascript
+// ❌ Bad (외부 파일에서 임의의 런타임 동적 프로퍼티 할당)
+// someService.js
+pokemon.myCustomTurnFlag = true; // PokemonInstance.js에 정의되어 있지 않음!
+
+// ⭕ Good (PokemonInstance.js 생성자에 명시적 선언 후 사용)
+// src/entity/Pokemon/PokemonInstance.js
+class PokemonInstance {
+  constructor(...) {
+    ...
+    this.myCustomTurnFlag = false; // [기능 설명] 신규 플래그 명시적 초기화
+  }
+}
+```
+
+---
+
+### 7. 증강 판정은 최대한 `hasAugment`만을 사용한다
+- 증강에 대한 조건문 판정을 위해 기술(`Skill`)이나 포켓몬 객체에 임의의 커스텀 플래그/프로퍼티(예: `isLostTechnologyHyperBeam` 등)를 추가하거나 `augments` 배열을 직접 순회하며 특정 아이디가 존재하는지 체크하지 않고, `pokemon.hasAugment("증강ID")`를 통해 직접 판정한다.
+
+```javascript
+// ❌ Bad (커스텀 플래그 주입 또는 배열 직접 순회)
+if (skill.isLostTechnologyHyperBeam) { ... }
+if (pokemon.augments?.some((a) => (typeof a === "string" ? a === "lifePartner" : a.id === "lifePartner"))) { ... }
+
+// ⭕ Good (표준 hasAugment 메서드로 직접 판정)
+if (pokemon.hasAugment("lostTechnologyHyperBeam")) { ... }
+if (pokemon.hasAugment("lifePartner")) { ... }
+```
+
+---
+
+## 1. 🏗️ 전체 시스템 아키텍처 및 데이터 흐름 (System Overview)
+
+본 프로젝트는 **동기식 턴 배틀 시뮬레이션 엔진**과 **React 기반 프레젠테이션 UI**가 완전히 분리된 구조를 가집니다. 배틀 1턴의 모든 연산(공격, 교체, 상태이상, 증강 효과 등)은 동기 함수에서 즉시 계산되며, 계산 과정마다 상태 스냅샷이 큐(`queue`)에 적재되어 UI에서 순차적으로 재생됩니다.
+
+```mermaid
+flowchart TD
+    subgraph DataLayer ["1. 데이터 & 엔티티 계층 (Data & Entity Layer)"]
+        RawData["PokemonData / SkillList / AugmentData"] --> SampleList["pokemonSampleList (샘플 템플릿)"]
+        SampleList --> Instance["PokemonInstance (런타임 포켓몬)"]
+        Instance --> Battle["Battle (배틀 전체 런타임 상태)"]
+        Access["PokemonInstanceAccess / BattleAccess (Getter & Setter 캡슐화)"] -.->|캡슐화 접근| Instance
+        Access -.->|캡슐화 접근| Battle
+    end
+
+    subgraph ServiceLayer ["2. 배틀 서비스 계층 (Execution & Mutation Layer)"]
+        BattleStart["battleStart.js (턴 스케줄러)"]
+        SkillUse["skillUse.js (기술 사용 실행)"]
+        Switch["switch.js (포켓몬 교체)"]
+        Damage["damage.js (HP 차감/기절/처형)"]
+        TurnEnd["turnEnd.js (턴 종료/지속효과)"]
+        
+        BattleStart --> Switch
+        BattleStart --> SkillUse
+        SkillUse --> Damage
+        BattleStart --> TurnEnd
+    end
+
+    subgraph CalcLayer ["3. 순수 계산 계층 (Pure Calculation Layer)"]
+        DmgCalc["damageCalculate.js (데미지 공식)"]
+        HpCalc["hpCalculate.js (최대 HP 산출)"]
+        StatCalc["getStat.js (기초 스탯 산출)"]
+        SpeedCalc["speedCheck.js (스피드/우선도)"]
+        AccCalc["accuracyCalculate.js (명중 판정)"]
+    end
+
+    subgraph QueueLayer ["4. 스냅샷 큐 계층 (Snapshot Queue Layer)"]
+        Enqueue["enqueue({ battle, text })<br/>(cloneWithMethods로 deep copy)"]
+        QueueState["Recoil queueState"]
+        Dequeue["dequeue() (클릭 또는 자동 진행)"]
+        
+        Enqueue --> QueueState --> Dequeue
+    end
+
+    subgraph UILayer ["5. 프레젠테이션 UI 계층 (React UI Layer)"]
+        BattleScreen["BattleScreen (메인 배틀 화면)"]
+        PokemonInfo["PokemonInfo / Bottom-Info (체력바/스탯)"]
+        AugmentModal["AugmentSelectModal / CarryoverModal"]
+        
+        Dequeue --> BattleScreen
+        BattleScreen --> PokemonInfo
+        BattleScreen --> AugmentModal
+    end
+
+    Battle --> BattleStart
+    ServiceLayer <--> CalcLayer
+    ServiceLayer -->|상태 변이 후 연출 발행| Enqueue
+```
+
+---
+
+## 2. 🧭 작업별 수정 위치 빠른 라우팅 테이블 (Task-to-File Routing)
 
 특정 기능을 수정하거나 추가할 때 반드시 함께 확인·수정해야 하는 파일 목록입니다.
 
-| 작업 유형                      | 필수 수정 / 확인 파일                                                                                                                                                                                                                                                                                                                                                                                         | 핵심 체크포인트                                                                                                                                                                               |
-| :----------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **신규 증강(Augment) 추가**    | 1. `src/entity/Augment/AugmentData.js` (`AUGMENT_LIST`, 필요 시 `AUGMENT_SYNERGY_MAP`, `getAugmentDesc`)<br>2. `src/component/battleScreen/augment/AugmentIcon.js` (아이콘 SVG 또는 PNG `<image>`, 배경 원 제외 조건 `L755`)<br>3. 효과 발동처 (`damageCalculate.js` / `speedCheck.js` / `hpCalculate.js` / `getStat.js` / `turnEnd.js` / `onHit.js` / `damage.js` 등)                                        | - PNG 아이콘이고 자체 원형 테두리가 있으면 `AugmentIcon.js` 베이스 배경 원 조건(`id !== "..."`)에 추가할 것.<br>- 스택/상태를 가지는 증강이면 아래 **라운드 승계 4대 직렬화 지점** 필수 수정. |
-| **스택/상태형 증강 승계 추가** | 1. `src/entity/Pokemon/PokemonInstance.js` (생성자 프로퍼티 초기화 & `applyAugment` 내 `isBuf` 재적용 조건)<br>2. `src/entity/Augment/AugmentData.js` (`onApply`에서 `options` 복원, `getDesc` 표기)<br>3. `src/component/battleScreen/augment/AugmentCarryoverModal.js` (`carriedMap` 직렬화)<br>4. `src/store/battleStore.js` (`effectiveCarriedMap` → `serializedCarried` → 초기 `applyAugment` 호출 옵션) | `navigate("/battle", { state })`는 함수를 복제할 수 없으므로(`DataCloneError`), plain 객체(`serializedCarried`)에 상태 필드를 명시적으로 복사해야 다음 라운드로 전달됨.                       |
-| **최대 HP 관련 로직 수정**     | `src/calc/hpCalculate.js`                                                                                                                                                                                                                                                                                                                                                                                     | `p.o.hp`를 직접 수정하지 말고 `hpCalculate(pokemon)` 내부에 곱연산/합연산 규칙을 추가할 것. 배틀 내 최대 HP 조회는 모두 `hpCalculate(p)`를 통함.                                              |
-| **공격/특공 기초 스탯 증강**   | `src/calc/getStat.js` (`getAugmentedStat`, `getHighestStatInfo`)                                                                                                                                                                                                                                                                                                                                              | 합연산(`swordEnhance`, `mejaisSoulstealer`) → 곱연산(`lifePartner`, `rabadonsDeathcap`, `allOrNothing`) → 팀 버프(`echoOfHero`) 순서로 계산됨.                                                |
-| **스피드/우선도 계산 수정**    | `src/calc/speedCheck.js` (`speedCalculate`, `priCalculate`, `skillSpeedCheck`, `speedCheck`)                                                                                                                                                                                                                                                                                                                  | 메가진화 예상 스피드는 `getExpectedMegaSpeed`에서 별도 가상 뷰(`megaPokemonView`)로 계산됨.                                                                                                   |
-| **데미지 공식/배율 수정**      | `src/calc/damageCalculate.js` (공식), `src/service/damage.js` (실제 체력 차감/기띠/옹골참/탈/대타/처형)                                                                                                                                                                                                                                                                                                       | `damageCalculate`는 순수 계산(로그 기록 포함)만 수행하고, 실제 HP 감소·기절·열매·처형은 `damage.js`(`attackDamage`)와 `PokemonGetDamage.js`에서 수행함.                                       |
-| **턴 종료 효과 추가/수정**     | `src/service/turnEnd.js`                                                                                                                                                                                                                                                                                                                                                                                      | **주의**: `battle.resetBattleTurn()`은 반드시 `turnEnd.js` 맨 마지막 줄에서 호출되어야 함.                                                                                                    |
-| **기술(Skill) 추가/수정**      | `src/entity/Skill/PokemonSkillList.js`, `src/entity/Skill/skillList/*.js`, `src/entity/Skill/SkillEffect.js`, `src/entity/Skill/SkillRequirement.js`                                                                                                                                                                                                                                                          | 공격 전 체크는 `src/service/skillCheck.js`, 명중 후 접촉 판정은 `src/service/onHit.js`, 부가효과는 `SkillEffect.js`에서 처리.                                                                 |
-| **특성(Ability) 추가/수정**    | `src/entity/Ability.js` (`abilObject`, `noTraceAbil`, `noRandomAbil`, `applyAbilityEffects`) 및 `PokemonAbil.js` (`changeAbil`)                                                                                                                                                                                                                                                                               | 등장 시 발동 특성은 `applyAbilityEffects`, 스킨류 특성은 `src/calc/skillTypeCalculate.js` & `damageCalculate.js` 연동.                                                                        |
-| **NPC AI 판단 로직 수정**      | `src/npc/npc.js`, `src/npc/ai/easy.js` (`getKillableSkill`, `calculatePokemonSwitchScore`), `src/npc/ai/calculateSkillScore.js`                                                                                                                                                                                                                                                                               | AI가 데미지를 시뮬레이션할 때는 `damageCalculate(..., { ai: true, randNum })`를 사용하여 `pokemon.log` 오염 및 일반 급소 변수를 배제함.                                                       |
+| 작업 유형 | 필수 수정 / 확인 파일 | 핵심 체크포인트 |
+| :--- | :--- | :--- |
+| **신규 증강(Augment) 추가** | 1. `src/entity/Augment/AugmentData.js` (`AUGMENT_LIST`, 필요 시 `AUGMENT_SYNERGY_MAP`, `getAugmentDesc`)<br>2. `src/component/battleScreen/augment/AugmentIcon.js` (아이콘 SVG 또는 PNG `<image>`, 배경 원 제외 조건 `id !== "..."`)<br>3. 효과 발동처 (`damageCalculate.js` / `speedCheck.js` / `hpCalculate.js` / `getStat.js` / `turnEnd.js` / `onHit.js` / `damage.js` 등)<br>4. 신규 상태 프로퍼티 필요 시 `PokemonInstance.js` 및 `PokemonInstanceAccess.js` | - 증강 판정은 항상 `pokemon.hasAugment("id")`를 사용.<br>- 교체형 증강(`isChange: true`)은 우측 상단에 '교체' 배지 표시.<br>- 스택/상태를 가지는 증강이면 아래 **라운드 승계 4대 직렬화 지점** 필수 수정. |
+| **스택/상태형 증강 승계 추가** | 1. `src/entity/Pokemon/PokemonInstance.js` (생성자 프로퍼티 초기화 & `applyAugment` 내 `isBuf` 재적용 조건)<br>2. `src/entity/Augment/AugmentData.js` (`onApply`에서 `options` 복원, `getDesc` 표기)<br>3. `src/component/battleScreen/augment/AugmentCarryoverModal.js` (`carriedMap` 직렬화)<br>4. `src/store/battleStore.js` (`effectiveCarriedMap` → `serializedCarried` → 초기 `applyAugment` 호출 옵션) | `navigate("/battle", { state })`는 함수를 복제할 수 없으므로(`DataCloneError`), plain 객체(`serializedCarried`)에 상태 필드를 명시적으로 복사해야 다음 라운드로 전달됨. |
+| **최대 HP 관련 로직 수정** | 1. `src/calc/hpCalculate.js`<br>2. `src/entity/Pokemon/Methods/PokemonInstanceAccess.js` (`maxHp` getter) | `pokemon.o.hp`를 직접 수정하지 말고 `hpCalculate(pokemon)` 내부에 곱연산/합연산 규칙을 추가할 것. 배틀 내 최대 HP 조회는 모두 `hpCalculate(p)` 또는 `p.maxHp`를 통함. |
+| **공격/특공/스탯 증강 수정** | `src/calc/getStat.js` (`getAugmentedStat`, `getHighestStatInfo`) | 합연산(`swordEnhance`, `mejaisSoulstealer`) → 곱연산(`lifePartner`, `rabadonsDeathcap`, `allOrNothing`, `believeInMyself`) → 팀 버프(`echoOfHero`) 순서로 계산됨. |
+| **스피드/우선도 계산 수정** | `src/calc/speedCheck.js` (`speedCalculate`, `priCalculate`, `skillSpeedCheck`, `speedCheck`) | 메가진화 예상 스피드는 `getExpectedMegaSpeed`에서 가상 뷰(`megaPokemonView`)로 계산됨. `believeInMyself` 등 스피드 배율 적용 여부 확인. |
+| **데미지 공식/배율 수정** | `src/calc/damageCalculate.js` (공식 산출), `src/service/damage.js` (실제 체력 차감/기띠/옹골참/탈/대타/처형) | `damageCalculate`는 순수 계산(로그 기록 포함)만 수행하고, 실제 HP 감소·기절·열매·처형은 `damage.js`(`attackDamage`)와 `PokemonGetDamage.js`에서 수행함. |
+| **턴 종료 효과 추가/수정** | `src/service/turnEnd.js` | **주의**: `battle.resetBattleTurn()`은 반드시 `turnEnd.js` 맨 마지막 줄에서 호출되어야 함. 워모그, 태불방, 거인의 흡수 등 지속 효과 처리 순서 준수. |
+| **기술(Skill) 추가/수정** | `src/entity/Skill/PokemonSkillList.js`, `src/entity/Skill/skillList/*.js`, `src/entity/Skill/SkillEffect.js`, `src/entity/Skill/SkillRequirement.js` | 공격 전 체크는 `src/service/skillCheck.js`, 명중 후 접촉 판정은 `src/service/onHit.js`, 부가효과는 `SkillEffect.js`에서 처리. |
+| **특성(Ability) 추가/수정** | `src/entity/Ability.js` (`abilObject`, `noTraceAbil`, `noRandomAbil`, `applyAbilityEffects`) 및 `PokemonAbil.js` (`changeAbil`) | 공식 설명 텍스트 등록 필수. 등장 시 발동 특성은 `applyAbilityEffects`, 스킨류 특성은 `src/calc/skillTypeCalculate.js` & `damageCalculate.js` 연동. |
+| **도구(Item) 추가/수정** | `src/entity/Item.js` (`itemText`, `noNullItem`), `src/component/customScreen/sampleInfo/ItemSearchModal.js` | **도구 이미지는 사용자가 직접 관리하므로 `public/img/item/` 디렉터리는 절대 수정하지 않는다.** |
+| **NPC AI 판단 로직 수정** | `src/npc/npc.js`, `src/npc/ai/easy.js` (`getKillableSkill`, `calculatePokemonSwitchScore`), `src/npc/ai/calculateSkillScore.js` | AI가 데미지를 시뮬레이션할 때는 `damageCalculate(..., { ai: true, randNum })`를 사용하여 `pokemon.log` 오염 및 일반 급소 변수를 배제함. |
 
 ---
 
-## 2. 🧬 `PokemonInstance` 상태 계층 및 `p.o` 변이 명세
+## 3. 🧬 `PokemonInstance` & `Battle` 상태 계층 및 Access 캡슐화 명세
 
-런타임 포켓몬 객체(`src/entity/Pokemon/PokemonInstance.js`)는 상태의 수명(Lifecycle)에 따라 5개 계층으로 분리되어 있습니다.
+런타임 포켓몬 객체(`src/entity/Pokemon/PokemonInstance.js`)와 배틀 객체(`src/entity/Battle.js`)는 상태의 수명(Lifecycle)에 따라 계층화되어 있으며, **외부 파일에서는 직접 내부 프로퍼티를 건드리지 않고 Access 계층의 getter/setter를 통해 접근**합니다.
 
-### 2.1 상태 계층 요약
+### 3.1 캡슐화 계층 (`PokemonInstanceAccess.js` & `BattleAccess.js`)
 
-1. **`p.o` (원본 기준 데이터 - `PokemonInstance` 내부 전용)**
+- **원칙**: 외부 파일(`service/`, `calc/`, `component/`, `npc/`, `screen/`)에서 `pokemon.o.xxx` 또는 `battle.field.xxx`로 직접 접근하는 것을 금지합니다.
+- **`PokemonInstanceAccess` 주요 Getter / Setter**:
+  - `pokemon.sampleName`, `pokemon.dexNo`, `pokemon.uniqueKey`, `pokemon.id` (불변 식별자)
+  - `pokemon.stat` (기본 스탯 객체: `{ atk, def, catk, cdef, speed }`)
+  - `pokemon.baseHp` (기본 체력 실수치)
+  - `pokemon.maxHp` (`hpCalculate(this)` 자동 호출을 통한 증강 반영 최대 HP)
+  - `pokemon.skill` (기술 슬롯 객체 `o.skill`)
+  - `pokemon.megaData`, `pokemon.megaAbil` (메가진화 데이터 및 특성 getter/setter)
+- **`BattleAccess` 주요 Getter / Setter**:
+  - `battle.isSunny`, `battle.isRain`, `battle.isSandstorm`, `battle.isSnow` (날씨 판정)
+  - `battle.isTrickRoom`, `battle.isElectricTerrain`, `battle.isGrassyTerrain`, `battle.isPsychicTerrain`, `battle.isMistyTerrain` (필드 판정)
+  - `battle.turn` (현재 턴 번호 및 턴 상태)
+
+---
+
+### 3.2 `PokemonInstance` 5단계 수명주기(Lifecycle) 프로퍼티
+
+1. **`p.o` (불변 스펙 데이터 - `PokemonInstance` 내부 캡슐화)**
    - 샘플 템플릿(`pokemonSampleList.js`)을 `cloneWithMethods`로 복제한 객체.
-   - 기본 종족값/실수치(`o.hp`, `o.stat.{atk,def,catk,cdef,speed}`), 원본 타입(`o.type1`, `o.type2`), 원본 특성(`o.abil`: `{ name, text, feature, used }`), 원본 아이템(`o.item`), 기술 슬롯(`o.skill[1~5]`), 메가진화 데이터(`o.megaData`) 보유.
-   - **중요**: `p.o`는 클래스 내부 전용(캡슐화)으로 취급되며, 외부 파일(`service`, `calc`, `component`, `npc` 등)에서 직접 접근할 수 없습니다. 불변 스펙(`skill`, `stat`, `feature`, `role`, `megaData`, `baseHp` 등)은 `PokemonInstance`의 getter를 사용하고, 원본 복원은 `resetType()`, `resetAbil()` 등의 전용 메서드를 통해 수행합니다.
+   - 기본 실수치(`o.hp`, `o.stat`), 원본 타입(`o.type1`, `o.type2`), 원본 특성(`o.abil`), 원본 아이템(`o.item`), 기술 슬롯(`o.skill[1~5]`), 메가진화 데이터(`o.megaData`) 보유.
+   - **외부 직접 접근 금지**: `p.stat`, `p.skill`, `p.maxHp` 등 getter를 사용하고 원본 복원은 `resetType()`, `resetAbil()` 등의 전용 메서드를 사용.
 2. **`p` 최상위 프로퍼티 (배틀 내 영구/가변 상태)**
-   - `p.hp` (현재 체력), `p.faint` (기절 여부), `p.type1` / `p.type2` (현재 타입 - 날개쉬기 등으로 임시 변경 가능), `p.item` (현재 아이템 - 탁쳐서떨구기/자뭉열매 소모 시 `null`), `p.abil` (현재 특성 객체 - `{ name, text, feature, used }`), `p.pp` (`{1,2,3,4,5}`), `p.isMega`, `p.augments` (보유 증강 배열).
-   - 증강 누적 상태값: `p.dragonKillCount` (용용죽겠지), `p.mejaiStack` (메자이), `p.practiceCritStack` (연습이 치명타를 낳는다), `p.giantBonusHp` / `p._appliedGiantBonusHp` (거인의 흡수), `p._appliedLifePartnerHp` (인생의 동반자), `p.hasEchoOfHeroBuff` (영웅의 메아리).
-3. **`p.ailment` (주요 상태이상 - 기절 시 `damage.js` 또는 치유 기술로만 초기화)**
-   - `{ burn, freeze, poison, mpoison, mabi, sleep }` (교체해도 유지됨).
-4. **`p.tempStatus` (교체 시 초기화되는 상태 - `src/service/switch.js`의 `switchPokemon`)**
+   - `p.hp` (현재 체력), `p.faint` (기절 여부), `p.type1` / `p.type2` (현재 타입 - 날개쉬기 등으로 임시 변경 가능), `p.item` (현재 아이템 - 소모/탈취 시 `null`), `p.abil` (현재 특성 객체), `p.pp` (`{1,2,3,4,5}`), `p.isMega`, `p.augments` (보유 증강 배열).
+   - 증강 상태값: `p.dragonKillCount` (용용죽겠지), `p.mejaiStack` (메자이), `p.practiceCritStack` (연습이 치명타를 낳는다), `p.giantBonusHp` (거인의 흡수), `p.hasEchoOfHeroBuff` (영웅의 메아리).
+3. **`p.ailment` (주요 상태이상 - 교체해도 유지됨)**
+   - `{ burn, freeze, poison, mpoison, mabi, sleep }`
+   - 기절 또는 전용 치유 기술/아이템으로만 해제.
+4. **`p.tempStatus` (교체 시 초기화되는 상태 - `src/service/switch.js`)**
    - `rank: { atk, def, catk, cdef, speed, critical }` (-6 ~ +6)
-   - `confuse`, `onlySkill` (구애 고정 기술), `recentSkillUse`, `recentSkillGet`, `hapum` (하품), `noSound` (지옥찌르기), `protectUse` (방어 연속 횟수), `taunt` (도발), `protosynthesis`, `quarkDrive`, `seed` (씨뿌리기), `substitute` / `substituteHp` (대타출동), `flashFire` (타오르는불꽃), `switchLock` / `switchLockTurnRemain` (구속), `firstTurn` (속이기/만나자마자 판정용), `turnsOnField` (슬로스타트/패스트스타트 턴 카운트).
-5. **`p.turn` (매 턴 종료 시 초기화되는 상태 - `Battle.resetBattleTurn()` in `src/entity/Battle.js`)**
-   - `choice`, `fullDeath` (풀죽음), `jumpKickFail`, `roost` (날개쉬기), `critical`, `recentDamageGive`, `recentDamageGet`, `protect`, `useSkill`, `substitute` (이번 턴 대타 상태 여부), `lastHitSubstitute`, `knockedOutNpcThisTurn` (이번 턴 적 처치 여부), `damagedThisTurn` (워모그의 갑옷 피격 판정용).
+   - `confuse`, `onlySkill` (구애 고정), `recentSkillUse`, `recentSkillGet`, `hapum` (하품), `noSound` (지옥찌르기), `protectUse` (연속 방어 카운트), `taunt` (도발), `substitute` / `substituteHp` (대타출동), `flashFire` (타오르는불꽃), `switchLock` (구속), `firstTurn` (속이기/만나자마자 판정용), `turnsOnField` (슬로스타트/패스트스타트 카운트).
+5. **`p.turn` (매 턴 종료 시 초기화되는 상태 - `Battle.resetBattleTurn()`)**
+   - `choice`, `fullDeath` (풀죽음), `jumpKickFail`, `roost` (날개쉬기), `critical`, `recentDamageGive`, `recentDamageGet`, `protect`, `useSkill`, `substitute` (이번 턴 대타 판정), `lastHitSubstitute`, `knockedOutNpcThisTurn`, `damagedThisTurn` (워모그 무피격 판정용).
 
 ---
 
-### 2.2 `p.o` 자체가 바뀌는 경우 (객체 참조 교체)
+### 3.3 `p.o` 내부 프로퍼티 수정이 허용되는 6가지 예외 지점
 
-`p.o` 참조 자체가 통째로 할당되거나 교체되는 경우는 전체 코드베이스에서 아래뿐입니다:
+`hpCalculate`와 Access 계층 도입 이후, `p.o` 내부가 수정되는 지점은 시스템 핵심 라이프사이클의 다음 6가지로 엄격히 제한됩니다:
 
-1. **인스턴스 최초 생성 (`generatePokemonInstance(entry)` → `new PokemonInstance(sample)` in `src/entity/Pokemon/PokemonInstance.js`)**
-   - `generatePokemonInstance`가 `sampleList.buildSample(entry)`로 커스텀까지 반영된 완성 샘플을 만들고, 생성자는 `this.o = cloneWithMethods(sample);`만 수행.
-2. **증강에 의한 포켓몬 교체 (`replacePokemon` in `src/entity/Augment/AugmentData.js:1093-1120`)**
-   - `newPoke = generatePokemonInstance(...)` 생성 후 `Object.assign(pokemon, newPoke)`를 수행하여 기존 `pokemon` 인스턴스 참조는 유지한 채 `pokemon.o`를 새 포켓몬의 `o`로 통째로 교체함 (`originalIndex`와 `team`은 유지).
-   - 호출처:
-     - `marriedPokemon` ("포켓몬과 결혼한 사람이 있었다" - `AugmentData.js:409`)
-     - `rouletteWheel` ("돌려 돌려 돌림판" - `AugmentData.js:457`)
-     - `soaring` ('"메가" 플라이곤' - `AugmentData.js:589`)
-     - `legendaryTitan` ("전설의 거인" - `AugmentData.js:603`)
-3. **(참조용 임시 뷰) 메가진화 예상 스피드 계산 (`getExpectedMegaSpeed` in `src/calc/speedCheck.js:126-129`)**
-   - 원본을 수정하지 않고 `{ ...pokemon, o: { ...pokemon.o, stat: megaStat } }` 얕은 복사 뷰를 만들어 `speedCalculate`에 전달.
-4. **(참고) 배틀 종료 후 상대 포켓몬 트레이드 (`submitTrade` in `src/store/battleStore.js:736-774`)**
-   - `curBattle.player = newPoke` 형태로 슬롯의 `PokemonInstance` 자체를 교체함.
-
----
-
-### 2.3 `p.o` 내부의 값(`p.o.xxx`)이 바뀌는 경우
-
-`hpCalculate` 도입 이후 **`o.hp`와 `o.stat`은 일반 배틀/증강 중 직접 수정하지 않는 것이 원칙**이며, 실제로 `p.o` 내부 프로퍼티가 수정되는 곳은 아래 7가지 경우로 제한됩니다:
-
-1. **`PokemonInstance` 생성자 초기 설정 (`src/entity/Pokemon/PokemonInstance.js`)**
-   - _(커스텀 엔트리(item/abil/skills/hp/stat/evs/nature/megaData) 반영은 생성자가 아니라 `sampleList.buildSample(entry)` (`src/entity/Pokemon/pokemonSampleList.js`)에서 원본 샘플을 복제해 수행하며, 생성자는 완성된 sample 하나만 인자로 받음)_
-   - NPC 난이도/라운드 스케일링 (`options.isNpc && options.difficulty !== "이지"`):
-     - `multiplier = 1.0 + (options.round - 1) * 0.1`
-     - 노말/하드 공통: `this.o.hp = Math.floor(this.o.hp * multiplier)`
-     - 하드 전용: `this.o.stat.{atk,def,catk,cdef,speed}`에 `multiplier` 곱적용
-   - _(5번 기술 발버둥은 `samplePokemon` 생성 시 `skill[5]`로 기본 포함됨)_
-     - _(참고: 스킨류 특성 타입 변환은 `o.skill`을 변경하지 않고 `src/calc/skillTypeCalculate.js`에서 동적 계산)_
-2. **메가진화 실행 (`PokemonMega.megaEvolve` in `src/entity/Pokemon/Methods/PokemonMega.js:36-50`)**
-   - `this.o.type1`, `this.o.type2`, `this.o.uniqueKey` (`L36-38`)
-   - `this.o.stat.{atk,def,catk,cdef,speed}` = 메가진화 스탯 (`L41-45`, 체력은 불변)
-   - `this.o.abil`, `this.abil` = 메가진화 특성 객체
-3. **무한 다이맥스 증강 (`applyEternamax` in `src/entity/Augment/AugmentData.js:998-1060`)**
-   - 무한다이노가 `eternamax` 증강 적용 시 종족값(255/115/250/125/250/130) 기반으로 재계산:
-     - `o.hp = newMaxHp` (`L1030`, 기존 체력 비율 유지 계산 시 `hpCalculate(pokemon)`과 연동)
-     - `o.stat = { ...o.stat, ...newStats }` (`L1050`)
-     - `o.uniqueKey = "0890-m"`, `o.baseStats = baseStats` (`L1056-1058`)
-4. **증강을 통한 특성 영구 변경 (`pokemon.changeAbil` in `src/entity/Pokemon/Methods/PokemonAbil.js`)**
-   - `pokemon.abil`뿐만 아니라 `pokemon.o.abil = { ...baseObj }`까지 함께 변경.
-   - 호출 증강: `hugePower`(천하장사), `fastStarter`(패스트스타트), `randomAbility`(특성 야바위).
-   - _(주의: 배틀 중 `트레이스` 특성은 `atk.abil`만 바꾸며 `o.abil`은 변경하지 않음)_
-5. **증강을 통한 기술 슬롯 변경/강화 (`src/entity/Augment/AugmentData.js`)**
-   - 모든 기술 실행(`skillUse.js`, `damageCalculate.js`)과 UI가 `pokemon.o.skill[slot]`을 참조하므로 아래 증강들은 `pokemon.o.skill[slot]`을 새 객체로 교체함:
-     - `teraBlast` (테라버스트 교체 - `L522`)
-     - `nameIsSalamence` (보만다 지진 교체 - `L544`)
-     - `danceOfGarchomp` (한카리아스 용의춤 교체 - `L562`)
-     - `nimbleMoves` (민첩한 몸놀림: `prior: currentPrior + 1`, `nimbleMoves: true` 부여 - `L637`)
-6. **테스트 모드 NPC 즉시 전멸 버튼 (`handleTestSkipNpc` in `src/store/battleStore.js:776-798`)**
-   - _(참고: 따라큐 '탈' 특성 소모는 `o.abil`을 변경하지 않고 `defPokemon.abil.used = true`로 관리하며, 상세 정보 UI(`Bottom-Info.js`)에서 `pokemon.abil.used`가 `true`일 때만 `(사용됨)`을 붙여 렌더링함)_
-   - `curBattle[key].o.hp = 0; curBattle[key].o.faint = true;`
+1. **`PokemonInstance` 생성자 초기화 (`PokemonInstance.js`)**:
+   - NPC 난이도/라운드 스케일링 (노말/하드 체력 배율, 하드 5스탯 배율 적용).
+2. **메가진화 실행 (`PokemonMega.megaEvolve`)**:
+   - `this.o.type1`, `this.o.type2`, `this.o.uniqueKey`, `this.o.stat.{atk,def,catk,cdef,speed}`, `this.o.abil` 교체.
+3. **무한 다이맥스 증강 (`applyEternamax`)**:
+   - 무한다이노 전용 종족값 재계산 및 `o.stat`, `o.uniqueKey` 교체.
+4. **증강에 의한 특성 영구 변경 (`pokemon.changeAbil`)**:
+   - `pokemon.abil`과 함께 `pokemon.o.abil`을 영구 변경 (`hugePower`, `fastStarter`, `randomAbility`).
+5. **증강에 의한 기술 슬롯 변경 (`AugmentData.js`)**:
+   - `pokemon.o.skill[slot]` 교체 (`teraBlast`, `nameIsSalamence`, `danceOfGarchomp`, `nimbleMoves`).
+6. **증강에 의한 포켓몬 본체 교체 (`replacePokemon`)**:
+   - `newPoke = generatePokemonInstance(...)` 생성 후 기존 인스턴스에 `Object.assign(pokemon, newPoke)` 수행 (`marriedPokemon`, `rouletteWheel`, `soaring`, `legendaryTitan`).
 
 ---
 
-## 3. 🧮 4대 수치 계산 파이프라인 (Stat & Damage Pipelines)
+## 4. 🧮 4대 수치 계산 파이프라인 (Stat & Damage Pipelines)
 
-능력치나 체력을 참조할 때는 `pokemon.o`를 직접 읽지 말고 아래 전용 계산 함수를 사용해야 증강 효과가 누락되지 않습니다.
+수치를 읽거나 판정할 때는 `pokemon.o`의 값을 그대로 읽지 않고 반드시 전용 계산 파이프라인 함수를 사용합니다.
 
-### 3.1 최대 HP 계산: `hpCalculate(pokemon)` (`src/calc/hpCalculate.js`)
+```mermaid
+flowchart LR
+    BaseStat["기초 스탯 / 종족값"] --> CalcPipeline["계산 파이프라인 (calc/)"]
+    Augments["보유 증강 (hasAugment)"] --> CalcPipeline
+    BattleEnv["배틀 환경 (날씨, 필드, 랭크)"] --> CalcPipeline
+    CalcPipeline --> EffectiveValue["실효 수치 (최대 HP, 데미지, 스피드 등)"]
+```
 
-- **역할**: `pokemon.o.hp`는 원본으로 보존한 채, 증강 효과가 반영된 **실제 최대 HP**를 반환하고 `pokemon.log.hpCalculate`에 수식을 기록.
+### 4.1 최대 HP 계산: `hpCalculate(pokemon)` (`src/calc/hpCalculate.js`)
+- **역할**: `pokemon.o.hp`는 원본으로 보존한 채, 증강 효과가 반영된 **실제 최대 HP**를 반환.
 - **계산 순서**:
-  1. 기준값: `baseHp ?? pokemon.o?.hp ?? pokemon.hp ?? 0`
+  1. 기본 기준값: `pokemon.baseHp`
   2. **곱적용 증강**: `lifePartner` (인생의 동반자) → `hp = Math.round(hp * 1.1)`
-  3. **합적용 증강**: `giantAbsorption` (거인의 흡수) → `hp += Number(pokemon.giantBonusHp ?? aug?.giantBonusHp ?? 0)`
-- **필수 규칙**: 회복량(`PokemonRecover.js`, `leftOver`, `warmogsArmor`, `SkillEffect.js` 등), 최대체력 비례 피해(`Weather.js`, `field.js`, `onHit.js`, `turnEnd.js`, `sunfireAegis`, `giantAbsorption`), 풀피 판정(`멀티스케일`, `질풍날개`, `옹골참`, `기합의띠`), 처형(`collector`), UI 체력바(`PokemonInfo.js`, `BenchPokemon.js`, `Bottom-Info.js`) 등 **모든 최대 HP 참조처는 반드시 `hpCalculate(pokemon)`을 사용**해야 함.
+  3. **합적용 증강**: `giantAbsorption` (거인의 흡수) → `hp += Number(pokemon.giantBonusHp ?? 0)`
+- **필수 규칙**: 회복량, 최대체력 비례 피해(모래바람, 가시갑옷, 태불방, 거인의 흡수 등), 풀피 판정(멀티스케일, 기띠, 옹골참), 처형(징수의 총), UI 체력바는 모두 `hpCalculate(pokemon)` (또는 `pokemon.maxHp`)을 사용해야 합니다.
 
-### 3.2 기초 스탯 증강 계산: `getAugmentedStat(pokemon, statKey, battle = null)` (`src/calc/getStat.js`)
-
-- **역할**: `o.stat[statKey]`를 기준으로 상시 적용되는 스탯 증강을 계산하고 `pokemon.log.getAugmentedStat`에 기록.
-- **계산 순서** (`atk`, `catk` 대상):
+### 4.2 기초 스탯 증강 계산: `getAugmentedStat(pokemon, statKey, battle)` (`src/calc/getStat.js`)
+- **역할**: `pokemon.stat[statKey]`를 기준으로 상시 적용되는 스탯 증강을 계산하고 로그에 기록.
+- **계산 순서**:
   1. **합적용**:
      - `swordEnhance` (검 강화하기): `atk`, `catk`에 `+bonusAtk`
-     - `mejaisSoulstealer` (메자이의 영혼약탈자): `catk`에 `+(mejaiStack * 20)`
+     - `mejaisSoulstealer` (메자이): `catk`에 `+(mejaiStack * 20)`
   2. **곱적용**:
-     - `lifePartner` (인생의 동반자): `Math.round(val * 1.1)`
-     - `rabadonsDeathcap` (라바돈의 죽음모자): `catk` `Math.round(val * 1.3)`
-     - `allOrNothing` (모 아니면 도): 선택된 스탯 `* 2`, 반대 스탯 `Math.max(1, Math.floor(val / 2))`
+     - `lifePartner` (인생의 동반자): 모든 스탯 `Math.round(val * 1.1)`
+     - `rabadonsDeathcap` (라바돈): `catk` `Math.round(val * 1.3)`
+     - `allOrNothing` (모 아니면 도): 선택 스탯 `* 2`, 반대 스탯 `Math.max(1, Math.floor(val / 2))`
+     - `believeInMyself` (나를 믿는 내가 최강이다!): 아군의 남은 포켓몬 수가 상대보다 적을 때 `atk, def, catk, cdef, speed` 5개 스탯 `* 2`
   3. **팀 시너지 버프**:
-     - `echoOfHero` (영웅의 메아리): 본인 또는 같은 팀(`battle`) 내 보유자 존재 시 `atk`, `catk` `Math.round(val * 1.4)`
-- **보조 함수**: `getHighestStatInfo(pokemon, battle)` — 5개 스탯(`atk`, `def`, `catk`, `cdef`, `speed`) 중 `getAugmentedStat * getMultiplier(rank)`가 가장 높은 스탯 정보를 반환 (`hhgghgg` 등에서 사용).
+     - `echoOfHero` (영웅의 메아리): 보유자 또는 같은 팀에 보유자 존재 시 `atk`, `catk` `Math.round(val * 1.4)`
+- **`getHighestStatInfo(pokemon, battle)`**: 실효 스탯(`getAugmentedStat * rankMultiplier`) 중 가장 높은 스탯 반환 (`hhgghgg` 등에서 활용).
 
-### 3.3 스피드 계산: `speedCalculate(pokemon, baseSpeed, battle, abil, rankOverride)` (`src/calc/speedCheck.js`)
-
+### 4.3 스피드 계산: `speedCalculate(pokemon, baseSpeed, battle, abil, rankOverride)` (`src/calc/speedCheck.js`)
 - **계산 순서**:
-  1. 기초 스피드: `hhgghgg` 보유 시 `getHighestStatInfo`의 최댓값 스탯/랭크 사용, 아니면 `getAugmentedStat(pokemon, "speed", battle)`.
-  2. 랭크 배율(`getMultiplier(rank)`), 마비(`* 0.5`), 구애스카프(`* 1.5`), 고대활성/쿼크차지(`* 1.5`), 곡예(`tempStatus.unburden` 활성화 시 `* 2`, 교체 시 해제), 순풍(`* 2`), 쓱쓱(`* 2`), 패스트스타트 5턴 후(`* 2`), 슬로스타트 5턴 미만(`* 0.5`).
-  3. 증강 배율: `dragonHunter` (상대가 드래곤일 때 `* 1.5`), `dragonDie` (`1 + Math.floor(dragonKillCount / 2) * 0.1`), `lifePartner` (`* 1.1`), `lastWarrior` (혼자 남았을 때 `* 1.6`).
+  1. 기본 스피드: `hhgghgg` 보유 시 최고 스탯값 사용, 아니면 `getAugmentedStat(pokemon, "speed", battle)`.
+  2. 상태 및 도구 배율: 랭크 배율, 마비(`* 0.5`), 구애스카프(`* 1.5`), 고대활성/쿼크차지(`* 1.5`), 곡예(`* 2`), 순풍(`* 2`), 쓱쓱(`* 2`), 패스트스타트 5턴 후(`* 2`), 슬로스타트 5턴 미만(`* 0.5`).
+  3. 증강 배율: `dragonHunter` (상대 드래곤 시 `* 1.5`), `dragonDie` (`1 + killCount * 0.05`), `lifePartner` (`* 1.1`), `lastWarrior` (혼자 남았을 때 `* 1.6`), `believeInMyself` (남은 아군 적을 때 `* 2`).
 
-### 3.4 데미지 계산: `damageCalculate(battle, skillNumber, options)` (`src/calc/damageCalculate.js`)
-
-- **주요 스탯 치환 증강 처리**:
-  - `hhgghgg`: 공격/방어 모두 가장 높은 실효 스탯으로 치환.
-  - `swordAndShield` (오른손엔 방패 왼손엔 검): 물리 공격/방어 시 `atk`와 `def` 중 유리한 쪽 사용.
-  - `specialSwordAndShield` (오른손엔 방패 왼손엔 스태프): 특수 공격/방어 시 `catk`와 `cdef` 중 유리한 쪽 사용.
-  - `ksante` (그 긴거): 수비 시 `def`와 `cdef` 중 유리한 쪽 사용.
-- **주요 증강 데미지 보정**:
-  - `voidStaff` (공허의 지팡이): 특수 공격 시 상대 `cdef * 0.6` + 단일 고스트 무효 관통(`typeEffectCalculate.js`).
-  - `dragonHunter`, `dragonDie`, `lifePartner`, `lastSamurai` (혼자 남았을 때 공격/특공 `* 1.6`), `lastManStanding` (혼자 남았을 때 방어/특방 `* 1.6`).
-  - `infinityEdge` (무한의 대검: 급소 확률 +50%, 급소 데미지 증가), `practiceMakesCritical` (스택당 급소 확률 +1%), `bladeOfTheRuinedKing` (적 현재 체력 15% 추가 피해), `highRiskBuff` (`* 3`), `highRiskCurse` (`* 0.5`).
-- **고정 추가 피해 후처리 (`src/service/damage.js` 내 `attackDamage`)**:
-  - `threeSnails` (달팽이 세마리), `wujuStyle` (우주류 검술), `ludensEcho` (루덴의 메아리), `collector` (징수의 총: 피격 후 남은 체력이 `hpCalculate(defPokemon) * 0.05` 이하이면 즉시 처형).
+### 4.4 데미지 계산: `damageCalculate(battle, skillNumber, options)` (`src/calc/damageCalculate.js`)
+- **스탯 치환 증강**: `hhgghgg` (최고 스탯으로 공방 치환), `swordAndShield` (물리 공방 시 `atk`와 `def` 중 유리한 쪽 사용), `specialSwordAndShield` (특수 공방 시 `catk`와 `cdef` 중 유리한 쪽 사용), `ksante` (수비 시 `def`와 `cdef` 중 유리한 쪽 사용).
+- **데미지 배율 증강**: `voidStaff` (상대 특방 40% 무시 + 고스트 무효 관통), `infinityEdge` (급소 확률 +50%, 급소 데미지 배율 상승), `highRiskBuff` (`* 3`), `highRiskCurse` (`* 0.5`), `lastSamurai` (공/특공 `* 1.6`), `lastManStanding` (방/특방 `* 1.6`).
+- **피격 후 고정 추가 피해 (`src/service/damage.js` 내 `attackDamage`)**: `threeSnails`, `wujuStyle`, `ludensEcho`, `bladeOfTheRuinedKing`, `collector` (피격 후 남은 체력이 최대 HP의 5% 이하 시 처형).
 
 ---
 
-## 4. 🔄 스냅샷 큐(Snapshot Queue) 아키텍처 및 타이밍 규칙
+## 5. 🔄 스냅샷 큐(Snapshot Queue) 아키텍처 및 타이밍 불변식
 
-### 4.1 작동 원리 (`src/store/useQueue.js`, `src/util/cloneWithMethods.js`)
+### 5.1 작동 메커니즘 (`src/store/useQueue.js`, `src/util/cloneWithMethods.js`)
 
-- 본 게임은 1턴의 모든 연산을 동기 함수(`battleStart` → `attack`/`switch` → `turnEnd`)에서 한 번에 실행하면서, 연출 단계마다 `enqueue({ battle, text, ... })`를 호출해 스냅샷을 큐(`Recoil queueState`)에 쌓습니다.
-- `enqueue` 내부에서 `cloneWithMethods(item.battle)`가 호출되어 **호출 시점의 `battle` 상태가 프로토타입 메서드와 함께 깊은 복사**됩니다.
-- 이후 유저가 클릭하거나 자동 진행될 때 `dequeue()`가 스냅샷을 하나씩 꺼내 `setBattle(snapshot.battle)`로 화면을 갱신합니다.
+1. 배틀 1턴의 모든 진행은 동기 함수(`battleStart` → `skillUse` / `switch` → `turnEnd`)에서 끝까지 한 번에 실행됩니다.
+2. 연출 단계마다 `enqueue({ battle, text, ... })`를 호출하여 당시의 `battle` 상태를 큐(`queueState`)에 보관합니다.
+3. `enqueue` 내부에서 `cloneWithMethods(item.battle)`가 동작하여 **인스턴스의 프로토타입 메서드를 유지한 채 깊은 복사본(Deep Copy)**을 만듭니다.
+4. UI에서는 사용자가 화면을 클릭하거나 자동 진행 인터벌에 맞춰 `dequeue()`를 호출하여 스냅샷을 하나씩 화면에 반영합니다.
 
-### 4.2 ⚠️ 핵심 불변식: 스냅샷 상태 변이 타이밍 (Mutation Timing Invariant)
+### 5.2 ⚠️ 핵심 불변식: 상태 변이 후 연출 발행 (Mutation Before Enqueue)
 
-- **`enqueue` 호출 시점의 `battle` 상태가 그대로 화면에 찍힙니다.**
-- 따라서 어떤 효과로 인해 포켓몬의 상태(`hp`, `giantBonusHp`, `rank`, `ailment`, `augments` 등)가 변하고 그에 대한 안내 텍스트가 출력되어야 한다면:
-  - **반드시 상태 변경을 먼저 수행한 뒤 `enqueue`(또는 내부에서 `enqueue`를 부르는 `getDamage` / `recover`)를 호출**해야 해당 텍스트가 화면에 뜰 때 변경된 수치(예: 늘어난 최대 HP, 깎인 체력)가 즉시 반영됩니다.
-  - 반대로 "반응했다!"처럼 변화 **전** 모습을 보여줘야 하는 연출(예: 메가진화 전 스톤 반응 텍스트)은 상태 변경 **전**에 `enqueue`하고, 상태 변경 **후**에 완료 텍스트를 `enqueue`합니다.
-
----
-
-## 5. ✨ 증강(Mayhem Augment) 및 시너지 아키텍처
-
-### 5.1 증강 분류 (`src/entity/Augment/AugmentData.js`)
-
-1. **일반 증강**: `cost`가 숫자(`0, 1, 3, 5, 7, 10, 16`)이고 `buf`가 아닌 증강. 포켓몬당 최대 **3개**까지 장착 가능 (`pokemon.augments.filter(a => !a.buf).length < 3`).
-2. **즉발형 증강 (`isInstant`)**: `cost === "-"` 이거나 포켓몬 교체형(`legendaryTitan`, `rouletteWheel`, `soaring`, `marriedPokemon`). 효과가 즉시 발동하며 `pokemon.augments` 배열에 누적되지 않아 슬롯을 차지하지 않음.
-3. **버프 / 시너지 / 저주 증강 (`buf: true`)**:
-   - 슬롯 3개 제한에 포함되지 않으며, 랜덤 증강 풀(`isRandom: false`)에서 직접 등장하지 않음.
-   - 라운드 종료 후 증강 승계 모달(`AugmentCarryoverModal`)에서 선택 개수 제한과 무관하게 **무조건 다음 라운드로 자동 승계**됨.
-
-### 5.2 3개 증강 공명 시너지 (`AUGMENT_SYNERGY_MAP` in `AugmentData.js:980-988`)
-
-한 포켓몬이 특정 3개의 조건 증강을 모두 보유하면 즉시 공명 버프 증강(`buf: true`)을 자동 획득합니다:
-
-- `echoOfHero` (영웅의 메아리): `["threeSnails", "nimbleMoves", "recovery"]`
-- `dragonDie` (용용 죽겠지): `["dragonSlayer", "dragonHunter", "dragonKiller"]`
-- `wujuStyle` (우주류 검술): `["lastManStanding", "lastSamurai", "lastWarrior"]`
-- `mejaisSoulstealer` (메자이의 영혼약탈자): `["rabadonsDeathcap", "voidStaff", "ludensEcho"]`
-- `practiceMakesCritical` (연습이 치명타를 낳는다): `["infinityEdge", "bladeOfTheRuinedKing", "collector"]`
-- `gamblingAddict` (도박 중독): `["lifeIsOneShot", "allOrNothing", "randomAbility"]` (획득 시 즉발 도박 증강 `russianRoulette`, `oddEven`, `highRiskHighReturn` 등장 해금)
-- `giantAbsorption` (거인의 흡수): `["thornmail", "warmogsArmor", "sunfireAegis"]`
-
-### 5.3 포켓몬 슬롯 식별자: `originalIndex`
-
-- 배틀 중 포켓몬을 교체하면 `battle.player`, `battle.playerBench1`, `battle.playerBench2` 슬롯의 포켓몬 위치가 서로 바뀝니다.
-- 따라서 엔트리 초기 순서(0, 1, 2번 포켓몬)와 매핑해야 하는 로직(증강 모달, 라운드 승계, 트레이드, 팀 내 자기 자신 제외 판정)은 **반드시 `pokemon.originalIndex`** (`Battle.js` 초기화 시 0, 1, 2로 부여됨)를 기준으로 식별해야 합니다.
+- **`enqueue`가 호출되는 바로 그 순간의 `battle` 상태가 화면에 렌더링됩니다.**
+- 따라서 체력 감소, 스탯 랭크 변화, 증강 상태 누적 등의 이벤트가 발생하면:
+  - **반드시 내부 상태 변이(수치 계산 및 값 할당)를 먼저 끝낸 후 `enqueue`를 호출**해야 화면에 텍스트가 나타날 때 바뀐 체력바와 수치가 일치합니다.
+  - *(예외: 메가진화 전 "빛났다!" 같은 준비 연출은 변이 전에 `enqueue`, 변이 완료 후 완료 텍스트 `enqueue`)*
 
 ---
 
-## 6. ⚔️ 배틀 턴 라이프사이클 상세 파이프라인
+## 6. ✨ 증강(Augment) 및 시너지 아키텍처
 
-### 6.1 턴 개시 및 행동 순서 (`src/service/battleStart.js`)
+### 6.1 증강 분류 (`src/entity/Augment/AugmentData.js`)
 
-1. 플레이어/NPC 메가진화 예약 시 메가진화 우선 실행 (`megaEvolve`).
-2. **양측 교체**: `speedCheck` 순서대로 `switchPlayer` / `switchNpc` 실행 → `turnEnd`.
-3. **한쪽만 교체**: 교체 측 먼저 실행 → 공격 측 `skillUsePlayer` / `skillUseNpc` 실행 → `turnEnd`.
-4. **양측 공격**: `skillSpeedCheck`로 우선도(`priCalculate`) 및 스피드(`speedCalculate`), 트릭룸 여부를 판정하여 선공자 공격 → 생존 시 후공자 공격 → `turnEnd`.
+1. **일반 증강**: 코스트가 숫자(`0, 1, 3, 5, 7, 10, 16`)이고 `buf`가 아닌 증강. 포켓몬당 최대 **3개**까지 장착 가능 (`pokemon.augments.filter(a => !a.buf).length < 3`).
+2. **교체형 증강 (`isChange: true`)**: 보유 시 기존 기술이나 포켓몬을 대체하는 증강. UI에서 우측 상단에 `'교체'` 배지를 표시.
+3. **즉발형 증강 (`isInstant: true`)**: 코스트가 `"-"` 이거나 포켓몬 본체를 즉시 교체하는 증강. 슬롯을 차지하지 않고 일회성으로 즉각 적용됨.
+4. **버프 / 시너지 / 저주 증강 (`buf: true`)**: 슬롯 3개 제한에 포함되지 않으며, 라운드 종료 시 다음 라운드로 **자동 승계**됨.
 
-### 6.2 공격 1회 실행 파이프라인 (`src/service/skillUse.js`)
+### 6.2 3개 증강 공명 시너지 (`AUGMENT_SYNERGY_MAP`)
 
-1. `beforeSkillCheck` (`src/service/skillCheck.js`): 잠듦, 얼음, 마비, 풀죽음, 혼란 자해, 도발, 반동휴식, 사슬묶기/앙코르 등 행동 가능 여부 판정.
-2. PP 차감 및 구애류(`onlySkill`) 고정, 연속기/충전기 체크.
-3. `afterSkillCheck` (`src/service/skillCheck.js`): 기습 조건, 방어/니들가드(`spikyShield`), 타입 상성 무효, 명중률(`accuracyCalculate.js`) 판정.
-4. `damageCalculate` (`src/calc/damageCalculate.js`): 데미지 산출.
-5. `attackDamage` (`src/service/damage.js`): 대타출동, 따라큐 탈, 기합의띠/옹골참 처리, 실 체력 차감(`getDamage`), 추가 고정 데미지 증강, 징수의 총(`collector`) 처형, 기절 처리(`handleFaint` - 메자이/용용죽겠지/적 처치 증강 플래그 갱신).
-6. `onHit` (`src/service/onHit.js`): 접촉기 피격 특성(까칠한피부/철가시, 정전기, 불꽃몸), 울퉁불퉁멧, 증강 가시갑옷(`thornmail` - 비접촉 포함).
-7. `applySkillEffects` & `applyAfterSkillEffects` (`src/service/skillUse.js` → `src/entity/Skill/SkillEffect.js`): 랭크 변화, 상태이상 부여, 장판 설치, 반동/흡수/자폭/빗나감패널티, 유턴(`battle.turn.uturn = true`).
+포켓몬이 지정된 3개 증강을 모두 모으면 공명 버프 증강(`buf: true`)을 즉시 획득합니다:
 
-### 6.3 턴 종료 파이프라인 (`src/service/turnEnd.js`)
+| 공명 시너지 증강 | 필요 조건 증강 3개 | 핵심 효과 |
+| :--- | :--- | :--- |
+| **`echoOfHero`** (영웅의 메아리) | `threeSnails`, `nimbleMoves`, `recovery` | 자신 및 같은 팀 아군 전체 공격/특공 1.4배 |
+| **`dragonDie`** (용용 죽겠지) | `dragonSlayer`, `dragonHunter`, `dragonKiller` | 처치한 드래곤 수에 비례하여 스피드/공격력 영구 강화 |
+| **`wujuStyle`** (우주류 검술) | `lastManStanding`, `lastSamurai`, `lastWarrior` | 공격 시 상대 최대 HP의 10% 고정 추가 피해 |
+| **`mejaisSoulstealer`** (메자이의 영혼약탈자) | `rabadonsDeathcap`, `voidStaff`, `ludensEcho` | 적 처치 시 스택당 특공 +20 (최대 25스택) |
+| **`practiceMakesCritical`** (연습이 치명타를 낳는다) | `infinityEdge`, `bladeOfTheRuinedKing`, `collector` | 기술 사용할 때마다 영구적으로 급소율 +1% 누적 |
+| **`giantAbsorption`** (거인의 흡수) | `thornmail`, `warmogsArmor`, `sunfireAegis` | 매 턴 상대에게 **내 최대 HP의 3% 피해**를 주고, **준 피해의 절반(50%)만큼 `giantBonusHp` 영구 획득** |
+| **`gamblingAddict`** (도박 중독) | `lifeIsOneShot`, `allOrNothing`, `randomAbility` | 즉발 도박 증강(`russianRoulette`, `oddEven`, `highRiskHighReturn`) 해금 |
 
-1. 필드/날씨/지형/트릭룸/벽/순풍 턴 카운트 감소 및 종료 처리.
-2. 희망사항(`wish`) 회복, 그래스필드 회복, 먹다남은음식/검은진흙/회복 증강(`leftOver`) 처리.
-3. **[증강] 워모그의 갑옷 (`applyWarmogsArmor`)**: 매 턴 최대 HP(`hpCalculate`)의 3% 회복(이번 턴 무피격 `!p.turn.damagedThisTurn` 시 6% 회복).
-4. 구속/씨뿌리기/사슬묶기/도발/하품/역린(`processSkillEffects` in `turnEnd.js`).
-5. 상태이상 데미지(`processAilment` in `turnEnd.js`: 독, 맹독, 화상 + 할머니의 고추기름 증강).
-6. 날씨 데미지(모래바람).
-7. **[증강] 태양불꽃방패 (`applySunfireAegis`)**: 내 최대 HP(`hpCalculate`)의 10%만큼 상대에게 데미지.
-8. **[증강] 거인의 흡수 (`applyGiantAbsorption`)**: 내 최대 HP(`hpCalculate`)의 1%만큼 상대에게 데미지를 주고 해당 수치(`Math.min(opponent.hp, damage)`)만큼 `giantBonusHp` 증가 (체력 회복 없음).
-9. `turnsOnField` 증가(슬로스타트/패스트스타트), 날개쉬기 타입 복구, `firstTurn = false`, 가속 특성 스피드 +1랭크.
-10. NPC 단독 기절 시 `switchNpcAuto` 실행.
-11. 대난투(`battle.isMayhem`) 적 처치 증강 큐(`isKnockoutAugment: true`) 등록.
-12. 플레이어 기절 시 `mustSwitch` 큐 등록, 아니면 `"무엇을 할까?"` 큐 등록.
-13. **`battle.resetBattleTurn()` 호출 (반드시 맨 마지막)**.
+### 6.3 증강 UI 렌더링 규칙
+
+- **시너지 배지**:
+  - 증강 선택 모달 및 상세 정보 모달에서 시너지 관련 배지(파란색/노란색)는 우측 상단에 고정 배치합니다.
+  - 상세 정보 모달의 하단 공명 시너지 항목도 우측 상단에 배지를 배치합니다.
+- **증강 이름 가변 폰트 크기**: 증강 이름 길이가 긴 경우 컨테이너를 벗어나거나 가로 스크롤이 발생하지 않도록 글자 크기를 자동으로 축소하여 가독성을 유지합니다.
+- **포켓몬 슬롯 식별자**: 배틀 중 교체되어도 변하지 않는 초기 엔트리 번호인 `pokemon.originalIndex` (0, 1, 2)를 기준으로 증강과 포켓몬을 매핑합니다.
 
 ---
 
-## 7. 📏 프로젝트 코딩 및 테스트 컨벤션 (`GEMINI.md`)
+## 7. ⚔️ 배틀 턴 라이프사이클 상세 파이프라인
 
-1. **테스트 파일 최상단 주석 필수**:
-   - 모든 `src/test/**/*.test.js` 파일의 첫 줄에는 실행 명령어를 주석으로 명시해야 합니다.
-   - 예: `// npm test -- src/test/ai/killableSkill.test.js`
-2. **기존 주석 보존**:
-   - 코드를 수정할 때 수정 범위와 무관한 기존 주석 및 도메인 설명 주석을 임의로 삭제하지 않습니다.
-3. **정적 검증**:
-   - 파일 수정 후 `npx eslint <수정한 파일 경로>`를 실행하여 문법 및 import 오류(`0 errors`)를 확인합니다.
+```mermaid
+sequenceDiagram
+    participant Scheduler as battleStart.js
+    participant Mega as megaEvolve
+    participant Switch as switch.js
+    participant Skill as skillUse.js
+    participant TurnEnd as turnEnd.js
+    participant Battle as Battle (resetBattleTurn)
+
+    Scheduler->>Mega: 1. 메가진화 예약 실행
+    Scheduler->>Switch: 2. 교체 행동 처리 (양측/단독)
+    Scheduler->>Skill: 3. 기술 사용 처리 (스피드/우선도 순)
+    Scheduler->>TurnEnd: 4. 턴 종료 효과 처리
+    TurnEnd->>TurnEnd: 날씨/필드/워모그/태불방/거인의흡수/상태이상
+    TurnEnd->>Battle: 5. battle.resetBattleTurn() (반드시 맨 마지막)
+```
+
+### 7.1 턴 개시 및 행동 결정 (`src/service/battleStart.js`)
+1. 메가진화 예약이 있는 경우 공격/교체보다 먼저 `megaEvolve` 실행.
+2. 행동 우선순위:
+   - 양측 교체: `speedCheck` 빠른 쪽 먼저 교체 → `turnEnd`.
+   - 한쪽 교체 / 한쪽 공격: 교체 먼저 실행 → 공격 측 `skillUse` 실행 → `turnEnd`.
+   - 양측 공격: `skillSpeedCheck`로 우선도 및 스피드 판정 후 선공 공격 → 피격자 생존 시 후공 공격 → `turnEnd`.
+
+### 7.2 공격 실행 파이프라인 (`src/service/skillUse.js`)
+1. **행동 전 체크 (`beforeSkillCheck`)**: 수면, 결빙, 마비, 풀죽음, 혼란 자해, 도발, 앙코르 등 판정.
+2. **PP 차감 및 구애류 고정**.
+3. **명중 및 방어 체크 (`afterSkillCheck`)**: 기습 조건, 방어/니들가드, 타입 무효, 명중률 판정.
+4. **데미지 계산 (`damageCalculate`)**: 상성, 자속, 랭크, 스탯 치환/증강 배율 적용.
+5. **피격 및 체력 차감 (`damage.js`)**: 대타출동, 따라큐 탈, 옹골참/기띠, 실 체력 차감(`getDamage`), 추가 고정 피해 증강, 징수의 총 처형, 기절 처리(`handleFaint`).
+6. **접촉/피격 반응 (`onHit.js`)**: 철가시/까칠한피부, 울퉁불퉁멧, 가시갑옷(`thornmail`).
+7. **기술 부가효과 (`SkillEffect.js`)**: 랭크 변화, 상태이상, 장판 설치, 반동/흡수.
+
+### 7.3 턴 종료 파이프라인 (`src/service/turnEnd.js`)
+1. 필드/날씨/지형/트릭룸/벽/순풍 턴 카운트 감소.
+2. 희망사항, 그래스필드, 먹다남은음식/회복 증강(`leftOver`) 처리.
+3. **[증강] 워모그의 갑옷**: 최대 HP의 3% 회복 (이번 턴 무피격 시 6% 회복).
+4. 구속/씨뿌리기/도발/하품 처리.
+5. 상태이상 데미지 (독, 맹독, 화상 + 할머니의 고추기름 증강).
+6. 날씨 데미지 (모래바람).
+7. **[증강] 태양불꽃방패**: 내 최대 HP의 10%만큼 상대에게 피해.
+8. **[증강] 거인의 흡수**: 내 최대 HP의 3%만큼 상대에게 피해를 주고, 준 피해의 50%(`Math.floor(damage / 2)`)만큼 `giantBonusHp`를 영구 획득.
+9. `turnsOnField` 증가, 날개쉬기 타입 복구, `firstTurn = false`, 가속 특성 스피드 랭크업.
+10. 기절 포켓몬 발생 시 교체 처리 또는 라운드 종료 처리.
+11. **`battle.resetBattleTurn()` 호출 (반드시 맨 마지막에 실행)**.
 
 ---
 
-## 8. 📁 디렉토리 책임 분리 기준 (Store / Service / Calc / Util)
+## 8. 📁 디렉토리 구조 및 계층별 책임 분리 (Architecture Directory Map)
 
-| 폴더               | 책임 범위                        | 주요 기준                                                                                  | 소속 파일 예시                                                                                                                                                                                                                           |
-| :----------------- | :------------------------------- | :----------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`src/store/`**   | 전역 상태 관리 & 화면 흐름 조율  | React UI가 구독하는 상태(`useBattleStore`, `recoilState`)와 연출 큐 훅(`useQueue`)         | `createStore.js`, `battleStore.js`, `recoilState.js`, `useQueue.js`                                                                                                                                                                      |
-| **`src/service/`** | 배틀 유즈케이스 실행 & 상태 변이 | `battle` / `pokemon` 상태를 변경하거나 `enqueue` 연출을 발생시키는 배틀 진행 로직          | `battleStart.js`, `skillUse.js`, `skillCheck.js`, `onHit.js`, `switch.js`, `damage.js`, `ailment.js`, `field.js`, `turnEnd.js`                                                                                                           |
-| **`src/calc/`**    | 도메인 순수 계산·판정·조합       | 상태를 직접 바꾸지 않고(또는 로그만 기록하고) 수치·타입·상성·명중·팀/증강 후보를 계산·반환 | `damageCalculate.js`, `hpCalculate.js`, `skillTypeCalculate.js`, `typeEffectCalculate.js`, `accuracyCalculate.js`, `speedCheck.js`, `getStat.js`, `rankStat.js`, `shadowTag.js`, `augmentRoll.js`, `randomTeam.js`, `customEntryUtil.js` |
-| **`src/util/`**    | 도메인 무관 범용 헬퍼            | 포켓몬/배틀 도메인 지식 없이 어느 프로젝트에서도 쓰일 수 있는 순수 기술 유틸리티           | `cloneWithMethods.js`, `randomCheck.js`, `consoleLog.js`                                                                                                                                                                                 |
+```
+src/
+├── calc/            # [순수 계산] 상태를 직접 변경하지 않고 수치/타입/확률/스탯을 계산하여 반환
+│   ├── damageCalculate.js     # 배틀 데미지 공식 산출
+│   ├── hpCalculate.js         # 증강 반영 실효 최대 HP 산출
+│   ├── getStat.js             # 증강 반영 기초 5스탯 산출
+│   └── speedCheck.js          # 스피드 및 행동 우선도 계산
+├── component/       # [React UI] 화면 프레젠테이션 및 모달 UI
+│   ├── battleScreen/          # 배틀 화면 및 관련 모달 (Augment, Debug, Info)
+│   └── customScreen/          # 포켓몬 샘플 커스텀 화면 및 검색 모달
+├── entity/          # [도메인 모델] 데이터 클래스 및 캡슐화 Access 계층
+│   ├── Ability.js             # 특성 데이터 및 텍스트
+│   ├── Battle.js              # 배틀 런타임 상태 클래스
+│   ├── BattleAccess.js        # 배틀 상태 Getter/Setter 캡슐화
+│   ├── Item.js                # 도구 데이터 및 텍스트
+│   ├── Augment/               # 증강 데이터 정의 및 적용 함수
+│   ├── Pokemon/               # 포켓몬 데이터, 인스턴스, 샘플 리스트
+│   │   └── Methods/
+│   │       └── PokemonInstanceAccess.js # 포켓몬 인스턴스 Getter/Setter 캡슐화
+│   └── Skill/                 # 기술 데이터, 이펙트, 조건, 도감 기술 풀
+├── npc/             # [AI 로직] NPC의 기술 선택 및 교체 판단 알고리즘
+├── screen/          # [페이지 라우트] BattleScreen, CustomScreen, MainScreen
+├── service/         # [유즈케이스 실행] 배틀 진행 로직 및 상태 변이, 연출 큐 발행
+│   ├── battleStart.js         # 턴 스케줄링 메인 엔트리
+│   ├── skillUse.js            # 기술 실행 흐름
+│   ├── damage.js              # 체력 차감, 처형, 기절 처리
+│   ├── onHit.js               # 피격/접촉 반응 처리
+│   └── turnEnd.js             # 턴 종료 처리
+├── store/           # [전역 상태] Recoil/Custom Store 및 스냅샷 큐 훅
+│   ├── battleStore.js         # 배틀 전역 상태 조율
+│   └── useQueue.js            # 스냅샷 Enqueue/Dequeue 관리
+└── util/            # [공통 유틸리티] 도메인 무관 순수 헬퍼 (cloneWithMethods 등)
+```
+
+---
+
+## 9. 📏 프로젝트 코딩 및 검증 가이드
+
+1. **테스트 파일 최상단 실행 명령어 필수**:
+   - `src/test/**/*.test.js` 파일의 첫 번째 줄에는 반드시 테스트 실행 명령어를 주석으로 작성합니다.
+   - 예: `// npm test -- src/test/augment/believeInMyself.test.js`
+2. **단위 테스트 및 빌드 검증**:
+   - 기능 추가 또는 리팩토링 후에는 반드시 관련 단위 테스트 통과 및 `npm run build` 성공 여부를 확인합니다.
+3. **가이드 문서 상호 참조**:
+   - 신규 포켓몬 및 메가진화 등록 시: [POKEMON_ADD_GUIDE.md](file:///c:/Users/khs20/pokemon/public/txt/md/POKEMON_ADD_GUIDE.md) 준수.
+   - 도구 이미지는 사용자가 직접 넣으므로 `public/img/item/` 디렉터리는 손대지 않습니다.
+
