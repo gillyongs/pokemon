@@ -358,17 +358,17 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
-  // 용 사냥꾼: 드래곤 타입을 상대로 모든 능력치가 1.5배 증가
+  // 용 사냥꾼: 드래곤 타입을 상대로 모든 능력치가 2배 증가
   const isDefDragon = defensePokemon?.type1 === "드래곤" || defensePokemon?.type2 === "드래곤";
   if (attackPokemon?.hasAugment?.("dragonHunter") && isDefDragon) {
-    atkStat *= 1.5;
-    atkStr += " * 1.5 (용 사냥꾼)";
+    atkStat *= 2;
+    atkStr += " * 2 (용 사냥꾼)";
   }
 
   const isAtkDragon = attackPokemon?.type1 === "드래곤" || attackPokemon?.type2 === "드래곤";
   if (defensePokemon?.hasAugment?.("dragonHunter") && isAtkDragon) {
-    defStat *= 1.5;
-    defStr += " * 1.5 (용 사냥꾼)";
+    defStat *= 2;
+    defStr += " * 2 (용 사냥꾼)";
   }
 
   // 용용 죽겠지: 드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승
@@ -402,21 +402,21 @@ export const damageCalculate = (battle, obj, ai) => {
     defStr += " * 1.1 (인생의 동반자)";
   }
 
-  // 라스트 사무라이: 해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 60% 증가
+  // 라스트 사무라이: 해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 2배 증가
   if (battle && attackPokemon?.hasAugment?.("lastSamurai") && (skill.stype === "atk" || skill.stype === "catk")) {
     const side = attackPokemon?.team === "npc" ? "npc" : "player";
     if (battle.isLastPokemon?.(side)) {
-      atkStat *= 1.6;
-      atkStr += " * 1.6 (라스트 사무라이)";
+      atkStat *= 2;
+      atkStr += " * 2 (라스트 사무라이)";
     }
   }
 
-  // 라스트 맨 스탠딩: 해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 60% 증가
+  // 라스트 맨 스탠딩: 해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 2배 증가
   if (battle && defensePokemon?.hasAugment?.("lastManStanding") && (defenseStat === "def" || defenseStat === "cdef")) {
     const side = defensePokemon?.team === "npc" ? "npc" : "player";
     if (battle.isLastPokemon?.(side)) {
-      defStat *= 1.6;
-      defStr += " * 1.6 (라스트 맨 스탠딩)";
+      defStat *= 2;
+      defStr += " * 2 (라스트 맨 스탠딩)";
     }
   }
 
@@ -697,10 +697,10 @@ export const damageCalculate = (battle, obj, ai) => {
     attackPokemon.log.damage1 += " * 999 (진심펀치)";
   }
 
-  // 용살자 증강: 드래곤 타입에게 1.5배 데미지
+  // 용살자 증강: 드래곤 타입에게 2배 데미지
   if (attackPokemon?.hasAugment?.("dragonKiller") && isDefDragon && (skill.stype === "atk" || skill.stype === "catk")) {
-    damage *= 1.5;
-    attackPokemon.log.damage1 += " * 1.5 (용살자)";
+    damage *= 2;
+    attackPokemon.log.damage1 += " * 2 (용살자)";
   }
 
   // 하이리스크 하이리턴 (버프: 3배, 저주: 0.5배)

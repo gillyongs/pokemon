@@ -465,7 +465,7 @@ export const AUGMENT_LIST = [
   {
     id: "dragonHunter",
     name: "용 사냥꾼 🐲",
-    desc: "드래곤 타입을 상대로 모든 능력치가 1.5배 증가합니다.",
+    desc: "드래곤 타입을 상대로 모든 능력치가 2배 증가합니다.",
     cost: 1,
     weight: 100,
     isEligible: (pokemon) => {
@@ -491,7 +491,7 @@ export const AUGMENT_LIST = [
   {
     id: "dragonKiller",
     name: "용살자 🐲",
-    desc: "드래곤 타입인 포켓몬에게 1.5배 데미지를 입힙니다.",
+    desc: "드래곤 타입인 포켓몬에게 2배 데미지를 입힙니다.",
     cost: 1,
     weight: 100,
     isEligible: (pokemon) => {
@@ -504,7 +504,7 @@ export const AUGMENT_LIST = [
   {
     id: "lastWarrior",
     name: "최후의 전사 ⚔️",
-    desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 스피드가 60% 증가합니다.",
+    desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 스피드가 2배 증가합니다.",
     cost: 3,
     weight: 100,
     // speedCheck.js(speedCalculate)에 구현
@@ -512,7 +512,7 @@ export const AUGMENT_LIST = [
   {
     id: "lastSamurai",
     name: "라스트 사무라이 ⚔️",
-    desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 60% 증가합니다.",
+    desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 2배 증가합니다.",
     cost: 2,
     weight: 100,
     // damageCalculate.js에 구현
@@ -520,7 +520,7 @@ export const AUGMENT_LIST = [
   {
     id: "lastManStanding",
     name: "라스트 맨 스탠딩 ⚔️",
-    desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 60% 증가합니다.",
+    desc: "해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 2배 증가합니다.",
     cost: 1,
     weight: 100,
     // damageCalculate.js에 구현

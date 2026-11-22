@@ -86,8 +86,8 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
   if (battle && pokemon?.hasAugment?.("dragonHunter")) {
     const opponent = pokemon.team === "player" ? battle.npc : pokemon.team === "npc" ? battle.player : battle.player === pokemon ? battle.npc : battle.player;
     if (opponent && (opponent.type1 === "드래곤" || opponent.type2 === "드래곤")) {
-      speed *= 1.5;
-      pokemon.log.speedCalc += " * 1.5 (용 사냥꾼)";
+      speed *= 2;
+      pokemon.log.speedCalc += " * 2 (용 사냥꾼)";
     }
   }
   if (pokemon?.hasAugment?.("dragonDie")) {
@@ -106,8 +106,8 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
   if (battle && pokemon?.hasAugment?.("lastWarrior")) {
     const side = pokemon?.team === "npc" ? "npc" : "player";
     if (battle.isLastPokemon?.(side)) {
-      speed *= 1.6;
-      pokemon.log.speedCalc += " * 1.6 (최후의 전사)";
+      speed *= 2;
+      pokemon.log.speedCalc += " * 2 (최후의 전사)";
     }
   }
   pokemon.log.speedCalc += " = " + speed;
