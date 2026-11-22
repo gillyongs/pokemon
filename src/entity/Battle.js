@@ -76,6 +76,16 @@ class Battle {
     const benches = side === "npc" ? [this.npcBench1, this.npcBench2].filter(Boolean) : [this.playerBench1, this.playerBench2].filter(Boolean);
     return benches.length > 0 && benches.every((p) => p.faint || p.hp <= 0);
   }
+
+  // 해당 진영("player" | "npc")의 남은 생존 포켓몬 수가 상대보다 적은지 여부
+  hasFewerPokemonThanOpponent(side) {
+    if (side !== "npc" && side !== "player") return false;
+    const mySide = side === "npc" ? [this.npc, this.npcBench1, this.npcBench2] : [this.player, this.playerBench1, this.playerBench2];
+    const oppSide = side === "npc" ? [this.player, this.playerBench1, this.playerBench2] : [this.npc, this.npcBench1, this.npcBench2];
+    const myCount = mySide.filter(Boolean).filter((p) => !p.faint && p.hp > 0).length;
+    const oppCount = oppSide.filter(Boolean).filter((p) => !p.faint && p.hp > 0).length;
+    return myCount < oppCount;
+  }
 }
 
 Object.defineProperties(Battle.prototype, Object.getOwnPropertyDescriptors(BattleAccess));

@@ -110,6 +110,13 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
       pokemon.log.speedCalc += " * 2 (최후의 전사)";
     }
   }
+  if (battle && pokemon?.hasAugment?.("believeInMyself")) {
+    const side = pokemon?.team === "npc" ? "npc" : "player";
+    if (battle.hasFewerPokemonThanOpponent?.(side)) {
+      speed *= 2;
+      pokemon.log.speedCalc += " * 2 (나를 믿는 내가 최강이다!)";
+    }
+  }
   pokemon.log.speedCalc += " = " + speed;
   return speed;
 };

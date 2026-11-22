@@ -411,12 +411,30 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
+  // 나를 믿는 내가 최강이다!: 아군의 남은 포켓몬 수가 상대보다 적을 때 공격과 특수공격이 2배 증가
+  if (battle && attackPokemon?.hasAugment?.("believeInMyself") && (skill.stype === "atk" || skill.stype === "catk")) {
+    const side = attackPokemon?.team === "npc" ? "npc" : "player";
+    if (battle.hasFewerPokemonThanOpponent?.(side)) {
+      atkStat *= 2;
+      atkStr += " * 2 (나를 믿는 내가 최강이다!)";
+    }
+  }
+
   // 라스트 맨 스탠딩: 해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 2배 증가
   if (battle && defensePokemon?.hasAugment?.("lastManStanding") && (defenseStat === "def" || defenseStat === "cdef")) {
     const side = defensePokemon?.team === "npc" ? "npc" : "player";
     if (battle.isLastPokemon?.(side)) {
       defStat *= 2;
       defStr += " * 2 (라스트 맨 스탠딩)";
+    }
+  }
+
+  // 나를 믿는 내가 최강이다!: 아군의 남은 포켓몬 수가 상대보다 적을 때 방어와 특수방어가 2배 증가
+  if (battle && defensePokemon?.hasAugment?.("believeInMyself") && (defenseStat === "def" || defenseStat === "cdef")) {
+    const side = defensePokemon?.team === "npc" ? "npc" : "player";
+    if (battle.hasFewerPokemonThanOpponent?.(side)) {
+      defStat *= 2;
+      defStr += " * 2 (나를 믿는 내가 최강이다!)";
     }
   }
 

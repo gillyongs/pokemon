@@ -525,6 +525,14 @@ export const AUGMENT_LIST = [
     weight: 100,
     // damageCalculate.js에 구현
   },
+  {
+    id: "believeInMyself",
+    name: "나를 믿는 내가 최강이다!",
+    desc: "아군의 남은 포켓몬 수가 상대보다 적을 때, 해당 포켓몬의 모든 능력치가 2배로 증가합니다.",
+    cost: 1,
+    weight: 100,
+    // damageCalculate.js, speedCheck.js에 구현
+  },
 
   {
     id: "unboundChoice",
