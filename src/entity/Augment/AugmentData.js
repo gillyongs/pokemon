@@ -2177,7 +2177,7 @@ export const AUGMENT_LIST = [
   {
     id: "giantAbsorption",
     name: "거인의 흡수",
-    desc: "매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치 만큼 추가 HP를 얻습니다.",
+    desc: "매 턴 상대에게 내 최대 HP의 3%만큼 데미지를 주고 해당 수치의 절반만큼 추가 HP를 얻습니다.",
     statusModalText: function (pokemon) {
       const bonusHp = Number(pokemon?.giantBonusHp ?? this?.giantBonusHp ?? 0);
       return `${this.desc}\n(현재 추가 HP: +${bonusHp})`;
@@ -2185,7 +2185,7 @@ export const AUGMENT_LIST = [
     getDesc: (pokemon) => {
       const aug = pokemon?.augments?.find((a) => a.id === "giantAbsorption");
       const bonusHp = Number(pokemon?.giantBonusHp ?? aug?.giantBonusHp ?? 0);
-      return `매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치 만큼 추가 HP를 얻습니다.\n(현재 추가 HP: +${bonusHp})`;
+      return `매 턴 상대에게 내 최대 HP의 3%만큼 데미지를 주고 해당 수치의 절반만큼 추가 HP를 얻습니다.\n(현재 추가 HP: +${bonusHp})`;
     },
     synergy: true,
     isRandom: false,
@@ -2873,7 +2873,7 @@ const SYNERGY_INFO_MAP = {
     emoji: "🛡️",
     theme: "거인의 요새",
     title: "거인의 흡수",
-    desc: "매 턴 상대에게 최대 HP의 1%만큼 데미지를 주고 해당 수치만큼 추가 HP를 얻습니다.",
+    desc: "매 턴 상대에게 내 최대 HP의 3%만큼 데미지를 주고 해당 수치의 절반만큼 추가 HP를 얻습니다.",
   },
   lostTechnologyCritical: {
     theme: "과거의 영광",

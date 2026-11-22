@@ -98,7 +98,7 @@ export const turnEnd = (battle, enqueue) => {
   applySunfireAegis(battle, enqueue, fastUser);
   applySunfireAegis(battle, enqueue, slowUser);
 
-  // [증강] 거인의 흡수 (매 턴 상대에게 최대 HP의 1% 데미지 + 해당 수치만큼 추가 HP 획득, 회복 X)
+  // [증강] 거인의 흡수 (매 턴 상대에게 내 최대 HP의 3% 데미지 + 해당 수치의 절반만큼 추가 HP 획득, 회복 X)
   applyGiantAbsorption(battle, enqueue, fastUser);
   applyGiantAbsorption(battle, enqueue, slowUser);
 
@@ -234,8 +234,8 @@ function applyGiantAbsorption(battle, enqueue, user) {
   const opponent = battle[opponentSide];
   if (!opponent || opponent.faint || opponent.hp <= 0) return;
 
-  const damage = Math.max(1, Math.floor(p.maxHp * 0.01));
-  const gain = Math.min(opponent.hp, damage);
+  const damage = Math.max(1, Math.floor(p.maxHp * 0.03));
+  const gain = Math.max(1, Math.floor(damage / 2));
 
   // 체력 최대치(giantBonusHp)만 늘리고 현재 HP는 회복하지 않음 (텍스트 enqueue 스냅샷에 즉시 반영되도록 데미지 전 처리)
   if (gain > 0) {

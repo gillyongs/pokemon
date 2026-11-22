@@ -124,6 +124,7 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
 
         {buffAugment && (
           <BuffRewardCard $active={isSynergyActive}>
+            <BuffPill>시너지</BuffPill>
             <BuffHeader>
               <IconCol>
                 <AugmentIcon id={buffAugment.id} size={40} pokemon={activePokemon} shiftUp={buffAugment.shiftUp} imageOptions={buffAugment.imageOptions} />
@@ -131,7 +132,6 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
               <BuffMeta>
                 <BuffNameRow>
                   <BuffName>{buffAugment.name}</BuffName>
-                  <BuffPill>시너지</BuffPill>
                 </BuffNameRow>
                 <BuffDesc>{getAugmentDesc(buffAugment)}</BuffDesc>
               </BuffMeta>
@@ -405,6 +405,7 @@ const ConnectorBadge = styled.span`
 `;
 
 const BuffRewardCard = styled.div`
+  position: relative;
   padding: 12px;
   border-radius: 10px;
   background: ${(props) => (props.$active ? "linear-gradient(135deg, rgba(50, 42, 16, 0.95) 0%, rgba(22, 45, 64, 0.95) 100%)" : "linear-gradient(135deg, rgba(30, 24, 48, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)")};
@@ -433,6 +434,8 @@ const BuffNameRow = styled.div`
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 4px;
+  padding-right: 50px;
+  box-sizing: border-box;
 `;
 
 const BuffName = styled.h3`
@@ -444,13 +447,22 @@ const BuffName = styled.h3`
 `;
 
 const BuffPill = styled.span`
-  font-size: 0.68rem;
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5px 7px;
+  font-size: 0.72rem;
   font-weight: 700;
   color: #ffd700;
-  background: rgba(255, 215, 0, 0.15);
-  border: 1px solid rgba(255, 215, 0, 0.4);
-  padding: 1px 6px;
+  background: rgba(255, 215, 0, 0.18);
+  border: 1px solid rgba(255, 215, 0, 0.5);
   border-radius: 4px;
+  letter-spacing: 0.5px;
+  z-index: 2;
+  pointer-events: none;
 `;
 
 const BuffDesc = styled.p`

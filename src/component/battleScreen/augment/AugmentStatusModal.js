@@ -7,7 +7,7 @@ import AugmentNoUnfairMissPreviewModal from "./AugmentNoUnfairMissPreviewModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
-import { getAugmentStatusModalText, isBuffAugment, isCurseAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, getAugmentSynergyInfo, hasAnvilStats, getAnvilStatsStatusDesc } from "../../../entity/Augment/AugmentData";
+import { getAugmentStatusModalText, isBuffAugment, isCurseAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, isReplacementAugment, getAugmentSynergyInfo, hasAnvilStats, getAnvilStatsStatusDesc } from "../../../entity/Augment/AugmentData";
 
 const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose }) => {
   const [previewInfo, setPreviewInfo] = useState(null);
@@ -106,6 +106,7 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
               const isCurse = isCurseAugment(aug);
               const isSynergy = isSynergyAugment(aug);
               const isBuff = isBuffAugment(aug);
+              const isReplacement = isReplacementAugment(aug);
               const sampleKey = AUGMENT_POKEMON_PREVIEW_MAP[aug.id];
               const previewSample = sampleKey ? sampleList.getDataBySampleName(sampleKey) : null;
               const synergyData = getAugmentSynergyInfo(aug.id);
@@ -121,7 +122,11 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                   $isSynergy={isSynergy}
                   onClick={(e) => handleCardClick(e, aug)}
                 >
-                  {isSynergy && <TopRightSynergyBadge>시너지</TopRightSynergyBadge>}
+                  {isSynergy ? (
+                    <TopRightSynergyBadge $variant="yellow">시너지</TopRightSynergyBadge>
+                  ) : isReplacement ? (
+                    <TopRightSynergyBadge $variant="purple">교체</TopRightSynergyBadge>
+                  ) : null}
                   <IconCol>
                     <IconWrapper>
                       <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
@@ -627,9 +632,9 @@ const TopRightSynergyBadge = styled.span`
   padding: 1.5px 7px;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #ffd700;
-  background: rgba(255, 215, 0, 0.18);
-  border: 1px solid rgba(255, 215, 0, 0.5);
+  color: ${(props) => (props.$variant === "purple" ? "#c084fc" : "#ffd700")};
+  background: ${(props) => (props.$variant === "purple" ? "rgba(168, 85, 247, 0.2)" : "rgba(255, 215, 0, 0.18)")};
+  border: 1px solid ${(props) => (props.$variant === "purple" ? "rgba(192, 132, 252, 0.55)" : "rgba(255, 215, 0, 0.5)")};
   border-radius: 4px;
   letter-spacing: 0.5px;
   z-index: 2;

@@ -551,6 +551,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                           const isSynergy = isSynergyAugment(aug);
                           const isBuff = isBuffAugment(aug);
                           const isSynergyComponent = isSynergyComponentAugment(aug);
+                          const isReplacement = isReplacementAugment(aug);
                           const previewSample = getPreviewSample(aug.id);
                           const synergyData = getAugmentSynergyInfo(aug.id);
                           const grantData = getAugmentGrantInfo(aug.id);
@@ -558,7 +559,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                           const hasPreview = Boolean(previewSample || synergyData || grantData || isNoUnfairMiss);
                           return (
                             <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => handleCardClick(e, aug)}>
-                              {isSynergy ? <TopRightSynergyBadge $variant="yellow">시너지</TopRightSynergyBadge> : isSynergyComponent ? <TopRightSynergyBadge $variant="blue">시너지</TopRightSynergyBadge> : null}
+                              {isSynergy ? <TopRightSynergyBadge $variant="yellow">시너지</TopRightSynergyBadge> : isSynergyComponent ? <TopRightSynergyBadge $variant="blue">시너지</TopRightSynergyBadge> : isReplacement ? <TopRightSynergyBadge $variant="purple">교체</TopRightSynergyBadge> : null}
                               <IconCol>
                                 <IconWrapper>
                                   <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
@@ -567,7 +568,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                               </IconCol>
                               <CardContent>
                                 <CardTitleRow>
-                                  <CardTitle>{aug.name}</CardTitle>
+                                  <CardTitle $nameLength={aug.name?.length || 0}>{aug.name}</CardTitle>
                                   {isCurse ? <CurseBadge>{isPermanentCurse(aug) ? "영구 디버프" : "디버프"}</CurseBadge> : isBuff ? <BuffBadge>{isPermanentBuff(aug) ? "영구 버프" : "버프"}</BuffBadge> : null}
                                 </CardTitleRow>
                                 <CardDescription>{getAugmentSelDesc(aug, activePokemon, battle)}</CardDescription>
@@ -603,9 +604,10 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                               const isSynergy = isSynergyAugment(aug);
                               const isBuff = isBuffAugment(aug);
                               const isSynergyComponent = isSynergyComponentAugment(aug);
+                              const isReplacement = isReplacementAugment(aug);
                               return (
                                 <AugmentCard key={`ineligible-${aug.id || index}`} $isPeek={isPeekMode} $disabled={true} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => e.stopPropagation()} title="이 포켓몬은 해당 증강의 선택 조건을 만족하지 않거나 이미 보유 중입니다.">
-                                  {isSynergy ? <TopRightSynergyBadge $variant="yellow">시너지</TopRightSynergyBadge> : isSynergyComponent ? <TopRightSynergyBadge $variant="blue">시너지</TopRightSynergyBadge> : null}
+                                  {isSynergy ? <TopRightSynergyBadge $variant="yellow">시너지</TopRightSynergyBadge> : isSynergyComponent ? <TopRightSynergyBadge $variant="blue">시너지</TopRightSynergyBadge> : isReplacement ? <TopRightSynergyBadge $variant="purple">교체</TopRightSynergyBadge> : null}
                                   <IconCol>
                                     <IconWrapper>
                                       <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
@@ -614,7 +616,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                                   </IconCol>
                                   <CardContent>
                                     <CardTitleRow>
-                                      <CardTitle>{aug.name}</CardTitle>
+                                      <CardTitle $nameLength={aug.name?.length || 0}>{aug.name}</CardTitle>
                                       {isCurse ? <CurseBadge>{isPermanentCurse(aug) ? "영구 디버프" : "디버프"}</CurseBadge> : isBuff ? <BuffBadge>{isPermanentBuff(aug) ? "영구 버프" : "버프"}</BuffBadge> : null}
                                       <IneligibleBadge>선택 불가</IneligibleBadge>
                                     </CardTitleRow>
@@ -636,6 +638,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                       const isSynergy = isSynergyAugment(aug);
                       const isBuff = isBuffAugment(aug);
                       const isSynergyComponent = isSynergyComponentAugment(aug);
+                      const isReplacement = isReplacementAugment(aug);
                       const previewSample = getPreviewSample(aug.id);
                       const synergyData = getAugmentSynergyInfo(aug.id);
                       const grantData = getAugmentGrantInfo(aug.id);
@@ -643,7 +646,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                       const hasPreview = Boolean(previewSample || synergyData || grantData || isNoUnfairMiss);
                       return (
                         <AugmentCard key={aug.id || index} $isPeek={isPeekMode} $isSelected={isCardSelected} $isBuff={isBuff} $isCurse={isCurse} $isSynergy={isSynergy} onClick={(e) => handleCardClick(e, aug)}>
-                          {isSynergy ? <TopRightSynergyBadge $variant="yellow">시너지</TopRightSynergyBadge> : isSynergyComponent ? <TopRightSynergyBadge $variant="blue">시너지</TopRightSynergyBadge> : null}
+                          {isSynergy ? <TopRightSynergyBadge $variant="yellow">시너지</TopRightSynergyBadge> : isSynergyComponent ? <TopRightSynergyBadge $variant="blue">시너지</TopRightSynergyBadge> : isReplacement ? <TopRightSynergyBadge $variant="purple">교체</TopRightSynergyBadge> : null}
                           <IconCol>
                             <IconWrapper>
                               <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
@@ -652,7 +655,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                           </IconCol>
                           <CardContent>
                             <CardTitleRow>
-                              <CardTitle>{aug.name}</CardTitle>
+                              <CardTitle $nameLength={aug.name?.length || 0}>{aug.name}</CardTitle>
                               {isCurse ? <CurseBadge>{isPermanentCurse(aug) ? "영구 디버프" : "디버프"}</CurseBadge> : isBuff ? <BuffBadge>{isPermanentBuff(aug) ? "영구 버프" : "버프"}</BuffBadge> : null}
                             </CardTitleRow>
                             <CardDescription>{getAugmentSelDesc(aug, activePokemon, battle)}</CardDescription>
@@ -1107,9 +1110,9 @@ const TopRightSynergyBadge = styled.span`
   padding: 1.5px 7px;
   font-size: 0.72rem;
   font-weight: 700;
-  color: ${(props) => (props.$variant === "blue" ? "#60a5fa" : "#ffd700")};
-  background: ${(props) => (props.$variant === "blue" ? "rgba(37, 99, 235, 0.2)" : "rgba(255, 215, 0, 0.18)")};
-  border: 1px solid ${(props) => (props.$variant === "blue" ? "rgba(96, 165, 250, 0.55)" : "rgba(255, 215, 0, 0.5)")};
+  color: ${(props) => (props.$variant === "blue" ? "#60a5fa" : props.$variant === "purple" ? "#c084fc" : "#ffd700")};
+  background: ${(props) => (props.$variant === "blue" ? "rgba(37, 99, 235, 0.2)" : props.$variant === "purple" ? "rgba(168, 85, 247, 0.2)" : "rgba(255, 215, 0, 0.18)")};
+  border: 1px solid ${(props) => (props.$variant === "blue" ? "rgba(96, 165, 250, 0.55)" : props.$variant === "purple" ? "rgba(192, 132, 252, 0.55)" : "rgba(255, 215, 0, 0.5)")};
   border-radius: 4px;
   letter-spacing: 0.5px;
   z-index: 2;
@@ -1360,15 +1363,30 @@ const CardContent = styled.div`
 
 const CardTitle = styled.h3`
   margin: 0;
-  font-size: 0.95rem;
+  font-size: ${(props) => {
+    const len = props.$nameLength ?? (typeof props.children === "string" ? props.children.length : 0);
+    if (len >= 20) return "0.76rem";
+    if (len >= 13) return "0.83rem";
+    if (len >= 9) return "0.89rem";
+    return "0.95rem";
+  }};
   font-weight: 700;
   color: #ffffff;
   word-break: keep-all;
   white-space: pre-line;
-  line-height: 1.3;
+  line-height: ${(props) => {
+    const len = props.$nameLength ?? (typeof props.children === "string" ? props.children.length : 0);
+    return len >= 13 ? "1.22" : "1.3";
+  }};
 
   @media (max-width: 480px) {
-    font-size: 0.86rem;
+    font-size: ${(props) => {
+      const len = props.$nameLength ?? (typeof props.children === "string" ? props.children.length : 0);
+      if (len >= 20) return "0.70rem";
+      if (len >= 13) return "0.76rem";
+      if (len >= 9) return "0.81rem";
+      return "0.86rem";
+    }};
     letter-spacing: -0.3px;
   }
 `;
