@@ -78,7 +78,6 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
         <HeaderArea>
           <HeaderTopRow>
             <TitleRow>
-              <SynergyEmoji>{emoji}</SynergyEmoji>
               <TitleCol>
                 <SynergyTitle>{title}</SynergyTitle>
               </TitleCol>
@@ -95,7 +94,7 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
             const isOwned = Boolean(activePokemon?.hasAugment?.(aug.id));
             const isViewing = aug.id === activeAugmentId;
             const isUnobtainable = !isOwned && !isViewing && checkSynergyAugmentUnobtainable(aug, activePokemon, battle, team);
-            const statusLabel = isOwned ? "✓ 보유 중" : isViewing ? "선택 중" : isUnobtainable ? "획득 불가" : "미보유";
+            const statusLabel = isOwned ? "보유 중" : isViewing ? "선택 중" : isUnobtainable ? "획득 불가" : "미보유";
 
             return (
               <AugmentRowCard key={aug.id} $isOwned={isOwned} $isViewing={isViewing} $isUnobtainable={isUnobtainable} title={isUnobtainable ? "현재 포켓몬은 이 증강의 조건을 충족하지 못하여 획득할 수 없습니다." : undefined}>
@@ -346,9 +345,10 @@ const AugName = styled.span`
 const StatusBadge = styled.span`
   font-size: 0.68rem;
   font-weight: 700;
-  padding: 1px 6px;
+  padding: 1px 3px;
   border-radius: 4px;
   white-space: nowrap;
+  right: -5px;
   ${(props) =>
     props.$isOwned
       ? `
@@ -449,16 +449,6 @@ const BuffPill = styled.span`
   color: #ffd700;
   background: rgba(255, 215, 0, 0.15);
   border: 1px solid rgba(255, 215, 0, 0.4);
-  padding: 1px 6px;
-  border-radius: 4px;
-`;
-
-const BuffActiveTag = styled.span`
-  font-size: 0.68rem;
-  font-weight: 800;
-  color: #64ffda;
-  background: rgba(100, 255, 218, 0.2);
-  border: 1px solid #64ffda;
   padding: 1px 6px;
   border-radius: 4px;
 `;

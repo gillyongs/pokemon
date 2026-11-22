@@ -6,7 +6,7 @@ import { TYPE_COLORS } from "../../../entity/TypeData";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 import { AugmentIcon } from "./AugmentIcon";
 import { getAugmentDesc } from "../../../entity/Augment/AugmentData";
-import { AUGMENT_LIST, hasPokemonName } from "../../../entity/Augment/AugmentData";
+import { AUGMENT_LIST, hasPokemonName, isSynergyComponentAugment } from "../../../entity/Augment/AugmentData";
 
 const PREVIEW_IMG_ID_MAP = {
   mewtwoStrikesBack: "0150-a",
@@ -470,6 +470,7 @@ const AugmentPokemonPreviewModal = ({ augmentId = null, pokemon, onClose }) => {
                   <SubModalAugMeta>
                     <SubModalAugNameRow>
                       <SubModalAugName>{aug.name}</SubModalAugName>
+                      {isSynergyComponentAugment(aug) && <SubModalBlueSynergyPill>시너지</SubModalBlueSynergyPill>}
                     </SubModalAugNameRow>
                     <SubModalAugDesc>{getAugmentDesc(aug, pokemon)}</SubModalAugDesc>
                   </SubModalAugMeta>
@@ -1164,6 +1165,16 @@ const SubModalBuffName = styled.span`
   font-size: 0.88rem;
   font-weight: 800;
   color: #ffffff;
+`;
+
+const SubModalBlueSynergyPill = styled.span`
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #60a5fa;
+  background: rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(96, 165, 250, 0.55);
+  padding: 1px 6px;
+  border-radius: 4px;
 `;
 
 const SubModalSynergyPill = styled.span`

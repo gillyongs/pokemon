@@ -121,6 +121,7 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                   $isSynergy={isSynergy}
                   onClick={(e) => handleCardClick(e, aug)}
                 >
+                  {isSynergy && <TopRightSynergyBadge>시너지</TopRightSynergyBadge>}
                   <IconCol>
                     <IconWrapper>
                       <AugmentIcon id={aug.id} size={38} pokemon={activePokemon} shiftUp={aug.shiftUp} imageOptions={aug.imageOptions} />
@@ -130,7 +131,7 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
                   <CardContent>
                     <CardTitleRow>
                       <CardTitle>{aug.shortName || aug.name}</CardTitle>
-                      {isCurse ? <CurseBadge>{isPermanentCurse(aug) ? "영구 디버프" : "디버프"}</CurseBadge> : isSynergy ? <SynergyBadge>시너지</SynergyBadge> : isBuff ? <BuffBadge>{isPermanentBuff(aug) ? "영구 버프" : "버프"}</BuffBadge> : null}
+                      {isCurse ? <CurseBadge>{isPermanentCurse(aug) ? "영구 디버프" : "디버프"}</CurseBadge> : isBuff ? <BuffBadge>{isPermanentBuff(aug) ? "영구 버프" : "버프"}</BuffBadge> : null}
                     </CardTitleRow>
                     <CardDescription>{getAugmentStatusModalText(aug, activePokemon, battle, { showCurrentStats: true })}</CardDescription>
                   </CardContent>
@@ -409,6 +410,7 @@ const CardContainer = styled.div`
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   box-sizing: border-box;
   padding-right: 4px;
 
@@ -597,6 +599,8 @@ const CardTitleRow = styled.div`
   align-items: center;
   gap: 6px;
   margin-bottom: 4px;
+  padding-right: 48px;
+  box-sizing: border-box;
 `;
 
 const BuffBadge = styled.span`
@@ -613,11 +617,14 @@ const BuffBadge = styled.span`
   letter-spacing: 0.5px;
 `;
 
-const SynergyBadge = styled.span`
+const TopRightSynergyBadge = styled.span`
+  position: absolute;
+  top: 9px;
+  right: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 1px 6px;
+  padding: 1.5px 7px;
   font-size: 0.72rem;
   font-weight: 700;
   color: #ffd700;
@@ -625,6 +632,8 @@ const SynergyBadge = styled.span`
   border: 1px solid rgba(255, 215, 0, 0.5);
   border-radius: 4px;
   letter-spacing: 0.5px;
+  z-index: 2;
+  pointer-events: none;
 `;
 
 const CurseBadge = styled.span`

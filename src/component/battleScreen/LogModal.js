@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { AugmentIcon } from "./augment/AugmentIcon";
-import { isBuffAugment, isCurseAugment, isSynergyAugment } from "../../entity/Augment/AugmentData";
+import { isBuffAugment, isCurseAugment, isSynergyAugment, isSynergyComponentAugment } from "../../entity/Augment/AugmentData";
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -177,6 +177,21 @@ const LogBuffBadge = styled.span`
   letter-spacing: 0.5px;
 `;
 
+const LogSynergyComponentBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #60a5fa;
+  background: rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(96, 165, 250, 0.55);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+`;
+
 const LogSynergyBadge = styled.span`
   display: inline-flex;
   align-items: center;
@@ -327,6 +342,7 @@ export default function LogModal({ log, onClose }) {
                 const isCurse = isCurseAugment(augment);
                 const isSynergy = isSynergyAugment(augment);
                 const isBuff = isBuffAugment(augment);
+                const isSynergyComponent = isSynergyComponentAugment(augment);
                 const augCost = augment.cost;
                 const augName = augment.shortName || augment.name || augment.augmentName || (isCurse ? "디버프" : isSynergy ? "시너지" : isBuff ? "버프" : "증강");
                 const augDesc = augment.logModalText || augment.desc;
@@ -345,7 +361,7 @@ export default function LogModal({ log, onClose }) {
                       <AugmentInfo>
                         <AugmentTitleRow>
                           <AugmentName>{augName}</AugmentName>
-                          {isCurse ? <LogCurseBadge>디버프</LogCurseBadge> : isSynergy ? <LogSynergyBadge>시너지</LogSynergyBadge> : isBuff ? <LogBuffBadge>버프</LogBuffBadge> : null}
+                          {isCurse ? <LogCurseBadge>디버프</LogCurseBadge> : isSynergy ? <LogSynergyBadge>시너지</LogSynergyBadge> : isBuff ? <LogBuffBadge>버프</LogBuffBadge> : isSynergyComponent ? <LogSynergyComponentBadge>시너지</LogSynergyComponentBadge> : null}
                         </AugmentTitleRow>
                         {augDesc && <AugmentDesc>{augDesc}</AugmentDesc>}
                       </AugmentInfo>
