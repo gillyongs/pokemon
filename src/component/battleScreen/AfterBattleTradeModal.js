@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { isLegendary } from "../../calc/randomTeam";
 import TradeInfoModal from "./TradeInfoModal";
+import { isNormalAugment } from "../../entity/Augment/AugmentData";
+import { AugmentIcon } from "./augment/AugmentIcon";
 
 const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) => {
   const [tradePlayerIdx, setTradePlayerIdx] = useState(null);
@@ -103,6 +105,7 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
             {playerTeamFixed.map((p, idx) => {
               const isPureLoveLocked = checkIsPureLoveLocked(p);
               const isDisabled = isPureLoveLocked || (selectedNpcPoke ? !canTrade(p, selectedNpcPoke) : false);
+              const pokeAugments = (p?.augments || []).filter(isNormalAugment);
               return (
                 <TradeCard
                   key={idx}
@@ -125,14 +128,29 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
                     <TradeCardImage src={`/pokemon/img/pokemon/${p.img_id || p.uniqueKey}.webp`} />
                     <TradeCardName>{p.baseName || p.name}</TradeCardName>
                   </div>
-                  <TradeInfoButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setTradeInfoData({ pokemon: p, list: playerTeamFixed });
-                    }}
-                  >
-                    상세정보
-                  </TradeInfoButton>
+                  <TradeCardRight>
+                    {pokeAugments.length > 0 && (
+                      <TradeCardAugmentColumn>
+                        {pokeAugments.map((aug, aIdx) => {
+                          const augId = typeof aug === "string" ? aug : aug?.id;
+                          const augName = typeof aug === "object" ? (aug.shortName || aug.name) : augId;
+                          return (
+                            <TradeCardAugmentItem key={augId || aIdx} title={augName}>
+                              <AugmentIcon id={augId} size="2.1vh" pokemon={p} shiftUp={aug?.shiftUp} imageOptions={aug?.imageOptions} />
+                            </TradeCardAugmentItem>
+                          );
+                        })}
+                      </TradeCardAugmentColumn>
+                    )}
+                    <TradeInfoButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setTradeInfoData({ pokemon: p, list: playerTeamFixed });
+                      }}
+                    >
+                      상세정보
+                    </TradeInfoButton>
+                  </TradeCardRight>
                 </TradeCard>
               );
             })}
@@ -141,6 +159,7 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
             <h3 style={{ textAlign: "center", color: "#ff5252", margin: "5px 0" }}>상대 엔트리</h3>
             {npcTeamFixed.map((p, idx) => {
               const isDisabled = selectedPlayerPoke ? !canTrade(selectedPlayerPoke, p) : false;
+              const pokeAugments = (p?.augments || []).filter(isNormalAugment);
               return (
                 <TradeCard
                   key={idx}
@@ -161,14 +180,29 @@ const AfterBattleTradeModal = ({ isOpen, battle, onConfirmTrade, onSkipTrade }) 
                     <TradeCardImage src={`/pokemon/img/pokemon/${p.img_id || p.uniqueKey}.webp`} />
                     <TradeCardName>{p.baseName || p.name}</TradeCardName>
                   </div>
-                  <TradeInfoButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setTradeInfoData({ pokemon: p, list: npcTeamFixed });
-                    }}
-                  >
-                    상세정보
-                  </TradeInfoButton>
+                  <TradeCardRight>
+                    {pokeAugments.length > 0 && (
+                      <TradeCardAugmentColumn>
+                        {pokeAugments.map((aug, aIdx) => {
+                          const augId = typeof aug === "string" ? aug : aug?.id;
+                          const augName = typeof aug === "object" ? (aug.shortName || aug.name) : augId;
+                          return (
+                            <TradeCardAugmentItem key={augId || aIdx} title={augName}>
+                              <AugmentIcon id={augId} size="2.1vh" pokemon={p} shiftUp={aug?.shiftUp} imageOptions={aug?.imageOptions} />
+                            </TradeCardAugmentItem>
+                          );
+                        })}
+                      </TradeCardAugmentColumn>
+                    )}
+                    <TradeInfoButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setTradeInfoData({ pokemon: p, list: npcTeamFixed });
+                      }}
+                    >
+                      상세정보
+                    </TradeInfoButton>
+                  </TradeCardRight>
                 </TradeCard>
               );
             })}
@@ -392,10 +426,38 @@ const TradeCardName = styled.div`
   margin-top: 0.3vh;
 `;
 
+const TradeCardRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8vh;
+  flex-shrink: 0;
+  z-index: 5;
+`;
+
+const TradeCardAugmentColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25vh;
+`;
+
+const TradeCardAugmentItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+`;
+
 const TradeInfoButton = styled.div`
   flex-shrink: 0;
   height: 6vh;
-  padding: 0 1vh;
+  padding: 0 0.9vh;
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 6px;
   display: flex;
@@ -403,9 +465,13 @@ const TradeInfoButton = styled.div`
   align-items: center;
   color: white;
   font-weight: bold;
-  font-size: 1.8vh;
+  font-size: 1.62vh;
   z-index: 5;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.9);
   }

@@ -4526,8 +4526,8 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
 };
 
 const IconFrame = styled.div`
-  width: ${(props) => props.$size}px;
-  height: ${(props) => props.$size}px;
+  width: ${(props) => (typeof props.$size === "number" ? `${props.$size}px` : props.$size)};
+  height: ${(props) => (typeof props.$size === "number" ? `${props.$size}px` : props.$size)};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4538,14 +4538,16 @@ const IconFrame = styled.div`
     filter 0.2s ease;
 
   svg {
+    width: 100%;
+    height: 100%;
     display: block;
     overflow: visible;
   }
 `;
 
 const DedicatedFrame = styled.div`
-  width: ${(props) => props.$size}px;
-  height: ${(props) => props.$size}px;
+  width: ${(props) => (typeof props.$size === "number" ? `${props.$size}px` : props.$size)};
+  height: ${(props) => (typeof props.$size === "number" ? `${props.$size}px` : props.$size)};
   border-radius: 50%;
   position: relative;
   display: flex;
