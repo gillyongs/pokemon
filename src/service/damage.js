@@ -334,6 +334,12 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     if (atkPokemon.hasAugment?.("dragonSlayer") && isDefDragon && !atkPokemon.faint) {
       atkPokemon.rankUp(battle, enqueue, "all", 1, "[증강 드래곤 슬레이어]");
     }
+
+    // 폭주하는 힘 증강: 적을 쓰러뜨렸을 경우 다음 턴까지 모든 능력치가 1.5배 증가
+    if (atkPokemon.hasAugment?.("rampagingPower") && !atkPokemon.faint) {
+      atkPokemon.tempStatus.rampagingPower = 2;
+      enqueue(battle, `[증강 폭주하는 힘] ${atkPokemon.names("는")} 폭주하여 일시적으로 모든 능력치가 증가한다!`, "rampaging_power_start");
+    }
   }
 
   if (!isConfuseSelfHit) {

@@ -176,6 +176,12 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
       logText += " * 1.3 (포잘알)";
     }
 
+    // 폭주하는 힘: 적을 쓰러뜨린 후 다음 턴까지 모든 능력치 1.5배
+    if (augId === "rampagingPower" && Number(pokemon?.tempStatus?.rampagingPower) > 0) {
+      val = Math.round(val * 1.5);
+      logText += " * 1.5 (폭주하는 힘)";
+    }
+
     // 곰 세마리가 한 집에 있어
     if (augId === "threeBearsHouse") {
       const mult = getBearMultiplier(pokemon, battle);

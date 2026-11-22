@@ -124,6 +124,17 @@ export const turnEnd = (battle, enqueue) => {
     }
   });
 
+  // [증강 폭주하는 힘] 턴 종료 시 지속 턴 1 차감 및 종료 메시지 출력
+  [battle[fastUser], battle[slowUser]].forEach((p) => {
+    if (p.tempStatus?.rampagingPower > 0) {
+      p.tempStatus.rampagingPower -= 1;
+      if (p.tempStatus.rampagingPower === 0 && !p.faint && (p === battle.player || p === battle.npc)) {
+        p.tempStatus.rampagingPower = null;
+        enqueue(battle, `${p.name}의 폭주가 끝났다!`, "rampaging_power_end");
+      }
+    }
+  });
+
   let tempPlayer = battle.player.turn;
   let tempNpc = battle.npc.turn;
 

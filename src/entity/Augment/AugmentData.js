@@ -2077,6 +2077,13 @@ export const AUGMENT_LIST = [
     weight: 100,
   },
   {
+    id: "rampagingPower",
+    name: "폭주하는 힘",
+    desc: "적을 쓰러뜨렸을 경우 다음 턴까지 모든 능력치가 1.5배 증가합니다.",
+    cost: 1,
+    weight: 100,
+  },
+  {
     id: "threeSnails",
     name: "달팽이 세마리",
     desc: "공격 후 적에게 달팽이 껍질을 던져 추가 고정 데미지를 입힙니다.",
