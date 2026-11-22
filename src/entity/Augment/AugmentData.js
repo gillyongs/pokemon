@@ -10,8 +10,10 @@ import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/A
 
 export const getReplacementAugmentWeight = (pokemon) => {
   if (pokemon?.hasAugment?.("jinanSangae") || pokemon?.hasAugment?.("rudePureLove")) return 0;
-  const count = Array.isArray(pokemon?.augments) ? pokemon.augments.filter(Boolean).length : 0;
-  return Math.round(120 / (count + 1));
+  const count = Array.isArray(pokemon?.augments)
+    ? pokemon.augments.filter((a) => a && (typeof isNormalAugment === "function" ? isNormalAugment(a) : !a.buf && !a.curse && !a.synergy)).length
+    : 0;
+  return 500 / (count + 1);
 };
 
 // 포켓몬 교체 증강

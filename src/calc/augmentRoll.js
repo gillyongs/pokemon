@@ -16,13 +16,17 @@ const isRollableAugmentType = (aug) => {
   return Boolean(aug.buf && aug.cost === "-" && aug.weight !== "-" && aug.isRandom !== false);
 };
 
-function getAugmentWeight(aug, pokemon = null, battle = null) {
+function getAugmentWeight(aug, pokemon = null, battle = null, replacementPoolCount = 1) {
   if (!aug || aug.weight === "-" || !isRollableAugmentType(aug) || aug.isRandom === false) return 0;
 
   // 포켓몬 교체 증강 (기기기어르, 전설의 거인, 결혼, 돌림판, 비상 등):
-  // 기본 가중치 120, (지닌 증강/버프 개수 + 1)로 나눔
+  // 전체 가중치 500 / (n + 1)을 현재 풀에 있는 교체 증강 개수로 균등 분배하여,
+  // 교체 증강 전체의 등장 가중치가 교체 증강 개수와 무관하게 500 / (n + 1)로 일정하게 유지되도록 함
   if (REPLACEMENT_AUGMENT_IDS.includes(aug.id)) {
-    return getReplacementAugmentWeight(pokemon);
+    const totalReplacementWeight = getReplacementAugmentWeight(pokemon);
+    if (totalReplacementWeight <= 0) return 0;
+    const count = replacementPoolCount > 0 ? replacementPoolCount : 1;
+    return totalReplacementWeight / count;
   }
 
   const rawWeight = typeof aug.weight === "function" ? aug.weight(pokemon, battle) : typeof aug.getWeight === "function" ? aug.getWeight(pokemon, battle) : aug.weight;
@@ -34,16 +38,17 @@ function getAugmentWeight(aug, pokemon = null, battle = null) {
 
 function pickWeightedIndex(pool, pokemon = null, battle = null) {
   if (!Array.isArray(pool) || pool.length === 0) return -1;
+  const replacementPoolCount = pool.filter((aug) => aug && REPLACEMENT_AUGMENT_IDS.includes(aug.id)).length;
   let totalWeight = 0;
   for (const aug of pool) {
-    totalWeight += getAugmentWeight(aug, pokemon, battle);
+    totalWeight += getAugmentWeight(aug, pokemon, battle, replacementPoolCount);
   }
   if (totalWeight <= 0) {
     return Math.floor(Math.random() * pool.length);
   }
   let rand = Math.random() * totalWeight;
   for (let i = 0; i < pool.length; i++) {
-    rand -= getAugmentWeight(pool[i], pokemon, battle);
+    rand -= getAugmentWeight(pool[i], pokemon, battle, replacementPoolCount);
     if (rand < 0) {
       return i;
     }

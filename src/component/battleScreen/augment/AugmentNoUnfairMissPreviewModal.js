@@ -23,7 +23,9 @@ const AugmentNoUnfairMissPreviewModal = ({ pokemon, battle, onClose }) => {
   // 현재 포켓몬이 장착 중인 기술 중 대상 기술 (명중률 80~99)
   const equippedTargetSkills = useMemo(() => {
     if (!pokemon || !pokemon.skill) return [];
-    return [1, 2, 3, 4].map((slot) => pokemon.skill[slot]).filter((s) => s && typeof s.accur === "number" && s.accur >= 80 && s.accur <= 99);
+    return [1, 2, 3, 4]
+      .map((slot) => pokemon.skill[slot])
+      .filter((s) => s && typeof s.accur === "number" && s.accur >= 80 && s.accur <= 99);
   }, [pokemon]);
 
   return (
@@ -40,7 +42,10 @@ const AugmentNoUnfairMissPreviewModal = ({ pokemon, battle, onClose }) => {
               ✕
             </CloseButton>
           </ModalHeaderTop>
-          <NoticeBanner>명중률이 80 이상인 기술이 빗나가지 않습니다.</NoticeBanner>
+          <NoticeBanner>
+            명중률 <strong>80% ~ 99%</strong>인 기술이{" "}
+            <span style={{ color: "#64ffda", fontWeight: "bold" }}>절대 빗나가지 않습니다 (100% 명중)</span>.
+          </NoticeBanner>
         </ModalHeader>
 
         {/* 현재 포켓몬 대상 기술 영역 */}
@@ -55,7 +60,11 @@ const AugmentNoUnfairMissPreviewModal = ({ pokemon, battle, onClose }) => {
                 "현재 포켓몬의 대상 기술"
               )}
             </SectionTitle>
-            <CountBadge $highlight={equippedTargetSkills.length > 0}>{equippedTargetSkills.length > 0 ? `${equippedTargetSkills.length}개 기술 적용` : "적용 대상 없음"}</CountBadge>
+            <CountBadge $highlight={equippedTargetSkills.length > 0}>
+              {equippedTargetSkills.length > 0
+                ? `${equippedTargetSkills.length}개 기술 적용`
+                : "적용 대상 없음"}
+            </CountBadge>
           </SectionHeaderRow>
 
           {equippedTargetSkills.length > 0 ? (
@@ -69,6 +78,7 @@ const AugmentNoUnfairMissPreviewModal = ({ pokemon, battle, onClose }) => {
                       <SkillTypeImg src={`/pokemon/img/type/${sk.type}.svg`} alt={sk.type} />
                       <SkillName>{sk.name}</SkillName>
                       <CategoryBadge $category={cat}>{cat}</CategoryBadge>
+                      <AppliedBadge>100% 필중</AppliedBadge>
                     </CardTopRow>
 
                     <SkillStatsRow>
@@ -77,15 +87,23 @@ const AugmentNoUnfairMissPreviewModal = ({ pokemon, battle, onClose }) => {
                       </StatItem>
                       <StatDot>•</StatDot>
                       <StatItem>
-                        명중 <strong>{sk.accur}</strong>
+                        명중 <s>{sk.accur}</s> <AccurHighlight>100%</AccurHighlight>
+                      </StatItem>
+                      <StatDot>•</StatDot>
+                      <StatItem>
+                        PP <strong>{sk.pp}</strong>
                       </StatItem>
                     </SkillStatsRow>
+
+                    <SkillDescText>{desc}</SkillDescText>
                   </SkillDetailCard>
                 );
               })}
             </SkillListContainer>
           ) : (
-            <NoEquippedNotice>현재 장착 중인 기술 중 명중률 80% ~ 99%인 대상 기술이 없습니다.</NoEquippedNotice>
+            <NoEquippedNotice>
+              현재 장착 중인 기술 중 명중률 80% ~ 99%인 대상 기술이 없습니다.
+            </NoEquippedNotice>
           )}
         </ContentArea>
 
@@ -131,9 +149,7 @@ const ModalContainer = styled.div`
   max-width: 440px;
   max-height: 85vh;
   padding: 16px 18px;
-  box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.8),
-    0 0 20px rgba(100, 255, 218, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(100, 255, 218, 0.1);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -280,7 +296,8 @@ const CategoryBadge = styled.span`
   padding: 1.5px 5px;
   border-radius: 4px;
   color: white;
-  background-color: ${(props) => (props.$category === "물리" ? "#e74c3c" : props.$category === "특수" ? "#3498db" : "#64748b")};
+  background-color: ${(props) =>
+    props.$category === "물리" ? "#e74c3c" : props.$category === "특수" ? "#3498db" : "#64748b"};
   flex-shrink: 0;
 `;
 
