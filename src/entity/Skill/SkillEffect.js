@@ -76,6 +76,17 @@ function skillEffectSearch(name) {
         }
       }
 
+      // [증강: 파워 스트라이크] 공격 후 적에게 입힌 데미지의 3%에 해당하는 추가 고정 데미지
+      const hasPowerStrike = atkPokemon?.hasAugment?.("powerStrike");
+      const recentDamage = Number(atkPokemon?.turn?.recentDamageGive || 0);
+      if (hasPowerStrike && recentDamage > 0 && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
+        if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
+          const extraDamage = Math.max(1, Math.floor(recentDamage * 0.03));
+          const text = `[증강 파워 스트라이크] ${def.name}에게 ${extraDamage}의 추가 고정 데미지를 입혔다!`;
+          def.getDamage(battle, enqueue, extraDamage, text);
+        }
+      }
+
       // [증강: 루덴의 메아리] 공격 후 적에게 특수공격의 5%에 해당하는 추가 데미지
       const hasLudensEcho = atkPokemon?.hasAugment?.("ludensEcho");
       if (hasLudensEcho && def && !def.faint && (def.hp === undefined || def.hp > 0)) {

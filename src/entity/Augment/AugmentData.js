@@ -2091,8 +2091,15 @@ export const AUGMENT_LIST = [
     weight: 100,
   },
   {
+    id: "powerStrike",
+    name: "파워 스트라이크",
+    desc: "공격 후 적에게 입힌 데미지의 3%에 해당하는 추가 고정 데미지를 입힙니다.",
+    cost: 1,
+    weight: 100,
+  },
+  {
     id: "hyperBody",
-    name: "하이퍼바디",
+    name: "하이퍼 바디",
     desc: "파티 전원의 Max HP가 50% 증가합니다.",
     cost: 1,
     weight: 100,
@@ -2105,6 +2112,19 @@ export const AUGMENT_LIST = [
       } else if (pokemon) {
         pokemon.hasHyperBodyBuff = true;
       }
+    },
+  },
+  {
+    id: "dragonRoar",
+    name: "드래곤 로어",
+    desc: "HP가 절반 이상일때 스피드가 2배 증가합니다.\n필요스킬 : 파워 스트라이크, 하이퍼 바디 1레벨 이상",
+    cost: 3,
+    weight: 100,
+    isEligible: (pokemon, battle, team) => {
+      if (pokemon.hasAugment?.("dragonRoar")) return false;
+      const hasPowerStrike = pokemon.hasAugment?.("powerStrike");
+      const hasHyperBody = pokemon.hasAugment?.("hyperBody");
+      return Boolean(hasPowerStrike && hasHyperBody);
     },
   },
   {
@@ -2126,7 +2146,7 @@ export const AUGMENT_LIST = [
   },
   {
     id: "sharpEyes",
-    name: "샤프아이즈",
+    name: "샤프 아이즈",
     desc: "파티 전원의 급소 확률이 15%, 급소 데미지가 40% 증가합니다.",
     cost: 2,
     weight: 100,
@@ -2961,7 +2981,7 @@ export const getSynergyThreshold = (synergyId, requiredIds = []) => {
 };
 
 export const AUGMENT_SYNERGY_MAP = {
-  mapleWarrior: ["sharpEyes", "haste", "hyperBody"], // 메이플 용사: [샤프아이즈, 헤이스트, 하이퍼바디]
+  mapleWarrior: ["sharpEyes", "haste", "hyperBody"], // 메이플 용사: [샤프 아이즈, 헤이스트, 하이퍼 바디]
   echoOfHero: ["threeSnails", "nimbleMoves", "recovery", "soulDice"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복, 영혼의 주사위]
   dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
   wujuStyle: ["lastManStanding", "lastSamurai", "lastWarrior"], // 우주류 검술: [라스트 맨 스탠딩, 라스트 사무라이, 최후의 전사]

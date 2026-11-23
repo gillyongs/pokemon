@@ -240,6 +240,18 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
         logText += " * 1.5 (리미터 해제)";
       }
     }
+    // 드래곤 로어: HP가 절반 이상일 때 스피드 2배 증가
+    else if (augId === "dragonRoar") {
+      if (statKey === "speed") {
+        const curHp = pokemon.hp;
+        const maxHp = pokemon?.maxHp;
+        const halfHp = Math.round(maxHp / 2);
+        if (curHp >= halfHp) {
+          val = Math.round(val * 2);
+          logText += " * 2 (드래곤 로어)";
+        }
+      }
+    }
   }
 
   // 영웅의 메아리: 아군 모든 포켓몬의 공격과 특공 40% 상승

@@ -1,9 +1,10 @@
 export const PokemonAugment = {
   hasAugment(nameOrId) {
     if (!this.augments || !Array.isArray(this.augments)) return false;
+    const cleanTarget = typeof nameOrId === "string" ? nameOrId.replace(/\s/g, "") : null;
     return this.augments.some((aug) => {
-      if (typeof aug === "string") return aug === nameOrId;
-      return aug.id === nameOrId || aug.name === nameOrId;
+      if (typeof aug === "string") return aug === nameOrId || (cleanTarget && aug.replace(/\s/g, "") === cleanTarget);
+      return aug.id === nameOrId || aug.name === nameOrId || (cleanTarget && aug.name && aug.name.replace(/\s/g, "") === cleanTarget);
     });
   },
 
@@ -14,7 +15,8 @@ export const PokemonAugment = {
     if (typeof nameOrId === "string") {
       try {
         const { AUGMENT_LIST } = require("../../Augment/AugmentData");
-        const found = AUGMENT_LIST?.find((a) => a.id === nameOrId || a.name === nameOrId);
+        const cleanTarget = nameOrId.replace(/\s/g, "");
+        const found = AUGMENT_LIST?.find((a) => a.id === nameOrId || a.name === nameOrId || (a.name && a.name.replace(/\s/g, "") === cleanTarget));
         if (found) augId = found.id;
       } catch (e) {
         // ignore

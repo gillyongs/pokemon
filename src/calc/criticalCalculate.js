@@ -37,7 +37,7 @@ export const criticalCalculate = (input, pokemon = null) => {
     probability += 0.25;
   }
 
-  // 증강 샤프아이즈: 파티 전원의 급소 확률 15% 증가
+  // 증강 샤프 아이즈: 파티 전원의 급소 확률 15% 증가
   if (pokemon?.hasAugmentOnTeam?.("sharpEyes")) {
     probability += 0.15;
   }

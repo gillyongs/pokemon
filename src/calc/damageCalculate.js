@@ -829,7 +829,7 @@ export const damageCalculate = (battle, obj, ai) => {
     const hasSE = attackPokemon?.hasAugmentOnTeam?.("sharpEyes", battle);
     if (hasSE) {
       damage *= 1.4;
-      attackPokemon.log.damage2 += " * 1.4 (샤프아이즈)";
+      attackPokemon.log.damage2 += " * 1.4 (샤프 아이즈)";
     }
   }
 
