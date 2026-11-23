@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { AUGMENT_LIST, getAugmentSelDesc, isCurseAugment, isBuffAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isSynergyComponentAugment, isNormalAugment, isReplacementAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
@@ -116,34 +116,40 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     return resolvedTeam[0] || null;
   });
 
-  const checkEligibility = (aug, pokemon) => {
-    if (!pokemon) return false;
-    if (isTitanSelection) return true;
-    const isSpecialAug = isBuffAugment(aug) || isCurseAugment(aug) || isSynergyAugment(aug);
-    const isInstant = aug.cost === "-";
-    const normalAugs = (pokemon.augments || []).filter((a) => isNormalAugment(a));
-    if (normalAugs.length >= 3 && !isInstant && !isSpecialAug) {
-      return false;
-    }
-    if (pokemon.hasAugment?.(aug.id)) {
-      return false;
-    }
-    if (isReplacementAugment(aug) && (pokemon.hasAugment?.("jinanSangae") || pokemon.hasAugment?.("rudePureLove"))) {
-      return false;
-    }
-    if (typeof aug.isEligible === "function") {
-      return aug.isEligible(pokemon, battle, resolvedTeam);
-    }
-    return true;
-  };
+  const checkEligibility = useCallback(
+    (aug, pokemon) => {
+      if (!pokemon) return false;
+      if (isTitanSelection) return true;
+      const isSpecialAug = isBuffAugment(aug) || isCurseAugment(aug) || isSynergyAugment(aug);
+      const isInstant = aug.cost === "-";
+      const normalAugs = (pokemon.augments || []).filter((a) => isNormalAugment(a));
+      if (normalAugs.length >= 3 && !isInstant && !isSpecialAug) {
+        return false;
+      }
+      if (pokemon.hasAugment?.(aug.id)) {
+        return false;
+      }
+      if (isReplacementAugment(aug) && (pokemon.hasAugment?.("jinanSangae") || pokemon.hasAugment?.("rudePureLove"))) {
+        return false;
+      }
+      if (typeof aug.isEligible === "function") {
+        return aug.isEligible(pokemon, battle, resolvedTeam);
+      }
+      return true;
+    },
+    [isTitanSelection, battle, resolvedTeam]
+  );
 
   const { allEligible, allIneligible } = useMemo(() => {
     const eligible = [];
     const ineligible = [];
-    const trimmed = searchTerm.trim().toLowerCase();
+    const cleanSearch = searchTerm.replace(/\s+/g, "").toLowerCase();
     AUGMENT_LIST.forEach((aug) => {
-      if (trimmed && !aug.name.toLowerCase().includes(trimmed)) {
-        return;
+      if (cleanSearch) {
+        const cleanName = (aug.name || "").replace(/\s+/g, "").toLowerCase();
+        if (!cleanName.includes(cleanSearch)) {
+          return;
+        }
       }
       if (checkEligibility(aug, activePokemon)) {
         eligible.push(aug);
@@ -154,7 +160,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     eligible.sort(compareAugmentNames);
     ineligible.sort(compareAugmentNames);
     return { allEligible: eligible, allIneligible: ineligible };
-  }, [activePokemon, searchTerm]);
+  }, [activePokemon, searchTerm, checkEligibility]);
 
   // 레지기가스 선택시 고정 증강
   const titanFixedChoices = useMemo(() => {

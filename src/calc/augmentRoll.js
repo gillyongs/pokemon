@@ -56,22 +56,99 @@ function pickWeightedIndex(pool, pokemon = null, battle = null) {
   return pool.length - 1;
 }
 
-function getForcedSynergyAugment(pokemon) {
+export function getForcedSynergyAugment(pokemon, availablePool = null, battle = null, team = null) {
   if (!pokemon) return null;
+
+  // 이미 활성화된 시너지 제외하고, 해당 포켓몬이 1개 이상 보유하고 아직 남은 구성 증강이 있는 시너지 수집
+  const activeSynergies = [];
   for (const [buffId, requiredIds] of Object.entries(AUGMENT_SYNERGY_MAP)) {
-    // 영메는 팀 전체니까 따로 관리
+    // 영메/메용 등 팀 또는 본인이 이미 시너지 버프를 보유 중이면 제외
     if (pokemon.hasAugment?.(buffId) || pokemon.hasAugmentOnTeam?.(buffId)) {
       continue;
     }
     const threshold = typeof getSynergyThreshold === "function" ? getSynergyThreshold(buffId, requiredIds) : requiredIds.length;
     const owned = requiredIds.filter((id) => pokemon.hasAugment?.(id));
-    if (owned.length === threshold - 1) {
-      const missingCandidates = requiredIds.filter((id) => !pokemon.hasAugment?.(id));
-      const found = AUGMENT_LIST.find((a) => missingCandidates.includes(a.id) && (typeof a.isEligible !== "function" || a.isEligible(pokemon)));
-      if (found) return found;
+    const missing = requiredIds.filter((id) => !pokemon.hasAugment?.(id));
+
+    // 이미 임계치 이상 보유했거나 남은 증강이 없으면 제외
+    if (owned.length >= threshold || missing.length === 0) {
+      continue;
+    }
+
+    if (owned.length > 0) {
+      activeSynergies.push({
+        buffId,
+        requiredIds,
+        owned,
+        missing,
+      });
     }
   }
-  return null;
+
+  if (activeSynergies.length === 0) {
+    return null;
+  }
+
+  // 서로 다른 시너지의 증강이 하나씩 있을 때엔 해당 로직을 적용하지 않는다
+  if (activeSynergies.length >= 2 && activeSynergies.every((s) => s.owned.length === 1)) {
+    return null;
+  }
+
+  let targetSynergy = null;
+  let chance = 0;
+
+  if (activeSynergies.length === 1) {
+    const s = activeSynergies[0];
+    if (s.owned.length === 1) {
+      // 시너지 증강이 하나 있을 때: 70% 확률
+      targetSynergy = s;
+      chance = 0.7;
+    } else if (s.owned.length === 2) {
+      // 시너지 증강이 2개일 때: 50% 확률
+      targetSynergy = s;
+      chance = 0.5;
+    }
+  } else {
+    // 2개 이상 시너지에 걸쳐 있을 때 2개를 보유한 시너지가 있다면 50% 확률 적용
+    const synergyWith2 = activeSynergies.find((s) => s.owned.length === 2);
+    if (synergyWith2) {
+      targetSynergy = synergyWith2;
+      chance = 0.5;
+    } else {
+      return null;
+    }
+  }
+
+  if (!targetSynergy || chance <= 0) {
+    return null;
+  }
+
+  // 맨 처음에 70% or 50% 확률로 넣을지 말지 판단
+  if (Math.random() >= chance) {
+    return null;
+  }
+
+  // 넣기로 했을 때, 해당 증강을 제외한 다른 시너지 증강 중 하나를 랜덤 택 1
+  const missingCandidates = targetSynergy.missing;
+  let candidates = [];
+  if (Array.isArray(availablePool)) {
+    candidates = availablePool.filter((a) => missingCandidates.includes(a.id));
+  } else {
+    candidates = AUGMENT_LIST.filter(
+      (a) =>
+        missingCandidates.includes(a.id) &&
+        !pokemon.hasAugment?.(a.id) &&
+        isRollableAugmentType(a) &&
+        a.weight !== "-" &&
+        (typeof a.isEligible !== "function" || a.isEligible(pokemon, battle, team))
+    );
+  }
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
 
@@ -101,7 +178,7 @@ function getPriorityTopAugment(pokemon) {
   return null;
 }
 
-const getForcedBeginnerAugment = getForcedSynergyAugment;
+export const getForcedBeginnerAugment = getForcedSynergyAugment;
 
 /**
  * 포켓몬이 선택 가능한 증강을 가중치 기반 무작위(중복 없이) 추첨합니다.
@@ -123,7 +200,7 @@ export function rollAugments(pokemon, count = 3, battle = null) {
   });
   const priorityTopRaw = getPriorityTopAugment(pokemon);
   const priorityTop = priorityTopRaw && (!isFull || !isNormalAugment(priorityTopRaw)) ? priorityTopRaw : null;
-  const forced = getForcedBeginnerAugment(pokemon);
+  const forced = getForcedSynergyAugment(pokemon, available, battle, team);
   const selected = [];
   let pool = [...available];
 
@@ -231,7 +308,7 @@ export function rollTeamAugments(team, battle = null) {
 
     const priorityTopRaw = getPriorityTopAugment(poke);
     const priorityTop = priorityTopRaw && (!isFull || !isNormalAugment(priorityTopRaw)) ? priorityTopRaw : null;
-    const forced = getForcedBeginnerAugment(poke);
+    const forced = getForcedSynergyAugment(poke, available, battle, team);
     const chosen = [];
     if (priorityTop) {
       chosen.push(priorityTop);

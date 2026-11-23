@@ -1196,7 +1196,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {/* 운 좋은 회복 (클로버/하트 일러스트 이미지 + 원형 클리핑 & 에메랄드-라임 링) */}
         {id === "luckyRecovery" && (
           <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/luckyRecovery.png?v=2" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <image href="/pokemon/img/augment/luckyRecovery.png?v=3" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#lwRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bef264" strokeWidth="0.5" strokeOpacity="0.4" />
           </g>
