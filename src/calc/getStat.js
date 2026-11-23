@@ -248,6 +248,12 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     logText += " * 1.4 (영웅의 메아리)";
   }
 
+  // 메이플 용사: 파티 전원의 모든 능력치 15% 증가
+  if (pokemon?.hasAugmentOnTeam?.("mapleWarrior", battle)) {
+    val = Math.round(val * 1.15);
+    logText += " * 1.15 (메이플 용사)";
+  }
+
   // 방어구 부수기: 피격 포켓몬의 방어와 특수방어 스택당 5% 감소 (최대 15스택 = 75%)
   const armorBreakStacks = Number(pokemon?.tempStatus?.armorBreak || 0);
   if (armorBreakStacks > 0 && (statKey === "def" || statKey === "cdef")) {

@@ -49,7 +49,7 @@ export const PokemonAugment = {
   },
 
   checkAugmentSynergies(battle) {
-    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getSynergyThreshold, syncTeamEchoOfHeroBuff, syncTeamBearBuffs } = require("../../Augment/AugmentData");
+    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getSynergyThreshold, syncTeamEchoOfHeroBuff, syncTeamMapleWarriorBuff, syncTeamBearBuffs } = require("../../Augment/AugmentData");
     const team = battle ? (this.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]) : [];
 
     Object.entries(AUGMENT_SYNERGY_MAP).forEach(([synergyId, requiredIds]) => {
@@ -58,6 +58,9 @@ export const PokemonAugment = {
         // testMode 등에서 직접 선택된 시너지는 조건 없이 무조건 활성화 유지
         if (synergyId === "echoOfHero" && typeof syncTeamEchoOfHeroBuff === "function") {
           syncTeamEchoOfHeroBuff(battle, this);
+        }
+        if (synergyId === "mapleWarrior" && typeof syncTeamMapleWarriorBuff === "function") {
+          syncTeamMapleWarriorBuff(battle, this);
         }
         return;
       }
@@ -70,9 +73,12 @@ export const PokemonAugment = {
       if (hasAllConditions) {
         // 활성화 조건 만족: 아직 활성화되지 않았다면 추가
         if (!hasSynergyNow) {
-          // 영메는 팀 단위 버프이므로 한 명만 활성화
+          // 영메 및 메용은 팀 단위 버프이므로 한 명만 활성화
           const alreadyHasEchoOnTeam = synergyId === "echoOfHero" && team.some((p) => p !== this && (p?.hasAugment?.("echoOfHero") || p?.hasEchoOfHeroBuff));
           if (alreadyHasEchoOnTeam) return;
+
+          const alreadyHasMapleWarriorOnTeam = synergyId === "mapleWarrior" && team.some((p) => p !== this && (p?.hasAugment?.("mapleWarrior") || p?.hasMapleWarriorBuff));
+          if (alreadyHasMapleWarriorOnTeam) return;
 
           const synergyAug = AUGMENT_LIST.find((a) => a.id === synergyId);
           if (synergyAug) {
@@ -98,6 +104,9 @@ export const PokemonAugment = {
             if (synergyId === "echoOfHero" && typeof syncTeamEchoOfHeroBuff === "function") {
               syncTeamEchoOfHeroBuff(battle, this);
             }
+            if (synergyId === "mapleWarrior" && typeof syncTeamMapleWarriorBuff === "function") {
+              syncTeamMapleWarriorBuff(battle, this);
+            }
           }
         }
       } else {
@@ -108,6 +117,12 @@ export const PokemonAugment = {
             delete this.hasEchoOfHeroBuff;
             if (typeof syncTeamEchoOfHeroBuff === "function") {
               syncTeamEchoOfHeroBuff(battle, this);
+            }
+          }
+          if (synergyId === "mapleWarrior") {
+            delete this.hasMapleWarriorBuff;
+            if (typeof syncTeamMapleWarriorBuff === "function") {
+              syncTeamMapleWarriorBuff(battle, this);
             }
           }
         }

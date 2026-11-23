@@ -1076,7 +1076,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && id !== "allInDefense" && id !== "limiterRemoval" && id !== "rudePureLove" && id !== "jinanSangae" && id !== "dragonSlayer" && id !== "dragonKiller" && id !== "dragonHunter" && id !== "dragonDie" && id !== "believeInMyself" && id !== "pokemonQuiz" && id !== "pokemonQuizExpert" && id !== "luckyRecovery" && id !== "rampagingPower" && id !== "armorBreak" && id !== "hyperBody" && id !== "haste" && id !== "sharpEyes" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && id !== "allInDefense" && id !== "limiterRemoval" && id !== "rudePureLove" && id !== "jinanSangae" && id !== "dragonSlayer" && id !== "dragonKiller" && id !== "dragonHunter" && id !== "dragonDie" && id !== "believeInMyself" && id !== "pokemonQuiz" && id !== "pokemonQuizExpert" && id !== "luckyRecovery" && id !== "rampagingPower" && id !== "armorBreak" && id !== "hyperBody" && id !== "haste" && id !== "sharpEyes" && id !== "mapleWarrior" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -1270,6 +1270,24 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
               height="60"
               preserveAspectRatio="xMidYMid slice"
               clipPath="url(#sharpEyesSquareClip)"
+            />
+          </g>
+        )}
+
+        {/* 메이플 용사 (메이플스토리 메이플 용사 사각 스킬 아이콘) */}
+        {id === "mapleWarrior" && (
+          <g>
+            <clipPath id="mapleWarriorSquareClip">
+              <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
+            </clipPath>
+            <image
+              href="/pokemon/img/augment/mapleWarrior.png?v=3"
+              x="2"
+              y="2"
+              width="60"
+              height="60"
+              preserveAspectRatio="xMidYMid slice"
+              clipPath="url(#mapleWarriorSquareClip)"
             />
           </g>
         )}

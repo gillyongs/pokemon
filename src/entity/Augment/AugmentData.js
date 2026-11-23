@@ -2093,7 +2093,7 @@ export const AUGMENT_LIST = [
   {
     id: "hyperBody",
     name: "하이퍼바디",
-    desc: "파티 전원의 Max HP가 60% 증가합니다.",
+    desc: "파티 전원의 Max HP가 50% 증가합니다.",
     cost: 1,
     weight: 100,
     isEligible: (pokemon, battle, team) => {
@@ -2147,6 +2147,25 @@ export const AUGMENT_LIST = [
     desc: "공격 후 적에게 달팽이 껍질을 던져 추가 고정 데미지를 입힙니다.",
     cost: 2,
     weight: 100,
+  },
+  {
+    id: "mapleWarrior",
+    name: "메이플 용사",
+    desc: "파티 전원의 모든 능력치가 15% 증가합니다.",
+    synergyEffectText: "모든 아군 포켓몬의 모든 능력치가 15% 증가한다!",
+    synergy: true,
+    isRandom: false,
+    weight: "-",
+    onApply: function (pokemon, battle) {
+      if (battle) {
+        const team = pokemon.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
+        team.filter(Boolean).forEach((p) => {
+          p.hasMapleWarriorBuff = true;
+        });
+      } else if (pokemon) {
+        pokemon.hasMapleWarriorBuff = true;
+      }
+    },
   },
   {
     id: "echoOfHero",
@@ -2620,7 +2639,7 @@ export const AUGMENT_LIST = [
     buf: true,
     noCarryover: true,
     weight: 100,
-    isEligible: (pokemon) => !pokemon?.hasAugment?.("growUp") && (pokemon?.hp === undefined || pokemon?.hp >= pokemon?.maxHp),
+    isEligible: (pokemon) => !pokemon?.hasAugment?.("growUp") && pokemon?.hp >= pokemon?.maxHp,
     onApply: (pokemon) => {
       if (pokemon && typeof pokemon.hp === "number") {
         pokemon.hp = Math.min(pokemon.maxHp, Math.round(pokemon.hp * 1.5));
@@ -2942,6 +2961,7 @@ export const getSynergyThreshold = (synergyId, requiredIds = []) => {
 };
 
 export const AUGMENT_SYNERGY_MAP = {
+  mapleWarrior: ["sharpEyes", "haste", "hyperBody"], // 메이플 용사: [샤프아이즈, 헤이스트, 하이퍼바디]
   echoOfHero: ["threeSnails", "nimbleMoves", "recovery", "soulDice"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복, 영혼의 주사위]
   dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
   wujuStyle: ["lastManStanding", "lastSamurai", "lastWarrior"], // 우주류 검술: [라스트 맨 스탠딩, 라스트 사무라이, 최후의 전사]
@@ -2953,6 +2973,12 @@ export const AUGMENT_SYNERGY_MAP = {
 };
 
 const SYNERGY_INFO_MAP = {
+  mapleWarrior: {
+    emoji: "🍁",
+    theme: "메이플 용사",
+    title: "메이플 용사",
+    desc: "파티 전원의 모든 능력치가 15% 증가합니다.",
+  },
   echoOfHero: {
     emoji: "🍁",
     theme: "모험가 초보자",
@@ -3181,6 +3207,28 @@ export const syncTeamEchoOfHeroBuff = (battle, fallbackPokemon = null) => {
   });
 };
 
+// 팀 내 메이플 용사(hasMapleWarriorBuff) 플래그 동기화 함수
+export const syncTeamMapleWarriorBuff = (battle, fallbackPokemon = null) => {
+  if (!battle) {
+    if (fallbackPokemon && !fallbackPokemon.hasAugment?.("mapleWarrior")) {
+      delete fallbackPokemon.hasMapleWarriorBuff;
+    }
+    return;
+  }
+  ["player", "npc"].forEach((side) => {
+    const members = (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean);
+    if (members.length === 0) return;
+    const hasHolder = members.some((p) => p?.hasAugment?.("mapleWarrior"));
+    members.forEach((p) => {
+      if (hasHolder) {
+        p.hasMapleWarriorBuff = true;
+      } else {
+        delete p.hasMapleWarriorBuff;
+      }
+    });
+  });
+};
+
 // 팀 내 하이퍼바디(hasHyperBodyBuff) 플래그 동기화 함수
 export const syncTeamHyperBodyBuff = (battle, fallbackPokemon = null) => {
   if (!battle) {
@@ -3310,8 +3358,9 @@ const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) => {
     }
   }
 
-  // 교체된 포켓몬이 영웅의 메아리/하이퍼바디/헤이스트/샤프아이즈 보유자였던 경우 팀 잔여 버프 플래그 정리
+  // 교체된 포켓몬이 영웅의 메아리/메이플 용사/하이퍼바디/헤이스트/샤프아이즈 보유자였던 경우 팀 잔여 버프 플래그 정리
   syncTeamEchoOfHeroBuff(battle, pokemon);
+  syncTeamMapleWarriorBuff(battle, pokemon);
   syncTeamHyperBodyBuff(battle, pokemon);
   syncTeamHasteBuff(battle, pokemon);
   syncTeamSharpEyesBuff(battle, pokemon);
