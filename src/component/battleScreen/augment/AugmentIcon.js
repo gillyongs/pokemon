@@ -610,6 +610,13 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="100%" stopColor="#4c1d95" />
           </linearGradient>
 
+          {/* 순애 / 진안상애 하늘색 링 그라데이션 */}
+          <linearGradient id="pureLoveCyanRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#7dd3fc" />
+            <stop offset="50%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#0284c7" />
+          </linearGradient>
+
           {/* 회복 전용 그라데이션 (에메랄드/그린 테마) */}
           <linearGradient id="recoveryCrossGrad" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#4ade80" />
@@ -3900,12 +3907,12 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 무례하긴, 순애야. / 진안상애 (유저 커스텀 일러스트 + 원형 클리핑 & 퍼플 링) */}
+        {/* 무례하긴, 순애야. / 진안상애 (유저 커스텀 일러스트 + 원형 클리핑 & 하늘색 링) */}
         {(id === "rudePureLove" || id === "jinanSangae") && (
           <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/rudePureLove.png?v=2" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
-            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#zeroSumRingGrad)" strokeWidth="1.8" />
-            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#d8b4fe" strokeWidth="0.5" strokeOpacity="0.5" />
+            <image href={`/pokemon/img/augment/${id === "jinanSangae" ? "jinanSangae" : "rudePureLove"}.png?v=4`} x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#pureLoveCyanRingGrad)" strokeWidth="2" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.6" strokeOpacity="0.85" />
           </g>
         )}
 
@@ -4009,12 +4016,12 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 아케인셰이드 투핸드소드 (일러스트 이미지 + 원형 클리핑 & 아케인 보라 링) */}
+        {/* 아케인셰이드 투핸드소드 (일러스트 이미지 + 원형 클리핑 & 보라색 테두리) */}
         {id === "arcaneShadeSword" && (
           <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/arcaneShadeSword.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
-            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
-            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#c084fc" strokeWidth="0.5" strokeOpacity="0.8" />
+            <image href="/pokemon/img/augment/arcaneShadeSword.png?v=3" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#zeroSumRingGrad)" strokeWidth="2" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#d8b4fe" strokeWidth="0.6" strokeOpacity="0.85" />
           </g>
         )}
 

@@ -37,9 +37,7 @@ export const PokemonAugment = {
         team = [battleOrTeam.player, battleOrTeam.playerBench1, battleOrTeam.playerBench2];
       } else {
         const isPlayerSide = [battleOrTeam.player, battleOrTeam.playerBench1, battleOrTeam.playerBench2].includes(this);
-        team = isPlayerSide
-          ? [battleOrTeam.player, battleOrTeam.playerBench1, battleOrTeam.playerBench2]
-          : [battleOrTeam.npc, battleOrTeam.npcBench1, battleOrTeam.npcBench2];
+        team = isPlayerSide ? [battleOrTeam.player, battleOrTeam.playerBench1, battleOrTeam.playerBench2] : [battleOrTeam.npc, battleOrTeam.npcBench1, battleOrTeam.npcBench2];
       }
     }
 

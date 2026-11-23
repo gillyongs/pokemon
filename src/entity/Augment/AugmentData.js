@@ -402,13 +402,7 @@ export const AUGMENT_LIST = [
     weight: 100,
     isEligible: (pokemon, battle, team) => {
       if (battle?.teamOption !== "트레이드") return false;
-      const normalCount = Array.isArray(pokemon?.augments) ? pokemon.augments.filter((a) => isNormalAugment(a)).length : 0;
-      if (normalCount > 1) return false;
-      const resolvedTeam = Array.isArray(team) && team.length > 0 ? team : battle ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [pokemon].filter(Boolean);
-      if (resolvedTeam.some((p) => p?.hasAugment?.("jinanSangae") || p?.hasAugment?.("rudePureLove"))) {
-        return false;
-      }
-      return true;
+      return !pokemon?.hasAugmentOnTeam?.("jinanSangae", team || battle);
     },
     onApply: function (pokemon, battle, options) {
       if (!pokemon) return;
