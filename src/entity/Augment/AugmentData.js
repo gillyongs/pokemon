@@ -251,7 +251,7 @@ export const AUGMENT_LIST = [
     desc: "똑같은 기술을 연속으로 사용하면 위력이 30%씩 최대 10번 증가합니다. 그만두면 위력이 되돌아갑니다.",
     cost: 2,
     weight: 100,
-    isEligible: (pokemon) => !pokemon?.hasAugment?.("metronome") && hasAttackSkill(pokemon),
+    isEligible: (pokemon) => hasAttackSkill(pokemon),
     statusModalText: function (pokemon) {
       const count = Number(pokemon?.tempStatus?.sameSkillCount || 0);
       const skillName = pokemon?.tempStatus?.sameSkillName;
@@ -261,6 +261,30 @@ export const AUGMENT_LIST = [
       return this.desc;
     },
     // damageCalculate.js에 구현
+  },
+  {
+    id: "doubleMetronome",
+    name: "더블 메트로놈",
+    shortDesc: "기술이 막히거나 실패하여도 메트로놈 효과가 초기화되지 않습니다.",
+    desc: "지닌 물건을 메트로놈과 교체합니다.\n추가로 기술이 막히거나 실패하여도 메트로놈 효과가 초기화되지 않습니다.",
+    selDesc: function (pokemon) {
+      const isHolding = pokemon.item === "메트로놈";
+      return isHolding ? this.shortDesc : this.desc;
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const isHolding = target.originalItem === "메트로놈";
+      return isHolding ? this.shortDesc : this.desc;
+    },
+    statusModalText: function (pokemon) {
+      const isHolding = pokemon?.originalItem === "메트로놈";
+      return isHolding ? this.shortDesc : this.desc;
+    },
+    cost: 1,
+    weight: 100,
+    isEligible: (pokemon) => hasAttackSkill(pokemon),
+    onApply: function (pokemon) {
+      pokemon.item = "메트로놈";
+    },
   },
   {
     id: "noUnfairMiss",
@@ -2825,57 +2849,47 @@ export const AUGMENT_LIST = [
     id: "soulDew",
     name: "마음의물방울",
     desc: "지닌 물건을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
+    descOrigin: "라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
     selDesc: function (pokemon) {
-      const isHolding = (pokemon?.item?.name || pokemon?.item) === "마음의물방울";
-      return isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다." : "지닌 물건을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
-    },
-    screenText: function (target, prevPokeName, options) {
-      const isHolding = options?.wasHoldingSoulDew !== undefined ? options.wasHoldingSoulDew : target?._wasHoldingSoulDew !== undefined ? target._wasHoldingSoulDew : target?.item === "마음의물방울";
-      delete target?._wasHoldingSoulDew;
-      return isHolding ? "[증강] 마음의물방울이 옛날의 영광을 되찾았다!" : "[증강] 지닌 물건이 마음의물방울로 교체되었다!";
-    },
-    logModalText: function (target, prevPokeName, options) {
-      const isHolding = options?.wasHoldingSoulDew !== undefined ? options.wasHoldingSoulDew : target?._wasHoldingSoulDew !== undefined ? target._wasHoldingSoulDew : target?.item === "마음의물방울";
-      return isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다." : "지닌 물건을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.";
-    },
-    statusModalText: function (pokemon) {
       const isHolding = pokemon?.item === "마음의물방울";
       const header = isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다." : "지닌 물건을 마음의물방울로 교체합니다.";
-      return `${header}\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.`;
+      return `${header}\n${this.descOrigin}`;
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const isHolding = target.originalItem === "마음의물방울";
+      return isHolding ? this.descOrigin : this.desc;
+    },
+    statusModalText: function (pokemon) {
+      const isHolding = pokemon.originalItem === "마음의물방울";
+      return isHolding ? this.descOrigin : this.desc;
     },
     cost: 0,
-    weight: 20,
+    weight: 200,
     isEligible: (pokemon) => {
       return Boolean(pokemon.name.includes("라티오스") || pokemon.name.includes("라티아스"));
     },
     onApply: function (pokemon, battle, options) {
-      if (pokemon) {
-        const wasHolding = pokemon.item === "마음의물방울";
-        pokemon._wasHoldingSoulDew = wasHolding;
-        if (options) {
-          options.wasHoldingSoulDew = wasHolding;
-        }
-        pokemon.item = "마음의물방울";
-      }
+      pokemon.item = "마음의물방울";
     },
   },
   // 7세대의 악마 (따라큐 전용 증강)
   {
     id: "devilOfGen7",
     name: "7세대의 악마",
-    desc: function (pokemon) {
-      const isHolding = (pokemon?.item?.name || pokemon?.item) === "기합의띠";
-      return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
-    },
     screenText: "[증강] 특성 탈이 체력을 소모하지 않게 되었다!",
+    desc: "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.",
+    descShort: "특성 탈이 체력을 소모하지 않습니다.",
+    selDesc: function (pokemon) {
+      const isHolding = pokemon?.item === "기합의띠";
+      return isHolding ? this.descShort : this.desc;
+    },
     logModalText: function (target, prevPokeName, options) {
-      const isHolding = options?.wasHoldingFocusSash !== undefined ? options.wasHoldingFocusSash : (target?.item?.name || target?.item) === "기합의띠";
-      return isHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+      const isHolding = target.originalItem === "기합의띠";
+      return isHolding ? this.descShort : this.desc;
     },
     statusModalText: function (pokemon) {
-      const originalItem = pokemon?.originalItem?.name || pokemon?.originalItem;
-      const wasHolding = originalItem === "기합의띠";
-      return wasHolding ? "특성 탈이 체력을 소모하지 않습니다." : "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.";
+      const isHolding = pokemon.originalItem === "기합의띠";
+      return isHolding ? this.descShort : this.desc;
     },
     cost: 1,
     weight: 300,
@@ -2883,15 +2897,7 @@ export const AUGMENT_LIST = [
     imageOptions: { shiftUp: true, offsetY: -6, offsetX: 2, scale: 1.15 },
     isEligible: (pokemon) => hasPokemonName(pokemon, "따라큐"),
     onApply: function (pokemon, battle, options) {
-      if (pokemon) {
-        const wasHolding = (pokemon.item?.name || pokemon.item) === "기합의띠";
-        if (options) {
-          options.wasHoldingFocusSash = wasHolding;
-        }
-        if (!wasHolding) {
-          pokemon.item = "기합의띠";
-        }
-      }
+      pokemon.item = "기합의띠";
     },
   },
   // 리베로

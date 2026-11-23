@@ -1155,6 +1155,46 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
+        {/* 더블 메트로놈 */}
+        {id === "doubleMetronome" && (
+          <g>
+            <circle cx="24" cy="30" r="16" fill="#3b82f6" opacity="0.25" filter="url(#glow)" />
+            <circle cx="40" cy="32" r="18" fill="#a855f7" opacity="0.3" filter="url(#glow)" />
+            <circle cx="32" cy="32" r="24" fill="#60a5fa" opacity="0.15" filter="url(#glow)" />
+            {/* 뒤쪽(좌측) 메트로놈 */}
+            <g transform="rotate(-14 20 30)">
+              <image
+                href="/pokemon/img/augment/메트로놈.webp"
+                x="1"
+                y="11"
+                width="38"
+                height="38"
+                style={{
+                  filter: "drop-shadow(0 0 5px rgba(59, 130, 246, 0.75)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))",
+                  opacity: 0.95,
+                }}
+              />
+            </g>
+            {/* 앞쪽(우측) 메트로놈 */}
+            <g transform="rotate(14 44 34)">
+              <image
+                href="/pokemon/img/augment/메트로놈.webp"
+                x="25"
+                y="15"
+                width="38"
+                height="38"
+                style={{
+                  filter: "drop-shadow(0 0 8px rgba(168, 85, 247, 0.85)) drop-shadow(0 2px 5px rgba(0, 0, 0, 0.9))",
+                }}
+              />
+            </g>
+            {/* 반짝임 파티클 */}
+            <circle cx="12" cy="18" r="1.2" fill="#93c5fd" opacity="0.9" />
+            <circle cx="52" cy="16" r="1.4" fill="#c084fc" opacity="0.9" />
+            <circle cx="32" cy="8" r="1.5" fill="#fdf2f8" opacity="0.95" />
+          </g>
+        )}
+
         {/* 드래곤 슬레이어 (성기사와 용 일러스트 이미지 + 원형 클리핑 & 골드-퍼플 링) */}
         {id === "dragonSlayer" && (
           <g clipPath="url(#lwClip)">
