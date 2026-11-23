@@ -165,6 +165,15 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
   defPokemon.tempStatus.hitCount = (defPokemon.tempStatus.hitCount || 0) + 1; // 분노의주먹
 
+  // [증강 방어구 부수기] 적을 공격하여 데미지를 줄 때마다 적의 방어와 특수방어 5% 감소 (최대 15스택)
+  if (!isConfuseSelfHit && actualGiveDamage > 0 && atkPokemon.hasAugment?.("armorBreak")) {
+    if (!defPokemon.tempStatus.armorBreak) {
+      defPokemon.tempStatus.armorBreak = 1;
+    } else {
+      defPokemon.tempStatus.armorBreak = Math.min(15, defPokemon.tempStatus.armorBreak + 1);
+    }
+  }
+
   // ================= 텍스트 처리 =================
   let defaultText = true;
   if (talTrigger) {

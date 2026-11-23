@@ -2084,6 +2084,13 @@ export const AUGMENT_LIST = [
     weight: 100,
   },
   {
+    id: "armorBreak",
+    name: "방어구 부수기",
+    desc: "적을 공격하여 데미지를 줄때마다 적의 방어와 특수방어를 5% 깎습니다.\n최대 15번 중첩됩니다.",
+    cost: 1,
+    weight: 100,
+  },
+  {
     id: "threeSnails",
     name: "달팽이 세마리",
     desc: "공격 후 적에게 달팽이 껍질을 던져 추가 고정 데미지를 입힙니다.",

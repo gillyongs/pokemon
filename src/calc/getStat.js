@@ -248,6 +248,14 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     logText += " * 1.4 (영웅의 메아리)";
   }
 
+  // 방어구 부수기: 피격 포켓몬의 방어와 특수방어 스택당 5% 감소 (최대 15스택 = 75%)
+  const armorBreakStacks = Number(pokemon?.tempStatus?.armorBreak || 0);
+  if (armorBreakStacks > 0 && (statKey === "def" || statKey === "cdef")) {
+    const reductionPercent = Math.min(75, armorBreakStacks * 5);
+    val = Math.max(1, Math.round(val * (1 - reductionPercent / 100)));
+    logText += ` * ${(1 - reductionPercent / 100).toFixed(2)} (방어구 부수기 -${reductionPercent}%)`;
+  }
+
   logText += ` = ${val}`;
   pokemon.log.getStat[statKey] = logText;
 

@@ -129,6 +129,7 @@ class PokemonInstance {
       turnsOnField: 0, // 필드에 나온 턴 수 (슬로스타트)
       unburden: false, // 곡예: 도구 소모/상실 시 true, 교체 시 초기화
       rampagingPower: null, // [증강 폭주하는 힘] 적을 쓰러뜨렸을 경우 다음 턴까지 모든 능력치 1.5배 (지속 턴 카운트)
+      armorBreak: null, // [증강 방어구 부수기] 피격 시 누적 스택 (기본값 null, 첫 피격 시 1, 최대 15)
     };
     this.img_id = this.o.img_id || null; // 포켓몬 스프라이트만 바꾸고 싶을때 사용 (기기기어르, 1세대 뮤츠)
     this.faint = null; //기절 여부
