@@ -1143,28 +1143,28 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 용살자 (백룡과 대검 일러스트 이미지 + 원형 클리핑 & 골드-퍼플 링) */}
+        {/* 용살자 (그린 드래곤과 대검 일러스트 이미지 + 원형 클리핑 & 골드-퍼플 링) */}
         {id === "dragonKiller" && (
           <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/dragonKiller.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <image href="/pokemon/img/augment/dragonKiller.png?v=2" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#zeroSumRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#facc15" strokeWidth="0.5" strokeOpacity="0.5" />
           </g>
         )}
 
-        {/* 용 사냥꾼 (선회하는 백룡 일러스트 이미지 + 원형 클리핑 & 골드-퍼플 링) */}
+        {/* 용 사냥꾼 (선회하는 용 일러스트 이미지 + 원형 클리핑 & 골드-퍼플 링) */}
         {id === "dragonHunter" && (
           <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/dragonHunter.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <image href="/pokemon/img/augment/dragonHunter.png?v=2" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#zeroSumRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#facc15" strokeWidth="0.5" strokeOpacity="0.5" />
           </g>
         )}
 
-        {/* 용용 죽겠지 (비상하는 백룡과 대검 일러스트 이미지 + 원형 클리핑 & 골드-퍼플 링) */}
+        {/* 용용 죽겠지 (비상하는 그린 드래곤과 대검 일러스트 이미지 + 원형 클리핑 & 골드-퍼플 링) */}
         {id === "dragonDie" && (
           <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/dragonDie.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <image href="/pokemon/img/augment/dragonDie.png?v=3" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#zeroSumRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#facc15" strokeWidth="0.5" strokeOpacity="0.5" />
           </g>
@@ -1188,9 +1188,13 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 운 좋은 회복 (이미지 자체에 원형 테두리 포함) */}
+        {/* 운 좋은 회복 (클로버/하트 일러스트 이미지 + 원형 클리핑 & 에메랄드-라임 링) */}
         {id === "luckyRecovery" && (
-          <image href="/pokemon/img/augment/luckyRecovery.png" x="-2" y="-2" width="68" height="68" preserveAspectRatio="xMidYMid slice" />
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/luckyRecovery.png?v=2" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#lwRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bef264" strokeWidth="0.5" strokeOpacity="0.4" />
+          </g>
         )}
 
         {/* 폭주하는 힘 (원본 일러스트 + 원형 클리핑 & 크림슨-레드 링 테두리) */}
@@ -3741,7 +3745,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {/* 무례하긴, 순애야. / 진안상애 (유저 커스텀 일러스트 + 원형 클리핑 & 퍼플 링) */}
         {(id === "rudePureLove" || id === "jinanSangae") && (
           <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/rudePureLove.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <image href="/pokemon/img/augment/rudePureLove.png?v=2" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#zeroSumRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#d8b4fe" strokeWidth="0.5" strokeOpacity="0.5" />
           </g>

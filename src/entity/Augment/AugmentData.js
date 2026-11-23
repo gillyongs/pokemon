@@ -2072,7 +2072,7 @@ export const AUGMENT_LIST = [
   {
     id: "luckyRecovery",
     name: "운 좋은 회복",
-    desc: "상대 포켓몬을 공격시 30% 확률로 최대 HP의 30%를 회복합니다.",
+    desc: "상대 포켓몬을 공격한 턴 30% 확률로 최대 HP의 30%를 회복합니다.",
     cost: 1,
     weight: 100,
   },
