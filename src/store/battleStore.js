@@ -160,7 +160,7 @@ export const useBattleStore = createStore((set, get) => ({
         teamPokes.forEach((p, idx) => {
           const targetIdx = p?.originalIndex ?? idx;
           if (p && Array.isArray(carriedAugments[targetIdx])) {
-            carriedAugments[targetIdx].forEach((savedAug) => {
+            carriedAugments[targetIdx].forEach((savedAug, augIdx) => {
               if (savedAug?.isStackMeta || savedAug?.id === "__synergy_stacks__") return;
               const augId = typeof savedAug === "string" ? savedAug : savedAug?.id;
               const fullAug = AUGMENT_LIST.find((a) => a.id === augId);
@@ -199,6 +199,7 @@ export const useBattleStore = createStore((set, get) => ({
                     kingCost: savedAug?.cost,
                     isForced: true,
                     isCarryover: true,
+                    acquiredOrder: savedAug?.acquiredOrder ?? augIdx,
                   });
                 }
                 return;
@@ -239,11 +240,18 @@ export const useBattleStore = createStore((set, get) => ({
                   kingStatBonus: savedAug?.kingStatBonus,
                   kingCost: savedAug?.cost,
                   isCarryover: true,
+                  acquiredOrder: savedAug?.acquiredOrder ?? augIdx,
                 });
               }
             });
           }
         });
+      });
+
+      teamPokes.forEach((p) => {
+        if (Array.isArray(p?.augments)) {
+          p.augments.sort((a, b) => (a.acquiredOrder ?? 0) - (b.acquiredOrder ?? 0));
+        }
       });
     }
 
@@ -872,7 +880,7 @@ export const useBattleStore = createStore((set, get) => ({
     });
 
     const serializedCarried = Object.entries(effectiveCarriedMap).reduce((acc, [idx, augs]) => {
-      acc[idx] = (augs || []).map((aug) => {
+      acc[idx] = (augs || []).map((aug, augIdx) => {
         const augId = aug.id || aug;
         const isArcaneSword = augId === "arcaneShadeSword";
         const isSwordEnhance = augId === "swordEnhance";
@@ -885,6 +893,7 @@ export const useBattleStore = createStore((set, get) => ({
           synergy: Boolean(aug.synergy),
           isForced: Boolean(aug.isForced),
           isStackMeta: Boolean(aug.isStackMeta),
+          acquiredOrder: aug.acquiredOrder !== undefined ? aug.acquiredOrder : augIdx,
           replacedSlot: aug.replacedSlot,
           selectedType: aug.selectedType,
           targetStat: aug.targetStat ?? aug.allOrNothingResult,

@@ -85,6 +85,10 @@ export const PokemonAugment = {
             const augObj = { ...synergyAug, id: synergyId, synergy: true };
             delete augObj.buf;
             delete augObj.curse;
+            if (augObj.acquiredOrder === undefined) {
+              this._augmentCounter = (this._augmentCounter || 0) + 1;
+              augObj.acquiredOrder = this._augmentCounter;
+            }
             if (synergyId === "dragonDie") augObj.dragonKillCount = Number(this.dragonKillCount || 0);
             if (synergyId === "mejaisSoulstealer") augObj.mejaiStack = Number(this.mejaiStack || 0);
             if (synergyId === "practiceMakesCritical") augObj.practiceCritStack = Number(this.practiceCritStack || 0);
@@ -189,6 +193,12 @@ export const PokemonAugment = {
 
     // 코스트 '-'인 일반 즉발형 증강은 누적되지 않음 (단, 버프는 라운드 동안 유지)
     if (!isInstant || augObj.buf) {
+      if (options?.acquiredOrder !== undefined) {
+        augObj.acquiredOrder = options.acquiredOrder;
+      } else if (augObj.acquiredOrder === undefined) {
+        this._augmentCounter = (this._augmentCounter || 0) + 1;
+        augObj.acquiredOrder = this._augmentCounter;
+      }
       if (Array.isArray(this.augments) && Object.isExtensible(this.augments)) {
         this.augments.push(augObj);
       } else {

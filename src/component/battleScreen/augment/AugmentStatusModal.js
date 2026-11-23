@@ -46,17 +46,21 @@ const AugmentStatusModal = ({ battle, team = [], initialPokemon = null, onClose 
     });
   }
   const sortedAugments = [...currentAugments].sort((a, b) => {
-    // 0: 일반 증강, 1: 시너지, 2: 버프, 3: 디버프
-    const getOrder = (aug) => {
+    // 대분류: 일반 증강 (0) -> 시너지 (1) -> 버프 (2) -> 디버프 (3)
+    const getCategoryOrder = (aug) => {
       if (isCurseAugment(aug)) return 3;
       if (isBuffAugment(aug)) return 2;
       if (isSynergyAugment(aug)) return 1;
       return 0;
     };
-    const orderA = getOrder(a);
-    const orderB = getOrder(b);
-    if (orderA !== orderB) return orderA - orderB;
-    return (a.name || "").localeCompare(b.name || "");
+    const catA = getCategoryOrder(a);
+    const catB = getCategoryOrder(b);
+    if (catA !== catB) return catA - catB;
+
+    // 각 분류 내부에서는 획득한 순서대로 정렬
+    const orderA = a.acquiredOrder ?? currentAugments.indexOf(a);
+    const orderB = b.acquiredOrder ?? currentAugments.indexOf(b);
+    return orderA - orderB;
   });
 
   return (
