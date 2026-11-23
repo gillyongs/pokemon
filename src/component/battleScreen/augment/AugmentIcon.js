@@ -1146,6 +1146,15 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
+        {/* 메트로놈 */}
+        {id === "metronome" && (
+          <g>
+            <circle cx="32" cy="32" r="22" fill="#60a5fa" opacity="0.22" filter="url(#glow)" />
+            <circle cx="32" cy="32" r="16" fill="#818cf8" opacity="0.28" filter="url(#glow)" />
+            <image href="/pokemon/img/augment/메트로놈.webp" x="7" y="7" width="50" height="50" style={{ filter: "drop-shadow(0 0 6px rgba(96, 165, 250, 0.7)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))" }} />
+          </g>
+        )}
+
         {/* 드래곤 슬레이어 (성기사와 용 일러스트 이미지 + 원형 클리핑 & 골드-퍼플 링) */}
         {id === "dragonSlayer" && (
           <g clipPath="url(#lwClip)">

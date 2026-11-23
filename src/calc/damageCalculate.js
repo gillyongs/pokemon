@@ -562,6 +562,18 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
+  // 증강: 메트로놈 ===================================================
+  if (attackPokemon?.hasAugment?.("metronome")) {
+    const stack = attackPokemon.tempStatus?.sameSkillCount ?? 0;
+    const trackedSkill = attackPokemon.tempStatus?.sameSkillName;
+    if (stack > 0 && trackedSkill === skill.name) {
+      const boost = Math.min(stack, 10) * 0.3;
+      const mult = 1 + boost;
+      damage *= mult;
+      attackPokemon.log.damage1 += ` * ${mult.toFixed(1)} (증강 메트로놈 ${stack}스택)`;
+    }
+  }
+
   // 특성 ===========================================================================================
 
   if (defAbil === "멀티스케일" && defensePokemon.hp === defensePokemon.maxHp) {

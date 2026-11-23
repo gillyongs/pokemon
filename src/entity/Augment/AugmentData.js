@@ -246,6 +246,23 @@ export const getArcaneSwordData = (pokemon = null, source = null, options = null
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
   {
+    id: "metronome",
+    name: "메트로놈",
+    desc: "똑같은 기술을 연속으로 사용하면 위력이 30%씩 최대 10번 증가합니다. 그만두면 위력이 되돌아갑니다.",
+    cost: 2,
+    weight: 100,
+    isEligible: (pokemon) => !pokemon?.hasAugment?.("metronome") && hasAttackSkill(pokemon),
+    statusModalText: function (pokemon) {
+      const count = Number(pokemon?.tempStatus?.sameSkillCount || 0);
+      const skillName = pokemon?.tempStatus?.sameSkillName;
+      if (skillName && count > 0) {
+        return `${this.desc}\n(${skillName} ${count}회 연속 사용중)`;
+      }
+      return this.desc;
+    },
+    // damageCalculate.js에 구현
+  },
+  {
     id: "noUnfairMiss",
     name: "억까 방지",
     desc: "명중률이 80% 이상인 기술이 절대 빗나가지 않습니다.",
