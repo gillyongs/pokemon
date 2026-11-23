@@ -105,6 +105,8 @@ class PokemonInstance {
       onlySkill: null, // 스카프 등 고정된 스킬
       recentSkillUse: null, // 최근 사용 스킬 -> 연속사용불가스킬 (블러드문) 체크에 사용.
       recentSkillGet: null,
+      sameSkillName: null, // [메트로놈] 연속 사용 기술명
+      sameSkillCount: null, // [메트로놈] 같은 기술 연속 사용 횟수 (스택)
       hapum: null, //하품
       noSound: null, // 지옥찌르기 -> 소리 기술 사용 금지
       healBlock: null, // 사이코노이즈 -> 회복 봉인 (남은 턴)

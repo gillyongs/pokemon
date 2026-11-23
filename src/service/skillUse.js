@@ -34,12 +34,17 @@ export const skillUse = (bt, enqueue) => {
     if (beforeSkillCheck(bt, enqueue) === false) {
       // 스킬명이 뜨기 전에 처리하는 트리거
       // 아직 스킬을 사용하지 않았으므로 pp가 소모되지 않는다
-      // 풀죽음, 마비, 혼란, 잠듦, 선도발
-      handleSkillFail(bt);
+      // 상태이상(잠듦/얼음/풀죽음/혼란/마비), 반동(파괴광선)으로 행동 불가 시 메트로놈 스택 유지
+      handleSkillFail(bt, false);
       return;
     }
 
-    // pp 및 구애 고정 처리 (발버둥은 PP 무제한, 충전 2턴째 발사 시 중복 차감 방지)
+    // 다른 기술 사용 시 이전 연속 사용 스택 초기화
+    if (atk.tempStatus.sameSkillName !== skill.name) {
+      atk.resetConsecutiveSkill?.();
+    }
+
+    // pp 소모 (발버둥은 PP 무제한, 충전 2턴째 발사 시 중복 차감 방지)
     if (!atk.charge && skill.name !== "발버둥") {
       atk.pp[skillNumber] -= 1;
       if (def.abil?.name === "프레셔" && atk.pp[skillNumber] > 0) {
@@ -90,7 +95,6 @@ export const skillUse = (bt, enqueue) => {
         } else {
           atk.charge = true;
           atk.autoSN = skillNumber;
-
           return;
         }
       }
@@ -282,6 +286,9 @@ export const skillUse = (bt, enqueue) => {
     } else {
       console.error("스킬타입오류");
     }
+
+    // 기술 사용 성공: 연속 사용 횟수 증가 (도구 소지 여부와 관계없이 누적)
+    atk.recordConsecutiveSkill?.(skill.name);
   } finally {
     // 기술이 실제로 발동 시전된 뒤(방어/무효/빗나감으로 조기 종료한 경우)에만 1회 실행
     // (정상 명중 시에는 applySkillEffects 내부에서 순서대로 이미 실행됨)
@@ -291,11 +298,14 @@ export const skillUse = (bt, enqueue) => {
   }
 };
 
-const handleSkillFail = (bt) => {
+const handleSkillFail = (bt, resetMetronome = true) => {
   // 스킬 실패시 처리할 것
+  const atk = bt[bt.turn.atk];
+  if (resetMetronome) {
+    atk.resetConsecutiveSkill?.();
+  }
 
   // 역린 정지
-  const atk = bt[bt.turn.atk];
   if (atk.auto !== null) {
     if (atk.auto > 1) {
       atk.auto = null;

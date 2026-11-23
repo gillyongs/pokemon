@@ -125,6 +125,9 @@ export const renamePokemonSkill = (pokemon, oldName, newName) => {
     if (pokemon.tempStatus.recentSkillUse === oldName) {
       pokemon.tempStatus.recentSkillUse = newName;
     }
+    if (pokemon.tempStatus.sameSkillName === oldName) {
+      pokemon.tempStatus.sameSkillName = newName;
+    }
     if (pokemon.tempStatus.disableSkill === oldName) {
       pokemon.tempStatus.disableSkill = newName;
     }

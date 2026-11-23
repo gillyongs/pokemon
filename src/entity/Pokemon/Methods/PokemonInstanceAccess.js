@@ -408,6 +408,22 @@ export const PokemonInstanceAccess = {
   get hasConsumedItem() {
     return Boolean(this.o.item && !this.item);
   },
+
+  // [메트로놈] 연속 사용 기술 스택 초기화
+  resetConsecutiveSkill() {
+    this.tempStatus.sameSkillName = null;
+    this.tempStatus.sameSkillCount = null;
+  },
+
+  // [메트로놈] 연속 사용 기술 기록 (성공 시 호출)
+  recordConsecutiveSkill(skillName) {
+    if (this.tempStatus.sameSkillName === skillName) {
+      this.tempStatus.sameSkillCount = (this.tempStatus.sameSkillCount || 0) + 1;
+    } else {
+      this.tempStatus.sameSkillName = skillName;
+      this.tempStatus.sameSkillCount = 1;
+    }
+  },
 };
 
 export default PokemonInstanceAccess;
