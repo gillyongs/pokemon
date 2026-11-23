@@ -123,6 +123,12 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     }
   }
 
+  // 헤이스트: 파티 전원의 스피드가 40 증가
+  if (pokemon?.hasAugmentOnTeam?.("haste", battle) && statKey === "speed") {
+    val += 40;
+    logText += ` + 40 (헤이스트)`;
+  }
+
   // 곱적용 =============================================================
   for (const aug of augments) {
     const augId = typeof aug === "string" ? aug : aug?.id;
@@ -237,13 +243,7 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   }
 
   // 영웅의 메아리: 아군 모든 포켓몬의 공격과 특공 40% 상승
-  const hasSelfEcho = pokemon?.hasAugment?.("echoOfHero") || Boolean(pokemon?.hasEchoOfHeroBuff);
-  let hasTeamEcho = hasSelfEcho;
-  if (!hasTeamEcho && battle) {
-    const team = pokemon?.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
-    hasTeamEcho = team.some((p) => p?.hasAugment?.("echoOfHero") || p?.hasEchoOfHeroBuff);
-  }
-  if (hasTeamEcho && (statKey === "atk" || statKey === "catk")) {
+  if (pokemon?.hasAugmentOnTeam?.("echoOfHero", battle) && (statKey === "atk" || statKey === "catk")) {
     val = Math.round(val * 1.4);
     logText += " * 1.4 (영웅의 메아리)";
   }

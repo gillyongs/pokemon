@@ -37,6 +37,11 @@ export const criticalCalculate = (input, pokemon = null) => {
     probability += 0.25;
   }
 
+  // 증강 샤프아이즈: 파티 전원의 급소 확률 15% 증가
+  if (pokemon?.hasAugmentOnTeam?.("sharpEyes")) {
+    probability += 0.15;
+  }
+
   // 버프 연습이 치명타를 낳는다: 스택당 급소 확률 1% 상승
   if (pokemon?.hasAugment?.("practiceMakesCritical")) {
     const practiceAug = pokemon.augments?.find((a) => a.id === "practiceMakesCritical");

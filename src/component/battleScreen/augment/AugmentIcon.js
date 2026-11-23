@@ -1068,10 +1068,15 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <stop offset="70%" stopColor="#ea580c" />
             <stop offset="100%" stopColor="#9a3412" />
           </linearGradient>
+          <linearGradient id="hasteRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#bae6fd" />
+            <stop offset="50%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#0284c7" />
+          </linearGradient>
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && id !== "allInDefense" && id !== "limiterRemoval" && id !== "rudePureLove" && id !== "jinanSangae" && id !== "dragonSlayer" && id !== "dragonKiller" && id !== "dragonHunter" && id !== "dragonDie" && id !== "believeInMyself" && id !== "pokemonQuiz" && id !== "pokemonQuizExpert" && id !== "luckyRecovery" && id !== "rampagingPower" && id !== "armorBreak" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && id !== "allInDefense" && id !== "limiterRemoval" && id !== "rudePureLove" && id !== "jinanSangae" && id !== "dragonSlayer" && id !== "dragonKiller" && id !== "dragonHunter" && id !== "dragonDie" && id !== "believeInMyself" && id !== "pokemonQuiz" && id !== "pokemonQuizExpert" && id !== "luckyRecovery" && id !== "rampagingPower" && id !== "armorBreak" && id !== "hyperBody" && id !== "haste" && id !== "sharpEyes" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -1212,6 +1217,33 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <image href="/pokemon/img/augment/armorBreak.png?v=2" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#armorBreakRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#fef08a" strokeWidth="0.5" strokeOpacity="0.4" />
+          </g>
+        )}
+
+        {/* 하이퍼바디 (메이플스토리 하이퍼바디 일러스트 + 원형 클리핑 & 골드/오렌지 링) */}
+        {id === "hyperBody" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/hyperBody.png?v=2" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#armorBreakRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#fef08a" strokeWidth="0.5" strokeOpacity="0.8" />
+          </g>
+        )}
+
+        {/* 헤이스트 (헤이스트 날개 부츠 일러스트 + 원형 클리핑 & 스카이블루/시안 링) */}
+        {id === "haste" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/haste.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#hasteRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#fde047" strokeWidth="0.5" strokeOpacity="0.6" />
+          </g>
+        )}
+
+        {/* 샤프아이즈 (메이플스토리 샤프아이즈 일러스트 + 원형 클리핑 & 에메랄드/그린 링) */}
+        {id === "sharpEyes" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/sharpEyes.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#lwRingGrad)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bef264" strokeWidth="0.5" strokeOpacity="0.7" />
           </g>
         )}
         {/* 1. 억까 방지 (정밀 조준경 + 필중 화살 + 스파클) */}

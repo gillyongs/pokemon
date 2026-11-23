@@ -7,6 +7,47 @@ export const PokemonAugment = {
     });
   },
 
+  hasAugmentOnTeam(nameOrId, battleOrTeam = null) {
+    if (this.hasAugment(nameOrId)) return true;
+
+    let augId = nameOrId;
+    if (typeof nameOrId === "string") {
+      try {
+        const { AUGMENT_LIST } = require("../../Augment/AugmentData");
+        const found = AUGMENT_LIST?.find((a) => a.id === nameOrId || a.name === nameOrId);
+        if (found) augId = found.id;
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    const buffProp = typeof augId === "string" ? `has${augId.charAt(0).toUpperCase()}${augId.slice(1)}Buff` : null;
+    if (buffProp && Boolean(this[buffProp])) return true;
+    if (Boolean(this.teamBuffs?.[augId])) return true;
+
+    let team = null;
+    if (Array.isArray(battleOrTeam)) {
+      team = battleOrTeam;
+    } else if (battleOrTeam) {
+      if (this.team === "npc") {
+        team = [battleOrTeam.npc, battleOrTeam.npcBench1, battleOrTeam.npcBench2];
+      } else if (this.team === "player") {
+        team = [battleOrTeam.player, battleOrTeam.playerBench1, battleOrTeam.playerBench2];
+      } else {
+        const isPlayerSide = [battleOrTeam.player, battleOrTeam.playerBench1, battleOrTeam.playerBench2].includes(this);
+        team = isPlayerSide
+          ? [battleOrTeam.player, battleOrTeam.playerBench1, battleOrTeam.playerBench2]
+          : [battleOrTeam.npc, battleOrTeam.npcBench1, battleOrTeam.npcBench2];
+      }
+    }
+
+    if (team) {
+      return team.filter(Boolean).some((p) => p.hasAugment?.(nameOrId) || (buffProp && Boolean(p[buffProp])) || Boolean(p.teamBuffs?.[augId]));
+    }
+
+    return false;
+  },
+
   checkAugmentSynergies(battle) {
     const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getSynergyThreshold, syncTeamEchoOfHeroBuff, syncTeamBearBuffs } = require("../../Augment/AugmentData");
     const team = battle ? (this.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]) : [];

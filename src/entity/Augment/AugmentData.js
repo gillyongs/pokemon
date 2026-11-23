@@ -2091,6 +2091,57 @@ export const AUGMENT_LIST = [
     weight: 100,
   },
   {
+    id: "hyperBody",
+    name: "하이퍼바디",
+    desc: "파티 전원의 Max HP가 60% 증가합니다.",
+    cost: 1,
+    weight: 100,
+    isEligible: (pokemon, battle, team) => {
+      return !pokemon?.hasAugmentOnTeam?.("hyperBody", team || battle);
+    },
+    onApply: function (pokemon, battle) {
+      if (battle) {
+        syncTeamHyperBodyBuff(battle, pokemon);
+      } else if (pokemon) {
+        pokemon.hasHyperBodyBuff = true;
+      }
+    },
+  },
+  {
+    id: "haste",
+    name: "헤이스트",
+    desc: "파티 전원의 스피드가 40 증가합니다.",
+    cost: 5,
+    weight: 100,
+    isEligible: (pokemon, battle, team) => {
+      return !pokemon?.hasAugmentOnTeam?.("haste", team || battle);
+    },
+    onApply: function (pokemon, battle) {
+      if (battle) {
+        syncTeamHasteBuff(battle, pokemon);
+      } else if (pokemon) {
+        pokemon.hasHasteBuff = true;
+      }
+    },
+  },
+  {
+    id: "sharpEyes",
+    name: "샤프아이즈",
+    desc: "파티 전원의 급소 확률이 15%, 급소 데미지가 40% 증가합니다.",
+    cost: 2,
+    weight: 100,
+    isEligible: (pokemon, battle, team) => {
+      return !pokemon?.hasAugmentOnTeam?.("sharpEyes", team || battle);
+    },
+    onApply: function (pokemon, battle) {
+      if (battle) {
+        syncTeamSharpEyesBuff(battle, pokemon);
+      } else if (pokemon) {
+        pokemon.hasSharpEyesBuff = true;
+      }
+    },
+  },
+  {
     id: "threeSnails",
     name: "달팽이 세마리",
     desc: "공격 후 적에게 달팽이 껍질을 던져 추가 고정 데미지를 입힙니다.",
@@ -3130,6 +3181,72 @@ export const syncTeamEchoOfHeroBuff = (battle, fallbackPokemon = null) => {
   });
 };
 
+// 팀 내 하이퍼바디(hasHyperBodyBuff) 플래그 동기화 함수
+export const syncTeamHyperBodyBuff = (battle, fallbackPokemon = null) => {
+  if (!battle) {
+    if (fallbackPokemon && !fallbackPokemon.hasAugment?.("hyperBody")) {
+      delete fallbackPokemon.hasHyperBodyBuff;
+    }
+    return;
+  }
+  ["player", "npc"].forEach((side) => {
+    const members = (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean);
+    if (members.length === 0) return;
+    const hasHolder = members.some((p) => p?.hasAugment?.("hyperBody"));
+    members.forEach((p) => {
+      if (hasHolder) {
+        p.hasHyperBodyBuff = true;
+      } else {
+        delete p.hasHyperBodyBuff;
+      }
+    });
+  });
+};
+
+// 팀 내 헤이스트(hasHasteBuff) 플래그 동기화 함수
+export const syncTeamHasteBuff = (battle, fallbackPokemon = null) => {
+  if (!battle) {
+    if (fallbackPokemon && !fallbackPokemon.hasAugment?.("haste")) {
+      delete fallbackPokemon.hasHasteBuff;
+    }
+    return;
+  }
+  ["player", "npc"].forEach((side) => {
+    const members = (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean);
+    if (members.length === 0) return;
+    const hasHolder = members.some((p) => p?.hasAugment?.("haste"));
+    members.forEach((p) => {
+      if (hasHolder) {
+        p.hasHasteBuff = true;
+      } else {
+        delete p.hasHasteBuff;
+      }
+    });
+  });
+};
+
+// 팀 내 샤프아이즈(hasSharpEyesBuff) 플래그 동기화 함수
+export const syncTeamSharpEyesBuff = (battle, fallbackPokemon = null) => {
+  if (!battle) {
+    if (fallbackPokemon && !fallbackPokemon.hasAugment?.("sharpEyes")) {
+      delete fallbackPokemon.hasSharpEyesBuff;
+    }
+    return;
+  }
+  ["player", "npc"].forEach((side) => {
+    const members = (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean);
+    if (members.length === 0) return;
+    const hasHolder = members.some((p) => p?.hasAugment?.("sharpEyes"));
+    members.forEach((p) => {
+      if (hasHolder) {
+        p.hasSharpEyesBuff = true;
+      } else {
+        delete p.hasSharpEyesBuff;
+      }
+    });
+  });
+};
+
 // 포켓몬 교체 공통 함수
 /**
  * 증강 등에서 포켓몬을 다른 포켓몬으로 교체/변경하는 공통 함수
@@ -3193,8 +3310,11 @@ const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) => {
     }
   }
 
-  // 교체된 포켓몬이 영웅의 메아리 보유자였던 경우 팀 잔여 hasEchoOfHeroBuff 플래그 정리
+  // 교체된 포켓몬이 영웅의 메아리/하이퍼바디/헤이스트/샤프아이즈 보유자였던 경우 팀 잔여 버프 플래그 정리
   syncTeamEchoOfHeroBuff(battle, pokemon);
+  syncTeamHyperBodyBuff(battle, pokemon);
+  syncTeamHasteBuff(battle, pokemon);
+  syncTeamSharpEyesBuff(battle, pokemon);
   syncTeamBearBuffs(battle);
 
   return pokemon;

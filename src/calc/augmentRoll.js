@@ -60,7 +60,7 @@ function getForcedSynergyAugment(pokemon) {
   if (!pokemon) return null;
   for (const [buffId, requiredIds] of Object.entries(AUGMENT_SYNERGY_MAP)) {
     // 영메는 팀 전체니까 따로 관리
-    if (pokemon.hasAugment?.(buffId) || (buffId === "echoOfHero" && pokemon.hasEchoOfHeroBuff)) {
+    if (pokemon.hasAugment?.(buffId) || pokemon.hasAugmentOnTeam?.(buffId)) {
       continue;
     }
     const threshold = typeof getSynergyThreshold === "function" ? getSynergyThreshold(buffId, requiredIds) : requiredIds.length;

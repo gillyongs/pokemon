@@ -23,6 +23,12 @@ export const hpCalculate = (pokemon) => {
   }
 
   // 곱적용 증강 =============================================================
+  // 하이퍼바디: 파티 전원의 Max HP가 60% 증가
+  if (pokemon?.hasAugmentOnTeam?.("hyperBody") || hasAugmentId(pokemon, "hyperBody")) {
+    hp = Math.round(hp * 1.6);
+    logText += ` * 1.6 (하이퍼바디)`;
+  }
+
   // 커져라!: 이번 라운드 동안 체력 1.5배 증가
   if (hasAugmentId(pokemon, "growUp")) {
     hp = Math.round(hp * 1.5);

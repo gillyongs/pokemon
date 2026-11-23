@@ -817,13 +817,19 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 급소 =============================================================================
   if (isCritical) {
+    damage *= 1.5;
+    attackPokemon.log.damage2 += " * 1.5 (급소)";
+
     const hasIE = attackPokemon?.hasAugment?.("infinityEdge");
     if (hasIE) {
-      damage *= 1.5 * 1.3;
-      attackPokemon.log.damage2 += " * 1.5 (급소) * 1.3 (무한의 대검)";
-    } else {
-      damage *= 1.5;
-      attackPokemon.log.damage2 += " * 1.5 (급소)";
+      damage *= 1.3;
+      attackPokemon.log.damage2 += " * 1.3 (무한의 대검)";
+    }
+
+    const hasSE = attackPokemon?.hasAugmentOnTeam?.("sharpEyes", battle);
+    if (hasSE) {
+      damage *= 1.4;
+      attackPokemon.log.damage2 += " * 1.4 (샤프아이즈)";
     }
   }
 
