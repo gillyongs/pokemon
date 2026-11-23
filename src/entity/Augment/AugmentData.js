@@ -248,8 +248,8 @@ export const AUGMENT_LIST = [
   {
     id: "metronome",
     name: "메트로놈",
-    desc: "똑같은 기술을 연속으로 사용하면 위력이 30%씩 최대 10번 증가합니다. 그만두면 위력이 되돌아갑니다.",
-    cost: 2,
+    desc: "똑같은 기술을 연속으로 사용하면 위력이 20%씩 최대 5번 증가합니다. 그만두면 위력이 되돌아갑니다.",
+    cost: 1,
     weight: 100,
     isEligible: (pokemon) => hasAttackSkill(pokemon),
     statusModalText: function (pokemon) {
@@ -281,9 +281,36 @@ export const AUGMENT_LIST = [
     },
     cost: 1,
     weight: 100,
-    isEligible: (pokemon) => hasAttackSkill(pokemon),
+    isEligible: (pokemon) => pokemon?.hasAugment?.("metronome") && hasAttackSkill(pokemon),
     onApply: function (pokemon) {
       pokemon.item = "메트로놈";
+    },
+  },
+  {
+    id: "tripleMetronome",
+    name: "트리플 메트로놈",
+    desc: "현재 포켓몬의 특성을 메트로놈으로 변경합니다.\n(똑같은 기술을 연속으로 사용했을 때 위력이 20%씩 최대 5번 증가합니다.)",
+    cost: 1,
+    weight: 100,
+    isEligible: (pokemon) => pokemon?.hasAugment?.("doubleMetronome") && hasAttackSkill(pokemon),
+    onApply: function (pokemon) {
+      pokemon.changeAbil?.("메트로놈");
+    },
+  },
+  {
+    id: "symphonyFor100Metronomes",
+    name: "100개의 메트로놈을 위한 교향시",
+    desc: "메트로놈의 스택이 초기화되지 않습니다.",
+    synergy: true,
+    isRandom: false,
+    weight: "-",
+    statusModalText: function (pokemon) {
+      const atkSkills = getAttackSkills(pokemon);
+      if (atkSkills.length > 0) {
+        const lines = atkSkills.map((sk) => `(${sk.name} ${Number(sk.useCount || 0)}회 사용)`);
+        return `${this.desc}\n${lines.join("\n")}`;
+      }
+      return this.desc;
     },
   },
   {
@@ -319,7 +346,7 @@ export const AUGMENT_LIST = [
     desc: "상대의 공격으로 기절했을 때, 공격받기 전 남은 HP만큼 상대에게 데미지를 줍니다",
     cost: 2,
     weight: 100,
-    isEligible: (pokemon) => !hasInnardsOutAnyForm(pokemon) && !hasFocusSash(pokemon),
+    isEligible: (pokemon) => !hasSomeAbil(pokemon, "내용물분출") && !hasSomeItem(pokemon, "기합의띠"),
     // damage.js에 구현
   },
   {
@@ -2849,19 +2876,19 @@ export const AUGMENT_LIST = [
     id: "soulDew",
     name: "마음의물방울",
     desc: "지닌 물건을 마음의물방울로 교체합니다.\n라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
-    descOrigin: "라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
+    shortDesc: "라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승합니다.",
     selDesc: function (pokemon) {
       const isHolding = pokemon?.item === "마음의물방울";
       const header = isHolding ? "마음의물방울이 옛날의 영광을 되찾습니다." : "지닌 물건을 마음의물방울로 교체합니다.";
-      return `${header}\n${this.descOrigin}`;
+      return `${header}\n${this.shortDesc}`;
     },
     logModalText: function (target, prevPokeName, options) {
       const isHolding = target.originalItem === "마음의물방울";
-      return isHolding ? this.descOrigin : this.desc;
+      return isHolding ? this.shortDesc : this.desc;
     },
     statusModalText: function (pokemon) {
       const isHolding = pokemon.originalItem === "마음의물방울";
-      return isHolding ? this.descOrigin : this.desc;
+      return isHolding ? this.shortDesc : this.desc;
     },
     cost: 0,
     weight: 200,
@@ -2878,18 +2905,18 @@ export const AUGMENT_LIST = [
     name: "7세대의 악마",
     screenText: "[증강] 특성 탈이 체력을 소모하지 않게 되었다!",
     desc: "특성 탈이 체력을 소모하지 않습니다.\n추가로 지닌 물건을 기합의 띠와 교체합니다.",
-    descShort: "특성 탈이 체력을 소모하지 않습니다.",
+    shortDesc: "특성 탈이 체력을 소모하지 않습니다.",
     selDesc: function (pokemon) {
       const isHolding = pokemon?.item === "기합의띠";
-      return isHolding ? this.descShort : this.desc;
+      return isHolding ? this.shortDesc : this.desc;
     },
     logModalText: function (target, prevPokeName, options) {
       const isHolding = target.originalItem === "기합의띠";
-      return isHolding ? this.descShort : this.desc;
+      return isHolding ? this.shortDesc : this.desc;
     },
     statusModalText: function (pokemon) {
       const isHolding = pokemon.originalItem === "기합의띠";
-      return isHolding ? this.descShort : this.desc;
+      return isHolding ? this.shortDesc : this.desc;
     },
     cost: 1,
     weight: 300,
@@ -3073,9 +3100,16 @@ export const AUGMENT_SYNERGY_MAP = {
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
   giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis", "spiritVisage"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상]
   lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic", "lostTechnologyHyperBeam"], // 과거의 영광 (급소)
+  symphonyFor100Metronomes: ["metronome", "doubleMetronome", "tripleMetronome"], // 100개의 메트로놈을 위한 교향시
 };
 
 const SYNERGY_INFO_MAP = {
+  symphonyFor100Metronomes: {
+    emoji: "🎼",
+    theme: "메트로놈 교향곡",
+    title: "100개의 메트로놈을 위한 교향시",
+    desc: "메트로놈의 스택이 초기화되지 않습니다.",
+  },
   berserk: {
     emoji: "🔥",
     theme: "버서크",
@@ -3618,25 +3652,18 @@ function hasCurrentAndOriginalAbil(pokemon, abilName) {
   return curAbil === abilName && origAbil === abilName;
 }
 
-// 현재, 원본, 또는 메가진화 후 특성이 내용물분출인지 확인
-function hasInnardsOutAnyForm(pokemon) {
-  if (pokemon.abil.name === "내용물분출") return true;
-
-  const origAbil = pokemon.originalAbil?.name;
-  if (origAbil === "내용물분출") return true;
-
-  const megaAbil = pokemon.megaData?.abil;
-  if (megaAbil === "내용물분출") return true;
+// 현재, 원본, 또는 메가진화 후 특성 중 하나라도 해당 특성인지 확인
+function hasSomeAbil(pokemon, abilName) {
+  if (pokemon.abil.name === abilName) return true;
+  if (pokemon.originalAbil.name === abilName) return true;
+  if (pokemon.megaData?.abil === abilName) return true;
 
   return false;
 }
 
 // 지닌 물건이 기합의띠인지 확인 (현재 또는 원본)
-function hasFocusSash(pokemon) {
-  if (!pokemon) return false;
-  const item = pokemon.item?.name || pokemon.item;
-  const origItem = pokemon.originalItem?.name || pokemon.originalItem || pokemon.o?.item?.name || pokemon.o?.item;
-  return item === "기합의띠" || origItem === "기합의띠";
+function hasSomeItem(pokemon, itemName) {
+  return pokemon.item === itemName || pokemon.originalItem === itemName;
 }
 
 function hasPokemonOnTeam(team, dexNo) {

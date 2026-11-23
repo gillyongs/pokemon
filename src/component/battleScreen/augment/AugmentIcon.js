@@ -1083,7 +1083,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && id !== "allInDefense" && id !== "limiterRemoval" && id !== "rudePureLove" && id !== "jinanSangae" && id !== "dragonSlayer" && id !== "dragonKiller" && id !== "dragonHunter" && id !== "dragonDie" && id !== "believeInMyself" && id !== "pokemonQuiz" && id !== "pokemonQuizExpert" && id !== "luckyRecovery" && id !== "rampagingPower" && id !== "armorBreak" && id !== "hyperBody" && id !== "haste" && id !== "sharpEyes" && id !== "mapleWarrior" && id !== "powerStrike" && id !== "dragonRoar" && id !== "berserk" && id !== "ironWall" && id !== "sanctuary" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && id !== "allInDefense" && id !== "limiterRemoval" && id !== "rudePureLove" && id !== "jinanSangae" && id !== "dragonSlayer" && id !== "dragonKiller" && id !== "dragonHunter" && id !== "dragonDie" && id !== "believeInMyself" && id !== "pokemonQuiz" && id !== "pokemonQuizExpert" && id !== "luckyRecovery" && id !== "rampagingPower" && id !== "armorBreak" && id !== "hyperBody" && id !== "haste" && id !== "sharpEyes" && id !== "mapleWarrior" && id !== "powerStrike" && id !== "dragonRoar" && id !== "berserk" && id !== "ironWall" && id !== "sanctuary" && id !== "symphonyFor100Metronomes" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -1192,6 +1192,96 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="12" cy="18" r="1.2" fill="#93c5fd" opacity="0.9" />
             <circle cx="52" cy="16" r="1.4" fill="#c084fc" opacity="0.9" />
             <circle cx="32" cy="8" r="1.5" fill="#fdf2f8" opacity="0.95" />
+          </g>
+        )}
+
+        {/* 트리플 메트로놈 */}
+        {id === "tripleMetronome" && (
+          <g>
+            <circle cx="20" cy="34" r="16" fill="#3b82f6" opacity="0.25" filter="url(#glow)" />
+            <circle cx="44" cy="34" r="16" fill="#a855f7" opacity="0.25" filter="url(#glow)" />
+            <circle cx="32" cy="24" r="18" fill="#eab308" opacity="0.3" filter="url(#glow)" />
+            {/* 좌측 메트로놈 */}
+            <g transform="rotate(-22 18 36)">
+              <image
+                href="/pokemon/img/augment/메트로놈.webp"
+                x="0"
+                y="14"
+                width="34"
+                height="34"
+                style={{
+                  filter: "drop-shadow(0 0 5px rgba(59, 130, 246, 0.75)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))",
+                  opacity: 0.9,
+                }}
+              />
+            </g>
+            {/* 우측 메트로놈 */}
+            <g transform="rotate(22 46 36)">
+              <image
+                href="/pokemon/img/augment/메트로놈.webp"
+                x="28"
+                y="14"
+                width="34"
+                height="34"
+                style={{
+                  filter: "drop-shadow(0 0 5px rgba(168, 85, 247, 0.75)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))",
+                  opacity: 0.9,
+                }}
+              />
+            </g>
+            {/* 중앙 메트로놈 (앞쪽, 황금빛) */}
+            <g transform="translate(0, -2)">
+              <image
+                href="/pokemon/img/augment/메트로놈.webp"
+                x="14"
+                y="8"
+                width="36"
+                height="36"
+                style={{
+                  filter: "drop-shadow(0 0 8px rgba(234, 179, 8, 0.9)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.9))",
+                }}
+              />
+            </g>
+            {/* 반짝임 파티클 */}
+            <circle cx="10" cy="18" r="1.3" fill="#93c5fd" opacity="0.9" />
+            <circle cx="54" cy="18" r="1.3" fill="#c084fc" opacity="0.9" />
+            <circle cx="32" cy="6" r="1.6" fill="#fef08a" opacity="0.95" />
+          </g>
+        )}
+
+        {/* 100개의 메트로놈을 위한 교향시 (시너지) */}
+        {id === "symphonyFor100Metronomes" && (
+          <g>
+            <circle cx="32" cy="32" r="28" fill="#1e1b4b" opacity="0.8" />
+            <circle cx="32" cy="32" r="24" fill="#a855f7" opacity="0.25" filter="url(#glow)" />
+            <circle cx="32" cy="32" r="18" fill="#facc15" opacity="0.3" filter="url(#glow)" />
+            {/* 음악 파동 동심원 링 */}
+            <ellipse cx="32" cy="32" rx="26" ry="24" stroke="#c084fc" strokeWidth="1.2" strokeDasharray="5 3" opacity="0.75" />
+            <ellipse cx="32" cy="32" rx="20" ry="18" stroke="#fde047" strokeWidth="1.4" strokeDasharray="6 3" opacity="0.85" />
+            {/* 메인 메트로놈 */}
+            <g transform="translate(0, 1)">
+              <image
+                href="/pokemon/img/augment/메트로놈.webp"
+                x="14"
+                y="10"
+                width="36"
+                height="36"
+                style={{
+                  filter: "drop-shadow(0 0 10px rgba(250, 204, 21, 0.9)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9))",
+                }}
+              />
+            </g>
+            {/* 음표 SVG */}
+            <g fill="#fef08a" opacity="0.95" filter="url(#glow)">
+              <ellipse cx="14" cy="46" rx="2.5" ry="2" transform="rotate(-20 14 46)" fill="#e9d5ff" />
+              <line x1="16" y1="45" x2="16" y2="37" stroke="#e9d5ff" strokeWidth="1.2" strokeLinecap="round" />
+              <ellipse cx="50" cy="46" rx="2.5" ry="2" transform="rotate(-20 50 46)" fill="#fef08a" />
+              <line x1="52" y1="45" x2="52" y2="37" stroke="#fef08a" strokeWidth="1.2" strokeLinecap="round" />
+            </g>
+            {/* 광채 스파클 */}
+            <circle cx="32" cy="7" r="1.6" fill="#ffffff" opacity="0.95" />
+            <circle cx="10" cy="28" r="1.3" fill="#fde047" opacity="0.9" />
+            <circle cx="54" cy="28" r="1.3" fill="#c084fc" opacity="0.9" />
           </g>
         )}
 

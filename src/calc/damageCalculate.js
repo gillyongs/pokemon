@@ -551,26 +551,37 @@ export const damageCalculate = (battle, obj, ai) => {
   }
 
   // 메트로놈 =========================================================
+  const hasSymphony = Boolean(attackPokemon?.hasAugment?.("symphonyFor100Metronomes"));
+  const skillUseCount = Number(skill?.useCount ?? 0);
+  const metronomeStack = hasSymphony ? skillUseCount : attackPokemon.tempStatus.sameSkillCount;
+
+  // 메트로놈 (도구)
   if (attackPokemon.item === "메트로놈") {
-    const stack = attackPokemon.tempStatus?.sameSkillCount ?? 0;
-    const trackedSkill = attackPokemon.tempStatus?.sameSkillName;
-    if (stack > 0 && trackedSkill === skill.name) {
-      const boost = Math.min(stack, 5) * 0.2;
+    if (metronomeStack > 0) {
+      const boost = Math.min(metronomeStack, 5) * 0.2;
       const mult = 1 + boost;
       damage *= mult;
-      attackPokemon.log.damage1 += ` * ${mult.toFixed(1)} (메트로놈 ${stack}스택)`;
+      attackPokemon.log.damage1 += ` * ${mult.toFixed(1)} (메트로놈 ${metronomeStack}스택)`;
     }
   }
 
-  // 증강: 메트로놈 ===================================================
+  // 증강: 메트로놈
   if (attackPokemon?.hasAugment?.("metronome")) {
-    const stack = attackPokemon.tempStatus?.sameSkillCount ?? 0;
-    const trackedSkill = attackPokemon.tempStatus?.sameSkillName;
-    if (stack > 0 && trackedSkill === skill.name) {
-      const boost = Math.min(stack, 10) * 0.3;
+    if (metronomeStack > 0) {
+      const boost = Math.min(metronomeStack, 10) * 0.3;
       const mult = 1 + boost;
       damage *= mult;
-      attackPokemon.log.damage1 += ` * ${mult.toFixed(1)} (증강 메트로놈 ${stack}스택)`;
+      attackPokemon.log.damage1 += ` * ${mult.toFixed(1)} (증강 메트로놈 ${metronomeStack}스택)`;
+    }
+  }
+
+  // 특성: 메트로놈
+  if (atkAbil === "메트로놈") {
+    if (metronomeStack > 0) {
+      const boost = Math.min(metronomeStack, 5) * 0.2;
+      const mult = 1 + boost;
+      damage *= mult;
+      attackPokemon.log.damage1 += ` * ${mult.toFixed(1)} (특성 메트로놈 ${metronomeStack}스택)`;
     }
   }
 

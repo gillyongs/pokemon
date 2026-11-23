@@ -411,6 +411,7 @@ export const PokemonInstanceAccess = {
 
   // [메트로놈] 연속 사용 기술 스택 초기화
   resetConsecutiveSkill() {
+    if (this.hasAugment?.("symphonyFor100Metronomes")) return;
     this.tempStatus.sameSkillName = null;
     this.tempStatus.sameSkillCount = null;
   },
@@ -422,6 +423,15 @@ export const PokemonInstanceAccess = {
     } else {
       this.tempStatus.sameSkillName = skillName;
       this.tempStatus.sameSkillCount = 1;
+    }
+
+    // 기술 useCount 증가
+    if (this.skill) {
+      Object.values(this.skill).forEach((sk) => {
+        if (sk && sk.name === skillName) {
+          sk.useCount = (sk.useCount || 0) + 1;
+        }
+      });
     }
   },
 };
