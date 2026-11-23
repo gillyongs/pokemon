@@ -127,7 +127,7 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
             <BuffPill>시너지</BuffPill>
             <BuffHeader>
               <IconCol>
-                <AugmentIcon id={buffAugment.id} size={40} pokemon={activePokemon} shiftUp={buffAugment.shiftUp} imageOptions={buffAugment.imageOptions} />
+                <AugmentIcon id={buffAugment.id} size={36} pokemon={activePokemon} shiftUp={buffAugment.shiftUp} imageOptions={buffAugment.imageOptions} />
               </IconCol>
               <BuffMeta>
                 <BuffNameRow>
