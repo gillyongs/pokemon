@@ -107,8 +107,8 @@ export const atkSkills = [
   new Skill("뿔드릴", "노말", "-", 30, 5, 0, "atk", null, "회전하는 뿔을 찔러 넣어 공격한다. 맞으면 일격에 기절한다.", [], { oneShot: true, touch: true }),
 
   // 데미지 고정
-  new Skill("지구던지기", "격투", "-", 100, 20, 0, "atk", null, "자신의 레벨과 똑같은 데미지를 상대에게 준다.", [], { noText: true, touch: true }),
-  new Skill("죽기살기", "노말", "-", 100, 5, 0, "atk", { name: "죽기살기" }, "자신의 HP와 같은 수치가 되도록 상대의 HP를 줄인다.", [], { noText: true, touch: true }),
+  new Skill("지구던지기", "격투", "-", 100, 20, 0, "atk", null, "자신의 레벨과 똑같은 데미지를 상대에게 준다.", [], { touch: true }),
+  new Skill("죽기살기", "노말", "-", 100, 5, 0, "atk", { name: "죽기살기" }, "자신의 HP와 같은 수치가 되도록 상대의 HP를 줄인다.", [], { touch: true }),
 
   // 반동
   new Skill("양날박치기", "바위", 150, 80, 5, 0, "atk", null, "자신도 대상에게 준 피해의 ½만큼 반동 피해를 받는다.", [{ name: "반동", ratio: 2 }], { touch: true, rebound: true }),
@@ -215,4 +215,7 @@ export const atkSkills = [
   new Skill("거수참", "강철", 100, 100, 5, 0, "atk", null, "다이맥스한 상대에게 2배 데미지를 준다.", [], { touch: true, slice: true }),
   new Skill("거수탄", "강철", 100, 100, 5, 0, "atk", null, "다이맥스한 상대에게 2배 데미지를 준다.", [], { touch: true }),
   new Skill("발버둥", "노말", 50, "-", 1, 0, "atk", null, "사용할 수 있는 기술이 없을 때 온 힘을 다해 공격한다. 자신도 최대 HP의 1/4만큼 반동 데미지를 입는다.", [{ name: "발버둥반동" }], { touch: true }),
+
+  // [증강]
+  new Skill("생츄어리", "격투", "-", 100, 5, 0, "atk", null, "적의 체력을 1로 만듭니다. 다음 턴 움직일 수 없다.", [{ name: "반동휴식" }], {}),
 ];

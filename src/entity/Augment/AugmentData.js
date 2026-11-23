@@ -5,7 +5,7 @@ import { getMultiplier } from "../../calc/rankStat";
 import sampleList from "../Pokemon/pokemonSampleList";
 import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
-import { Skill } from "../Skill/Skill";
+import { Skill, isAttackSkill } from "../Skill/Skill";
 import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
 
 export const getReplacementAugmentWeight = (pokemon) => {
@@ -1417,6 +1417,55 @@ export const AUGMENT_LIST = [
     },
   },
 
+  {
+    id: "sanctuary",
+    name: "생츄어리",
+    desc: "현재 기술 중 하나를 생츄어리와 교체합니다.\n생츄어리는 적의 체력을 1로 만들지만 다음턴 움직일 수 없습니다.",
+    selDesc: function () {
+      return "현재 기술 중 하나를 생츄어리와 교체합니다.\n생츄어리는 적의 체력을 1로 만들지만 다음턴 움직일 수 없습니다.";
+    },
+    screenText: function (target, prevPokeName, options) {
+      const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || "기존 기술";
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return josa(`[증강] ${names} ${prevSkillName}#{을} 생츄어리와 교체했다!`);
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || "기존 기술";
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return josa(`${names} ${prevSkillName}#{을} 생츄어리와 교체했다!`);
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const prevSkillName = options?.replacedSkillName || this?.replacedSkillName;
+      if (prevSkillName) {
+        return josa(`${prevSkillName}#{을} 생츄어리와 교체했습니다.`);
+      }
+      return this.desc;
+    },
+    cost: 1,
+    weight: 100,
+    isEligible: (pokemon) => !hasSkill(pokemon, "생츄어리"),
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon?.skill) return;
+      const slot = Number(options?.replaceSlot) || 4;
+      const prevSkill = pokemon.skill[slot];
+      const prevSkillName = options?.replacedSkillName || prevSkill?.name || "기존 기술";
+
+      this.replacedSlot = slot;
+      this.replacedSkillName = prevSkillName;
+
+      const baseSanctuary = skillList.search("생츄어리");
+      const sanctuarySkill = {
+        ...baseSanctuary,
+        skillNumber: slot,
+      };
+
+      pokemon.skill[slot] = sanctuarySkill;
+      if (pokemon.pp) {
+        pokemon.pp[slot] = sanctuarySkill.pp;
+      }
+    },
+  },
+
   // 포켓몬 교체 증강 ==============================================================================
 
   {
@@ -2093,8 +2142,8 @@ export const AUGMENT_LIST = [
   {
     id: "powerStrike",
     name: "파워 스트라이크",
-    desc: "공격 후 적에게 입힌 데미지의 3%에 해당하는 추가 고정 데미지를 입힙니다.",
-    cost: 1,
+    desc: "공격 후 적에게 입힌 데미지의 10%에 해당하는 추가 고정 데미지를 입힙니다.",
+    cost: 2,
     weight: 100,
   },
   {
@@ -2118,7 +2167,7 @@ export const AUGMENT_LIST = [
     id: "ironWall",
     name: "아이언 월",
     desc: "해당 포켓몬의 최대 HP가 100% 증가합니다.",
-    cost: 1,
+    cost: 2,
     weight: 100,
   },
   {
@@ -2196,7 +2245,7 @@ export const AUGMENT_LIST = [
   {
     id: "berserk",
     name: "버서크",
-    desc: "현재 HP가 절반 이하일때 적에게 입히는 데미지가 2배로 증가합니다.",
+    desc: "HP가 절반 이하일때 적에게 입히는 데미지가 2배로 증가합니다.",
     synergy: true,
     isRandom: false,
     weight: "-",
@@ -3581,12 +3630,7 @@ function getPokemonSkills(pokemon) {
   return [1, 2, 3, 4].map((slot) => skills[slot]).filter((sk) => sk && sk.name !== "발버둥");
 }
 
-export function isAttackSkill(skill) {
-  if (!skill) return false;
-  const isTypeValid = skill.stype === "atk" || skill.stype === "catk";
-  const isPowerValid = skill.power === "*" || (skill.power !== "-" && typeof skill.power === "number" && !isNaN(skill.power));
-  return isTypeValid && isPowerValid;
-}
+export { isAttackSkill };
 
 export function hasAttackSkill(pokemon) {
   return getPokemonSkills(pokemon).some(isAttackSkill);

@@ -3,18 +3,10 @@ import styled from "styled-components";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { isAttackSkill } from "../../../../entity/Augment/AugmentData";
+import skillList from "../../../../entity/Skill/skillList";
 import { HeaderArea, HeaderTopRow, Title, SubTitleText, CloseButton, ButtonGroup, ActionButton } from "./selectStyles";
 
-const AugmentSkillSelectView = ({
-  skillSelectAug,
-  activePokemon,
-  battle,
-  selectedType,
-  isPeekMode,
-  setIsPeekMode,
-  onSelect,
-  onBack,
-}) => {
+const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selectedType, isPeekMode, setIsPeekMode, onSelect, onBack }) => {
   const [selectedSlot, setSelectedSlot] = useState(null);
 
   const getSubTitle = () => {
@@ -27,8 +19,32 @@ const AugmentSkillSelectView = ({
     if (skillSelectAug?.id === "nameIsSalamence") {
       return "지진과 교체할 기술을 선택해주세요.";
     }
+    if (skillSelectAug?.id === "sanctuary") {
+      return "생츄어리와 교체할 기술을 선택해주세요.";
+    }
     return "용의춤과 교체할 기술을 선택해주세요.";
   };
+
+  const getIncomingSkill = () => {
+    if (skillSelectAug?.id === "teraBlast") {
+      const base = skillList.search("테라버스트");
+      return base ? { ...base, type: selectedType || "노말" } : null;
+    }
+    if (skillSelectAug?.id === "sanctuary") {
+      return skillList.search("생츄어리");
+    }
+    if (skillSelectAug?.id === "nameIsSalamence") {
+      return skillList.search("지진");
+    }
+    if (skillSelectAug?.id === "danceOfGarchomp") {
+      return skillList.search("용의춤");
+    }
+    return null;
+  };
+
+  const incomingSkill = getIncomingSkill();
+  const incomingType = incomingSkill ? (skillSelectAug?.id === "teraBlast" ? selectedType || "노말" : incomingSkill.type) : null;
+  const incomingEffectText = incomingSkill && incomingType ? getTypeEffectText(battle, activePokemon, incomingSkill, incomingType) || "" : "";
 
   const handleConfirm = (e) => {
     e?.stopPropagation();
@@ -101,7 +117,7 @@ const AugmentSkillSelectView = ({
                 />
                 <SkillName title={sk.name}>{sk.name}</SkillName>
               </SkillTopRow>
-              <SkillEffectText>{isDisabled ? "선택 불가 (변화기)" : (effectText || "")}</SkillEffectText>
+              <SkillEffectText>{isDisabled ? "선택 불가 (변화기)" : effectText || ""}</SkillEffectText>
               <SkillPP>
                 {currentPp}/{sk.pp}
               </SkillPP>
@@ -109,6 +125,36 @@ const AugmentSkillSelectView = ({
           );
         })}
       </SkillGrid>
+
+      {incomingSkill && (
+        <IncomingSkillSection>
+          <IncomingDividerRow>
+            <IncomingDividerLine />
+            <IncomingBadge>획득 기술</IncomingBadge>
+            <IncomingDividerLine />
+          </IncomingDividerRow>
+
+          <IncomingCardWrapper>
+            <IncomingSkillCard title={incomingSkill.originText || incomingSkill.text || ""}>
+              <SkillTopRow>
+                <SkillTypeIcon
+                  src={`/pokemon/img/type/${incomingType}.svg`}
+                  alt={incomingType}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+                <SkillName title={incomingSkill.name}>{incomingSkill.name}</SkillName>
+                <IncomingNewPill>습득</IncomingNewPill>
+              </SkillTopRow>
+              <SkillEffectText>{incomingEffectText || (incomingSkill.stype === "buf" ? "변화기" : incomingSkill.power !== "-" ? `위력 ${incomingSkill.power}` : "")}</SkillEffectText>
+              <SkillPP>
+                {incomingSkill.pp}/{incomingSkill.pp}
+              </SkillPP>
+            </IncomingSkillCard>
+          </IncomingCardWrapper>
+        </IncomingSkillSection>
+      )}
 
       <ButtonGroup>
         <ActionButton type="button" $variant="back" onClick={handleBack}>
@@ -131,6 +177,79 @@ const SkillGrid = styled.div`
   width: 100%;
   box-sizing: border-box;
   margin-top: 4px;
+`;
+
+const IncomingSkillSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 10px;
+  box-sizing: border-box;
+`;
+
+const IncomingDividerRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 6px;
+`;
+
+const IncomingDividerLine = styled.div`
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.25), transparent);
+`;
+
+const IncomingBadge = styled.span`
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64ffda;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const IncomingCardWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
+
+const IncomingSkillCard = styled.div`
+  position: relative;
+  width: calc(50% - 5px);
+  min-width: 130px;
+  background: rgba(22, 34, 48, 0.92);
+  border: 1.5px solid rgba(100, 255, 218, 0.55);
+  border-radius: 8px;
+  padding: 10px 10px 28px 10px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  box-sizing: border-box;
+  user-select: none;
+  overflow: hidden;
+  box-shadow:
+    0 0 12px rgba(100, 255, 218, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+`;
+
+const IncomingNewPill = styled.span`
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #0f172a;
+  background: #64ffda;
+  padding: 1px 4px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  flex-shrink: 0;
 `;
 
 const SkillCard = styled.div`

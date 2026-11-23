@@ -307,14 +307,23 @@ const IconCol = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 3px;
+  width: 44px;
+  min-width: 44px;
   flex-shrink: 0;
 `;
 
 const CostTag = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  box-sizing: border-box;
+  text-align: center;
   font-size: 0.65rem;
+  font-weight: 600;
   color: #64ffda;
   background: rgba(100, 255, 218, 0.1);
-  padding: 1px 4px;
+  padding: 1px 0;
   border-radius: 3px;
   white-space: nowrap;
 `;

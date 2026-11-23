@@ -104,3 +104,10 @@ export class Skill {
     }
   }
 }
+
+export function isAttackSkill(skill) {
+  if (!skill) return false;
+  const isTypeValid = skill.stype === "atk" || skill.stype === "catk";
+  const isPowerValid = skill.power === "*" || (skill.power !== "-" && typeof skill.power === "number" && !isNaN(skill.power));
+  return isTypeValid && isPowerValid;
+}

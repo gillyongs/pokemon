@@ -252,7 +252,13 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     const targetAug = aug || selectedAugment;
     if (!targetAug || !activePokemon) return;
 
-    if ((targetAug.id === "danceOfGarchomp" || targetAug.id === "nameIsSalamence" || targetAug.id === "choiceAndFocus") && activePokemon?.skill) {
+    if (
+      (targetAug.id === "danceOfGarchomp" ||
+        targetAug.id === "nameIsSalamence" ||
+        targetAug.id === "choiceAndFocus" ||
+        targetAug.id === "sanctuary") &&
+      activePokemon?.skill
+    ) {
       setSkillSelectAug(targetAug);
       return;
     }
@@ -1416,9 +1422,10 @@ const CardTitle = styled.h3`
 `;
 
 const CostBadge = styled.span`
+  width: 48px;
   min-width: 48px;
-  width: auto;
-  padding: 0 5px;
+  box-sizing: border-box;
+  padding: 0 4px;
   height: 18px;
   display: inline-flex;
   align-items: center;

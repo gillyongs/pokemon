@@ -1,5 +1,6 @@
 import { josa } from "josa";
 import { applyOnHitEvents } from "./onHit.js";
+import { isAttackSkill } from "../entity/Skill/Skill.js";
 
 // ====================== 공격 데미지 ======================
 
@@ -26,7 +27,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     }
   }
 
-  const isNoTextSkill = isConfuseSelfHit || Boolean(useSkill?.feature?.noText || useSkill?.feature?.oneShot);
+  const isNoTextSkill = isConfuseSelfHit || !isAttackSkill(useSkill);
   // 혼란 자해, 일격기나 고정데미지 스킬은 상성, 급소 텍스트가 뜨지 않는다
 
   let commonText = null;

@@ -58,6 +58,10 @@ export const damageCalculate = (battle, obj, ai) => {
     //일격기
     return defensePokemon.maxHp;
   }
+  if (skill.name === "생츄어리") {
+    // 적의 체력을 1로 만든다
+    return Math.max(0, defensePokemon.hp - 1);
+  }
   if (skill.name === "카타스트로피" || skill.name === "자연의분노") {
     // 현재 체력의 절반을 깎는 스킬
     return defensePokemon.hp / 2;
