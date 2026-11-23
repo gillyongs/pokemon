@@ -71,7 +71,7 @@ function skillEffectSearch(name) {
       const hasWujuStyle = atkPokemon?.hasAugment?.("wujuStyle");
       if (hasWujuStyle && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
         if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
-          const text = `[버프 우주류 검술] ${def.name}에게 30의 추가 고정 데미지를 입혔다!`;
+          const text = `[버프 우주류 검술] ${def.name}에게 추가 데미지를 입혔다!`;
           def.getDamage(battle, enqueue, 30, text);
         }
       }
@@ -82,7 +82,7 @@ function skillEffectSearch(name) {
       if (hasPowerStrike && recentDamage > 0 && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
         if (skill && (skill.stype === "atk" || skill.stype === "catk")) {
           const extraDamage = Math.max(1, Math.floor(recentDamage * 0.03));
-          const text = `[증강 파워 스트라이크] ${def.name}에게 ${extraDamage}의 추가 고정 데미지를 입혔다!`;
+          const text = `[증강 파워 스트라이크] ${def.name}에게 추가 데미지를 입혔다!`;
           def.getDamage(battle, enqueue, extraDamage, text);
         }
       }

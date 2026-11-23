@@ -833,6 +833,17 @@ export const damageCalculate = (battle, obj, ai) => {
     }
   }
 
+  // [시너지] 버서크: 현재 HP가 절반 이하일 때 적에게 입히는 데미지가 2배로 증가
+  if (attackPokemon?.hasAugment?.("berserk")) {
+    const curHp = attackPokemon.hp;
+    const maxHp = attackPokemon.maxHp;
+    const halfHp = Math.round(maxHp / 2);
+    if (curHp <= halfHp) {
+      damage *= 2;
+      attackPokemon.log.damage2 += " * 2 (버서크)";
+    }
+  }
+
   // 랜덤값 ======================================================================================================
 
   let randomNum = getRandomNumber(); // 랜덤값

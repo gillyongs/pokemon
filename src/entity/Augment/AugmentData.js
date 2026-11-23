@@ -2100,7 +2100,7 @@ export const AUGMENT_LIST = [
   {
     id: "hyperBody",
     name: "하이퍼 바디",
-    desc: "파티 전원의 Max HP가 50% 증가합니다.",
+    desc: "파티 전원의 Max HP가 60% 증가합니다.",
     cost: 1,
     weight: 100,
     isEligible: (pokemon, battle, team) => {
@@ -2172,7 +2172,6 @@ export const AUGMENT_LIST = [
     id: "mapleWarrior",
     name: "메이플 용사",
     desc: "파티 전원의 모든 능력치가 15% 증가합니다.",
-    synergyEffectText: "모든 아군 포켓몬의 모든 능력치가 15% 증가한다!",
     synergy: true,
     isRandom: false,
     weight: "-",
@@ -2188,10 +2187,17 @@ export const AUGMENT_LIST = [
     },
   },
   {
+    id: "berserk",
+    name: "버서크",
+    desc: "추가로 최대 HP 40% 증가하고, 현재 HP가 절반 이하일때 적에게 입히는 데미지가 2배로 증가합니다.",
+    synergy: true,
+    isRandom: false,
+    weight: "-",
+  },
+  {
     id: "echoOfHero",
     name: "영웅의 메아리",
     desc: "아군 모든 포켓몬의 공격과 특공을 40% 상승시킨다.",
-    synergyEffectText: "모든 아군 포켓몬의 공격과 특수공격이 40% 증가한다!",
     synergy: true,
     isRandom: false,
     weight: "-",
@@ -2981,7 +2987,8 @@ export const getSynergyThreshold = (synergyId, requiredIds = []) => {
 };
 
 export const AUGMENT_SYNERGY_MAP = {
-  mapleWarrior: ["sharpEyes", "haste", "hyperBody"], // 메이플 용사: [샤프 아이즈, 헤이스트, 하이퍼 바디]
+  berserk: ["powerStrike", "hyperBody", "dragonRoar"], // 버서크: [파워 스트라이크, 하이퍼 바디, 드래곤 로어]
+  mapleWarrior: ["sharpEyes", "haste", "armorBreak"], // 메이플 용사: [샤프 아이즈, 헤이스트, 방어구 부수기]
   echoOfHero: ["threeSnails", "nimbleMoves", "recovery", "soulDice"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복, 영혼의 주사위]
   dragonDie: ["dragonSlayer", "dragonHunter", "dragonKiller"], // 용용 죽겠지: [드래곤 슬레이어, 용 사냥꾼, 용살자]
   wujuStyle: ["lastManStanding", "lastSamurai", "lastWarrior"], // 우주류 검술: [라스트 맨 스탠딩, 라스트 사무라이, 최후의 전사]
@@ -2993,6 +3000,12 @@ export const AUGMENT_SYNERGY_MAP = {
 };
 
 const SYNERGY_INFO_MAP = {
+  berserk: {
+    emoji: "🔥",
+    theme: "버서크",
+    title: "버서크",
+    desc: "최대 HP 40% 증가하고 현재 HP가 절반 이하일때 적에게 입히는 데미지가 2배로 증가합니다.",
+  },
   mapleWarrior: {
     emoji: "🍁",
     theme: "메이플 용사",

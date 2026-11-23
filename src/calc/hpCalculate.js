@@ -22,11 +22,20 @@ export const hpCalculate = (pokemon) => {
     }
   }
 
-  // 곱적용 증강 =============================================================
-  // 하이퍼 바디: 파티 전원의 Max HP가 50% 증가
-  if (pokemon?.hasAugmentOnTeam?.("hyperBody") || hasAugmentId(pokemon, "hyperBody")) {
-    hp = Math.round(hp * 1.5);
-    logText += ` * 1.5 (하이퍼 바디)`;
+  // 곱적용/합적용 증강 =============================================================
+  // 하이퍼 바디 (60%) 및 버서크 (40%): 합적용 (둘 다 보유 시 +100% = 2배)
+  const hasHyperBody = Boolean(pokemon?.hasHyperBodyBuff || pokemon?.hasAugmentOnTeam?.("hyperBody") || hasAugmentId(pokemon, "hyperBody"));
+  const hasBerserk = Boolean(hasAugmentId(pokemon, "berserk"));
+
+  if (hasHyperBody && hasBerserk) {
+    hp = Math.round(hp * 2.0);
+    logText += ` * 2.0 (하이퍼 바디 + 버서크)`;
+  } else if (hasHyperBody) {
+    hp = Math.round(hp * 1.6);
+    logText += ` * 1.6 (하이퍼 바디)`;
+  } else if (hasBerserk) {
+    hp = Math.round(hp * 1.4);
+    logText += ` * 1.4 (버서크)`;
   }
 
   // 커져라!: 이번 라운드 동안 체력 1.5배 증가
