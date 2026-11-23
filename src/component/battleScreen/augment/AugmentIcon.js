@@ -1220,30 +1220,57 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 하이퍼바디 (메이플스토리 하이퍼바디 일러스트 + 원형 클리핑 & 골드/오렌지 링) */}
+        {/* 하이퍼바디 (메이플스토리 하이퍼바디 사각 스킬 아이콘) */}
         {id === "hyperBody" && (
-          <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/hyperBody.png?v=2" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
-            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#armorBreakRingGrad)" strokeWidth="1.8" />
-            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#fef08a" strokeWidth="0.5" strokeOpacity="0.8" />
+          <g>
+            <clipPath id="hyperBodySquareClip">
+              <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
+            </clipPath>
+            <image
+              href="/pokemon/img/augment/hyperBody.png?v=3"
+              x="2"
+              y="2"
+              width="60"
+              height="60"
+              preserveAspectRatio="xMidYMid slice"
+              clipPath="url(#hyperBodySquareClip)"
+            />
           </g>
         )}
 
-        {/* 헤이스트 (헤이스트 날개 부츠 일러스트 + 원형 클리핑 & 스카이블루/시안 링) */}
+        {/* 헤이스트 (메이플스토리 헤이스트 사각 스킬 아이콘) */}
         {id === "haste" && (
-          <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/haste.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
-            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#hasteRingGrad)" strokeWidth="1.8" />
-            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#fde047" strokeWidth="0.5" strokeOpacity="0.6" />
+          <g>
+            <clipPath id="hasteSquareClip">
+              <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
+            </clipPath>
+            <image
+              href="/pokemon/img/augment/haste.png?v=3"
+              x="2"
+              y="2"
+              width="60"
+              height="60"
+              preserveAspectRatio="xMidYMid slice"
+              clipPath="url(#hasteSquareClip)"
+            />
           </g>
         )}
 
-        {/* 샤프아이즈 (메이플스토리 샤프아이즈 일러스트 + 원형 클리핑 & 에메랄드/그린 링) */}
+        {/* 샤프아이즈 (메이플스토리 샤프아이즈 사각 스킬 아이콘) */}
         {id === "sharpEyes" && (
-          <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/sharpEyes.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
-            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#lwRingGrad)" strokeWidth="1.8" />
-            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bef264" strokeWidth="0.5" strokeOpacity="0.7" />
+          <g>
+            <clipPath id="sharpEyesSquareClip">
+              <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
+            </clipPath>
+            <image
+              href="/pokemon/img/augment/sharpEyes.png?v=3"
+              x="2"
+              y="2"
+              width="60"
+              height="60"
+              preserveAspectRatio="xMidYMid slice"
+              clipPath="url(#sharpEyesSquareClip)"
+            />
           </g>
         )}
         {/* 1. 억까 방지 (정밀 조준경 + 필중 화살 + 스파클) */}
