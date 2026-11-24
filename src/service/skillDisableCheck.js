@@ -1,3 +1,5 @@
+import { josa } from "josa";
+
 // SkillButton.js에서 사용
 export const getSkillUnusableReason = (pokemon, skillIndex) => {
   const skill = pokemon?.skill?.[skillIndex];
@@ -53,5 +55,42 @@ export const getSkillUnusableReason = (pokemon, skillIndex) => {
 
 // Bottom-Skill에서 발버둥 활성화, npc.js에서 사용불가 기술 제외에 사용
 export const isSkillUsable = (pokemon, skillIndex) => !getSkillUnusableReason(pokemon, skillIndex);
+
+// beforeSkillCheck에서 사용
+// 상대의 선공으로 기술 금지를 맞고 해당 기술을 사용하려 한 경우
+// 기술이 실패하며 pp가 소모되지 않고 기술 고정도 되지 않는다.
+export const checkSkillDisabled = (bt, enqueue, atkPokemon = null, skillObj = null) => {
+  const atk = atkPokemon || bt[bt.turn.atk];
+  const skill = skillObj || atk?.turn?.useSkill;
+  if (!atk || !skill) return true;
+
+  // 상대 선도발을 맞고 변화기를 쓴 경우
+  if (atk.tempStatus?.taunt !== null) {
+    if (skill.stype === "buf" || skill.stype === "natk") {
+      enqueue(bt, atk.names("는") + " 도발당한 상태라서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!", "chk_taunt_block");
+      return false;
+    }
+  }
+
+  // 상대 선 지옥찌르기를 맞은 턴에 소리 기술을 쓴 경우
+  if (skill.feature?.sound && atk.tempStatus?.noSound) {
+    enqueue(bt, atk.names("는") + " 소리 기술이 금지당해 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!", "chk_nosound_block");
+    return false;
+  }
+
+  // 선 회복봉인기술을 맞고 회복 기술을 쓴 경우
+  if (skill.feature?.heal && atk.tempStatus?.healBlock) {
+    enqueue(bt, atk.names("는") + " 회복 봉인 효과로 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!", "chk_heal_block");
+    return false;
+  }
+
+  // 사슬묶기로 봉인된 기술을 쓴 경우
+  if (atk.tempStatus?.disable && atk.tempStatus.disable === skill.name) {
+    enqueue(bt, atk.names("는") + " 기술이 봉인되어 있어서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!", "chk_disable_block");
+    return false;
+  }
+
+  return true;
+};
 
 export default isSkillUsable;
