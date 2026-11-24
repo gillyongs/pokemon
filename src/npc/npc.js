@@ -2,7 +2,7 @@ import { npcAiEasy } from "./ai/easy";
 import { npcAiRandom } from "./ai/random";
 import { testmode, selectedNpcAct, setSelectedNpcAct } from "../config/testMode";
 import { isShadowTagged } from "../calc/shadowTag";
-import { isSkillUsable } from "../service/skillCheck";
+import { isSkillUsable } from "../service/skillDisableCheck";
 
 let before = null;
 export const npcChoice = (battle, actNumber) => {
