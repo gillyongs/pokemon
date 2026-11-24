@@ -8,7 +8,7 @@ import LogButton from "../common/LogButton";
 import LogModal from "../../LogModal";
 
 import styled from "styled-components";
-import { isSkillUsable } from "../../../../service/skillDisableCheck";
+import { isSkillUsable } from "../../../../service/skillCheck/skillDisableCheck";
 
 const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, battleStartBySkillButton, textSkip, btObj }) => {
   const [logOpen, setLogOpen] = useState(false);

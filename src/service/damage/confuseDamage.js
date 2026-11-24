@@ -1,4 +1,4 @@
-import { confuseDamageCalculate } from "../calc/damageCalculate";
+import { confuseDamageCalculate } from "../../calc/damageCalculate";
 
 /**
  * 혼란 자해 데미지 처리

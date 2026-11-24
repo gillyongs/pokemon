@@ -1,7 +1,7 @@
 import { getPokemonCombatStats, getHigherAtkStat } from "../calc/damageCalculate";
-import { attackDamage } from "./damage";
+import { attackDamage } from "./damage/damage";
 import skillEffectSearch from "../entity/Skill/SkillEffect";
-import { beforeSkillCheck, afterSkillCheck } from "./skillCheck";
+import { beforeSkillCheck, afterSkillCheck } from "./skillCheck/skillCheck";
 import { random } from "../util/randomCheck";
 import { getAccuracy } from "../calc/accuracyCalculate";
 import { skillTypeCalculate } from "../calc/skillTypeCalculate";

@@ -1,7 +1,7 @@
-import skillRequirementSearch from "../entity/Skill/SkillRequirement";
-import { random } from "../util/randomCheck";
-import { confuseDamage } from "./confuseDamage";
-import { getAccuracy } from "../calc/accuracyCalculate";
+import skillRequirementSearch from "../../entity/Skill/SkillRequirement";
+import { random } from "../../util/randomCheck";
+import { confuseDamage } from "../damage/confuseDamage";
+import { getAccuracy } from "../../calc/accuracyCalculate";
 import { checkSkillDisabled } from "./skillDisableCheck";
 import { getSkillFailResult } from "./skillFailCheck";
 

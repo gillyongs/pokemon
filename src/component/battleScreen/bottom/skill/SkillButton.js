@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { isNimbleSkill, isChoiceAndFocusSkill, isZeroSumBuffSkill, isZeroSumNerfSkill } from "../../../../entity/Augment/AugmentData";
-import { getSkillUnusableReason } from "../../../../service/skillDisableCheck";
+import { getSkillUnusableReason } from "../../../../service/skillCheck/skillDisableCheck";
 import { AugmentIcon } from "../../augment/AugmentIcon";
 
 const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {

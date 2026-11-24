@@ -1,8 +1,8 @@
 import { josa } from "josa";
-import { applyOnHitEvents } from "./onHit.js";
-import { isAttackSkill } from "../entity/Skill/Skill.js";
-import { damageCalculate } from "../calc/damageCalculate.js";
-import { getTypeText, typeCheckOnBattle } from "../calc/typeEffectCalculate.js";
+import { applyOnHitEvents } from "../onHit.js";
+import { isAttackSkill } from "../../entity/Skill/Skill.js";
+import { damageCalculate } from "../../calc/damageCalculate.js";
+import { getTypeText, typeCheckOnBattle } from "../../calc/typeEffectCalculate.js";
 export { confuseDamage } from "./confuseDamage.js";
 
 // ====================== 공격 데미지 ======================

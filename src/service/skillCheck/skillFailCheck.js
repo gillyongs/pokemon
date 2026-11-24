@@ -1,8 +1,8 @@
-import skillList from "../entity/Skill/skillList.js";
-import { typeCheckOnBattle } from "../calc/typeEffectCalculate.js";
-import { skillTypeCalculate } from "../calc/skillTypeCalculate.js";
-import { isAilmentCheck, ailmentAbleCheck } from "./ailment.js";
-import { noNullItem } from "../entity/Item.js";
+import skillList from "../../entity/Skill/skillList.js";
+import { typeCheckOnBattle } from "../../calc/typeEffectCalculate.js";
+import { skillTypeCalculate } from "../../calc/skillTypeCalculate.js";
+import { isAilmentCheck, ailmentAbleCheck } from "../ailment.js";
+import { noNullItem } from "../../entity/Item.js";
 
 const NO_SUBSTITUTE_SKILLS = ["가드스왑", "날려버리기", "냄새구별", "도발", "멸망의노래", "미라클아이", "봉인", "사슬묶기", "스킬스왑", "앙코르", "역할", "울부짖기", "원념", "원한", "자기암시", "저주", "트집", "하트스왑", "헤롱헤롱", "흑안개"];
 

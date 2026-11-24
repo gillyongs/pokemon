@@ -2,7 +2,7 @@ import { aiItemScore } from "../../entity/Item";
 import { damageCalculate } from "../../calc/damageCalculate";
 import { getAccuracy } from "../../calc/accuracyCalculate";
 import { statusAbleCheck } from "./easy";
-import { skillFailCheck } from "../../service/skillFailCheck";
+import { skillFailCheck } from "../../service/skillCheck/skillFailCheck";
 
 export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   // 메가진화 가능한 포켓몬이면 메가진화 상태 기준으로 계산
