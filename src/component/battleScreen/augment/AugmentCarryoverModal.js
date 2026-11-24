@@ -92,6 +92,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
             mejaiStack: aug.mejaiStack ?? poke.mejaiStack ?? 0,
             practiceCritStack: aug.practiceCritStack ?? poke.practiceCritStack ?? 0,
             giantBonusHp: aug.giantBonusHp ?? poke.giantBonusHp ?? 0,
+            airmanRemainCount: aug.airmanRemainCount ?? poke.airmanRemainCount ?? 20,
             anvilStats: poke.anvilStats ? { ...poke.anvilStats } : undefined,
             ...(isArcaneSword
               ? {
@@ -112,7 +113,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
       });
       // 비활성화 상태여도 누적 스택이 남아있다면 메타데이터로 다음 라운드에 전달
       const hasAnvil = poke.anvilStats && Object.values(poke.anvilStats).some((v) => Number(v) > 0);
-      if ((poke.dragonKillCount || poke.mejaiStack || poke.practiceCritStack || poke.giantBonusHp) && !carriedMap[index].some((a) => a.synergy || isSynergyAugment(a))) {
+      if ((poke.dragonKillCount || poke.mejaiStack || poke.practiceCritStack || poke.giantBonusHp || (poke.airmanRemainCount !== undefined && poke.airmanRemainCount !== 20)) && !carriedMap[index].some((a) => a.synergy || isSynergyAugment(a))) {
         carriedMap[index].push({
           id: "__synergy_stacks__",
           isStackMeta: true,
@@ -120,6 +121,7 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
           mejaiStack: poke.mejaiStack || 0,
           practiceCritStack: poke.practiceCritStack || 0,
           giantBonusHp: poke.giantBonusHp || 0,
+          airmanRemainCount: poke.airmanRemainCount ?? 20,
           anvilStats: poke.anvilStats ? { ...poke.anvilStats } : undefined,
         });
       }

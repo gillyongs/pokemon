@@ -153,6 +153,8 @@ class PokemonInstance {
       zeroSumNerfSkillName: null, // 제로섬게임으로 절반 약화된 기술명
       pickedAbility: null, // 특성 야바위 뽑은 특성 (증강 유지시 필요)
       butItRefusedUsed: false, // [증강] 하지만 버텨냈다: 배틀 중 1회 발동 여부
+      nothingHappenedUsed: false, // [증강] 아무일도 없었다...!: 배틀 중 1회 발동 여부
+      airmanRemainCount: 20, // [시너지 버프] 에어맨이 쓰러지지 않아: 남은 버티기 횟수 (총 20회)
       sword: {
         level: 0, // 검 강화 레벨
         failed: false, // 검 강화 실패 여부

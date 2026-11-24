@@ -334,11 +334,43 @@ export const AUGMENT_LIST = [
   {
     id: "butItRefused",
     name: "하지만 버텨냈다.",
-    desc: "기절할 공격을 받을 때 HP 1로 버팁니다.\n해당 턴 무슨 일이 있어도 기절하지 않습니다.",
+    desc: "기절할 공격을 받을 때 한번 HP 1로 버팁니다.\n해당 턴 무슨 일이 있어도 기절하지 않습니다.",
     cost: 3,
     weight: 100,
     isEligible: (pokemon) => (pokemon?.item?.name || pokemon?.item) !== "기합의띠",
     // damage.js, PokemonGetDamage.js에 구현
+  },
+  {
+    id: "nothingHappened",
+    name: "아무일도 없었다...!",
+    desc: "기절할 데미지를 받을 때 한번 HP 1로 버팁니다.",
+    cost: 2,
+    weight: 100,
+    // PokemonGetDamage.js에 구현
+  },
+  {
+    id: "airmanGaTaosenai",
+    name: "에어맨이 쓰러지지 않아",
+    desc: "기절할 데미지를 받을 때 총 20번 HP 1로 버팁니다.",
+    synergy: true,
+    isRandom: false,
+    weight: "-",
+    statusModalText: function (pokemon) {
+      const remain = Number(pokemon?.airmanRemainCount ?? this?.airmanRemainCount ?? 20);
+      return `${this.desc}\n(남은 횟수 ${remain}회)`;
+    },
+    getDesc: (pokemon) => {
+      const aug = pokemon?.augments?.find((a) => a.id === "airmanGaTaosenai");
+      const remain = Number(pokemon?.airmanRemainCount ?? aug?.airmanRemainCount ?? 20);
+      return `기절할 데미지를 받을 때 총 20번 HP 1로 버팁니다.\n(남은 횟수 ${remain}회)`;
+    },
+    onApply: function (pokemon, battle, options) {
+      const remain = Number(options?.airmanRemainCount ?? pokemon?.airmanRemainCount ?? this.airmanRemainCount ?? 20);
+      if (pokemon) {
+        pokemon.airmanRemainCount = remain;
+      }
+      this.airmanRemainCount = remain;
+    },
   },
   {
     id: "letsExplodeTogether",
@@ -2850,9 +2882,12 @@ export const AUGMENT_LIST = [
     },
     cost: "-",
     weight: 30,
-    isEligible: (pokemon, battle) => {
+    isEligible: (pokemon, battle, team) => {
       if (!isBattlePlayerActive(pokemon, battle)) return false;
       if (!battle.npc || battle.npc.faint || battle.npc.hp <= 0) return false;
+      if (pokemon?.hasAugment?.("butItRefused")) return false;
+      if (pokemon?.hasAugmentOnTeam?.("butItRefused", team || battle)) return false;
+      if (battle?.player?.hasAugment?.("butItRefused")) return false;
       return true;
     },
     onApply: function (pokemon, battle, options) {
@@ -3101,9 +3136,16 @@ export const AUGMENT_SYNERGY_MAP = {
   giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis", "spiritVisage"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상]
   lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic", "lostTechnologyHyperBeam"], // 과거의 영광 (급소)
   symphonyFor100Metronomes: ["metronome", "doubleMetronome", "tripleMetronome"], // 100개의 메트로놈을 위한 교향시
+  airmanGaTaosenai: ["mandoocornEndure", "butItRefused", "nothingHappened"], // 에어맨이 쓰러지지 않아: [슬프게 하지 않게 하려고 버텼다!, 하지만 버텨냈다., 아무일도 없었다...!]
 };
 
 const SYNERGY_INFO_MAP = {
+  airmanGaTaosenai: {
+    emoji: "💨",
+    theme: "에어맨",
+    title: "에어맨이 쓰러지지 않아",
+    desc: "기절할 데미지를 받을 때 총 20번 HP 1로 버팁니다.",
+  },
   symphonyFor100Metronomes: {
     emoji: "🎼",
     theme: "메트로놈 교향곡",

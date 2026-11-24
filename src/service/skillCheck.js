@@ -192,6 +192,12 @@ export const afterSkillCheck = (bt, enqueue) => {
     return false;
   }
 
+  // [증강 하지만 버텨냈다.] 이미 발동한 턴에는 목숨걸기, 자폭, 대폭발 실패
+  if (atk.turn?.butItRefused && (skill.skillEffectList?.some((e) => e.name === "자폭" || e.name === "목숨걸기") || ["목숨걸기", "자폭", "대폭발"].includes(skill.name))) {
+    enqueue(bt, "하지만 실패했다!", "chk_suicide_but_it_refused");
+    return false;
+  }
+
   // 상대 선도발을 맞은 턴에 변화기를 쓴 경우
   if (atk.tempStatus.taunt !== null) {
     if (skill.stype === "buf" || skill.stype === "natk") {
@@ -229,10 +235,7 @@ export const afterSkillCheck = (bt, enqueue) => {
   // 기술 시전 직전 체크 통과: 이후 단계(방어/무효/빗나감 포함)부터는 기술이 발동된 것으로 간주
   atk.turn.skillLaunched = true;
 
-  const hasInfiniteTypeChange = Boolean(
-    (atk.abil?.name === "리베로" && atk.hasAugment?.("libero")) ||
-    (atk.abil?.name === "변환자재" && atk.hasAugment?.("protean"))
-  );
+  const hasInfiniteTypeChange = Boolean((atk.abil?.name === "리베로" && atk.hasAugment?.("libero")) || (atk.abil?.name === "변환자재" && atk.hasAugment?.("protean")));
 
   if ((atk.abil?.name === "리베로" || atk.abil?.name === "변환자재") && (!atk.abil?.used || hasInfiniteTypeChange)) {
     if (skill.type === atk.type1 && atk.type2 === null) {

@@ -93,6 +93,7 @@ export const PokemonAugment = {
             if (synergyId === "mejaisSoulstealer") augObj.mejaiStack = Number(this.mejaiStack || 0);
             if (synergyId === "practiceMakesCritical") augObj.practiceCritStack = Number(this.practiceCritStack || 0);
             if (synergyId === "giantAbsorption") augObj.giantBonusHp = Number(this.giantBonusHp || 0);
+            if (synergyId === "airmanGaTaosenai") augObj.airmanRemainCount = Number(this.airmanRemainCount ?? 20);
             if (!this.augments) this.augments = [];
             this.augments.push(augObj);
             if (typeof augObj.onApply === "function") {
@@ -103,6 +104,7 @@ export const PokemonAugment = {
                 mejaiStack: this.mejaiStack,
                 practiceCritStack: this.practiceCritStack,
                 giantBonusHp: this.giantBonusHp,
+                airmanRemainCount: this.airmanRemainCount,
               });
             }
             if (synergyId === "echoOfHero" && typeof syncTeamEchoOfHeroBuff === "function") {
@@ -182,7 +184,7 @@ export const PokemonAugment = {
       if (normalCount >= 3 && !isInstant) return false;
     }
     if (!isInstant && this.hasAugment(augId)) {
-      if ((augObj.buf || augObj.synergy) && (options?.dragonKillCount !== undefined || options?.mejaiStack !== undefined || options?.practiceCritStack !== undefined || options?.giantBonusHp !== undefined)) {
+      if ((augObj.buf || augObj.synergy) && (options?.dragonKillCount !== undefined || options?.mejaiStack !== undefined || options?.practiceCritStack !== undefined || options?.giantBonusHp !== undefined || options?.airmanRemainCount !== undefined)) {
         const existingBuf = this.augments.find((a) => a.id === augId);
         if (existingBuf && typeof existingBuf.onApply === "function") {
           existingBuf.onApply(this, battle, options);

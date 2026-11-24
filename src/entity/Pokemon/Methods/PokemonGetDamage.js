@@ -5,7 +5,44 @@ export const PokemonGetDamage = {
     // onHit: 특성(철가시), 울멧
     // turnEnd: 상태이상(독, 화상), 씨뿌리기, 마그마스톰
     // skillEffect: 생구, 무릎차기 빗나감, 반동, 대다출동
-    const actualDamage = this._applyDamage(Math.floor(damageValue));
+    const damage = Math.floor(damageValue);
+    const prevHp = this.hp;
+    let actualDamage = 0;
+    let endured = false;
+    let endureText = null;
+    let endureKey = null;
+
+    if (this.hp - damage <= 0) {
+      if (this.turn?.butItRefused) {
+        endured = true;
+        endureText = "하지만 버텨냈다!";
+        endureKey = "poke_but_it_refused";
+      } else if (this.hasAugment?.("nothingHappened") && !this.agument?.nothingHappenedUsed) {
+        if (!this.agument) this.agument = {};
+        this.agument.nothingHappenedUsed = true;
+        endured = true;
+        endureText = `[증강 아무일도 없었다] ${this.names("는")} 버텨냈다!`;
+        endureKey = "poke_nothing_happened";
+      } else if (this.hasAugment?.("airmanGaTaosenai") && Number(this.airmanRemainCount ?? 20) > 0) {
+        const nextRemain = Math.max(0, Number(this.airmanRemainCount ?? 20) - 1);
+        this.airmanRemainCount = nextRemain;
+        const airmanAug = this.augments?.find((a) => a.id === "airmanGaTaosenai");
+        if (airmanAug) {
+          airmanAug.airmanRemainCount = nextRemain;
+        }
+        endured = true;
+        endureText = `[버프 에어맨이 쓰러지지 않아] ${this.names("는")} 버텨냈다!`;
+        endureKey = "poke_airman";
+      }
+    }
+
+    if (endured) {
+      this.hp = 1;
+      actualDamage = Math.max(0, prevHp - 1);
+    } else {
+      actualDamage = this._applyDamage(damage);
+    }
+
     if (actualDamage > 0 && this.turn) {
       this.turn.damagedThisTurn = true; // 워모그
     }
@@ -14,10 +51,13 @@ export const PokemonGetDamage = {
       enqueue(battle, text, "poke_get_dmg");
     }
 
+    if (endured && endureText) {
+      enqueue(battle, endureText, endureKey);
+    }
+
     if (this.hp <= 0) {
       this.handleFaint(battle, enqueue);
     }
-    // handleFaint에서 하지만 버텨냈다! 발동시 피 1
     if (this.hp > 0) {
       this.tryJamung(battle, enqueue);
     }
@@ -33,13 +73,7 @@ export const PokemonGetDamage = {
 
   // 기절 처리
   handleFaint(battle, enqueue) {
-    // getDamage, attackDmage, 길동무, 치유소원 & 초승달춤, 자폭, 목숨걸기, 증강 러시안룰렛에서도 사용
-    if (this.turn?.butItRefused) {
-      this.hp = 1;
-      this.faint = false;
-      enqueue(battle, "하지만 버텨냈다!", "poke_but_it_refused");
-      return;
-    }
+    // getDamage, attackDamage, 길동무, 치유소원 & 초승달춤, 자폭, 목숨걸기, 증강 러시안룰렛/동귀어진에서도 사용
     this.hp = 0;
     this.faint = true;
     // resetTurn은 하지 않는다

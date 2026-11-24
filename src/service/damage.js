@@ -116,6 +116,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   let gdTextTrigger = false;
   let mandooTextTrigger = false;
   let refusedTextTrigger = false;
+  let refusedFirstTextTrigger = false;
+  let nothingHappenedTextTrigger = false;
+  let airmanTextTrigger = false;
 
   // HP 차감
   const prevHp = defPokemon.hp;
@@ -141,6 +144,11 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       }
 
       actualGiveDamage -= 1;
+    } else if (defPokemon.hasAugment?.("mandoocornEndure") && Math.random() < 0.3) {
+      // [증강] 슬프게 하지 않게 하려고 버텼다! (30% 확률로 HP 1로 버팀)
+      defPokemon.hp = 1;
+      actualGiveDamage = Math.max(0, prevHp - 1);
+      mandooTextTrigger = true;
     } else if (defPokemon.hasAugment?.("butItRefused") && !defPokemon.agument?.butItRefusedUsed) {
       // [증강] 하지만 버텨냈다.: 기절할 공격을 HP 1로 버티고 해당 턴 기절 면역 활성화
       defPokemon.hp = 1;
@@ -148,13 +156,25 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       if (defPokemon.turn) defPokemon.turn.butItRefused = true;
       if (defPokemon.agument) defPokemon.agument.butItRefusedUsed = true;
       refusedTextTrigger = true;
-    } else if (defPokemon.hasAugment?.("mandoocornEndure")) {
-      // 30% 확률로 HP 1로 버팀
-      if (Math.random() < 0.3) {
-        defPokemon.hp = 1;
-        actualGiveDamage = prevHp - 1;
-        mandooTextTrigger = true;
+      refusedFirstTextTrigger = true;
+    } else if (defPokemon.hasAugment?.("nothingHappened") && !defPokemon.agument?.nothingHappenedUsed) {
+      // [증강] 아무일도 없었다...!: 기절할 데미지를 받을 때 한번 HP 1로 버팀
+      defPokemon.hp = 1;
+      actualGiveDamage = Math.max(0, prevHp - 1);
+      if (!defPokemon.agument) defPokemon.agument = {};
+      defPokemon.agument.nothingHappenedUsed = true;
+      nothingHappenedTextTrigger = true;
+    } else if (defPokemon.hasAugment?.("airmanGaTaosenai") && Number(defPokemon.airmanRemainCount ?? 20) > 0) {
+      // [시너지 버프] 에어맨이 쓰러지지 않아: 총 20번 HP 1로 버팀
+      defPokemon.hp = 1;
+      actualGiveDamage = Math.max(0, prevHp - 1);
+      const nextRemain = Math.max(0, Number(defPokemon.airmanRemainCount ?? 20) - 1);
+      defPokemon.airmanRemainCount = nextRemain;
+      const airmanAug = defPokemon.augments?.find((a) => a.id === "airmanGaTaosenai");
+      if (airmanAug) {
+        airmanAug.airmanRemainCount = nextRemain;
       }
+      airmanTextTrigger = true;
     }
   }
 
@@ -218,7 +238,20 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   }
 
   if (refusedTextTrigger) {
-    enqueue(battle, (commonText || "") + "하지만 버텨냈다!", "dmg_but_it_refused");
+    const text = refusedFirstTextTrigger
+      ? `[증강 하지만 버텨냈다] ${defPokemon.names("는")} 버텨냈다!`
+      : "하지만 버텨냈다!";
+    enqueue(battle, (commonText || "") + text, "dmg_but_it_refused");
+    defaultText = false;
+  }
+
+  if (nothingHappenedTextTrigger) {
+    enqueue(battle, (commonText || "") + `[증강 아무일도 없었다] ${defPokemon.names("는")} 버텨냈다!`, "poke_nothing_happened");
+    defaultText = false;
+  }
+
+  if (airmanTextTrigger) {
+    enqueue(battle, (commonText || "") + `[버프 에어맨이 쓰러지지 않아] ${defPokemon.names("는")} 버텨냈다!`, "poke_airman");
     defaultText = false;
   }
 
@@ -236,19 +269,9 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
     // [증강] 징수의 총: 상대 포켓몬의 체력이 5% 이하일 경우 처형
     if (!isConfuseSelfHit && atkPokemon.hasAugment?.("collector") && !atkPokemon.faint && defPokemon.hp <= defPokemon.maxHp * 0.05) {
-      if (defPokemon.turn?.butItRefused) {
-        defPokemon.hp = Math.max(1, defPokemon.hp);
-        enqueue(battle, "하지만 버텨냈다!", "dmg_but_it_refused_collector");
-      } else if (defPokemon.hasAugment?.("butItRefused") && !defPokemon.agument?.butItRefusedUsed) {
-        defPokemon.hp = Math.max(1, defPokemon.hp);
-        if (defPokemon.turn) defPokemon.turn.butItRefused = true;
-        if (defPokemon.agument) defPokemon.agument.butItRefusedUsed = true;
-        enqueue(battle, "하지만 버텨냈다!", "dmg_but_it_refused_collector");
-      } else {
-        executedByCollector = true;
-        defPokemon.hp = 0;
-        enqueue(battle, `[증강 징수의 총] ${defPokemon.names("는")} 처형당했다!`, "dmg_collector");
-      }
+      executedByCollector = true;
+      defPokemon.hp = 0;
+      enqueue(battle, `[증강 징수의 총] ${defPokemon.names("는")} 처형당했다!`, "dmg_collector");
     }
 
     if (defPokemon.hp > 0) {

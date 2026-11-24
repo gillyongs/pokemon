@@ -127,6 +127,9 @@ export const useBattleStore = createStore((set, get) => ({
             if (savedAug?.giantBonusHp !== undefined) {
               p.giantBonusHp = Math.max(Number(p.giantBonusHp || 0), Number(savedAug.giantBonusHp || 0));
             }
+            if (savedAug?.airmanRemainCount !== undefined) {
+              p.airmanRemainCount = Number(savedAug.airmanRemainCount);
+            }
             if (savedAug?.anvilStats) {
               if (!p.anvilStats) {
                 p.anvilStats = { atk: 0, def: 0, catk: 0, cdef: 0, speed: 0 };
@@ -194,6 +197,7 @@ export const useBattleStore = createStore((set, get) => ({
                     mejaiStack: savedAug?.mejaiStack ?? p.mejaiStack,
                     practiceCritStack: savedAug?.practiceCritStack ?? p.practiceCritStack,
                     giantBonusHp: savedAug?.giantBonusHp ?? p.giantBonusHp,
+                    airmanRemainCount: savedAug?.airmanRemainCount ?? p.airmanRemainCount,
                     soulDiceStats: savedAug?.soulDiceStats,
                     kingStatBonus: savedAug?.kingStatBonus,
                     kingCost: savedAug?.cost,
@@ -236,6 +240,7 @@ export const useBattleStore = createStore((set, get) => ({
                   mejaiStack: savedAug?.mejaiStack ?? p.mejaiStack,
                   practiceCritStack: savedAug?.practiceCritStack ?? p.practiceCritStack,
                   giantBonusHp: savedAug?.giantBonusHp ?? p.giantBonusHp,
+                  airmanRemainCount: savedAug?.airmanRemainCount ?? p.airmanRemainCount,
                   soulDiceStats: savedAug?.soulDiceStats,
                   kingStatBonus: savedAug?.kingStatBonus,
                   kingCost: savedAug?.cost,
@@ -840,6 +845,7 @@ export const useBattleStore = createStore((set, get) => ({
             mejaiStack: aug.mejaiStack ?? p.mejaiStack ?? 0,
             practiceCritStack: aug.practiceCritStack ?? p.practiceCritStack ?? 0,
             giantBonusHp: aug.giantBonusHp ?? p.giantBonusHp ?? 0,
+            airmanRemainCount: aug.airmanRemainCount ?? p.airmanRemainCount ?? 20,
             ...(isArcaneSword
               ? {
                   arcaneSuccessCount: aug.arcaneSuccessCount ?? p.arcaneSuccessCount ?? 0,
@@ -859,7 +865,7 @@ export const useBattleStore = createStore((set, get) => ({
       });
       // 비활성화 상태여도 누적 스택이 있다면 보존
       const hasAnvil = p.anvilStats && Object.values(p.anvilStats).some((v) => Number(v) > 0);
-      if ((p.dragonKillCount || p.mejaiStack || p.practiceCritStack || p.giantBonusHp) && !effectiveCarriedMap[pIdx].some((a) => a.synergy || isSynergyAugment(a))) {
+      if ((p.dragonKillCount || p.mejaiStack || p.practiceCritStack || p.giantBonusHp || (p.airmanRemainCount !== undefined && p.airmanRemainCount !== 20)) && !effectiveCarriedMap[pIdx].some((a) => a.synergy || isSynergyAugment(a))) {
         effectiveCarriedMap[pIdx].push({
           id: "__synergy_stacks__",
           isStackMeta: true,
@@ -867,6 +873,7 @@ export const useBattleStore = createStore((set, get) => ({
           mejaiStack: p.mejaiStack || 0,
           practiceCritStack: p.practiceCritStack || 0,
           giantBonusHp: p.giantBonusHp || 0,
+          airmanRemainCount: p.airmanRemainCount ?? 20,
           anvilStats: p.anvilStats ? { ...p.anvilStats } : undefined,
         });
       }
@@ -922,6 +929,7 @@ export const useBattleStore = createStore((set, get) => ({
           mejaiStack: aug.mejaiStack,
           practiceCritStack: aug.practiceCritStack,
           giantBonusHp: aug.giantBonusHp,
+          airmanRemainCount: aug.airmanRemainCount,
           anvilStats: aug.anvilStats ? { ...aug.anvilStats } : undefined,
           soulDiceStats: aug.soulDiceStats ? { ...aug.soulDiceStats } : undefined,
           kingStatBonus: aug.kingStatBonus,

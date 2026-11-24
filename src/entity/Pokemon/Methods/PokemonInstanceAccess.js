@@ -146,6 +146,30 @@ export const PokemonInstanceAccess = {
     this.agument.zeroSumNerfSkillName = v;
   },
 
+  get butItRefusedUsed() {
+    return this.agument?.butItRefusedUsed ?? false;
+  },
+  set butItRefusedUsed(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.butItRefusedUsed = v;
+  },
+
+  get nothingHappenedUsed() {
+    return this.agument?.nothingHappenedUsed ?? false;
+  },
+  set nothingHappenedUsed(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.nothingHappenedUsed = v;
+  },
+
+  get airmanRemainCount() {
+    return this.agument?.airmanRemainCount ?? 20;
+  },
+  set airmanRemainCount(v) {
+    if (!this.agument) this.agument = {};
+    this.agument.airmanRemainCount = v;
+  },
+
   get anvilStats() {
     return this.agument?.anvilStats;
   },
