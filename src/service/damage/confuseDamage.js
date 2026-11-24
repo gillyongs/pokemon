@@ -1,4 +1,5 @@
 import { confuseDamageCalculate } from "../../calc/damageCalculate";
+import { checkEndure } from "./endure";
 
 /**
  * 혼란 자해 데미지 처리
@@ -31,61 +32,13 @@ export function confuseDamage(battle, enqueue) {
   const prevHp = pokemon.hp;
   pokemon.hp -= damage;
 
-  let endured = false;
-  let endureText = null;
-
   if (pokemon.hp <= 0) {
     pokemon.hp = 0;
-
-    // 기절 방지 판정
-    const gdTrigger = pokemon.item === "기합의띠";
-    const ogcTrigger = pokemon.abil?.name === "옹골참";
-    const noOneShot = prevHp === pokemon.maxHp && (gdTrigger || ogcTrigger);
-
-    if (pokemon.turn?.butItRefused) {
-      pokemon.hp = 1;
-      endured = true;
-      endureText = "하지만 버텨냈다!";
-    } else if (noOneShot) {
-      pokemon.hp = 1;
-      endured = true;
-      if (ogcTrigger) {
-        endureText = "[특성 옹골참] " + pokemon.names("는") + " 옹골참으로 버텼다!";
-      } else if (gdTrigger) {
-        endureText = pokemon.names("는") + " 기합의 띠로 버텼다!";
-        pokemon.consumeItem();
-      }
-    } else if (pokemon.hasAugment?.("mandoocornEndure") && Math.random() < 0.3) {
-      pokemon.hp = 1;
-      endured = true;
-      endureText = pokemon.names("는") + " 플레이어를 슬프게 하지 않으려고 버텼다!";
-    } else if (pokemon.hasAugment?.("butItRefused") && !pokemon.agument?.butItRefusedUsed) {
-      pokemon.hp = 1;
-      if (pokemon.turn) pokemon.turn.butItRefused = true;
-      if (pokemon.agument) pokemon.agument.butItRefusedUsed = true;
-      endured = true;
-      endureText = `[증강 하지만 버텨냈다] ${pokemon.names("는")} 버텨냈다!`;
-    } else if (pokemon.hasAugment?.("nothingHappened") && !pokemon.agument?.nothingHappenedUsed) {
-      pokemon.hp = 1;
-      if (!pokemon.agument) pokemon.agument = {};
-      pokemon.agument.nothingHappenedUsed = true;
-      endured = true;
-      endureText = `[증강 아무일도 없었다] ${pokemon.names("는")} 버텨냈다!`;
-    } else if (pokemon.hasAugment?.("airmanGaTaosenai") && Number(pokemon.airmanRemainCount ?? 20) > 0) {
-      pokemon.hp = 1;
-      const nextRemain = Math.max(0, Number(pokemon.airmanRemainCount ?? 20) - 1);
-      pokemon.airmanRemainCount = nextRemain;
-      const airmanAug = pokemon.augments?.find((a) => a.id === "airmanGaTaosenai");
-      if (airmanAug) {
-        airmanAug.airmanRemainCount = nextRemain;
-      }
-      endured = true;
-      endureText = `[버프 에어맨이 쓰러지지 않아] ${pokemon.names("는")} 버텨냈다!`;
+    const endureResult = checkEndure(pokemon, prevHp);
+    if (endureResult) {
+      // 기합의띠, 옹골참, [증강] 하지만 버텨냈다, 아무일도 없었다, 슬프게하지 않으려고 버텼다!, 에어맨이 쓰러지지않아
+      enqueue(battle, endureResult.endureText, "dmg_confuse_endure");
     }
-  }
-
-  if (endured && endureText) {
-    enqueue(battle, endureText, "dmg_confuse_endure");
   }
 
   if (damage > 0 && pokemon.turn) {

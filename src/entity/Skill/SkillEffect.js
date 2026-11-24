@@ -5,6 +5,7 @@ import { noNullItem } from "../Item";
 import { switchNpc, switchNpcAuto, switchPlayer, switchPlayerForce } from "../../service/switch";
 import { getAugmentedStat } from "../../calc/getStat";
 import { getMultiplier } from "../../calc/rankStat";
+import { checkPassiveEndure } from "../../service/damage/endure";
 
 function isTargetSubstituteBlocked(battle) {
   const defPokemon = battle?.[battle?.turn?.def];
@@ -146,34 +147,9 @@ function skillEffectSearch(name) {
         battle.turn.destinyBondUser = null;
         if (!atkPokemon.faint) {
           enqueue(battle, userName + ` ${atkPokemon.names("를")} 길동무로 삼았다!`, "eff_destiny_bond_ko");
-          if (atkPokemon.turn?.butItRefused) {
-            atkPokemon.hp = 1;
-            enqueue(battle, "하지만 버텨냈다!", "poke_but_it_refused");
-            return;
-          }
-          if (atkPokemon.hasAugment?.("butItRefused") && !atkPokemon.agument?.butItRefusedUsed) {
-            atkPokemon.hp = 1;
-            atkPokemon.turn.butItRefused = true;
-            atkPokemon.agument.butItRefusedUsed = true;
-            enqueue(battle, `[증강 하지만 버텨냈다] ${atkPokemon.names("는")} 버텨냈다!`, "poke_but_it_refused");
-            return;
-          }
-          if (atkPokemon.hasAugment?.("nothingHappened") && !atkPokemon.agument?.nothingHappenedUsed) {
-            atkPokemon.hp = 1;
-            atkPokemon.agument.nothingHappenedUsed = true;
-            enqueue(battle, `[증강 아무일도 없었다] ${atkPokemon.names("는")} 버텨냈다!`, "poke_nothing_happened");
-            return;
-          }
-          const airmanRemain = Number(atkPokemon.airmanRemainCount ?? 20);
-          if (atkPokemon.hasAugment?.("airmanGaTaosenai") && airmanRemain > 0) {
-            const nextRemain = Math.max(0, airmanRemain - 1);
-            atkPokemon.airmanRemainCount = nextRemain;
-            const airmanAug = atkPokemon.augments?.find((a) => a.id === "airmanGaTaosenai");
-            if (airmanAug) {
-              airmanAug.airmanRemainCount = nextRemain;
-            }
-            atkPokemon.hp = 1;
-            enqueue(battle, `[버프 에어맨이 쓰러지지 않아] ${atkPokemon.names("는")} 버텨냈다!`, "poke_airman");
+          const endureResult = checkPassiveEndure(atkPokemon);
+          if (endureResult) {
+            enqueue(battle, endureResult.endureText, endureResult.endureKey);
             return;
           }
           atkPokemon.handleFaint(battle, enqueue);

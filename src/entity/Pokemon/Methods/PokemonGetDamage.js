@@ -1,3 +1,5 @@
+import { checkPassiveEndure } from "../../../service/damage/endure";
+
 export const PokemonGetDamage = {
   getDamage(battle, enqueue, damageValue, text) {
     // 기준 = 급소 없음, 탈 안 까임, 멀스 적용 안됨
@@ -8,36 +10,14 @@ export const PokemonGetDamage = {
     const damage = Math.floor(damageValue);
     const prevHp = this.hp;
     let actualDamage = 0;
-    let endured = false;
-    let endureText = null;
-    let endureKey = null;
+    let endureResult = null;
 
     if (this.hp - damage <= 0) {
-      if (this.turn?.butItRefused) {
-        endured = true;
-        endureText = "하지만 버텨냈다!";
-        endureKey = "poke_but_it_refused";
-      } else if (this.hasAugment?.("nothingHappened") && !this.agument?.nothingHappenedUsed) {
-        if (!this.agument) this.agument = {};
-        this.agument.nothingHappenedUsed = true;
-        endured = true;
-        endureText = `[증강 아무일도 없었다] ${this.names("는")} 버텨냈다!`;
-        endureKey = "poke_nothing_happened";
-      } else if (this.hasAugment?.("airmanGaTaosenai") && Number(this.airmanRemainCount ?? 20) > 0) {
-        const nextRemain = Math.max(0, Number(this.airmanRemainCount ?? 20) - 1);
-        this.airmanRemainCount = nextRemain;
-        const airmanAug = this.augments?.find((a) => a.id === "airmanGaTaosenai");
-        if (airmanAug) {
-          airmanAug.airmanRemainCount = nextRemain;
-        }
-        endured = true;
-        endureText = `[버프 에어맨이 쓰러지지 않아] ${this.names("는")} 버텨냈다!`;
-        endureKey = "poke_airman";
-      }
+      endureResult = checkPassiveEndure(this);
     }
 
-    if (endured) {
-      this.hp = 1;
+    if (endureResult) {
+      // [증강] 하지만 버텨냈다(사전발동), 아무일도 없었다, 에어맨이 쓰러지지않아
       actualDamage = Math.max(0, prevHp - 1);
     } else {
       actualDamage = this._applyDamage(damage);
@@ -51,8 +31,8 @@ export const PokemonGetDamage = {
       enqueue(battle, text, "poke_get_dmg");
     }
 
-    if (endured && endureText) {
-      enqueue(battle, endureText, endureKey);
+    if (endureResult) {
+      enqueue(battle, endureResult.endureText, endureResult.endureKey);
     }
 
     if (this.hp <= 0) {
@@ -73,7 +53,8 @@ export const PokemonGetDamage = {
 
   // 기절 처리
   handleFaint(battle, enqueue) {
-    // getDamage, attackDamage, 길동무, 치유소원 & 초승달춤, 자폭, 목숨걸기, 증강 러시안룰렛/동귀어진에서도 사용
+    // damage (attack, confuse, getDamage)
+    // 길동무, 치유소원 & 초승달춤, 자폭, 목숨걸기, [증강] 러시안룰렛/동귀어진에서도 사용
     this.hp = 0;
     this.faint = true;
     // resetTurn은 하지 않는다

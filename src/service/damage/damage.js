@@ -3,13 +3,13 @@ import { applyOnHitEvents } from "../onHit.js";
 import { isAttackSkill } from "../../entity/Skill/Skill.js";
 import { damageCalculate } from "../../calc/damageCalculate.js";
 import { getTypeText, typeCheckOnBattle } from "../../calc/typeEffectCalculate.js";
+import { checkEndure } from "./endure.js";
 export { confuseDamage } from "./confuseDamage.js";
 
 // ====================== 공격 데미지 ======================
 
 // 공격으로 데미지를 줄때
-// skillUse에서 공격 데미지
-// 기준: 특성 탈 까짐, 급소 판정 있음
+// skillUse에서 호출
 export function attackDamage(battle, enqueue, num) {
   const skillDamage = damageCalculate(battle, num);
 
@@ -26,10 +26,7 @@ export function attackDamage(battle, enqueue, num) {
     defPokemon.tempStatus.recentSkillGet = useSkill;
   }
 
-  let commonText = null;
-  if (num) {
-    commonText = "(" + num + "타) ";
-  }
+  let commonText = num ? `(${num}타) ` : null;
 
   // 상성 텍스트(ex: 효과가 굉장했다!), 급소, 난기류 텍스트 출력 (대타출동 / 본체 공통)
   // 일격기나 고정데미지 스킬(!isAttackSkill)은 상성, 급소 텍스트가 뜨지 않는다
@@ -113,8 +110,7 @@ export function attackDamage(battle, enqueue, num) {
       }
     }
   }
-  let endureText = null;
-  let endureKey = null;
+  let endureResult = null;
 
   // HP 차감
   const prevHp = defPokemon.hp;
@@ -123,54 +119,10 @@ export function attackDamage(battle, enqueue, num) {
     actualGiveDamage = prevHp;
     defPokemon.hp = 0;
 
-    const isFullHp = prevHp === defPokemon.maxHp;
-    const hasSturdy = isFullHp && defPokemon.abil?.name === "옹골참" && !atkPokemon.abil?.feature?.tgg;
-    const hasFocusSash = isFullHp && defPokemon.item === "기합의띠";
-
-    if (defPokemon.turn?.butItRefused) {
-      // 이번 턴 '하지만 버텨냈다.' 이미 활성화 중 -> 모든 데미지를 HP 1로 버팀
-      endureText = "하지만 버텨냈다!";
-      endureKey = "dmg_but_it_refused";
-    } else if (hasSturdy || hasFocusSash) {
-      // 옹골참 또는 기띠 (동시에 있으면 옹골참이 먼저 쓰인다)
-      if (hasSturdy) {
-        endureText = "[특성 옹골참] " + defPokemon.names("는") + " 옹골참으로 버텼다!";
-        endureKey = "dmg_sturdy";
-      } else {
-        endureText = defPokemon.names("는") + " 기합의 띠로 버텼다!";
-        endureKey = "dmg_focus_sash";
-        defPokemon.consumeItem();
-      }
-    } else if (defPokemon.hasAugment?.("mandoocornEndure") && Math.random() < 0.3) {
-      // [증강] 슬프게 하지 않게 하려고 버텼다! (30% 확률로 HP 1로 버팀)
-      endureText = defPokemon.names("는") + " 플레이어를 슬프게 하지 않으려고 버텼다!";
-      endureKey = "dmg_mandoo_endure";
-    } else if (defPokemon.hasAugment?.("butItRefused") && !defPokemon.agument?.butItRefusedUsed) {
-      // [증강] 하지만 버텨냈다.: 기절할 공격을 HP 1로 버티고 해당 턴 기절 면역 활성화
-      if (defPokemon.turn) defPokemon.turn.butItRefused = true;
-      if (defPokemon.agument) defPokemon.agument.butItRefusedUsed = true;
-      endureText = `[증강 하지만 버텨냈다] ${defPokemon.names("는")} 버텨냈다!`;
-      endureKey = "dmg_but_it_refused";
-    } else if (defPokemon.hasAugment?.("nothingHappened") && !defPokemon.agument?.nothingHappenedUsed) {
-      // [증강] 아무일도 없었다...!: 기절할 데미지를 받을 때 한번 HP 1로 버팀
-      if (!defPokemon.agument) defPokemon.agument = {};
-      defPokemon.agument.nothingHappenedUsed = true;
-      endureText = `[증강 아무일도 없었다] ${defPokemon.names("는")} 버텨냈다!`;
-      endureKey = "poke_nothing_happened";
-    } else if (defPokemon.hasAugment?.("airmanGaTaosenai") && Number(defPokemon.airmanRemainCount ?? 20) > 0) {
-      // [시너지 버프] 에어맨이 쓰러지지 않아: 총 20번 HP 1로 버팀
-      const nextRemain = Math.max(0, Number(defPokemon.airmanRemainCount ?? 20) - 1);
-      defPokemon.airmanRemainCount = nextRemain;
-      const airmanAug = defPokemon.augments?.find((a) => a.id === "airmanGaTaosenai");
-      if (airmanAug) {
-        airmanAug.airmanRemainCount = nextRemain;
-      }
-      endureText = `[버프 에어맨이 쓰러지지 않아] ${defPokemon.names("는")} 버텨냈다!`;
-      endureKey = "poke_airman";
-    }
-
-    if (endureText) {
-      defPokemon.hp = 1;
+    endureResult = checkEndure(defPokemon, prevHp, atkPokemon);
+    if (endureResult) {
+      // 버티기 체크
+      // 기합의띠, 옹골참, [증강] 하지만 버텨냈다, 아무일도 없었다, 슬프게하지 않으려고 버텼다!, 에어맨이 쓰러지지않아
       actualGiveDamage = Math.max(0, prevHp - 1);
     }
   }
@@ -203,8 +155,8 @@ export function attackDamage(battle, enqueue, num) {
     defaultText = false;
   }
 
-  if (endureText) {
-    enqueue(battle, (commonText || "") + endureText, endureKey);
+  if (endureResult) {
+    enqueue(battle, (commonText || "") + endureResult.endureText, endureResult.endureKey);
     defaultText = false;
   }
 
