@@ -1,7 +1,6 @@
 import skillRequirementSearch from "../entity/Skill/SkillRequirement";
 import { random } from "../util/randomCheck";
-import { confuseDamageCalculate } from "../calc/damageCalculate";
-import { attackDamage } from "./damage";
+import { confuseDamage } from "./confuseDamage";
 import { josa } from "josa";
 
 export const getSkillUnusableReason = (pokemon, skillIndex) => {
@@ -136,8 +135,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
     atk.tempStatus.confuse -= 1;
     if (random(33)) {
       // 혼란 자해는 마비에 막히지 않음
-      let confuseText = atk.names("는") + " 영문도 모른 채 자신을 공격했다!";
-      attackDamage(bt, confuseDamageCalculate(bt), bt.turn.atk, enqueue, confuseText);
+      confuseDamage(bt, enqueue);
       return false;
     }
   }
