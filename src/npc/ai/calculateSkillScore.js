@@ -2,6 +2,7 @@ import { aiItemScore } from "../../entity/Item";
 import { damageCalculate } from "../../calc/damageCalculate";
 import { getAccuracy } from "../../calc/accuracyCalculate";
 import { statusAbleCheck } from "./easy";
+import { skillFailCheck } from "../../service/skillFailCheck";
 
 export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   // 메가진화 가능한 포켓몬이면 메가진화 상태 기준으로 계산
@@ -16,6 +17,12 @@ export const calculateSkillScore = (bt, sn, skObj, isAttack) => {
   let score = 0; // 가중치
   let log; // 가중치 계산 로그 문자열
   log = score;
+
+  // 실패할 기술 판정: 점수를 -999로 고정
+  if (!skillFailCheck(bt, "npc", skill.name)) {
+    skObj.log.score = "불발";
+    return -999;
+  }
 
   // 일단 안쓰게 해놓은거 (발버둥도 기본 가중치 -999)
   if (skill.name === "배북" || skill.name === "목숨걸기" || skill.name === "배턴터치") {

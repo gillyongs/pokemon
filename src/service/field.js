@@ -93,9 +93,9 @@ export const applyFieldEffects = (bt, atks, enqueue) => {
       // 독타입 포켓몬이 풍선을 달고 나온뒤, 풍선이 터져서 땅에 닿아도 제거되지 않음. 무조건 교체해서 나올때만 제거됨
     }
     if (poisonSpikes === 1) {
-      applyAilment("독", bt, atks, enqueue, false, `${atk.names("는")} 독압정을 밟고 독에 걸렸다!`);
+      applyAilment("독", bt, atks, enqueue, `${atk.names("는")} 독압정을 밟고 독에 걸렸다!`);
     } else if (poisonSpikes === 2) {
-      applyAilment("맹독", bt, atks, enqueue, false, `${atk.names("는")} 독압정을 밟고 맹독에 걸렸다!`);
+      applyAilment("맹독", bt, atks, enqueue, `${atk.names("는")} 독압정을 밟고 맹독에 걸렸다!`);
     } else {
       console.error("독압정 에러");
     }

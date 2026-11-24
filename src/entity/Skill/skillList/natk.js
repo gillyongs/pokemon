@@ -20,12 +20,12 @@ export const natkSkills = [
   new Skill("애교부리기", "페어리", "-", 100, 20, 0, "natk", null, "귀엽게 바라보며 응석을 부려 상대의 공격을 2랭크 떨어뜨린다.", [{ name: "랭크변화", probability: 100, stat: "atk", target: "def", value: -2 }], {}),
 
   // 상태이상
-  new Skill("버섯포자", "풀", "-", 100, 15, 0, "natk", null, "최면 효과가 있는 포자를 뿌려 상대를 잠듦 상태로 만든다.", [{ name: "잠듦", probability: 100, printTextIfFail: true }], { powder: true }),
+  new Skill("버섯포자", "풀", "-", 100, 15, 0, "natk", null, "최면 효과가 있는 포자를 뿌려 상대를 잠듦 상태로 만든다.", [{ name: "잠듦", probability: 100 }], { powder: true }),
   new Skill("하품", "노말", "-", "-", 10, 0, "natk", null, "큰 하품으로 졸음을 유도한다. 다음 턴에 상대를 잠듦 상태로 만든다.", [{ name: "하품" }], {}),
-  new Skill("전기자석파", "전기", "-", 90, 20, 0, "natk", null, "약한 전격을 날려서 상대를 마비 상태로 만든다.", [{ name: "마비", probability: 100, printTextIfFail: true }], {}),
-  new Skill("뱀눈초리", "노말", "-", 100, 30, 0, "natk", null, "배의 무늬로 겁을 주어 상대를 마비 상태로 만든다.", [{ name: "마비", probability: 100, printTextIfFail: true }], {}),
-  new Skill("도깨비불", "불꽃", "-", 85, 15, 0, "natk", null, "으스스하고 괴상한 불꽃을 쏘아 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 100, printTextIfFail: true }], {}),
-  new Skill("맹독", "독", "-", 90, 10, 0, "natk", null, "상대를 맹독 상태로 만든다. 턴이 진행될수록 독의 데미지가 증가한다.", [{ name: "맹독", probability: 100, printTextIfFail: true }], {}),
+  new Skill("전기자석파", "전기", "-", 90, 20, 0, "natk", null, "약한 전격을 날려서 상대를 마비 상태로 만든다.", [{ name: "마비", probability: 100 }], {}),
+  new Skill("뱀눈초리", "노말", "-", 100, 30, 0, "natk", null, "배의 무늬로 겁을 주어 상대를 마비 상태로 만든다.", [{ name: "마비", probability: 100 }], {}),
+  new Skill("도깨비불", "불꽃", "-", 85, 15, 0, "natk", null, "으스스하고 괴상한 불꽃을 쏘아 상대를 화상 상태로 만든다.", [{ name: "화상", probability: 100 }], {}),
+  new Skill("맹독", "독", "-", 90, 10, 0, "natk", null, "상대를 맹독 상태로 만든다. 턴이 진행될수록 독의 데미지가 증가한다.", [{ name: "맹독", probability: 100 }], {}),
   new Skill("물붓기", "물", "-", 100, 20, 0, "natk", null, "대량의 물을 끼얹어 상대의 타입을 물타입으로 바꾼다.", [{ name: "물붓기" }], {}),
   new Skill("힘흡수", "풀", "-", 100, 10, 0, "natk", null, "상대 공격력과 동일하게 자신의 HP를 회복한다. 그리고 상대의 공격을 1랭크 떨어뜨린다.", [{ name: "힘흡수" }], { heal: true }),
 ];

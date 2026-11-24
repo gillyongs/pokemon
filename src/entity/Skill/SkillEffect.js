@@ -1,5 +1,5 @@
 import { random } from "../../util/randomCheck";
-import { applyAilment, isAilmentCheck } from "../../service/ailment";
+import { applyAilment } from "../../service/ailment";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchNpcAuto, switchPlayer, switchPlayerForce } from "../../service/switch";
@@ -106,10 +106,10 @@ function skillEffectSearch(name) {
       if (cubeStats && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
         if (skill && (skill.stype === "atk" || skill.stype === "catk") && !isTargetSubstituteBlocked(battle)) {
           if (cubeStats.poisonRate > 0 && Math.random() * 100 < cubeStats.poisonRate) {
-            applyAilment("맹독", battle, battle.turn.def, enqueue, false, `[잠재능력] ${def.names("는")} 맹독에 걸렸다!`);
+            applyAilment("맹독", battle, battle.turn.def, enqueue, `[잠재능력] ${def.names("는")} 맹독에 걸렸다!`);
           }
           if (cubeStats.freezeRate > 0 && Math.random() * 100 < cubeStats.freezeRate) {
-            applyAilment("얼음", battle, battle.turn.def, enqueue, false, `[잠재능력] ${def.names("는")} 얼어붙었다!`);
+            applyAilment("얼음", battle, battle.turn.def, enqueue, `[잠재능력] ${def.names("는")} 얼어붙었다!`);
           }
         }
       }
@@ -238,7 +238,7 @@ function skillEffectSearch(name) {
       if (isTargetSubstituteBlocked(battle)) {
         return;
       }
-      applyAilment("화상", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
+      applyAilment("화상", battle, battle.turn.def, enqueue);
     },
     독: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
@@ -247,7 +247,7 @@ function skillEffectSearch(name) {
       if (isTargetSubstituteBlocked(battle)) {
         return;
       }
-      applyAilment("독", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
+      applyAilment("독", battle, battle.turn.def, enqueue);
     },
     맹독: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
@@ -256,7 +256,7 @@ function skillEffectSearch(name) {
       if (isTargetSubstituteBlocked(battle)) {
         return;
       }
-      applyAilment("맹독", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
+      applyAilment("맹독", battle, battle.turn.def, enqueue);
     },
 
     마비: (battle, enqueue, skillEffect) => {
@@ -266,7 +266,7 @@ function skillEffectSearch(name) {
       if (isTargetSubstituteBlocked(battle)) {
         return;
       }
-      applyAilment("마비", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
+      applyAilment("마비", battle, battle.turn.def, enqueue);
     },
     얼음: (battle, enqueue, skillEffect) => {
       if (random(100 - skillEffect.probability)) {
@@ -293,7 +293,7 @@ function skillEffectSearch(name) {
       if (isTargetSubstituteBlocked(battle)) {
         return;
       }
-      applyAilment("잠듦", battle, battle.turn.def, enqueue, skillEffect.printTextIfFail);
+      applyAilment("잠듦", battle, battle.turn.def, enqueue);
     },
     화상치료: (battle, enqueue, skillEffect) => {
       if (isTargetSubstituteBlocked(battle)) {
@@ -497,19 +497,8 @@ function skillEffectSearch(name) {
     },
     하품: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
-      if (!isAilmentCheck(def) && def.tempStatus.hapum !== 1 && def.tempStatus.hapum !== 0 && def.abil?.name !== "의기양양" && def.abil?.name !== "불면") {
-        // 상대가 상태이상에 걸려있지 않음 + 하품 맞은 상태 아님
-        // 불면, 의기양양이면 하품 자체가 실패함
-        if (battle.field?.terrian?.isElectircField && !def.isFlying(battle, true)) {
-          // 일렉트릭필드면 실패함 (잠드는 것만 실패하는게 아님 그냥 하품 자체가 실패함)
-          // 미스트필드면 하품은 쓸 수 있음, 잠들지는 않음. 다음턴에 필드 꺼지면 잠듦
-          enqueue(battle, "하지만 실패했다!", "eff_yawn_efield_fail");
-        }
-        def.tempStatus.hapum = 1;
-        enqueue(battle, `${def.name}의 졸음을 유도했다!`, "eff_yawn_apply");
-      } else {
-        enqueue(battle, "하지만 실패했다!", "eff_yawn_fail");
-      }
+      def.tempStatus.hapum = 1;
+      enqueue(battle, `${def.name}의 졸음을 유도했다!`, "eff_yawn_apply");
     },
     소리기술금지: (battle, enqueue, skillEffect) => {
       if (isTargetSubstituteBlocked(battle)) {
@@ -548,18 +537,9 @@ function skillEffectSearch(name) {
     스텔스록: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const field = battle.field[def];
-      if (!field.sRock) {
-        field.sRock = true;
-        let sRockText;
-        if (def === "npc") {
-          sRockText = "상대의 주변에 뾰족한 바위가 떠다니기 시작했다!";
-        } else {
-          sRockText = "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!";
-        }
-        enqueue(battle, sRockText, "eff_srock_set");
-      } else {
-        enqueue(battle, "하지만 실패했다!", "eff_srock_fail");
-      }
+      field.sRock = true;
+      const sRockText = def === "npc" ? "상대의 주변에 뾰족한 바위가 떠다니기 시작했다!" : "아군의 주변에 뾰족한 바위가 떠다니기 시작했다!";
+      enqueue(battle, sRockText, "eff_srock_set");
     },
 
     암석액스: (battle, enqueue, skillEffect) => {
@@ -577,38 +557,20 @@ function skillEffectSearch(name) {
       const field = battle.field[def];
       if (!field.poisonSpikes) {
         field.poisonSpikes = 1; // 독압정
-        let sRockText;
-        if (def === "npc") {
-          sRockText = "상대의 발밑에 독압정이 뿌려졌다!";
-        } else {
-          sRockText = "아군의 발밑에 독압정이 뿌려졌다!";
-        }
+        const sRockText = def === "npc" ? "상대의 발밑에 독압정이 뿌려졌다!" : "아군의 발밑에 독압정이 뿌려졌다!";
         enqueue(battle, sRockText, "eff_tspikes_1");
       } else if (field.poisonSpikes === 1) {
         field.poisonSpikes = 2; // 맹독압정
-        let sRockText;
-        if (def === "npc") {
-          sRockText = "상대의 발밑에 맹독압정이 뿌려졌다!";
-        } else {
-          sRockText = "아군의 발밑에 맹독압정이 뿌려졌다!";
-        }
+        const sRockText = def === "npc" ? "상대의 발밑에 맹독압정이 뿌려졌다!" : "아군의 발밑에 맹독압정이 뿌려졌다!";
         enqueue(battle, sRockText, "eff_tspikes_2");
-      } else {
-        enqueue(battle, "하지만 실패했다!", "eff_tspikes_fail");
       }
     },
 
     압정뿌리기: (battle, enqueue, skillEffect) => {
-      // 최대 3번까지 쌓인다
+      // 최대 3번까지 쌓인다 (압정뿌리기는 skillFailCheck에서 3겹 시 실패 처리, 비검천중파는 3겹 시 무시)
       const def = battle.turn.def;
       const field = battle.field[def];
-      if ((field.spikes || 0) >= 3) {
-        if (battle[battle.turn.atk].turn.useSkill?.stype === "buf") {
-          // 비검천중파는 실패 텍스트가 뜨지 않음
-          enqueue(battle, "하지만 실패했다!", "eff_spikes_fail");
-        }
-        return;
-      }
+      if ((field.spikes || 0) >= 3) return;
       field.spikes = (field.spikes || 0) + 1;
       const text = def === "npc" ? "상대의 발밑에 압정이 뿌려졌다!" : "아군의 발밑에 압정이 뿌려졌다!";
       enqueue(battle, text, "eff_spikes_set");
@@ -617,18 +579,9 @@ function skillEffectSearch(name) {
     끈적끈적네트: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const field = battle.field[def];
-      if (!field.stickyWeb) {
-        field.stickyWeb = true;
-        let text;
-        if (def === "npc") {
-          text = "상대의 발밑에 끈적끈적네트가 펼쳐졌다!";
-        } else {
-          text = "아군의 발밑에 끈적끈적네트가 펼쳐졌다!";
-        }
-        enqueue(battle, text, "eff_web_set");
-      } else {
-        enqueue(battle, "하지만 실패했다!", "eff_web_fail");
-      }
+      field.stickyWeb = true;
+      const text = def === "npc" ? "상대의 발밑에 끈적끈적네트가 펼쳐졌다!" : "아군의 발밑에 끈적끈적네트가 펼쳐졌다!";
+      enqueue(battle, text, "eff_web_set");
     },
 
     강제교체: (battle, enqueue, skillEffect) => {
@@ -650,35 +603,20 @@ function skillEffectSearch(name) {
     도발: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const defPokemon = battle[def];
-      const atkPokemon = battle[battle.turn.atk];
-      if (defPokemon.abil?.name === "둔감" && !atkPokemon?.abil?.feature?.tgg) {
-        enqueue(battle, `[특성 둔감] ${defPokemon.names("는")} 도발에 넘어가지 않는다!`, "eff_taunt_oblivious");
-        return;
+      let num = 4;
+      if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].turn.useSkill) {
+        // 선도발을 썼거나 교체해서 나온 상대방이 도발을 맞은 경우 (그 턴 포함 3턴)
+        num = 3;
       }
-      if (defPokemon.tempStatus.taunt !== null) {
-        enqueue(battle, "하지만 실패했다!", "eff_taunt_fail");
-      } else {
-        let num = 4;
-        if (battle.turn.fastActUser === battle.turn.atk || !battle[battle.turn.fastActUser].turn.useSkill) {
-          // 선도발을 썼거나                                   교체해서 나온 상대방이 도발을 맞은 경우
-          num = 3;
-          // 그 턴 포함 3턴
-        }
-        // 후도발의 경우 그 다음턴 부터 3턴
-        // 도발은 3'턴'이 아닌 3'회' 적의 변화기를 막는다.
-        defPokemon.tempStatus.taunt = num;
-        enqueue(battle, defPokemon.names("는") + " 도발에 넘어가 버렸다!", "eff_taunt_apply");
-      }
+      // 후도발의 경우 그 다음턴 부터 3턴 (도발은 3'턴'이 아닌 3'회' 적의 변화기를 막는다)
+      defPokemon.tempStatus.taunt = num;
+      enqueue(battle, defPokemon.names("는") + " 도발에 넘어가 버렸다!", "eff_taunt_apply");
     },
 
     트릭: (battle, enqueue, skillEffect) => {
       const def = battle[battle.turn.def];
       const atk = battle[battle.turn.atk];
 
-      if (noNullItem.includes(atk.item) || noNullItem.includes(def.item)) {
-        enqueue(battle, "하지만 실패했다!", "eff_trick_fail");
-        return;
-      }
       // 아이템 교환
       [atk.item, def.item] = [def.item, atk.item];
 
@@ -721,22 +659,13 @@ function skillEffectSearch(name) {
     씨뿌리기: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;
       const defPokemon = battle[def];
-      if (defPokemon.tempStatus.seed !== null || defPokemon.type1 === "풀" || defPokemon.type2 === "풀") {
-        enqueue(battle, "하지만 실패했다!", "eff_seed_fail");
-      } else {
-        defPokemon.tempStatus.seed = true;
-        enqueue(battle, defPokemon.name + "에게 씨앗을 심었다!", "eff_seed_apply");
-      }
+      defPokemon.tempStatus.seed = true;
+      enqueue(battle, defPokemon.name + "에게 씨앗을 심었다!", "eff_seed_apply");
     },
     배북: (battle, enqueue, skillEffect) => {
       const atk = battle.turn.atk;
       const atkPokemon = battle[atk];
       const needHp = Math.floor(atkPokemon.maxHp / 2);
-
-      if (atkPokemon.hp <= needHp || atkPokemon.tempStatus.rank.atk >= 6) {
-        enqueue(battle, "하지만 실패했다!", "eff_bellydrum_fail");
-        return;
-      }
 
       atkPokemon.getDamage(battle, enqueue, needHp, `${atkPokemon.names("는")} 체력을 깎아 파워를 최대로 올렸다!`);
       atkPokemon.rankUp(battle, enqueue, "atk", 12);
@@ -746,14 +675,10 @@ function skillEffectSearch(name) {
       const atkPokemon = battle[atk];
       const needHp = Math.floor(atkPokemon.maxHp / 4);
 
-      if (atkPokemon.tempStatus.substitute !== null || atkPokemon.hp <= needHp) {
-        enqueue(battle, "하지만 실패했다!", "eff_sub_fail");
-      } else {
-        atkPokemon.tempStatus.substitute = true;
-        atkPokemon.tempStatus.substituteHp = needHp;
-        atkPokemon.turn.substitute = true;
-        atkPokemon.getDamage(battle, enqueue, needHp, atkPokemon.name + "의 대타가 나타났다!");
-      }
+      atkPokemon.tempStatus.substitute = true;
+      atkPokemon.tempStatus.substituteHp = needHp;
+      atkPokemon.turn.substitute = true;
+      atkPokemon.getDamage(battle, enqueue, needHp, atkPokemon.name + "의 대타가 나타났다!");
     },
 
     스핀: (battle, enqueue, skillEffect) => {
@@ -864,11 +789,6 @@ function skillEffectSearch(name) {
     리플렉터: (battle, enqueue, skillEffect) => {
       const user = battle.turn.atk;
       const skillUser = battle[user];
-      const field = battle.field[user].noClean;
-      if (field.reflect !== null) {
-        enqueue(battle, "하지만 실패했다!", "eff_reflect_fail");
-        return;
-      }
       let num = 5;
       if (skillUser.item === "빛의점토") num = 8;
       battle.field[user].noClean.reflect = num;
@@ -878,11 +798,6 @@ function skillEffectSearch(name) {
     빛의장막: (battle, enqueue, skillEffect) => {
       const user = battle.turn.atk;
       const skillUser = battle[user];
-      const field = battle.field[user].noClean;
-      if (field.lightScreen !== null) {
-        enqueue(battle, "하지만 실패했다!", "eff_lscreen_fail");
-        return;
-      }
       let num = 5;
       if (skillUser.item === "빛의점토") num = 8;
       battle.field[user].noClean.lightScreen = num;
@@ -893,11 +808,6 @@ function skillEffectSearch(name) {
       const user = battle.turn.atk;
       const skillUser = battle[user];
       const field = battle.field[user].noClean;
-      // 설경이 아니거나 이미 오로라베일이 있으면 실패
-      if (!battle.isSnow || field.auroraVeil !== null) {
-        enqueue(battle, "하지만 실패했다!", "eff_aveil_fail");
-        return;
-      }
       let num = 5;
       if (skillUser.item === "빛의점토") num = 8;
       field.auroraVeil = num;
@@ -907,10 +817,6 @@ function skillEffectSearch(name) {
     순풍: (battle, enqueue, skillEffect) => {
       const user = battle.turn.atk;
       const field = battle.field[user].noClean;
-      if (field.tailwind !== null) {
-        enqueue(battle, "하지만 실패했다!", "eff_tailwind_fail");
-        return;
-      }
       field.tailwind = 4;
       const teamText = battle.common[user].teamKr;
       enqueue(battle, teamText + " 편의 뒤에서 순풍이 불기 시작했다!", "eff_tailwind_set");
@@ -923,10 +829,6 @@ function skillEffectSearch(name) {
       if (isTargetSubstituteBlocked(battle)) return;
       const def = battle[battle.turn.def];
       if (!def || def.faint) return;
-      if (def.type1 === "물" && !def.type2) {
-        enqueue(battle, "하지만 실패했다!", "eff_soak_fail");
-        return;
-      }
       def.type1 = "물";
       def.type2 = null;
       enqueue(battle, def.names("는") + " 물 타입이 되었다!", "eff_soak");
@@ -987,12 +889,5 @@ const handleForceSwitch = (battle, enqueue, bench1Key, bench2Key, switchFn) => {
     switchFn(battle, bench1Key, enqueue, true);
   } else if (bench2Alive) {
     switchFn(battle, bench2Key, enqueue, true);
-  } else {
-    // 둘다 기절한경우 울부짖기, 날려버리기 실패 텍스트 출력
-    // 드래곤테일은 텍스트는 뜨지 않는다
-    const skill = battle[battle.turn.atk]?.turn?.useSkill;
-    if (skill?.stype !== "atk" && skill?.stype !== "catk") {
-      enqueue(battle, "하지만 실패했다!", "eff_force_switch_fail");
-    }
   }
 };

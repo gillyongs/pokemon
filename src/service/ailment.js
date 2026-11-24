@@ -7,14 +7,14 @@ export const isAilmentCheck = (pokemon) => {
 const faintCheck = (pokemon) => pokemon.faint;
 
 // 상태이상 부여 가능 체크
-function ailmentAbleCheck(battle, ailment, pokemon) {
+export function ailmentAbleCheck(battle, ailment, pokemon, attacker = null) {
   // 이미 다른 상태이상이 있으면 불가
   if (isAilmentCheck(pokemon)) {
     return false;
   }
 
   // 미스트필드 상태이면 땅에 붙어있는 포켓몬은 상태이상에 걸리지 않는다
-  if (battle?.field?.terrain?.isMistyField && !pokemon.isFlying(battle)) {
+  if (battle?.field?.terrain?.isMistyField && !pokemon.isFlying?.(battle)) {
     return false;
   }
 
@@ -28,7 +28,7 @@ function ailmentAbleCheck(battle, ailment, pokemon) {
   const isSleep = ailment === "수면" || ailment === "sleep" || ailment === "잠듦";
 
   const atkStr = battle?.turn?.atk;
-  const atkPokemon = atkStr ? battle[atkStr] : null;
+  const atkPokemon = attacker || (atkStr ? battle[atkStr] : null);
 
   if (isBurn) {
     if (t1 === "불꽃" || t2 === "불꽃") {
@@ -77,7 +77,7 @@ function ailmentAbleCheck(battle, ailment, pokemon) {
     }
     // 일렉트릭필드면 잠들지 않는다
     // 지금 잠듦 기술 부가효과랑 하품밖에 없어서 isFlying의 2번쨰 인자 isSkill에 true 해놓음[부유-틀깨기 적용여부]
-    if (battle?.field?.terrain?.isElectricField && !pokemon.isFlying(battle, true)) {
+    if (battle?.field?.terrain?.isElectricField && !pokemon.isFlying?.(battle, true)) {
       return false;
     }
   }
@@ -86,7 +86,7 @@ function ailmentAbleCheck(battle, ailment, pokemon) {
 }
 
 // 상태이상 공통 부여 함수
-export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, textOption) => {
+export const applyAilment = (ailment, battle, get, enqueue, textOption) => {
   const pokemon = get === "player" ? battle.player : battle.npc;
 
   // 혼란: 부가효과(skillEffect.js), 역린종료(turnEnd/skillEvent.js)
@@ -106,13 +106,11 @@ export const applyAilment = (ailment, battle, get, enqueue, printTextIfFail, tex
 
   // 기절 체크
   if (faintCheck(pokemon)) {
-    if (printTextIfFail) enqueue(battle, printTextIfFail === true ? "하지만 실패했다!" : printTextIfFail, "ail_fail_faint");
     return;
   }
 
   // 상태 적용 가능 여부 체크
   if (!ailmentAbleCheck(battle, ailment, pokemon)) {
-    if (printTextIfFail) enqueue(battle, printTextIfFail === true ? "하지만 실패했다!" : printTextIfFail, "ail_fail_immune");
     return;
   }
 

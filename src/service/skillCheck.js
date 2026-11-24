@@ -1,9 +1,9 @@
 import skillRequirementSearch from "../entity/Skill/SkillRequirement";
 import { random } from "../util/randomCheck";
 import { confuseDamage } from "./confuseDamage";
-import { typeCheckOnBattle } from "../calc/typeEffectCalculate";
 import { getAccuracy } from "../calc/accuracyCalculate";
 import { checkSkillDisabled } from "./skillDisableCheck";
+import { getSkillFailResult } from "./skillFailCheck";
 
 export const beforeSkillCheck = (bt, enqueue) => {
   // 스킬명이 뜨기 전에 처리하는 트리거
@@ -29,7 +29,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
 
   // 잠듦
   if (atk.ailment.sleep > 0) {
-    // 잠듦은 행동 기준 카운트 (후공으로 잠들면 다음턴은 화겆ㅇ 수면)
+    // 잠듦은 행동 기준 카운트 (후공으로 잠들면 다음턴은 확정 수면)
     atk.ailment.sleep -= 1;
     if (atk.ailment.sleep === 0) {
       let wakeUpText = atk.names("는") + " 눈을 떴다!";
@@ -184,137 +184,29 @@ export const afterSkillCheck = (bt, enqueue) => {
 
   // ==================================================================================================================
 
-  // 폭우(시작의바다): 불꽃 타입 공격기 무효화
-  if (bt?.isHeavyRain && (skillType === "atk" || skillType === "catk") && skill.type === "불꽃") {
-    atk.turn.jumpKickFail = true;
-    enqueue(bt, "강한 비의 영향으로 불꽃타입의 공격이 사라졌다!", "chk_heavy_rain_fire");
-    return false;
-  }
-
-  // 큰가뭄(끝의대지): 물 타입 공격기 무효화
-  if (bt?.isHarshSun && (skillType === "atk" || skillType === "catk") && skill.type === "물") {
-    atk.turn.jumpKickFail = true;
-    enqueue(bt, "강한 햇살의 영향으로 물타입의 공격이 증발했다!", "chk_harsh_sun_water");
-    return false;
-  }
-
-  // 방어에 공격이 막힌경우
-  // 리베로가 발동된다
-
-  if (def.turn.protect === true && skillType !== "buf") {
-    let protectSuccess = true;
-
-    if (atk.abil?.name === "보이지않는주먹" && skill.feature?.touch && atk.item !== "펀치글러브") {
-      //특성 보이지않는 주먹 : 접촉기가 방어를 무시한다
-      //펀치글러브를 끼면 접촉판정이 사라지므로 해당 특성 적용 안됨
-      enqueue(bt, "[특성 보이지않는주먹] " + atk.name + "의 공격은 막을 수 없다!", "chk_unseen_fist");
-      protectSuccess = false;
+  // 일반 기술 실패 및 무효 판정 (skillFailCheck에서 통합 관리)
+  const failResult = getSkillFailResult(bt, bt.turn.atk, skill, { skipPreLibero: true });
+  if (failResult) {
+    if (failResult.jumpKickFail) {
+      atk.turn.jumpKickFail = true;
     }
+    if (failResult.text) {
+      enqueue(bt, failResult.text, failResult.code || "chk_fail");
+    }
+    if (failResult.onFail) {
+      failResult.onFail(bt, enqueue);
+    }
+    return false;
+  }
 
+  // 방어 관통 / 해제 연출 (보이지않는주먹, 페인트)
+  if (def.turn.protect === true && skillType !== "buf") {
+    if (atk.abil?.name === "보이지않는주먹" && skill.feature?.touch && atk.item !== "펀치글러브") {
+      enqueue(bt, "[특성 보이지않는주먹] " + atk.name + "의 공격은 막을 수 없다!", "chk_unseen_fist");
+    }
     if (skill.feature?.feint) {
-      // 페인트: 방어를 뚫고 공격한다
       def.turn.protect = null;
       enqueue(bt, `${def.name}의 방어가 해제되었다!`, "chk_feint_break");
-      protectSuccess = false;
-    }
-
-    const noProtectSkills = ["날려버리기", "울부짖기"]; // 방어로 막을 수 없는 스킬
-    if (noProtectSkills.includes(skill.name)) {
-      protectSuccess = false;
-    }
-
-    if (protectSuccess) {
-      //방어로 막은 경우
-      atk.turn.jumpKickFail = true;
-      enqueue(bt, def.names("는") + " 공격으로부터 몸을 지켰다!", "chk_protect_block");
-
-      // 니들가드(spikyShield): 직접 접촉 공격한 상대에게 최대 체력 1/8 데미지
-      // 펀치글러브 착용 시 접촉 판정이 사라져 피해 없음
-      const isTouch = Boolean(skill.feature?.touch && atk.item !== "펀치글러브");
-      if (def.turn?.spikyShield && isTouch && !atk.faint) {
-        const spikyDmg = Math.floor(atk.maxHp / 8);
-        const spikyText = `${atk.names("는")} 가시에 찔려 데미지를 입었다!`;
-        atk.getDamage(bt, enqueue, spikyDmg, spikyText);
-      }
-
-      return false;
-    }
-  }
-
-  // 특성 피뢰침에 전기 기술이 막힌 경우 (전기 무효 + 특공 1랭크 상승)
-  if (skill.type === "전기" && skill.stype !== "buf" && def.abil?.name === "피뢰침" && atk.abil?.feature?.tgg !== true) {
-    def.rankUp(bt, enqueue, "catk", 1, "[특성 피뢰침]");
-    return false;
-  }
-
-  // 특성 타오르는불꽃에 불꽃 기술이 막힌 경우 리베로가 발동한다
-  // 방어로 막으면 특성 발동하지 않음
-  // 대타출동 상태일때 불꽃기술 맞으면 특성 발동함
-  // buf (쾌청)은 발동 안함, 도깨비불 (natk)는 발동함
-  if (skill.type === "불꽃" && skill.stype !== "buf" && def.abil?.name === "타오르는불꽃" && atk.abil?.feature?.tgg !== true) {
-    if (def.tempStatus.flashFire) {
-      // 이미 발동된 경우
-      enqueue(bt, "[특성 타오르는불꽃] " + def.name + "에겐 효과가 없는 것 같다...", "chk_flash_fire_immune");
-    } else {
-      def.tempStatus.flashFire = true;
-      enqueue(bt, "[특성 타오르는불꽃] " + def.names("는") + " 불꽃의 위력이 올라갔다!", "chk_flash_fire_boost");
-    }
-    return false;
-  }
-
-  // 짓궃은마음 포켓몬이 악타입에게 변화기를 쓴 경우
-  if (atk.abil?.name === "짓궂은마음" && skillType === "natk" && (def.type1 === "악" || def.type2 === "악")) {
-    enqueue(bt, def.name + "에겐 효과가 없는 것 같다...", "chk_prankster_dark");
-    return false;
-  }
-
-  // 특성 옹골참에 일격기가 막힌 경우
-  // 리베로가 발동된다
-  if (skill.feature?.oneShot && def.abil?.name === "옹골참") {
-  }
-
-  if (skill.name === "절대영도" && (def.type1 === "얼음" || def.type2 === "얼음")) {
-    // 얼음타입 포켓몬에게 절대영도를 쓰는 경우
-    enqueue(bt, def.name + "에겐 효과가 없는 것 같다...", "chk_sheer_cold_ice");
-    return false;
-  }
-
-  // 상성 무효 (0배) 판정 (공격 기술)
-  if (skillType === "atk" || skillType === "catk") {
-    const typeDamage = typeCheckOnBattle(bt, skill, atk, def);
-    if (typeDamage === 0) {
-      atk.turn.jumpKickFail = true;
-      const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
-      enqueue(bt, typeText, "use_type_immune");
-      return false;
-    }
-  }
-
-  // 상대방 지정 변화기 (natk) 실패 판정
-  if (skillType === "natk") {
-    // 전기자석파 vs 땅 타입
-    if (skill.name === "전기자석파" && (def.type1 === "땅" || def.type2 === "땅")) {
-      const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
-      enqueue(bt, typeText, "use_twave_ground");
-      return false;
-    }
-
-    // 가루 기술 vs 풀 타입 및 방진 특성
-    if (skill.feature?.powder && (def.type1 === "풀" || def.type2 === "풀" || def.abil?.name === "방진")) {
-      const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
-      enqueue(bt, typeText, "use_powder_immune");
-      return false;
-    }
-
-    // 대타출동으로 막을 수 없는 상대방 대상 변화기 (natk)
-    const noSubstituteSkills = ["가드스왑", "날려버리기", "냄새구별", "도발", "멸망의노래", "미라클아이", "봉인", "사슬묶기", "스킬스왑", "앙코르", "역할", "울부짖기", "원념", "원한", "자기암시", "저주", "트집", "하트스왑", "헤롱헤롱", "흑안개"];
-    if (def.tempStatus?.substitute) {
-      if (noSubstituteSkills.includes(skill.name) || skill.feature?.sound || atk.abil?.name === "틈새포착") {
-        // 소리 변화기 및 틈새포착 사용자의 변화기는 대타를 뚫는다 ex) 막말내뱉기
-      } else {
-        enqueue(bt, "하지만 실패했다!", "use_natk_sub_fail");
-        return false;
-      }
     }
   }
 

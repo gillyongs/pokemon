@@ -382,7 +382,7 @@ function hapum(battle, enqueue, user) {
 
   if (p.tempStatus.hapum === 0) {
     p.tempStatus.hapum = null;
-    applyAilment("잠듦", battle, p.team, enqueue, false);
+    applyAilment("잠듦", battle, p.team, enqueue);
   }
   if (p.tempStatus.hapum === 1) {
     p.tempStatus.hapum = 0;
@@ -401,7 +401,7 @@ function autoEnd(battle, enqueue, user) {
   if (p.auto === 0) {
     p.auto = null;
     p.autoSN = null;
-    applyAilment("혼란", battle, user, enqueue, null, autoConfuseText);
+    applyAilment("혼란", battle, user, enqueue, autoConfuseText);
   }
 }
 
@@ -439,6 +439,6 @@ function flameOrb(battle, enqueue, user) {
   if (p.faint) return;
 
   if (p.item === "화염구슬") {
-    applyAilment("화상", battle, p.team, enqueue, false, `${p.names("는")} 화염구슬로 화상을 입었다!`);
+    applyAilment("화상", battle, p.team, enqueue, `${p.names("는")} 화염구슬로 화상을 입었다!`);
   }
 }

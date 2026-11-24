@@ -89,23 +89,6 @@ function skillRequirementSearch(name) {
       }
       return true;
     },
-    // 죽기살기, 배턴터치는 실패하면 리베로가 발동됨, 일단 나누기 애매해서 둠 ===========================================
-    // 다른건 어차피 불가능해서 상관없는데 에이스번은 배턴터치 배우는데 어떡하지
-    죽기살기: (battle, enqueue) => {
-      const atk = battle[battle.turn.atk];
-      const def = battle[battle.turn.def];
-      if (atk.hp >= def.hp) {
-        return false;
-      }
-      return true;
-    },
-    배턴터치: (battle) => {
-      // 교대할 포켓몬이 없으면 실패
-      const side = battle.turn.atk;
-      const bench1Alive = battle[`${side}Bench1`]?.faint !== true;
-      const bench2Alive = battle[`${side}Bench2`]?.faint !== true;
-      return bench1Alive || bench2Alive;
-    },
   };
 
   return functions[name] || null;

@@ -84,14 +84,14 @@ function createSkObj(baseBattle, sn, hp) {
 //상대를 쓰러뜨릴 수 있는 기술을 필터링
 function getKillableSkill(skObj, hp, bt) {
   // 1. 상대를 확정으로 쓰러뜨릴 수 있는 기술 (minDmg >= hp)
-  const minCandidates = [1, 2, 3, 4].map((num) => skObj[num]).filter((s) => s && s.minDmg >= hp);
+  const minCandidates = [1, 2, 3, 4].map((num) => skObj[num]).filter((s) => s && s.score !== -999 && s.minDmg >= hp);
 
   // 2. 그중에서 우선도 -> 강한 디메리트 없음 -> 명중률 -> 약한 디메리트 없음 -> 데미지 높은 순으로 선택
   let bestSkill = findBestSkill(minCandidates, bt);
 
   // 3. 상대를 쓰러뜨릴 수 있는 스킬 필터링 (maxDmg)
   if (!bestSkill) {
-    const maxCandidates = [1, 2, 3, 4].map((num) => skObj[num]).filter((s) => s && s.maxDmg >= hp);
+    const maxCandidates = [1, 2, 3, 4].map((num) => skObj[num]).filter((s) => s && s.score !== -999 && s.maxDmg >= hp);
     bestSkill = findBestSkill(maxCandidates, bt);
   }
 

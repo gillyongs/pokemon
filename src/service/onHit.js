@@ -132,12 +132,12 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
     const chiliMult = defPokemon.hasAugment?.("grandmasChiliOil") ? 3 : 1;
     const flameBodyChance = Math.min(100, 30 * chiliMult);
     if (random(flameBodyChance)) {
-      applyAilment("화상", battle, battle.turn.atk, enqueue, false, `[특성 불꽃몸] ${atkPokemon.names("는")} 화상을 입었다!`);
+      applyAilment("화상", battle, battle.turn.atk, enqueue, `[특성 불꽃몸] ${atkPokemon.names("는")} 화상을 입었다!`);
     }
   }
   if (defPokemon.abil?.name === "정전기" && touch && !atkPokemon.faint) {
     if (random(30)) {
-      applyAilment("마비", battle, battle.turn.atk, enqueue, false, `[특성 정전기] ${atkPokemon.names("는")} 마비되어 기술을 쓰기 어려워졌다!`);
+      applyAilment("마비", battle, battle.turn.atk, enqueue, `[특성 정전기] ${atkPokemon.names("는")} 마비되어 기술을 쓰기 어려워졌다!`);
     }
   }
   const atkMaxHp = atkPokemon.maxHp;

@@ -227,6 +227,9 @@ export const skillUse = (bt, enqueue) => {
 const handleSkillFail = (bt, resetMetronome = true) => {
   // 스킬 실패시 처리할 것
   const atk = bt[bt.turn.atk];
+  if (atk?.tempStatus) {
+    atk.tempStatus.protectUse = null;
+  }
   if (resetMetronome && !atk?.hasAugment?.("doubleMetronome")) {
     atk.resetConsecutiveSkill?.();
   }
