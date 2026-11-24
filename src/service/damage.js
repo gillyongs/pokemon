@@ -1,6 +1,8 @@
 import { josa } from "josa";
 import { applyOnHitEvents } from "./onHit.js";
 import { isAttackSkill } from "../entity/Skill/Skill.js";
+import { damageCalculate } from "../calc/damageCalculate.js";
+import { getTypeText, typeCheckOnBattle } from "../calc/typeEffectCalculate.js";
 export { confuseDamage } from "./confuseDamage.js";
 
 // ====================== 공격 데미지 ======================
@@ -8,31 +10,49 @@ export { confuseDamage } from "./confuseDamage.js";
 // 공격으로 데미지를 줄때
 // skillUse에서 공격 데미지
 // 기준: 특성 탈 까짐, 급소 판정 있음
-export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typeText, serialAttackObject) {
+export function attackDamage(battle, enqueue, num) {
+  const skillDamage = damageCalculate(battle, num);
+
   const atkPokemon = battle[battle.turn.atk];
-  const defPokemon = battle[getDamagePokemon];
+  const defPokemon = battle[battle.turn.def];
   const useSkill = atkPokemon.turn.useSkill;
+
+  // 상성 텍스트 계산
+  const typeDamage = useSkill ? typeCheckOnBattle(battle, useSkill, atkPokemon, defPokemon) : 1;
+  const typeText = useSkill ? getTypeText(typeDamage) : null;
 
   if (useSkill) {
     atkPokemon.tempStatus.recentSkillUse = useSkill;
     defPokemon.tempStatus.recentSkillGet = useSkill;
   }
 
-  // [특성 내용물분출] 공격 받기 전 체력 기록
-  // 연속기는 1타 시작 전 체력을 기준으로 반격
-  if (defPokemon.turn) {
-    if (!serialAttackObject || serialAttackObject.first) {
-      defPokemon.turn.hpBeforeAttack = defPokemon.hp;
-    }
-  }
-
-  const isNoTextSkill = !isAttackSkill(useSkill);
-  // 일격기나 고정데미지 스킬은 상성, 급소 텍스트가 뜨지 않는다
-
   let commonText = null;
-  if (serialAttackObject) {
-    commonText = "(" + serialAttackObject.num + "타) ";
+  if (num) {
+    commonText = "(" + num + "타) ";
   }
+
+  // 상성 텍스트(ex: 효과가 굉장했다!), 급소, 난기류 텍스트 출력 (대타출동 / 본체 공통)
+  // 일격기나 고정데미지 스킬(!isAttackSkill)은 상성, 급소 텍스트가 뜨지 않는다
+  const enqueueSkillEffectiveness = (isSubstitute = false) => {
+    if (!isAttackSkill(useSkill)) return false;
+
+    let hasOutput = false;
+    const isDeltaStreamWeaken = Boolean(battle?.isDeltaStream && (defPokemon.type1 === "비행" || defPokemon.type2 === "비행") && ["전기", "얼음", "바위"].includes(useSkill?.type));
+    if (isDeltaStreamWeaken) {
+      enqueue(battle, (commonText || "") + "수수께끼의 난기류가 공격을 약하게 만들었다!", "dmg_delta_weaken");
+      hasOutput = true;
+    }
+    if (typeText && !num) {
+      // 효과가 굉장했다! (단발기는 피격 시 바로 출력, 연속기는 마지막 타격 또는 기절 시 1회 출력)
+      enqueue(battle, (commonText || "") + typeText, isSubstitute ? "dmg_sub_type" : "dmg_type_text");
+      hasOutput = true;
+    }
+    if (atkPokemon.turn.critical) {
+      enqueue(battle, (commonText || "") + "급소에 맞았다!", isSubstitute ? "dmg_sub_crit" : "dmg_crit");
+      hasOutput = true;
+    }
+    return hasOutput;
+  };
 
   let skDamage = Math.floor(skillDamage);
 
@@ -50,15 +70,7 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
 
       enqueue(battle, (commonText || "") + josa(`${defPokemon.name}#{를} `) + "대신하여 대타가 공격을 받았다!", "dmg_sub_hit");
 
-      if (!isNoTextSkill) {
-        if (typeText) {
-          // 효과가 굉장했다!
-          enqueue(battle, (commonText || "") + typeText, "dmg_sub_type");
-        }
-        if (atkPokemon.turn.critical) {
-          enqueue(battle, (commonText || "") + "급소에 맞았다!", "dmg_sub_crit");
-        }
-      }
+      enqueueSkillEffectiveness(true);
       if (defPokemon.tempStatus.substituteHp <= skDamage) {
         // 대타출동 인형 체력보다 데미지가 큰 경우
         actualGiveDamage = defPokemon.tempStatus.substituteHp;
@@ -101,21 +113,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       }
     }
   }
-  // 기합의띠 트리거
-  let gdTrigger = defPokemon.item === "기합의띠";
-
-  // 옹골참 트리거
-  let ogcTrigger = defPokemon.abil?.name === "옹골참" && !atkPokemon.abil?.feature?.tgg;
-
-  let noOneShot = defPokemon.hp === defPokemon.maxHp && (gdTrigger || ogcTrigger);
-
-  let ogcTextTrigger = false;
-  let gdTextTrigger = false;
-  let mandooTextTrigger = false;
-  let refusedTextTrigger = false;
-  let refusedFirstTextTrigger = false;
-  let nothingHappenedTextTrigger = false;
-  let airmanTextTrigger = false;
+  let endureText = null;
+  let endureKey = null;
 
   // HP 차감
   const prevHp = defPokemon.hp;
@@ -123,55 +122,56 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
   if (defPokemon.hp <= 0) {
     actualGiveDamage = prevHp;
     defPokemon.hp = 0;
+
+    const isFullHp = prevHp === defPokemon.maxHp;
+    const hasSturdy = isFullHp && defPokemon.abil?.name === "옹골참" && !atkPokemon.abil?.feature?.tgg;
+    const hasFocusSash = isFullHp && defPokemon.item === "기합의띠";
+
     if (defPokemon.turn?.butItRefused) {
       // 이번 턴 '하지만 버텨냈다.' 이미 활성화 중 -> 모든 데미지를 HP 1로 버팀
-      defPokemon.hp = 1;
-      actualGiveDamage = Math.max(0, prevHp - 1);
-      refusedTextTrigger = true;
-    } else if (noOneShot) {
-      // 옹골참 또는 기띠
-      defPokemon.hp = 1;
-      if (ogcTrigger) {
-        // 옹골참
-        ogcTextTrigger = true;
-        // 옹골참 기띠가 동시에 있으면 옹골참이 먼저 쓰인다
-      } else if (gdTrigger) {
-        gdTextTrigger = true;
+      endureText = "하지만 버텨냈다!";
+      endureKey = "dmg_but_it_refused";
+    } else if (hasSturdy || hasFocusSash) {
+      // 옹골참 또는 기띠 (동시에 있으면 옹골참이 먼저 쓰인다)
+      if (hasSturdy) {
+        endureText = "[특성 옹골참] " + defPokemon.names("는") + " 옹골참으로 버텼다!";
+        endureKey = "dmg_sturdy";
+      } else {
+        endureText = defPokemon.names("는") + " 기합의 띠로 버텼다!";
+        endureKey = "dmg_focus_sash";
         defPokemon.consumeItem();
       }
-
-      actualGiveDamage -= 1;
     } else if (defPokemon.hasAugment?.("mandoocornEndure") && Math.random() < 0.3) {
       // [증강] 슬프게 하지 않게 하려고 버텼다! (30% 확률로 HP 1로 버팀)
-      defPokemon.hp = 1;
-      actualGiveDamage = Math.max(0, prevHp - 1);
-      mandooTextTrigger = true;
+      endureText = defPokemon.names("는") + " 플레이어를 슬프게 하지 않으려고 버텼다!";
+      endureKey = "dmg_mandoo_endure";
     } else if (defPokemon.hasAugment?.("butItRefused") && !defPokemon.agument?.butItRefusedUsed) {
       // [증강] 하지만 버텨냈다.: 기절할 공격을 HP 1로 버티고 해당 턴 기절 면역 활성화
-      defPokemon.hp = 1;
-      actualGiveDamage = Math.max(0, prevHp - 1);
       if (defPokemon.turn) defPokemon.turn.butItRefused = true;
       if (defPokemon.agument) defPokemon.agument.butItRefusedUsed = true;
-      refusedTextTrigger = true;
-      refusedFirstTextTrigger = true;
+      endureText = `[증강 하지만 버텨냈다] ${defPokemon.names("는")} 버텨냈다!`;
+      endureKey = "dmg_but_it_refused";
     } else if (defPokemon.hasAugment?.("nothingHappened") && !defPokemon.agument?.nothingHappenedUsed) {
       // [증강] 아무일도 없었다...!: 기절할 데미지를 받을 때 한번 HP 1로 버팀
-      defPokemon.hp = 1;
-      actualGiveDamage = Math.max(0, prevHp - 1);
       if (!defPokemon.agument) defPokemon.agument = {};
       defPokemon.agument.nothingHappenedUsed = true;
-      nothingHappenedTextTrigger = true;
+      endureText = `[증강 아무일도 없었다] ${defPokemon.names("는")} 버텨냈다!`;
+      endureKey = "poke_nothing_happened";
     } else if (defPokemon.hasAugment?.("airmanGaTaosenai") && Number(defPokemon.airmanRemainCount ?? 20) > 0) {
       // [시너지 버프] 에어맨이 쓰러지지 않아: 총 20번 HP 1로 버팀
-      defPokemon.hp = 1;
-      actualGiveDamage = Math.max(0, prevHp - 1);
       const nextRemain = Math.max(0, Number(defPokemon.airmanRemainCount ?? 20) - 1);
       defPokemon.airmanRemainCount = nextRemain;
       const airmanAug = defPokemon.augments?.find((a) => a.id === "airmanGaTaosenai");
       if (airmanAug) {
         airmanAug.airmanRemainCount = nextRemain;
       }
-      airmanTextTrigger = true;
+      endureText = `[버프 에어맨이 쓰러지지 않아] ${defPokemon.names("는")} 버텨냈다!`;
+      endureKey = "poke_airman";
+    }
+
+    if (endureText) {
+      defPokemon.hp = 1;
+      actualGiveDamage = Math.max(0, prevHp - 1);
     }
   }
 
@@ -199,56 +199,12 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
     defaultText = false;
   }
 
-  // 상성 텍스트(ex:효과가 굉장했다!)나 급소여부가 출력되지 않는 '공격기' //
-  // 고정 데미지 기술, 일격기
-
-  if (!isNoTextSkill) {
-    const isDeltaStreamWeaken = Boolean(battle?.isDeltaStream && (defPokemon.type1 === "비행" || defPokemon.type2 === "비행") && ["전기", "얼음", "바위"].includes(useSkill?.type));
-    if (isDeltaStreamWeaken) {
-      enqueue(battle, (commonText || "") + "수수께끼의 난기류가 공격을 약하게 만들었다!", "dmg_delta_weaken");
-      defaultText = false;
-    }
-    if (typeText) {
-      // 효과가 굉장했다!
-      enqueue(battle, (commonText || "") + typeText, "dmg_type_text");
-      defaultText = false;
-    }
-    if (atkPokemon.turn.critical) {
-      enqueue(battle, (commonText || "") + "급소에 맞았다!", "dmg_crit");
-      defaultText = false;
-    }
-  }
-
-  if (ogcTextTrigger) {
-    enqueue(battle, (commonText || "") + "[특성 옹골참] " + defPokemon.names("는") + " 옹골참으로 버텼다!", "dmg_sturdy");
+  if (enqueueSkillEffectiveness(false)) {
     defaultText = false;
   }
 
-  if (gdTextTrigger) {
-    enqueue(battle, (commonText || "") + defPokemon.names("는") + " 기합의 띠로 버텼다!", "dmg_focus_sash");
-    defaultText = false;
-  }
-
-  if (mandooTextTrigger) {
-    enqueue(battle, (commonText || "") + defPokemon.names("는") + " 플레이어를 슬프게 하지 않으려고 버텼다!", "dmg_mandoo_endure");
-    defaultText = false;
-  }
-
-  if (refusedTextTrigger) {
-    const text = refusedFirstTextTrigger
-      ? `[증강 하지만 버텨냈다] ${defPokemon.names("는")} 버텨냈다!`
-      : "하지만 버텨냈다!";
-    enqueue(battle, (commonText || "") + text, "dmg_but_it_refused");
-    defaultText = false;
-  }
-
-  if (nothingHappenedTextTrigger) {
-    enqueue(battle, (commonText || "") + `[증강 아무일도 없었다] ${defPokemon.names("는")} 버텨냈다!`, "poke_nothing_happened");
-    defaultText = false;
-  }
-
-  if (airmanTextTrigger) {
-    enqueue(battle, (commonText || "") + `[버프 에어맨이 쓰러지지 않아] ${defPokemon.names("는")} 버텨냈다!`, "poke_airman");
+  if (endureText) {
+    enqueue(battle, (commonText || "") + endureText, endureKey);
     defaultText = false;
   }
 
@@ -288,8 +244,8 @@ export function attackDamage(battle, skillDamage, getDamagePokemon, enqueue, typ
       //일격기 성공 텍스트
       enqueue(battle, "일격필살!", "dmg_ohko");
     }
-    if (serialAttackObject) {
-      if (typeText) {
+    if (num) {
+      if (typeText && isAttackSkill(useSkill)) {
         //연속기일때 텍스트 없으면 출력
         enqueue(battle, typeText, "dmg_serial_ko_type");
       }

@@ -1,5 +1,4 @@
-import { damageCalculate, getPokemonCombatStats, getHigherAtkStat } from "../calc/damageCalculate";
-import { getTypeText, typeCheckOnBattle } from "../calc/typeEffectCalculate";
+import { getPokemonCombatStats, getHigherAtkStat } from "../calc/damageCalculate";
 import { attackDamage } from "./damage";
 import skillEffectSearch from "../entity/Skill/SkillEffect";
 import { beforeSkillCheck, afterSkillCheck } from "./skillCheck";
@@ -131,35 +130,13 @@ export const skillUse = (bt, enqueue) => {
         }
       }
 
-      let typeDamage = typeCheckOnBattle(bt, skill, atk, def);
-      // 0배 여부 체크, "효과가 굉장했다!"" 텍스트 처리에만 사용
-      // 상성 관련 데미지 계산은 damageCalculate 안에서 처리
-      let typeText = getTypeText(typeDamage);
-
-      if (typeDamage === 0) {
-        atk.turn.jumpKickFail = true;
-        const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
-        enqueue(bt, typeText, "use_type_immune");
-        handleSkillFail(bt);
-        return;
-      }
-      // 무효면 부가효과 안터지므로 리턴
-      // 리베로는 발동된다
-
-      // 스킬이 빗나간 경우
-      // 모든 실패 로직을 체크 한 후 명중 로직을 체크해야함
-      let accurPercent = getAccuracy(bt, skill, atk);
-      let accurCheck = random(accurPercent, true);
-      // 필중기는 random 안에서 처리
-      if (!accurCheck) {
-        atk.turn.jumpKickFail = true;
-        enqueue(bt, "하지만 빗나갔다!", "chk_miss");
-        handleSkillFail(bt);
-        return;
-      }
-
       if (skill.name === "폴터가이스트") {
         enqueue(bt, josa(`${def.item}#{이}`) + ` ${def.name}에게 덤벼들었다!`, "use_poltergeist");
+      }
+
+      // [특성 내용물분출] 공격 받기 전 체력 기록 (연속기는 1타 시작 전 체력)
+      if (def.turn) {
+        def.turn.hpBeforeAttack = def.hp;
       }
 
       //연속기
@@ -193,8 +170,7 @@ export const skillUse = (bt, enqueue) => {
           if (skill.feature?.mustCritical) {
             atk.turn.critical = true;
           }
-          let skillDamage = damageCalculate(bt, { serial: i }); // 트리플악셀 위력 재계산
-          attackDamage(bt, skillDamage, bt.turn.def, enqueue, null, { num: i, first: i === 1, last: i === num });
+          attackDamage(bt, enqueue, i);
           if (def.faint || atk.faint) {
             break;
             // 상대 또는 공격자 기절하면 연속기 종료
@@ -208,10 +184,6 @@ export const skillUse = (bt, enqueue) => {
           applySkillEffects(bt, enqueue, afterSerialEffects);
           effectsApplied = true;
         }
-        if (typeText) {
-          // 연속기의 경우 상성 텍스트는 맨 마지막에 한번만 출력
-          enqueue(bt, typeText, "use_serial_type");
-        }
       } else {
         // 연속기 아닌 경우
         atk.turn.critical = null;
@@ -223,60 +195,14 @@ export const skillUse = (bt, enqueue) => {
         if (skill.feature?.mustCritical) {
           atk.turn.critical = true;
         }
-        let skillDamage = damageCalculate(bt);
-        attackDamage(bt, skillDamage, bt.turn.def, enqueue, typeText);
+        attackDamage(bt, enqueue);
         if (!atk.faint) {
           applySkillEffects(bt, enqueue, skill.skillEffectList);
           effectsApplied = true;
         }
       }
     } else if (skillType === "natk") {
-      // 상대방 지정 변화기
-      // ex: 전기자석파, 트릭, 하품
-      // 변화기 중 방어에 막히는거, 상대방 기절했을때 안써지는거
-
-      if (skill.name === "전기자석파" && (def.type1 === "땅" || def.type2 === "땅")) {
-        // 변화기는 타입 상성의 영향을 받지 않는다
-        // 근데 전기자석파는 제외
-        // 뱀눈초리는 고스트 타입한테 정상적으로 들어감
-        const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
-        enqueue(bt, typeText, "use_twave_ground");
-        handleSkillFail(bt);
-        return;
-      }
-
-      if (skill.feature?.powder && (def.type1 === "풀" || def.type2 === "풀" || def.abil?.name === "방진")) {
-        // 풀 타입 포켓몬과 방진 특성은 가루 기술 무효
-        const typeText = bt[bt.turn.def].name + "에겐 효과가 없는 것 같다...";
-        enqueue(bt, typeText, "use_powder_immune");
-        handleSkillFail(bt);
-        return;
-      }
-
-      const noSubstituteSkills = ["가드스왑", "날려버리기", "냄새구별", "도발", "멸망의노래", "미라클아이", "봉인", "사슬묶기", "스킬스왑", "앙코르", "역할", "울부짖기", "원념", "원한", "자기암시", "저주", "트집", "하트스왑", "헤롱헤롱", "흑안개"];
-      // 대타출동으로 막을 수 없는 상대방 대상 변화기 (natk)
-      // 트릭, 하품, 뽐내기, 전기자석파, 씨뿌리기 등은 실패한다
-
-      if (bt[bt.turn.def].tempStatus.substitute) {
-        if (noSubstituteSkills.includes(skill.name) || skill.feature?.sound || bt[bt.turn.atk].abil?.name === "틈새포착") {
-          // 소리 변화기 및 틈새포착 사용자의 변화기는 대타를 뚫는다 ex) 막말내뱉기
-        } else {
-          enqueue(bt, "하지만 실패했다!", "use_natk_sub_fail");
-          handleSkillFail(bt);
-          return;
-        }
-      }
-
-      // 스킬이 빗나간 경우
-      let accurPercent = getAccuracy(bt, skill, atk);
-      let accurCheck = random(accurPercent, true);
-      // 필중기는 random 안에서 처리
-      if (!accurCheck) {
-        enqueue(bt, "하지만 빗나갔다!", "chk_miss");
-        handleSkillFail(bt);
-        return;
-      }
-
+      // 상대방 지정 변화기 (모든 실패/명중 체크는 afterSkillCheck에서 이미 완료됨)
       applySkillEffects(bt, enqueue, skill.skillEffectList);
       effectsApplied = true;
     } else if (skillType === "buf") {

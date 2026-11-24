@@ -22,11 +22,12 @@ export const getPokemonCombatStats = (pokemon, battle, noRank = false) => {
   };
   return applyStatSwapAugments(stats, pokemon);
 };
-export const damageCalculate = (battle, obj, ai) => {
+export const damageCalculate = (battle, num, ai) => {
   // 데미지를 "계산"만 해서 주는 함수
   // battle 객체 내부의 값을 바꾸지 않는다 (log 제외)
-  // => 지닌 아이템, 특성이 바뀌는 기합의띠, 탈은 damage 함수에서 처리한다
-  //랭크업 등 스탯 반영
+  // => 지닌 아이템, 특성이 바뀌는 기합의띠, 탈은 attackDamage 함수에서 처리한다
+  // num은 연속기 횟수 (트악 위력보정)
+  // ai가 스킬 점수 계산할때도 쓴다
   const attackPokemon = battle[battle.turn.atk];
   const defensePokemon = battle[battle.turn.def];
 
@@ -444,7 +445,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
   // 위력 ======================================================================================================
 
-  let power = powerCalculate(battle, skill, obj, ai);
+  let power = powerCalculate(battle, skill, num, ai);
   // 위력이 바뀌는 기술은 여기서 처리
   // ex) 해수스파우팅, 탁쳐서 떨구기
 
@@ -905,7 +906,7 @@ export const damageCalculate = (battle, obj, ai) => {
 
   if (!ai) {
     let text = attackPokemon.name + "의 공격";
-    if (obj) text += ` (${obj.serial}타)`;
+    if (num) text += ` (${num}타)`;
 
     consoleLog(text);
     if (getAugmentedStat(attackPokemon, attackStat, battle) !== attackPokemon.stat[attackStat]) {
@@ -987,7 +988,7 @@ const getRandomNumber = () => {
   return weightedNumbers.find(({ cumulative }) => randomValue <= cumulative)?.num ?? 100;
 };
 
-const powerCalculate = (battle, skill, obj, ai) => {
+const powerCalculate = (battle, skill, num, ai) => {
   // 위력이 변하는 기술의 위력 계산
   // 단순히 위력 n배 같은 보정은 damageCalculate에서 적용
   const atk = battle[battle.turn.atk];
@@ -1060,10 +1061,10 @@ const powerCalculate = (battle, skill, obj, ai) => {
     if (battle[battle.turn.atk + "Bench2"].faint) power += 50;
   }
 
-  if (skill.name === "트리플악셀" && obj) {
-    if (obj.serial === 1) power = 20;
-    if (obj.serial === 2) power = 40;
-    if (obj.serial === 3) power = 60;
+  if (skill.name === "트리플악셀" && num) {
+    if (num === 1) power = 20;
+    if (num === 2) power = 40;
+    if (num === 3) power = 60;
   }
   if (skill.name === "어시스트파워") {
     //
