@@ -4,13 +4,29 @@ export const isAilmentCheck = (pokemon) => {
   return Object.values(ailmentObj).some((v) => v !== null);
 };
 
-const faintCheck = (pokemon) => pokemon.faint;
-
 // 상태이상 부여 가능 체크
 export function ailmentAbleCheck(battle, ailment, pokemon, attacker = null) {
-  // 이미 다른 상태이상이 있으면 불가
+  const isBurn = ailment === "화상" || ailment === "burn";
+  const isMabi = ailment === "마비" || ailment === "mabi";
+  const isFreeze = ailment === "얼음" || ailment === "freeze" || ailment === "freezeBug";
+  const isPoison = ailment === "독" || ailment === "맹독" || ailment === "poison" || ailment === "mpoison";
+  const isSleep = ailment === "수면" || ailment === "sleep" || ailment === "잠듦";
+
+  const atkStr = battle?.turn?.atk;
+  const atkPokemon = attacker || (atkStr ? battle[atkStr] : null);
+  const opponentOfTarget = battle ? (pokemon === battle.player ? battle.npc : pokemon === battle.npc ? battle.player : null) : null;
+  const burnInflicter = attacker || opponentOfTarget || atkPokemon;
+
+  // 이미 다른 상태이상이 걸려있는지 체크
   if (isAilmentCheck(pokemon)) {
-    return false;
+    // [증강] 태양의 호흡, 초고열 글라디우스 추가 화상 중첩
+    const curBurnStack = getBurnStack(pokemon);
+    const isOpponentInflicted = Boolean(burnInflicter && burnInflicter !== pokemon);
+    const canStackBurn = isBurn && curBurnStack > 0 && curBurnStack < 13 && isOpponentInflicted && Boolean(burnInflicter.hasAugment?.("sunBreathing"));
+    const canGladiusExtraBurn = isBurn && curBurnStack > 0 && isOpponentInflicted && Boolean(burnInflicter.hasAugment?.("superheatedGladius"));
+    if (!canStackBurn && !canGladiusExtraBurn) {
+      return false;
+    }
   }
 
   // 미스트필드 상태이면 땅에 붙어있는 포켓몬은 상태이상에 걸리지 않는다
@@ -20,15 +36,6 @@ export function ailmentAbleCheck(battle, ailment, pokemon, attacker = null) {
 
   let t1 = pokemon.type1;
   let t2 = pokemon.type2;
-
-  const isBurn = ailment === "화상" || ailment === "burn";
-  const isMabi = ailment === "마비" || ailment === "mabi";
-  const isFreeze = ailment === "얼음" || ailment === "freeze" || ailment === "freezeBug";
-  const isPoison = ailment === "독" || ailment === "맹독" || ailment === "poison" || ailment === "mpoison";
-  const isSleep = ailment === "수면" || ailment === "sleep" || ailment === "잠듦";
-
-  const atkStr = battle?.turn?.atk;
-  const atkPokemon = attacker || (atkStr ? battle[atkStr] : null);
 
   if (isBurn) {
     if (t1 === "불꽃" || t2 === "불꽃") {
@@ -86,15 +93,18 @@ export function ailmentAbleCheck(battle, ailment, pokemon, attacker = null) {
 }
 
 // 상태이상 공통 부여 함수
-export const applyAilment = (ailment, battle, get, enqueue, textOption) => {
+export const applyAilment = (ailment, battle, get, enqueue, textOption, attacker = null) => {
   const pokemon = get === "player" ? battle.player : battle.npc;
+
+  // 기절 체크
+  if (pokemon.faint) {
+    return;
+  }
 
   // 혼란: 부가효과(skillEffect.js), 역린종료(turnEnd/skillEvent.js)
   if (ailment === "혼란" || ailment === "confuse") {
     // 이미 혼란에 걸려있는지 체크
     if (pokemon.tempStatus.confuse !== null) return;
-    // 기절 체크
-    if (faintCheck(pokemon)) return;
     if (battle?.field?.terrain?.isMistyField && (!pokemon.isFlying || !pokemon.isFlying(battle, true))) return;
 
     // 1 ~ 3턴
@@ -104,27 +114,48 @@ export const applyAilment = (ailment, battle, get, enqueue, textOption) => {
     return;
   }
 
-  // 기절 체크
-  if (faintCheck(pokemon)) {
+  // 상태이상 적용 가능 여부 체크
+  if (!ailmentAbleCheck(battle, ailment, pokemon, attacker)) {
     return;
   }
 
-  // 상태 적용 가능 여부 체크
-  if (!ailmentAbleCheck(battle, ailment, pokemon)) {
-    return;
-  }
-
-  // 상태 적용
+  // 상태이상 적용
   let text = "";
   if (ailment === "마비" || ailment === "mabi") {
     pokemon.ailment.mabi = true;
     text = textOption || `${pokemon.names("는")} 마비되어 기술을 쓰기 어려워졌다!`;
   }
 
-  // 화상: 부가효과(skillEffect.js), 화염구슬(turnEnd/ailmentEvent.js)
+  // 화상: 부가효과(skillEffect.js), 화염구슬(turnEnd/ailmentEvent.js), 초고열 글라디우스(skillUse.js)
   if (ailment === "화상" || ailment === "burn") {
-    pokemon.ailment.burn = true;
-    text = textOption || `${pokemon.names("는")} 화상을 입었다!`;
+    const prevStack = getBurnStack(pokemon);
+    if (prevStack >= 1) {
+      const atkStr = battle?.turn?.atk;
+      const atkPokemon = attacker || (atkStr ? battle[atkStr] : null);
+      const opponentOfTarget = battle ? (pokemon === battle.player ? battle.npc : pokemon === battle.npc ? battle.player : null) : null;
+      const burnInflicter = attacker || opponentOfTarget || atkPokemon;
+      const isOpponentInflicted = Boolean(burnInflicter && burnInflicter !== pokemon);
+      const hasSunBreathing = isOpponentInflicted && Boolean(burnInflicter.hasAugment?.("sunBreathing"));
+      const hasSuperheatedGladius = isOpponentInflicted && Boolean(burnInflicter.hasAugment?.("superheatedGladius"));
+
+      const prefixMatch = typeof textOption === "string" ? textOption.match(/^(\[[^\]]+\]\s*)/) : null;
+      const prefix = prefixMatch ? prefixMatch[1] : "";
+
+      if (hasSunBreathing && prevStack < 13) {
+        pokemon.ailment.burn = Math.min(13, prevStack + 1);
+        enqueue(battle, `${prefix}${pokemon.name}의 화상이 강해졌다!`, "ail_apply");
+      }
+
+      if (hasSuperheatedGladius && !pokemon.faint) {
+        const extraBurnDamage = Math.floor(pokemon.maxHp * 0.1);
+        const gladiusText = `${prefix}${pokemon.names("는")} 추가 화상 데미지를 입었다!`;
+        pokemon.getDamage(battle, enqueue, extraBurnDamage, gladiusText);
+      }
+      return;
+    } else {
+      pokemon.ailment.burn = 1;
+      text = textOption || `${pokemon.names("는")} 화상을 입었다!`;
+    }
   }
 
   // 독: 부가효과(skillEffect.js), 독압정(field.js)
@@ -157,4 +188,10 @@ export const applyAilment = (ailment, battle, get, enqueue, textOption) => {
 
   // 출력 텍스트
   enqueue(battle, text, "ail_apply");
+};
+
+const getBurnStack = (pokemon) => {
+  const burn = pokemon.ailment.burn;
+  if (!burn) return 0;
+  return typeof burn === "number" ? Math.min(13, Math.max(1, burn)) : 1;
 };

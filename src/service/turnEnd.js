@@ -421,13 +421,13 @@ function applyStatusDamage(battle, enqueue, user) {
   if (p.ailment.burn) {
     const opponentSide = user === "player" ? "npc" : "player";
     const opponent = battle[opponentSide];
-    const opponentTeam = opponentSide === "player" ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [battle.npc, battle.npcBench1, battle.npcBench2].filter(Boolean);
 
     // [증강] 할머니의 고추기름
-    const hasChiliOil = Boolean(opponent?.hasAugment?.("grandmasChiliOil") || opponentTeam.some((poke) => poke?.hasAugment?.("grandmasChiliOil")));
+    const hasChiliOil = Boolean(opponent.hasAugment("grandmasChiliOil"));
 
-    const baseBurn = Math.max(1, Math.floor(maxHp / 16));
-    const burnDamage = hasChiliOil ? baseBurn * 5 : baseBurn;
+    const burnStack = typeof p.ailment.burn === "number" ? Math.min(13, Math.max(1, p.ailment.burn)) : 1;
+    const baseBurn = Math.max(1, Math.floor((maxHp * burnStack) / 16));
+    const burnDamage = hasChiliOil ? baseBurn * 3 : baseBurn;
     const text = hasChiliOil ? `[증강 할머니의 고추기름] ${p.names("는")} 극심한 화상 데미지를 입었다!` : `${p.names("는")} 화상 데미지를 입었다!`;
 
     p.getDamage(battle, enqueue, burnDamage, text);
@@ -439,6 +439,6 @@ function flameOrb(battle, enqueue, user) {
   if (p.faint) return;
 
   if (p.item === "화염구슬") {
-    applyAilment("화상", battle, p.team, enqueue, `${p.names("는")} 화염구슬로 화상을 입었다!`);
+    applyAilment("화상", battle, p.team, enqueue, `${p.names("는")} 화염구슬로 화상을 입었다!`, p);
   }
 }

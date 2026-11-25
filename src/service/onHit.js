@@ -4,9 +4,10 @@ import { typeCheckOnBattle } from "../calc/typeEffectCalculate";
 import { josa } from "josa";
 
 export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = false) => {
-  // 피격시 발동되는 특성, 아이템 모음
+  // 피격시 마다 발동되는 특성, 아이템, 부가효과 모음
   // 연속기면 여러번 터진다
   // 독치장(킬라플로르), 울퉁불퉁멧, 철가시(까칠한피부), 정전기, 풍선 터짐
+  // [증강] 연습이 치명타를 낳는다, 가시갑옷, 태양불꽃망토
 
   const atk = battle.turn.atk;
   const atkPokemon = battle[battle.turn.atk];
@@ -18,6 +19,12 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
     const text = defPokemon.name + "의 풍선이 터졌다!";
     defPokemon.consumeItem();
     enqueue(battle, text, "hit_balloon_pop");
+  }
+
+  // [버프] 연습이 치명타를 낳는다: 공격 시마다 스택 1 누적
+  if (atkPokemon.hasAugment("practiceMakesCritical")) {
+    const nextStack = Number(atkPokemon.practiceCritStack ?? 0) + 1;
+    atkPokemon.practiceCritStack = nextStack;
   }
 
   if (substitute) return;
@@ -160,7 +167,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
   }
   // [증강] 태양불꽃망토: 공격을 받을 때 10% 확률로 적에게 화상을 입힌다
   if (defPokemon.hasAugment?.("sunfireCape") && !atkPokemon.faint) {
-    if (random(10)) {
+    if (random(30)) {
       applyAilment("화상", battle, battle.turn.atk, enqueue, `[증강 태양불꽃망토] ${atkPokemon.names("는")} 화상을 입었다!`);
     }
   }

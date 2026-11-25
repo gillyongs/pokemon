@@ -30,6 +30,11 @@ export const PokemonRecover = {
       amount = Math.round(amount * 1.5);
     }
 
+    // [증강] 태양의 호흡 (화상 중첩 시 회복량 70% 감소)
+    if (this.ailment?.burn >= 2) {
+      amount = Math.floor(amount * 0.3);
+    }
+
     this.hp = Math.min(maxHp, this.hp + amount);
 
     if (!silent && enqueue) {

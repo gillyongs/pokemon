@@ -246,13 +246,21 @@ export const getArcaneSwordData = (pokemon = null, source = null, options = null
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
   {
+    id: "sunBreathing",
+    name: "태양의 호흡",
+    desc: "상대에게 중첩하여 화상을 걸 수 있습니다.\n화상은 중첩될수록 데미지가 강해지며\n추가로 적에게 치유 감소 효과를 부여합니다.",
+    cost: 3,
+    weight: 100,
+    // ailment.js, turnEnd.js, PokemonRecover.js에 구현
+  },
+  {
     id: "superheatedGladius",
     name: "초고열 글라디우스",
-    desc: "공격 시 상대에게 화상을 입힙니다.",
+    desc: "공격 시 상대에게 화상을 입힌 후 공격합니다.\n이미 화상 상태인 상대에게 추가로 화상을 입힐 시 최대 HP의 10%의 데미지를 줍니다.",
     synergy: true,
     isRandom: false,
     weight: "-",
-    // SkillEffect.js에 구현
+    // skillUse.js, ailment.js에 구현
   },
   {
     id: "aThousandBlazingSuns",
@@ -260,12 +268,13 @@ export const AUGMENT_LIST = [
     desc: "상대가 화상 상태일 경우 입히는 데미지가 2배로 증가합니다.",
     cost: 2,
     weight: 100,
+    isEligible: (pokemon) => canInflictBurn(pokemon),
     // damageCalculate.js에 구현
   },
   {
     id: "sunfireCape",
     name: "태양불꽃망토",
-    desc: "피격 시 10% 확률로 적에게 화상을 입힙니다.\n불꽃타입 포켓몬일 경우 방어와 특수방어가 추가로 70 증가합니다.",
+    desc: "피격 시 30% 확률로 적에게 화상을 입힙니다.\n불꽃타입 포켓몬일 경우 방어와 특수방어가 추가로 70 증가합니다.",
     cost: 2,
     weight: 100,
     // getStat.js, onHit.js에 구현
@@ -769,19 +778,11 @@ export const AUGMENT_LIST = [
   {
     id: "grandmasChiliOil",
     name: "할머니의 고추기름",
-    desc: "화상을 입힐 확률이 3배 증가합니다.\n추가로 화상 데미지가 5배 증가합니다.",
+    desc: "화상을 입힐 확률이 3배 증가합니다.\n추가로 화상 데미지가 3배 증가합니다.",
     cost: 2,
     weight: 100,
     // 적에게 화상을 입힐 수 있을때만 등장
-    isEligible: (pokemon) => {
-      if (pokemon?.abil?.name === "불꽃몸") return true;
-      if (!pokemon?.skill) return false;
-      const skills = Object.values(pokemon.skill).filter(Boolean);
-      return skills.some((sk) => {
-        if (!sk) return false;
-        return Array.isArray(sk.skillEffectList) && sk.skillEffectList.some((eff) => eff.name === "화상" || eff.name === "트라이어택");
-      });
-    },
+    isEligible: (pokemon) => canInflictBurn(pokemon),
   },
   {
     id: "thornmail",
@@ -3274,7 +3275,7 @@ const SYNERGY_INFO_MAP = {
     emoji: "🔥",
     theme: "초고열 글라디우스",
     title: "초고열 글라디우스",
-    desc: "공격 시 상대에게 화상을 입힙니다.",
+    desc: "공격 시 상대에게 화상을 입힌 후 공격합니다.\n이미 화상 상태인 상대에게 추가로 화상을 입힐 시 최대 HP의 10%의 데미지를 줍니다.",
   },
   millenniumShield: {
     emoji: "🛡️",
@@ -4019,4 +4020,18 @@ function getTypeDefenseAugmentWeight(pokemon, battle, targetType) {
     w += 50;
   }
   return w;
+}
+
+// 적에게 화상을 입힐 수 있는 상태인지 확인 (할머니의 고추기름, 타오르는 천 개의 태양)
+function canInflictBurn(pokemon) {
+  if (pokemon.abil?.name === "불꽃몸") return true;
+  const burnAugments = ["salamandra", "flamingKatana", "sunfireCape"];
+  if (burnAugments.some((augment) => pokemon.hasAugment?.(augment))) {
+    return true;
+  }
+  const skills = Object.values(pokemon.skill).filter(Boolean);
+  return skills.some((sk) => {
+    if (!sk) return false;
+    return Array.isArray(sk.skillEffectList) && sk.skillEffectList.some((eff) => eff.name === "화상" || eff.name === "트라이어택");
+  });
 }

@@ -6,6 +6,7 @@ import { random } from "../util/randomCheck";
 import { getAccuracy } from "../calc/accuracyCalculate";
 import { skillTypeCalculate } from "../calc/skillTypeCalculate";
 import { criticalCalculate } from "../calc/criticalCalculate";
+import { applyAilment } from "./ailment";
 import { josa } from "josa";
 
 export const skillUse = (bt, enqueue) => {
@@ -40,7 +41,7 @@ export const skillUse = (bt, enqueue) => {
 
     // 다른 기술 사용 시 이전 연속 사용 스택 초기화
     if (atk.tempStatus.sameSkillName !== skill.name) {
-      atk.resetConsecutiveSkill?.();
+      atk.resetConsecutiveSkill();
     }
 
     // pp 소모 (발버둥은 PP 무제한, 충전 2턴째 발사 시 중복 차감 방지)
@@ -101,9 +102,9 @@ export const skillUse = (bt, enqueue) => {
 
     if (afterSkillCheck(bt, enqueue) === false) {
       // 스킬명이 뜬 다음에 처리하는 트리거
-      // 스킬에 실패하더라고 pp는 닳는다
-      // 스킬성공여부(기습, 방어), 상대방 기절 여부, 명중, 방어, 타오르는불꽃, 풍선
-      // 리베로가 발동되는 조건이 있고 아닌 조건이 있어 중간에 삽입
+      // 스킬에 실패해도 pp는 닳는다
+      // 스킬성공여부(기습, 방어), 상대방 기절 여부, 방어, 타오르는불꽃, 풍선, 명중
+      // 리베로가 발동되는 경우와 아닌 경우가 섞여있어 중간에 삽입
       handleSkillFail(bt);
       return;
     }
@@ -112,25 +113,15 @@ export const skillUse = (bt, enqueue) => {
     if (skillType === "atk" || skillType === "catk") {
       //공격기 (물리 or 특수)
 
-      // [버프] 연습이 치명타를 낳는다: 공격 시마다 스택 1 누적
-      if (atk.hasAugment?.("practiceMakesCritical")) {
-        const practiceAug = atk.augments?.find((a) => a.id === "practiceMakesCritical");
-        const nextStack = Number(atk.practiceCritStack ?? practiceAug?.practiceCritStack ?? 0) + 1;
-        atk.practiceCritStack = nextStack;
-        if (practiceAug) {
-          practiceAug.practiceCritStack = nextStack;
-        }
-      }
-
       // [증강] 한놈만: 맨 처음 공격한 상대 기록
       if (atk.hasAugment("focusOne") && !atk.focusOneTarget) {
         atk.focusOneTarget = def.baseName;
       }
 
+      //급소에 맞기쉽다 보정 처리
       let cri = atk.tempStatus.rank.critical;
       for (const effect of skill.skillEffectList) {
         if (effect.name === "급소") {
-          //급소에 맞기쉽다 보정 처리
           cri += 1;
         }
       }
@@ -140,8 +131,21 @@ export const skillUse = (bt, enqueue) => {
       }
 
       // [특성 내용물분출] 공격 받기 전 체력 기록 (연속기는 1타 시작 전 체력)
-      if (def.turn) {
-        def.turn.hpBeforeAttack = def.hp;
+      def.turn.hpBeforeAttack = def.hp;
+
+      // [시너지: 초고열 글라디우스] 공격 시 상대에게 화상을 입힌 후 공격
+      if (atk.hasAugment("superheatedGladius") && !def.faint) {
+        const hitSub = Boolean(def.turn?.substitute || def.tempStatus?.substitute);
+        const penetrates = atk.abil?.name === "틈새포착" || Boolean(skill?.feature?.sound);
+        if (!hitSub || penetrates) {
+          applyAilment("화상", bt, bt.turn.def, enqueue, `[버프 초고열 글라디우스] ${def.names("는")} 화상을 입었다!`);
+          if (def.faint) {
+            if (def.team === "npc" && bt.turn.atk === "player") {
+              atk.turn.knockedOutNpcThisTurn = true;
+            }
+            return;
+          }
+        }
       }
 
       //연속기
@@ -236,13 +240,15 @@ export const skillUse = (bt, enqueue) => {
 };
 
 const handleSkillFail = (bt, resetMetronome = true) => {
-  // 스킬 실패시 처리할 것
+  // 스킬 실패시 처리 로직
   const atk = bt[bt.turn.atk];
-  if (atk?.tempStatus) {
-    atk.tempStatus.protectUse = null;
-  }
-  if (resetMetronome && !atk?.hasAugment?.("doubleMetronome")) {
-    atk.resetConsecutiveSkill?.();
+
+  // 방어 연속 사용 횟수 스택 초기화
+  atk.tempStatus.protectUse = null;
+
+  // 메트로놈 초기화
+  if (resetMetronome && !atk.hasAugment("doubleMetronome")) {
+    atk.resetConsecutiveSkill();
   }
 
   // 역린 정지
