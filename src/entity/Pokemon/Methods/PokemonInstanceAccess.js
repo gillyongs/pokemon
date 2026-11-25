@@ -146,6 +146,13 @@ export const PokemonInstanceAccess = {
     this.agument.zeroSumNerfSkillName = v;
   },
 
+  get focusOneTarget() {
+    return this.agument.focusOneTarget ?? null;
+  },
+  set focusOneTarget(v) {
+    this.agument.focusOneTarget = v;
+  },
+
   get butItRefusedUsed() {
     return this.agument?.butItRefusedUsed ?? false;
   },

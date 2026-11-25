@@ -246,6 +246,22 @@ export const getArcaneSwordData = (pokemon = null, source = null, options = null
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
   {
+    id: "focusOne",
+    name: "한놈만 팬다",
+    desc: "맨 처음 공격한 상대에게 1.5배의 데미지를 입힙니다. 그 외에 상대에겐 0.8배의 데미지를 입힙니다.",
+    cost: 1,
+    weight: 100,
+    isEligible: (pokemon) => hasAttackSkill(pokemon),
+    statusModalText: function (pokemon) {
+      const targetName = pokemon.focusOneTarget;
+      if (targetName) {
+        return `${this.desc}\n(현재 타깃 대상: ${targetName})`;
+      }
+      return this.desc;
+    },
+    // damageCalculate.js 및 skillUse.js에 구현
+  },
+  {
     id: "metronome",
     name: "메트로놈",
     desc: "똑같은 기술을 연속으로 사용하면 위력이 20%씩 최대 5번 증가합니다. 그만두면 위력이 되돌아갑니다.",

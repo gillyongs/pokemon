@@ -122,6 +122,11 @@ export const skillUse = (bt, enqueue) => {
         }
       }
 
+      // [증강] 한놈만 팬다: 맨 처음 공격한 상대 기록
+      if (atk.hasAugment("focusOne") && !atk.focusOneTarget) {
+        atk.focusOneTarget = def.baseName;
+      }
+
       let cri = atk.tempStatus.rank.critical;
       for (const effect of skill.skillEffectList) {
         if (effect.name === "급소") {

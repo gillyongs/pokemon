@@ -1381,15 +1381,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <clipPath id="hyperBodySquareClip">
               <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
             </clipPath>
-            <image
-              href="/pokemon/img/augment/hyperBody.png?v=4"
-              x="2"
-              y="2"
-              width="60"
-              height="60"
-              preserveAspectRatio="xMidYMid slice"
-              clipPath="url(#hyperBodySquareClip)"
-            />
+            <image href="/pokemon/img/augment/hyperBody.png?v=4" x="2" y="2" width="60" height="60" preserveAspectRatio="xMidYMid slice" clipPath="url(#hyperBodySquareClip)" />
           </g>
         )}
 
@@ -1399,15 +1391,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <clipPath id="hasteSquareClip">
               <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
             </clipPath>
-            <image
-              href="/pokemon/img/augment/haste.png?v=3"
-              x="2"
-              y="2"
-              width="60"
-              height="60"
-              preserveAspectRatio="xMidYMid slice"
-              clipPath="url(#hasteSquareClip)"
-            />
+            <image href="/pokemon/img/augment/haste.png?v=3" x="2" y="2" width="60" height="60" preserveAspectRatio="xMidYMid slice" clipPath="url(#hasteSquareClip)" />
           </g>
         )}
 
@@ -1417,15 +1401,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <clipPath id="sharpEyesSquareClip">
               <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
             </clipPath>
-            <image
-              href="/pokemon/img/augment/sharpEyes.png?v=3"
-              x="2"
-              y="2"
-              width="60"
-              height="60"
-              preserveAspectRatio="xMidYMid slice"
-              clipPath="url(#sharpEyesSquareClip)"
-            />
+            <image href="/pokemon/img/augment/sharpEyes.png?v=3" x="2" y="2" width="60" height="60" preserveAspectRatio="xMidYMid slice" clipPath="url(#sharpEyesSquareClip)" />
           </g>
         )}
 
@@ -1435,15 +1411,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <clipPath id="mapleWarriorSquareClip">
               <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
             </clipPath>
-            <image
-              href="/pokemon/img/augment/mapleWarrior.png?v=3"
-              x="2"
-              y="2"
-              width="60"
-              height="60"
-              preserveAspectRatio="xMidYMid slice"
-              clipPath="url(#mapleWarriorSquareClip)"
-            />
+            <image href="/pokemon/img/augment/mapleWarrior.png?v=3" x="2" y="2" width="60" height="60" preserveAspectRatio="xMidYMid slice" clipPath="url(#mapleWarriorSquareClip)" />
           </g>
         )}
 
@@ -1453,15 +1421,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <clipPath id="powerStrikeSquareClip">
               <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
             </clipPath>
-            <image
-              href="/pokemon/img/augment/powerStrike.png?v=3"
-              x="2"
-              y="2"
-              width="60"
-              height="60"
-              preserveAspectRatio="xMidYMid slice"
-              clipPath="url(#powerStrikeSquareClip)"
-            />
+            <image href="/pokemon/img/augment/powerStrike.png?v=3" x="2" y="2" width="60" height="60" preserveAspectRatio="xMidYMid slice" clipPath="url(#powerStrikeSquareClip)" />
           </g>
         )}
 
@@ -1471,15 +1431,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <clipPath id="dragonRoarSquareClip">
               <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
             </clipPath>
-            <image
-              href="/pokemon/img/augment/dragonRoar.png?v=3"
-              x="2"
-              y="2"
-              width="60"
-              height="60"
-              preserveAspectRatio="xMidYMid slice"
-              clipPath="url(#dragonRoarSquareClip)"
-            />
+            <image href="/pokemon/img/augment/dragonRoar.png?v=3" x="2" y="2" width="60" height="60" preserveAspectRatio="xMidYMid slice" clipPath="url(#dragonRoarSquareClip)" />
           </g>
         )}
 
@@ -1489,15 +1441,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <clipPath id="berserkSquareClip">
               <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
             </clipPath>
-            <image
-              href="/pokemon/img/augment/berserk.png?v=4"
-              x="2"
-              y="2"
-              width="60"
-              height="60"
-              preserveAspectRatio="xMidYMid slice"
-              clipPath="url(#berserkSquareClip)"
-            />
+            <image href="/pokemon/img/augment/berserk.png?v=4" x="2" y="2" width="60" height="60" preserveAspectRatio="xMidYMid slice" clipPath="url(#berserkSquareClip)" />
           </g>
         )}
 
@@ -1507,15 +1451,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <clipPath id="ironWallSquareClip">
               <rect x="2" y="2" width="60" height="60" rx="6" ry="6" />
             </clipPath>
-            <image
-              href="/pokemon/img/augment/ironWall.png?v=1"
-              x="2"
-              y="2"
-              width="60"
-              height="60"
-              preserveAspectRatio="xMidYMid slice"
-              clipPath="url(#ironWallSquareClip)"
-            />
+            <image href="/pokemon/img/augment/ironWall.png?v=1" x="2" y="2" width="60" height="60" preserveAspectRatio="xMidYMid slice" clipPath="url(#ironWallSquareClip)" />
           </g>
         )}
         {/* 1. 억까 방지 (정밀 조준경 + 필중 화살 + 스파클) */}
@@ -4269,6 +4205,16 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <image href="/pokemon/img/augment/letsExplodeTogether.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="#8b5cf6" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#c084fc" strokeWidth="0.5" strokeOpacity="0.65" />
+          </g>
+        )}
+
+        {/* 한놈만 팬다 (일러스트 이미지 + 원형 클리핑 & 레드 링) */}
+        {id === "focusOne" && (
+          <g clipPath="url(#lwClip)">
+            <circle cx="32" cy="32" r="30" fill="#0f172a" />
+            <image href="/pokemon/img/augment/focusOne.png?v=2" xlinkHref="/pokemon/img/augment/focusOne.png?v=2" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#ef4444" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#f87171" strokeWidth="0.5" strokeOpacity="0.65" />
           </g>
         )}
 

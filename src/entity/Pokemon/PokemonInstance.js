@@ -37,6 +37,7 @@ class PokemonInstance {
     if (team === "npc") {
       this.name = "상대 " + this.name;
     }
+    this.instanceId = Math.random().toString(36).substring(2, 9);
 
     this.hp = this.o.hp; // 현재 체력
     this.type1 = this.o.type1;
@@ -151,6 +152,7 @@ class PokemonInstance {
       choiceAndFocusSkillName: null, // 선택과 집중으로 강화된 기술명
       zeroSumBuffSkillName: null, // 제로섬게임으로 2배 강화된 기술명
       zeroSumNerfSkillName: null, // 제로섬게임으로 절반 약화된 기술명
+      focusOneTarget: null, // [증강] 한놈만 팬다: 맨 처음 공격한 상대 이름 (origin name)
       pickedAbility: null, // 특성 야바위 뽑은 특성 (증강 유지시 필요)
       butItRefusedUsed: false, // [증강] 하지만 버텨냈다: 배틀 중 1회 발동 여부
       nothingHappenedUsed: false, // [증강] 아무일도 없었다...!: 배틀 중 1회 발동 여부

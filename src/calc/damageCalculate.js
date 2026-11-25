@@ -378,7 +378,7 @@ export const damageCalculate = (battle, num, ai) => {
 
   // 용용 죽겠지: 드래곤 타입 포켓몬을 2마리 쓰러뜨릴 때마다 모든 능력치가 0.1배 상승
   if (attackPokemon?.hasAugment?.("dragonDie")) {
-    const atkDragonKills = Number(attackPokemon.dragonKillCount ?? attackPokemon.augments?.find((a) => a.id === "dragonDie")?.dragonKillCount ?? 0);
+    const atkDragonKills = Number(attackPokemon.dragonKillCount);
     const atkStacks = Math.floor(atkDragonKills / 2);
     if (atkStacks > 0) {
       const atkMult = Number((1 + atkStacks * 0.1).toFixed(2));
@@ -388,7 +388,7 @@ export const damageCalculate = (battle, num, ai) => {
   }
 
   if (defensePokemon?.hasAugment?.("dragonDie")) {
-    const defDragonKills = Number(defensePokemon.dragonKillCount ?? defensePokemon.augments?.find((a) => a.id === "dragonDie")?.dragonKillCount ?? 0);
+    const defDragonKills = Number(defensePokemon.dragonKillCount);
     const defStacks = Math.floor(defDragonKills / 2);
     if (defStacks > 0) {
       const defMult = Number((1 + defStacks * 0.1).toFixed(2));
@@ -398,46 +398,46 @@ export const damageCalculate = (battle, num, ai) => {
   }
 
   // 인생의 동반자: 모든 능력치가 1.1배 증가
-  if (attackPokemon?.hasAugment?.("lifePartner")) {
+  if (attackPokemon.hasAugment("lifePartner")) {
     atkStat *= 1.1;
     atkStr += " * 1.1 (인생의 동반자)";
   }
-  if (defensePokemon?.hasAugment?.("lifePartner")) {
+  if (defensePokemon.hasAugment("lifePartner")) {
     defStat *= 1.1;
     defStr += " * 1.1 (인생의 동반자)";
   }
 
   // 라스트 사무라이: 해당 포켓몬이 마지막에 홀로 남았을 경우 공격과 특수공격이 2배 증가
-  if (battle && attackPokemon?.hasAugment?.("lastSamurai") && (skill.stype === "atk" || skill.stype === "catk")) {
-    const side = attackPokemon?.team === "npc" ? "npc" : "player";
-    if (battle.isLastPokemon?.(side)) {
+  if (attackPokemon.hasAugment("lastSamurai")) {
+    const side = attackPokemon.team === "npc" ? "npc" : "player";
+    if (battle.isLastPokemon(side)) {
       atkStat *= 2;
       atkStr += " * 2 (라스트 사무라이)";
     }
   }
 
   // 나를 믿는 내가 최강이다!: 아군의 남은 포켓몬 수가 상대보다 적을 때 공격과 특수공격이 2배 증가
-  if (battle && attackPokemon?.hasAugment?.("believeInMyself") && (skill.stype === "atk" || skill.stype === "catk")) {
-    const side = attackPokemon?.team === "npc" ? "npc" : "player";
-    if (battle.hasFewerPokemonThanOpponent?.(side)) {
+  if (attackPokemon.hasAugment("believeInMyself")) {
+    const side = attackPokemon.team === "npc" ? "npc" : "player";
+    if (battle.hasFewerPokemonThanOpponent(side)) {
       atkStat *= 2;
       atkStr += " * 2 (나를 믿는 내가 최강이다!)";
     }
   }
 
   // 라스트 맨 스탠딩: 해당 포켓몬이 마지막에 홀로 남았을 경우 방어와 특수방어가 2배 증가
-  if (battle && defensePokemon?.hasAugment?.("lastManStanding") && (defenseStat === "def" || defenseStat === "cdef")) {
-    const side = defensePokemon?.team === "npc" ? "npc" : "player";
-    if (battle.isLastPokemon?.(side)) {
+  if (defensePokemon.hasAugment("lastManStanding")) {
+    const side = defensePokemon.team === "npc" ? "npc" : "player";
+    if (battle.isLastPokemon(side)) {
       defStat *= 2;
       defStr += " * 2 (라스트 맨 스탠딩)";
     }
   }
 
   // 나를 믿는 내가 최강이다!: 아군의 남은 포켓몬 수가 상대보다 적을 때 방어와 특수방어가 2배 증가
-  if (battle && defensePokemon?.hasAugment?.("believeInMyself") && (defenseStat === "def" || defenseStat === "cdef")) {
+  if (defensePokemon.hasAugment("believeInMyself")) {
     const side = defensePokemon?.team === "npc" ? "npc" : "player";
-    if (battle.hasFewerPokemonThanOpponent?.(side)) {
+    if (battle.hasFewerPokemonThanOpponent(side)) {
       defStat *= 2;
       defStr += " * 2 (나를 믿는 내가 최강이다!)";
     }
@@ -762,20 +762,19 @@ export const damageCalculate = (battle, num, ai) => {
   }
 
   // 하이리스크 하이리턴 (버프: 3배, 저주: 0.5배)
-  if (attackPokemon?.hasAugment?.("highRiskBuff") && (skill.stype === "atk" || skill.stype === "catk")) {
+  if (attackPokemon?.hasAugment?.("highRiskBuff")) {
     damage *= 3;
     attackPokemon.log.damage1 += " * 3 (하이 리턴)";
   }
 
-  if (attackPokemon?.hasAugment?.("highRiskCurse") && (skill.stype === "atk" || skill.stype === "catk")) {
+  if (attackPokemon?.hasAugment?.("highRiskCurse")) {
     damage *= 0.5;
     attackPokemon.log.damage1 += " * 0.5 (하이 리스크)";
   }
 
   // 선택과 집중: 선택한 공격기 1.5배, 다른 기술 0.5배
-  if (attackPokemon?.hasAugment?.("choiceAndFocus") && (skill.stype === "atk" || skill.stype === "catk")) {
-    const focusSkillName = attackPokemon.choiceAndFocusSkillName;
-    if (skill.name === focusSkillName) {
+  if (attackPokemon?.hasAugment?.("choiceAndFocus")) {
+    if (skill.name === attackPokemon.choiceAndFocusSkillName) {
       damage *= 1.5;
       attackPokemon.log.damage1 += ` * 1.5 (선택과 집중+)`;
     } else {
@@ -785,15 +784,26 @@ export const damageCalculate = (battle, num, ai) => {
   }
 
   // 제로섬게임: 랜덤한 기술 하나의 위력이 2배, 다른 기술 하나의 위력이 절반
-  if (attackPokemon?.hasAugment?.("zeroSumGame") && (skill.stype === "atk" || skill.stype === "catk")) {
-    const buffSkillName = attackPokemon.zeroSumBuffSkillName;
-    const nerfSkillName = attackPokemon.zeroSumNerfSkillName;
-    if (buffSkillName && skill.name === buffSkillName) {
+  if (attackPokemon?.hasAugment?.("zeroSumGame")) {
+    if (skill.name === attackPokemon.zeroSumBuffSkillName) {
       damage *= 2;
       attackPokemon.log.damage1 += ` * 2 (제로섬게임+)`;
-    } else if (nerfSkillName && skill.name === nerfSkillName) {
+    } else if (skill.name === attackPokemon.zeroSumNerfSkillName) {
       damage *= 0.5;
       attackPokemon.log.damage1 += ` * 0.5 (제로섬게임-)`;
+    }
+  }
+
+  // 한놈만 팬다: 맨 처음 공격한 상대에게 1.5배, 그 외 상대에겐 0.8배
+  if (attackPokemon?.hasAugment?.("focusOne")) {
+    const isTarget = defensePokemon.baseName === attackPokemon.focusOneTarget;
+
+    if (isTarget) {
+      damage *= 1.5;
+      attackPokemon.log.damage1 += " * 1.5 (한놈만 팬다+)";
+    } else {
+      damage *= 0.8;
+      attackPokemon.log.damage1 += " * 0.8 (한놈만 팬다-)";
     }
   }
 
