@@ -12,6 +12,7 @@ export class Skill {
     this.prior = prior;
     this.stype = stype; 
     this.useCount = 0;
+    this.fatalStrike = false; // [증강] 치명적인 일격
     //atk = 물리공격, catk = 특수공격, natk = 상대방 대상 변화기, buf = 자신 대상 변화기
     // natk = 상대방이 기절하면 실패, buf = 상대방이 기절해도 성공
     this.skillEffectList = skillEffectList;

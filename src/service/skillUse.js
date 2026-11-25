@@ -172,8 +172,11 @@ export const skillUse = (bt, enqueue) => {
             atk.turn.critical = true;
           }
           // 급소확정
-          if (skill.feature?.mustCritical) {
+          if (skill.feature?.mustCritical || skill.fatalStrike) {
             atk.turn.critical = true;
+          }
+          if (atk.hasAugment("fatalStrike") && atk.turn.critical) {
+            skill.fatalStrike = true;
           }
           attackDamage(bt, enqueue, i);
           if (def.faint || atk.faint) {
@@ -197,8 +200,11 @@ export const skillUse = (bt, enqueue) => {
           atk.turn.critical = true;
         }
         // 급소확정
-        if (skill.feature?.mustCritical) {
+        if (skill.feature?.mustCritical || skill.fatalStrike) {
           atk.turn.critical = true;
+        }
+        if (atk.hasAugment("fatalStrike") && atk.turn.critical) {
+          skill.fatalStrike = true;
         }
         attackDamage(bt, enqueue);
         if (!atk.faint) {

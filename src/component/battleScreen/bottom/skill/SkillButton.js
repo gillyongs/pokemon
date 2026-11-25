@@ -259,6 +259,15 @@ export const getSkillEnhanceBadges = (pokemon, skill) => {
     });
   }
 
+  // 4. 치명적인 일격 (확정 급소)
+  if (skill.fatalStrike) {
+    badges.push({
+      id: "fatalStrike",
+      title: "치명적인 일격 (확정 급소)",
+      render: () => <AugmentIcon key="fatalStrike" id="fatalStrike" size={19} />,
+    });
+  }
+
   // 추후 새로운 기술 강화 증강 추가 시 여기에 badges.push(...) 형태로 등록
 
   return badges;

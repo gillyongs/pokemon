@@ -4218,6 +4218,16 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
+        {/* 치명적인 일격 (일러스트 이미지 + 원형 클리핑 & 레드 링) */}
+        {id === "fatalStrike" && (
+          <g clipPath="url(#lwClip)">
+            <circle cx="32" cy="32" r="30" fill="#0f172a" />
+            <image href="/pokemon/img/augment/fatalStrike.png" xlinkHref="/pokemon/img/augment/fatalStrike.png" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#ef4444" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#f87171" strokeWidth="0.5" strokeOpacity="0.65" />
+          </g>
+        )}
+
         {/* 28. 달팽이 세마리 */}
         {id === "threeSnails" && (
           <g>

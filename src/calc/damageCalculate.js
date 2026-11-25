@@ -39,7 +39,7 @@ export const damageCalculate = (battle, num, ai) => {
   const atkAbil = attackPokemon.abil?.name;
   const defAbil = defensePokemon.abil?.name;
 
-  const isMustCritical = Boolean(skill?.feature?.mustCritical);
+  const isMustCritical = Boolean(skill?.feature?.mustCritical || skill?.fatalStrike);
   const isCritical = ai ? isMustCritical : Boolean(attackPokemon.turn.critical);
   // NPC 데미지 계산시엔 확정급소가 아니면 급소 보정을 하지 않는다 (난수 제거)
 

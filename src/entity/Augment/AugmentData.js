@@ -246,6 +246,15 @@ export const getArcaneSwordData = (pokemon = null, source = null, options = null
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
   {
+    id: "fatalStrike",
+    name: "치명적인 일격",
+    desc: "사용한 기술이 급소에 맞았을 경우, 해당 기술은 계속 급소에 적중합니다.",
+    cost: 1,
+    weight: 100,
+    isEligible: (pokemon) => hasAttackSkill(pokemon),
+    // skillUse.js 및 damageCalculate.js에 구현
+  },
+  {
     id: "focusOne",
     name: "한놈만",
     desc: "맨 처음 공격한 상대에게 1.5배의 데미지를 입힙니다. 그 외에 상대에겐 0.8배의 데미지를 입힙니다.",
