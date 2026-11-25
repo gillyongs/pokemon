@@ -220,13 +220,14 @@ flowchart TD
 
 | 작업 유형 | 필수 수정 / 확인 파일 | 핵심 체크포인트 |
 | :--- | :--- | :--- |
-| **신규 증강(Augment) 추가** | 1. `src/entity/Augment/AugmentData.js` (`AUGMENT_LIST`, 필요 시 `AUGMENT_SYNERGY_MAP`, `getAugmentDesc`)<br>2. `src/component/battleScreen/augment/AugmentIcon.js` (아이콘 SVG 또는 PNG `<image>`, 배경 원 제외 조건 `id !== "..."`)<br>3. 효과 발동처 (`damageCalculate.js` / `speedCheck.js` / `hpCalculate.js` / `getStat.js` / `turnEnd.js` / `onHit.js` / `damage.js` 등)<br>4. 신규 상태 프로퍼티 필요 시 `PokemonInstance.js` 및 `PokemonInstanceAccess.js` | - 증강 판정은 항상 `pokemon.hasAugment("id")`를 사용.<br>- 교체형 증강(`isChange: true`)은 우측 상단에 '교체' 배지 표시.<br>- 스택/상태를 가지는 증강이면 아래 **라운드 승계 4대 직렬화 지점** 필수 수정. |
-| **스택/상태형 증강 승계 추가** | 1. `src/entity/Pokemon/PokemonInstance.js` (생성자 프로퍼티 초기화 & `applyAugment` 내 `isBuf` 재적용 조건)<br>2. `src/entity/Augment/AugmentData.js` (`onApply`에서 `options` 복원, `getDesc` 표기)<br>3. `src/component/battleScreen/augment/AugmentCarryoverModal.js` (`carriedMap` 직렬화)<br>4. `src/store/battleStore.js` (`effectiveCarriedMap` → `serializedCarried` → 초기 `applyAugment` 호출 옵션) | `navigate("/battle", { state })`는 함수를 복제할 수 없으므로(`DataCloneError`), plain 객체(`serializedCarried`)에 상태 필드를 명시적으로 복사해야 다음 라운드로 전달됨. |
-| **최대 HP 관련 로직 수정** | 1. `src/calc/hpCalculate.js`<br>2. `src/entity/Pokemon/Methods/PokemonInstanceAccess.js` (`maxHp` getter) | `pokemon.o.hp`를 직접 수정하지 말고 `hpCalculate(pokemon)` 내부에 곱연산/합연산 규칙을 추가할 것. 배틀 내 최대 HP 조회는 모두 `hpCalculate(p)` 또는 `p.maxHp`를 통함. |
-| **공격/특공/스탯 증강 수정** | `src/calc/getStat.js` (`getAugmentedStat`, `getHighestStatInfo`) | 합연산(`swordEnhance`, `mejaisSoulstealer`) → 곱연산(`lifePartner`, `rabadonsDeathcap`, `allOrNothing`, `believeInMyself`) → 팀 버프(`echoOfHero`) 순서로 계산됨. |
+| **신규 증강(Augment) 추가** | 1. `src/entity/Augment/AugmentData.js` (`AUGMENT_LIST`, 필요 시 `AUGMENT_SYNERGY_MAP`, `SYNERGY_ACTIVATION_THRESHOLD`, `SYNERGY_INFO_MAP`)<br>2. `src/component/battleScreen/augment/AugmentIcon.js` (아이콘 SVG 또는 PNG `<image>`, 배경 원 제외 조건 `id !== "..."`)<br>3. 효과 발동처 (`damageCalculate.js` / `speedCheck.js` / `hpCalculate.js` / `getStat.js` / `turnEnd.js` / `onHit.js` / `damage.js` / `SkillEffect.js` / `skillUse.js` / `ailment.js` / `PokemonRecover.js` 등)<br>4. 신규 상태 프로퍼티 필요 시 `PokemonInstance.js` 및 `PokemonInstanceAccess.js` | - 상세 절차는 **[AUGMENT_ADD_GUIDE.md](file:///c:/Users/khs20/pokemon/public/txt/md/AUGMENT_ADD_GUIDE.md)** 참조.<br>- 증강 판정은 항상 `pokemon.hasAugment("id")` (팀 버프는 `pokemon.hasAugmentOnTeam("id", battle)`) 사용.<br>- 교체형 증강(`REPLACEMENT_AUGMENT_IDS`)은 우측 상단에 '교체' 배지 표시.<br>- 스택/상태를 가지는 증강이면 아래 **라운드 승계 직렬화 지점** 필수 수정. |
+| **스택/상태형 증강 승계 추가** | 1. `src/entity/Pokemon/PokemonInstance.js` & `src/entity/Pokemon/Methods/PokemonAugment.js` (`checkAugmentSynergies`, `applyAugment`)<br>2. `src/entity/Augment/AugmentData.js` (`onApply`에서 `options` 복원, `statusModalText` / `getDesc` 표기)<br>3. `src/component/battleScreen/augment/AugmentCarryoverModal.js` (`carriedMap` 직렬화)<br>4. `src/store/battleStore.js` (`effectiveCarriedMap` → `serializedCarried` → 초기 `applyAugment` 호출 옵션) | `navigate("/battle", { state })`는 함수를 복제할 수 없으므로(`DataCloneError`), plain 객체(`serializedCarried`)에 상태 필드를 명시적으로 복사해야 다음 라운드로 전달됨. |
+| **최대 HP 관련 로직 수정** | 1. `src/calc/hpCalculate.js`<br>2. `src/entity/Pokemon/Methods/PokemonInstanceAccess.js` (`maxHp` getter) | `pokemon.o.hp`를 직접 수정하지 말고 `hpCalculate(pokemon)` 내부에 합연산(`giantAbsorption`) 및 곱연산(`ironWall`, `hyperBody`, `growUp`, `praiseTheSun`) 규칙을 추가할 것. 배틀 내 최대 HP 조회는 모두 `p.maxHp`를 통함. |
+| **공격/방어/특공/특방/스피드 스탯 증강 수정** | `src/calc/getStat.js` (`getAugmentedStat`, `getHighestStatInfo`) | 합연산(`arcaneShadeSword`, `swordEnhance`, `mejaisSoulstealer`, `soulDice`, `axeOfDespair`, `rush`, `powerOfKing`, `holyElfBlessing`, `salamandra`, `flamingKatana`, `sunfireCape`, 팀 버프 `haste`, `waterOmotics`, `giantSoldierOfStone`) → 곱연산(`lifePartner`, `soulMinion`, `jinanSangae`, `pokemonQuizExpert`, `rampagingPower`, `threeBearsHouse`, `rabadonsDeathcap`, `allOrNothing`, `allInDefense`, `limiterRemoval`, `dragonRoar`) → 팀 시너지(`echoOfHero`, `mapleWarrior`, `millenniumShield`) → 디버프(`armorBreak`) 순서로 계산됨. |
 | **스피드/우선도 계산 수정** | `src/calc/speedCheck.js` (`speedCalculate`, `priCalculate`, `skillSpeedCheck`, `speedCheck`) | 메가진화 예상 스피드는 `getExpectedMegaSpeed`에서 가상 뷰(`megaPokemonView`)로 계산됨. `believeInMyself` 등 스피드 배율 적용 여부 확인. |
-| **데미지 공식/배율 수정** | `src/calc/damageCalculate.js` (공식 산출), `src/service/damage.js` (실제 체력 차감/기띠/옹골참/탈/대타/처형) | `damageCalculate`는 순수 계산(로그 기록 포함)만 수행하고, 실제 HP 감소·기절·열매·처형은 `damage.js`(`attackDamage`)와 `PokemonGetDamage.js`에서 수행함. |
-| **턴 종료 효과 추가/수정** | `src/service/turnEnd.js` | **주의**: `battle.resetBattleTurn()`은 반드시 `turnEnd.js` 맨 마지막 줄에서 호출되어야 함. 워모그, 태불방, 거인의 흡수 등 지속 효과 처리 순서 준수. |
+| **데미지 공식/배율 수정** | `src/calc/damageCalculate.js` (공식 산출), `src/service/damage/damage.js` (실제 체력 차감/기띠/옹골참/탈/대타/처형) | `damageCalculate`는 순수 계산(로그 기록 포함)만 수행하고, 실제 HP 감소·기절·열매·처형은 `damage.js`(`attackDamage`)와 `PokemonGetDamage.js`에서 수행함. |
+| **상태이상 및 회복 로직 수정** | `src/service/ailment.js` (`ailmentAbleCheck`, `applyAilment`, `getBurnStack`), `src/entity/Pokemon/Methods/PokemonRecover.js` (`_doRecover`) | `sunBreathing` 화상 최대 13스택 중첩(`pokemon.ailment.burn = 1..13`) 및 2스택 이상 치유 70% 감소, `superheatedGladius` 화상 대상 추가 화상 시 최대 HP 10% 데미지 처리. |
+| **턴 종료 효과 추가/수정** | `src/service/turnEnd.js` | **주의**: `battle.resetBattleTurn()`은 반드시 `turnEnd.js` 맨 마지막 줄에서 호출되어야 함. 워모그, 타오르는 천 개의 태양, 태불방, 거인의 흡수, 상태이상 데미지(태양 만세 회복 연동) 처리 순서 준수. |
 | **기술(Skill) 추가/수정** | `src/entity/Skill/PokemonSkillList.js`, `src/entity/Skill/skillList/*.js`, `src/entity/Skill/SkillEffect.js`, `src/entity/Skill/SkillRequirement.js` | 공격 전 체크는 `src/service/skillCheck.js`, 명중 후 접촉 판정은 `src/service/onHit.js`, 부가효과는 `SkillEffect.js`에서 처리. |
 | **특성(Ability) 추가/수정** | `src/entity/Ability.js` (`abilObject`, `noTraceAbil`, `noRandomAbil`, `applyAbilityEffects`) 및 `PokemonAbil.js` (`changeAbil`) | 공식 설명 텍스트 등록 필수. 등장 시 발동 특성은 `applyAbilityEffects`, 스킨류 특성은 `src/calc/skillTypeCalculate.js` & `damageCalculate.js` 연동. |
 | **도구(Item) 추가/수정** | `src/entity/Item.js` (`itemText`, `noNullItem`), `src/component/customScreen/sampleInfo/ItemSearchModal.js` | **도구 이미지는 사용자가 직접 관리하므로 `public/img/item/` 디렉터리는 절대 수정하지 않는다.** |
@@ -310,35 +311,46 @@ flowchart LR
 - **역할**: `pokemon.o.hp`는 원본으로 보존한 채, 증강 효과가 반영된 **실제 최대 HP**를 반환.
 - **계산 순서**:
   1. 기본 기준값: `pokemon.baseHp`
-  2. **곱적용 증강**: `lifePartner` (인생의 동반자) → `hp = Math.round(hp * 1.1)`
-  3. **합적용 증강**: `giantAbsorption` (거인의 흡수) → `hp += Number(pokemon.giantBonusHp ?? 0)`
-- **필수 규칙**: 회복량, 최대체력 비례 피해(모래바람, 가시갑옷, 태불방, 거인의 흡수 등), 풀피 판정(멀티스케일, 기띠, 옹골참), 처형(징수의 총), UI 체력바는 모두 `hpCalculate(pokemon)` (또는 `pokemon.maxHp`)을 사용해야 합니다.
+  2. **합적용 증강**: `giantAbsorption` (거인의 흡수) → `hp += Number(pokemon.giantBonusHp ?? 0)`
+  3. **곱적용 증강**:
+     - `ironWall` (아이언 월): `hp = Math.round(hp * 2.0)`
+     - `hyperBody` (하이퍼 바디, 팀 버프): `hp = Math.round(hp * 1.6)`
+     - `growUp` (커져라!): `hp = Math.round(hp * 1.5)`
+     - `praiseTheSun` (태양 만세): `hp = Math.round(hp * 1.5)`
+- **필수 규칙**: 회복량, 최대체력 비례 피해(모래바람, 가시갑옷, 태불방, 거인의 흡수, 초고열 글라디우스 등), 풀피 판정(멀티스케일, 기띠, 옹골참), 처형(징수의 총), UI 체력바는 모두 `pokemon.maxHp`를 사용해야 합니다.
 
 ### 4.2 기초 스탯 증강 계산: `getAugmentedStat(pokemon, statKey, battle)` (`src/calc/getStat.js`)
-- **역할**: `pokemon.stat[statKey]`를 기준으로 상시 적용되는 스탯 증강을 계산하고 로그에 기록.
+- **역할**: `pokemon.stat[statKey]`를 기준으로 상시 적용되는 스탯 증강을 계산하고 `pokemon.log.getStat[statKey]`에 기록.
 - **계산 순서**:
-  1. **합적용**:
-     - `swordEnhance` (검 강화하기): `atk`, `catk`에 `+bonusAtk`
-     - `mejaisSoulstealer` (메자이): `catk`에 `+(mejaiStack * 20)`
-  2. **곱적용**:
-     - `lifePartner` (인생의 동반자): 모든 스탯 `Math.round(val * 1.1)`
-     - `rabadonsDeathcap` (라바돈): `catk` `Math.round(val * 1.3)`
-     - `allOrNothing` (모 아니면 도): 선택 스탯 `* 2`, 반대 스탯 `Math.max(1, Math.floor(val / 2))`
-     - `believeInMyself` (나를 믿는 내가 최강이다!): 아군의 남은 포켓몬 수가 상대보다 적을 때 `atk, def, catk, cdef, speed` 5개 스탯 `* 2`
-  3. **팀 시너지 버프**:
-     - `echoOfHero` (영웅의 메아리): 보유자 또는 같은 팀에 보유자 존재 시 `atk`, `catk` `Math.round(val * 1.4)`
+  1. **특수 고정/기본 보정**: `최강의잉어킹` (999 고정), `gearStack` (중첩 * 20), `anvilStats` (모루 파편 누적치), `전관예우` (노력치 252 보정).
+  2. **합적용**:
+     - 개인 증강: `arcaneShadeSword` (주흔작/스타포스/잠재 flat), `swordEnhance`, `mejaisSoulstealer` (`catk + stack * 20`), `soulDice`, `axeOfDespair` (`atk + 100`), `rush` (`atk + 70`), `powerOfKing` (`atk, catk + bonus`), `holyElfBlessing` (`def, cdef + 200`), `salamandra` (불꽃 타입 `atk, catk + 70`), `flamingKatana` (`atk + 65, catk + 40, speed + 17`), `sunfireCape` (불꽃 타입 `def, cdef + 70`).
+     - 팀 버프(`hasAugmentOnTeam`): `haste` (`speed + 40`), `waterOmotics` (물 타입 아군 `def, cdef + 200`), `giantSoldierOfStone` (바위 타입 아군 `def, cdef + 200`).
+  3. **곱적용**:
+     - 개인 증강: `arcaneShadeSword` (위대한 엄니의 소울 *1.3 / 잠재 % 증가), `lifePartner` (*1.1), `soulMinion` (*1.5), `jinanSangae` (*1.3), `pokemonQuizExpert` (*1.3), `rampagingPower` (*1.5), `threeBearsHouse` (곰 수에 따라 *1.1 / *1.3 / *1.5), `rabadonsDeathcap` (`catk` *1.3), `allOrNothing` (*2 / 0.5), `allInDefense` (방/특방 *2, 공/특공/스피드 *0.5), `limiterRemoval` (공/특공/스피드 *1.5), `dragonRoar` (반피 이상 스피드 *2).
+  4. **팀 시너지 곱연산 및 피격 디버프**:
+     - `echoOfHero` (영웅의 메아리): 팀 아군 `atk, catk` *1.4
+     - `mapleWarrior` (메이플 용사): 팀 아군 전 스탯 *1.15
+     - `millenniumShield` (천년 방패): 팀 아군 `def, cdef` *2.0
+     - `armorBreak` (방어구 부수기): 피격 누적 스택당 `def, cdef` -5% (최대 15스택 = -75%)
 - **`getHighestStatInfo(pokemon, battle)`**: 실효 스탯(`getAugmentedStat * rankMultiplier`) 중 가장 높은 스탯 반환 (`hhgghgg` 등에서 활용).
 
 ### 4.3 스피드 계산: `speedCalculate(pokemon, baseSpeed, battle, abil, rankOverride)` (`src/calc/speedCheck.js`)
 - **계산 순서**:
   1. 기본 스피드: `hhgghgg` 보유 시 최고 스탯값 사용, 아니면 `getAugmentedStat(pokemon, "speed", battle)`.
   2. 상태 및 도구 배율: 랭크 배율, 마비(`* 0.5`), 구애스카프(`* 1.5`), 고대활성/쿼크차지(`* 1.5`), 곡예(`* 2`), 순풍(`* 2`), 쓱쓱(`* 2`), 패스트스타트 5턴 후(`* 2`), 슬로스타트 5턴 미만(`* 0.5`).
-  3. 증강 배율: `dragonHunter` (상대 드래곤 시 `* 1.5`), `dragonDie` (`1 + killCount * 0.05`), `lifePartner` (`* 1.1`), `lastWarrior` (혼자 남았을 때 `* 1.6`), `believeInMyself` (남은 아군 적을 때 `* 2`).
+  3. 증강 배율: `dragonHunter` (상대 드래곤 시 `* 1.5`), `dragonDie` (`1 + Math.floor(killCount / 2) * 0.1`), `lastWarrior` (혼자 남았을 때 `* 1.6`), `believeInMyself` (남은 아군 적을 때 `* 2`).
 
-### 4.4 데미지 계산: `damageCalculate(battle, skillNumber, options)` (`src/calc/damageCalculate.js`)
-- **스탯 치환 증강**: `hhgghgg` (최고 스탯으로 공방 치환), `swordAndShield` (물리 공방 시 `atk`와 `def` 중 유리한 쪽 사용), `specialSwordAndShield` (특수 공방 시 `catk`와 `cdef` 중 유리한 쪽 사용), `ksante` (수비 시 `def`와 `cdef` 중 유리한 쪽 사용).
-- **데미지 배율 증강**: `voidStaff` (상대 특방 40% 무시 + 고스트 무효 관통), `infinityEdge` (급소 확률 +50%, 급소 데미지 배율 상승), `highRiskBuff` (`* 3`), `highRiskCurse` (`* 0.5`), `lastSamurai` (공/특공 `* 1.6`), `lastManStanding` (방/특방 `* 1.6`).
-- **피격 후 고정 추가 피해 (`src/service/damage.js` 내 `attackDamage`)**: `threeSnails`, `wujuStyle`, `ludensEcho`, `bladeOfTheRuinedKing`, `collector` (피격 후 남은 체력이 최대 HP의 5% 이하 시 처형).
+### 4.4 데미지 계산: `damageCalculate(battle, num, ai)` (`src/calc/damageCalculate.js`)
+- **스탯 치환 증강 (`applyStatSwapAugments`)**: `swordAndShield` (`atk`/`def` 중 높은 값 공유), `specialSwordAndShield` (`catk`/`cdef` 중 높은 값 공유), `ksante` (`def`/`cdef` 중 높은 값 공유), `hhgghgg` (`atk, def, catk, cdef` 4개 중 최고값 공유).
+- **확정 급소 잠금 (`fatalStrike`)**: `치명적인 일격` 보유 포켓몬이 기술로 한 번이라도 급소를 맞히면 `skill.fatalStrike = true`로 영구 잠금되어 이후 해당 기술이 항상 확정 급소로 적중(`SkillButton.js`에 `급소` 배지 표시).
+- **데미지 배율 증강**:
+  - 고정 공식 전(`damage1`): `lifeIsOneShot` (`* 10`), `onePunchMan` (`* 999`), `dragonKiller` (`* 2`), `highRiskBuff` (`* 3`), `highRiskCurse` (`* 0.5`), `choiceAndFocus` (선택 기술 `* 1.5` / 외 `* 0.5`), `zeroSumGame` (강화 기술 `* 1.5` / 약화 기술 `* 0.5`), `focusOne` (첫 타겟 `* 1.5` / 외 `* 0.8`).
+  - 고정 공식 후(`damage2`): `arcaneShadeSword` (잠재 데미지 %), 급소 시 `infinityEdge` (`* 1.3`) 및 팀 버프 `sharpEyes` (`* 1.4`), `berserk` (반피 이하 `* 2`), `aThousandBlazingSuns` (상대 화상 상태 시 `* 1.5`), `bladeOfTheRuinedKing` (적 현재 체력의 15% 추가 데미지).
+- **공격 전/후 발동 효과 (`src/service/skillUse.js`, `src/entity/Skill/SkillEffect.js`, `src/service/damage/damage.js`)**:
+  - 공격 전(`skillUse.js`): `practiceMakesCritical` (스택 +1), `focusOne` (첫 타겟 기록), `superheatedGladius` (공격 전 상대에게 선 화상 부여).
+  - 피격 직후(`damage.js`): `armorBreak` (방깎 스택 +1), `collector` (남은 체력 5% 이하 처형), `endure.js` (`mandoocornEndure`, `butItRefused`, `nothingHappened`, `airmanGaTaosenai`).
+  - 공격 후(`SkillEffect.js` 내 `공통`): `luckyRecovery`, `threeSnails`, `wujuStyle`, `powerStrike`, `ludensEcho`, `arcaneShadeSword` (맹독/빙결 부여), `salamandra` (30% 화상), `flamingKatana` (50% 확률로 적 또는 자신 화상), `limiterRemoval` (최대 HP 40% 반동).
 
 ---
 
@@ -362,33 +374,47 @@ flowchart LR
 
 ## 6. ✨ 증강(Augment) 및 시너지 아키텍처
 
+> 신규 증강 및 시너지 추가 시의 세부 코드 규격과 체크리스트는 **[AUGMENT_ADD_GUIDE.md](file:///c:/Users/khs20/pokemon/public/txt/md/AUGMENT_ADD_GUIDE.md)**를 참조하십시오.
+
 ### 6.1 증강 분류 (`src/entity/Augment/AugmentData.js`)
 
-1. **일반 증강**: 코스트가 숫자(`0, 1, 3, 5, 7, 10, 16`)이고 `buf`가 아닌 증강. 포켓몬당 최대 **3개**까지 장착 가능 (`pokemon.augments.filter(a => !a.buf).length < 3`).
-2. **교체형 증강 (`isChange: true`)**: 보유 시 기존 기술이나 포켓몬을 대체하는 증강. UI에서 우측 상단에 `'교체'` 배지를 표시.
-3. **즉발형 증강 (`isInstant: true`)**: 코스트가 `"-"` 이거나 포켓몬 본체를 즉시 교체하는 증강. 슬롯을 차지하지 않고 일회성으로 즉각 적용됨.
-4. **버프 / 시너지 / 저주 증강 (`buf: true`)**: 슬롯 3개 제한에 포함되지 않으며, 라운드 종료 시 다음 라운드로 **자동 승계**됨.
+1. **일반 증강 (`isNormalAugment`)**: 코스트가 숫자(`0, 1, 2, 3, 5, 7, 10, 16`)이고 `buf`/`curse`/`synergy`가 아닌 증강. 포켓몬당 최대 **3개**까지 장착 가능 (`pokemon.augments.filter(a => isNormalAugment(a)).length < 3`).
+2. **교체형 증강 (`isReplacementAugment`, `REPLACEMENT_AUGMENT_IDS`)**: 보유 시 포켓몬 본체를 교체하는 증강(`cost: "-"`). UI에서 우측 상단에 보라색 `'교체'` 배지를 표시.
+3. **즉발형 증강 (`cost === "-"`)**: 슬롯을 차지하지 않고 일회성으로 즉각 적용됨 (단, `buf: true` 또는 `curse: true`인 경우 버프/디버프로 장착).
+4. **버프(`isBuffAugment`) / 저주(`isCurseAugment`) 증강**: 슬롯 3개 제한에 포함되지 않으며, `permanent: true`인 영구 버프/영구 저주만 다음 라운드로 승계됨.
+5. **시너지 증강 (`isSynergyAugment`, `synergy: true`)**: 조건 증강(일반적으로 3개)을 모아 활성화되는 공명 시너지 버프. 슬롯 제한에 포함되지 않으며 조건 충족 시 자동 부여/유지됨.
 
-### 6.2 3개 증강 공명 시너지 (`AUGMENT_SYNERGY_MAP`)
+### 6.2 3개 증강 공명 시너지 (`AUGMENT_SYNERGY_MAP` & `SYNERGY_ACTIVATION_THRESHOLD`)
 
-포켓몬이 지정된 3개 증강을 모두 모으면 공명 버프 증강(`buf: true`)을 즉시 획득합니다:
+포켓몬이 지정된 조건 증강 중 임계치(`getSynergyThreshold(synergyId, requiredIds)`, 기본 3개) 이상을 보유하면 공명 시너지 증강(`synergy: true`)을 즉시 획득합니다. 하나의 조건 증강이 복수의 시너지에 속할 수 있으며(예: `sunfireCape`, `sunfireAegis`, `aThousandBlazingSuns`), `getAugmentSynergyInfo(augId)`는 일치하는 모든 시너지 배열(`synergies`)을 함께 반환합니다.
 
-| 공명 시너지 증강 | 필요 조건 증강 3개 | 핵심 효과 |
-| :--- | :--- | :--- |
-| **`echoOfHero`** (영웅의 메아리) | `threeSnails`, `nimbleMoves`, `recovery` | 자신 및 같은 팀 아군 전체 공격/특공 1.4배 |
-| **`dragonDie`** (용용 죽겠지) | `dragonSlayer`, `dragonHunter`, `dragonKiller` | 처치한 드래곤 수에 비례하여 스피드/공격력 영구 강화 |
-| **`wujuStyle`** (우주류 검술) | `lastManStanding`, `lastSamurai`, `lastWarrior` | 공격 시 상대 최대 HP의 10% 고정 추가 피해 |
-| **`mejaisSoulstealer`** (메자이의 영혼약탈자) | `rabadonsDeathcap`, `voidStaff`, `ludensEcho` | 적 처치 시 스택당 특공 +20 (최대 25스택) |
-| **`practiceMakesCritical`** (연습이 치명타를 낳는다) | `infinityEdge`, `bladeOfTheRuinedKing`, `collector` | 기술 사용할 때마다 영구적으로 급소율 +1% 누적 |
-| **`giantAbsorption`** (거인의 흡수) | `thornmail`, `warmogsArmor`, `sunfireAegis` | 매 턴 상대에게 **내 최대 HP의 3% 피해**를 주고, **준 피해의 절반(50%)만큼 `giantBonusHp` 영구 획득** |
-| **`gamblingAddict`** (도박 중독) | `lifeIsOneShot`, `allOrNothing`, `randomAbility` | 즉발 도박 증강(`russianRoulette`, `oddEven`, `highRiskHighReturn`) 해금 |
+| 공명 시너지 ID (`이름`) | 조건 증강 목록 (`requiredIds`) | 활성 임계치 | 핵심 효과 |
+| :--- | :--- | :---: | :--- |
+| **`praiseTheSun`** (태양 만세) | `sunfireCape`, `sunfireAegis`, `aThousandBlazingSuns`, `sunBreathing` | 4개 중 3개 | 최대 HP 1.5배 증가 + 상대가 화상 데미지를 입었을 때 해당 수치만큼 체력 회복 |
+| **`superheatedGladius`** (초고열 글라디우스) | `salamandra`, `flamingKatana`, `aThousandBlazingSuns` | 3개 | 공격 시 상대에게 화상을 입힌 후 공격 + 이미 화상인 적에게 추가 화상 부여 시 최대 HP 10% 데미지 |
+| **`millenniumShield`** (천년 방패) | `holyElfBlessing`, `giantSoldierOfStone`, `waterOmotics` | 3개 | **[팀 버프]** 모든 아군 포켓몬의 방어와 특수방어 2배 (`syncTeamMillenniumShieldBuff`) |
+| **`airmanGaTaosenai`** (에어맨이 쓰러지지 않아) | `mandoocornEndure`, `butItRefused`, `nothingHappened` | 3개 | 기절할 데미지를 받을 때 총 20번(`airmanRemainCount`) HP 1로 버팀 |
+| **`symphonyFor100Metronomes`** (100개의 메트로놈을 위한 교향시) | `metronome`, `doubleMetronome`, `tripleMetronome` | 3개 | 메트로놈 연속 사용 스택이 다른 기술 사용/실패 시에도 초기화되지 않음 |
+| **`berserk`** (버서크) | `powerStrike`, `ironWall`, `dragonRoar` | 3개 | 현재 HP가 절반 이하일 때 적에게 입히는 데미지 2배 |
+| **`mapleWarrior`** (메이플 용사) | `sharpEyes`, `haste`, `hyperBody` | 3개 | **[팀 버프]** 파티 전원의 모든 능력치 15% 증가 (`syncTeamMapleWarriorBuff`) |
+| **`echoOfHero`** (영웅의 메아리) | `threeSnails`, `nimbleMoves`, `recovery`, `soulDice` | 4개 중 3개 | **[팀 버프]** 모든 아군 포켓몬의 공격과 특수공격 40% 증가 (`syncTeamEchoOfHeroBuff`) |
+| **`dragonDie`** (용용 죽겠지) | `dragonSlayer`, `dragonHunter`, `dragonKiller` | 3개 | 드래곤 타입 포켓몬 2마리 처치 시마다 모든 능력치 +10% (`dragonKillCount`) |
+| **`wujuStyle`** (우주류 검술) | `lastManStanding`, `lastSamurai`, `lastWarrior` | 3개 | 공격 후 적에게 30의 추가 고정 데미지 |
+| **`mejaisSoulstealer`** (메자이의 영혼약탈자) | `rabadonsDeathcap`, `voidStaff`, `ludensEcho` | 3개 | 적 처치 시 중첩 +1 (기절 시 -1), 중첩당 특공 +20 (`mejaiStack`) |
+| **`practiceMakesCritical`** (연습이 치명타를 낳는다) | `infinityEdge`, `bladeOfTheRuinedKing`, `collector` | 3개 | 공격 시마다 스택 +1, 스택당 급소 확률 +1% (`practiceCritStack`) |
+| **`gamblingAddict`** (도박 중독) | `lifeIsOneShot`, `allOrNothing`, `randomAbility` | 3개 | 도박 관련 증강(`russianRoulette`, `oddEven`, `highRiskHighReturn`) 추가 등장 해금 |
+| **`giantAbsorption`** (거인의 흡수) | `thornmail`, `warmogsArmor`, `sunfireAegis`, `spiritVisage`, `sunfireCape` | 5개 중 3개 | 매 턴 상대에게 내 최대 HP의 3% 데미지 + 절반만큼 추가 최대 HP(`giantBonusHp`) 영구 획득 |
+| **`lostTechnologyCritical`** (과거의 영광 - 급소) | `specialSwordAndShield`, `lostTechnologyBlizzard`, `lostTechnologyPsychic`, `lostTechnologyHyperBeam` | 4개 중 3개 | 1세대 스피드 종족값 기반 급소 확률 공식 적용 |
 
-### 6.3 증강 UI 렌더링 규칙
+### 6.3 증강 UI 및 시너지 프리뷰 모달 규칙
 
 - **시너지 배지**:
-  - 증강 선택 모달 및 상세 정보 모달에서 시너지 관련 배지(파란색/노란색)는 우측 상단에 고정 배치합니다.
-  - 상세 정보 모달의 하단 공명 시너지 항목도 우측 상단에 배지를 배치합니다.
-- **증강 이름 가변 폰트 크기**: 증강 이름 길이가 긴 경우 컨테이너를 벗어나거나 가로 스크롤이 발생하지 않도록 글자 크기를 자동으로 축소하여 가독성을 유지합니다.
+  - 시너지 버프 본인(`isSynergyAugment`): 우측 상단 노란색 `'시너지'` 배지.
+  - 시너지 구성 증강(`isSynergyComponentAugment`): 우측 상단 파란색 `'시너지'` 배지.
+- **시너지 프리뷰 모달 (`AugmentSynergyPreviewModal.js`)**:
+  - 상단 제목은 `'시너지 상세정보'`로 고정하며, 가운데 조건 증강 목록(`RequiredGrid`)에만 스크롤을 부여하고 하단 시너지 보상 카드 및 푸터(`FixedFooterArea`)는 고정합니다.
+  - 조건 증강 정렬 순서: `선택 중` (`isViewing`) → `보유 중` (`isOwned`) → `미보유` → `획득 불가` (`isUnobtainable`).
+  - 복수의 시너지(`synergyList.length > 1`)에 속한 증강을 조회할 때만 좌측 하단(`닫기` 버튼과 일렬)에 시너지 전환 탭을 표시합니다.
 - **포켓몬 슬롯 식별자**: 배틀 중 교체되어도 변하지 않는 초기 엔트리 번호인 `pokemon.originalIndex` (0, 1, 2)를 기준으로 증강과 포켓몬을 매핑합니다.
 
 ---
@@ -489,6 +515,7 @@ src/
 2. **단위 테스트 및 빌드 검증**:
    - 기능 추가 또는 리팩토링 후에는 반드시 관련 단위 테스트 통과 및 `npm run build` 성공 여부를 확인합니다.
 3. **가이드 문서 상호 참조**:
-   - 신규 포켓몬 및 메가진화 등록 시: [POKEMON_ADD_GUIDE.md](file:///c:/Users/khs20/pokemon/public/txt/md/POKEMON_ADD_GUIDE.md) 준수.
+   - 신규 증강 및 시너지 등록 시: [AUGMENT_ADD_GUIDE.md](file:///c:/Users/khs20/pokemon/public/txt/md/AUGMENT_ADD_GUIDE.md) 준수.
+   - 신규 포켓몬 및 메가진화 등록 시: [POKEMON_ADD_GUIDE.md](file:///c:/Users/khs20/pokemon/public/txt/md/POKEMON_ADD_GUIDE.md) 및 [POKEMON_IMG_GUIDE.md](file:///c:/Users/khs20/pokemon/public/txt/md/POKEMON_IMG_GUIDE.md) 준수.
    - 도구 이미지는 사용자가 직접 넣으므로 `public/img/item/` 디렉터리는 손대지 않습니다.
 
