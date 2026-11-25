@@ -4,7 +4,7 @@ import { defaultOption } from "../config/defaultOption";
 import { setSelectedNpcAct } from "../config/testMode";
 import { consoleLog } from "../util/consoleLog";
 import { rollAugments } from "../calc/augmentRoll";
-import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentScreenText, getAugmentLogModalText, getAugmentStatusModalText, getAugmentSelDesc, isBuffAugment, isCurseAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, syncTeamEchoOfHeroBuff, syncTeamMapleWarriorBuff, stripEmoji, isReplacementAugment } from "../entity/Augment/AugmentData";
+import { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getAugmentScreenText, getAugmentLogModalText, getAugmentStatusModalText, getAugmentSelDesc, isBuffAugment, isCurseAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isNormalAugment, syncTeamEchoOfHeroBuff, syncTeamMapleWarriorBuff, syncTeamMillenniumShieldBuff, stripEmoji, isReplacementAugment } from "../entity/Augment/AugmentData";
 import { generatePokemonInstance } from "../entity/Pokemon/PokemonInstance";
 import { switchNpcAuto } from "../service/switch";
 import { speedCheck } from "../calc/speedCheck";
@@ -992,6 +992,7 @@ export const useBattleStore = createStore((set, get) => ({
     }
     syncTeamEchoOfHeroBuff(curBattle, newPoke);
     syncTeamMapleWarriorBuff(curBattle, newPoke);
+    syncTeamMillenniumShieldBuff(curBattle, newPoke);
 
     set({
       battle: cloneWithMethods(curBattle),

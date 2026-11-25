@@ -246,6 +246,68 @@ export const getArcaneSwordData = (pokemon = null, source = null, options = null
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
   {
+    id: "giantSoldierOfStone",
+    name: "암석거인",
+    desc: "모든 아군 바위타입 포켓몬의 방어와 특수방어가 200 증가합니다.",
+    cost: 3,
+    weight: (pokemon, battle) => getTypeDefenseAugmentWeight(pokemon, battle, "바위"),
+    isEligible: (pokemon, battle, team) => {
+      return !pokemon?.hasAugmentOnTeam?.("giantSoldierOfStone", team || battle);
+    },
+    onApply: function (pokemon, battle) {
+      if (battle) {
+        syncTeamGiantSoldierOfStoneBuff(battle, pokemon);
+      } else if (pokemon) {
+        pokemon.hasGiantSoldierOfStoneBuff = true;
+      }
+    },
+    // getStat.js에 구현
+  },
+  {
+    id: "waterOmotics",
+    name: "물의 조종자",
+    desc: "모든 아군 물타입 포켓몬의 방어와 특수방어가 200 증가합니다.",
+    cost: 3,
+    weight: (pokemon, battle) => getTypeDefenseAugmentWeight(pokemon, battle, "물"),
+    isEligible: (pokemon, battle, team) => {
+      return !pokemon?.hasAugmentOnTeam?.("waterOmotics", team || battle);
+    },
+    onApply: function (pokemon, battle) {
+      if (battle) {
+        syncTeamWaterOmoticsBuff(battle, pokemon);
+      } else if (pokemon) {
+        pokemon.hasWaterOmoticsBuff = true;
+      }
+    },
+    // getStat.js에 구현
+  },
+  {
+    id: "holyElfBlessing",
+    name: "홀리엘프의 축복",
+    desc: "해당 포켓몬의 방어와 특수방어가 200 증가합니다.",
+    cost: 3,
+    weight: 100,
+    // getStat.js에 구현
+  },
+  {
+    id: "millenniumShield",
+    name: "천년 방패",
+    desc: "모든 아군 포켓몬의 방어와 특수방어가 2배가 됩니다.",
+    synergy: true,
+    isRandom: false,
+    weight: "-",
+    onApply: function (pokemon, battle) {
+      if (battle) {
+        const team = pokemon.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
+        team.filter(Boolean).forEach((p) => {
+          p.hasMillenniumShieldBuff = true;
+        });
+      } else if (pokemon) {
+        pokemon.hasMillenniumShieldBuff = true;
+      }
+    },
+  },
+  {
     id: "fatalStrike",
     name: "치명적인 일격",
     desc: "사용한 기술이 급소에 맞았을 경우, 해당 기술은 계속 급소에 적중합니다.",
@@ -3162,9 +3224,16 @@ export const AUGMENT_SYNERGY_MAP = {
   lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic", "lostTechnologyHyperBeam"], // 과거의 영광 (급소)
   symphonyFor100Metronomes: ["metronome", "doubleMetronome", "tripleMetronome"], // 100개의 메트로놈을 위한 교향시
   airmanGaTaosenai: ["mandoocornEndure", "butItRefused", "nothingHappened"], // 에어맨이 쓰러지지 않아: [슬프게 하지 않게 하려고 버텼다!, 하지만 버텨냈다., 아무일도 없었다...!]
+  millenniumShield: ["holyElfBlessing", "giantSoldierOfStone", "waterOmotics"], // 천년 방패: [홀리엘프의 축복, 암석거인, 물의 조종자]
 };
 
 const SYNERGY_INFO_MAP = {
+  millenniumShield: {
+    emoji: "🛡️",
+    theme: "천년 방패",
+    title: "천년 방패",
+    desc: "모든 아군 포켓몬의 방어와 특수방어가 2배가 됩니다.",
+  },
   airmanGaTaosenai: {
     emoji: "💨",
     theme: "에어맨",
@@ -3505,6 +3574,72 @@ export const syncTeamSharpEyesBuff = (battle, fallbackPokemon = null) => {
   });
 };
 
+// 팀 내 물의 조종자(hasWaterOmoticsBuff) 플래그 동기화 함수
+export const syncTeamWaterOmoticsBuff = (battle, fallbackPokemon = null) => {
+  if (!battle) {
+    if (fallbackPokemon && !fallbackPokemon.hasAugment?.("waterOmotics")) {
+      delete fallbackPokemon.hasWaterOmoticsBuff;
+    }
+    return;
+  }
+  ["player", "npc"].forEach((side) => {
+    const members = (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean);
+    if (members.length === 0) return;
+    const hasHolder = members.some((p) => p?.hasAugment?.("waterOmotics"));
+    members.forEach((p) => {
+      if (hasHolder) {
+        p.hasWaterOmoticsBuff = true;
+      } else {
+        delete p.hasWaterOmoticsBuff;
+      }
+    });
+  });
+};
+
+// 팀 내 암석거인(hasGiantSoldierOfStoneBuff) 플래그 동기화 함수
+export const syncTeamGiantSoldierOfStoneBuff = (battle, fallbackPokemon = null) => {
+  if (!battle) {
+    if (fallbackPokemon && !fallbackPokemon.hasAugment?.("giantSoldierOfStone")) {
+      delete fallbackPokemon.hasGiantSoldierOfStoneBuff;
+    }
+    return;
+  }
+  ["player", "npc"].forEach((side) => {
+    const members = (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean);
+    if (members.length === 0) return;
+    const hasHolder = members.some((p) => p?.hasAugment?.("giantSoldierOfStone"));
+    members.forEach((p) => {
+      if (hasHolder) {
+        p.hasGiantSoldierOfStoneBuff = true;
+      } else {
+        delete p.hasGiantSoldierOfStoneBuff;
+      }
+    });
+  });
+};
+
+// 팀 내 천년 방패(hasMillenniumShieldBuff) 플래그 동기화 함수
+export const syncTeamMillenniumShieldBuff = (battle, fallbackPokemon = null) => {
+  if (!battle) {
+    if (fallbackPokemon && !fallbackPokemon.hasAugment?.("millenniumShield")) {
+      delete fallbackPokemon.hasMillenniumShieldBuff;
+    }
+    return;
+  }
+  ["player", "npc"].forEach((side) => {
+    const members = (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean);
+    if (members.length === 0) return;
+    const hasHolder = members.some((p) => p?.hasAugment?.("millenniumShield"));
+    members.forEach((p) => {
+      if (hasHolder) {
+        p.hasMillenniumShieldBuff = true;
+      } else {
+        delete p.hasMillenniumShieldBuff;
+      }
+    });
+  });
+};
+
 // 포켓몬 교체 공통 함수
 /**
  * 증강 등에서 포켓몬을 다른 포켓몬으로 교체/변경하는 공통 함수
@@ -3574,6 +3709,9 @@ const replacePokemon = (pokemon, newPokemonOrId, battle, options = {}) => {
   syncTeamHyperBodyBuff(battle, pokemon);
   syncTeamHasteBuff(battle, pokemon);
   syncTeamSharpEyesBuff(battle, pokemon);
+  syncTeamWaterOmoticsBuff(battle, pokemon);
+  syncTeamGiantSoldierOfStoneBuff(battle, pokemon);
+  syncTeamMillenniumShieldBuff(battle, pokemon);
   syncTeamBearBuffs(battle);
 
   return pokemon;
@@ -3818,3 +3956,19 @@ const getStatCompareDesc = (pokemon, stat1, stat2, battle = null, label1 = null,
   }
   return josa(`항상 ${name1}#{와} ${name2} 중 더 유리한 수치를 사용합니다.`);
 };
+
+// 물의 조종자 / 암석거인 등장 가중치 계산
+function getTypeDefenseAugmentWeight(pokemon, battle, targetType) {
+  let w = 0;
+  if (pokemon?.type1 === targetType || pokemon?.type2 === targetType) {
+    w += 100;
+  }
+  const side = pokemon?.team === "npc" ? "npc" : "player";
+  const team = battle ? (side === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]).filter(Boolean) : [];
+  const otherTypeCount = team.filter((p) => p !== pokemon && (p.type1 === targetType || p.type2 === targetType)).length;
+  w += otherTypeCount * 50;
+  if (pokemon?.hasAugment?.("holyElfBlessing")) {
+    w += 50;
+  }
+  return w;
+}

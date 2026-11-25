@@ -49,7 +49,7 @@ export const PokemonAugment = {
   },
 
   checkAugmentSynergies(battle) {
-    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getSynergyThreshold, syncTeamEchoOfHeroBuff, syncTeamMapleWarriorBuff, syncTeamBearBuffs } = require("../../Augment/AugmentData");
+    const { AUGMENT_LIST, AUGMENT_SYNERGY_MAP, getSynergyThreshold, syncTeamEchoOfHeroBuff, syncTeamMapleWarriorBuff, syncTeamMillenniumShieldBuff, syncTeamBearBuffs } = require("../../Augment/AugmentData");
     const team = battle ? (this.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2]) : [];
 
     Object.entries(AUGMENT_SYNERGY_MAP).forEach(([synergyId, requiredIds]) => {
@@ -62,6 +62,9 @@ export const PokemonAugment = {
         if (synergyId === "mapleWarrior" && typeof syncTeamMapleWarriorBuff === "function") {
           syncTeamMapleWarriorBuff(battle, this);
         }
+        if (synergyId === "millenniumShield" && typeof syncTeamMillenniumShieldBuff === "function") {
+          syncTeamMillenniumShieldBuff(battle, this);
+        }
         return;
       }
 
@@ -73,12 +76,15 @@ export const PokemonAugment = {
       if (hasAllConditions) {
         // 활성화 조건 만족: 아직 활성화되지 않았다면 추가
         if (!hasSynergyNow) {
-          // 영메 및 메용은 팀 단위 버프이므로 한 명만 활성화
+          // 영메, 메용, 천년방패는 팀 단위 버프이므로 한 명만 활성화
           const alreadyHasEchoOnTeam = synergyId === "echoOfHero" && team.some((p) => p !== this && (p?.hasAugment?.("echoOfHero") || p?.hasEchoOfHeroBuff));
           if (alreadyHasEchoOnTeam) return;
 
           const alreadyHasMapleWarriorOnTeam = synergyId === "mapleWarrior" && team.some((p) => p !== this && (p?.hasAugment?.("mapleWarrior") || p?.hasMapleWarriorBuff));
           if (alreadyHasMapleWarriorOnTeam) return;
+
+          const alreadyHasMillenniumShieldOnTeam = synergyId === "millenniumShield" && team.some((p) => p !== this && (p?.hasAugment?.("millenniumShield") || p?.hasMillenniumShieldBuff));
+          if (alreadyHasMillenniumShieldOnTeam) return;
 
           const synergyAug = AUGMENT_LIST.find((a) => a.id === synergyId);
           if (synergyAug) {
@@ -113,6 +119,9 @@ export const PokemonAugment = {
             if (synergyId === "mapleWarrior" && typeof syncTeamMapleWarriorBuff === "function") {
               syncTeamMapleWarriorBuff(battle, this);
             }
+            if (synergyId === "millenniumShield" && typeof syncTeamMillenniumShieldBuff === "function") {
+              syncTeamMillenniumShieldBuff(battle, this);
+            }
           }
         }
       } else {
@@ -129,6 +138,12 @@ export const PokemonAugment = {
             delete this.hasMapleWarriorBuff;
             if (typeof syncTeamMapleWarriorBuff === "function") {
               syncTeamMapleWarriorBuff(battle, this);
+            }
+          }
+          if (synergyId === "millenniumShield") {
+            delete this.hasMillenniumShieldBuff;
+            if (typeof syncTeamMillenniumShieldBuff === "function") {
+              syncTeamMillenniumShieldBuff(battle, this);
             }
           }
         }

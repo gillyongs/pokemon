@@ -120,6 +120,9 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
         val += bonus;
         logText += ` + ${bonus} (그 힘이야말로 왕인 까닭이다)`;
       }
+    } else if (augId === "holyElfBlessing" && (statKey === "def" || statKey === "cdef")) {
+      val += 200;
+      logText += ` + 200 (홀리엘프)`;
     }
   }
 
@@ -127,6 +130,18 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   if (pokemon?.hasAugmentOnTeam?.("haste", battle) && statKey === "speed") {
     val += 40;
     logText += ` + 40 (헤이스트)`;
+  }
+
+  // 물의 조종자: 모든 아군 물타입 포켓몬의 방어와 특수방어가 200 증가
+  if (pokemon?.hasAugmentOnTeam("waterOmotics", battle) && (pokemon?.type1 === "물" || pokemon?.type2 === "물") && (statKey === "def" || statKey === "cdef")) {
+    val += 200;
+    logText += ` + 200 (물의 조종자)`;
+  }
+
+  // 암석거인: 모든 아군 바위타입 포켓몬의 방어와 특수방어가 200 증가
+  if (pokemon?.hasAugmentOnTeam("giantSoldierOfStone", battle) && (pokemon?.type1 === "바위" || pokemon?.type2 === "바위") && (statKey === "def" || statKey === "cdef")) {
+    val += 200;
+    logText += ` + 200 (암석거인)`;
   }
 
   // 곱적용 =============================================================
@@ -264,6 +279,12 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
   if (pokemon?.hasAugmentOnTeam?.("mapleWarrior", battle)) {
     val = Math.round(val * 1.15);
     logText += " * 1.15 (메이플 용사)";
+  }
+
+  // 천년 방패: 모든 아군 포켓몬의 방어와 특수방어 2배
+  if (pokemon?.hasAugmentOnTeam?.("millenniumShield", battle) && (statKey === "def" || statKey === "cdef")) {
+    val = Math.round(val * 2);
+    logText += " * 2 (천년방패)";
   }
 
   // 방어구 부수기: 피격 포켓몬의 방어와 특수방어 스택당 5% 감소 (최대 15스택 = 75%)

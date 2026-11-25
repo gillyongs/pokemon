@@ -4228,6 +4228,46 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
+        {/* 홀리엘프의 축복 (일러스트 이미지 + 원형 클리핑 & 블루 링) */}
+        {id === "holyElfBlessing" && (
+          <g clipPath="url(#lwClip)">
+            <circle cx="32" cy="32" r="30" fill="#0f172a" />
+            <image href="/pokemon/img/augment/holyElfBlessing.png" xlinkHref="/pokemon/img/augment/holyElfBlessing.png" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#38bdf8" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.5" strokeOpacity="0.65" />
+          </g>
+        )}
+
+        {/* 물의 조종자 (일러스트 이미지 + 원형 클리핑 & 블루 링) */}
+        {id === "waterOmotics" && (
+          <g clipPath="url(#lwClip)">
+            <circle cx="32" cy="32" r="30" fill="#0f172a" />
+            <image href="/pokemon/img/augment/waterOmotics.png" xlinkHref="/pokemon/img/augment/waterOmotics.png" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#38bdf8" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.5" strokeOpacity="0.65" />
+          </g>
+        )}
+
+        {/* 암석거인 (일러스트 이미지 + 원형 클리핑 & 블루 링) */}
+        {id === "giantSoldierOfStone" && (
+          <g clipPath="url(#lwClip)">
+            <circle cx="32" cy="32" r="30" fill="#0f172a" />
+            <image href="/pokemon/img/augment/giantSoldierOfStone.png" xlinkHref="/pokemon/img/augment/giantSoldierOfStone.png" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#38bdf8" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.5" strokeOpacity="0.65" />
+          </g>
+        )}
+
+        {/* 천년 방패 (일러스트 이미지 + 원형 클리핑 & 블루 링) */}
+        {id === "millenniumShield" && (
+          <g clipPath="url(#lwClip)">
+            <circle cx="32" cy="32" r="30" fill="#0f172a" />
+            <image href="/pokemon/img/augment/millenniumShield.png" xlinkHref="/pokemon/img/augment/millenniumShield.png" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#38bdf8" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.5" strokeOpacity="0.65" />
+          </g>
+        )}
+
         {/* 28. 달팽이 세마리 */}
         {id === "threeSnails" && (
           <g>
