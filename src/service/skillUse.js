@@ -126,6 +126,10 @@ export const skillUse = (bt, enqueue) => {
         }
       }
 
+      if (atk.hasAugment("restAndStrike") && atk.tempStatus.restAndStrikeReady) {
+        enqueue(bt, `[증강 쉬었다 때리기] ${atk.name}의 공격이 강해졌다!`, "use_rest_and_strike");
+      }
+
       if (skill.name === "폴터가이스트") {
         enqueue(bt, josa(`${def.item}#{이}`) + ` ${def.name}에게 덤벼들었다!`, "use_poltergeist");
       }

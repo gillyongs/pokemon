@@ -900,6 +900,12 @@ export const damageCalculate = (battle, num, ai) => {
     attackPokemon.log.damage2 += " * 1.5 (타오르는 천 개의 태양)";
   }
 
+  // [증강] 쉬었다 때리기: 이전 턴 공격하지 않았을 경우 데미지 1.5배
+  if (attackPokemon.hasAugment("restAndStrike") && attackPokemon.tempStatus.restAndStrikeReady) {
+    damage *= 1.5;
+    attackPokemon.log.damage2 += " * 1.5 (쉬었다 때리기)";
+  }
+
   // 랜덤값 ======================================================================================================
 
   let randomNum = getRandomNumber(); // 랜덤값

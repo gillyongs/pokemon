@@ -106,6 +106,10 @@ export const turnEnd = (battle, enqueue) => {
   applyGiantAbsorption(battle, enqueue, fastUser);
   applyGiantAbsorption(battle, enqueue, slowUser);
 
+  // [증강] 쉬었다 때리기 (이전 턴 공격하지 않았을 경우 다음 턴 공격 데미지 1.5배)
+  applyRestAndStrike(battle, fastUser);
+  applyRestAndStrike(battle, slowUser);
+
   // 회복봉인 풀리는 턴에 먹밥 발동 안하므로 최대한 뒤에
   healBlock(battle, enqueue, fastUser);
   healBlock(battle, enqueue, slowUser);
@@ -294,6 +298,19 @@ function applyWarmogsArmor(battle, enqueue, user) {
   const heal = Math.max(1, Math.floor(maxHp * ratio));
   const text = undamaged ? `[증강 워모그의 갑옷] ${p.names("는")} 체력을 크게 회복했다!` : `[증강 워모그의 갑옷] ${p.names("는")} 체력을 조금 회복했다!`;
   p.recover(battle, heal, enqueue, text);
+}
+
+function applyRestAndStrike(battle, user) {
+  const p = battle[user];
+  p.tempStatus.restAndStrikeReady = null;
+
+  const switchedIn = user === "player" ? Boolean(battle.turn?.playerSwitched || battle.player?.turn?.choice === "playerBench1" || battle.player?.turn?.choice === "playerBench2" || battle.turn?.switchBySkill) : Boolean(battle.turn?.npcSwitched || battle.npc?.turn?.choice === "npcBench1" || battle.npc?.turn?.choice === "npcBench2");
+  if (switchedIn) return;
+
+  const skillType = p.turn.useSkill?.stype;
+  if (p.charge || (skillType !== "atk" && skillType !== "catk")) {
+    p.tempStatus.restAndStrikeReady = true;
+  }
 }
 
 function seed(battle, enqueue, getter, user) {

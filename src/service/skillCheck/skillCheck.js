@@ -22,6 +22,7 @@ export const beforeSkillCheck = (bt, enqueue) => {
   if (atk.recharge) {
     atk.recharge = null;
     atk.autoSN = null;
+    atk.turn.useSkill = null;
     let rechargeText = atk.names("는") + " 반동으로 움직일 수 없다!";
     enqueue(bt, rechargeText, "chk_recharge");
     return false;

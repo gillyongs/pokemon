@@ -255,6 +255,14 @@ export const AUGMENT_LIST = [
     // hpCalculate.js, turnEnd.js에 구현
   },
   {
+    id: "restAndStrike",
+    name: "쉬었다 때리기",
+    desc: "이번 턴 상대를 공격하지 않았을 경우 다음 턴 공격의 데미지가 1.5배가 됩니다.",
+    cost: 1,
+    weight: 100,
+    // damageCalculate.js, turnEnd.js에 구현
+  },
+  {
     id: "sunBreathing",
     name: "태양의 호흡",
     desc: "상대에게 중첩하여 화상을 걸 수 있습니다.\n화상은 중첩될수록 데미지가 강해지며\n추가로 적에게 치유 감소 효과를 부여합니다.",
