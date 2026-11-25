@@ -430,7 +430,10 @@ function applyStatusDamage(battle, enqueue, user) {
     const burnDamage = hasChiliOil ? baseBurn * 3 : baseBurn;
     const text = hasChiliOil ? `[증강 할머니의 고추기름] ${p.names("는")} 극심한 화상 데미지를 입었다!` : `${p.names("는")} 화상 데미지를 입었다!`;
 
-    p.getDamage(battle, enqueue, burnDamage, text);
+    const actualBurnDmg = p.getDamage(battle, enqueue, burnDamage, text);
+    if (actualBurnDmg > 0 && opponent && !opponent.faint && opponent.hp > 0 && opponent.hp < opponent.maxHp && opponent.hasAugment?.("praiseTheSun")) {
+      opponent.recover(battle, actualBurnDmg, enqueue, `[버프 태양 만세] ${opponent.names("는")} 체력을 회복했다!`);
+    }
   }
 }
 

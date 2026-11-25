@@ -246,6 +246,15 @@ export const getArcaneSwordData = (pokemon = null, source = null, options = null
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
   {
+    id: "praiseTheSun",
+    name: "태양 만세",
+    desc: "해당 포켓몬의 최대 HP가 1.5배 증가합니다.\n상대가 화상 데미지를 입었을 경우 해당 수치만큼 체력을 회복합니다.",
+    synergy: true,
+    isRandom: false,
+    weight: "-",
+    // hpCalculate.js, turnEnd.js에 구현
+  },
+  {
     id: "sunBreathing",
     name: "태양의 호흡",
     desc: "상대에게 중첩하여 화상을 걸 수 있습니다.\n화상은 중첩될수록 데미지가 강해지며\n추가로 적에게 치유 감소 효과를 부여합니다.",
@@ -3244,6 +3253,7 @@ const SYNERGY_ACTIVATION_THRESHOLD = {
   lostTechnologyCritical: 3, // 과거의 영광 증강 배열 중 3개 이상 보유 시 활성화
   echoOfHero: 3, // 초보자 시너지 증강 4개 중 3개 이상 보유 시 활성화
   giantAbsorption: 3, // 가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상, 태양불꽃망토 5개 중 3개 이상 보유 시 활성화
+  praiseTheSun: 3, // 태양불꽃망토, 태양불꽃방패, 타오르는 천 개의 태양, 태양의 호흡 4개 중 3개 이상 보유 시 활성화
 };
 
 export const getSynergyThreshold = (synergyId, requiredIds = []) => {
@@ -3254,6 +3264,7 @@ export const getSynergyThreshold = (synergyId, requiredIds = []) => {
 };
 
 export const AUGMENT_SYNERGY_MAP = {
+  praiseTheSun: ["sunfireCape", "sunfireAegis", "aThousandBlazingSuns", "sunBreathing"], // 태양 만세: [태양불꽃망토, 태양불꽃방패, 타오르는 천 개의 태양, 태양의 호흡]
   berserk: ["powerStrike", "ironWall", "dragonRoar"], // 버서크: [파워 스트라이크, 아이언 월, 드래곤 로어]
   mapleWarrior: ["sharpEyes", "haste", "hyperBody"], // 메이플 용사: [샤프 아이즈, 헤이스트, 하이퍼 바디]
   echoOfHero: ["threeSnails", "nimbleMoves", "recovery", "soulDice"], // 영웅의 메아리: [달팽이 세마리, 민첩한 몸놀림, 회복, 영혼의 주사위]
@@ -3271,6 +3282,12 @@ export const AUGMENT_SYNERGY_MAP = {
 };
 
 const SYNERGY_INFO_MAP = {
+  praiseTheSun: {
+    emoji: "☀️",
+    theme: "태양 만세",
+    title: "태양 만세",
+    desc: "해당 포켓몬의 최대 HP가 1.5배 증가합니다.\n상대가 화상 데미지를 입었을 경우 해당 수치만큼 체력을 회복합니다.",
+  },
   superheatedGladius: {
     emoji: "🔥",
     theme: "초고열 글라디우스",
@@ -3362,6 +3379,7 @@ const SYNERGY_INFO_MAP = {
  */
 export const getAugmentSynergyInfo = (augId) => {
   if (!augId) return null;
+  const matches = [];
   for (const [buffId, requiredIds] of Object.entries(AUGMENT_SYNERGY_MAP)) {
     if (buffId === augId || requiredIds.includes(augId)) {
       const buffAugment = AUGMENT_LIST.find((a) => a.id === buffId);
@@ -3373,7 +3391,7 @@ export const getAugmentSynergyInfo = (augId) => {
         desc: buffAugment?.desc || "",
       };
       const threshold = getSynergyThreshold(buffId, requiredIds);
-      return {
+      matches.push({
         buffId,
         buffAugment,
         requiredIds,
@@ -3384,10 +3402,14 @@ export const getAugmentSynergyInfo = (augId) => {
         title: meta.title,
         desc: meta.desc,
         isBuffItself: buffId === augId,
-      };
+      });
     }
   }
-  return null;
+  if (matches.length === 0) return null;
+  return {
+    ...matches[0],
+    synergies: matches,
+  };
 };
 
 // 동시에 2개 이상 등장하지 않는 상호 배타적 증강 그룹 목록 (배열 안의 배열 형태)

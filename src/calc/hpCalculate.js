@@ -41,6 +41,12 @@ export const hpCalculate = (pokemon) => {
     logText += ` * 1.5 (커져라!)`;
   }
 
+  // 태양 만세: 해당 포켓몬의 최대 HP가 1.5배 증가
+  if (hasAugmentId(pokemon, "praiseTheSun")) {
+    hp = Math.round(hp * 1.5);
+    logText += ` * 1.5 (태양 만세)`;
+  }
+
   logText += ` = ${hp}`;
   pokemon.log.hpCalculate = logText;
 

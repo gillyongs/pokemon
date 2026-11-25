@@ -89,37 +89,30 @@ export function getForcedSynergyAugment(pokemon, availablePool = null, battle = 
     return null;
   }
 
-  // 서로 다른 시너지의 증강이 하나씩 있을 때엔 해당 로직을 적용하지 않는다
-  if (activeSynergies.length >= 2 && activeSynergies.every((s) => s.owned.length === 1)) {
+  // 서로 다른 시너지의 증강을 각각 하나씩(총 2개 이상) 보유 중일 때엔 해당 로직을 적용하지 않는다
+  // (단, 보유한 증강 1개가 2개의 시너지에 동시에 속하는 경우는 70% 보정 정상 작동)
+  const uniqueOwnedIds = new Set(activeSynergies.flatMap((s) => s.owned));
+  if (activeSynergies.length >= 2 && activeSynergies.every((s) => s.owned.length === 1) && uniqueOwnedIds.size >= 2) {
     return null;
   }
 
-  let targetSynergy = null;
+  let missingCandidates = [];
   let chance = 0;
 
-  if (activeSynergies.length === 1) {
-    const s = activeSynergies[0];
-    if (s.owned.length === 1) {
-      // 시너지 증강이 하나 있을 때: 70% 확률
-      targetSynergy = s;
-      chance = 0.7;
-    } else if (s.owned.length === 2) {
-      // 시너지 증강이 2개일 때: 50% 확률
-      targetSynergy = s;
-      chance = 0.5;
-    }
+  const synergiesWith2 = activeSynergies.filter((s) => s.owned.length === 2);
+  if (synergiesWith2.length > 0) {
+    // 2개를 보유한 시너지가 있다면 50% 확률 적용
+    missingCandidates = Array.from(new Set(synergiesWith2.flatMap((s) => s.missing)));
+    chance = 0.5;
+  } else if (uniqueOwnedIds.size === 1) {
+    // 시너지 증강이 하나 있을 때 (해당 증강이 여러 시너지에 속한 경우 합집합): 70% 확률
+    missingCandidates = Array.from(new Set(activeSynergies.flatMap((s) => s.missing)));
+    chance = 0.7;
   } else {
-    // 2개 이상 시너지에 걸쳐 있을 때 2개를 보유한 시너지가 있다면 50% 확률 적용
-    const synergyWith2 = activeSynergies.find((s) => s.owned.length === 2);
-    if (synergyWith2) {
-      targetSynergy = synergyWith2;
-      chance = 0.5;
-    } else {
-      return null;
-    }
+    return null;
   }
 
-  if (!targetSynergy || chance <= 0) {
+  if (missingCandidates.length === 0 || chance <= 0) {
     return null;
   }
 
@@ -129,7 +122,6 @@ export function getForcedSynergyAugment(pokemon, availablePool = null, battle = 
   }
 
   // 넣기로 했을 때, 해당 증강을 제외한 다른 시너지 증강 중 하나를 랜덤 택 1
-  const missingCandidates = targetSynergy.missing;
   let candidates = [];
   if (Array.isArray(availablePool)) {
     candidates = availablePool.filter((a) => missingCandidates.includes(a.id));

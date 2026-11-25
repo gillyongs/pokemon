@@ -59,13 +59,38 @@ const slideUp = keyframes`
 `;
 
 const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePokemon = null, battle = null, team = null, onClose }) => {
+  const [activeTabIdx, setActiveTabIdx] = React.useState(0);
+
+  React.useEffect(() => {
+    setActiveTabIdx(0);
+  }, [activeAugmentId, synergy]);
+
   if (!synergy) return null;
 
-  const { buffAugment, requiredAugments = [], threshold = requiredAugments.length, emoji, title } = synergy;
+  const synergyList = Array.isArray(synergy.synergies) && synergy.synergies.length > 0 ? synergy.synergies : [synergy];
+  const currentSynergy = synergyList[activeTabIdx] || synergyList[0];
+  const { buffAugment, requiredAugments = [], threshold = requiredAugments.length, title } = currentSynergy;
+
+  const activeAugmentObj = activeAugmentId ? AUGMENT_LIST.find((a) => a.id === activeAugmentId) : null;
+  const headerTitle = activeAugmentObj?.name || title;
 
   // Count how many required augments activePokemon currently owns
   const ownedCount = requiredAugments.filter((a) => Boolean(activePokemon?.hasAugment?.(a.id))).length;
   const isSynergyActive = Boolean(activePokemon?.hasAugment?.(buffAugment?.id) || ownedCount >= threshold);
+
+  // 선택 중 -> 보유 중 -> 미보유 -> 획득 불가 순으로 정렬
+  const sortedRequiredAugments = [...requiredAugments].sort((a, b) => {
+    const getPriority = (aug) => {
+      const isOwned = Boolean(activePokemon?.hasAugment?.(aug.id));
+      const isViewing = aug.id === activeAugmentId;
+      const isUnobtainable = !isOwned && !isViewing && checkSynergyAugmentUnobtainable(aug, activePokemon, battle, team);
+      if (isViewing) return 0;
+      if (isOwned) return 1;
+      if (!isUnobtainable) return 2;
+      return 3;
+    };
+    return getPriority(a) - getPriority(b);
+  });
 
   return (
     <ModalOverlay
@@ -79,18 +104,14 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
           <HeaderTopRow>
             <TitleRow>
               <TitleCol>
-                <SynergyTitle>{title}</SynergyTitle>
+                <SynergyTitle>시너지 상세정보</SynergyTitle>
               </TitleCol>
             </TitleRow>
-            <CloseButton type="button" onClick={onClose} title="닫기">
-              ✕
-            </CloseButton>
           </HeaderTopRow>
-          <HeaderNotice>{threshold < requiredAugments.length ? `아래 증강 중 ${threshold}개를 획득하면 추가 시너지가 활성화됩니다.` : "아래 증강을 모두 획득하면 추가 시너지가 활성화됩니다."}</HeaderNotice>
         </HeaderArea>
 
         <RequiredGrid>
-          {requiredAugments.map((aug) => {
+          {sortedRequiredAugments.map((aug) => {
             const isOwned = Boolean(activePokemon?.hasAugment?.(aug.id));
             const isViewing = aug.id === activeAugmentId;
             const isUnobtainable = !isOwned && !isViewing && checkSynergyAugmentUnobtainable(aug, activePokemon, battle, team);
@@ -116,34 +137,47 @@ const AugmentSynergyPreviewModal = ({ synergy, activeAugmentId = null, activePok
           })}
         </RequiredGrid>
 
-        <ConnectorRow>
-          <ConnectorLine />
-          <ConnectorBadge>✨ 공명 달성 시 활성화 ✨</ConnectorBadge>
-          <ConnectorLine />
-        </ConnectorRow>
+        <FixedFooterArea>
+          <ConnectorRow>
+            <ConnectorLine />
+            <ConnectorBadge>✨ 증강 3개 이상 보유시 활성화 ✨</ConnectorBadge>
+            <ConnectorLine />
+          </ConnectorRow>
 
-        {buffAugment && (
-          <BuffRewardCard $active={isSynergyActive}>
-            <BuffPill>시너지</BuffPill>
-            <BuffHeader>
-              <IconCol>
-                <AugmentIcon id={buffAugment.id} size={36} pokemon={activePokemon} shiftUp={buffAugment.shiftUp} imageOptions={buffAugment.imageOptions} />
-              </IconCol>
-              <BuffMeta>
-                <BuffNameRow>
-                  <BuffName>{buffAugment.name}</BuffName>
-                </BuffNameRow>
-                <BuffDesc>{getAugmentDesc(buffAugment)}</BuffDesc>
-              </BuffMeta>
-            </BuffHeader>
-          </BuffRewardCard>
-        )}
+          {buffAugment && (
+            <BuffRewardCard $active={isSynergyActive}>
+              <BuffPill>시너지</BuffPill>
+              <BuffHeader>
+                <IconCol>
+                  <AugmentIcon id={buffAugment.id} size={36} pokemon={activePokemon} shiftUp={buffAugment.shiftUp} imageOptions={buffAugment.imageOptions} />
+                </IconCol>
+                <BuffMeta>
+                  <BuffNameRow>
+                    <BuffName>{buffAugment.name}</BuffName>
+                  </BuffNameRow>
+                  <BuffDesc>{getAugmentDesc(buffAugment)}</BuffDesc>
+                </BuffMeta>
+              </BuffHeader>
+            </BuffRewardCard>
+          )}
 
-        <FooterRow>
-          <ConfirmCloseButton type="button" onClick={onClose}>
-            닫기
-          </ConfirmCloseButton>
-        </FooterRow>
+          <FooterRow>
+            {synergyList.length > 1 ? (
+              <SynergyTabRow>
+                {synergyList.map((item, idx) => (
+                  <SynergyTabButton key={item.buffId || idx} type="button" $active={idx === activeTabIdx} onClick={() => setActiveTabIdx(idx)}>
+                    {item.title}
+                  </SynergyTabButton>
+                ))}
+              </SynergyTabRow>
+            ) : (
+              <div />
+            )}
+            <ConfirmCloseButton type="button" onClick={onClose}>
+              닫기
+            </ConfirmCloseButton>
+          </FooterRow>
+        </FixedFooterArea>
       </ModalContainer>
     </ModalOverlay>
   );
@@ -178,11 +212,11 @@ const ModalContainer = styled.div`
   background: rgba(15, 23, 42, 0.98);
   border: 1.5px solid rgba(100, 255, 218, 0.35);
   border-radius: 14px;
-  padding: 18px 20px 16px;
+  padding: 22px 20px 16px;
   width: 100%;
   max-width: 480px;
   max-height: 80vh;
-  overflow-y: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow:
@@ -206,14 +240,15 @@ const ModalContainer = styled.div`
   }
 
   @media (max-width: 480px) {
-    padding: 14px 12px 14px;
+    padding: 17px 12px 14px;
     max-height: 80vh;
   }
 `;
 
 const HeaderArea = styled.div`
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
 `;
 
 const HeaderTopRow = styled.div`
@@ -221,7 +256,7 @@ const HeaderTopRow = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 6px;
+  margin-bottom: 0;
 `;
 
 const TitleRow = styled.div`
@@ -271,6 +306,31 @@ const CloseButton = styled.button`
   }
 `;
 
+const SynergyTabRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+`;
+
+const SynergyTabButton = styled.button`
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  background: ${(props) => (props.$active ? "rgba(100, 255, 218, 0.16)" : "rgba(30, 41, 59, 0.65)")};
+  color: ${(props) => (props.$active ? "#64ffda" : "#94a3b8")};
+  border: ${(props) => (props.$active ? "1.5px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.12)")};
+  box-shadow: ${(props) => (props.$active ? "0 0 10px rgba(100, 255, 218, 0.22)" : "none")};
+
+  &:hover {
+    color: ${(props) => (props.$active ? "#64ffda" : "#e2e8f0")};
+    border-color: ${(props) => (props.$active ? "#64ffda" : "rgba(255, 255, 255, 0.28)")};
+  }
+`;
+
 const HeaderNotice = styled.p`
   margin: 4px 0 0 0;
   font-size: 0.8rem;
@@ -286,7 +346,18 @@ const RequiredGrid = styled.div`
   display: flex;
   flex-direction: column;
   gap: 7px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+`;
+
+const FixedFooterArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding-top: 2px;
 `;
 
 const AugmentRowCard = styled.div`
@@ -486,7 +557,9 @@ const BuffDesc = styled.p`
 
 const FooterRow = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
   width: 100%;
 `;
 
