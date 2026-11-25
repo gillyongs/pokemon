@@ -4208,7 +4208,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 한놈만 팬다 (일러스트 이미지 + 원형 클리핑 & 레드 링) */}
+        {/* 한놈만 (일러스트 이미지 + 원형 클리핑 & 레드 링) */}
         {id === "focusOne" && (
           <g clipPath="url(#lwClip)">
             <circle cx="32" cy="32" r="30" fill="#0f172a" />

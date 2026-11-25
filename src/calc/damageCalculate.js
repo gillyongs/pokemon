@@ -794,16 +794,16 @@ export const damageCalculate = (battle, num, ai) => {
     }
   }
 
-  // 한놈만 팬다: 맨 처음 공격한 상대에게 1.5배, 그 외 상대에겐 0.8배
+  // 한놈만: 맨 처음 공격한 상대에게 1.5배, 그 외 상대에겐 0.8배
   if (attackPokemon?.hasAugment?.("focusOne")) {
     const isTarget = defensePokemon.baseName === attackPokemon.focusOneTarget;
 
     if (isTarget) {
       damage *= 1.5;
-      attackPokemon.log.damage1 += " * 1.5 (한놈만 팬다+)";
+      attackPokemon.log.damage1 += " * 1.5 (한놈만+)";
     } else {
       damage *= 0.8;
-      attackPokemon.log.damage1 += " * 0.8 (한놈만 팬다-)";
+      attackPokemon.log.damage1 += " * 0.8 (한놈만-)";
     }
   }
 
