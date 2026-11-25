@@ -894,6 +894,12 @@ export const damageCalculate = (battle, num, ai) => {
     }
   }
 
+  // [증강] 타오르는 천 개의 태양: 상대가 화상 상태일 경우 입히는 데미지가 2배로 증가
+  if (attackPokemon?.hasAugment?.("aThousandBlazingSuns") && Boolean(defensePokemon?.ailment?.burn)) {
+    damage *= 2;
+    attackPokemon.log.damage2 += " * 2 (타오르는 천 개의 태양)";
+  }
+
   // 랜덤값 ======================================================================================================
 
   let randomNum = getRandomNumber(); // 랜덤값

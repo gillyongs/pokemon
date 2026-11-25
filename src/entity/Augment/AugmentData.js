@@ -255,6 +255,14 @@ export const AUGMENT_LIST = [
     // SkillEffect.js에 구현
   },
   {
+    id: "aThousandBlazingSuns",
+    name: "타오르는 천 개의 태양",
+    desc: "상대가 화상 상태일 경우 입히는 데미지가 2배로 증가합니다.",
+    cost: 2,
+    weight: 100,
+    // damageCalculate.js에 구현
+  },
+  {
     id: "sunfireCape",
     name: "태양불꽃망토",
     desc: "피격 시 10% 확률로 적에게 화상을 입힙니다.\n불꽃타입 포켓몬일 경우 방어와 특수방어가 추가로 70 증가합니다.",
@@ -3234,7 +3242,7 @@ export const AUGMENT_LIST = [
 const SYNERGY_ACTIVATION_THRESHOLD = {
   lostTechnologyCritical: 3, // 과거의 영광 증강 배열 중 3개 이상 보유 시 활성화
   echoOfHero: 3, // 초보자 시너지 증강 4개 중 3개 이상 보유 시 활성화
-  giantAbsorption: 3, // 가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상 4개 중 3개 이상 보유 시 활성화
+  giantAbsorption: 3, // 가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상, 태양불꽃망토 5개 중 3개 이상 보유 시 활성화
 };
 
 export const getSynergyThreshold = (synergyId, requiredIds = []) => {
@@ -3253,12 +3261,12 @@ export const AUGMENT_SYNERGY_MAP = {
   mejaisSoulstealer: ["rabadonsDeathcap", "voidStaff", "ludensEcho"], // 메자이의 영혼약탈자: [라바돈의 죽음모자, 공허의 지팡이, 루덴의 메아리]
   practiceMakesCritical: ["infinityEdge", "bladeOfTheRuinedKing", "collector"], // 연습이 치명타를 낳는다: [무한의 대검, 몰락한 왕의 검, 징수의 총]
   gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
-  giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis", "spiritVisage"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상]
+  giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis", "spiritVisage", "sunfireCape"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상, 태양불꽃망토]
   lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic", "lostTechnologyHyperBeam"], // 과거의 영광 (급소)
   symphonyFor100Metronomes: ["metronome", "doubleMetronome", "tripleMetronome"], // 100개의 메트로놈을 위한 교향시
   airmanGaTaosenai: ["mandoocornEndure", "butItRefused", "nothingHappened"], // 에어맨이 쓰러지지 않아: [슬프게 하지 않게 하려고 버텼다!, 하지만 버텨냈다., 아무일도 없었다...!]
   millenniumShield: ["holyElfBlessing", "giantSoldierOfStone", "waterOmotics"], // 천년 방패: [홀리엘프의 축복, 암석거인, 물의 조종자]
-  superheatedGladius: ["salamandra", "flamingKatana", "sunfireCape"], // 초고열 글라디우스: [사라만도라, 화염의 카타나, 태양불꽃망토]
+  superheatedGladius: ["salamandra", "flamingKatana", "aThousandBlazingSuns"], // 초고열 글라디우스: [사라만도라, 화염의 카타나, 타오르는 천 개의 태양]
 };
 
 const SYNERGY_INFO_MAP = {
