@@ -258,8 +258,9 @@ export const AUGMENT_LIST = [
     id: "sunBreathing",
     name: "태양의 호흡",
     desc: "상대에게 중첩하여 화상을 걸 수 있습니다.\n화상은 중첩될수록 데미지가 강해지며\n추가로 적에게 치유 감소 효과를 부여합니다.",
-    cost: 3,
+    cost: 2,
     weight: 100,
+    isEligible: (pokemon) => canInflictBurn(pokemon),
     // ailment.js, turnEnd.js, PokemonRecover.js에 구현
   },
   {
@@ -274,11 +275,10 @@ export const AUGMENT_LIST = [
   {
     id: "aThousandBlazingSuns",
     name: "타오르는 천 개의 태양",
-    desc: "상대가 화상 상태일 경우 입히는 데미지가 2배로 증가합니다.",
-    cost: 2,
+    desc: "매 턴 필드 위 모든 포켓몬에게 화상을 입힙니다.\n화상 상태인 상대에게 입히는 데미지가 1.5배로 증가합니다.",
+    cost: 3,
     weight: 100,
-    isEligible: (pokemon) => canInflictBurn(pokemon),
-    // damageCalculate.js에 구현
+    // damageCalculate.js, turnEnd.js에 구현
   },
   {
     id: "sunfireCape",
@@ -4044,10 +4044,10 @@ function getTypeDefenseAugmentWeight(pokemon, battle, targetType) {
   return w;
 }
 
-// 적에게 화상을 입힐 수 있는 상태인지 확인 (할머니의 고추기름, 타오르는 천 개의 태양)
+// 적에게 화상을 입힐 수 있는 상태인지 확인 (할머니의 고추기름, 태양의 호흡)
 function canInflictBurn(pokemon) {
   if (pokemon.abil?.name === "불꽃몸") return true;
-  const burnAugments = ["salamandra", "flamingKatana", "sunfireCape"];
+  const burnAugments = ["salamandra", "flamingKatana", "sunfireCape", "aThousandBlazingSuns"];
   if (burnAugments.some((augment) => pokemon.hasAugment?.(augment))) {
     return true;
   }

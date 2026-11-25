@@ -80,6 +80,10 @@ export const turnEnd = (battle, enqueue) => {
   flameOrb(battle, enqueue, fastUser);
   flameOrb(battle, enqueue, slowUser);
 
+  // [증강] 타오르는 천 개의 태양 (매 턴 필드 위 모든 포켓몬에게 화상을 입힘)
+  applyAThousandBlazingSuns(battle, enqueue, fastUser);
+  applyAThousandBlazingSuns(battle, enqueue, slowUser);
+
   // 날씨 데미지 (모래바람)
   // 모래바람이 종료되는 턴엔 데미지를 입지 않는다.
   battle.field.weather.handleWeatherDamageTurnEnd(battle, enqueue, fastUser);
@@ -234,6 +238,22 @@ function applySunfireAegis(battle, enqueue, user) {
   const damage = Math.max(1, Math.floor(p.maxHp * 0.1));
   const text = `[증강 태양불꽃방패] ${opponent.names("는")} 불사르기 데미지를 입었다!`;
   opponent.getDamage(battle, enqueue, damage, text);
+}
+
+function applyAThousandBlazingSuns(battle, enqueue, user) {
+  const p = battle[user];
+  if (!p || p.faint || p.hp <= 0) return;
+  if (!p.hasAugment?.("aThousandBlazingSuns")) return;
+
+  const opponentSide = user === "player" ? "npc" : "player";
+  const opponent = battle[opponentSide];
+
+  if (!p.faint && p.hp > 0) {
+    applyAilment("화상", battle, user, enqueue, `[증강 타오르는 천 개의 태양] ${p.names("는")} 화상을 입었다!`, p);
+  }
+  if (opponent && !opponent.faint && opponent.hp > 0) {
+    applyAilment("화상", battle, opponentSide, enqueue, `[증강 타오르는 천 개의 태양] ${opponent.names("는")} 화상을 입었다!`, p);
+  }
 }
 
 function applyGiantAbsorption(battle, enqueue, user) {
