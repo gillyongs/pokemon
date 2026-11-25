@@ -1083,7 +1083,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && id !== "allInDefense" && id !== "limiterRemoval" && id !== "rudePureLove" && id !== "jinanSangae" && id !== "dragonSlayer" && id !== "dragonKiller" && id !== "dragonHunter" && id !== "dragonDie" && id !== "believeInMyself" && id !== "pokemonQuiz" && id !== "pokemonQuizExpert" && id !== "luckyRecovery" && id !== "rampagingPower" && id !== "armorBreak" && id !== "hyperBody" && id !== "haste" && id !== "sharpEyes" && id !== "mapleWarrior" && id !== "powerStrike" && id !== "dragonRoar" && id !== "berserk" && id !== "ironWall" && id !== "sanctuary" && id !== "symphonyFor100Metronomes" && id !== "nothingHappened" && id !== "airmanGaTaosenai" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && id !== "allInDefense" && id !== "limiterRemoval" && id !== "rudePureLove" && id !== "jinanSangae" && id !== "dragonSlayer" && id !== "dragonKiller" && id !== "dragonHunter" && id !== "dragonDie" && id !== "believeInMyself" && id !== "pokemonQuiz" && id !== "pokemonQuizExpert" && id !== "luckyRecovery" && id !== "rampagingPower" && id !== "armorBreak" && id !== "hyperBody" && id !== "haste" && id !== "sharpEyes" && id !== "mapleWarrior" && id !== "powerStrike" && id !== "dragonRoar" && id !== "berserk" && id !== "ironWall" && id !== "sanctuary" && id !== "symphonyFor100Metronomes" && id !== "nothingHappened" && id !== "airmanGaTaosenai" && id !== "flamingKatana" && id !== "sunfireCape" && id !== "superheatedGladius" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -4267,6 +4267,25 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.5" strokeOpacity="0.65" />
           </g>
         )}
+
+        {/* 사라만도라 (일러스트 이미지 + 원형 클리핑 & 레드 링) */}
+        {id === "salamandra" && (
+          <g clipPath="url(#lwClip)">
+            <circle cx="32" cy="32" r="30" fill="#0f172a" />
+            <image href="/pokemon/img/augment/salamandra.png" xlinkHref="/pokemon/img/augment/salamandra.png" x="-18" y="-17" width="100" height="100" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#ef4444" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#f87171" strokeWidth="0.5" strokeOpacity="0.65" />
+          </g>
+        )}
+
+        {/* 화염의 카타나 */}
+        {id === "flamingKatana" && <image href="/pokemon/img/augment/flamingKatana.png" x="-2" y="-2" width="68" height="68" />}
+
+        {/* 태양불꽃망토 */}
+        {id === "sunfireCape" && <image href="/pokemon/img/augment/sunfireCape.png" x="-2" y="-2" width="68" height="68" />}
+
+        {/* 초고열 글라디우스 */}
+        {id === "superheatedGladius" && <image href="/pokemon/img/augment/superheatedGladius.png" x="-2" y="-2" width="68" height="68" />}
 
         {/* 28. 달팽이 세마리 */}
         {id === "threeSnails" && (

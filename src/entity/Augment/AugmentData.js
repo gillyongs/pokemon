@@ -246,6 +246,39 @@ export const getArcaneSwordData = (pokemon = null, source = null, options = null
 export const AUGMENT_LIST = [
   // 단순 구현 ==========================================================
   {
+    id: "superheatedGladius",
+    name: "초고열 글라디우스",
+    desc: "공격 시 상대에게 화상을 입힙니다.",
+    synergy: true,
+    isRandom: false,
+    weight: "-",
+    // SkillEffect.js에 구현
+  },
+  {
+    id: "sunfireCape",
+    name: "태양불꽃망토",
+    desc: "피격 시 10% 확률로 적에게 화상을 입힙니다.\n불꽃타입 포켓몬일 경우 방어와 특수방어가 추가로 70 증가합니다.",
+    cost: 2,
+    weight: 100,
+    // getStat.js, onHit.js에 구현
+  },
+  {
+    id: "flamingKatana",
+    name: "화염의 카타나",
+    desc: `공격: +65 특공: +40 스피드: +17\n공격 시 50% 확률로 적 또는 자신이 화상을 입습니다.`,
+    cost: 2,
+    weight: 100,
+    // getStat.js, SkillEffect.js에 구현
+  },
+  {
+    id: "salamandra",
+    name: "사라만도라",
+    desc: "공격 시 30% 확률로 적에게 화상을 입힙니다.\n불꽃타입 포켓몬일 경우 공격과 특수공격이 추가로 70 증가합니다.",
+    cost: 2,
+    weight: 100,
+    // getStat.js, SkillEffect.js에 구현
+  },
+  {
     id: "giantSoldierOfStone",
     name: "암석거인",
     desc: "모든 아군 바위타입 포켓몬의 방어와 특수방어가 200 증가합니다.",
@@ -3225,9 +3258,16 @@ export const AUGMENT_SYNERGY_MAP = {
   symphonyFor100Metronomes: ["metronome", "doubleMetronome", "tripleMetronome"], // 100개의 메트로놈을 위한 교향시
   airmanGaTaosenai: ["mandoocornEndure", "butItRefused", "nothingHappened"], // 에어맨이 쓰러지지 않아: [슬프게 하지 않게 하려고 버텼다!, 하지만 버텨냈다., 아무일도 없었다...!]
   millenniumShield: ["holyElfBlessing", "giantSoldierOfStone", "waterOmotics"], // 천년 방패: [홀리엘프의 축복, 암석거인, 물의 조종자]
+  superheatedGladius: ["salamandra", "flamingKatana", "sunfireCape"], // 초고열 글라디우스: [사라만도라, 화염의 카타나, 태양불꽃망토]
 };
 
 const SYNERGY_INFO_MAP = {
+  superheatedGladius: {
+    emoji: "🔥",
+    theme: "초고열 글라디우스",
+    title: "초고열 글라디우스",
+    desc: "공격 시 상대에게 화상을 입힙니다.",
+  },
   millenniumShield: {
     emoji: "🛡️",
     theme: "천년 방패",

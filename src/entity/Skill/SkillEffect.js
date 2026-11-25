@@ -115,6 +115,40 @@ function skillEffectSearch(name) {
         }
       }
 
+      // [버프: 초고열 글라디우스] 공격 시 상대에게 화상을 입힘
+      const hasSuperheatedGladius = atkPokemon?.hasAugment?.("superheatedGladius");
+      if (hasSuperheatedGladius && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
+        if (skill && (skill.stype === "atk" || skill.stype === "catk") && !isTargetSubstituteBlocked(battle)) {
+          applyAilment("화상", battle, battle.turn.def, enqueue, `[버프 초고열 글라디우스] ${def.names("는")} 화상을 입었다!`);
+        }
+      }
+
+      // [증강: 사라만도라] 공격 시 30% 확률로 적에게 화상을 입힘
+      const hasSalamandra = atkPokemon?.hasAugment?.("salamandra");
+      if (hasSalamandra && def && !def.faint && (def.hp === undefined || def.hp > 0)) {
+        if (skill && (skill.stype === "atk" || skill.stype === "catk") && !isTargetSubstituteBlocked(battle)) {
+          if (Math.random() < 0.3) {
+            applyAilment("화상", battle, battle.turn.def, enqueue, `[증강 사라만도라] ${def.names("는")} 화상을 입었다!`);
+          }
+        }
+      }
+
+      // [증강: 화염의 카타나] 공격 시 50% 확률로 적 또는 자신이 화상을 입음
+      const hasFlamingKatana = atkPokemon?.hasAugment?.("flamingKatana");
+      if (hasFlamingKatana && skill && (skill.stype === "atk" || skill.stype === "catk")) {
+        if (Math.random() < 0.5) {
+          if (Math.random() < 0.5) {
+            if (def && !def.faint && (def.hp === undefined || def.hp > 0) && !isTargetSubstituteBlocked(battle)) {
+              applyAilment("화상", battle, battle.turn.def, enqueue, `[증강 화염의 카타나] ${def.names("는")} 화상을 입었다!`);
+            }
+          } else {
+            if (!atkPokemon.faint && (atkPokemon.hp === undefined || atkPokemon.hp > 0)) {
+              applyAilment("화상", battle, battle.turn.atk, enqueue, `[증강 화염의 카타나] ${atkPokemon.names("는")} 화상을 입었다!`);
+            }
+          }
+        }
+      }
+
       if (atkPokemon.item === "생명의구슬") {
         if (skill.stype === "atk" || skill.stype === "catk") {
           const text = atkPokemon.name + "의 생명이 조금 깎였다!";

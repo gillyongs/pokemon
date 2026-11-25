@@ -389,6 +389,7 @@ const AugDesc = styled.p`
   font-size: 0.74rem;
   color: #94a3b8;
   line-height: 1.35;
+  white-space: pre-wrap;
   word-break: keep-all;
 `;
 

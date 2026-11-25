@@ -123,6 +123,23 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     } else if (augId === "holyElfBlessing" && (statKey === "def" || statKey === "cdef")) {
       val += 200;
       logText += ` + 200 (홀리엘프)`;
+    } else if (augId === "salamandra" && (pokemon?.type1 === "불꽃" || pokemon?.type2 === "불꽃") && (statKey === "atk" || statKey === "catk")) {
+      val += 70;
+      logText += ` + 70 (사라만도라)`;
+    } else if (augId === "flamingKatana") {
+      if (statKey === "atk") {
+        val += 65;
+        logText += ` + 65 (화염의 카타나)`;
+      } else if (statKey === "catk") {
+        val += 40;
+        logText += ` + 40 (화염의 카타나)`;
+      } else if (statKey === "speed") {
+        val += 17;
+        logText += ` + 17 (화염의 카타나)`;
+      }
+    } else if (augId === "sunfireCape" && (pokemon?.type1 === "불꽃" || pokemon?.type2 === "불꽃") && (statKey === "def" || statKey === "cdef")) {
+      val += 70;
+      logText += ` + 70 (태양불꽃망토)`;
     }
   }
 

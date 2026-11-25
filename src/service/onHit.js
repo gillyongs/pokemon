@@ -158,4 +158,10 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
     const text = "[증강 가시갑옷] " + atkPokemon.names("는") + " 가시갑옷 때문에 데미지를 입었다!";
     atkPokemon.getDamage(battle, enqueue, atkMaxHp / 8, text);
   }
+  // [증강] 태양불꽃망토: 공격을 받을 때 10% 확률로 적에게 화상을 입힌다
+  if (defPokemon.hasAugment?.("sunfireCape") && !atkPokemon.faint) {
+    if (random(10)) {
+      applyAilment("화상", battle, battle.turn.atk, enqueue, `[증강 태양불꽃망토] ${atkPokemon.names("는")} 화상을 입었다!`);
+    }
+  }
 };
