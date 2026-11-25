@@ -187,7 +187,7 @@ const TradeInfoModal = ({ pokemon, pokemonList = [], battle, onClose }) => {
       setInfoText("지닌 아이템이 없습니다.");
       return;
     }
-    const desc = getItemDesc(itemName, pokemon);
+    const desc = getItemDesc(itemName, currentPoke);
     setInfoText(`[아이템: ${itemName}] ${desc}`);
   };
 
@@ -256,7 +256,7 @@ const TradeInfoModal = ({ pokemon, pokemonList = [], battle, onClose }) => {
             <HpBarTrack>
               <HpBarFill style={{ width: `${hpRatio * 100}%`, backgroundColor: hpColor }} />
               <HpBarLabel>
-                {pokemon.hp ?? maxHp}/{maxHp}
+                {currentPoke.hp ?? maxHp}/{maxHp}
               </HpBarLabel>
             </HpBarTrack>
           </SpriteBox>
@@ -265,7 +265,7 @@ const TradeInfoModal = ({ pokemon, pokemonList = [], battle, onClose }) => {
             <HeaderLine>
               <NameWrap>
                 <PokemonTitle>{pokemonName}</PokemonTitle>
-                {pokemon.isMega && <MegaIcon src="/pokemon/img/background/mega.webp" alt="mega" />}
+                {currentPoke.isMega && <MegaIcon src="/pokemon/img/background/mega.webp" alt="mega" />}
                 {statusText !== "정상" && (
                   <StatusBadge $color={statusColors[statusText] || "#64ffda"} onClick={handleStatusClick}>
                     {statusText}
@@ -277,15 +277,15 @@ const TradeInfoModal = ({ pokemon, pokemonList = [], battle, onClose }) => {
             <MetaRow>
               <MetaLabel>특성:</MetaLabel>
               <ClickableBadge onClick={handleAbilClick}>
-                {pokemon.abil?.name || pokemon.abil || "없음"}
-                {((pokemon.abil?.usedOnce && !pokemon.hasAugment?.("intrepidSword") && !pokemon.hasAugment?.("dauntlessShield")) || (pokemon.abil?.used && !pokemon.hasAugment?.("libero") && !pokemon.hasAugment?.("protean"))) ? " (사용됨)" : ""}
+                {currentPoke.abil?.name || currentPoke.abil || "없음"}
+                {((currentPoke.abil?.usedOnce && !currentPoke.hasAugment?.("intrepidSword") && !currentPoke.hasAugment?.("dauntlessShield")) || (currentPoke.abil?.used && !currentPoke.hasAugment?.("libero") && !currentPoke.hasAugment?.("protean"))) ? " (사용됨)" : ""}
               </ClickableBadge>
             </MetaRow>
 
             <MetaRow>
               <MetaLabel>아이템:</MetaLabel>
               <ClickableBadge onClick={handleItemClick}>
-                {pokemon.item || "없음"}
+                {currentPoke.item || "없음"}
               </ClickableBadge>
             </MetaRow>
 
@@ -367,7 +367,7 @@ const ModalOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1100;
+  z-index: 10020;
   backdrop-filter: blur(4px);
   padding: 14px;
   box-sizing: border-box;
@@ -779,17 +779,15 @@ const NavArrowBtn = styled.button`
   align-items: center;
   cursor: pointer;
   z-index: 20;
-  transition: all 0.2s ease;
+  transition: transform 0.1s ease, background 0.1s ease, color 0.1s ease, box-shadow 0.1s ease;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 
-  &:hover {
+  &:active {
     background: #64ffda;
     color: #0f172a;
     box-shadow: 0 4px 16px rgba(100, 255, 218, 0.6);
-    transform: translateY(-50%) scale(1.05);
-  }
-
-  &:active {
     transform: translateY(-50%) scale(0.95);
   }
 

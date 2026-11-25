@@ -18,8 +18,8 @@ export function attackDamage(battle, enqueue, num) {
   const useSkill = atkPokemon.turn.useSkill;
 
   // 상성 텍스트 계산
-  const typeDamage = useSkill ? typeCheckOnBattle(battle, useSkill, atkPokemon, defPokemon) : 1;
-  const typeText = useSkill ? getTypeText(typeDamage) : null;
+  const typeDamage = typeCheckOnBattle(battle, useSkill, atkPokemon, defPokemon);
+  const typeText = getTypeText(typeDamage);
 
   if (useSkill) {
     atkPokemon.tempStatus.recentSkillUse = useSkill;

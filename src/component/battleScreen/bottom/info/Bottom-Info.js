@@ -375,7 +375,7 @@ const InfoCard = styled.div`
 
 const NavArrowBtn = styled.button`
   position: absolute;
-  top: 50%;
+  top: 39%;
   transform: translateY(-50%);
   ${({ $dir }) => ($dir === "left" ? "left: 4px;" : "right: 4px;")}
   width: 31px;

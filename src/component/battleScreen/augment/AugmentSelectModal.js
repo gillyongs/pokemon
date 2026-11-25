@@ -5,6 +5,7 @@ import { AUGMENT_LIST, getAugmentSelDesc, isCurseAugment, isBuffAugment, isPerma
 import { rollTeamAugments } from "../../../calc/augmentRoll";
 import { testmode, subscribeTestMode } from "../../../config/testMode";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
+import TradeInfoModal from "../TradeInfoModal";
 import AugmentStatusModal from "./AugmentStatusModal";
 import AugmentPokemonPreviewModal from "./AugmentPokemonPreviewModal";
 import AugmentSynergyPreviewModal from "./AugmentSynergyPreviewModal";
@@ -48,6 +49,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   }, []);
   const [isPeekMode, setIsPeekMode] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const [detailPokemon, setDetailPokemon] = useState(null);
   const [previewInfo, setPreviewInfo] = useState(null);
   const [synergyPreviewInfo, setSynergyPreviewInfo] = useState(null);
   const [grantPreviewInfo, setGrantPreviewInfo] = useState(null);
@@ -563,6 +565,21 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                           />
                           <EntryPokemonName>{poke.name}</EntryPokemonName>
                           <EntryCountBadge $hasAugment={count > 0}>{count}/3</EntryCountBadge>
+                          {isSelected && (
+                            <EntryDetailOverlay>
+                              <EntryDetailButton
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (isPeekMode) setIsPeekMode(false);
+                                  setDetailPokemon(poke);
+                                }}
+                                title={`${poke.name} 상세정보 보기`}
+                              >
+                                상세정보
+                              </EntryDetailButton>
+                            </EntryDetailOverlay>
+                          )}
                         </EntryCard>
                       );
                     })}
@@ -740,6 +757,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       </ModalOverlay>
 
       {isStatusOpen && <AugmentStatusModal battle={battle} team={resolvedTeam} onClose={() => setIsStatusOpen(false)} />}
+      {detailPokemon && <TradeInfoModal pokemon={detailPokemon} pokemonList={resolvedTeam} battle={battle} onClose={() => setDetailPokemon(null)} />}
       {previewInfo && <AugmentPokemonPreviewModal augmentId={previewInfo.augmentId} pokemon={previewInfo.pokemon} onClose={() => setPreviewInfo(null)} />}
       {synergyPreviewInfo && <AugmentSynergyPreviewModal synergy={synergyPreviewInfo.synergy} activeAugmentId={synergyPreviewInfo.augmentId} activePokemon={activePokemon} battle={battle} team={resolvedTeam} onClose={() => setSynergyPreviewInfo(null)} />}
       {grantPreviewInfo && <AugmentGrantPreviewModal augmentId={grantPreviewInfo.augmentId} grantInfo={grantPreviewInfo.grant} pokemon={activePokemon} battle={battle} onClose={() => setGrantPreviewInfo(null)} />}
@@ -968,6 +986,7 @@ const EntryContainer = styled.div`
 `;
 
 const EntryCard = styled.div`
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -997,6 +1016,54 @@ const EntryCard = styled.div`
       background: rgba(255, 255, 255, 0.09);
       border-color: rgba(100, 255, 218, 0.4);
     `}
+  }
+`;
+
+const EntryDetailOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  z-index: 4;
+  pointer-events: none;
+`;
+
+const EntryDetailButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1.5px solid rgba(100, 255, 218, 0.85);
+  border-radius: 6px;
+  color: #64ffda;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6), 0 0 8px rgba(100, 255, 218, 0.25);
+  transition: all 0.15s ease;
+  animation: ${fadeIn} 0.15s ease-out;
+
+  &:hover {
+    background: rgba(100, 255, 218, 0.85);
+    color: #0f172a;
+    box-shadow: 0 2px 14px rgba(100, 255, 218, 0.55);
+    transform: scale(1.04);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  @media (max-width: 480px) {
+    padding: 5px 9px;
+    font-size: 0.72rem;
   }
 `;
 
