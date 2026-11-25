@@ -4212,7 +4212,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {id === "focusOne" && (
           <g clipPath="url(#lwClip)">
             <circle cx="32" cy="32" r="30" fill="#0f172a" />
-            <image href="/pokemon/img/augment/focusOne.png?v=2" xlinkHref="/pokemon/img/augment/focusOne.png?v=2" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <image href="/pokemon/img/augment/focusOne.png?v=4" xlinkHref="/pokemon/img/augment/focusOne.png?v=4" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="#ef4444" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#f87171" strokeWidth="0.5" strokeOpacity="0.65" />
           </g>

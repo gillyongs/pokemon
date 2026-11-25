@@ -244,11 +244,11 @@ export const getSkillEnhanceBadges = (pokemon, skill) => {
     });
   }
 
-  // 3. 제로섬게임 (강화: 위력 2배 (초록 +), 실패: 위력 0.5배 (빨간 -))
+  // 3. 제로섬게임 (강화: 위력 1.5배 (초록 +), 실패: 위력 0.5배 (빨간 -))
   if (isZeroSumBuffSkill(pokemon, skill)) {
     badges.push({
       id: "zeroSumGame_buff",
-      title: "제로섬게임 (위력 2배)",
+      title: "제로섬게임 (위력 1.5배)",
       render: () => <AugmentIcon key="zeroSumGame_buff" id="zeroSumGame" size={19} sign="+" />,
     });
   } else if (isZeroSumNerfSkill(pokemon, skill)) {

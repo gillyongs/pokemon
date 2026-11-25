@@ -783,11 +783,11 @@ export const damageCalculate = (battle, num, ai) => {
     }
   }
 
-  // 제로섬게임: 랜덤한 기술 하나의 위력이 2배, 다른 기술 하나의 위력이 절반
+  // 제로섬게임: 랜덤한 기술 하나의 위력이 1.5배, 다른 기술 하나의 위력이 0.5배
   if (attackPokemon?.hasAugment?.("zeroSumGame")) {
     if (skill.name === attackPokemon.zeroSumBuffSkillName) {
-      damage *= 2;
-      attackPokemon.log.damage1 += ` * 2 (제로섬게임+)`;
+      damage *= 1.5;
+      attackPokemon.log.damage1 += ` * 1.5 (제로섬게임+)`;
     } else if (skill.name === attackPokemon.zeroSumNerfSkillName) {
       damage *= 0.5;
       attackPokemon.log.damage1 += ` * 0.5 (제로섬게임-)`;

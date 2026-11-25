@@ -442,15 +442,15 @@ export const AUGMENT_LIST = [
   {
     id: "zeroSumGame",
     name: "제로섬게임",
-    desc: "랜덤한 기술 하나의 위력이 2배가 됩니다.\n다른 기술 하나의 위력이 절반이 됩니다.",
-    cost: 2,
+    desc: "랜덤한 기술 하나의 위력이 1.5배가 됩니다.\n다른 기술 하나의 위력이 0.5배가 됩니다.",
+    cost: 1,
     weight: 100,
     isEligible: (pokemon) => !pokemon?.hasAugment?.("zeroSumGame") && getAttackSkills(pokemon).length >= 2,
     screenText: function (target, prevPokeName, options) {
       const buff = options?.zeroSumBuffSkillName || this?.zeroSumBuffSkillName || target?.zeroSumBuffSkillName;
       const nerf = options?.zeroSumNerfSkillName || this?.zeroSumNerfSkillName || target?.zeroSumNerfSkillName;
       if (buff && nerf) {
-        return `[증강] ${buff}의 위력이 2배, ${nerf}의 위력이 절반이 되었다!`;
+        return `[증강] ${buff}의 위력이 1.5배, ${nerf}의 위력이 0.5배가 되었다!`;
       }
       return "[증강] 제로섬게임의 효과가 적용되었다!";
     },
@@ -458,17 +458,17 @@ export const AUGMENT_LIST = [
       const buff = options?.zeroSumBuffSkillName || this?.zeroSumBuffSkillName || target?.zeroSumBuffSkillName;
       const nerf = options?.zeroSumNerfSkillName || this?.zeroSumNerfSkillName || target?.zeroSumNerfSkillName;
       if (buff && nerf) {
-        return `${buff}의 위력이 2배, ${nerf}의 위력이 절반이 되었다!`;
+        return `${buff}의 위력이 1.5배, ${nerf}의 위력이 0.5배가 되었다!`;
       }
-      return "랜덤한 기술 하나의 위력이 2배, 다른 기술 하나의 위력이 절반이 되었다!";
+      return "랜덤한 기술 하나의 위력이 1.5배, 다른 기술 하나의 위력이 0.5배가 되었다!";
     },
     statusModalText: function (pokemon, battle, options) {
       const buff = options?.zeroSumBuffSkillName || this?.zeroSumBuffSkillName || pokemon?.zeroSumBuffSkillName;
       const nerf = options?.zeroSumNerfSkillName || this?.zeroSumNerfSkillName || pokemon?.zeroSumNerfSkillName;
       if (buff && nerf) {
-        return `${buff}의 위력이 2배가 됩니다.\n${nerf}의 위력은 절반으로 감소합니다.`;
+        return `${buff}의 위력이 1.5배가 됩니다.\n${nerf}의 위력은 0.5배로 감소합니다.`;
       }
-      return "랜덤한 기술 하나의 위력이 2배가 됩니다.\n다른 기술 하나의 위력이 절반이 됩니다.";
+      return "랜덤한 기술 하나의 위력이 1.5배가 됩니다.\n다른 기술 하나의 위력이 0.5배가 됩니다.";
     },
     onApply: function (pokemon, battle, options) {
       if (!pokemon?.skill) return;
