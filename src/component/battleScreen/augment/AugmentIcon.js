@@ -4252,7 +4252,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {id === "giantSoldierOfStone" && (
           <g clipPath="url(#lwClip)">
             <circle cx="32" cy="32" r="30" fill="#0f172a" />
-            <image href="/pokemon/img/augment/giantSoldierOfStone.png" xlinkHref="/pokemon/img/augment/giantSoldierOfStone.png" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <image href="/pokemon/img/augment/giantSoldierOfStone.png" xlinkHref="/pokemon/img/augment/giantSoldierOfStone.png" x="-6" y="-6" width="76" height="76" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="#38bdf8" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.5" strokeOpacity="0.65" />
           </g>
@@ -4262,7 +4262,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {id === "millenniumShield" && (
           <g clipPath="url(#lwClip)">
             <circle cx="32" cy="32" r="30" fill="#0f172a" />
-            <image href="/pokemon/img/augment/millenniumShield.png" xlinkHref="/pokemon/img/augment/millenniumShield.png" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <image href="/pokemon/img/augment/millenniumShield.png" xlinkHref="/pokemon/img/augment/millenniumShield.png" x="-7" y="-7" width="78" height="78" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="#38bdf8" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#bae6fd" strokeWidth="0.5" strokeOpacity="0.65" />
           </g>
