@@ -313,6 +313,30 @@ export const AUGMENT_LIST = [
     // getStat.js, SkillEffect.js에 구현
   },
   {
+    id: "brionac",
+    name: "빙룡창 브류나크",
+    desc: "공격 시 15% 확률로 적을 얼립니다. 얼음 또는 드래곤 타입 포켓몬일 경우 공격과 특수공격이 추가로 70 증가합니다.",
+    cost: 3,
+    weight: 100,
+    // getStat.js, SkillEffect.js에 구현
+  },
+  {
+    id: "gungnir",
+    name: "빙룡창 궁니르",
+    desc: "공격 시 50% 확률로 적 또는 자신이 얼어붙습니다.",
+    cost: 3,
+    weight: 100,
+    // SkillEffect.js에 구현
+  },
+  {
+    id: "trishula",
+    name: "빙룡창 트리슈라",
+    desc: "공격 시 적에게 서리를 쌓아 스피드가 중첩당 15% 감소합니다. 다른 상태이상 중에는 최대 3중첩까지 쌓이며, 상태이상이 없을 때 3중첩이면 서리를 초기화하고 얼립니다. 불꽃·얼음 타입이거나 이미 얼어있는 적에게는 서리가 쌓이지 않습니다.",
+    cost: 3,
+    weight: 100,
+    // PokemonInstance.js, speedCheck.js, SkillEffect.js에 구현
+  },
+  {
     id: "giantSoldierOfStone",
     name: "암석거인",
     desc: "모든 아군 바위타입 포켓몬의 방어와 특수방어가 200 증가합니다.",

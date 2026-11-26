@@ -1,5 +1,5 @@
 import { random } from "../../util/randomCheck";
-import { applyAilment } from "../../service/ailment";
+import { applyAilment, isAilmentCheck } from "../../service/ailment";
 import { josa } from "josa";
 import { noNullItem } from "../Item";
 import { switchNpc, switchNpcAuto, switchPlayer, switchPlayerForce } from "../../service/switch";
@@ -121,6 +121,53 @@ function skillEffectSearch(name) {
         if ((skill.stype === "atk" || skill.stype === "catk") && !isTargetSubstituteBlocked(battle)) {
           if (Math.random() < 0.3) {
             applyAilment("화상", battle, battle.turn.def, enqueue, `[증강 사라만도라] ${def.names("는")} 화상을 입었다!`);
+          }
+        }
+      }
+
+      // [증강: 빙룡창 브류나크] 공격 시 15% 확률로 적을 얼림
+      const hasBrionac = atkPokemon.hasAugment("brionac");
+      if (hasBrionac && !def.faint) {
+        if ((skill.stype === "atk" || skill.stype === "catk") && !isTargetSubstituteBlocked(battle)) {
+          if (Math.random() < 0.15) {
+            applyAilment("얼음", battle, battle.turn.def, enqueue, `[증강 빙룡창 브류나크] ${def.names("는")} 얼어붙었다!`);
+          }
+        }
+      }
+
+      // [증강: 빙룡창 트리슈라] 서리 3중첩은 다른 상태이상이 없을 때 얼림
+      const hasTrishula = atkPokemon.hasAugment("trishula");
+      if (hasTrishula && !def.faint && (skill.stype === "atk" || skill.stype === "catk") && !isTargetSubstituteBlocked(battle)) {
+        const frostStacks = Number(def.tempStatus.trishulaFrost || 0);
+        const isFireOrIceType = def.type1 === "불꽃" || def.type2 === "불꽃" || def.type1 === "얼음" || def.type2 === "얼음";
+        const isFrozen = Boolean(def.ailment.freeze || def.ailment.freezeBug);
+        if (!isFireOrIceType && !isFrozen) {
+          if (isAilmentCheck(def)) {
+            // 상태이상이 이미 걸린경우 3스택에서 유지
+            if (frostStacks < 3) {
+              def.tempStatus.trishulaFrost = frostStacks + 1;
+              enqueue(battle, `[증강 빙룡창 트리슈라] ${def.names("는")} 서리가 쌓여 움직임이 둔해졌다!`, "augment_trishula_frost");
+            }
+          } else if (frostStacks >= 2) {
+            // 상태이상이 없으면 스택이 쌓이고 3스택 이상이면 얼어붙음
+            applyAilment("얼음", battle, battle.turn.def, enqueue, `[증강 빙룡창 트리슈라] ${def.names("는")} 서리가 쌓여 얼어붙었다!`);
+          } else {
+            def.tempStatus.trishulaFrost = frostStacks + 1;
+            enqueue(battle, `[증강 빙룡창 트리슈라] ${def.names("는")} 서리가 쌓여 움직임이 둔해졌다!`, "augment_trishula_frost");
+          }
+        }
+      }
+
+      // [증강: 빙룡창 궁니르] 공격 시 50% 확률로 적 또는 자신을 얼림
+      const hasGungnir = atkPokemon.hasAugment("gungnir");
+      if (hasGungnir && (skill.stype === "atk" || skill.stype === "catk")) {
+        if (Math.random() < 0.5) {
+          if (Math.random() < 0.5) {
+            if (!def.faint && !isTargetSubstituteBlocked(battle)) {
+              applyAilment("얼음", battle, battle.turn.def, enqueue, `[증강 빙룡창 궁니르] ${def.names("는")} 얼어붙었다!`);
+            }
+          } else if (!atkPokemon.faint) {
+            applyAilment("얼음", battle, battle.turn.atk, enqueue, `[증강 빙룡창 궁니르] ${atkPokemon.names("는")} 얼어붙었다!`, atkPokemon);
           }
         }
       }

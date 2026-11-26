@@ -171,10 +171,12 @@ export const applyAilment = (ailment, battle, get, enqueue, textOption, attacker
 
   // 맹독: 부가효과(skillEffect.js)
   if (ailment === "얼음" || ailment === "freeze") {
+    pokemon.tempStatus.trishulaFrost = 0;
     pokemon.ailment.freeze = true;
     text = textOption || `${pokemon.names("는")} 얼어붙었다!`;
   }
   if (ailment === "freezeBug") {
+    pokemon.tempStatus.trishulaFrost = 0;
     pokemon.ailment.freezeBug = true;
     text = textOption || `${pokemon.names("는")} 꽁꽁 얼어붙었다!`;
   }

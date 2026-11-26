@@ -117,6 +117,12 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
       pokemon.log.speedCalc += " * 2 (나를 믿는 내가 최강이다!)";
     }
   }
+  const trishulaFrost = Number(pokemon?.tempStatus?.trishulaFrost || 0);
+  if (trishulaFrost > 0) {
+    const frostMultiplier = Math.max(0, 1 - trishulaFrost * 0.15);
+    speed = Math.round(speed * frostMultiplier);
+    pokemon.log.speedCalc += ` * ${frostMultiplier} (트리슈라 서리 ${trishulaFrost}중첩)`;
+  }
   pokemon.log.speedCalc += " = " + speed;
   return speed;
 };

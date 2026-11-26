@@ -126,6 +126,9 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
     } else if (augId === "salamandra" && (pokemon?.type1 === "불꽃" || pokemon?.type2 === "불꽃") && (statKey === "atk" || statKey === "catk")) {
       val += 70;
       logText += ` + 70 (사라만도라)`;
+    } else if (augId === "brionac" && (pokemon?.type1 === "얼음" || pokemon?.type2 === "얼음" || pokemon?.type1 === "드래곤" || pokemon?.type2 === "드래곤") && (statKey === "atk" || statKey === "catk")) {
+      val += 70;
+      logText += ` + 70 (빙룡창 브류나크)`;
     } else if (augId === "flamingKatana") {
       if (statKey === "atk") {
         val += 65;
