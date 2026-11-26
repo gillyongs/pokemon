@@ -802,6 +802,14 @@ export const AUGMENT_LIST = [
     // damageCalculate.js에 구현
   },
   {
+    id: "afterYou",
+    name: "뒷일은 부탁합니다.",
+    desc: "해당 포켓몬이 기절하여 쓰러졌을 경우, 교체로 나온 다음 포켓몬의 모든 능력이 1랭크 상승합니다.",
+    cost: 1,
+    weight: 100,
+    // switch.js에 구현
+  },
+  {
     id: "believeInMyself",
     name: "나를 믿는 내가 최강이다!",
     desc: "아군의 남은 포켓몬 수가 상대보다 적을 때, 해당 포켓몬의 모든 능력치가 2배로 증가합니다.",

@@ -4334,6 +4334,16 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {/* 초고열 글라디우스 */}
         {id === "superheatedGladius" && <image href="/pokemon/img/augment/superheatedGladius.png" x="-2" y="-2" width="68" height="68" />}
 
+        {/* 뒷일은 부탁합니다 */}
+        {id === "afterYou" && (
+          <g clipPath="url(#lwClip)">
+            <circle cx="32" cy="32" r="30" fill="#102442" />
+            <image href="/pokemon/img/augment/afterYou.png" xlinkHref="/pokemon/img/augment/afterYou.png" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#93c5fd" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#dbeafe" strokeWidth="0.5" strokeOpacity="0.65" />
+          </g>
+        )}
+
         {/* 빙결용윤 에크하자르 */}
         {id === "ekzahar" && (
           <g clipPath="url(#lwClip)">

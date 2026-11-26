@@ -3,6 +3,14 @@ import { applyFieldEffects } from "./field";
 import { calculatePokemonSwitchScore } from "../npc/ai/easy";
 import { speedCheck } from "../calc/speedCheck";
 
+const applyAfterYouAugment = (battle, side, leavingPokemon, enqueue) => {
+  const incomingPokemon = battle[side];
+  if (!leavingPokemon?.faint || !leavingPokemon.hasAugment?.("afterYou") || !incomingPokemon || incomingPokemon.faint) return;
+
+  enqueue(battle, `[증강 뒷일은 부탁합니다] ${incomingPokemon.names("는")} ${leavingPokemon.name}의 의지를 이어받았다!`, "augment_after_you");
+  incomingPokemon.rankUp(battle, enqueue, "all", 1);
+};
+
 export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
   // 플레이어 교체 함수
   // 사용자가 교체를 골랐을 때 (BattleStart.js)
@@ -15,6 +23,7 @@ export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
   const leavingPokemon = switchPokemon(battle, "player", actNumber, options, enqueue);
   battle.turn.turnEnd = null;
   enqueue(battle, "가랏! " + battle.player.baseName + "!", "sw_player_in");
+  applyAfterYouAugment(battle, "player", leavingPokemon, enqueue);
 
   if (!isFaintSwitch && leavingPokemon && !leavingPokemon.faint) {
     battle.emit("pokemonLeave", { leavingPokemon, enqueue, reason: "switch" });
@@ -42,6 +51,7 @@ export const switchPlayer = (battle, actNumber, enqueue, options = {}) => {
 export const switchPlayerForce = (battle, actNumber, enqueue) => {
   const leavingPokemon = switchPokemon(battle, "player", actNumber, {}, enqueue);
   enqueue(battle, battle.player.names("는") + " 배틀에 끌려나왔다!", "sw_player_force");
+  applyAfterYouAugment(battle, "player", leavingPokemon, enqueue);
   if (leavingPokemon && !leavingPokemon.faint) {
     battle.emit("pokemonLeave", { leavingPokemon, enqueue, reason: "switch" });
   }
@@ -65,6 +75,7 @@ export const switchNpc = (battle, actNumber, enqueue, force, options = {}) => {
     leavingPokemon = switchPokemon(battle, "npc", actNumber, options, enqueue);
     enqueue(battle, "상대는 " + battle.npc.baseNames("를") + " 내보냈다!", "sw_npc_in");
   }
+  applyAfterYouAugment(battle, "npc", leavingPokemon, enqueue);
   if (leavingPokemon && !leavingPokemon.faint) {
     battle.emit("pokemonLeave", { leavingPokemon, enqueue, reason: "switch" });
   }
@@ -117,15 +128,17 @@ export const switchBothFaint = (battle, actNumber, enqueue) => {
   battle.turn.textFreeze = null;
   battle.turn.turnEnd = null;
   enqueue(battle, battle.player.baseName + " 돌아와!", "sw_both_player_out");
-  switchPokemon(battle, "player", actNumber);
+  const leavingPlayer = switchPokemon(battle, "player", actNumber);
   battle.turn.turnEnd = null;
   enqueue(battle, "가랏! " + battle.player.baseName + "!", "sw_both_player_in");
+  applyAfterYouAugment(battle, "player", leavingPlayer, enqueue);
 
   const targetBench = getNpcAutoSwitchTarget(battle);
   if (targetBench) {
     enqueue(battle, "상대는 " + battle.npc.baseNames("를") + " 넣어 버렸다!", "sw_both_npc_out");
-    switchPokemon(battle, "npc", targetBench);
+    const leavingNpc = switchPokemon(battle, "npc", targetBench);
     enqueue(battle, "상대는 " + battle.npc.baseNames("를") + " 내보냈다!", "sw_both_npc_in");
+    applyAfterYouAugment(battle, "npc", leavingNpc, enqueue);
   }
 
   const fastUser = speedCheck(battle);
