@@ -199,6 +199,15 @@ export const getAugmentedStat = (pokemon, statKey, battle = null) => {
       logText += " * 1.1 (인생의 동반자)";
     }
 
+    if (augId === "revolution" && STAT_KEYS.includes(statKey)) {
+      const result = aug?.revolutionResult ?? pokemon?.revolutionResult;
+      const multiplier = result === "success" ? 1.5 : result === "failure" ? 0.7 : null;
+      if (multiplier !== null) {
+        val = Math.round(val * multiplier);
+        logText += ` * ${multiplier} (혁명 ${result === "success" ? "성공" : "실패"})`;
+      }
+    }
+
     // 영혼의 심복: 모든 능력치 1.5배
     if (augId === "soulMinion") {
       val = Math.round(val * 1.5);

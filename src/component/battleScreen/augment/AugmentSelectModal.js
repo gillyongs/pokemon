@@ -16,6 +16,7 @@ import AugmentArcaneShadeSwordView from "./select/AugmentArcaneShadeSwordView";
 import AugmentStarforceView from "./select/AugmentStarforceView";
 import AugmentCubeView from "./select/AugmentCubeView";
 import AugmentPowerOfKingView from "./select/AugmentPowerOfKingView";
+import AugmentRevolutionView from "./select/AugmentRevolutionView";
 import AugmentThreeThousandYearsView from "./select/AugmentThreeThousandYearsView";
 import AugmentNinjaAppearedView from "./select/AugmentNinjaAppearedView";
 import AugmentSoulDiceView from "./select/AugmentSoulDiceView";
@@ -64,6 +65,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   const [cleanSlateAug, setCleanSlateAug] = useState(null);
   const [cubeAug, setCubeAug] = useState(null);
   const [powerOfKingAug, setPowerOfKingAug] = useState(null);
+  const [revolutionAug, setRevolutionAug] = useState(null);
   const [threeThousandYearsAug, setThreeThousandYearsAug] = useState(null);
   const [ninjaAppearedAug, setNinjaAppearedAug] = useState(null);
   const [soulDiceAug, setSoulDiceAug] = useState(null);
@@ -233,6 +235,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     setCleanSlateAug(null);
     setCubeAug(null);
     setPowerOfKingAug(null);
+    setRevolutionAug(null);
     setThreeThousandYearsAug(null);
     setNinjaAppearedAug(null);
     setSoulDiceAug(null);
@@ -254,13 +257,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     const targetAug = aug || selectedAugment;
     if (!targetAug || !activePokemon) return;
 
-    if (
-      (targetAug.id === "danceOfGarchomp" ||
-        targetAug.id === "nameIsSalamence" ||
-        targetAug.id === "choiceAndFocus" ||
-        targetAug.id === "sanctuary") &&
-      activePokemon?.skill
-    ) {
+    if ((targetAug.id === "danceOfGarchomp" || targetAug.id === "nameIsSalamence" || targetAug.id === "choiceAndFocus" || targetAug.id === "sanctuary") && activePokemon?.skill) {
       setSkillSelectAug(targetAug);
       return;
     }
@@ -289,6 +286,11 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
 
     if (targetAug.id === "powerOfKing") {
       setPowerOfKingAug(targetAug);
+      return;
+    }
+
+    if (targetAug.id === "revolution") {
+      setRevolutionAug(targetAug);
       return;
     }
 
@@ -349,6 +351,20 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                   setQuizAug(null);
                 }}
                 onCancel={() => setQuizAug(null)}
+              />
+            ) : revolutionAug ? (
+              <AugmentRevolutionView
+                revolutionAug={revolutionAug}
+                activePokemon={activePokemon}
+                onSelect={(aug, options) => {
+                  setRevolutionAug(null);
+                  setRouletteAug({
+                    ...aug,
+                    revolutionCost: options?.revolutionCost,
+                    revolutionProbability: options?.revolutionProbability,
+                  });
+                }}
+                onCancel={() => setRevolutionAug(null)}
               />
             ) : rouletteAug ? (
               <AugmentRouletteView
@@ -1046,7 +1062,9 @@ const EntryDetailButton = styled.button`
   pointer-events: auto;
   user-select: none;
   white-space: nowrap;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6), 0 0 8px rgba(100, 255, 218, 0.25);
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.6),
+    0 0 8px rgba(100, 255, 218, 0.25);
   transition: all 0.15s ease;
   animation: ${fadeIn} 0.15s ease-out;
 

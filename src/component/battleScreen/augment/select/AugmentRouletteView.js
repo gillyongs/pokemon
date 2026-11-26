@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { abilObject, noRandomAbil } from "../../../../entity/Ability";
-import { HeaderArea, HeaderTopRow, Title, ButtonGroup, ActionButton } from "./selectStyles";
+import { getRevolutionSuccessProbability, rollRevolutionResult } from "../../../../entity/Augment/AugmentData";
+import { HeaderArea, HeaderTopRow, Title, SubTitleText, ButtonGroup, ActionButton } from "./selectStyles";
 
 const SLOT_ROW_HEIGHT = 54;
 
@@ -88,6 +89,9 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
   const rouletteTimerRef = useRef(null);
   const oddEvenStatTimerRef = useRef(null);
   const slotRafRef = useRef(null);
+  const spinHandlerRef = useRef(null);
+
+  const revolutionProbability = Math.max(0, Math.min(100, Number(rouletteAug?.revolutionProbability ?? getRevolutionSuccessProbability(rouletteAug?.revolutionCost ?? 0)) || 0));
 
   const clearSlotTimers = () => {
     if (rouletteTimerRef.current) {
@@ -244,13 +248,35 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
       return;
     }
 
+    if (rouletteAug.id === "revolution") {
+      const pick = rollRevolutionResult(revolutionProbability);
+      const successAngle = revolutionProbability * 3.6;
+      const hitAngle = pick === "success" ? Math.random() * successAngle : successAngle + Math.random() * (360 - successAngle);
+
+      const alignRotation = (360 - (hitAngle % 360)) % 360;
+      const extraTurns = (5 + Math.floor(Math.random() * 3)) * 360;
+      const finalRotation = extraTurns + alignRotation;
+
+      setRouletteSpinning(true);
+      setRouletteRotation(finalRotation);
+
+      if (rouletteTimerRef.current) {
+        clearTimeout(rouletteTimerRef.current);
+      }
+      rouletteTimerRef.current = setTimeout(() => {
+        setRouletteSpinning(false);
+        setRouletteResult(pick);
+        rouletteTimerRef.current = null;
+      }, 2950);
+      return;
+    }
+
     let pick = null;
     let hitAngle = 0;
 
     if (rouletteAug.id === "russianRoulette") {
       pick = Math.random() < 0.5 ? "player" : "npc";
       hitAngle = pick === "npc" ? 30 + Math.random() * 120 : 210 + Math.random() * 120;
-
     } else if (rouletteAug.id === "highRiskHighReturn") {
       pick = Math.random() < 0.5 ? "buff" : "curse";
       const matchingSlices = pick === "buff" ? [0, 2, 4] : [1, 3, 5];
@@ -280,13 +306,20 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
     }, 2950);
   };
 
+  spinHandlerRef.current = handleSpinRoulette;
+
+  useEffect(() => {
+    if (rouletteAug?.id !== "revolution") return undefined;
+    const timer = setTimeout(() => spinHandlerRef.current?.(), 150);
+    return () => clearTimeout(timer);
+  }, [rouletteAug]);
+
   const handleApplyRoulette = (e) => {
     e?.stopPropagation();
     if (!rouletteAug || !activePokemon || !rouletteResult) return;
     const payload = { targetPokemon: activePokemon };
     if (rouletteAug.id === "russianRoulette") {
       payload.faintTarget = rouletteResult;
-
     } else if (rouletteAug.id === "highRiskHighReturn") {
       payload.highRiskResult = rouletteResult;
     } else if (rouletteAug.id === "randomAbility") {
@@ -294,6 +327,10 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
     } else if (rouletteAug.id === "oddEven") {
       payload.statKey = rouletteResult.statKey;
       payload.delta = rouletteResult.delta;
+    } else if (rouletteAug.id === "revolution") {
+      payload.revolutionCost = rouletteAug.revolutionCost;
+      payload.revolutionProbability = revolutionProbability;
+      payload.revolutionResult = rouletteResult;
     } else {
       payload.targetStat = rouletteResult;
     }
@@ -322,6 +359,9 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
     }
     if (rouletteAug.id === "oddEven") {
       return `${rouletteResult.statLabel} ${formatDeltaText(rouletteResult.delta)} 랭크!`;
+    }
+    if (rouletteAug.id === "revolution") {
+      return rouletteResult === "success" ? `성공! 모든 능력치가 1.5배가 되었다!` : `실패... 모든 능력치 0.7배가 되었다...`;
     }
     return rouletteResult === "atk" ? "공격 2배, 특수공격 절반" : "특수공격 2배, 공격 절반";
   };
@@ -369,6 +409,50 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
       );
     }
 
+    if (rouletteAug?.id === "revolution") {
+      const successEnd = revolutionProbability * 3.6;
+      const renderSlice = (startDeg, endDeg, color, label, sub, key) => {
+        const startX = cx + r * Math.sin(toRad(startDeg));
+        const startY = cy - r * Math.cos(toRad(startDeg));
+        const endX = cx + r * Math.sin(toRad(endDeg));
+        const endY = cy - r * Math.cos(toRad(endDeg));
+        const sweep = endDeg - startDeg;
+        const midDeg = startDeg + sweep / 2;
+        const d = `M ${cx} ${cy} L ${startX.toFixed(2)} ${startY.toFixed(2)} A ${r} ${r} 0 ${sweep > 180 ? 1 : 0} 1 ${endX.toFixed(2)} ${endY.toFixed(2)} Z`;
+
+        return (
+          <g key={key}>
+            <path d={d} fill={color} stroke="#0f172a" strokeWidth="2" />
+            <g transform={`rotate(${midDeg} ${cx} ${cy})`}>
+              <text x={cx} y={cy - 60} textAnchor="middle" fill="#f8fafc" fontSize="12" fontWeight="800">
+                {label}
+              </text>
+              <text x={cx} y={cy - 43} textAnchor="middle" fill="rgba(248,250,252,0.9)" fontSize="11" fontWeight="700">
+                {sub}
+              </text>
+            </g>
+          </g>
+        );
+      };
+
+      return (
+        <svg viewBox="0 0 220 220" width="212" height="212" xmlns="http://www.w3.org/2000/svg">
+          <circle cx={cx} cy={cy} r="105" fill="#182130" stroke="#475569" strokeWidth="2.5" />
+          {revolutionProbability === 100 ? (
+            <>
+              <circle cx={cx} cy={cy} r={r} fill="#0f766e" stroke="#0f172a" strokeWidth="2" />
+              <text x={cx} y={cy - 5} textAnchor="middle" fill="#f8fafc" fontSize="14" fontWeight="800"></text>
+            </>
+          ) : (
+            <>
+              {renderSlice(0, successEnd, "#0f766e", "성공", `${revolutionProbability}%`, "success")}
+              {renderSlice(successEnd, 360, "#c94a4a", "실패", `${100 - revolutionProbability}%`, "failure")}
+            </>
+          )}
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="#0f172a" strokeWidth="2" />
+        </svg>
+      );
+    }
 
     const slices = rouletteAug?.id === "highRiskHighReturn" ? HIGH_RISK_SLICES : ALL_OR_NOTHING_SLICES;
 
@@ -407,11 +491,27 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
 
   return (
     <>
-      <HeaderArea>
+      <RouletteHeaderArea>
         <HeaderTopRow>
-          <Title>{rouletteAug.shortName || rouletteAug.name}</Title>
+          <Title>
+            {rouletteAug.id === "revolution" ? (
+              <>
+                실패하면 반역, <br />
+                성공하면 혁명 아닙니까!
+              </>
+            ) : (
+              rouletteAug.shortName || rouletteAug.name
+            )}
+          </Title>
         </HeaderTopRow>
-      </HeaderArea>
+        {rouletteAug.id === "revolution" && (
+          <SubTitleText>
+            코스트 1당 성공 확률이 5% 증가합니다.
+            <br />
+            성공시 모든 능력치가 1.5배, 실패시 0.7배가 됩니다.
+          </SubTitleText>
+        )}
+      </RouletteHeaderArea>
 
       {rouletteAug.id === "oddEven" ? (
         <AbilitySlotStage>
@@ -539,7 +639,7 @@ const AugmentRouletteView = ({ rouletteAug, activePokemon, battle, onSelect, onC
           )}
         </AbilitySlotStage>
       ) : (
-        <RouletteStageContainer>
+        <RouletteStageContainer $isRevolution={rouletteAug.id === "revolution"}>
           <RouletteWheelBox>
             <RoulettePointer aria-hidden="true">
               <svg viewBox="0 0 20 18" width="18" height="16" xmlns="http://www.w3.org/2000/svg">
@@ -580,11 +680,15 @@ const RouletteStageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 1;
   gap: 12px;
   width: 100%;
-  padding: 8px 0 10px;
+  padding: ${(props) => (props.$isRevolution ? "16px 0 10px" : "0 0 10px")};
+`;
+
+const RouletteHeaderArea = styled(HeaderArea)`
+  margin-bottom: 4px;
 `;
 
 const RouletteWheelBox = styled.div`
@@ -594,7 +698,7 @@ const RouletteWheelBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 4px;
+  margin-top: 0;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55));
 `;
 
@@ -661,11 +765,11 @@ const AbilitySlotStage = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 1;
   gap: 12px;
   width: 100%;
-  padding: 10px 0 12px;
+  padding: 0 0 12px;
 `;
 
 const OddEvenPairRow = styled.div`
