@@ -1,16 +1,54 @@
 import React from "react";
 import styled, { keyframes, css } from "styled-components";
 
+const AILMENT_TINTS = {
+  burn: { color: "red", opacity: 0.42, glow: "rgba(255, 40, 40, 0.55)" },
+  sleep: { color: "gray", opacity: 0.5, glow: "rgba(128, 128, 128, 0.5)" },
+  freeze: { color: "skyblue", opacity: 0.48, glow: "rgba(135, 206, 235, 0.65)" },
+  freezeBug: { color: "skyblue", opacity: 0.48, glow: "rgba(135, 206, 235, 0.65)" },
+  mabi: { color: "rgb(190, 186, 36)", opacity: 0.45, glow: "rgba(190, 186, 36, 0.6)" },
+  poison: { color: "purple", opacity: 0.45, glow: "rgba(160, 32, 240, 0.55)" },
+  mpoison: { color: "rgba(83, 14, 99, 1)", opacity: 0.52, glow: "rgba(110, 20, 135, 0.65)" },
+};
+
 const PokemonImage = ({ battle, type }) => {
   const pokemon = type === "npc" ? battle.npc : battle.player;
 
   const isSubstitute = !!pokemon?.tempStatus?.substitute;
   const isEternamax = !isSubstitute && (pokemon?.uniqueKey === "0890-m");
 
+  const activeAilment =
+    !isSubstitute && pokemon?.ailment
+      ? Object.entries(pokemon.ailment).find(([, value]) => value != null)?.[0] || null
+      : null;
+
   const pokeImgId = pokemon.img_id || pokemon.uniqueKey;
   const imageSrc = isSubstitute ? `/pokemon/img/background/substitute_${type === "npc" ? "front" : "back"}.webp` : `/pokemon/img/pokemon/${pokeImgId}.webp`;
 
-  return <StyledPokemonImage className={type} src={imageSrc} alt={`${type} Pokemon`} $isSubstitute={isSubstitute} $isEternamax={isEternamax} />;
+  return (
+    <>
+      <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }} aria-hidden="true">
+        <defs>
+          {Object.entries(AILMENT_TINTS).map(([key, { color, opacity }]) => (
+            <filter key={key} id={`ailment-tint-${type}-${key}`} colorInterpolationFilters="sRGB">
+              <feFlood floodColor={color} floodOpacity={opacity} result="flood" />
+              <feComposite in="flood" in2="SourceAlpha" operator="in" result="tint" />
+              <feComposite in="tint" in2="SourceGraphic" operator="over" />
+            </filter>
+          ))}
+        </defs>
+      </svg>
+      <StyledPokemonImage
+        className={type}
+        src={imageSrc}
+        alt={`${type} Pokemon`}
+        $isSubstitute={isSubstitute}
+        $isEternamax={isEternamax}
+        $ailment={activeAilment}
+        $type={type}
+      />
+    </>
+  );
 };
 
 export default PokemonImage;
@@ -33,6 +71,11 @@ const StyledPokemonImage = styled.img`
   max-width: ${({ $isEternamax }) => ($isEternamax ? "240px" : "120px")};
   max-height: ${({ $isEternamax }) => ($isEternamax ? "240px" : "120px")};
   position: absolute;
+  filter: ${({ $ailment, $type }) =>
+    $ailment && AILMENT_TINTS[$ailment]
+      ? `url(#ailment-tint-${$type}-${$ailment}) drop-shadow(0 0 5px ${AILMENT_TINTS[$ailment].glow})`
+      : "none"};
+  transition: filter 0.2s ease;
 
   ${({ className, $isSubstitute, $isEternamax }) =>
     className === "plr"
