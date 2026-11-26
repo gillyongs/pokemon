@@ -67,13 +67,13 @@ export function checkEndure(defPokemon, prevHp, atkPokemon = null) {
       endureText = "[특성 옹골참] " + defPokemon.names("는") + " 옹골참으로 버텼다!";
       endureKey = "dmg_sturdy";
     } else {
-      endureText = defPokemon.names("는") + " 기합의 띠로 버텼다!";
+      endureText = `[아이템 기합의띠] ${defPokemon.names("는")} 기합의 띠로 버텼다!`;
       endureKey = "dmg_focus_sash";
       defPokemon.consumeItem();
     }
   } else if (defPokemon.hasAugment?.("mandoocornEndure") && Math.random() < 0.3) {
     // [증강] 슬프게 하지 않게 하려고 버텼다! (30% 확률로 HP 1로 버팀)
-    endureText = defPokemon.names("는") + " 플레이어를 슬프게 하지 않으려고 버텼다!";
+    endureText = `[증강 슬프게 하지 않게 하려고 버텼다!] ${defPokemon.names("는")} 플레이어를 슬프게 하지 않으려고 버텼다!`;
     endureKey = "dmg_mandoo_endure";
   } else if (defPokemon.hasAugment?.("butItRefused") && !defPokemon.agument?.butItRefusedUsed) {
     // [증강] 하지만 버텨냈다.: 기절할 공격을 HP 1로 버티고 해당 턴 기절 면역 활성화

@@ -90,7 +90,7 @@ export const skillUse = (bt, enqueue) => {
           enqueue(bt, skillUseText, "use_charge_weather"); // 스킬 텍스트 2번 뜨는게 맞음
         } else if (atk.item === "파워풀허브") {
           atk.consumeItem();
-          enqueue(bt, `${atk.names("는")} 파워풀허브로 힘이 넘쳐흐른다!`, "use_power_herb");
+          enqueue(bt, `[아이템 파워풀허브] ${atk.names("는")} 파워풀허브로 힘이 넘쳐흐른다!`, "use_power_herb");
           enqueue(bt, skillUseText, "use_charge_herb"); // 스킬 텍스트 2번 뜨는게 맞음
         } else {
           atk.charge = true;

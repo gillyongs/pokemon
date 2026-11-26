@@ -179,7 +179,7 @@ export const afterSkillCheck = (bt, enqueue) => {
       }
       atk.type1 = skill.type;
       atk.type2 = null;
-      enqueue(bt, `[${atk.abil?.name}] ` + atk.names("는") + " " + skill.type + " 타입이 됐다!", "chk_libero");
+      enqueue(bt, `[특성 ${atk.abil?.name}] ` + atk.names("는") + " " + skill.type + " 타입이 됐다!", "chk_libero");
     }
   }
 

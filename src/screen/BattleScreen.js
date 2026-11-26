@@ -16,6 +16,7 @@ import { useQueue } from "../store/useQueue";
 import PokemonInfo from "../component/battleScreen/top/PokemonInfo";
 import PokemonImage from "../component/battleScreen/top/PokemonImage";
 import ItemImage from "../component/battleScreen/top/ItemImage";
+import TriggerBanner from "../component/battleScreen/top/TriggerBanner";
 import BottomSectionSkill from "../component/battleScreen/bottom/skill/Bottom-Skill";
 import BottomSectionSwitch from "../component/battleScreen/bottom/switch/Bottom-Switch";
 import BottomSectionInfo from "../component/battleScreen/bottom/info/Bottom-Info";
@@ -162,6 +163,7 @@ const Battle = () => {
   };
 
   const activeBattle = battleLive || battle;
+  const activeTriggerBanner = queueObject.queue?.[0]?.text === text ? queueObject.queue?.[0]?.triggerBanner || null : null;
 
   return (
     <>
@@ -221,6 +223,7 @@ const Battle = () => {
           </IMAGE>
           <PokemonInfo battle={battle} type="npc" />
           <PokemonInfo battle={battle} type="plr" />
+          <TriggerBanner banner={activeTriggerBanner} />
         </TOP>
         <BOTTOM>
           {bottom === "skill" && <BottomSectionSkill battle={battle} text={text} setText={setText} setBottom={setBottom} queueObject={queueObject} battleStartBySkillButton={battleStartBySkillButton} textSkip={textSkip} btObj={battleLive} />}

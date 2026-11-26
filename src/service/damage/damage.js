@@ -147,7 +147,7 @@ export function attackDamage(battle, enqueue, num) {
   // ================= 텍스트 처리 =================
   let defaultText = true;
   if (talTrigger) {
-    enqueue(battle, (commonText || "") + "탈이 대타가 되었다!", "dmg_disguise");
+    enqueue(battle, "[특성 탈] " + (commonText || "") + "탈이 대타가 되었다!", "dmg_disguise", { triggerSide: battle.turn.def });
     defaultText = false;
   }
 

@@ -75,7 +75,8 @@ export const PokemonRank = {
 
     if (abilText) rankText = `${abilText} ${rankText}`;
 
-    enqueue(battle, rankText, "rank_change");
+    const triggerSide = isOpponent ? (this.team === "player" ? "npc" : "player") : this.team;
+    enqueue(battle, rankText, "rank_change", { triggerSide });
 
     // 승기 / 오기: 상대에 의해 능력치가 떨어졌을 때 발동
     if (isOpponent && rankValue < 0) {
@@ -130,7 +131,7 @@ export const PokemonRank = {
       rank[key] = 0;
     });
     this.consumeItem();
-    enqueue(battle, `${this.names("는")} 하양허브로 떨어진 능력을 원래대로 되돌렸다!`, "rank_white_herb");
+    enqueue(battle, `[아이템 하양허브] ${this.names("는")} 하양허브로 떨어진 능력을 원래대로 되돌렸다!`, "rank_white_herb");
     // 디버프를 받기 전 상태로 되돌리는게 아니라, 랭크다운된 능력치를 제로로 만드는게 맞음
   },
 

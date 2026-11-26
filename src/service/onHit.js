@@ -16,7 +16,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
 
   if (defPokemon.item === "풍선") {
     //기절하거나 탁떨, 대타출동 상태중에 맞아도 풍선은 무조건 터진다
-    const text = defPokemon.name + "의 풍선이 터졌다!";
+    const text = `[아이템 풍선] ${defPokemon.name}의 풍선이 터졌다!`;
     defPokemon.consumeItem();
     enqueue(battle, text, "hit_balloon_pop");
   }
@@ -36,7 +36,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
     const typeDamage = typeCheckOnBattle(battle, useSkill, atkPokemon, defPokemon);
     if (typeDamage > 1) {
       defPokemon.consumeItem();
-      enqueue(battle, `${defPokemon.names("는")} 슈케열매로 땅타입 기술의 위력을 반감시켰다!`, "hit_shuca_berry");
+      enqueue(battle, `[아이템 슈케열매] ${defPokemon.names("는")} 슈케열매로 땅타입 기술의 위력을 반감시켰다!`, "hit_shuca_berry");
     }
   }
 
@@ -48,7 +48,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
   if (canTriggerDisguiseBerry && defPokemon.item === "악키열매" && !defPokemon.faint && useSkill.stype === "atk" && useSkill.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     if (defPokemon.canRankUp("def", "up")) {
       defPokemon.consumeItem();
-      defPokemon.rankUp(battle, enqueue, "def", 1, "[악키열매]");
+      defPokemon.rankUp(battle, enqueue, "def", 1, "[아이템 악키열매]");
     }
   }
 
@@ -56,7 +56,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
   if (canTriggerDisguiseBerry && defPokemon.item === "타라프열매" && !defPokemon.faint && useSkill.stype === "catk" && useSkill.name !== "탁쳐서떨구기" && !noBerryAbil.includes(atkPokemon.abil?.name)) {
     if (defPokemon.canRankUp("cdef", "up")) {
       defPokemon.consumeItem();
-      defPokemon.rankUp(battle, enqueue, "cdef", 1, "[타라프열매]");
+      defPokemon.rankUp(battle, enqueue, "cdef", 1, "[아이템 타라프열매]");
     }
   }
 
@@ -155,7 +155,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
     // 별 상관은 없지만 해당 특성이 울멧보다 먼저
   }
   if (defPokemon.item === "울퉁불퉁멧" && touch && !atkPokemon.faint) {
-    const text = atkPokemon.names("는") + " 울퉁불퉁멧 때문에 데미지를 입었다!";
+    const text = `[아이템 울퉁불퉁멧] ${atkPokemon.names("는")} 울퉁불퉁멧 때문에 데미지를 입었다!`;
     atkPokemon.getDamage(battle, enqueue, atkMaxHp / 6, text);
     // 철가시 1/8, 울멧 1/6 맞음
   }

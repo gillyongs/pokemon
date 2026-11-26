@@ -33,7 +33,7 @@ export const PokemonAbil = {
     else if (this.item === "부스트에너지") {
       this.tempStatus.protosynthesis = maxKey;
       this.consumeItem();
-      enqueue(battle, `[특성 고대활성] ${this.names("는")} 부스트에너지에 의해 고대활성을 발동했다!`, "proto_energy");
+      enqueue(battle, `[아이템 부스트에너지] ${this.names("는")} 부스트에너지에 의해 고대활성을 발동했다!`, "proto_energy");
     }
 
     // 발동 성공 시 강화 텍스트 출력
@@ -54,7 +54,7 @@ export const PokemonAbil = {
     // 부스트에너지를 지니고있을시 즉시 재발동
     if (this.item === "부스트에너지") {
       this.consumeItem();
-      enqueue(battle, `[특성 고대활성] ${this.names("는")} 부스트에너지에 의해 고대활성을 발동했다!`, "proto_re_energy");
+      enqueue(battle, `[아이템 부스트에너지] ${this.names("는")} 부스트에너지에 의해 고대활성을 발동했다!`, "proto_re_energy");
       const maxKey = this.maxStat();
       this.tempStatus.protosynthesis = maxKey;
       enqueue(battle, `[특성 고대활성] ${this.name}의 ${getStatName(maxKey)} 강화되었다!`, "proto_re_stat");
@@ -80,7 +80,7 @@ export const PokemonAbil = {
     else if (this.item === "부스트에너지") {
       this.tempStatus.quarkDrive = maxKey;
       this.consumeItem();
-      enqueue(battle, `[특성 쿼크차지] ${this.names("는")} 부스트에너지에 의해 쿼크차지를 발동했다!`, "quark_energy");
+      enqueue(battle, `[아이템 부스트에너지] ${this.names("는")} 부스트에너지에 의해 쿼크차지를 발동했다!`, "quark_energy");
     }
 
     // 발동 성공 시 강화 텍스트 출력
@@ -101,7 +101,7 @@ export const PokemonAbil = {
     // 부스트에너지를 지니고있을시 즉시 재발동
     if (this.item === "부스트에너지") {
       this.consumeItem();
-      enqueue(battle, `[특성 쿼크차지] ${this.names("는")} 부스트에너지에 의해 쿼크차지를 발동했다!`, "quark_re_energy");
+      enqueue(battle, `[아이템 부스트에너지] ${this.names("는")} 부스트에너지에 의해 쿼크차지를 발동했다!`, "quark_re_energy");
       const maxKey = this.maxStat();
       this.tempStatus.quarkDrive = maxKey;
       enqueue(battle, `[특성 쿼크차지] ${this.name}의 ${getStatName(maxKey)} 강화되었다!`, "quark_re_stat");

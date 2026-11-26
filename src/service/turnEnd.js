@@ -479,6 +479,6 @@ function flameOrb(battle, enqueue, user) {
   if (p.faint) return;
 
   if (p.item === "화염구슬") {
-    applyAilment("화상", battle, p.team, enqueue, `${p.names("는")} 화염구슬로 화상을 입었다!`, p);
+    applyAilment("화상", battle, p.team, enqueue, `[아이템 화염구슬] ${p.names("는")} 화염구슬로 화상을 입었다!`, p);
   }
 }

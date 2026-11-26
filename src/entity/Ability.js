@@ -406,6 +406,6 @@ export const applyAbilityEffects = (bt, atks, enqueue, trace) => {
   }
 
   if (atk.item === "풍선") {
-    enqueue(bt, atk.names("는") + " 풍선으로 떠 있다!", "abil_air_balloon");
+    enqueue(bt, `[아이템 풍선] ${atk.names("는")} 풍선으로 떠 있다!`, "abil_air_balloon");
   }
 };

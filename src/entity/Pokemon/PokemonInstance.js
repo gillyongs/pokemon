@@ -345,16 +345,16 @@ class PokemonInstance {
 
     if (this.item === "먹다남은음식") {
       if (this.hp < maxHp) {
-        this.recover(battle, Math.floor(maxHp / 16), enqueue, `${this.names("는")} 먹다남은음식으로 인해 조금 회복했다!`);
+        this.recover(battle, Math.floor(maxHp / 16), enqueue, `[아이템 먹다남은음식] ${this.names("는")} 먹다남은음식으로 인해 조금 회복했다!`);
       }
     } else if (this.item === "검은진흙") {
       const isPoison = this.type1 === "독" || this.type2 === "독";
       if (isPoison) {
         if (this.hp < maxHp) {
-          this.recover(battle, Math.floor(maxHp / 16), enqueue, `${this.names("는")} 검은진흙으로 인해 조금 회복했다!`);
+          this.recover(battle, Math.floor(maxHp / 16), enqueue, `[아이템 검은진흙] ${this.names("는")} 검은진흙으로 인해 조금 회복했다!`);
         }
       } else {
-        const text = `${this.names("는")} 검은진흙으로 인해 데미지를 입었다!`;
+        const text = `[아이템 검은진흙] ${this.names("는")} 검은진흙으로 인해 데미지를 입었다!`;
         this.getDamage(battle, enqueue, Math.floor(maxHp / 8), text);
       }
     }

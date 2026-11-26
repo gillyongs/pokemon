@@ -194,7 +194,7 @@ function skillEffectSearch(name) {
 
       if (atkPokemon.item === "생명의구슬") {
         if (skill.stype === "atk" || skill.stype === "catk") {
-          const text = atkPokemon.name + "의 생명이 조금 깎였다!";
+          const text = `[아이템 생명의구슬] ${atkPokemon.name}의 생명이 조금 깎였다!`;
           atkPokemon.getDamage(battle, enqueue, atkPokemon.maxHp / 10, text);
         }
       }

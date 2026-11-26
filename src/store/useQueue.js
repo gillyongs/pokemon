@@ -1,6 +1,21 @@
 import { useRecoilState } from "recoil";
 import { queueState, logState } from "./recoilState";
 import { cloneWithMethods } from "../util/cloneWithMethods";
+import { resolveTriggerBanner } from "../util/triggerBannerResolver";
+
+const normalizeQueueItem = (item) => {
+  if (!item || typeof item !== "object") return item;
+  if (item.triggerBanner || typeof item.text !== "string" || !item.text.startsWith("[")) {
+    return item;
+  }
+  const resolved = resolveTriggerBanner(item.battle, item.text, item.id, item);
+  return {
+    ...item,
+    text: resolved.text,
+    logText: resolved.logText,
+    triggerBanner: resolved.triggerBanner,
+  };
+};
 
 export function useQueue() {
   const [queue, setQueue] = useRecoilState(queueState);
@@ -31,7 +46,15 @@ export function useQueue() {
   // battleStart에서 시작할때마다 넣음
 
   const enqueue = (battle, text, id, option = {}) => {
-    const item = { battle, text, id, ...option };
+    const resolved = resolveTriggerBanner(battle, text, id, option);
+    const item = {
+      battle,
+      id,
+      ...option,
+      text: resolved.text,
+      logText: resolved.logText,
+      triggerBanner: resolved.triggerBanner,
+    };
     const deepCopiedItem = cloneWithMethods(item); // 메서드까지 깊은 복사하는 함수
     setQueue((prevQueue) => [...prevQueue, deepCopiedItem]);
   };
@@ -62,9 +85,9 @@ export function useQueue() {
   const updateHead = (updater, curBattle, extraAfterHead = [], options = {}) => {
     setQueue((prevQueue) => {
       if (prevQueue.length === 0) return prevQueue;
-      const head = typeof updater === "function" ? updater(prevQueue[0]) : updater;
+      const head = normalizeQueueItem(typeof updater === "function" ? updater(prevQueue[0]) : updater);
       const deepCopiedHead = cloneWithMethods(head);
-      const deepCopiedExtras = (extraAfterHead || []).map((item) => cloneWithMethods({ ...item }));
+      const deepCopiedExtras = (extraAfterHead || []).map((item) => cloneWithMethods(normalizeQueueItem({ ...item })));
 
       if (options?.dropRemaining) {
         return [deepCopiedHead, ...deepCopiedExtras];
@@ -119,8 +142,8 @@ export function useQueue() {
 
   const insertAfterHead = (items = []) => {
     setQueue((prevQueue) => {
-      if (prevQueue.length === 0) return items.map(cloneWithMethods);
-      const deepCopiedItems = items.map((item) => cloneWithMethods({ ...item }));
+      if (prevQueue.length === 0) return items.map((item) => cloneWithMethods(normalizeQueueItem(item)));
+      const deepCopiedItems = items.map((item) => cloneWithMethods(normalizeQueueItem({ ...item })));
       return [prevQueue[0], ...deepCopiedItems, ...prevQueue.slice(1)];
     });
   };
