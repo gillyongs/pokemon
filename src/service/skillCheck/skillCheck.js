@@ -179,6 +179,7 @@ export const afterSkillCheck = (bt, enqueue) => {
       }
       atk.type1 = skill.type;
       atk.type2 = null;
+      if (atk.tempStatus) atk.tempStatus.soak = null;
       enqueue(bt, `[특성 ${atk.abil?.name}] ` + atk.names("는") + " " + skill.type + " 타입이 됐다!", "chk_libero");
     }
   }

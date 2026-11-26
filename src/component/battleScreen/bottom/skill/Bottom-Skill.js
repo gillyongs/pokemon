@@ -4,14 +4,17 @@ import React, { useState, useEffect } from "react";
 import SkillButton from "./SkillButton"; // 경로에 맞게 수정
 import TextBox from "../common/TextBox";
 import SwitchButton from "../common/SwitchButton";
+import FieldButton from "../common/FieldButton";
 import LogButton from "../common/LogButton";
 import LogModal from "../../LogModal";
+import FieldStatusModal, { hasAnyFieldOrStatusActive } from "../../FieldStatusModal";
 
 import styled from "styled-components";
 import { isSkillUsable } from "../../../../service/skillCheck/skillDisableCheck";
 
 const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, battleStartBySkillButton, textSkip, btObj }) => {
   const [logOpen, setLogOpen] = useState(false);
+  const [fieldOpen, setFieldOpen] = useState(false);
   const [useMega, setUseMega] = useState(false);
 
   const curBattle = btObj || battle;
@@ -117,13 +120,14 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         innerText={"교체"}
       />
 
-      {/* <FieldButton
-        onClick={() => {
-          if (queueObject.queueCheck()) {
-            setBottom("field");
-          }
+      <FieldButton
+        innerText={"필드"}
+        hasActive={hasAnyFieldOrStatusActive(battle)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setFieldOpen(true);
         }}
-      /> */}
+      />
 
       <LogButton
         isLog={queueObject.queueCheck()}
@@ -142,6 +146,13 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         <LogModal
           log={queueObject.log}
           onClose={() => setLogOpen(false)}
+        />
+      )}
+
+      {fieldOpen && (
+        <FieldStatusModal
+          battle={battle}
+          onClose={() => setFieldOpen(false)}
         />
       )}
     </div>

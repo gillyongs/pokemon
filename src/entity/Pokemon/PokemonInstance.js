@@ -135,6 +135,7 @@ class PokemonInstance {
       armorBreak: null, // [증강 방어구 부수기] 피격 시 누적 스택 (기본값 null, 첫 피격 시 1, 최대 15)
       restAndStrikeReady: null, // [증강 쉬었다 때리기] 다음 턴 공격 데미지 1.5배
       trishulaFrost: 0, // [증강 빙룡창 트리슈라] 서리 중첩
+      soak: null, // 물붓기 상태
     };
     this.img_id = this.o.img_id || null; // 포켓몬 스프라이트만 바꾸고 싶을때 사용 (기기기어르, 1세대 뮤츠)
     this.faint = null; //기절 여부

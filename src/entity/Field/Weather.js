@@ -12,6 +12,24 @@ const EXTREME_WEATHER_ABIL_MAP = {
 export class Weather {
   #type = null; // 현재 날씨: "쾌청", "비", "모래바람", "설경", "난기류", "폭우", "큰가뭄", null
   #turnRemain = null; // 남은 턴 수 (난기류/폭우/큰가뭄은 null)
+  _type = null;
+  _turnRemain = null;
+
+  get type() {
+    try {
+      return this.#type;
+    } catch {
+      return this._type ?? null;
+    }
+  }
+
+  get turnRemain() {
+    try {
+      return this.#turnRemain;
+    } catch {
+      return this._turnRemain ?? null;
+    }
+  }
 
   // 날씨부정 / 에어록에 의한 날씨 무효화 여부
   isSuppressed(battle) {
@@ -72,6 +90,8 @@ export class Weather {
   #setWeather(weatherType, turnRemain, enqueue, battle, weatherText) {
     this.#type = weatherType;
     this.#turnRemain = turnRemain;
+    this._type = weatherType;
+    this._turnRemain = turnRemain;
     if (weatherText) enqueue(battle, weatherText, "weather_set");
   }
 
@@ -135,6 +155,7 @@ export class Weather {
     if (this.#turnRemain === null) return; // 난기류, 폭우, 큰가뭄은 턴 카운트 없음
 
     this.#turnRemain--;
+    this._turnRemain = this.#turnRemain;
     if (this.#turnRemain <= 0) {
       this.#handleWeatherEnd(battle, enqueue);
     }
@@ -144,6 +165,8 @@ export class Weather {
     const endedType = this.#type;
     this.#type = null;
     this.#turnRemain = null;
+    this._type = null;
+    this._turnRemain = null;
 
     const endTextMap = {
       비: "비가 그쳤다!",

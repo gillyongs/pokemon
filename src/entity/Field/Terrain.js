@@ -3,9 +3,27 @@ import { speedCheck } from "../../calc/speedCheck";
 export class Terrain {
   #type = null; // 그래스필드, 일렉트릭필드
   #turnRemain = null; // 남은 턴 수
+  _type = null;
+  _turnRemain = null;
 
   get() {
-    return this.#type;
+    try {
+      return this.#type;
+    } catch {
+      return this._type ?? null;
+    }
+  }
+
+  get type() {
+    return this.get();
+  }
+
+  get turnRemain() {
+    try {
+      return this.#turnRemain;
+    } catch {
+      return this._turnRemain ?? null;
+    }
   }
 
   get isGrassField() {
@@ -26,6 +44,8 @@ export class Terrain {
   #setTerrain(terrainType, turnRemain, enqueue, battle, terrainText) {
     this.#type = terrainType;
     this.#turnRemain = turnRemain;
+    this._type = terrainType;
+    this._turnRemain = turnRemain;
     if (terrainText) enqueue(battle, terrainText, "terrain_set");
   }
 
@@ -53,6 +73,7 @@ export class Terrain {
 
     // 그래스필드 없어지는 턴에 회복 안 함
     this.#turnRemain--;
+    this._turnRemain = this.#turnRemain;
     if (this.#turnRemain <= 0) {
       this.#handleTerrainEnd(battle, enqueue);
       return;
@@ -81,6 +102,8 @@ export class Terrain {
     const endedType = this.#type;
     this.#type = null;
     this.#turnRemain = null;
+    this._type = null;
+    this._turnRemain = null;
 
     let text = "";
     if (destroy) {

@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import TextBox from "../common/TextBox";
 import SwitchButton from "../common/SwitchButton";
+import FieldButton from "../common/FieldButton";
 import LogButton from "../common/LogButton";
 import BenchPokemon from "./BenchPokemon";
 import LogModal from "../../LogModal";
+import FieldStatusModal, { hasAnyFieldOrStatusActive } from "../../FieldStatusModal";
 import { battleStart, skillUseNpc } from "../../../../service/battleStart";
 import { switchPlayer, switchBothFaint } from "../../../../service/switch";
 import { turnEnd } from "../../../../service/turnEnd";
@@ -15,6 +17,7 @@ import { isShadowTagged } from "../../../../calc/shadowTag";
 const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueObject, setText, btObj }) => {
   const [selected, setSelected] = useState(null);
   const [logOpen, setLogOpen] = useState(false);
+  const [fieldOpen, setFieldOpen] = useState(false);
   const handleSelected = (bench) => {
     setSelected((prev) => (prev === bench ? null : bench));
   };
@@ -93,6 +96,15 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
         />
       )}
 
+      <FieldButton
+        innerText={"필드"}
+        hasActive={hasAnyFieldOrStatusActive(battle)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setFieldOpen(true);
+        }}
+      />
+
       {/* 교체 화면에서는 스킵할 텍스트가 없으므로(큐에 "누구로 교체 할까?"가 남아있어도) 항상 로그 버튼을 보여준다 */}
       <LogButton
         isLog={true}
@@ -103,6 +115,7 @@ const BottomSectionSwitch = ({ battle, text, bottom, setBottom, setBench, queueO
       />
 
       {logOpen && <LogModal log={queueObject.log} onClose={() => setLogOpen(false)} />}
+      {fieldOpen && <FieldStatusModal battle={battle} onClose={() => setFieldOpen(false)} />}
     </>
   );
 };

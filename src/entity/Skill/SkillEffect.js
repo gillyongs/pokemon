@@ -884,6 +884,7 @@ function skillEffectSearch(name) {
       if (!def || def.faint) return;
       def.type1 = "물";
       def.type2 = null;
+      if (def.tempStatus) def.tempStatus.soak = true;
       enqueue(battle, def.names("는") + " 물 타입이 되었다!", "eff_soak");
     },
 
