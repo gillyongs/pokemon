@@ -1536,28 +1536,39 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 3. 인생은 한방 & 모 아니면 도 & 랜덤 특성 & 도박 중독 (입체 주사위 & 회오리 마법 스파크) */}
-        {(id === "lifeIsOneShot" || id === "allOrNothing" || id === "randomAbility" || id === "gamblingAddict") && (
-          <g filter="url(#glow)">
-            {/* 회전하는 소용돌이 오라 */}
-            <path d="M14 26 C16 16 28 10 38 12 M50 38 C48 48 36 54 26 52" stroke="url(#prismRing)" strokeWidth="2.5" strokeLinecap="round" />
-            {/* 아이소메트릭 입체 주사위 */}
-            {/* 윗면 */}
-            <path d="M32 16 L46 23 L32 30 L18 23 Z" fill="url(#prismGrad)" stroke="#ffffff" strokeWidth="1" />
-            {/* 좌측면 */}
-            <path d="M18 23 L32 30 L32 46 L18 39 Z" fill="#0284c7" fillOpacity="0.85" stroke="#ffffff" strokeWidth="1" />
-            {/* 우측면 */}
-            <path d="M32 30 L46 23 L46 39 L32 46 Z" fill="#0d9488" fillOpacity="0.85" stroke="#ffffff" strokeWidth="1" />
-            {/* 주사위 눈금 점들 */}
-            <circle cx="32" cy="23" r="2" fill="#ffffff" />
-            <circle cx="23" cy="33" r="1.5" fill="#ffffff" />
-            <circle cx="27" cy="39" r="1.5" fill="#ffffff" />
-            <circle cx="36.2" cy="39.1" r="1.5" fill="#ffffff" />
-            <circle cx="39" cy="34.5" r="1.5" fill="#ffffff" />
-            <circle cx="41.8" cy="29.9" r="1.5" fill="#ffffff" />
-            {/* ✦ 스파클 */}
-            <path d="M49 14 Q49 17 52 17 Q49 17 49 20 Q49 17 46 17 Q49 17 49 14 Z" fill="#fef08a" />
-            <path d="M14 44 Q14 47 17 47 Q14 47 14 50 Q14 47 11 47 Q14 47 14 44 Z" fill="#38bdf8" />
+        {/* 모 아니면 도 */}
+        {id === "allOrNothing" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/allOrNothing.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#60a5fa" strokeWidth="0.5" strokeOpacity="0.75" />
+          </g>
+        )}
+
+        {/* 인생은 한방 */}
+        {id === "lifeIsOneShot" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/lifeIsOneShot.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#60a5fa" strokeWidth="0.5" strokeOpacity="0.75" />
+          </g>
+        )}
+
+        {/* 특성 야바위 */}
+        {id === "randomAbility" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/randomAbility.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#60a5fa" strokeWidth="0.5" strokeOpacity="0.75" />
+          </g>
+        )}
+
+        {/* 도박 중독 */}
+        {id === "gamblingAddict" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/gamblingAddict.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#60a5fa" strokeWidth="0.5" strokeOpacity="0.75" />
           </g>
         )}
 
