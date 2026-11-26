@@ -16,7 +16,7 @@ const TriggerBanner = ({ banner }) => {
       </IconBox>
       <TextBox>
         <OwnerLine>{pokemonName}의</OwnerLine>
-        <TriggerLine>{name}</TriggerLine>
+        <TriggerLine $len={name ? name.length : 0}>{name}</TriggerLine>
       </TextBox>
     </BannerWrapper>
   );
@@ -48,7 +48,7 @@ const slideInRight = keyframes`
 
 const BannerWrapper = styled.div`
   position: absolute;
-  bottom: 0;
+  bottom: 0.8vh;
   ${({ $side }) => ($side === "npc" ? "right: 0;" : "left: 0;")}
   display: flex;
   align-items: center;
@@ -58,21 +58,19 @@ const BannerWrapper = styled.div`
   max-width: 48vw;
   min-height: 48px;
   box-sizing: border-box;
-  background: linear-gradient(135deg, rgba(22, 22, 50, 0.94) 0%, rgba(44, 28, 72, 0.94) 55%, rgba(18, 18, 42, 0.94) 100%);
-  border-top: 1.5px solid rgba(165, 180, 252, 0.38);
+  background-color: rgba(0, 0, 0, 0.7);
   ${({ $side }) =>
     $side === "npc"
       ? css`
-          border-left: 1.5px solid rgba(165, 180, 252, 0.38);
-          border-top-left-radius: 8px;
+          border-top-left-radius: 5px;
+          border-bottom-left-radius: 5px;
           animation: ${slideInRight} 0.16s ease-out;
         `
       : css`
-          border-right: 1.5px solid rgba(165, 180, 252, 0.38);
-          border-top-right-radius: 8px;
+          border-top-right-radius: 5px;
+          border-bottom-right-radius: 5px;
           animation: ${slideInLeft} 0.16s ease-out;
         `}
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.55);
   z-index: 15;
   pointer-events: none;
 `;
@@ -120,9 +118,17 @@ const OwnerLine = styled.div`
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.85);
 `;
 
+const getTriggerFontSize = (len) => {
+  if (len >= 15) return "9.5px";
+  if (len >= 12) return "11px";
+  if (len >= 9) return "12px";
+  if (len >= 7) return "13px";
+  return "14px";
+};
+
 const TriggerLine = styled.div`
   color: #ffffff;
-  font-size: 14px;
+  font-size: ${({ $len }) => getTriggerFontSize($len)};
   font-weight: bold;
   white-space: nowrap;
   overflow: hidden;
