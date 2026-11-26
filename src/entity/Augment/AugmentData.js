@@ -2468,6 +2468,13 @@ export const AUGMENT_LIST = [
     weight: 100,
   },
   {
+    id: "readyToDie",
+    name: "레디 투 다이",
+    desc: "해당 포켓몬을 향한 모든 기술이 필중이 됩니다.\n피격 데미지가 40% 증가하고, 공격 데미지가 2배로 증가합니다.",
+    cost: 3,
+    weight: 100,
+  },
+  {
     id: "mapleWarrior",
     name: "메이플 용사",
     desc: "파티 전원의 모든 능력치가 15% 증가합니다.",

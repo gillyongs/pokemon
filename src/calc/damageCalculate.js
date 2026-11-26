@@ -906,6 +906,15 @@ export const damageCalculate = (battle, num, ai) => {
     attackPokemon.log.damage2 += " * 1.5 (쉬었다 때리기)";
   }
 
+  if (attackPokemon.hasAugment?.("readyToDie")) {
+    damage *= 2;
+    attackPokemon.log.damage2 += " * 2 (레투다 공격)";
+  }
+  if (defensePokemon.hasAugment?.("readyToDie")) {
+    damage *= 1.4;
+    attackPokemon.log.damage2 += " * 1.4 (레투다 피격)";
+  }
+
   // 랜덤값 ======================================================================================================
 
   let randomNum = getRandomNumber(); // 랜덤값

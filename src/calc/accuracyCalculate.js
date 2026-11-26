@@ -13,6 +13,10 @@ export function getAccuracy(bt, skill, attacker) {
   if (defender?.tempStatus?.glaiveRush) {
     return 100;
   }
+  // [증강] 레디투다이
+  if (defender?.hasAugment("readyToDie")) {
+    return 100;
+  }
 
   // 노가드 특성: 공격자 또는 방어자가 노가드면 필중
   if (attacker?.abil?.name === "노가드" || defender?.abil?.name === "노가드") {
