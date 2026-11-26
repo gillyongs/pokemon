@@ -274,7 +274,7 @@ export const AUGMENT_LIST = [
   {
     id: "superheatedGladius",
     name: "초고열 글라디우스",
-    desc: "공격 시 상대에게 화상을 입힌 후 공격합니다.\n이미 화상 상태인 상대에게 추가로 화상을 입힐 시 최대 HP의 10%의 데미지를 줍니다.",
+    desc: "공격 전 상대에게 화상을 입힙니다.\n화상 상태인 상대에게 추가로 화상을 입힐 시 최대 HP의 10%의 데미지를 입힙니다.",
     synergy: true,
     isRandom: false,
     weight: "-",
@@ -283,7 +283,7 @@ export const AUGMENT_LIST = [
   {
     id: "aThousandBlazingSuns",
     name: "타오르는 천 개의 태양",
-    desc: "매 턴 필드 위 모든 포켓몬에게 화상을 입힙니다.\n화상 상태인 상대에게 입히는 데미지가 1.5배로 증가합니다.",
+    desc: "매 턴 필드 위 모든 포켓몬에게 화상을 입힙니다. 화상 상태인 상대에게 입히는 데미지가 1.5배로 증가합니다.",
     cost: 3,
     weight: 100,
     // damageCalculate.js, turnEnd.js에 구현
@@ -291,7 +291,7 @@ export const AUGMENT_LIST = [
   {
     id: "sunfireCape",
     name: "태양불꽃망토",
-    desc: "피격 시 30% 확률로 적에게 화상을 입힙니다.\n불꽃타입 포켓몬일 경우 방어와 특수방어가 추가로 70 증가합니다.",
+    desc: "피격 시 30% 확률로 적에게 화상을 입힙니다. 불꽃타입 포켓몬일 경우 방어와 특수방어가 추가로 70 증가합니다.",
     cost: 2,
     weight: 100,
     // getStat.js, onHit.js에 구현
@@ -307,7 +307,7 @@ export const AUGMENT_LIST = [
   {
     id: "salamandra",
     name: "사라만도라",
-    desc: "공격 시 30% 확률로 적에게 화상을 입힙니다.\n불꽃타입 포켓몬일 경우 공격과 특수공격이 추가로 70 증가합니다.",
+    desc: "공격 시 30% 확률로 적에게 화상을 입힙니다. 불꽃타입 포켓몬일 경우 공격과 특수공격이 추가로 70 증가합니다.",
     cost: 2,
     weight: 100,
     // getStat.js, SkillEffect.js에 구현
@@ -488,7 +488,7 @@ export const AUGMENT_LIST = [
   {
     id: "butItRefused",
     name: "하지만 버텨냈다.",
-    desc: "기절할 공격을 받을 때 한번 HP 1로 버팁니다.\n해당 턴 무슨 일이 있어도 기절하지 않습니다.",
+    desc: "기절할 공격을 받을 때 한번 HP 1로 버팁니다. 해당 턴 무슨 일이 있어도 기절하지 않습니다.",
     cost: 3,
     weight: 100,
     isEligible: (pokemon) => (pokemon?.item?.name || pokemon?.item) !== "기합의띠",
@@ -646,7 +646,7 @@ export const AUGMENT_LIST = [
   {
     id: "limiterRemoval",
     name: "리미터 해제",
-    desc: "해당 포켓몬의 공격과 특공, 스피드가 1.5배가 됩니다.\n상대를 공격할 때마다 최대 HP 40%의 피해를 입습니다.",
+    desc: "해당 포켓몬의 공격과 특공, 스피드가 1.5배가 됩니다. 상대를 공격할 때마다 최대 HP 40%의 피해를 입습니다.",
     cost: 3,
     weight: 100,
     // getStat.js, SkillEffect.js에 구현
@@ -654,7 +654,7 @@ export const AUGMENT_LIST = [
   {
     id: "rudePureLove",
     name: "무례하긴, 순애야.",
-    desc: "모든 능력치가 1.3배 증가하는 영구적인 버프를 얻습니다.\n해당 포켓몬은 엔트리에서 교체할 수 없습니다.",
+    desc: "모든 능력치가 1.3배 증가하는 영구적인 버프를 얻습니다. 해당 포켓몬은 엔트리에서 교체할 수 없습니다.",
     cost: "-",
     weight: 100,
     isEligible: (pokemon, battle, team) => {
@@ -1663,10 +1663,7 @@ export const AUGMENT_LIST = [
   {
     id: "sanctuary",
     name: "생츄어리",
-    desc: "현재 기술 중 하나를 생츄어리와 교체합니다.\n생츄어리는 적의 체력을 1로 만들지만 다음턴 움직일 수 없습니다.",
-    selDesc: function () {
-      return "현재 기술 중 하나를 생츄어리와 교체합니다.\n생츄어리는 적의 체력을 1로 만들지만 다음턴 움직일 수 없습니다.";
-    },
+    desc: "현재 기술 중 하나를 생츄어리와 교체합니다. 생츄어리는 적의 체력을 1로 만들지만 다음턴 움직일 수 없습니다.",
     screenText: function (target, prevPokeName, options) {
       const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || "기존 기술";
       const names = target?.names ? target.names("는") : "포켓몬은";
@@ -2106,7 +2103,7 @@ export const AUGMENT_LIST = [
   {
     id: "mewtwoStrikesBack",
     name: "뮤츠의 역습",
-    desc: `현재 포켓몬을 조금 옛날의 뮤츠와 교체합니다.\n특정 증강 3개를 추가로 얻습니다.`,
+    desc: `현재 포켓몬을 조금 옛날의 뮤츠와 교체합니다. 특정 증강 3개를 추가로 얻습니다.`,
     screenText: function (target, prevPokeName) {
       const fromName = prevPokeName || "포켓몬";
       return josa(`[증강] ${fromName}#{이} 뮤츠로 교체되었다!`);
@@ -2139,7 +2136,7 @@ export const AUGMENT_LIST = [
   {
     id: "veteranPrivilege",
     name: "전관예우",
-    desc: `현재 포켓몬을 조금 옛날의 켄타로스와 교체합니다.\n특정 증강 3개를 추가로 얻습니다.`,
+    desc: `현재 포켓몬을 조금 옛날의 켄타로스와 교체합니다. 특정 증강 3개를 추가로 얻습니다.`,
     screenText: function (target, prevPokeName) {
       const fromName = prevPokeName || "포켓몬";
       return josa(`[증강] ${fromName}#{이} 켄타로스로 교체되었다!`);
@@ -2470,7 +2467,7 @@ export const AUGMENT_LIST = [
   {
     id: "readyToDie",
     name: "레디 투 다이",
-    desc: "해당 포켓몬을 향한 모든 기술이 필중이 됩니다.\n피격 데미지가 40% 증가하고, 공격 데미지가 2배로 증가합니다.",
+    desc: "해당 포켓몬을 향한 모든 기술이 필중이 됩니다. 피격 데미지가 40% 증가하지만 공격 데미지가 2배로 증가합니다.",
     cost: 3,
     weight: 100,
   },
