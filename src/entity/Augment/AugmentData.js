@@ -283,7 +283,7 @@ export const AUGMENT_LIST = [
   {
     id: "ekzahar",
     name: "빙결용윤 에크하자르",
-    desc: "상대에게 중첩하여 얼음 상태이상을 부여 할 수 있게 됩니다.",
+    desc: "상대를 중첩하여 얼릴 수 있습니다. 중첩 시 지속 턴이 누적됩니다.",
     synergy: true,
     isRandom: false,
     weight: "-",
@@ -3344,7 +3344,7 @@ const SYNERGY_INFO_MAP = {
     emoji: "❄️",
     theme: "빙결용윤",
     title: "빙결용윤 에크하자르",
-    desc: "상대에게 중첩하여 얼음 상태이상을 부여 할 수 있게 됩니다.",
+    desc: "상대를 중첩하여 얼릴 수 있습니다. 중첩 시 얼음 지속 턴이 길어집니다.",
   },
   millenniumShield: {
     emoji: "🛡️",

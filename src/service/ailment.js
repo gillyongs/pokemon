@@ -184,13 +184,13 @@ export const applyAilment = (ailment, battle, get, enqueue, textOption, attacker
   if (ailment === "얼음" || ailment === "freeze") {
     const previousFreeze = Number(pokemon.ailment.freeze) || 0;
     const addedFreeze = getFreezeDuration();
-    pokemon.tempStatus.trishulaFrost = 0; // 서리 스택 초기화
     pokemon.ailment.freeze = previousFreeze + addedFreeze;
     if (previousFreeze > 0) {
       const prefixMatch = typeof textOption === "string" ? textOption.match(/^(\[[^\]]+\]\s*)/) : null;
       const prefix = prefixMatch ? prefixMatch[1] : "";
       text = `${prefix}${pokemon.names("는")} 한층 더 깊게 얼어붙었다!`;
     } else {
+      pokemon.tempStatus.trishulaFrost = 0; // 서리 스택 초기화
       text = textOption || `${pokemon.names("는")} 얼어붙었다!`;
     }
   }

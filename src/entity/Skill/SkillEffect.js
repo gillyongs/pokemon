@@ -141,10 +141,14 @@ function skillEffectSearch(name) {
         const frostStacks = Number(def.tempStatus.trishulaFrost || 0);
         const isFireOrIceType = def.type1 === "불꽃" || def.type2 === "불꽃" || def.type1 === "얼음" || def.type2 === "얼음";
         const isFrozen = Boolean(def.ailment.freeze || def.ailment.freezeBug);
-        if (!isFireOrIceType && !isFrozen) {
+        const canStackFrostOnFrozen = atkPokemon.hasAugment("ekzahar") && Number(def.ailment.freeze) > 0 && !def.ailment.freezeBug;
+        if (!isFireOrIceType && (!isFrozen || canStackFrostOnFrozen)) {
           if (isAilmentCheck(def)) {
-            // 상태이상이 이미 걸린경우 3스택에서 유지
-            if (frostStacks < 3) {
+            if (canStackFrostOnFrozen && frostStacks >= 2) {
+              def.ailment.freeze += 1;
+              def.tempStatus.trishulaFrost = 0;
+              enqueue(battle, `[증강 빙룡창 트리슈라] ${def.names("는")} 한층 더 깊게 얼어붙었다!`, "augment_trishula_freeze");
+            } else if (frostStacks < 3) {
               def.tempStatus.trishulaFrost = frostStacks + 1;
               enqueue(battle, `[증강 빙룡창 트리슈라] ${def.names("는")} 서리가 쌓여 움직임이 둔해졌다!`, "augment_trishula_frost");
             }
