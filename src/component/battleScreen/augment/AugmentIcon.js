@@ -1539,27 +1539,21 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {/* 모 아니면 도 */}
         {id === "allOrNothing" && (
           <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/allOrNothing.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
-            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
-            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#60a5fa" strokeWidth="0.5" strokeOpacity="0.75" />
+            <image href="/pokemon/img/augment/allOrNothing.png" x="-5" y="-5" width="74" height="74" preserveAspectRatio="xMidYMid slice" />
           </g>
         )}
 
         {/* 인생은 한방 */}
         {id === "lifeIsOneShot" && (
           <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/lifeIsOneShot.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
-            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
-            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#60a5fa" strokeWidth="0.5" strokeOpacity="0.75" />
+            <image href="/pokemon/img/augment/lifeIsOneShot.png" x="-5" y="-5" width="74" height="74" preserveAspectRatio="xMidYMid slice" />
           </g>
         )}
 
         {/* 특성 야바위 */}
         {id === "randomAbility" && (
           <g clipPath="url(#lwClip)">
-            <image href="/pokemon/img/augment/randomAbility.png" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
-            <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#prismRing)" strokeWidth="1.8" />
-            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#60a5fa" strokeWidth="0.5" strokeOpacity="0.75" />
+            <image href="/pokemon/img/augment/randomAbility.png" x="-5" y="-5" width="74" height="74" preserveAspectRatio="xMidYMid slice" />
           </g>
         )}
 

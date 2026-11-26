@@ -2940,6 +2940,7 @@ export const AUGMENT_LIST = [
     },
     cost: 0,
     weight: 100,
+    isRandom: false,
     onApply: function (pokemon, battle, options) {
       const picked =
         options?.pickedAbility ||
@@ -3357,7 +3358,7 @@ export const AUGMENT_SYNERGY_MAP = {
   wujuStyle: ["lastManStanding", "lastSamurai", "lastWarrior"], // 우주류 검술: [라스트 맨 스탠딩, 라스트 사무라이, 최후의 전사]
   mejaisSoulstealer: ["rabadonsDeathcap", "voidStaff", "ludensEcho"], // 메자이의 영혼약탈자: [라바돈의 죽음모자, 공허의 지팡이, 루덴의 메아리]
   practiceMakesCritical: ["infinityEdge", "bladeOfTheRuinedKing", "collector"], // 연습이 치명타를 낳는다: [무한의 대검, 몰락한 왕의 검, 징수의 총]
-  gamblingAddict: ["lifeIsOneShot", "allOrNothing", "randomAbility"], // 도박 중독: [인생은 한방, 모 아니면 도, 특성 야바위]
+  gamblingAddict: ["lifeIsOneShot", "allOrNothing", "revolution", "swordEnhance", "zeroSumGame"], // 도박 중독
   giantAbsorption: ["thornmail", "warmogsArmor", "sunfireAegis", "spiritVisage", "sunfireCape"], // 거인의 흡수: [가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상, 태양불꽃망토]
   lostTechnologyCritical: ["specialSwordAndShield", "lostTechnologyBlizzard", "lostTechnologyPsychic", "lostTechnologyHyperBeam"], // 과거의 영광 (급소)
   symphonyFor100Metronomes: ["metronome", "doubleMetronome", "tripleMetronome"], // 100개의 메트로놈을 위한 교향시
