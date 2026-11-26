@@ -19,12 +19,23 @@ export function ailmentAbleCheck(battle, ailment, pokemon, attacker = null) {
 
   // 이미 다른 상태이상이 걸려있는지 체크
   if (isAilmentCheck(pokemon)) {
-    // [증강] 태양의 호흡, 초고열 글라디우스 추가 화상 중첩
-    const curBurnStack = getBurnStack(pokemon);
     const isOpponentInflicted = Boolean(burnInflicter && burnInflicter !== pokemon);
-    const canStackBurn = isBurn && curBurnStack > 0 && curBurnStack < 13 && isOpponentInflicted && Boolean(burnInflicter.hasAugment?.("sunBreathing"));
-    const canGladiusExtraBurn = isBurn && curBurnStack > 0 && isOpponentInflicted && Boolean(burnInflicter.hasAugment?.("superheatedGladius"));
-    if (!canStackBurn && !canGladiusExtraBurn) {
+
+    if (isBurn) {
+      // [증강] 태양의 호흡, 초고열 글라디우스 추가 화상 중첩
+      const burnStack = getBurnStack(pokemon);
+      const canStackBurn = burnStack > 0 && burnStack < 13 && isOpponentInflicted && Boolean(burnInflicter.hasAugment?.("sunBreathing"));
+      const canGladiusExtraBurn = burnStack > 0 && isOpponentInflicted && Boolean(burnInflicter.hasAugment?.("superheatedGladius"));
+      if (!canStackBurn && !canGladiusExtraBurn) {
+        return false;
+      }
+    } else if (isFreeze) {
+      const hasOtherAilmentThanFreeze = Object.entries(pokemon.ailment).some(([status, value]) => status !== "freeze" && value !== null);
+      const canStackFreeze = ailment !== "freezeBug" && Number(pokemon.ailment.freeze) > 0 && !hasOtherAilmentThanFreeze && isOpponentInflicted && Boolean(burnInflicter.hasAugment?.("ekzahar"));
+      if (!canStackFreeze) {
+        return false;
+      }
+    } else {
       return false;
     }
   }
@@ -169,11 +180,19 @@ export const applyAilment = (ailment, battle, get, enqueue, textOption, attacker
     text = `${pokemon.names("는")} 맹독에 걸렸다!`;
   }
 
-  // 맹독: 부가효과(skillEffect.js)
+  // 얼음: 부가효과(skillEffect.js)
   if (ailment === "얼음" || ailment === "freeze") {
-    pokemon.tempStatus.trishulaFrost = 0;
-    pokemon.ailment.freeze = true;
-    text = textOption || `${pokemon.names("는")} 얼어붙었다!`;
+    const previousFreeze = Number(pokemon.ailment.freeze) || 0;
+    const addedFreeze = getFreezeDuration();
+    pokemon.tempStatus.trishulaFrost = 0; // 서리 스택 초기화
+    pokemon.ailment.freeze = previousFreeze + addedFreeze;
+    if (previousFreeze > 0) {
+      const prefixMatch = typeof textOption === "string" ? textOption.match(/^(\[[^\]]+\]\s*)/) : null;
+      const prefix = prefixMatch ? prefixMatch[1] : "";
+      text = `${prefix}${pokemon.names("는")} 한층 더 깊게 얼어붙었다!`;
+    } else {
+      text = textOption || `${pokemon.names("는")} 얼어붙었다!`;
+    }
   }
   if (ailment === "freezeBug") {
     pokemon.tempStatus.trishulaFrost = 0;
@@ -196,4 +215,11 @@ const getBurnStack = (pokemon) => {
   const burn = pokemon.ailment.burn;
   if (!burn) return 0;
   return typeof burn === "number" ? Math.min(13, Math.max(1, burn)) : 1;
+};
+
+const getFreezeDuration = () => {
+  const roll = Math.random();
+  if (roll < 0.25) return 1;
+  if (roll < 0.5) return 2;
+  return 3;
 };

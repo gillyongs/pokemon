@@ -52,15 +52,15 @@ export const beforeSkillCheck = (bt, enqueue) => {
 
   // 얼음
   if (atk.ailment.freeze !== null) {
-    if (random(80) && skill.type !== "불꽃") {
-      // 얼어붙은 포켓몬이 불꽃타입 기술을 사용하면 얼음이 녹는다
-      let freezeText = atk.names("는") + " 얼어버려서 움직일 수 없다!";
-      enqueue(bt, freezeText, "chk_frozen");
-      return false;
-    } else {
+    atk.ailment.freeze -= 1;
+    if (skill.type === "불꽃" || atk.ailment.freeze <= 0) {
       atk.ailment.freeze = null;
       let freezeText = atk.name + "의 얼음이 녹았다!";
       enqueue(bt, freezeText, "chk_thaw");
+    } else {
+      let freezeText = atk.names("는") + " 얼어버려서 움직일 수 없다!";
+      enqueue(bt, freezeText, "chk_frozen");
+      return false;
     }
   }
 

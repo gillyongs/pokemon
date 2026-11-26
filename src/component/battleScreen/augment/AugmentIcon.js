@@ -4334,6 +4334,16 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         {/* 초고열 글라디우스 */}
         {id === "superheatedGladius" && <image href="/pokemon/img/augment/superheatedGladius.png" x="-2" y="-2" width="68" height="68" />}
 
+        {/* 빙결용윤 에크하자르 */}
+        {id === "ekzahar" && (
+          <g clipPath="url(#lwClip)">
+            <circle cx="32" cy="32" r="30" fill="#081b32" />
+            <image href="/pokemon/img/augment/ekzahar.png" xlinkHref="/pokemon/img/augment/ekzahar.png" x="-1" y="-1" width="66" height="66" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#22d3ee" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="28.2" fill="none" stroke="#a5f3fc" strokeWidth="0.5" strokeOpacity="0.65" />
+          </g>
+        )}
+
         {/* 태양의 호흡 (일러스트 이미지 + 원형 클리핑 & 레드 링) */}
         {id === "sunBreathing" && (
           <g clipPath="url(#lwClip)">

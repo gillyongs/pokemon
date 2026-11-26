@@ -281,6 +281,14 @@ export const AUGMENT_LIST = [
     // skillUse.js, ailment.js에 구현
   },
   {
+    id: "ekzahar",
+    name: "빙결용윤 에크하자르",
+    desc: "상대에게 중첩하여 얼음 상태이상을 부여 할 수 있게 됩니다.",
+    synergy: true,
+    isRandom: false,
+    weight: "-",
+  },
+  {
     id: "aThousandBlazingSuns",
     name: "타오르는 천 개의 태양",
     desc: "매 턴 필드 위 모든 포켓몬에게 화상을 입힙니다. 화상 상태인 상대에게 입히는 데미지가 1.5배로 증가합니다.",
@@ -299,7 +307,7 @@ export const AUGMENT_LIST = [
   {
     id: "flamingKatana",
     name: "화염의 카타나",
-    desc: `공격: +65 특공: +40 스피드: +17\n공격 시 50% 확률로 적 또는 자신이 화상을 입습니다.`,
+    desc: `공격: +65 특공: +40 스피드: +17\n공격 시 50% 확률로 상대 또는 자신이 화상을 입습니다.`,
     cost: 2,
     weight: 100,
     // getStat.js, SkillEffect.js에 구현
@@ -323,7 +331,7 @@ export const AUGMENT_LIST = [
   {
     id: "gungnir",
     name: "빙룡창 궁니르",
-    desc: "공격 시 50% 확률로 적 또는 자신이 얼어붙습니다.",
+    desc: "공격 시 50% 확률로 상대 또는 자신이 얼어붙습니다.",
     cost: 3,
     weight: 100,
     // SkillEffect.js에 구현
@@ -331,7 +339,7 @@ export const AUGMENT_LIST = [
   {
     id: "trishula",
     name: "빙룡창 트리슈라",
-    desc: "공격 시 적에게 서리를 쌓아 스피드가 중첩당 15% 감소합니다. 다른 상태이상 중에는 최대 3중첩까지 쌓이며, 상태이상이 없을 때 3중첩이면 서리를 초기화하고 얼립니다. 불꽃·얼음 타입이거나 이미 얼어있는 적에게는 서리가 쌓이지 않습니다.",
+    desc: "공격 시 적에게 서리를 쌓아 스피드를 15% 감소시킵니다. 서리가 3번 쌓이면 얼어붙습니다.",
     cost: 3,
     weight: 100,
     // PokemonInstance.js, speedCheck.js, SkillEffect.js에 구현
@@ -3290,6 +3298,7 @@ const SYNERGY_ACTIVATION_THRESHOLD = {
   echoOfHero: 3, // 초보자 시너지 증강 4개 중 3개 이상 보유 시 활성화
   giantAbsorption: 3, // 가시갑옷, 워모그의 갑옷, 태양불꽃방패, 정령의 형상, 태양불꽃망토 5개 중 3개 이상 보유 시 활성화
   praiseTheSun: 3, // 태양불꽃망토, 태양불꽃방패, 타오르는 천 개의 태양, 태양의 호흡 4개 중 3개 이상 보유 시 활성화
+  ekzahar: 3,
 };
 
 export const getSynergyThreshold = (synergyId, requiredIds = []) => {
@@ -3315,6 +3324,7 @@ export const AUGMENT_SYNERGY_MAP = {
   airmanGaTaosenai: ["mandoocornEndure", "butItRefused", "nothingHappened"], // 에어맨이 쓰러지지 않아: [슬프게 하지 않게 하려고 버텼다!, 하지만 버텨냈다., 아무일도 없었다...!]
   millenniumShield: ["holyElfBlessing", "giantSoldierOfStone", "waterOmotics"], // 천년 방패: [홀리엘프의 축복, 암석거인, 물의 조종자]
   superheatedGladius: ["salamandra", "flamingKatana", "aThousandBlazingSuns"], // 초고열 글라디우스: [사라만도라, 화염의 카타나, 타오르는 천 개의 태양]
+  ekzahar: ["brionac", "gungnir", "trishula"], // 빙결용윤 에크하자르: 빙룡창 3종
 };
 
 const SYNERGY_INFO_MAP = {
@@ -3329,6 +3339,12 @@ const SYNERGY_INFO_MAP = {
     theme: "초고열 글라디우스",
     title: "초고열 글라디우스",
     desc: "공격 시 상대에게 화상을 입힌 후 공격합니다.\n이미 화상 상태인 상대에게 추가로 화상을 입힐 시 최대 HP의 10%의 데미지를 줍니다.",
+  },
+  ekzahar: {
+    emoji: "❄️",
+    theme: "빙결용윤",
+    title: "빙결용윤 에크하자르",
+    desc: "상대에게 중첩하여 얼음 상태이상을 부여 할 수 있게 됩니다.",
   },
   millenniumShield: {
     emoji: "🛡️",
