@@ -4,11 +4,11 @@ import { AugmentIcon } from "../AugmentIcon";
 import { getRevolutionSuccessProbability } from "../../../../entity/Augment/AugmentData";
 import { HeaderArea, HeaderTopRow, Title, SubTitleText, ActionButton } from "./selectStyles";
 
-const MIN_COST = 0;
-const MAX_COST = 18;
+const MIN_COST = 1;
+const MAX_COST = 10;
 
 const AugmentRevolutionView = ({ revolutionAug, activePokemon, onSelect, onCancel }) => {
-  const [cost, setCost] = useState(0);
+  const [cost, setCost] = useState(MIN_COST);
   const successProbability = getRevolutionSuccessProbability(cost);
 
   const handleCostChange = (nextCost) => {
@@ -39,7 +39,7 @@ const AugmentRevolutionView = ({ revolutionAug, activePokemon, onSelect, onCance
           </Title>
         </HeaderTopRow>
         <SubTitleText>
-          코스트 1당 성공 확률이 5% 증가합니다.
+          코스트 1당 성공 확률이 10% 증가합니다.
           <br />
           성공시 모든 능력치가 1.5배, 실패시 0.7배가 됩니다.
         </SubTitleText>

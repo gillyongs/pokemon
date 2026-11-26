@@ -243,7 +243,7 @@ export const getArcaneSwordData = (pokemon = null, source = null, options = null
   };
 };
 
-export const getRevolutionSuccessProbability = (cost) => Math.min(100, 10 + Math.max(0, Number(cost) || 0) * 5);
+export const getRevolutionSuccessProbability = (cost) => Math.min(100, Math.max(1, Math.floor(Number(cost) || 1)) * 10);
 
 export const rollRevolutionResult = (probability, roll = Math.random()) => (roll * 100 < probability ? "success" : "failure");
 
@@ -945,7 +945,7 @@ export const AUGMENT_LIST = [
   {
     id: "revolution",
     name: `실패하면 반역,\n성공하면 혁명 아닙니까!`,
-    desc: `n% 확률로 모든 능력치가 1.5배가 됩니다.\n실패하면 모든 능력치가 0.7배가 됩니다.\n코스트 1당 성공 확률이 5% 증가합니다.`,
+    desc: `n% 확률로 모든 능력치가 1.5배가 됩니다.\n실패하면 모든 능력치가 0.7배가 됩니다.\n코스트 1당 성공 확률이 10% 증가합니다.`,
     screenText: function (target, prevPokeName, options) {
       const result = options?.revolutionResult ?? this?.revolutionResult ?? "failure";
       return result === "success" ? `[증강] ${target.name}의 모든 능력치가 증가하였다!` : `[증강] ${target.name}의 모든 능력치가 감소하였다...`;
@@ -961,8 +961,8 @@ export const AUGMENT_LIST = [
     cost: "?",
     weight: 100,
     onApply: function (pokemon, battle, options) {
-      const rawCost = Number(options?.revolutionCost ?? this?.revolutionCost ?? 0);
-      const cost = Number.isFinite(rawCost) ? Math.max(0, Math.min(18, Math.floor(rawCost))) : 0;
+      const rawCost = Number(options?.revolutionCost ?? this?.revolutionCost ?? 1);
+      const cost = Number.isFinite(rawCost) ? Math.max(1, Math.min(10, Math.floor(rawCost))) : 1;
       const result = options?.revolutionResult ?? this?.revolutionResult;
       this.cost = cost;
       this.revolutionCost = cost;

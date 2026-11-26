@@ -358,6 +358,10 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                 activePokemon={activePokemon}
                 onSelect={(aug, options) => {
                   setRevolutionAug(null);
+                  if (options?.revolutionProbability === 100) {
+                    onSelect(aug, { ...options, revolutionResult: "success" });
+                    return;
+                  }
                   setRouletteAug({
                     ...aug,
                     revolutionCost: options?.revolutionCost,
