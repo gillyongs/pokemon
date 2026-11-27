@@ -157,11 +157,7 @@ const extractPokemonStatuses = (pokemon, isNpc = false) => {
   });
 
   const ts = pokemon.tempStatus || {};
-  const hasAugment = (augId) =>
-    Boolean(
-      pokemon.hasAugment?.(augId) ||
-        pokemon.augments?.some((a) => (typeof a === "string" ? a : a?.id) === augId)
-    );
+  const hasAugment = (augId) => Boolean(pokemon.hasAugment?.(augId) || pokemon.augments?.some((a) => (typeof a === "string" ? a : a?.id) === augId));
 
   if (ts.substitute) {
     effects.push({
@@ -381,12 +377,7 @@ export const hasAnyFieldOrStatusActive = (battle) => {
 
   const pStat = extractPokemonStatuses(battle.player);
   const nStat = extractPokemonStatuses(battle.npc);
-  return (
-    pStat.ranks.length > 0 ||
-    pStat.effects.length > 0 ||
-    nStat.ranks.length > 0 ||
-    nStat.effects.length > 0
-  );
+  return pStat.ranks.length > 0 || pStat.effects.length > 0 || nStat.ranks.length > 0 || nStat.effects.length > 0;
 };
 
 const FieldStatusModal = ({ battle, onClose }) => {
@@ -401,10 +392,7 @@ const FieldStatusModal = ({ battle, onClose }) => {
   const weatherType = weatherObj?.type ?? weatherObj?._type ?? null;
   const weatherTurn = weatherObj?.turnRemain ?? weatherObj?._turnRemain ?? null;
   const noWeatherAbils = ["에어록", "날씨부정"];
-  const suppressAbil =
-    (!battle.player?.faint && noWeatherAbils.includes(battle.player?.abil?.name) && battle.player.abil.name) ||
-    (!battle.npc?.faint && noWeatherAbils.includes(battle.npc?.abil?.name) && battle.npc.abil.name) ||
-    null;
+  const suppressAbil = (!battle.player?.faint && noWeatherAbils.includes(battle.player?.abil?.name) && battle.player.abil.name) || (!battle.npc?.faint && noWeatherAbils.includes(battle.npc?.abil?.name) && battle.npc.abil.name) || null;
   const isWeatherSuppressed = Boolean(suppressAbil);
   const weatherMeta = weatherType ? WEATHER_INFO[weatherType] : null;
 
@@ -438,12 +426,7 @@ const FieldStatusModal = ({ battle, onClose }) => {
               const itemId = `field-${sideKey}-${item.name}-${i}`;
               const isSelected = selectedInfo?.id === itemId;
               return (
-                <EffectItem
-                  key={itemId}
-                  $tone={item.tone}
-                  $selected={isSelected}
-                  onClick={() => handleSelect(itemId, item.name, item.desc)}
-                >
+                <EffectItem key={itemId} $tone={item.tone} $selected={isSelected} onClick={() => handleSelect(itemId, item.name, item.desc)}>
                   <EffectName $tone={item.tone}>{item.name}</EffectName>
                   {item.badge && <EffectDetail $tone={item.tone}>{item.badge}</EffectDetail>}
                 </EffectItem>
@@ -486,12 +469,7 @@ const FieldStatusModal = ({ battle, onClose }) => {
                 const isSelected = selectedInfo?.id === chipId;
                 const titleText = `${pokemon.baseName} · ${r.label} ${r.val > 0 ? `+${r.val}` : r.val}`;
                 return (
-                  <RankChip
-                    key={r.key}
-                    $positive={r.val > 0}
-                    $selected={isSelected}
-                    onClick={() => handleSelect(chipId, titleText, r.desc)}
-                  >
+                  <RankChip key={r.key} $positive={r.val > 0} $selected={isSelected} onClick={() => handleSelect(chipId, titleText, r.desc)}>
                     {r.label} {r.val > 0 ? `+${r.val}` : r.val}
                   </RankChip>
                 );
@@ -511,12 +489,7 @@ const FieldStatusModal = ({ battle, onClose }) => {
                 const isSelected = selectedInfo?.id === efId;
                 const titleText = `${pokemon.baseName} · ${ef.name}`;
                 return (
-                  <EffectItem
-                    key={efId}
-                    $tone={ef.tone}
-                    $selected={isSelected}
-                    onClick={() => handleSelect(efId, titleText, ef.desc)}
-                  >
+                  <EffectItem key={efId} $tone={ef.tone} $selected={isSelected} onClick={() => handleSelect(efId, titleText, ef.desc)}>
                     <EffectName>{ef.name}</EffectName>
                     {ef.badge && <EffectDetail $tone={ef.tone}>{ef.badge}</EffectDetail>}
                   </EffectItem>
@@ -550,25 +523,16 @@ const FieldStatusModal = ({ battle, onClose }) => {
               onClick={() => {
                 if (!weatherType && !isWeatherSuppressed) return;
                 const turnSuffix = weatherTurn != null ? ` (남은 턴: ${weatherTurn}턴)` : weatherType ? " (특성 유지)" : "";
-                const descText = isWeatherSuppressed
-                  ? `특성 '${suppressAbil}'으로 인해 모든 날씨 효과가 무효화되어 있습니다.${weatherType ? `${turnSuffix}` : ""}`
-                  : `${weatherMeta?.desc || ""}${turnSuffix}`;
+                const descText = isWeatherSuppressed ? `특성 '${suppressAbil}'으로 인해 모든 날씨 효과가 무효화되어 있습니다.${weatherType ? `${turnSuffix}` : ""}` : `${weatherMeta?.desc || ""}${turnSuffix}`;
                 const titleLabel = [weatherType, suppressAbil ? `(${suppressAbil})` : ""].filter(Boolean).join(" ");
                 handleSelect("global-weather", `날씨 · ${titleLabel}`, descText);
               }}
             >
               <GlobalHeader>
                 <GlobalCategory $active={Boolean(weatherType || isWeatherSuppressed)}>날씨</GlobalCategory>
-                {weatherType && (
-                  <TurnTag>
-                    {weatherTurn != null ? `${weatherTurn}턴` : "특성"}
-                  </TurnTag>
-                )}
+                {weatherType && <TurnTag>{weatherTurn != null ? `${weatherTurn}턴` : "특성"}</TurnTag>}
               </GlobalHeader>
-              <GlobalValue
-                $active={Boolean(weatherType)}
-                $suppressed={isWeatherSuppressed}
-              >
+              <GlobalValue $active={Boolean(weatherType)} $suppressed={isWeatherSuppressed}>
                 {[weatherType, suppressAbil ? `(${suppressAbil})` : ""].filter(Boolean).join(" ")}
               </GlobalValue>
             </GlobalCard>
@@ -586,15 +550,9 @@ const FieldStatusModal = ({ battle, onClose }) => {
             >
               <GlobalHeader>
                 <GlobalCategory $active={Boolean(terrainType)}>필드</GlobalCategory>
-                {terrainType && (
-                  <TurnTag>
-                    {terrainTurn != null ? `${terrainTurn}턴` : "활성"}
-                  </TurnTag>
-                )}
+                {terrainType && <TurnTag>{terrainTurn != null ? `${terrainTurn}턴` : "활성"}</TurnTag>}
               </GlobalHeader>
-              <GlobalValue $active={Boolean(terrainType)}>
-                {terrainType || ""}
-              </GlobalValue>
+              <GlobalValue $active={Boolean(terrainType)}>{terrainType || ""}</GlobalValue>
             </GlobalCard>
 
             <GlobalCard
@@ -604,20 +562,14 @@ const FieldStatusModal = ({ battle, onClose }) => {
               $selected={selectedInfo?.id === "global-room"}
               onClick={() => {
                 if (trickRoomTurn == null) return;
-                handleSelect(
-                  "global-room",
-                  "공간 · 트릭룸",
-                  `스피드가 느린 포켓몬부터 먼저 행동합니다. (남은 턴: ${trickRoomTurn}턴)`
-                );
+                handleSelect("global-room", "공간 · 트릭룸", `스피드가 느린 포켓몬부터 먼저 행동합니다. (남은 턴: ${trickRoomTurn}턴)`);
               }}
             >
               <GlobalHeader>
                 <GlobalCategory $active={trickRoomTurn != null}>공간</GlobalCategory>
                 {trickRoomTurn != null && <TurnTag>{trickRoomTurn}턴</TurnTag>}
               </GlobalHeader>
-              <GlobalValue $active={trickRoomTurn != null}>
-                {trickRoomTurn != null ? "트릭룸" : ""}
-              </GlobalValue>
+              <GlobalValue $active={trickRoomTurn != null}>{trickRoomTurn != null ? "트릭룸" : ""}</GlobalValue>
             </GlobalCard>
           </GlobalGrid>
 
@@ -732,17 +684,8 @@ const GlobalGrid = styled.div`
 `;
 
 const GlobalCard = styled.div`
-  background: ${({ $active, $suppressed, $bg }) =>
-    $suppressed ? "rgba(100, 116, 139, 0.45)" : $active ? $bg || "rgba(22, 34, 48, 0.92)" : "rgba(0, 0, 0, 0.42)"};
-  border: 1px solid
-    ${({ $active, $suppressed, $border, $selected }) =>
-      $selected
-        ? "#64ffda"
-        : $suppressed
-          ? "rgba(148, 163, 184, 0.65)"
-          : $active
-            ? $border || "rgba(100, 255, 218, 0.35)"
-            : "rgba(255, 255, 255, 0.08)"};
+  background: ${({ $active, $suppressed, $bg }) => ($suppressed ? "rgba(100, 116, 139, 0.45)" : $active ? $bg || "rgba(22, 34, 48, 0.92)" : "rgba(0, 0, 0, 0.42)")};
+  border: 1px solid ${({ $active, $suppressed, $border, $selected }) => ($selected ? "#64ffda" : $suppressed ? "rgba(148, 163, 184, 0.65)" : $active ? $border || "rgba(100, 255, 218, 0.35)" : "rgba(255, 255, 255, 0.08)")};
   box-shadow: ${({ $selected }) => ($selected ? "0 0 8px rgba(100, 255, 218, 0.4)" : "none")};
   border-radius: 8px;
   padding: 8px 9px;
@@ -914,9 +857,7 @@ const RankChip = styled.span`
   cursor: pointer;
   user-select: none;
   background: ${({ $positive }) => ($positive ? "rgba(22, 163, 74, 0.45)" : "rgba(220, 38, 38, 0.45)")};
-  border: 1px solid
-    ${({ $positive, $selected }) =>
-      $selected ? "#64ffda" : $positive ? "rgba(74, 222, 128, 0.7)" : "rgba(248, 113, 113, 0.7)"};
+  border: 1px solid ${({ $positive, $selected }) => ($selected ? "#64ffda" : $positive ? "rgba(74, 222, 128, 0.7)" : "rgba(248, 113, 113, 0.7)")};
   color: #ffffff;
   box-shadow: ${({ $selected }) => ($selected ? "0 0 8px rgba(100, 255, 218, 0.45)" : "none")};
 `;
