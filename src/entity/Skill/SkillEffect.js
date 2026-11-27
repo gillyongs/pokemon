@@ -950,6 +950,7 @@ function skillEffectSearch(name) {
           그래스필드: "발밑에 풀이 무성해졌다!",
           일렉트릭필드: "발밑에 전기가 떠돌기 시작했다!",
           미스트필드: "발밑이 안개로 자욱해졌다!",
+          사이코필드: "발밑에 사이코 에너지가 가득 찼다!",
         };
         battle.field.terrain.setTerrainOnBattle(
           battle,

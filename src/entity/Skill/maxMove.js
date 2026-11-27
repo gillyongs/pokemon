@@ -84,6 +84,17 @@ export const MAX_MOVE_AUGMENT_CONFIGS = {
     effectDesc: "5턴 동안 미스트필드를 만든다.",
     skillEffect: { name: "다이기술", terrain: "미스트필드" },
   },
+  maxMindstorm: {
+    augmentId: "maxMindstorm",
+    moveName: "다이사이코",
+    type: "에스퍼",
+    cost: 3,
+    isLowPowerTable: false,
+    hasCustomIcon: false,
+    hitEffectText: "필드를 사이코필드로 만듭니다.",
+    effectDesc: "5턴 동안 사이코필드를 만든다.",
+    skillEffect: { name: "다이기술", terrain: "사이코필드" },
+  },
   maxAirstream: {
     augmentId: "maxAirstream",
     moveName: "다이제트",

@@ -1,6 +1,7 @@
 import skillList from "../../entity/Skill/skillList.js";
 import { typeCheckOnBattle } from "../../calc/typeEffectCalculate.js";
 import { skillTypeCalculate } from "../../calc/skillTypeCalculate.js";
+import { priCalculate } from "../../calc/speedCheck.js";
 import { isAilmentCheck, ailmentAbleCheck } from "../ailment.js";
 import { noNullItem } from "../../entity/Item.js";
 
@@ -120,6 +121,15 @@ export const getSkillFailResult = (battle, atk, skill, options = {}) => {
     return {
       text: "강한 햇살의 영향으로 물타입의 공격이 증발했다!",
       code: "chk_harsh_sun_water",
+      jumpKickFail: true,
+    };
+  }
+
+  // 사이코필드: 지상 대상에게 우선도 +1 이상의 공격기 무효화
+  if (battle.field?.terrain?.isPsychicField && (skillType === "atk" || skillType === "catk") && priCalculate(battle, atkPokemon, skillObj) > 0 && !defPokemon.isFlying(battle)) {
+    return {
+      text: `${defPokemon.names("는")} 사이코필드가 지켜 주고 있다!`,
+      code: "chk_psychic_terrain_priority",
       jumpKickFail: true,
     };
   }

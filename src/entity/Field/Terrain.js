@@ -1,7 +1,7 @@
 import { speedCheck } from "../../calc/speedCheck";
 
 export class Terrain {
-  #type = null; // 그래스필드, 일렉트릭필드
+  #type = null; // 지형 이름
   #turnRemain = null; // 남은 턴 수
   _type = null;
   _turnRemain = null;
@@ -39,6 +39,10 @@ export class Terrain {
   get isMistyField() {
     return this.#type === "미스트필드";
     // 상태이상 방지, 드래곤 대미지 반감
+  }
+
+  get isPsychicField() {
+    return this.#type === "사이코필드";
   }
 
   #setTerrain(terrainType, turnRemain, enqueue, battle, terrainText) {
@@ -113,6 +117,7 @@ export class Terrain {
         그래스필드: "발밑의 풀이 사라졌다!",
         일렉트릭필드: "발밑의 전기가 사라졌다!",
         미스트필드: "발밑의 안개가 사라졌다!",
+        사이코필드: "발밑의 사이코 에너지가 사라졌다!",
       };
       text = endTextMap[endedType];
     }

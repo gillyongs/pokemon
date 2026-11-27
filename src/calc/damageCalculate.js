@@ -495,6 +495,10 @@ export const damageCalculate = (battle, num, ai) => {
         damage *= 1.3;
         attackPokemon.log.damage1 += " * 1.3 (일렉트릭필드+전기)";
       }
+      if (field === "사이코필드" && skill.type === "에스퍼") {
+        damage *= 1.3;
+        attackPokemon.log.damage1 += " * 1.3 (사이코필드+에스퍼)";
+      }
     }
 
     if (field === "그래스필드" && skill.name === "지진") {
