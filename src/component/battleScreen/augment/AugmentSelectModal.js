@@ -23,6 +23,7 @@ import AugmentNinjaAppearedView from "./select/AugmentNinjaAppearedView";
 import AugmentSoulDiceView from "./select/AugmentSoulDiceView";
 import AugmentRouletteView from "./select/AugmentRouletteView";
 import AugmentSkillSelectView from "./select/AugmentSkillSelectView";
+import AugmentSwitchSelectView from "./select/AugmentSwitchSelectView";
 import AugmentTypeSelectView from "./select/AugmentTypeSelectView";
 import AugmentQuizView from "./select/AugmentQuizView";
 import AugmentScoutView from "./select/AugmentScoutView";
@@ -65,6 +66,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   const [grantPreviewInfo, setGrantPreviewInfo] = useState(null);
   const [noUnfairMissPreviewOpen, setNoUnfairMissPreviewOpen] = useState(false);
   const [skillSelectAug, setSkillSelectAug] = useState(null);
+  const [switchSelectAug, setSwitchSelectAug] = useState(null);
   const [typeSelectAug, setTypeSelectAug] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
   const [selectedAugment, setSelectedAugment] = useState(null);
@@ -239,6 +241,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     setTypeSelectAug(null);
     setSelectedType(null);
     setSkillSelectAug(null);
+    setSwitchSelectAug(null);
     setSwordEnhanceAug(null);
     setArcaneShadeSwordAug(null);
     setStarforceAug(null);
@@ -268,7 +271,12 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     const targetAug = aug || selectedAugment;
     if (!targetAug || !activePokemon) return;
 
-    if ((targetAug.id === "danceOfGarchomp" || targetAug.id === "nameIsSalamence" || targetAug.id === "choiceAndFocus" || targetAug.id === "sanctuary" || isMaxMoveAugment(targetAug.id)) && activePokemon?.skill) {
+    if (targetAug.id === "nigerundayo") {
+      setSwitchSelectAug(targetAug);
+      return;
+    }
+
+    if ((targetAug.id === "danceOfGarchomp" || targetAug.id === "nameIsSalamence" || targetAug.id === "giveMeKnockOff" || targetAug.id === "choiceAndFocus" || targetAug.id === "sanctuary" || isMaxMoveAugment(targetAug.id)) && activePokemon?.skill) {
       setSkillSelectAug(targetAug);
       return;
     }
@@ -499,6 +507,19 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                 }}
                 onCancel={() => setSoulDiceAug(null)}
               />
+            ) : switchSelectAug ? (
+              <AugmentSwitchSelectView
+                switchSelectAug={switchSelectAug}
+                activePokemon={activePokemon}
+                battle={battle}
+                onSelect={(aug, opts) => {
+                  onSelect(aug, opts);
+                  setSwitchSelectAug(null);
+                }}
+                onBack={() => {
+                  setSwitchSelectAug(null);
+                }}
+              />
             ) : skillSelectAug ? (
               <AugmentSkillSelectView
                 skillSelectAug={skillSelectAug}
@@ -510,14 +531,17 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                 onSelect={(aug, opts) => {
                   onSelect(aug, opts);
                   setSkillSelectAug(null);
+    setSwitchSelectAug(null);
                   setSelectedType(null);
                 }}
                 onBack={() => {
                   if (skillSelectAug?.id === "teraBlast") {
                     setTypeSelectAug(skillSelectAug);
                     setSkillSelectAug(null);
+    setSwitchSelectAug(null);
                   } else {
                     setSkillSelectAug(null);
+    setSwitchSelectAug(null);
                   }
                 }}
               />

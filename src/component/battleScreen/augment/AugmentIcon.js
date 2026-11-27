@@ -92,10 +92,13 @@ const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   manilaClam: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0382": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
   "0382-m": { shiftUp: true, offsetY: -3.5, scale: 1.15 },
+  giveMeKnockOff: { shiftUp: true, offsetY: -7, scale: 1.35 },
+  "0625": { shiftUp: true, offsetY: -7, scale: 1.35 },
+  "0983": { shiftUp: true, offsetY: -5, scale: 1.2 },
 };
 
 export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, shiftUp = false, offsetY = null, offsetX = null, scale = null, imageOptions = null, sign = null }) => {
-  const pokeId = pokemonId || ((id === "libero" || id === "protean" || id === "intrepidSword" || id === "dauntlessShield" || id === "manilaClam") && (pokemon?.uniqueKey || pokemon?.dexNo) ? pokemon.uniqueKey || pokemon.dexNo : null) || DEDICATED_AUGMENT_POKEMON[id] || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "harmfulBird" || id === "devilOfGen7") ? pokemon.uniqueKey : null);
+  const pokeId = pokemonId || ((id === "libero" || id === "protean" || id === "intrepidSword" || id === "dauntlessShield" || id === "manilaClam") && (pokemon?.uniqueKey || pokemon?.dexNo) ? pokemon.uniqueKey || pokemon.dexNo : null) || (pokemon?.uniqueKey && (id === "danceOfGarchomp" || id === "nameIsSalamence" || id === "giveMeKnockOff" || id === "harmfulBird" || id === "devilOfGen7") ? pokemon.uniqueKey : null) || DEDICATED_AUGMENT_POKEMON[id] || (id === "giveMeKnockOff" ? "0625" : null);
 
   const augOptions = imageOptions || DEDICATED_AUGMENT_IMAGE_OPTIONS[id] || (pokeId ? DEDICATED_AUGMENT_IMAGE_OPTIONS[pokeId] : null) || {};
 
@@ -1154,7 +1157,7 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
         </defs>
 
         {/* 베이스 배경 원 */}
-        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "revolution" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && id !== "allInDefense" && id !== "limiterRemoval" && id !== "rudePureLove" && id !== "jinanSangae" && id !== "dragonSlayer" && id !== "dragonKiller" && id !== "dragonHunter" && id !== "dragonDie" && id !== "believeInMyself" && id !== "pokemonQuiz" && id !== "pokemonQuizExpert" && id !== "luckyRecovery" && id !== "rampagingPower" && id !== "armorBreak" && id !== "hyperBody" && id !== "haste" && id !== "sharpEyes" && id !== "mapleWarrior" && id !== "powerStrike" && id !== "dragonRoar" && id !== "berserk" && id !== "ironWall" && id !== "sanctuary" && id !== "symphonyFor100Metronomes" && id !== "nothingHappened" && id !== "airmanGaTaosenai" && id !== "flamingKatana" && id !== "aThousandBlazingSuns" && id !== "sunfireCape" && id !== "superheatedGladius" && id !== "sunBreathing" && id !== "praiseTheSun" && id !== "restAndStrike" && id !== "readyToDie" && id !== "brionac" && id !== "gungnir" && id !== "trishula" && id !== "scout" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
+        {id !== "infinityEdge" && id !== "rabadonsDeathcap" && id !== "voidStaff" && id !== "ludensEcho" && id !== "collector" && id !== "practiceMakesCritical" && id !== "thornmail" && id !== "bladeOfTheRuinedKing" && id !== "sunfireAegis" && id !== "warmogsArmor" && id !== "giantAbsorption" && id !== "mejaisSoulstealer" && id !== "lastWarrior" && id !== "lastSamurai" && id !== "lastManStanding" && id !== "wujuStyle" && id !== "soulMinion" && id !== "sacrificeGod" && id !== "highRiskCurse" && id !== "swordAndShield" && id !== "threeBearsHouse" && id !== "threeBears" && id !== "oneBear" && id !== "twoBears" && id !== "threeBearsBuff" && id !== "axeOfDespair" && id !== "powerOfKing" && id !== "revolution" && id !== "threeThousandYears" && id !== "rush" && id !== "growUp" && id !== "spiritVisage" && id !== "geniusOfTransformation" && id !== "butItRefused" && id !== "arcaneShadeSword" && id !== "greatTuskSoul" && id !== "starforce" && id !== "cleanSlateScroll" && id !== "cube" && id !== "choiceAndFocus" && id !== "zeroSumGame" && id !== "furubeYurayura" && id !== "allInDefense" && id !== "limiterRemoval" && id !== "rudePureLove" && id !== "jinanSangae" && id !== "dragonSlayer" && id !== "dragonKiller" && id !== "dragonHunter" && id !== "dragonDie" && id !== "believeInMyself" && id !== "pokemonQuiz" && id !== "pokemonQuizExpert" && id !== "luckyRecovery" && id !== "rampagingPower" && id !== "armorBreak" && id !== "hyperBody" && id !== "haste" && id !== "sharpEyes" && id !== "mapleWarrior" && id !== "powerStrike" && id !== "dragonRoar" && id !== "berserk" && id !== "ironWall" && id !== "sanctuary" && id !== "symphonyFor100Metronomes" && id !== "nothingHappened" && id !== "airmanGaTaosenai" && id !== "flamingKatana" && id !== "aThousandBlazingSuns" && id !== "sunfireCape" && id !== "superheatedGladius" && id !== "sunBreathing" && id !== "praiseTheSun" && id !== "restAndStrike" && id !== "readyToDie" && id !== "brionac" && id !== "gungnir" && id !== "trishula" && id !== "scout" && id !== "nigerundayo" && <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="url(#prismRing)" strokeWidth="1.5" strokeOpacity="0.7" />}
         {id === "highRiskCurse" && <circle cx="32" cy="32" r="30" fill="url(#banDarkBg)" stroke="url(#banRedGrad)" strokeWidth="1.6" strokeOpacity="0.9" />}
 
         {/* 최후의 전사 (원본 일러스트 이미지 + 원형 클리핑 & 라임-에메랄드 링 테두리) */}
@@ -1425,6 +1428,14 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             <image href="/pokemon/img/augment/sanctuary.png?v=6" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
             <circle cx="32" cy="32" r="29.5" fill="none" stroke="url(#armorBreakRingGrad)" strokeWidth="1.8" />
             <circle cx="32" cy="32" r="28.2" fill="none" stroke="#fef08a" strokeWidth="0.5" strokeOpacity="0.4" />
+          </g>
+        )}
+
+        {/* 니게룽다요 */}
+        {id === "nigerundayo" && (
+          <g clipPath="url(#lwClip)">
+            <image href="/pokemon/img/augment/nigerundayo.jpg?v=1" x="1" y="1" width="62" height="62" preserveAspectRatio="xMidYMid slice" />
+            <circle cx="32" cy="32" r="29.5" fill="none" stroke="#38bdf8" strokeWidth="1.8" />
           </g>
         )}
 

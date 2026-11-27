@@ -185,7 +185,7 @@ const extraSwitchWhenTurnEnd = (battle, user, enqueue) => {
 
 // ===================================================================================================
 
-const switchPokemon = (battle, IN, OUT, options = {}, enqueue = null) => {
+export const switchPokemon = (battle, IN, OUT, options = {}, enqueue = null) => {
   // 교체 함수.
   // 실제 객체의 값을 바꾸고
   // pokemon.tempStatus 값을 초기화한다

@@ -1785,6 +1785,40 @@ export const AUGMENT_LIST = [
   // 포켓몬 교체 증강 ==============================================================================
 
   {
+    id: "nigerundayo",
+    name: "니게룽다요",
+    desc: "현재 포켓몬을 원하는 포켓몬과 교체합니다.",
+    screenText: function (target, prevPokeName, options) {
+      const fromName = prevPokeName || target?.name || "포켓몬";
+      const toName = options?.switchedToName || this?.switchedToName || "다른 포켓몬";
+      return josa(`[증강] ${fromName}#{이} 도망치고 ${toName}#{이} 대신 필드에 나왔다!`);
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const fromName = prevPokeName || target?.name || "포켓몬";
+      const toName = options?.switchedToName || this?.switchedToName || "다른 포켓몬";
+      return josa(`${fromName}#{이} 도망치고 ${toName}#{이} 대신 필드에 나왔다!`);
+    },
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon, battle) => {
+      if (!battle || battle.player !== pokemon) return false;
+      return Boolean((battle.playerBench1 && !battle.playerBench1.faint) || (battle.playerBench2 && !battle.playerBench2.faint));
+    },
+    onApply: function (pokemon, battle, options) {
+      if (!battle || battle.player !== pokemon) return;
+      const aliveBenches = ["playerBench1", "playerBench2"].filter((key) => battle[key] && !battle[key].faint);
+      if (aliveBenches.length === 0) return;
+      const targetBenchKey = options?.targetBenchKey && aliveBenches.includes(options.targetBenchKey) ? options.targetBenchKey : aliveBenches[Math.floor(Math.random() * aliveBenches.length)];
+      const { switchPokemon } = require("../../service/switch");
+      switchPokemon(battle, "player", targetBenchKey, {}, null);
+      const switchedName = battle.player?.name || "다른 포켓몬";
+      this.switchedToName = switchedName;
+      if (options && typeof options === "object") {
+        options.switchedToName = switchedName;
+      }
+    },
+  },
+  {
     id: "rouletteWheel",
     name: "돌려 돌려 돌림판",
     desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다.",
@@ -2397,6 +2431,51 @@ export const AUGMENT_LIST = [
       const dDance = { ...skillList.search("용의춤"), skillNumber: slot };
       pokemon.skill[slot] = dDance;
       pokemon.pp[slot] = dDance.pp;
+    },
+  },
+  {
+    id: "giveMeKnockOff",
+    name: "뭐야 내 탁떨 돌려줘요",
+    desc: "현재 기술 중 하나를 탁쳐서떨구기와 교체합니다.",
+    screenText: function (target, prevPokeName, options) {
+      const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || "기존 기술";
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return josa(`[증강] ${names} ${prevSkillName}#{을} 탁쳐서떨구기와 교체했다!`);
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || "기존 기술";
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return josa(`${names} ${prevSkillName}#{을} 탁쳐서떨구기와 교체했다!`);
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const prevSkillName = options?.replacedSkillName || this?.replacedSkillName;
+      if (prevSkillName) {
+        return josa(`${prevSkillName}#{을} 탁쳐서떨구기와 교체했습니다.`);
+      }
+      return this.desc;
+    },
+    cost: 0,
+    weight: 300,
+    isEligible: (pokemon) => (hasPokemonName(pokemon, "절각참") || hasPokemonName(pokemon, "대도각참")) && !hasSkill(pokemon, "탁쳐서떨구기"),
+    onApply: function (pokemon, battle, options) {
+      if (!pokemon?.skill) return;
+      const slot = Number(options?.replaceSlot) || 4;
+      const prevSkill = pokemon.skill[slot];
+      const prevSkillName = options?.replacedSkillName || prevSkill?.name || "기존 기술";
+
+      this.replacedSlot = slot;
+      this.replacedSkillName = prevSkillName;
+
+      const baseKnockOff = skillList.search("탁쳐서떨구기");
+      const knockOffSkill = {
+        ...baseKnockOff,
+        skillNumber: slot,
+      };
+
+      pokemon.skill[slot] = knockOffSkill;
+      if (pokemon.pp) {
+        pokemon.pp[slot] = knockOffSkill.pp;
+      }
     },
   },
   {

@@ -28,6 +28,9 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
     if (skillSelectAug?.id === "sanctuary") {
       return "생츄어리와 교체할 기술을 선택해주세요.";
     }
+    if (skillSelectAug?.id === "giveMeKnockOff") {
+      return "탁쳐서떨구기와 교체할 기술을 선택해주세요.";
+    }
     return "용의춤과 교체할 기술을 선택해주세요.";
   };
 
@@ -53,6 +56,9 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
     }
     if (skillSelectAug?.id === "sanctuary") {
       return skillList.search("생츄어리");
+    }
+    if (skillSelectAug?.id === "giveMeKnockOff") {
+      return skillList.search("탁쳐서떨구기");
     }
     if (skillSelectAug?.id === "nameIsSalamence") {
       return skillList.search("지진");
