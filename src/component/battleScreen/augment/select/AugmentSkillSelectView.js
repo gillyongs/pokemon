@@ -1,20 +1,26 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { josa } from "josa";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
-import { isAttackSkill } from "../../../../entity/Augment/AugmentData";
+import { isAttackSkill } from "../../../../entity/Skill/Skill";
+import { getMaxMoveConfig, isEligibleBaseSkillForMaxMove, buildMaxMoveFromSkill } from "../../../../entity/Skill/maxMove";
 import skillList from "../../../../entity/Skill/skillList";
 import { HeaderArea, HeaderTopRow, Title, SubTitleText, CloseButton, ButtonGroup, ActionButton } from "./selectStyles";
 
 const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selectedType, isPeekMode, setIsPeekMode, onSelect, onBack }) => {
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const maxMoveConfig = getMaxMoveConfig(skillSelectAug);
 
   const getSubTitle = () => {
+    if (maxMoveConfig) {
+      return josa(`${maxMoveConfig.moveName}#{으로} 변경할 ${maxMoveConfig.type} 타입 공격 기술을 선택해주세요.`);
+    }
     if (skillSelectAug?.id === "choiceAndFocus") {
       return "위력을 1.5배로 강화할 공격 기술을 선택해주세요.";
     }
     if (skillSelectAug?.id === "teraBlast") {
-      return `[${selectedType || "노말"}] 테라버스트와 교체할 기술을 선택해주세요.`;
+      return `${selectedType || "노말"} 테라버스트와 교체할 기술을 선택해주세요.`;
     }
     if (skillSelectAug?.id === "nameIsSalamence") {
       return "지진과 교체할 기술을 선택해주세요.";
@@ -26,6 +32,21 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
   };
 
   const getIncomingSkill = () => {
+    if (maxMoveConfig) {
+      const selectedBase = selectedSlot ? activePokemon?.skill?.[selectedSlot] : null;
+      if (selectedBase && isEligibleBaseSkillForMaxMove(selectedBase, maxMoveConfig)) {
+        return buildMaxMoveFromSkill(selectedBase, maxMoveConfig, selectedSlot);
+      }
+      return {
+        name: maxMoveConfig.moveName,
+        type: maxMoveConfig.type,
+        power: "?",
+        stype: null,
+        pp: "-",
+        isPendingMaxMove: true,
+        originText: maxMoveConfig.effectDesc,
+      };
+    }
     if (skillSelectAug?.id === "teraBlast") {
       const base = skillList.search("테라버스트");
       return base ? { ...base, type: selectedType || "노말" } : null;
@@ -89,7 +110,15 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
           const isSelected = selectedSlot === slot;
           const isChoiceAndFocus = skillSelectAug?.id === "choiceAndFocus";
           const isAttack = isAttackSkill(sk);
-          const isDisabled = isChoiceAndFocus && !isAttack;
+          const isDisabled = maxMoveConfig ? !isEligibleBaseSkillForMaxMove(sk, maxMoveConfig) : isChoiceAndFocus && !isAttack;
+          const disabledReason = maxMoveConfig ? "선택불가" : "선택 불가 (변화기)";
+          const skillSubText = maxMoveConfig ? (
+            <>
+              위력 {sk.power} <StatDivider>•</StatDivider> {sk.stype === "atk" ? "물리" : "특수"}
+            </>
+          ) : (
+            effectText || ""
+          );
 
           return (
             <SkillCard
@@ -115,9 +144,9 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
                     e.currentTarget.style.display = "none";
                   }}
                 />
-                <SkillName title={sk.name}>{sk.name}</SkillName>
+                <SkillName $len={sk.name?.length || 0} title={sk.name}>{sk.name}</SkillName>
               </SkillTopRow>
-              <SkillEffectText>{isDisabled ? "선택 불가 (변화기)" : effectText || ""}</SkillEffectText>
+              <SkillEffectText>{isDisabled ? disabledReason : skillSubText}</SkillEffectText>
               <SkillPP>
                 {currentPp}/{sk.pp}
               </SkillPP>
@@ -135,7 +164,7 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
           </IncomingDividerRow>
 
           <IncomingCardWrapper>
-            <IncomingSkillCard title={incomingSkill.originText || incomingSkill.text || ""}>
+            <IncomingSkillCard $isSelected={Boolean(selectedSlot)} title={incomingSkill.originText || incomingSkill.text || ""}>
               <SkillTopRow>
                 <SkillTypeIcon
                   src={`/pokemon/img/type/${incomingType}.svg`}
@@ -144,10 +173,21 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
                     e.currentTarget.style.display = "none";
                   }}
                 />
-                <SkillName title={incomingSkill.name}>{incomingSkill.name}</SkillName>
-                <IncomingNewPill>습득</IncomingNewPill>
+                <SkillName $len={incomingSkill.name?.length || 0} title={incomingSkill.name}>{incomingSkill.name}</SkillName>
               </SkillTopRow>
-              <SkillEffectText>{incomingEffectText || (incomingSkill.stype === "buf" ? "변화기" : incomingSkill.power !== "-" ? `위력 ${incomingSkill.power}` : "")}</SkillEffectText>
+              <SkillEffectText>
+                {maxMoveConfig ? (
+                  incomingSkill.isPendingMaxMove ? (
+                    <></>
+                  ) : (
+                    <>
+                      위력 {incomingSkill.power} <StatDivider>•</StatDivider> {incomingSkill.stype === "atk" ? "물리" : "특수"}
+                    </>
+                  )
+                ) : (
+                  incomingEffectText || (incomingSkill.stype === "buf" ? "변화기" : incomingSkill.power !== "-" ? `위력 ${incomingSkill.power}` : "")
+                )}
+              </SkillEffectText>
               <SkillPP>
                 {incomingSkill.pp}/{incomingSkill.pp}
               </SkillPP>
@@ -223,8 +263,8 @@ const IncomingSkillCard = styled.div`
   position: relative;
   width: calc(50% - 5px);
   min-width: 130px;
-  background: rgba(22, 34, 48, 0.92);
-  border: 1.5px solid rgba(100, 255, 218, 0.55);
+  background: ${(props) => (props.$isSelected ? "rgba(22, 45, 64, 0.95)" : "rgba(18, 24, 35, 0.85)")};
+  border: ${(props) => (props.$isSelected ? "2px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.15)")};
   border-radius: 8px;
   padding: 10px 10px 28px 10px;
   min-height: 80px;
@@ -232,12 +272,13 @@ const IncomingSkillCard = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+  opacity: ${(props) => (props.$isSelected ? 1 : 0.35)};
+  filter: ${(props) => (props.$isSelected ? "none" : "grayscale(0.85)")};
   box-sizing: border-box;
   user-select: none;
+  transition: all 0.2s ease;
   overflow: hidden;
-  box-shadow:
-    0 0 12px rgba(100, 255, 218, 0.2),
-    0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: ${(props) => (props.$isSelected ? "0 0 14px rgba(100, 255, 218, 0.45), inset 0 0 8px rgba(100, 255, 218, 0.15)" : "0 2px 8px rgba(0, 0, 0, 0.4)")};
 `;
 
 const IncomingNewPill = styled.span`
@@ -305,7 +346,7 @@ const SkillTypeIcon = styled.img`
 const SkillName = styled.span`
   flex: 1;
   min-width: 0;
-  font-size: 0.95rem;
+  font-size: ${({ $len }) => ($len >= 7 ? "0.78rem" : $len >= 6 ? "0.84rem" : "0.95rem")};
   font-weight: 700;
   color: #ffffff;
   white-space: nowrap;
@@ -325,6 +366,11 @@ const SkillEffectText = styled.div`
   width: 100%;
   min-width: 0;
   word-break: break-all;
+`;
+
+const StatDivider = styled.span`
+  color: #ccc;
+  font-size: 0.7rem;
 `;
 
 const SkillPP = styled.div`

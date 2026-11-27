@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { AUGMENT_LIST, getAugmentSelDesc, isCurseAugment, isBuffAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isSynergyComponentAugment, isNormalAugment, isReplacementAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
+import { isMaxMoveAugment } from "../../../entity/Skill/maxMove";
 import { rollTeamAugments } from "../../../calc/augmentRoll";
 import { testmode, subscribeTestMode } from "../../../config/testMode";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
@@ -260,7 +261,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     const targetAug = aug || selectedAugment;
     if (!targetAug || !activePokemon) return;
 
-    if ((targetAug.id === "danceOfGarchomp" || targetAug.id === "nameIsSalamence" || targetAug.id === "choiceAndFocus" || targetAug.id === "sanctuary") && activePokemon?.skill) {
+    if ((targetAug.id === "danceOfGarchomp" || targetAug.id === "nameIsSalamence" || targetAug.id === "choiceAndFocus" || targetAug.id === "sanctuary" || isMaxMoveAugment(targetAug.id)) && activePokemon?.skill) {
       setSkillSelectAug(targetAug);
       return;
     }

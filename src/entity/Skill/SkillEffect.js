@@ -923,6 +923,53 @@ function skillEffectSearch(name) {
         enqueue(battle, battle.common[battle.turn.def].teamKr + " 편의 오로라베일이 깨졌다!", "eff_break_aveil");
       }
     },
+
+    다이기술: (battle, enqueue, skillEffect) => {
+      const atk = battle[battle.turn.atk];
+      const def = battle[battle.turn.def];
+      if (!atk || atk.faint) return;
+
+      if (skillEffect.weather) {
+        const weatherTextMap = {
+          쾌청: "주변의 햇살이 강해졌다!",
+          비: "주변에 비가 내리기 시작했다!",
+          모래바람: "주변에 모래바람이 불기 시작했다!",
+          설경: "주변에 눈이 내리기 시작했다!",
+        };
+        battle.field.weather.setWeatherOnBattle(
+          battle,
+          enqueue,
+          atk,
+          skillEffect.weather,
+          weatherTextMap[skillEffect.weather] || ""
+        );
+      }
+
+      if (skillEffect.terrain) {
+        const terrainTextMap = {
+          그래스필드: "발밑에 풀이 무성해졌다!",
+          일렉트릭필드: "발밑에 전기가 떠돌기 시작했다!",
+          미스트필드: "발밑이 안개로 자욱해졌다!",
+        };
+        battle.field.terrain.setTerrainOnBattle(
+          battle,
+          enqueue,
+          atk,
+          skillEffect.terrain,
+          terrainTextMap[skillEffect.terrain] || ""
+        );
+      }
+
+      if (skillEffect.stat && skillEffect.target === "atk") {
+        atk.rankUp(battle, enqueue, skillEffect.stat, skillEffect.value || 1, null, false);
+      }
+
+      if (skillEffect.stat && skillEffect.target === "def" && def && !def.faint && def.hp > 0) {
+        if (!isTargetSubstituteBlocked(battle)) {
+          def.rankUp(battle, enqueue, skillEffect.stat, skillEffect.value || -1, null, true, atk.abil?.feature?.tgg);
+        }
+      }
+    },
   };
 
   return functions[name] || null;

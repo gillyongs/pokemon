@@ -858,6 +858,12 @@ export const damageCalculate = (battle, num, ai) => {
     attackPokemon.log.damage2 += " * 1.3 (생구)";
   }
 
+  // 다이기술 방어 관통 (방어/니들가드 중인 대상에게 1/4 위력)
+  if (defensePokemon.turn?.protect === true && skill?.feature?.isMaxMove) {
+    damage *= 0.25;
+    attackPokemon.log.damage2 += " * 0.25 (다이기술 방어 관통)";
+  }
+
   // [증강] 아케인셰이드 투핸드소드 큐브 잠재능력: 데미지 증가
   if (cubeStats?.damageRate > 0) {
     const mult = 1 + cubeStats.damageRate / 100;

@@ -34,6 +34,10 @@ export function attackDamage(battle, enqueue, num) {
     if (!isAttackSkill(useSkill)) return false;
 
     let hasOutput = false;
+    if (defPokemon.turn?.protect === true && useSkill?.feature?.isMaxMove) {
+      enqueue(battle, `${defPokemon.names("는")} 공격을 완전히 막아내지 못하고 데미지를 입었다!`, "dmg_maxmove_pierce_protect");
+      hasOutput = true;
+    }
     const isDeltaStreamWeaken = Boolean(battle?.isDeltaStream && (defPokemon.type1 === "비행" || defPokemon.type2 === "비행") && ["전기", "얼음", "바위"].includes(useSkill?.type));
     if (isDeltaStreamWeaken) {
       enqueue(battle, (commonText || "") + "수수께끼의 난기류가 공격을 약하게 만들었다!", "dmg_delta_weaken");

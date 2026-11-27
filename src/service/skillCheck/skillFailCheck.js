@@ -128,9 +128,10 @@ export const getSkillFailResult = (battle, atk, skill, options = {}) => {
   if (defPokemon.turn?.protect === true && skillType !== "buf") {
     const isUnseenFist = Boolean(atkPokemon.abil?.name === "보이지않는주먹" && skillObj.feature?.touch && atkPokemon.item !== "펀치글러브");
     const isFeint = Boolean(skillObj.feature?.feint);
+    const isMaxMove = Boolean(skillObj.feature?.isMaxMove); // 다이맥스
     const isNoProtectSkill = NO_PROTECT_SKILLS.includes(skillObj.name);
 
-    if (!isUnseenFist && !isFeint && !isNoProtectSkill) {
+    if (!isUnseenFist && !isFeint && !isMaxMove && !isNoProtectSkill) {
       return {
         text: defPokemon.names("는") + " 공격으로부터 몸을 지켰다!",
         code: "chk_protect_block",

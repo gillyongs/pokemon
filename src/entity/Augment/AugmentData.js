@@ -6,6 +6,7 @@ import sampleList from "../Pokemon/pokemonSampleList";
 import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
 import { Skill, isAttackSkill } from "../Skill/Skill";
+import { createMaxMoveAugments } from "../Skill/maxMove";
 import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
 import { getScoutCandidatePool } from "./scoutCandidates";
 
@@ -114,7 +115,6 @@ export const renamePokemonSkill = (pokemon, oldName, newName) => {
       if (aug.choiceAndFocusSkillName === oldName) aug.choiceAndFocusSkillName = newName;
       if (aug.zeroSumBuffSkillName === oldName) aug.zeroSumBuffSkillName = newName;
       if (aug.zeroSumNerfSkillName === oldName) aug.zeroSumNerfSkillName = newName;
-      if (aug.replacedSkillName === oldName) aug.replacedSkillName = newName;
     });
   }
 
@@ -1778,6 +1778,9 @@ export const AUGMENT_LIST = [
       }
     },
   },
+
+  // 다이 시리즈
+  ...createMaxMoveAugments(renamePokemonSkill),
 
   // 포켓몬 교체 증강 ==============================================================================
 

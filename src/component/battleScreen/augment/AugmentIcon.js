@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { getMaxMoveConfig } from "../../../entity/Skill/maxMove";
 
 // 포켓몬 배틀 UI 스타일에 맞춘 룬 & 심볼 SVG 아이콘 세트 (틸/청록 & 골드 & 슬레이트 네이비 테마)
 // 전용 증강별 포켓몬 도감번호 매핑
@@ -103,6 +104,46 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           />
           <DedicatedRing />
         </DedicatedFrame>
+      </IconFrame>
+    );
+  }
+
+  const maxMoveConfig = getMaxMoveConfig(id);
+  if (maxMoveConfig) {
+    if (maxMoveConfig.hasCustomIcon) {
+      return (
+        <IconFrame $size={size}>
+          <svg viewBox="0 0 64 64" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg" style={{ overflow: "visible" }}>
+            <image href={`/pokemon/img/augment/${id}.png`} x="-2" y="-2" width="68" height="68" />
+          </svg>
+        </IconFrame>
+      );
+    }
+    return (
+      <IconFrame $size={size}>
+        <svg viewBox="0 0 64 64" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id={`maxTypeClip-${id}`}>
+              <circle cx="32" cy="32" r="29" />
+            </clipPath>
+            <linearGradient id={`maxRing-${id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#64ffda" />
+              <stop offset="50%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#22d3ee" />
+            </linearGradient>
+          </defs>
+          <g clipPath={`url(#maxTypeClip-${id})`}>
+            <image
+              href={`/pokemon/img/type/${maxMoveConfig.type}.svg`}
+              x="2"
+              y="2"
+              width="60"
+              height="60"
+              preserveAspectRatio="xMidYMid slice"
+            />
+          </g>
+          <circle cx="32" cy="32" r="29.5" fill="none" stroke={`url(#maxRing-${id})`} strokeWidth="1.6" strokeOpacity="0.85" />
+        </svg>
       </IconFrame>
     );
   }
