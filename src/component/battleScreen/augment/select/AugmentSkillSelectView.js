@@ -14,7 +14,7 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
 
   const getSubTitle = () => {
     if (maxMoveConfig) {
-      return josa(`${maxMoveConfig.moveName}#{으로} 변경할 ${maxMoveConfig.type} 타입 공격 기술을 선택해주세요.`);
+      return josa(`${maxMoveConfig.moveName}#{으로} 변경할 ${maxMoveConfig.type} 타입 기술을 선택해주세요.`);
     }
     if (skillSelectAug?.id === "choiceAndFocus") {
       return "위력을 1.5배로 강화할 공격 기술을 선택해주세요.";
@@ -144,7 +144,9 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
                     e.currentTarget.style.display = "none";
                   }}
                 />
-                <SkillName $len={sk.name?.length || 0} title={sk.name}>{sk.name}</SkillName>
+                <SkillName $len={sk.name?.length || 0} title={sk.name}>
+                  {sk.name}
+                </SkillName>
               </SkillTopRow>
               <SkillEffectText>{isDisabled ? disabledReason : skillSubText}</SkillEffectText>
               <SkillPP>
@@ -173,7 +175,9 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
                     e.currentTarget.style.display = "none";
                   }}
                 />
-                <SkillName $len={incomingSkill.name?.length || 0} title={incomingSkill.name}>{incomingSkill.name}</SkillName>
+                <SkillName $len={incomingSkill.name?.length || 0} title={incomingSkill.name}>
+                  {incomingSkill.name}
+                </SkillName>
               </SkillTopRow>
               <SkillEffectText>
                 {maxMoveConfig ? (

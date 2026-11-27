@@ -27,6 +27,27 @@ const DEDICATED_AUGMENT_POKEMON = {
   manilaClam: "0382",
 };
 
+const MAX_MOVE_TYPE_BACKGROUND = {
+  "노말": "#949495",
+  "불꽃": "#e56c3e",
+  "물": "#5185c5",
+  "전기": "#FBB917",
+  "풀": "#66a945",
+  "얼음": "#6dc8eb",
+  "격투": "#e09c40",
+  "독": "#735198",
+  "땅": "#9c7743",
+  "비행": "#a2c3e7",
+  "에스퍼": "#dd6b7b",
+  "벌레": "#9fa244",
+  "바위": "#bfb889",
+  "고스트": "#684870",
+  "드래곤": "#535ca8",
+  "악": "#4c4948",
+  "강철": "#69a9c7",
+  "페어리": "#dab4d4",
+};
+
 // 특정 포켓몬 전용 증강 등에서 스프라이트 높이/위치 보정 옵션 (예: 보만다처럼 가로로 길고 아래로 처진 스프라이트 상향 보정)
 const DEDICATED_AUGMENT_IMAGE_OPTIONS = {
   ninjaAppeared: { shiftUp: true, offsetY: -3.5, scale: 1.15 },
@@ -133,16 +154,25 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
             </linearGradient>
           </defs>
           <g clipPath={`url(#maxTypeClip-${id})`}>
+            <circle cx="32" cy="32" r="29" fill={MAX_MOVE_TYPE_BACKGROUND[maxMoveConfig.type] || "#0f172a"} />
             <image
               href={`/pokemon/img/type/${maxMoveConfig.type}.svg`}
-              x="2"
-              y="2"
-              width="60"
-              height="60"
-              preserveAspectRatio="xMidYMid slice"
+              x="10"
+              y="10"
+              width="44"
+              height="44"
+              preserveAspectRatio="xMidYMid meet"
             />
           </g>
-          <circle cx="32" cy="32" r="29.5" fill="none" stroke={`url(#maxRing-${id})`} strokeWidth="1.6" strokeOpacity="0.85" />
+          <circle
+            cx="32"
+            cy="32"
+            r="29.5"
+            fill="none"
+            stroke={`url(#maxRing-${id})`}
+            strokeWidth="1.6"
+            strokeOpacity="0.85"
+          />
         </svg>
       </IconFrame>
     );
