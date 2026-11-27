@@ -1,6 +1,9 @@
 // 전역 testmode 및 선택된 NPC 행동 관리
 export let testmode = true;
 export let selectedNpcAct = null;
+export const testValue = {
+  searchAugmentWord: "다이",
+};
 
 const listeners = new Set();
 
@@ -29,6 +32,7 @@ export const subscribeTestMode = (listener) => {
 
 if (typeof window !== "undefined") {
   window.testmode = testmode;
+  window.testValue = testValue;
   window.selectedNpcAct = selectedNpcAct;
   window.setTestmode = setTestmode;
   window.setSelectedNpcAct = setSelectedNpcAct;

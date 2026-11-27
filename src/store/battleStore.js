@@ -52,6 +52,15 @@ export const useBattleStore = createStore((set, get) => ({
 
   openAugmentStatus: (poke = null) => set({ augmentStatusInitialPoke: poke, isAugmentStatusOpen: true }),
   closeAugmentStatus: () => set({ isAugmentStatusOpen: false }),
+  openTestAugmentModal: () => {
+    const curBattle = get().battleLive || get().battle;
+    if (!curBattle) return;
+    set({
+      augmentModalOpen: true,
+      isTitanSelection: false,
+      augmentTargetPoke: curBattle.player || null,
+    });
+  },
 
   toggleNpcAction: (act) => {
     const next = get().selectedNpcChoice === act ? null : act;
@@ -717,6 +726,29 @@ export const useBattleStore = createStore((set, get) => ({
         { dropRemaining }
       );
       set({ text: gainText });
+    } else if (queueObject.queue[0]?.id === "end_next_turn") {
+      const nextTurnPrompt = {
+        battle: headBattle,
+        text: headBattle.player.names("는") + " 무엇을 할까?",
+        id: "end_next_turn",
+        bottomMode: "skill",
+        waitInput: true,
+        allowAct: true,
+        noLog: true,
+      };
+      queueObject.updateHead(
+        () => ({
+          battle: headBattle,
+          text: gainText,
+          id: "bs_aug_gain",
+          logText: gainLogText,
+          augmentData: headAugmentData,
+        }),
+        curBattle,
+        [...followUpItems, nextTurnPrompt],
+        { dropRemaining }
+      );
+      set({ text: gainText });
     } else {
       queueObject.enqueue(headBattle, gainText, "bs_aug_gain", {
         logText: gainLogText,
@@ -733,9 +765,13 @@ export const useBattleStore = createStore((set, get) => ({
     set({ augmentModalOpen: false, isTitanSelection: false });
     if (!curBattle) return;
 
+    const head = queueObject.queue[0];
+    if (!head?.isAugment && !isTitanPendingStart && !screenText) {
+      return;
+    }
+
     const headBattle = cloneWithMethods(curBattle);
 
-    const head = queueObject.queue[0];
     if (!isTitanSelection && (head?.isKnockoutAugment || (head?.isAugment && !head?.isBattleStartAugment))) {
       curBattle.hasKnockoutAugmentThisRound = false;
     }

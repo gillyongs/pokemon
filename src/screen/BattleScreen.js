@@ -249,6 +249,7 @@ const Battle = () => {
           visible={(testmode || isTestMode) && !gameResult}
           isDebugOpen={isDebugModalOpen}
           setIsDebugOpen={setIsDebugModalOpen}
+          onOpenAugment={() => useBattleStore.getState().openTestAugmentModal()}
           onBack={() => {
             queueObject.initQueue();
             if (location.state?.fromCustom) {

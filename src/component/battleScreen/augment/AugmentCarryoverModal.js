@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { getAugmentStatusModalText, isPermanentBuff, isPermanentCurse, isNormalAugment, isSynergyAugment } from "../../../entity/Augment/AugmentData";
+import { testmode } from "../../../config/testMode";
 
 // 다음 라운드로 넘길 증강 선택 모달
 
@@ -43,7 +44,8 @@ const AugmentCarryoverModal = ({ battle, round = 1, onConfirm }) => {
     return sum;
   }, 0);
 
-  const isCostOver = currentCost > maxPoints;
+  const isTestMode = typeof window !== "undefined" && typeof window.testmode === "boolean" ? window.testmode : Boolean(testmode);
+  const isCostOver = !isTestMode && currentCost > maxPoints;
 
   const toggleSelect = (item) => {
     const next = new Set(selectedKeys);

@@ -4,7 +4,7 @@ import { AugmentIcon } from "./AugmentIcon";
 import { AUGMENT_LIST, getAugmentSelDesc, isCurseAugment, isBuffAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isSynergyComponentAugment, isNormalAugment, isReplacementAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
 import { isMaxMoveAugment } from "../../../entity/Skill/maxMove";
 import { rollTeamAugments } from "../../../calc/augmentRoll";
-import { testmode, subscribeTestMode } from "../../../config/testMode";
+import { testmode, testValue, subscribeTestMode } from "../../../config/testMode";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";
 import TradeInfoModal from "../TradeInfoModal";
 import AugmentStatusModal from "./AugmentStatusModal";
@@ -36,8 +36,15 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     if (typeof window !== "undefined" && typeof window.testmode === "boolean") return window.testmode;
     return Boolean(testmode);
   });
-  const [showAllList, setShowAllList] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const getInitialSearchWord = (tm) => {
+    if (!tm) return "";
+    if (typeof window !== "undefined" && window.testValue?.searchAugmentWord) {
+      return String(window.testValue.searchAugmentWord);
+    }
+    return String(testValue?.searchAugmentWord || "");
+  };
+  const [showAllList, setShowAllList] = useState(() => Boolean(isTestMode && !isTitanSelection));
+  const [searchTerm, setSearchTerm] = useState(() => getInitialSearchWord(isTestMode));
 
   useEffect(() => {
     if (typeof propTestMode === "boolean") {
@@ -228,7 +235,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     setSynergyPreviewInfo(null);
     setGrantPreviewInfo(null);
     setSelectedAugment(null); // 다른 포켓몬 선택 시 증강 선택 상태 초기화
-    setSearchTerm("");
+    setSearchTerm((prev) => (isTestMode ? prev || getInitialSearchWord(true) : ""));
     setTypeSelectAug(null);
     setSelectedType(null);
     setSkillSelectAug(null);
@@ -362,7 +369,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                 }}
                 onCancel={() => {
                   setScoutAug(null);
-                  onClose?.("[증강] 스카우트에 실패했다...");
+                  onClose?.("[증강] 스카우트를 포기했다...");
                 }}
               />
             ) : quizAug ? (
