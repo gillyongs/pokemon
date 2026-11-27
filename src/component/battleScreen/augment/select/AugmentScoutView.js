@@ -217,12 +217,15 @@ const AugmentScoutView = ({ scoutAug, team, battle, onSelect, onCancel }) => {
             <ResultsGrid>
               {candidates.map((candidate, index) => {
                 const isSelected = selectedSampleName === candidate.sampleName;
+                const isLegendary = Boolean(candidate.feature?.legendary);
                 return (
                   <CardSlot key={candidate.sampleName}>
                     <ScoutCard
                       type="button"
                       $selected={isSelected}
+                      $legendary={isLegendary}
                       disabled={!isReady}
+                      aria-label={isLegendary ? `${candidate.name} 전설 포켓몬 후보 선택` : undefined}
                       onClick={() => {
                         setSelectedSampleName(candidate.sampleName);
                         setDetailText({ title: `${candidate.name} 정보`, text: "기술·특성·도구를 누르면 자세한 설명을 확인할 수 있습니다." });
@@ -320,6 +323,16 @@ const leavesFly = keyframes`
   0% { opacity: 0; transform: translateY(28px) rotate(0deg) scale(0.5); }
   30% { opacity: 0.95; }
   100% { opacity: 0; transform: translateY(-85px) rotate(250deg) scale(1.15); }
+`;
+
+const legendaryPulse = keyframes`
+  0%, 100% { opacity: 0.55; transform: translate(-50%, 0) scale(0.9); }
+  50% { opacity: 1; transform: translate(-50%, 0) scale(1.08); }
+`;
+
+const legendaryTwinkle = keyframes`
+  0%, 100% { opacity: 0.25; transform: scale(0.45) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.15) rotate(45deg); }
 `;
 
 const ViewWrapper = styled.div`
@@ -433,6 +446,44 @@ const StagePokemon = styled.img`
   object-fit: contain;
   filter: drop-shadow(0 5px 5px rgba(15, 23, 42, 0.45));
   animation: ${revealCard} 0.438s ease-out both;
+`;
+
+const LegendaryAura = styled.div`
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  bottom: 5%;
+  width: 42%;
+  height: 85%;
+  border: 2px solid rgba(255, 223, 112, 0.8);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255, 218, 112, 0.55), rgba(251, 191, 36, 0.18) 48%, transparent 72%);
+  box-shadow:
+    0 0 18px rgba(255, 211, 77, 0.75),
+    inset 0 0 16px rgba(255, 245, 180, 0.45);
+  filter: blur(1px);
+  animation: ${legendaryPulse} 1.2s ease-in-out infinite;
+  pointer-events: none;
+`;
+
+const LegendarySparkles = styled.div`
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+`;
+
+const LegendarySpark = styled.span`
+  position: absolute;
+  top: ${(props) => `${[20, 33, 47, 62, 25, 72, 39, 55][props.$index]}%`};
+  left: ${(props) => `${[47, 65, 36, 58, 72, 43, 28, 78][props.$index]}%`};
+  width: 11px;
+  height: 11px;
+  background: #fff3a6;
+  clip-path: polygon(50% 0, 62% 37%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 37%);
+  filter: drop-shadow(0 0 5px #facc15);
+  animation: ${legendaryTwinkle} 1.2s ease-in-out ${(props) => `${props.$index * 0.12}s`} infinite;
 `;
 
 const Bush = styled.div`
@@ -657,10 +708,10 @@ const ScoutCard = styled.button`
   height: 62px;
   padding: 0;
   overflow: hidden;
-  border: 2px solid ${(props) => (props.$selected ? "#ffe968" : "rgba(238, 230, 255, 0.92)")};
+  border: 2px solid ${(props) => (props.$selected ? "#ffe968" : props.$legendary ? "#facc15" : "rgba(238, 230, 255, 0.92)")};
   border-radius: 7px;
   background: ${(props) => (props.$selected ? "linear-gradient(145deg, #eaff83, #78e34f)" : "linear-gradient(145deg, #f5f6f7, #dfe2e6)")};
-  box-shadow: ${(props) => (props.$selected ? "0 0 12px rgba(217, 249, 157, 0.75)" : "0 2px 6px rgba(2, 6, 23, 0.25)")};
+  box-shadow: ${(props) => (props.$selected ? "0 0 12px rgba(217, 249, 157, 0.75)" : props.$legendary ? "0 0 12px rgba(250, 204, 21, 0.65)" : "0 2px 6px rgba(2, 6, 23, 0.25)")};
   cursor: ${(props) => (props.disabled ? "wait" : "pointer")};
   transition:
     border-color 0.2s ease,
@@ -733,6 +784,19 @@ const CardFront = styled.div`
   padding: 3px;
   transform: rotateY(180deg);
   backface-visibility: hidden;
+`;
+
+const LegendaryBadge = styled.span`
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  padding: 1px 3px;
+  border: 1px solid rgba(255, 243, 166, 0.9);
+  border-radius: 4px;
+  background: rgba(120, 74, 0, 0.88);
+  color: #fff3a6;
+  font-size: 7px;
+  font-weight: 900;
 `;
 
 const CardImage = styled.img`
