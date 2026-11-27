@@ -7,6 +7,7 @@ import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
 import { Skill, isAttackSkill } from "../Skill/Skill";
 import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
+import { getScoutCandidatePool } from "./scoutCandidates";
 
 export const getReplacementAugmentWeight = (pokemon) => {
   if (pokemon?.hasAugment?.("jinanSangae") || pokemon?.hasAugment?.("rudePureLove")) return 0;
@@ -15,7 +16,7 @@ export const getReplacementAugmentWeight = (pokemon) => {
 };
 
 // 포켓몬 교체 증강
-export const REPLACEMENT_AUGMENT_IDS = ["legendaryTitan", "rouletteWheel", "soaring", "marriedPokemon", "magikarpJump", "klinklangGear", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle", "ninjaAppeared", "geniusOfTransformation"];
+export const REPLACEMENT_AUGMENT_IDS = ["legendaryTitan", "rouletteWheel", "scout", "soaring", "marriedPokemon", "magikarpJump", "klinklangGear", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle", "ninjaAppeared", "geniusOfTransformation"];
 
 export const isReplacementAugment = (augmentOrId) => {
   const id = typeof augmentOrId === "string" ? augmentOrId : augmentOrId?.id;
@@ -1815,6 +1816,30 @@ export const AUGMENT_LIST = [
   },
 
   {
+    id: "scout",
+    name: "스카우트",
+    desc: "임의의 포켓몬 10마리 중 하나를 스카우트하여 원하는 포켓몬과 교체합니다.",
+    screenText: function (target, prevPokeName) {
+      return josa(`[증강] ${prevPokeName || "포켓몬"}#{이} ${target?.name || "포켓몬"}#{으로} 교체되었다!`);
+    },
+    logModalText: function (target, prevPokeName) {
+      return josa(`${prevPokeName || "포켓몬"}#{이} ${target?.name || "포켓몬"}#{으로} 교체되었다!`);
+    },
+    cost: "-",
+    weight: (pokemon) => getReplacementAugmentWeight(pokemon),
+    isEligible: (pokemon, battle, team) => isHpAtLeast(pokemon, 0.5) && getScoutCandidatePool(team).length >= 10,
+    onApply: function (pokemon, battle, options) {
+      const selectedSampleName = options?.selectedSampleName;
+      const candidateNames = options?.scoutCandidateNames;
+      if (typeof selectedSampleName !== "string" || !candidateNames?.includes(selectedSampleName)) return;
+      const sample = sampleList.getDataBySampleName(selectedSampleName);
+      const team = battle ? [battle.player, battle.playerBench1, battle.playerBench2].filter(Boolean) : [];
+      if (!sample || hasPokemonOnTeam(team, sample.dexNo)) return;
+      replacePokemon(pokemon, selectedSampleName, battle, { resetAugments: true });
+    },
+  },
+
+  {
     id: "marriedPokemon",
     name: "포켓몬과 결혼한 사람이 있었다",
     desc: "해당 포켓몬을 임의의 포켓몬과 교체합니다. 모든 능력치가 1.1배 증가하는 증강을 추가로 얻습니다.",
@@ -3511,7 +3536,7 @@ const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
   ["revivePiece", "maxRevive"],
 
   // 2. 포켓몬 교체/변환 증강: 동시에 2개 이상 나오지 않음
-  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle", "ninjaAppeared", "geniusOfTransformation"],
+  ["klinklangGear", "legendaryTitan", "marriedPokemon", "rouletteWheel", "scout", "soaring", "magikarpJump", "blackNight", "mewtwoStrikesBack", "veteranPrivilege", "sacrificeGod", "threeBears", "threeThousandYears", "evioliteShuckle", "ninjaAppeared", "geniusOfTransformation"],
 
   // 3. 능력치 전환 증강: 동시에 2개 이상 나오지 않음
   ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"],

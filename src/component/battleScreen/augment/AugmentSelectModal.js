@@ -24,6 +24,7 @@ import AugmentRouletteView from "./select/AugmentRouletteView";
 import AugmentSkillSelectView from "./select/AugmentSkillSelectView";
 import AugmentTypeSelectView from "./select/AugmentTypeSelectView";
 import AugmentQuizView from "./select/AugmentQuizView";
+import AugmentScoutView from "./select/AugmentScoutView";
 
 import { AUGMENT_POKEMON_PREVIEW_MAP, getAugmentGrantInfo } from "./augmentPreviewConstants";
 export { AUGMENT_POKEMON_PREVIEW_MAP, getAugmentGrantInfo };
@@ -71,6 +72,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   const [soulDiceAug, setSoulDiceAug] = useState(null);
   const [rouletteAug, setRouletteAug] = useState(null);
   const [quizAug, setQuizAug] = useState(null);
+  const [scoutAug, setScoutAug] = useState(null);
 
   const resolvedTeam = team && team.length > 0 ? team : [battle?.player, battle?.playerBench1, battle?.playerBench2].filter(Boolean);
 
@@ -241,6 +243,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     setSoulDiceAug(null);
     setRouletteAug(null);
     setQuizAug(null);
+    setScoutAug(null);
   };
 
   const handleCardClick = (e, aug) => {
@@ -329,6 +332,11 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       return;
     }
 
+    if (targetAug.id === "scout") {
+      setScoutAug(targetAug);
+      return;
+    }
+
     if (["allOrNothing", "russianRoulette", "highRiskHighReturn", "randomAbility", "oddEven"].includes(targetAug.id)) {
       setRouletteAug(targetAug);
       return;
@@ -340,9 +348,23 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
   return (
     <>
       <ModalOverlay $isPeek={isPeekMode} onClick={() => setIsPeekMode((prev) => !prev)}>
-        <ModalWrapper onClick={(e) => e.stopPropagation()}>
-          <ModalContainer $isPeek={isPeekMode} onClick={handleContainerClick}>
-            {quizAug ? (
+        <ModalWrapper $isScout={Boolean(scoutAug)} onClick={(e) => e.stopPropagation()}>
+          <ModalContainer $isPeek={isPeekMode} $isScout={Boolean(scoutAug)} onClick={handleContainerClick}>
+            {scoutAug ? (
+              <AugmentScoutView
+                scoutAug={scoutAug}
+                team={resolvedTeam}
+                battle={battle}
+                onSelect={(aug, options) => {
+                  onSelect(aug, options);
+                  setScoutAug(null);
+                }}
+                onCancel={() => {
+                  setScoutAug(null);
+                  onClose?.("[증강] 스카우트에 실패했다...");
+                }}
+              />
+            ) : quizAug ? (
               <AugmentQuizView
                 quizAug={quizAug}
                 activePokemon={activePokemon}
@@ -770,9 +792,11 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
               </>
             )}
           </ModalContainer>
-          <PeekToggleButton $isPeek={isPeekMode} onClick={handleTogglePeek} title={isPeekMode ? "증강 선택창 선명하게" : "모달 흐리게 (필드 확인)"}>
-            {isPeekMode ? "선명하게 보기" : "필드 보기 (흐리게)"}
-          </PeekToggleButton>
+          {!scoutAug && (
+            <PeekToggleButton $isPeek={isPeekMode} onClick={handleTogglePeek} title={isPeekMode ? "증강 선택창 선명하게" : "모달 흐리게 (필드 확인)"}>
+              {isPeekMode ? "선명하게 보기" : "필드 보기 (흐리게)"}
+            </PeekToggleButton>
+          )}
         </ModalWrapper>
       </ModalOverlay>
 
@@ -849,6 +873,15 @@ const ModalWrapper = styled.div`
     width: 96%;
     gap: 8px;
   }
+
+  ${(props) =>
+    props.$isScout &&
+    `
+      max-width: 620px;
+      @media (max-width: 760px) {
+        max-width: 100%;
+      }
+    `}
 `;
 
 const PeekToggleButton = styled.button`
@@ -916,6 +949,28 @@ const ModalContainer = styled.div`
     height: 3px;
     background: linear-gradient(90deg, #64ffda, #38bdf8, #64ffda);
   }
+
+  ${(props) =>
+    props.$isScout &&
+    `
+      max-width: 620px;
+      height: 70.4vh;
+      max-height: 720px;
+      min-height: 0;
+      padding: 14px;
+      align-items: stretch;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(20, 45, 50, 0.97));
+      &::before {
+        display: none;
+      }
+      @media (max-width: 760px) {
+        height: 72vh;
+        min-height: 0;
+        padding: 10px;
+      }
+    `}
 `;
 
 const HeaderArea = styled.div`

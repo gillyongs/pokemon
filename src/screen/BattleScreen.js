@@ -153,8 +153,8 @@ const Battle = () => {
     useBattleStore.getState().handleSelectAugment(selectedAugment, options, queueObject);
   };
 
-  const handleCloseAugment = () => {
-    useBattleStore.getState().handleCloseAugment(queueObject);
+  const handleCloseAugment = (screenText) => {
+    useBattleStore.getState().handleCloseAugment(queueObject, screenText);
   };
 
   const handleTestSkipNpc = (e) => {

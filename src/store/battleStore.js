@@ -728,7 +728,7 @@ export const useBattleStore = createStore((set, get) => ({
     set({ battle: cloneWithMethods(headBattle) });
   },
 
-  handleCloseAugment: (queueObject) => {
+  handleCloseAugment: (queueObject, screenText) => {
     const { isTitanSelection, isTitanPendingStart, battleLive: curBattle } = get();
     set({ augmentModalOpen: false, isTitanSelection: false });
     if (!curBattle) return;
@@ -753,7 +753,7 @@ export const useBattleStore = createStore((set, get) => ({
       applyAbilityEffects(curBattle, slowUser, collectEnqueue);
     }
 
-    const noAugText = "증강을 선택하지 않았습니다.";
+    const noAugText = screenText || "증강을 선택하지 않았습니다.";
 
     if (head?.isAugment) {
       queueObject.updateHead(
