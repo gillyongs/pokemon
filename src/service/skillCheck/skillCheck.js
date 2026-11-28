@@ -202,7 +202,7 @@ export const afterSkillCheck = (bt, enqueue) => {
   }
 
   // 방어 관통 / 해제 연출 (보이지않는주먹, 페인트)
-  if (def.turn.protect === true && skillType !== "buf") {
+  if (def.turn.protect === true && !def.turn.maxGuard && skillType !== "buf") {
     if (atk.abil?.name === "보이지않는주먹" && skill.feature?.touch && atk.item !== "펀치글러브") {
       enqueue(bt, "[특성 보이지않는주먹] " + atk.name + "의 공격은 막을 수 없다!", "chk_unseen_fist");
     }

@@ -27,14 +27,7 @@ export const calculateMaxMovePower = (baseSkill, isLowPowerTable = false) => {
   const src = baseSkill.baseSkillSnapshot || baseSkill;
 
   // 위력 비고정("*", "-"), 일격기, 또는 2~5타/3타 연속기는 원작 기준 130 (격투/독은 100)
-  if (
-    src.power === "*" ||
-    src.power === "-" ||
-    src.feature?.oneShot ||
-    src.feature?.serial === "twoFive" ||
-    src.feature?.serial === "triple" ||
-    src.feature?.serial === "suru"
-  ) {
+  if (src.power === "*" || src.power === "-" || src.feature?.oneShot || src.feature?.serial === "twoFive" || src.feature?.serial === "triple" || src.feature?.serial === "suru") {
     return isLowPowerTable ? 100 : 130;
   }
 
@@ -116,8 +109,7 @@ export const buildMaxMoveFromSkill = (baseSkill, configOrAugId, slot = null) => 
 };
 
 /**
- * 포켓몬을 다이맥스 상태로 전환합니다. (체력 2배, 공격 기술 다이기술로 일시 변환, 3턴 지속)
- * 변화기는 변환하지 않습니다.
+ * 포켓몬을 다이맥스 상태로 전환합니다. (체력 2배, 공격기는 타입별 다이기술로, 변화기는 다이윌로 일시 변환, 3턴 지속)
  */
 export const applyDynamax = (pokemon, turns = 3) => {
   if (!pokemon || pokemon.faint) return false;
@@ -128,7 +120,12 @@ export const applyDynamax = (pokemon, turns = 3) => {
   if (pokemon.skill) {
     [1, 2, 3, 4].forEach((slot) => {
       const sk = pokemon.skill[slot];
-      if (!sk || (sk.stype !== "atk" && sk.stype !== "catk") || sk.feature?.isMaxMove) return;
+      if (!sk || sk.feature?.isMaxMove) return;
+      if (sk.stype !== "atk" && sk.stype !== "catk") {
+        originSkills[slot] = sk;
+        pokemon.skill[slot] = buildMaxGuardFromSkill(sk, slot);
+        return;
+      }
       const config = getMaxMoveConfigByType(sk.type);
       if (!config) return;
       originSkills[slot] = sk;
@@ -249,6 +246,46 @@ const buildMaxMoveAugmentDesc = (config) => {
 export const isMaxMoveAugment = (augOrId) => {
   const id = typeof augOrId === "string" ? augOrId : augOrId?.id;
   return Boolean(id && MAX_MOVE_AUGMENT_CONFIGS[id]);
+};
+
+// 다이윌
+const buildMaxGuardFromSkill = (baseSkill, slot = null) => {
+  const src = baseSkill?.baseSkillSnapshot || baseSkill || {};
+  const pp = typeof src.pp === "number" ? src.pp : 10;
+  const effectDesc = "다이맥스 기술을 포함한 상대의 모든 공격을 막는다. 연속으로 쓰면 실패하기 쉽다. (우선도 +4)";
+
+  return {
+    name: "다이윌",
+    originalName: src.originalName || src.name || "다이윌",
+    type: "노말",
+    power: "-",
+    accur: "-",
+    pp,
+    prior: 4,
+    stype: "buf",
+    useCount: 0,
+    fatalStrike: Boolean(baseSkill?.fatalStrike),
+    skillNumber: slot ?? baseSkill?.skillNumber,
+    requirement: { name: "방어" },
+    feature: {
+      isMaxMove: true,
+      maxMoveId: "maxGuard",
+      protect: true,
+      maxGuard: true,
+    },
+    skillEffectList: [{ name: "다이윌" }, { name: "공통" }],
+    originText: effectDesc,
+    text: effectDesc,
+    baseSkillSnapshot: {
+      name: src.name,
+      originalName: src.originalName || src.name,
+      type: src.type,
+      power: src.power,
+      stype: src.stype,
+      pp,
+      feature: src.feature ? { ...src.feature } : {},
+    },
+  };
 };
 
 export const getMaxMoveConfig = (augOrId) => {

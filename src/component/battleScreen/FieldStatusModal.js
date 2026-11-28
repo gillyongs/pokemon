@@ -164,7 +164,7 @@ const extractPokemonStatuses = (pokemon, isNpc = false) => {
     effects.push({
       name: "다이맥스",
       badge: `${ts.dynamax}턴`,
-      desc: `최대 HP가 2배로 증가하고 공격 기술이 다이기술로 강화되었습니다. (남은 턴: ${ts.dynamax}턴)`,
+      desc: `HP가 2배로 증가하고 모든 기술이 다이기술로 강화되었습니다. (남은 턴: ${ts.dynamax}턴)`,
       tone: "positive",
     });
   }

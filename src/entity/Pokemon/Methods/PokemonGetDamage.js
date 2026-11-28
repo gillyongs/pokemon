@@ -1,5 +1,5 @@
 import { checkPassiveEndure } from "../../../service/damage/endure";
-import { restoreDynamax } from "../../Skill/maxMove";
+import { restoreDynamax } from "../../Skill/DymaxMove";
 
 export const PokemonGetDamage = {
   getDamage(battle, enqueue, damageValue, text) {

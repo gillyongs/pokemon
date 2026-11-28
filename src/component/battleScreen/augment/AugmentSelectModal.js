@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import styled, { keyframes } from "styled-components";
 import { AugmentIcon } from "./AugmentIcon";
 import { AUGMENT_LIST, getAugmentSelDesc, isCurseAugment, isBuffAugment, isPermanentBuff, isPermanentCurse, isSynergyAugment, isSynergyComponentAugment, isNormalAugment, isReplacementAugment, getAugmentSynergyInfo } from "../../../entity/Augment/AugmentData";
-import { isMaxMoveAugment } from "../../../entity/Skill/maxMove";
+import { isMaxMoveAugment } from "../../../entity/Skill/DymaxMove";
 import { rollTeamAugments } from "../../../calc/augmentRoll";
 import { testmode, testValue, subscribeTestMode } from "../../../config/testMode";
 import sampleList from "../../../entity/Pokemon/pokemonSampleList";

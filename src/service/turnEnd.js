@@ -2,7 +2,7 @@ import { switchNpcAuto } from "./switch";
 import { speedCheck } from "../calc/speedCheck";
 import { applyAilment } from "./ailment";
 import { isNormalAugment } from "../entity/Augment/AugmentData";
-import { restoreDynamax } from "../entity/Skill/maxMove";
+import { restoreDynamax } from "../entity/Skill/DymaxMove";
 
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음

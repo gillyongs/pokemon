@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { getMaxMoveConfig } from "../../../entity/Skill/maxMove";
+import { getMaxMoveConfig } from "../../../entity/Skill/DymaxMove";
 
 // 포켓몬 배틀 UI 스타일에 맞춘 룬 & 심볼 SVG 아이콘 세트 (틸/청록 & 골드 & 슬레이트 네이비 테마)
 // 전용 증강별 포켓몬 도감번호 매핑

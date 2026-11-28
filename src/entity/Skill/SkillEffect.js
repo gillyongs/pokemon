@@ -586,6 +586,12 @@ function skillEffectSearch(name) {
       skillUser.turn.spikyShield = true;
       enqueue(battle, skillUser.names("는") + " 방어 태세에 들어갔다!", "eff_spiky_shield");
     },
+    다이윌: (battle, enqueue, skillEffect) => {
+      const skillUser = battle[battle.turn.atk];
+      skillUser.turn.protect = true;
+      skillUser.turn.maxGuard = true;
+      enqueue(battle, skillUser.names("는") + " 방어 태세에 들어갔다!", "eff_max_guard");
+    },
 
     스텔스록: (battle, enqueue, skillEffect) => {
       const def = battle.turn.def;

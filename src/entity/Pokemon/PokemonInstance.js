@@ -81,6 +81,7 @@ class PokemonInstance {
       recentDamageGive: null, // 최근 준 데미지 -> 반동, 흡수 계산에 사용
       recentDamageGet: null, // 최근 받은 데미지 -> 카운터에 사용
       protect: null, //방어
+      maxGuard: null, //다이윌
       useSkill: null, //이번턴 사용한 (사용할) 스킬
       substitute: null, // 이번 턴에 대타출동 상태였는지 여부. 대타출동을 깨뜨린 공격의 부가효과도 막기 위함
       lastHitSubstitute: null, // 직전 타격이 대타에 맞았는지 여부 (연속기 타격별 판정용)

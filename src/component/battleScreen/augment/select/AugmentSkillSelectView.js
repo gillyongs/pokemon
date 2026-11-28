@@ -4,7 +4,7 @@ import { josa } from "josa";
 import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { isAttackSkill } from "../../../../entity/Skill/Skill";
-import { getMaxMoveConfig, isEligibleBaseSkillForMaxMove, buildMaxMoveFromSkill } from "../../../../entity/Skill/maxMove";
+import { getMaxMoveConfig, isEligibleBaseSkillForMaxMove, buildMaxMoveFromSkill } from "../../../../entity/Skill/DymaxMove";
 import skillList from "../../../../entity/Skill/skillList";
 import { HeaderArea, HeaderTopRow, Title, SubTitleText, CloseButton, ButtonGroup, ActionButton } from "./selectStyles";
 

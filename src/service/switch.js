@@ -2,7 +2,7 @@ import { applyAbilityEffects } from "../entity/Ability";
 import { applyFieldEffects } from "./field";
 import { calculatePokemonSwitchScore } from "../npc/ai/easy";
 import { speedCheck } from "../calc/speedCheck";
-import { restoreDynamax } from "../entity/Skill/maxMove";
+import { restoreDynamax } from "../entity/Skill/DymaxMove";
 
 const applyAfterYouAugment = (battle, side, leavingPokemon, enqueue) => {
   const incomingPokemon = battle[side];
