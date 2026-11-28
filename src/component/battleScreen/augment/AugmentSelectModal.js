@@ -292,7 +292,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       return;
     }
 
-    if (targetAug.id === "teraBlast" || targetAug.id === "terastal") {
+    if (targetAug.id === "hiddenPower" || targetAug.id === "terastal") {
       setTypeSelectAug(targetAug);
       setSelectedType(null);
       return;
@@ -540,7 +540,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                   setSelectedType(null);
                 }}
                 onBack={() => {
-                  if (skillSelectAug?.id === "teraBlast") {
+                  if (skillSelectAug?.id === "hiddenPower") {
                     setTypeSelectAug(skillSelectAug);
                     setSkillSelectAug(null);
     setSwitchSelectAug(null);

@@ -3058,8 +3058,8 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 14. 테라버스트 / 테라스탈 (동일 테라스탈 6각성 결정 아이콘) */}
-        {(id === "teraBlast" || id === "terastal") && (
+        {/* 14. 테라스탈 (테라스탈 6각성 결정 아이콘) */}
+        {id === "terastal" && (
           <g>
             {/* 1. 테라스탈 6각성 메인 바디 (외곽 18포인트 6각 숄더 + 6각 스파이크 - 내부 세로 6각 홀) */}
             <path
@@ -3094,6 +3094,20 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
               strokeLinejoin="miter"
               strokeMiterlimit="5"
             />
+          </g>
+        )}
+
+        {/* 잠재파워 (공전하는 무지개 에너지 오브 아이콘) */}
+        {id === "hiddenPower" && (
+          <g>
+            <circle cx="32" cy="32" r="9" fill="#f8fafc" stroke="#38bdf8" strokeWidth="1.8" />
+            <circle cx="32" cy="32" r="4.5" fill="#64ffda" />
+            <circle cx="32" cy="13" r="4.2" fill="#f87171" stroke="#ffffff" strokeWidth="1" />
+            <circle cx="48.5" cy="22.5" r="4.2" fill="#fbbf24" stroke="#ffffff" strokeWidth="1" />
+            <circle cx="48.5" cy="41.5" r="4.2" fill="#4ade80" stroke="#ffffff" strokeWidth="1" />
+            <circle cx="32" cy="51" r="4.2" fill="#38bdf8" stroke="#ffffff" strokeWidth="1" />
+            <circle cx="15.5" cy="41.5" r="4.2" fill="#a78bfa" stroke="#ffffff" strokeWidth="1" />
+            <circle cx="15.5" cy="22.5" r="4.2" fill="#f472b6" stroke="#ffffff" strokeWidth="1" />
           </g>
         )}
 

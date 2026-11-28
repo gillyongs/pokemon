@@ -1679,37 +1679,37 @@ export const AUGMENT_LIST = [
   },
 
   {
-    id: "teraBlast",
-    name: "테라버스트",
-    desc: "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.",
+    id: "hiddenPower",
+    name: "잠재파워",
+    desc: "현재 기술 중 하나를 원하는 타입의 잠재파워로 교체합니다.",
     selDesc: function () {
-      return "현재 기술 중 하나를 원하는 타입의 테라버스트로 교체합니다.";
+      return "현재 기술 중 하나를 원하는 타입의 잠재파워로 교체합니다.";
     },
     screenText: function (target, prevPokeName, options) {
-      const augOnPoke = target?.augments?.find((a) => a.id === "teraBlast");
+      const augOnPoke = target?.augments?.find((a) => a.id === "hiddenPower");
       const chosenType = options?.selectedType || this?.selectedType || augOnPoke?.selectedType || "노말";
       const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || augOnPoke?.replacedSkillName || "기존 기술";
       const names = target?.names ? target.names("는") : "포켓몬은";
-      return josa(`[증강] ${names} ${prevSkillName}#{을} ${chosenType}타입 테라버스트와 교체했다!`);
+      return josa(`[증강] ${names} ${prevSkillName}#{을} ${chosenType}타입 잠재파워와 교체했다!`);
     },
     logModalText: function (target, prevPokeName, options) {
-      const augOnPoke = target?.augments?.find((a) => a.id === "teraBlast");
+      const augOnPoke = target?.augments?.find((a) => a.id === "hiddenPower");
       const chosenType = options?.selectedType || this?.selectedType || augOnPoke?.selectedType || "노말";
       const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || augOnPoke?.replacedSkillName || "기존 기술";
       const names = target?.names ? target.names("는") : "포켓몬은";
-      return josa(`${names} ${prevSkillName}#{을} ${chosenType}타입 테라버스트와 교체했다!`);
+      return josa(`${names} ${prevSkillName}#{을} ${chosenType}타입 잠재파워와 교체했다!`);
     },
     statusModalText: function (pokemon, battle, options) {
-      const augOnPoke = pokemon?.augments?.find((a) => a.id === "teraBlast");
+      const augOnPoke = pokemon?.augments?.find((a) => a.id === "hiddenPower");
       const chosenType = options?.selectedType || this?.selectedType || augOnPoke?.selectedType || "노말";
       const prevSkillName = options?.replacedSkillName || this?.replacedSkillName || augOnPoke?.replacedSkillName;
       if (prevSkillName) {
-        return josa(`${prevSkillName}#{을} ${chosenType}타입 테라버스트와 교체했습니다.`);
+        return josa(`${prevSkillName}#{을} ${chosenType}타입 잠재파워와 교체했습니다.`);
       }
       return this.desc;
     },
     cost: 1,
-    weight: 100,
+    weight: (pokemon) => (isSpecialPokemon(pokemon) ? 100 : 50),
     onApply: function (pokemon, battle, options) {
       if (!pokemon?.skill) return;
       const slot = Number(options?.replaceSlot) || 4;
@@ -1721,16 +1721,16 @@ export const AUGMENT_LIST = [
       this.selectedType = chosenType;
       this.replacedSkillName = prevSkillName;
 
-      const baseTera = skillList.search("테라버스트");
-      const teraBlast = {
-        ...baseTera,
+      const baseHiddenPower = skillList.search("잠재파워");
+      const hiddenPower = {
+        ...baseHiddenPower,
         type: chosenType,
         skillNumber: slot,
       };
 
-      pokemon.skill[slot] = teraBlast;
+      pokemon.skill[slot] = hiddenPower;
       if (pokemon.pp) {
-        pokemon.pp[slot] = teraBlast.pp;
+        pokemon.pp[slot] = hiddenPower.pp;
       }
     },
   },

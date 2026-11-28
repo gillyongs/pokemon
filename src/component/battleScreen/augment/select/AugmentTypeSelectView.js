@@ -13,16 +13,16 @@ const AugmentTypeSelectView = ({
   onSelect,
   onCancel,
 }) => {
-  const isTeraBlast = typeSelectAug?.id === "teraBlast";
+  const isHiddenPower = typeSelectAug?.id === "hiddenPower";
   const isTerastal = typeSelectAug?.id === "terastal";
-  const isAllTypeSelect = isTeraBlast || isTerastal;
+  const isAllTypeSelect = isHiddenPower || isTerastal;
 
   const getSubTitle = () => {
     if (isTerastal) {
       return activePokemon?.name ? `${activePokemon.name}의 테라스탈 타입을 선택해주세요.` : "테라스탈 타입을 선택해주세요.";
     }
-    if (isTeraBlast) {
-      return activePokemon?.name ? `${activePokemon.name}의 테라버스트에 부여할 타입을 선택해주세요.` : "테라버스트의 타입을 선택해주세요.";
+    if (isHiddenPower) {
+      return activePokemon?.name ? `${activePokemon.name}의 잠재파워에 부여할 타입을 선택해주세요.` : "잠재파워의 타입을 선택해주세요.";
     }
     return activePokemon?.name ? `${activePokemon.name}에게 추가할 무효 타입을 선택해주세요.` : "무효화할 타입을 선택해주세요.";
   };
@@ -30,7 +30,7 @@ const AugmentTypeSelectView = ({
   const handleConfirm = (e) => {
     e?.stopPropagation();
     if (!selectedType) return;
-    if (isTeraBlast) {
+    if (isHiddenPower) {
       if (onNext) onNext(selectedType);
     } else {
       if (onSelect) {
@@ -48,7 +48,7 @@ const AugmentTypeSelectView = ({
     <>
       <HeaderArea>
         <HeaderTopRow>
-          <Title>{isTerastal ? "테라스탈 타입 선택" : isTeraBlast ? "테라버스트 타입 선택" : "무효 타입 선택"}</Title>
+          <Title>{isTerastal ? "테라스탈 타입 선택" : isHiddenPower ? "잠재파워 타입 선택" : "무효 타입 선택"}</Title>
           <CloseButton onClick={handleCancel} title="취소">
             ✕
           </CloseButton>
@@ -78,8 +78,8 @@ const AugmentTypeSelectView = ({
                 title={
                   isTerastal
                     ? `${tName} 타입 테라스탈 선택`
-                    : isTeraBlast
-                      ? `${tName} 타입 테라버스트 선택`
+                    : isHiddenPower
+                      ? `${tName} 타입 잠재파워 선택`
                       : isDisabled
                         ? `${tName} 타입은 이미 무효화되어 있습니다`
                         : `${tName} 타입 무효화 선택`
@@ -105,7 +105,7 @@ const AugmentTypeSelectView = ({
           취소
         </ActionButton>
         <ActionButton type="button" $variant="confirm" disabled={!selectedType} onClick={handleConfirm}>
-          {isTeraBlast ? "다음" : isTerastal ? "테라스탈" : "선택"}
+          {isHiddenPower ? "다음" : isTerastal ? "테라스탈" : "선택"}
         </ActionButton>
       </ButtonGroup>
     </>

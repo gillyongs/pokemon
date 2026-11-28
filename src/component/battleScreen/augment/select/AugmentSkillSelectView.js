@@ -21,9 +21,6 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
     if (skillSelectAug?.id === "choiceAndFocus") {
       return "위력을 1.5배로 강화할 기술을 선택해주세요.";
     }
-    if (skillSelectAug?.id === "teraBlast") {
-      return `${selectedType || "노말"} 테라버스트와 교체할 기술을 선택해주세요.`;
-    }
     return "";
   };
 
@@ -43,8 +40,8 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
         originText: specialMoveConfig.effectDesc,
       };
     }
-    if (skillSelectAug?.id === "teraBlast") {
-      const base = skillList.search("테라버스트");
+    if (skillSelectAug?.id === "hiddenPower") {
+      const base = skillList.search("잠재파워");
       return base ? { ...base, type: selectedType || "노말" } : null;
     }
     if (skillSelectAug?.id === "sanctuary") {
@@ -63,7 +60,7 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
   };
 
   const incomingSkill = getIncomingSkill();
-  const incomingType = incomingSkill ? (skillSelectAug?.id === "teraBlast" ? selectedType || "노말" : incomingSkill.type) : null;
+  const incomingType = incomingSkill ? (skillSelectAug?.id === "hiddenPower" ? selectedType || "노말" : incomingSkill.type) : null;
   const incomingEffectText = incomingSkill && incomingType ? getTypeEffectText(battle, activePokemon, incomingSkill, incomingType) || "" : "";
 
   const handleConfirm = (e) => {
