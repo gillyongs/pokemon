@@ -21,6 +21,9 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
     if (skillSelectAug?.id === "choiceAndFocus") {
       return "위력을 1.5배로 강화할 기술을 선택해주세요.";
     }
+    if (skillSelectAug?.id === "terastal") {
+      return `${selectedType} 타입 테라버스트를 획득할 수 있습니다.`;
+    }
     return "";
   };
 
@@ -44,6 +47,10 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
       const base = skillList.search("잠재파워");
       return base ? { ...base, type: selectedType || "노말" } : null;
     }
+    if (skillSelectAug?.id === "terastal") {
+      const base = skillList.search("테라버스트");
+      return base ? { ...base, type: selectedType || "노말" } : null;
+    }
     if (skillSelectAug?.id === "sanctuary") {
       return skillList.search("생츄어리");
     }
@@ -60,7 +67,7 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
   };
 
   const incomingSkill = getIncomingSkill();
-  const incomingType = incomingSkill ? (skillSelectAug?.id === "hiddenPower" ? selectedType || "노말" : incomingSkill.type) : null;
+  const incomingType = incomingSkill ? (skillSelectAug?.id === "hiddenPower" || skillSelectAug?.id === "terastal" ? selectedType || "노말" : incomingSkill.type) : null;
   const incomingEffectText = incomingSkill && incomingType ? getTypeEffectText(battle, activePokemon, incomingSkill, incomingType) || "" : "";
 
   const handleConfirm = (e) => {
@@ -74,6 +81,16 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
       targetPokemon: activePokemon,
       selectedType: selectedType || "노말",
       replacedSkillName: prevSkill?.name || "기존 기술",
+    });
+    setSelectedSlot(null);
+  };
+
+  const handleSkipSkill = (e) => {
+    e?.stopPropagation();
+    onSelect(skillSelectAug, {
+      targetPokemon: activePokemon,
+      selectedType: selectedType || "노말",
+      skipSkillReplace: true,
     });
     setSelectedSlot(null);
   };
@@ -209,6 +226,11 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
         <ActionButton type="button" $variant="confirm" disabled={!selectedSlot} onClick={handleConfirm}>
           {skillSelectAug?.id === "choiceAndFocus" ? "선택" : "교체"}
         </ActionButton>
+        {skillSelectAug?.id === "terastal" && (
+          <SkipTeraButton type="button" onClick={handleSkipSkill}>
+            선택하지 않는다
+          </SkipTeraButton>
+        )}
       </FooterButtonGroup>
     </>
   );
@@ -420,4 +442,26 @@ const SkillDescPlaceholder = styled.div`
 const FooterButtonGroup = styled(ButtonGroup)`
   margin-top: 10px;
   padding-top: 0;
+`;
+
+const SkipTeraButton = styled(ActionButton)`
+  flex: 1.25;
+  padding: 10px 6px;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  border: 1px solid #f87171;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
+
+  &:hover {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    box-shadow: 0 0 16px rgba(248, 113, 113, 0.55);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
 `;

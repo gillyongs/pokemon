@@ -3274,7 +3274,7 @@ export const AUGMENT_LIST = [
   {
     id: "terastal",
     name: "테라스탈",
-    desc: "원하는 타입을 선택해 즉시 테라스탈합니다.\n방어 상성이 선택한 타입으로 바뀌며, 원래 타입과 테라타입 모두 자속 보정을 받습니다.",
+    desc: "원하는 타입으로 테라스탈합니다.",
     screenText: function (target, prevPokeName, options) {
       const chosenType = options?.selectedType || this?.selectedType || target?.teraType || "노말";
       const names = target?.names ? target.names("는") : "포켓몬은";
@@ -3282,8 +3282,12 @@ export const AUGMENT_LIST = [
     },
     logModalText: function (target, prevPokeName, options) {
       const chosenType = options?.selectedType || this?.selectedType || target?.teraType || "노말";
+      const prevSkillName = !options?.skipSkillReplace ? options?.replacedSkillName || this?.replacedSkillName : null;
       const names = target?.names ? target.names("는") : "포켓몬은";
-      return josa(`${names} ${chosenType} 타입으로 테라스탈했다!`);
+      if (prevSkillName) {
+        return josa(`${chosenType} 타입으로 테라스탈 후 ${prevSkillName}#{을} 테라버스트와 교체했다!`);
+      }
+      return josa(`${chosenType} 타입으로 테라스탈했다!`);
     },
     cost: "-",
     weight: 100,
@@ -3298,6 +3302,26 @@ export const AUGMENT_LIST = [
         options.selectedType = chosenType;
       }
       applyTerastal(pokemon, chosenType, battle);
+
+      if (!options?.skipSkillReplace && options?.replaceSlot && pokemon?.skill) {
+        const slot = Number(options.replaceSlot);
+        const prevSkill = pokemon.skill[slot];
+        const prevSkillName = options?.replacedSkillName || prevSkill?.name || "기존 기술";
+        const baseTeraBurst = skillList.search("테라버스트");
+        if (baseTeraBurst) {
+          this.replacedSlot = slot;
+          this.replacedSkillName = prevSkillName;
+          const teraBurst = {
+            ...baseTeraBurst,
+            type: chosenType,
+            skillNumber: slot,
+          };
+          pokemon.skill[slot] = teraBurst;
+          if (pokemon.pp) {
+            pokemon.pp[slot] = teraBurst.pp;
+          }
+        }
+      }
     },
   },
   // 마음의물방울 (라티아스/라티오스 전용 증강)

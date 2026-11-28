@@ -30,7 +30,7 @@ const AugmentTypeSelectView = ({
   const handleConfirm = (e) => {
     e?.stopPropagation();
     if (!selectedType) return;
-    if (isHiddenPower) {
+    if (isHiddenPower || isTerastal) {
       if (onNext) onNext(selectedType);
     } else {
       if (onSelect) {
@@ -105,7 +105,7 @@ const AugmentTypeSelectView = ({
           취소
         </ActionButton>
         <ActionButton type="button" $variant="confirm" disabled={!selectedType} onClick={handleConfirm}>
-          {isHiddenPower ? "다음" : isTerastal ? "테라스탈" : "선택"}
+          {isAllTypeSelect ? "다음" : "선택"}
         </ActionButton>
       </ButtonGroup>
     </>

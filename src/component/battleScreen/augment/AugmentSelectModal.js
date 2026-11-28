@@ -540,7 +540,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
                   setSelectedType(null);
                 }}
                 onBack={() => {
-                  if (skillSelectAug?.id === "hiddenPower") {
+                  if (skillSelectAug?.id === "hiddenPower" || skillSelectAug?.id === "terastal") {
                     setTypeSelectAug(skillSelectAug);
                     setSkillSelectAug(null);
     setSwitchSelectAug(null);
