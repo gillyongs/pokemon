@@ -103,6 +103,9 @@ export function useQueue() {
         if ("hasKnockoutAugmentThisRound" in curBattle) {
           nextItemBattle.hasKnockoutAugmentThisRound = curBattle.hasKnockoutAugmentThisRound;
         }
+        if (curBattle.roundGimmickAugments) {
+          nextItemBattle.roundGimmickAugments = { ...curBattle.roundGimmickAugments };
+        }
         const sourcePlayerTeam = [curBattle.player, curBattle.playerBench1, curBattle.playerBench2];
         const targetPlayerTeam = [nextItemBattle.player, nextItemBattle.playerBench1, nextItemBattle.playerBench2];
         sourcePlayerTeam.forEach((sPoke, pIdx) => {

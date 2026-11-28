@@ -81,10 +81,12 @@ export const itemText = {
   악Z: "배틀 중 1번 강력한 악 Z기술을 사용할 수 있다.",
   강철Z: "배틀 중 1번 강력한 강철 Z기술을 사용할 수 있다.",
   페어리Z: "배틀 중 1번 강력한 페어리 Z기술을 사용할 수 있다.",
+  테라스탈오브: "배틀 중 1번 원하는 타입으로 테라스탈 할 수 있다.",
+  다이버섯: "배틀 중 1번 다이맥스 할 수 있다.",
 };
 
 //탁떨, 트릭 적용 안되는 아이템
-export const noNullItem = ["녹슨검", "녹슨방패", "메타그로스나이트", "리자몽나이트X", "리자몽나이트Y", "라이츄나이트Y", "보만다나이트", "플라이곤나이트", "가디안나이트", "엘레이드나이트", "입치트나이트", "아쿠스타나이트", "대짱이나이트", "마기라스나이트", "무장조나이트", "한카리아스나이트", "한카리아스나이트Z", "드닐레이브나이트", "킬라플로르나이트", "플라엣테나이트", "핫삼나이트", "이어롭나이트", "갑주무사나이트", "개굴닌자나이트", "팬텀나이트", "우츠보트나이트", "갸라도스나이트", "잉어킹나이트", "쪽빛구슬", "주홍구슬", "노말Z", "불꽃Z", "물Z", "전기Z", "풀Z", "얼음Z", "격투Z", "독Z", "땅Z", "비행Z", "에스퍼Z", "벌레Z", "바위Z", "고스트Z", "드래곤Z", "악Z", "강철Z", "페어리Z"];
+export const noNullItem = ["녹슨검", "녹슨방패", "메타그로스나이트", "리자몽나이트X", "리자몽나이트Y", "라이츄나이트Y", "보만다나이트", "플라이곤나이트", "가디안나이트", "엘레이드나이트", "입치트나이트", "아쿠스타나이트", "대짱이나이트", "마기라스나이트", "무장조나이트", "한카리아스나이트", "한카리아스나이트Z", "드닐레이브나이트", "킬라플로르나이트", "플라엣테나이트", "핫삼나이트", "이어롭나이트", "갑주무사나이트", "개굴닌자나이트", "팬텀나이트", "우츠보트나이트", "갸라도스나이트", "잉어킹나이트", "쪽빛구슬", "주홍구슬", "노말Z", "불꽃Z", "물Z", "전기Z", "풀Z", "얼음Z", "격투Z", "독Z", "땅Z", "비행Z", "에스퍼Z", "벌레Z", "바위Z", "고스트Z", "드래곤Z", "악Z", "강철Z", "페어리Z", "테라스탈오브", "다이버섯"];
 
 export const aiItemScore = {
   // 탁떨로 딸궜을때 유용한 정도 가중치
@@ -141,17 +143,43 @@ export const getItemDesc = (itemName, pokemon = null) => {
   if (itemName === "마음의물방울" && pokemon?.hasAugment?.("soulDew")) {
     return "라티아스나 라티오스가 지니게 하면 특공과 특방이 1.5배 상승한다.";
   }
+  if (itemName === "테라스탈오브" && pokemon?.teraType) {
+    return `배틀 중 1번 ${pokemon.teraType} 타입으로 테라스탈 할 수 있다.`;
+  }
   return itemText[itemName] || itemName;
 };
 
 // 메가진화 스톤 여부 판정
 export const isMegaStoneItem = (itemName) => {
-  return itemName.includes("나이트");
+  return Boolean(itemName && itemName.includes("나이트"));
 };
 
 // Z크리스탈 여부 판정
 export const isZCrystalItem = (itemName) => {
-  return itemName.endsWith("Z") && !isMegaStoneItem(itemName);
+  return Boolean(itemName && itemName.endsWith("Z") && !isMegaStoneItem(itemName));
+};
+
+// 테라스탈오브 여부 판정
+export const isTeraOrbItem = (itemName) => {
+  return itemName === "테라스탈오브";
+};
+
+// 다이버섯 여부 판정
+export const isDynamaxBandItem = (itemName) => {
+  return itemName === "다이버섯";
+};
+
+// 메가진화/원시회귀 가능 여부 판정 (보유 스톤·필수 기술·이미 진화 여부 포함)
+export const hasMegaCapability = (pokemon) => {
+  if (!pokemon) return false;
+  if (pokemon.isMega || pokemon.isPrimal) return true;
+  if (isMegaStoneItem(pokemon.item)) return true;
+  const mega = pokemon.megaData || pokemon.o?.megaData;
+  if (!mega) return false;
+  if (mega.requiredSkill) {
+    return [1, 2, 3, 4].some((n) => pokemon.skill?.[n]?.name === mega.requiredSkill);
+  }
+  return Boolean(mega.stone && pokemon.item === mega.stone);
 };
 
 // 아이템 이미지 경로 반환 공통 헬퍼 (일반: item/, 메가스톤: item/mega/, Z크리스탈: item/z/)

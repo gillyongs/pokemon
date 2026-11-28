@@ -55,8 +55,11 @@ class Battle {
       zUsed: { player: false, npc: false }, // 해당 배틀 Z기술 사용 여부
       zTrigger: { player: false, npc: false }, // 해당 턴 Z기술 선택 여부
       teraUsed: { player: false, npc: false }, // 해당 배틀 테라스탈 사용 여부
-      teraTrigger: { player: false, npc: false }, // 해당 턴 테라스탈 선택 여부 (하단 UI 확장용)
+      teraTrigger: { player: false, npc: false }, // 해당 턴 테라스탈 선택 여부
+      dynamaxUsed: { player: false, npc: false }, // 해당 배틀 다이맥스 사용 여부
+      dynamaxTrigger: { player: false, npc: false }, // 해당 턴 다이맥스 선택 여부
     };
+    this.roundGimmickAugments = { terastal: false, dynamax: false }; // 해당 라운드 테라스탈/다이맥스 증강 획득 여부
     this.hasKnockoutAugmentThisRound = false; // 해당 라운드 적 처치 증강 획득 여부 (최대 1회)
 
     this._events = {};

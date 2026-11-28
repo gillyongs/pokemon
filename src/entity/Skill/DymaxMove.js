@@ -1,4 +1,5 @@
 import { josa } from "josa";
+import { hasMegaCapability, isZCrystalItem, isTeraOrbItem } from "../Item";
 
 // 다이맥스 기술 (EX: 다이번) 증강 관련 ==============================================================
 // 다이맥스 기술 증강 목록 생성
@@ -100,8 +101,25 @@ export const isEligibleBaseSkillForMaxMove = (skill, configOrAugId) => {
 
 // 다이맥스 증강 관련 ======================================================================================================
 
+// 현재 포켓몬이 다이맥스를 사용할 수 있는지 판정 (팀당 배틀 1회, 타 기믹 보유/사용 시 제외)
+// 사용처: AugmentData.js, Bottom-Skill.js, battleStart.js
+export const isDynamaxAble = (pokemon, battle = null) => {
+  if (!pokemon || pokemon.faint) return false;
+  if (pokemon.tempStatus?.dynamax > 0) return false;
+  if (battle?.system?.dynamaxUsed?.[pokemon.team]) return false;
+  if (hasMegaCapability(pokemon)) return false;
+  if (isZCrystalItem(pokemon.item) || isTeraOrbItem(pokemon.item)) return false;
+  if (pokemon.isTera) return false;
+  if (pokemon.uniqueKey === "0890-m" || pokemon.isEternamax || pokemon.hasAugment?.("eternamax")) return false;
+  if (pokemon.hasAugment?.("terastalOrb")) return false;
+  if ([1, 2, 3, 4].some((n) => pokemon.skill?.[n]?.feature?.isMaxMove || pokemon.skill?.[n]?.feature?.isZMove)) {
+    return false;
+  }
+  return true;
+};
+
 // 포켓몬을 다이맥스 상태로 전환합니다. (체력 2배, 공격기는 타입별 다이기술로, 변화기는 다이윌로 일시 변환, 3턴 지속)
-export const applyDynamax = (pokemon, turns = 3) => {
+export const applyDynamax = (pokemon, turns = 3, battle = null) => {
   if (!pokemon || pokemon.faint) return false;
   if (!pokemon.tempStatus) pokemon.tempStatus = {};
   if (pokemon.tempStatus.dynamax > 0) return false;
@@ -130,6 +148,16 @@ export const applyDynamax = (pokemon, turns = 3) => {
   if (typeof pokemon.hp === "number" && pokemon.hp > 0) {
     const newMaxHp = pokemon.maxHp;
     pokemon.hp = Math.min(newMaxHp, Math.max(1, Math.round(pokemon.hp * 2)));
+  }
+
+  if (battle?.system && pokemon.team) {
+    if (!battle.system.dynamaxUsed) {
+      battle.system.dynamaxUsed = { player: false, npc: false };
+    }
+    battle.system.dynamaxUsed[pokemon.team] = true;
+    if (battle.system.dynamaxTrigger) {
+      battle.system.dynamaxTrigger[pokemon.team] = false;
+    }
   }
 
   return true;
@@ -163,7 +191,7 @@ export const restoreDynamax = (pokemon) => {
 };
 
 // 선택한 변화기 원본 기술을 기반으로 다이윌(방어) 객체를 생성
-const buildMaxGuardFromSkill = (baseSkill, slot = null) => {
+export const buildMaxGuardFromSkill = (baseSkill, slot = null) => {
   const src = baseSkill?.baseSkillSnapshot || baseSkill || {};
   const pp = typeof src.pp === "number" ? src.pp : 10;
   const effectDesc = "다이맥스 기술을 포함한 상대의 모든 공격을 막는다. 연속으로 쓰면 실패하기 쉽다. (우선도 +4)";
@@ -306,8 +334,8 @@ export const getMaxMoveConfig = (augOrId) => {
 };
 
 // 타입명으로 다이기술 설정을 조회합니다.
-// 사용처: DymaxMove.js (applyDynamax)
-const getMaxMoveConfigByType = (type) => {
+// 사용처: DymaxMove.js (applyDynamax), SkillButton.js
+export const getMaxMoveConfigByType = (type) => {
   if (!type) return null;
   return Object.values(MAX_MOVE_AUGMENT_CONFIGS).find((cfg) => cfg.type === type) || null;
 };

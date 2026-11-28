@@ -12,7 +12,9 @@ import FieldStatusModal, { hasAnyFieldOrStatusActive } from "../../FieldStatusMo
 import styled from "styled-components";
 import { isSkillUsable } from "../../../../service/skillCheck/skillDisableCheck";
 import { getZCrystalByItem, isZMoveAble } from "../../../../entity/Skill/ZMove";
-import { getItemImageSrc } from "../../../../entity/Item";
+import { isTeraAble } from "../../../../entity/Skill/Terastal";
+import { isDynamaxAble } from "../../../../entity/Skill/DymaxMove";
+import { getItemImageSrc, isTeraOrbItem, isDynamaxBandItem } from "../../../../entity/Item";
 import { TYPE_COLORS } from "../../../../entity/TypeData";
 
 const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, battleStartBySkillButton, textSkip, btObj }) => {
@@ -20,6 +22,8 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
   const [fieldOpen, setFieldOpen] = useState(false);
   const [useMega, setUseMega] = useState(false);
   const [useZMove, setUseZMove] = useState(false);
+  const [useTera, setUseTera] = useState(false);
+  const [useDynamax, setUseDynamax] = useState(false);
 
   const curBattle = btObj || battle;
 
@@ -34,15 +38,19 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
     }
   };
 
-  // 1. 다음 라운드 진입, 배틀 변경, 출전 포켓몬 변경 시 메가진화/Z기술 선택 상태 강제 초기화
+  // 1. 다음 라운드 진입, 배틀 변경, 출전 포켓몬 변경 시 기믹 선택 상태 강제 초기화
   useEffect(() => {
     setUseMega(false);
     setUseZMove(false);
+    setUseTera(false);
+    setUseDynamax(false);
     setTriggerFlag("megaTrigger", false);
     setTriggerFlag("zTrigger", false);
+    setTriggerFlag("teraTrigger", false);
+    setTriggerFlag("dynamaxTrigger", false);
   }, [curBattle?.round, curBattle?.player?.uniqueKey, curBattle?.player?.name]);
 
-  // 2. 메가진화 또는 Z기술이 이미 사용된 경우 선택 해제
+  // 2. 메가진화/Z기술/테라스탈/다이맥스가 이미 사용된 경우 선택 해제
   useEffect(() => {
     if (curBattle?.player?.isMega || curBattle?.system?.megaUsed?.player) {
       setUseMega(false);
@@ -57,9 +65,25 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
     }
   }, [curBattle?.system?.zUsed?.player]);
 
+  useEffect(() => {
+    if (curBattle?.player?.isTera || curBattle?.system?.teraUsed?.player) {
+      setUseTera(false);
+      setTriggerFlag("teraTrigger", false);
+    }
+  }, [curBattle?.player?.isTera, curBattle?.system?.teraUsed?.player]);
+
+  useEffect(() => {
+    if (curBattle?.player?.tempStatus?.dynamax > 0 || curBattle?.system?.dynamaxUsed?.player) {
+      setUseDynamax(false);
+      setTriggerFlag("dynamaxTrigger", false);
+    }
+  }, [curBattle?.player?.tempStatus?.dynamax, curBattle?.system?.dynamaxUsed?.player]);
+
   const handleBattleStartBySkillButton = (skillIndex) => {
     setUseMega(false);
     setUseZMove(false);
+    setUseTera(false);
+    setUseDynamax(false);
     battleStartBySkillButton(skillIndex);
   };
 
@@ -68,7 +92,18 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
   const isZMoveAvailable = !isMegaEvolveAble && isZMoveAble(battle.player, battle);
   const zMoveActive = Boolean(isZMoveAvailable && useZMove && curBattle?.system?.zTrigger?.player);
   const zTypeColor = TYPE_COLORS[zCrystal?.type] || "#64ffda";
-  const isAllSkillsDisabled = ![1, 2, 3, 4].some((num) => isSkillUsable(battle.player, num));
+
+  const isTeraAvailable = !isMegaEvolveAble && !isZMoveAvailable && isTeraOrbItem(battle.player?.item) && isTeraAble(battle.player, battle);
+  const teraActive = Boolean(isTeraAvailable && useTera && curBattle?.system?.teraTrigger?.player);
+  const teraType = battle.player?.teraType || battle.player?.o?.teraType || battle.player?.type1 || "노말";
+  const teraTypeColor = TYPE_COLORS[teraType] || "#64ffda";
+
+  const isDynamaxAvailable = !isMegaEvolveAble && !isZMoveAvailable && !isTeraAvailable && isDynamaxBandItem(battle.player?.item) && isDynamaxAble(battle.player, battle);
+  const dynamaxActive = Boolean(isDynamaxAvailable && useDynamax && curBattle?.system?.dynamaxTrigger?.player);
+
+  const isAllSkillsDisabled = dynamaxActive
+    ? ![1, 2, 3, 4].some((num) => Boolean(battle.player?.skill?.[num]) && Number(battle.player?.pp?.[num] || 0) > 0)
+    : ![1, 2, 3, 4].some((num) => isSkillUsable(battle.player, num));
 
   return (
     // prettier-ignore
@@ -89,13 +124,13 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         }}
       />
 
-      <SkillButton battle={battle} skillNumber={1} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} />
+      <SkillButton battle={battle} skillNumber={1} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} />
       
-      <SkillButton battle={battle} skillNumber={2} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} />
+      <SkillButton battle={battle} skillNumber={2} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} />
 
-      <SkillButton battle={battle} skillNumber={3} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} />
+      <SkillButton battle={battle} skillNumber={3} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} />
 
-      <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} />
+      <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} />
 
       {isAllSkillsDisabled && (
         <StruggleButton
@@ -146,14 +181,51 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         </ZMoveButton>
       )}
 
+      {isTeraAvailable && (
+        <TerastalButton
+          $active={teraActive}
+          $typeColor={teraTypeColor}
+          $disabled={!queueObject.queueCheck()}
+          onClick={(e) => {
+            if (!queueObject.queueCheck()) return;
+            e.stopPropagation();
+            const nextVal = !useTera;
+            setUseTera(nextVal);
+            setTriggerFlag("teraTrigger", nextVal);
+          }}>
+          <MegaIcon src={`/pokemon/img/type/${teraType}.svg`} alt={teraType} />
+          <span>테라스탈</span>
+        </TerastalButton>
+      )}
+
+      {isDynamaxAvailable && (
+        <DynamaxButton
+          $active={dynamaxActive}
+          $disabled={!queueObject.queueCheck()}
+          onClick={(e) => {
+            if (!queueObject.queueCheck()) return;
+            e.stopPropagation();
+            const nextVal = !useDynamax;
+            setUseDynamax(nextVal);
+            setTriggerFlag("dynamaxTrigger", nextVal);
+          }}>
+          <MegaIcon src="/pokemon/img/augment/dynamax.png" alt="다이맥스" />
+          <span>다이맥스</span>
+        </DynamaxButton>
+      )}
+
       <SwitchButton
         disabled={!queueObject.queueCheck()}
         onClick={() => {
           if (queueObject.queueCheck()) {
             setUseMega(false);
             setUseZMove(false);
+            setUseTera(false);
+            setUseDynamax(false);
             setTriggerFlag("megaTrigger", false);
             setTriggerFlag("zTrigger", false);
+            setTriggerFlag("teraTrigger", false);
+            setTriggerFlag("dynamaxTrigger", false);
             setText(" 누구로 교체할까?");
             setBottom("switch");
           }
@@ -299,4 +371,12 @@ const ZMoveButton = styled(MegaButton)`
   background: ${({ $active, $typeColor }) => ($active ? $typeColor : "linear-gradient(135deg, rgba(20, 30, 40, 0.85), rgba(0, 0, 0, 0.7))")};
   border: ${({ $active }) => ($active ? "2px solid #ffffff" : "1px solid rgba(255, 255, 255, 0.1)")};
   box-shadow: ${({ $active, $typeColor }) => ($active ? `0 0 14px ${$typeColor}, 0 0 22px rgba(255, 255, 255, 0.35)` : "0 3px 8px rgba(0, 0, 0, 0.35)")};
+`;
+
+const TerastalButton = styled(ZMoveButton)``;
+
+const DynamaxButton = styled(MegaButton)`
+  background: ${({ $active }) => ($active ? "linear-gradient(135deg, #e11d48, #be185d, #9333ea)" : "linear-gradient(135deg, rgba(20, 30, 40, 0.85), rgba(0, 0, 0, 0.7))")};
+  border: ${({ $active }) => ($active ? "2px solid #fda4af" : "1px solid rgba(255, 255, 255, 0.1)")};
+  box-shadow: ${({ $active }) => ($active ? "0 0 14px rgba(244, 63, 94, 0.8), 0 0 22px rgba(251, 113, 133, 0.45)" : "0 3px 8px rgba(0, 0, 0, 0.35)")};
 `;

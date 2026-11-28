@@ -15,9 +15,13 @@ const AugmentTypeSelectView = ({
 }) => {
   const isHiddenPower = typeSelectAug?.id === "hiddenPower";
   const isTerastal = typeSelectAug?.id === "terastal";
-  const isAllTypeSelect = isHiddenPower || isTerastal;
+  const isTeraOrb = typeSelectAug?.id === "terastalOrb";
+  const isAllTypeSelect = isHiddenPower || isTerastal || isTeraOrb;
 
   const getSubTitle = () => {
+    if (isTeraOrb) {
+      return activePokemon?.name ? `${activePokemon.name}의 테라스탈오브에 부여할 테라스탈 타입을 선택해주세요.` : "테라스탈 타입을 선택해주세요.";
+    }
     if (isTerastal) {
       return activePokemon?.name ? `${activePokemon.name}의 테라스탈 타입을 선택해주세요.` : "테라스탈 타입을 선택해주세요.";
     }
@@ -48,7 +52,7 @@ const AugmentTypeSelectView = ({
     <>
       <HeaderArea>
         <HeaderTopRow>
-          <Title>{isTerastal ? "테라스탈 타입 선택" : isHiddenPower ? "잠재파워 타입 선택" : "무효 타입 선택"}</Title>
+          <Title>{isTerastal || isTeraOrb ? "테라스탈 타입 선택" : isHiddenPower ? "잠재파워 타입 선택" : "무효 타입 선택"}</Title>
           <CloseButton onClick={handleCancel} title="취소">
             ✕
           </CloseButton>
@@ -76,7 +80,7 @@ const AugmentTypeSelectView = ({
                   setSelectedType((prev) => (prev === tName ? null : tName));
                 }}
                 title={
-                  isTerastal
+                  isTerastal || isTeraOrb
                     ? `${tName} 타입 테라스탈 선택`
                     : isHiddenPower
                       ? `${tName} 타입 잠재파워 선택`
@@ -105,7 +109,7 @@ const AugmentTypeSelectView = ({
           취소
         </ActionButton>
         <ActionButton type="button" $variant="confirm" disabled={!selectedType} onClick={handleConfirm}>
-          {isAllTypeSelect ? "다음" : "선택"}
+          {isHiddenPower || isTerastal ? "다음" : "선택"}
         </ActionButton>
       </ButtonGroup>
     </>

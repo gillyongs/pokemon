@@ -1,5 +1,5 @@
 import { hpCalculate } from "../../../calc/hpCalculate";
-import { isMegaStoneItem, isZCrystalItem } from "../../Item";
+import { isMegaStoneItem, isZCrystalItem, isTeraOrbItem, isDynamaxBandItem } from "../../Item";
 
 export const PokemonInstanceAccess = {
   // --- 불변 식별자 및 스펙 Getter (외부 직접 o 접근 방지 및 캡슐화) ---
@@ -440,12 +440,13 @@ export const PokemonInstanceAccess = {
   get isGimmik() {
     if (this._isGimmik) return true;
     if (this.isMega || this.isTera) return true;
-    if (isMegaStoneItem(this.item) || isZCrystalItem(this.item)) return true;
+    if (isMegaStoneItem(this.item) || isZCrystalItem(this.item) || isTeraOrbItem(this.item) || isDynamaxBandItem(this.item)) return true;
     const isRayquaza = Boolean(this.dexNo === "0384");
     if (isRayquaza && [1, 2, 3, 4].some((n) => this.skill?.[n]?.name === "화룡점정")) {
       return true;
     }
     if (this.tempStatus?.dynamax > 0) return true;
+    if (this.hasAugment?.("terastalOrb") || this.hasAugment?.("dynamaxBand")) return true;
     if ([1, 2, 3, 4].some((n) => this.skill?.[n]?.feature?.isMaxMove || this.skill?.[n]?.feature?.isZMove)) {
       return true;
     }

@@ -9,7 +9,7 @@ import { PokemonRank } from "./Methods/PokemonRank.js";
 import { PokemonMega } from "./Methods/PokemonMega.js";
 import { PokemonAugment } from "./Methods/PokemonAugment.js";
 import { PokemonInstanceAccess } from "./Methods/PokemonInstanceAccess.js";
-import { isMegaStoneItem, isZCrystalItem } from "../Item.js";
+import { isMegaStoneItem, isZCrystalItem, isTeraOrbItem, isDynamaxBandItem } from "../Item.js";
 
 // 실제 배틀에 사용되는 포켓몬 객체
 // samplePokmon 객체를 받아 현재 체력, 상태이상여부, 기절 여부 등 배틀 중에 바뀌는 가변적인 프로퍼티를 추가한다.
@@ -60,7 +60,7 @@ class PokemonInstance {
 
     const isRayquaza = Boolean(this.o.dexNo === "0384");
     const hasDragonAscent = isRayquaza && [1, 2, 3, 4].some((n) => this.o.skill?.[n]?.name === "화룡점정");
-    this._isGimmik = Boolean(isMegaStoneItem(this.item) || isZCrystalItem(this.item) || hasDragonAscent);
+    this._isGimmik = Boolean(isMegaStoneItem(this.item) || isZCrystalItem(this.item) || isTeraOrbItem(this.item) || isDynamaxBandItem(this.item) || hasDragonAscent);
 
     // instance에서 새로 추가되는 가변값 ===============================================================
 

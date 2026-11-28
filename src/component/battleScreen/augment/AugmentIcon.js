@@ -134,6 +134,32 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
     );
   }
 
+  if (id === "terastalOrb" || id === "dynamaxBand") {
+    const isOrb = id === "terastalOrb";
+    const itemName = isOrb ? "테라스탈오브" : "다이버섯";
+    return (
+      <IconFrame $size={size}>
+        <svg viewBox="0 0 64 64" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id={`gimmickItemClip-${id}`}>
+              <circle cx="32" cy="32" r="29" />
+            </clipPath>
+            <linearGradient id={`gimmickItemRing-${id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={isOrb ? "#22d3ee" : "#e11d48"} />
+              <stop offset="50%" stopColor={isOrb ? "#a855f7" : "#f43f5e"} />
+              <stop offset="100%" stopColor={isOrb ? "#64ffda" : "#fb7185"} />
+            </linearGradient>
+          </defs>
+          <g clipPath={`url(#gimmickItemClip-${id})`}>
+            <circle cx="32" cy="32" r="29" fill={isOrb ? "#0f172a" : "#180a14"} />
+            <image href={getItemImageSrc(itemName)} x="9" y="9" width="46" height="46" preserveAspectRatio="xMidYMid meet" />
+          </g>
+          <circle cx="32" cy="32" r="29.5" fill="none" stroke={`url(#gimmickItemRing-${id})`} strokeWidth="2.2" />
+        </svg>
+      </IconFrame>
+    );
+  }
+
   const zMoveConfig = getZMoveConfig(id);
   if (zMoveConfig) {
     return (

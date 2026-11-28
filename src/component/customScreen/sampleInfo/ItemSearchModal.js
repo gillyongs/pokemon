@@ -214,7 +214,7 @@ const getFavoriteItemsForPokemon = (pokemon) => {
 export const getItemListForPokemon = (pokemon) => {
   // 1. 전용 아이템 (해당 포켓몬인 경우 가장 위에, 그 외엔 나오지 않음)
   const exclusiveForThis = [];
-  const excludedFromAll = new Set();
+  const excludedFromAll = new Set(["테라스탈오브", "다이버섯"]);
 
   for (const [itemName, matcher] of Object.entries(EXCLUSIVE_ITEMS)) {
     const isMatch = typeof matcher === "function" ? matcher(pokemon) : isPokemon(pokemon, matcher);

@@ -1,14 +1,21 @@
 // 테라스탈 관련 코어 로직 (증강 및 추후 하단 UI 트리거 공용)
 
-// 현재 포켓몬이 테라스탈을 사용할 수 있는지 판정 (팀당 배틀 1회, 기믹 중복/다이맥스/무한다이맥스 제외)
-// 사용처: AugmentData.js, 추후 Bottom-Skill.js
+import { isZCrystalItem, isDynamaxBandItem, hasMegaCapability } from "../Item";
+
+// 현재 포켓몬이 테라스탈을 사용할 수 있는지 판정 (팀당 배틀 1회, 타 기믹 보유/사용 시 제외)
+// 사용처: AugmentData.js, Bottom-Skill.js, battleStart.js
 export const isTeraAble = (pokemon, battle = null) => {
   if (!pokemon || pokemon.faint) return false;
   if (pokemon.isTera) return false;
   if (battle?.system?.teraUsed?.[pokemon.team]) return false;
-  if (pokemon.isGimmik) return false;
+  if (hasMegaCapability(pokemon)) return false;
+  if (isZCrystalItem(pokemon.item) || isDynamaxBandItem(pokemon.item)) return false;
   if (pokemon.tempStatus?.dynamax > 0) return false;
-  if (pokemon.uniqueKey === "0890-m") return false;
+  if (pokemon.uniqueKey === "0890-m" || pokemon.isEternamax || pokemon.hasAugment?.("eternamax")) return false;
+  if (pokemon.hasAugment?.("dynamaxBand")) return false;
+  if ([1, 2, 3, 4].some((n) => pokemon.skill?.[n]?.feature?.isMaxMove || pokemon.skill?.[n]?.feature?.isZMove)) {
+    return false;
+  }
   return Boolean(pokemon.teraType || pokemon.type1);
 };
 

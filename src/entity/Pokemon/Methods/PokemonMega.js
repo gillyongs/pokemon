@@ -6,6 +6,7 @@ export const PokemonMega = {
   isMegaEvolveAble(battle) {
     if (this.faint) return false;
     if (this.isMega) return false;
+    if (this.isTera || this.tempStatus?.dynamax > 0) return false;
     if (battle.system?.megaUsed?.[this.team]) return false;
     if (!this.o.megaData) return false;
     if (this.o.megaData.isPrimal) return false; // 원시회귀는 등장 시 자동 발동

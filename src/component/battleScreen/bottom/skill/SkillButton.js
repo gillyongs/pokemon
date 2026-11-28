@@ -6,18 +6,42 @@ import { isNimbleSkill, isChoiceAndFocusSkill, isZeroSumBuffSkill, isZeroSumNerf
 import { getSkillUnusableReason } from "../../../../service/skillCheck/skillDisableCheck";
 import { AugmentIcon } from "../../augment/AugmentIcon";
 import { isEligibleSkillForZCrystal, buildZMoveFromSkill } from "../../../../entity/Skill/ZMove";
+import { buildMaxMoveFromSkill, buildMaxGuardFromSkill, getMaxMoveConfigByType } from "../../../../entity/Skill/DymaxMove";
 import { TYPE_COLORS } from "../../../../entity/TypeData";
 
-const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton, zMoveActive = false, zCrystal = null }) => {
+const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton, zMoveActive = false, zCrystal = null, teraActive = false, teraType = null, dynamaxActive = false }) => {
   let pp = battle.player.pp[skillNumber];
   let skill = battle.player.skill[skillNumber];
   const displayType = skillTypeCalculate(battle, skill, battle.player);
   const enhanceBadges = getSkillEnhanceBadges(battle.player, skill);
-  const isUnusable = Boolean(getSkillUnusableReason(battle.player, skillNumber));
+  const baseUnusableReason = getSkillUnusableReason(battle.player, skillNumber);
+  const unusableReason = dynamaxActive ? (!skill || pp <= 0 ? "해당 기술은 더 이상 사용할 수 없다!" : null) : baseUnusableReason;
+  const isUnusable = Boolean(unusableReason);
   const isZTarget = Boolean(zMoveActive && zCrystal && !isUnusable && isEligibleSkillForZCrystal(skill, zCrystal, battle, battle.player));
   const zMoveSkill = isZTarget ? buildZMoveFromSkill(skill, zCrystal, skillNumber) : null;
-  const shownSkill = zMoveSkill || skill;
-  const zTypeColor = isZTarget ? TYPE_COLORS[zCrystal.type] || "#64ffda" : null;
+
+  let dynamaxMoveSkill = null;
+  if (dynamaxActive && !isUnusable && skill && !skill.feature?.isMaxMove && !skill.feature?.isZMove) {
+    if (skill.stype === "atk" || skill.stype === "catk") {
+      const maxCfg = getMaxMoveConfigByType(displayType);
+      if (maxCfg) {
+        dynamaxMoveSkill = buildMaxMoveFromSkill({ ...skill, type: displayType }, maxCfg, skillNumber);
+      }
+    } else {
+      dynamaxMoveSkill = buildMaxGuardFromSkill(skill, skillNumber);
+    }
+  }
+
+  const isTeraBurstPreview = Boolean(teraActive && !isUnusable && skill?.name === "테라버스트" && teraType);
+  const shownSkill = zMoveSkill || dynamaxMoveSkill || skill;
+  const shownDisplayType = dynamaxMoveSkill ? shownSkill.type : isTeraBurstPreview ? teraType : displayType;
+  const zTypeColor = isZTarget
+    ? TYPE_COLORS[zCrystal.type] || "#64ffda"
+    : dynamaxMoveSkill
+      ? "rgba(225, 29, 72, 0.85)"
+      : isTeraBurstPreview
+        ? TYPE_COLORS[teraType] || null
+        : null;
 
   const sn = getNumberText(skillNumber);
 
@@ -49,7 +73,6 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
       return true;
     };
 
-    const unusableReason = getSkillUnusableReason(player, skillIndex);
     if (unusableReason) return reject(unusableReason);
 
     // 모든 조건 통과 시 전투 시작
@@ -100,7 +123,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
         handleSkillClick(skillNumber);
       }}
     >
-      <ICON src={`/pokemon/img/type/${displayType}.svg`} alt={shownSkill.name} />
+      <ICON src={`/pokemon/img/type/${shownDisplayType}.svg`} alt={shownSkill.name} />
       <NAME skname={shownSkill.name}>{shownSkill.name}</NAME>
       {enhanceBadges.length > 0 && (
         <ENHANCE_BADGES_ROW>
@@ -111,7 +134,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
           ))}
         </ENHANCE_BADGES_ROW>
       )}
-      <EFFECT>{getTypeEffectText(battle, battle.player, skill, displayType)}</EFFECT>
+      <EFFECT>{getTypeEffectText(battle, battle.player, shownSkill, shownDisplayType)}</EFFECT>
       <PP>
         {pp}/{skill.pp}
       </PP>

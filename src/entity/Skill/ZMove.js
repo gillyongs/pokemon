@@ -56,6 +56,8 @@ export const isEligibleSkillForZCrystal = (skill, crystalConfig, battle = null, 
 // 사용처: Bottom-Skill.js
 export const isZMoveAble = (pokemon, battle) => {
   if (!pokemon || pokemon.faint) return false;
+  if (pokemon.isMega || pokemon.isTera) return false;
+  if (pokemon.hasAugment?.("terastalOrb") || pokemon.hasAugment?.("dynamaxBand")) return false;
   if (battle?.system?.zUsed?.[pokemon.team]) return false;
   if (pokemon.tempStatus?.dynamax > 0) return false;
   if (isRayquaza(pokemon)) return false;
@@ -255,7 +257,7 @@ export const getZMoveConfig = (augOrId) => {
 
 // 포켓몬이 이미 Z기술(isZMove)을 보유하고 있는지 판정
 // 사용처: ZMove.js (hasEligibleSkillForZMove)
-const hasZMove = (pokemon) => {
+export const hasZMove = (pokemon) => {
   if (!pokemon?.skill) return false;
   return [1, 2, 3, 4].some((slot) => Boolean(pokemon.skill[slot]?.feature?.isZMove));
 };

@@ -3,6 +3,10 @@ import { turnEnd } from "./turnEnd";
 import { switchNpc, switchPlayer } from "./switch";
 import { skillUse } from "./skillUse";
 import { getZCrystalByItem, isEligibleSkillForZCrystal, isRayquaza, buildZMoveFromSkill } from "../entity/Skill/ZMove";
+import { isTeraAble, applyTerastal } from "../entity/Skill/Terastal";
+import { isDynamaxAble, applyDynamax } from "../entity/Skill/DymaxMove";
+import { isTeraOrbItem, isDynamaxBandItem } from "../entity/Item";
+import { josa } from "josa";
 import { cloneWithMethods } from "../util/cloneWithMethods";
 
 export const battleStart = (battle, actNumber, npcActNumber, queueObject, options = {}) => {
@@ -70,6 +74,28 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
     }
   }
   if (battle.system?.zTrigger) battle.system.zTrigger.player = false;
+
+  // 테라스탈 판정 (테라스탈오브 소지, 배틀 중 1회)
+  const playerTeraTrigger = battle.system?.teraTrigger?.player || options.useTera;
+  if (playerTeraTrigger && isAttack(actNumber) && isTeraOrbItem(battle.player?.item) && isTeraAble(battle.player, battle)) {
+    const chosenType = battle.player.teraType || battle.player.o?.teraType || battle.player.type1 || "노말";
+    enqueue(cloneWithMethods(battle), josa(`${battle.player.names("는")} 테라스탈오브로 빛나기 시작했다!`), "tera_orb_react");
+    applyTerastal(battle.player, chosenType, battle);
+    enqueue(cloneWithMethods(battle), josa(`${battle.player.names("는")} ${chosenType} 타입으로 테라스탈했다!`), "terastal_activate");
+  }
+  if (battle.system?.teraTrigger) battle.system.teraTrigger.player = false;
+
+  // 다이맥스 판정 (다이버섯 소지, 배틀 중 1회, 기술 사용 시 3턴간 다이맥스)
+  const playerDynamaxTrigger = battle.system?.dynamaxTrigger?.player || options.useDynamax;
+  if (playerDynamaxTrigger && isAttack(actNumber) && actNumber >= 1 && actNumber <= 4 && isDynamaxBandItem(battle.player?.item) && isDynamaxAble(battle.player, battle)) {
+    enqueue(cloneWithMethods(battle), josa(`${battle.player.names("는")} 다이버섯의 힘으로 거대해지기 시작했다!`), "dynamax_band_react");
+    applyDynamax(battle.player, 3, battle);
+    if (battle.player.skill?.[actNumber]) {
+      battle.player.turn.useSkill = battle.player.skill[actNumber];
+    }
+    enqueue(cloneWithMethods(battle), `${battle.player.names("는")} 다이맥스했다!`, "dynamax_activate");
+  }
+  if (battle.system?.dynamaxTrigger) battle.system.dynamaxTrigger.player = false;
 
   if (isSwitch(actNumber) && isSwitch(npcActNumber)) {
     //맞교체

@@ -6,9 +6,10 @@ import sampleList from "../Pokemon/pokemonSampleList";
 import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
 import { Skill, isAttackSkill } from "../Skill/Skill";
-import { createMaxMoveAugments, applyDynamax, hasMaxMove } from "../Skill/DymaxMove";
+import { createMaxMoveAugments, applyDynamax, isDynamaxAble } from "../Skill/DymaxMove";
 import { createZMoveAugments } from "../Skill/ZMove";
 import { isTeraAble, applyTerastal } from "../Skill/Terastal";
+import { isTeraOrbItem, isDynamaxBandItem } from "../Item";
 import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
 import { getScoutCandidatePool } from "./scoutCandidates";
 
@@ -3256,18 +3257,23 @@ export const AUGMENT_LIST = [
     },
     cost: "-",
     weight: 100,
-    isEligible: (pokemon, battle) => {
+    isEligible: (pokemon, battle, team) => {
       if (!isBattlePlayerActive(pokemon, battle)) return false;
-      if (pokemon?.isGimmik) return false;
-      if (pokemon?.tempStatus?.dynamax > 0) return false;
-      if (hasMaxMove(pokemon)) return false;
-      if (pokemon?.uniqueKey === "0890-m") return false;
-      if (pokemon?.isMega || (pokemon?.megaData && !pokemon.megaData.isPrimal)) return false;
+      if (!isDynamaxAble(pokemon, battle)) return false;
+      if (isDynamaxBandItem(pokemon?.item) || pokemon?.hasAugment?.("dynamaxBand")) return false;
+      if (battle?.roundGimmickAugments?.dynamax) return false;
+      if (hasTeamGimmickItemOrAugment(pokemon, battle, team, "dynamaxBand", isDynamaxBandItem)) return false;
       return true;
     },
-    onApply: function (pokemon) {
+    onApply: function (pokemon, battle) {
       pokemon.isGimmik = true;
-      applyDynamax(pokemon, 3);
+      applyDynamax(pokemon, 3, battle);
+      if (battle) {
+        if (!battle.roundGimmickAugments) {
+          battle.roundGimmickAugments = { terastal: false, dynamax: false };
+        }
+        battle.roundGimmickAugments.dynamax = true;
+      }
     },
   },
   // 테라스탈 (즉발형 증강 - 선택한 타입으로 즉시 테라스탈)
@@ -3291,9 +3297,13 @@ export const AUGMENT_LIST = [
     },
     cost: "-",
     weight: 100,
-    isEligible: (pokemon, battle) => {
+    isEligible: (pokemon, battle, team) => {
       if (!isBattlePlayerActive(pokemon, battle)) return false;
-      return isTeraAble(pokemon, battle);
+      if (!isTeraAble(pokemon, battle)) return false;
+      if (isTeraOrbItem(pokemon?.item) || pokemon?.hasAugment?.("terastalOrb")) return false;
+      if (battle?.roundGimmickAugments?.terastal) return false;
+      if (hasTeamGimmickItemOrAugment(pokemon, battle, team, "terastalOrb", isTeraOrbItem)) return false;
+      return true;
     },
     onApply: function (pokemon, battle, options) {
       const chosenType = options?.selectedType || pokemon?.teraType || pokemon?.type1 || "노말";
@@ -3302,6 +3312,12 @@ export const AUGMENT_LIST = [
         options.selectedType = chosenType;
       }
       applyTerastal(pokemon, chosenType, battle);
+      if (battle) {
+        if (!battle.roundGimmickAugments) {
+          battle.roundGimmickAugments = { terastal: false, dynamax: false };
+        }
+        battle.roundGimmickAugments.terastal = true;
+      }
 
       if (!options?.skipSkillReplace && options?.replaceSlot && pokemon?.skill) {
         const slot = Number(options.replaceSlot);
@@ -3321,6 +3337,93 @@ export const AUGMENT_LIST = [
             pokemon.pp[slot] = teraBurst.pp;
           }
         }
+      }
+    },
+  },
+  // 테라스탈오브 (지닌 물건 교체 -> 배틀 중 하단 UI로 테라스탈 발동)
+  {
+    id: "terastalOrb",
+    name: "테라스탈오브",
+    desc: "해당 포켓몬의 지닌 물건을 테라스탈오브와 교체합니다. 원하는 타입으로 테라스탈 할 수 있습니다.",
+    screenText: function (target, prevPokeName, options) {
+      return josa(`[증강] ${target.names("는")} 지닌 물건을 테라스탈오브와 교체했다!`);
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const augOnPoke = target?.augments?.find((a) => a.id === "terastalOrb");
+      const chosenType = options?.selectedType || this?.selectedType || augOnPoke?.selectedType || target?.teraType || "노말";
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return `${names} 지닌 물건을 ${chosenType}타입 테라스탈오브와 교체했다!`;
+    },
+    statusModalText: function (pokemon, battle, options) {
+      const augOnPoke = pokemon?.augments?.find((a) => a.id === "terastalOrb");
+      const chosenType = options?.selectedType || this?.selectedType || augOnPoke?.selectedType || pokemon?.teraType;
+      if (chosenType) {
+        return `지닌 물건을 테라스탈오브와 교체합니다. 배틀 중 1번 ${chosenType} 타입으로 테라스탈 할 수 있습니다.`;
+      }
+      return this.desc;
+    },
+    cost: 3,
+    weight: 100,
+    isEligible: (pokemon, battle, team) => {
+      if (!isTeraAble(pokemon, battle)) return false;
+      if (isTeraOrbItem(pokemon?.item) || pokemon?.hasAugment?.("terastalOrb")) return false;
+      if (battle?.roundGimmickAugments?.terastal) return false;
+      if (hasTeamGimmickItemOrAugment(pokemon, battle, team, "terastalOrb", isTeraOrbItem)) return false;
+      return true;
+    },
+    onApply: function (pokemon, battle, options) {
+      const chosenType = options?.selectedType || this?.selectedType || pokemon?.teraType || pokemon?.type1 || "노말";
+      this.selectedType = chosenType;
+      const augOnPoke = pokemon?.augments?.find((a) => a && a.id === "terastalOrb");
+      if (augOnPoke) {
+        augOnPoke.selectedType = chosenType;
+      }
+      if (options && typeof options === "object") {
+        options.selectedType = chosenType;
+      }
+      if (pokemon) {
+        pokemon.teraType = chosenType;
+        pokemon.item = "테라스탈오브";
+      }
+      if (battle) {
+        if (!battle.roundGimmickAugments) {
+          battle.roundGimmickAugments = { terastal: false, dynamax: false };
+        }
+        battle.roundGimmickAugments.terastal = true;
+      }
+    },
+  },
+  // 다이버섯 (지닌 물건 교체 -> 배틀 중 하단 UI로 다이맥스 발동)
+  {
+    id: "dynamaxBand",
+    name: "다이버섯",
+    desc: "해당 포켓몬의 지닌 물건을 다이버섯과 교체합니다.\n배틀 중 한번 다이맥스 할 수 있습니다.",
+    screenText: function (target) {
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return josa(`[증강] ${names} 지닌 물건을 다이버섯#{으로} 교체했다!`);
+    },
+    logModalText: function (target) {
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return josa(`${names} 지닌 물건을 다이버섯#{으로} 교체했다!`);
+    },
+    cost: 3,
+    weight: 100,
+    isEligible: (pokemon, battle, team) => {
+      if (!isDynamaxAble(pokemon, battle)) return false;
+      if (isDynamaxBandItem(pokemon?.item) || pokemon?.hasAugment?.("dynamaxBand")) return false;
+      if (battle?.roundGimmickAugments?.dynamax) return false;
+      if (hasTeamGimmickItemOrAugment(pokemon, battle, team, "dynamaxBand", isDynamaxBandItem)) return false;
+      return true;
+    },
+    onApply: function (pokemon, battle) {
+      if (pokemon) {
+        pokemon.item = "다이버섯";
+      }
+      if (battle) {
+        if (!battle.roundGimmickAugments) {
+          battle.roundGimmickAugments = { terastal: false, dynamax: false };
+        }
+        battle.roundGimmickAugments.dynamax = true;
       }
     },
   },
@@ -3710,6 +3813,9 @@ const MUTUALLY_EXCLUSIVE_AUGMENT_GROUPS = [
 
   // 3. 능력치 전환 증강: 동시에 2개 이상 나오지 않음
   ["swordAndShield", "specialSwordAndShield", "ksante", "hhgghgg"],
+
+  // 4. 테라스탈/다이맥스 기믹 증강: 동일 포켓몬 선택지에 중복 등장 방지
+  ["terastal", "terastalOrb", "dynamax", "dynamaxBand"],
 ];
 
 // O(1) 배타 조회를 위한 맵: { [augId]: Set([배타_증강_ID들]) }
@@ -4330,6 +4436,22 @@ function getTypeDefenseAugmentWeight(pokemon, battle, targetType) {
     w += 50;
   }
   return w;
+}
+
+// 팀 목록 정규화 헬퍼
+function resolveTeamMembers(pokemon, battle, team) {
+  if (Array.isArray(team) && team.length > 0) return team.filter(Boolean);
+  if (battle) {
+    const list = pokemon?.team === "npc" ? [battle.npc, battle.npcBench1, battle.npcBench2] : [battle.player, battle.playerBench1, battle.playerBench2];
+    return list.filter(Boolean);
+  }
+  return pokemon ? [pokemon] : [];
+}
+
+// 팀 내 특정 기믹 증강/아이템 보유 여부 확인
+function hasTeamGimmickItemOrAugment(pokemon, battle, team, augId, itemPredicate) {
+  const members = resolveTeamMembers(pokemon, battle, team);
+  return members.some((p) => p && (p.hasAugment?.(augId) || itemPredicate(p.item)));
 }
 
 // 적에게 화상을 입힐 수 있는 상태인지 확인 (할머니의 고추기름, 태양의 호흡)
