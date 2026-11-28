@@ -3,27 +3,29 @@ import { hasMaxMove } from "./DymaxMove";
 import { skillTypeCalculate } from "../../calc/skillTypeCalculate";
 import { isSkillUsable } from "../../service/skillCheck/skillDisableCheck";
 
+const DEFAULT_Z_EFFECT_DESC = "방어 계열 기술을 깨뜨릴 수 있으며, 그 경우 대미지가 ¼이 된다.";
+
 // Z크리스탈 아이템별 설정 테이블
 // 사용처: ItemSearchModal.js, ZMove.js
 export const Z_CRYSTAL_CONFIGS = {
-  노말Z: { itemName: "노말Z", type: "노말", zMoveId: "breakneckBlitz", moveName: "울트라대시어택", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  불꽃Z: { itemName: "불꽃Z", type: "불꽃", zMoveId: "infernoOverdrive", moveName: "다이내믹풀플레임", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  물Z: { itemName: "물Z", type: "물", zMoveId: "hydroVortex", moveName: "슈퍼아쿠아토네이도", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  전기Z: { itemName: "전기Z", type: "전기", zMoveId: "gigavoltHavoc", moveName: "스파킹기가볼트", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  풀Z: { itemName: "풀Z", type: "풀", zMoveId: "bloomDoom", moveName: "블룸샤인엑스트라", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  얼음Z: { itemName: "얼음Z", type: "얼음", zMoveId: "subzeroSlammer", moveName: "레이징지오프리즈", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  격투Z: { itemName: "격투Z", type: "격투", zMoveId: "allOutPummeling", moveName: "전력무쌍격렬권", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  독Z: { itemName: "독Z", type: "독", zMoveId: "acidDownpour", moveName: "애시드포이즌딜리트", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  땅Z: { itemName: "땅Z", type: "땅", zMoveId: "tectonicRage", moveName: "라이징랜드오버", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  비행Z: { itemName: "비행Z", type: "비행", zMoveId: "supersonicSkystrike", moveName: "파이널다이브클래시", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  에스퍼Z: { itemName: "에스퍼Z", type: "에스퍼", zMoveId: "shatteredPsyche", moveName: "맥시멈사이브레이커", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  벌레Z: { itemName: "벌레Z", type: "벌레", zMoveId: "savageSpinOut", moveName: "절대포식회전참", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  바위Z: { itemName: "바위Z", type: "바위", zMoveId: "continentalCrush", moveName: "월즈엔드폴", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  고스트Z: { itemName: "고스트Z", type: "고스트", zMoveId: "neverEndingNightmare", moveName: "무한암야로의유인", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  드래곤Z: { itemName: "드래곤Z", type: "드래곤", zMoveId: "devastatingDrake", moveName: "얼티메이트드래곤번", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  악Z: { itemName: "악Z", type: "악", zMoveId: "blackHoleEclipse", moveName: "블랙홀이클립스", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  강철Z: { itemName: "강철Z", type: "강철", zMoveId: "corkscrewCrash", moveName: "초월선풍연격", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
-  페어리Z: { itemName: "페어리Z", type: "페어리", zMoveId: "twinkleTackle", moveName: "러블리스타임팩트", effectDesc: "Z파워로 상대를 공격한다.", skillEffect: null },
+  노말Z: { itemName: "노말Z", type: "노말", zMoveId: "breakneckBlitz", moveName: "울트라대시어택", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  불꽃Z: { itemName: "불꽃Z", type: "불꽃", zMoveId: "infernoOverdrive", moveName: "다이내믹풀플레임", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  물Z: { itemName: "물Z", type: "물", zMoveId: "hydroVortex", moveName: "슈퍼아쿠아토네이도", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  전기Z: { itemName: "전기Z", type: "전기", zMoveId: "gigavoltHavoc", moveName: "스파킹기가볼트", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  풀Z: { itemName: "풀Z", type: "풀", zMoveId: "bloomDoom", moveName: "블룸샤인엑스트라", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  얼음Z: { itemName: "얼음Z", type: "얼음", zMoveId: "subzeroSlammer", moveName: "레이징지오프리즈", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  격투Z: { itemName: "격투Z", type: "격투", zMoveId: "allOutPummeling", moveName: "전력무쌍격렬권", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  독Z: { itemName: "독Z", type: "독", zMoveId: "acidDownpour", moveName: "애시드포이즌딜리트", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  땅Z: { itemName: "땅Z", type: "땅", zMoveId: "tectonicRage", moveName: "라이징랜드오버", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  비행Z: { itemName: "비행Z", type: "비행", zMoveId: "supersonicSkystrike", moveName: "파이널다이브클래시", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  에스퍼Z: { itemName: "에스퍼Z", type: "에스퍼", zMoveId: "shatteredPsyche", moveName: "맥시멈사이브레이커", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  벌레Z: { itemName: "벌레Z", type: "벌레", zMoveId: "savageSpinOut", moveName: "절대포식회전참", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  바위Z: { itemName: "바위Z", type: "바위", zMoveId: "continentalCrush", moveName: "월즈엔드폴", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  고스트Z: { itemName: "고스트Z", type: "고스트", zMoveId: "neverEndingNightmare", moveName: "무한암야로의유인", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  드래곤Z: { itemName: "드래곤Z", type: "드래곤", zMoveId: "devastatingDrake", moveName: "얼티메이트드래곤번", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  악Z: { itemName: "악Z", type: "악", zMoveId: "blackHoleEclipse", moveName: "블랙홀이클립스", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  강철Z: { itemName: "강철Z", type: "강철", zMoveId: "corkscrewCrash", moveName: "초월선풍연격", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
+  페어리Z: { itemName: "페어리Z", type: "페어리", zMoveId: "twinkleTackle", moveName: "러블리스타임팩트", effectDesc: DEFAULT_Z_EFFECT_DESC, skillEffect: null },
 };
 
 // 아이템명으로 Z크리스탈 설정 조회
@@ -37,12 +39,7 @@ export const getZCrystalByItem = (itemName) => {
 // 사용처: battleStart.js, ZMove.js (isZMoveAble)
 export const isRayquaza = (pokemon) => {
   if (!pokemon) return false;
-  return Boolean(
-    pokemon.dexNo === "0384" ||
-      pokemon.uniqueKey?.startsWith("0384") ||
-      pokemon.sampleName?.includes("레쿠쟈") ||
-      pokemon.name?.includes("레쿠쟈")
-  );
+  return Boolean(pokemon.dexNo === "0384" || pokemon.uniqueKey?.startsWith("0384") || pokemon.sampleName?.includes("레쿠쟈") || pokemon.name?.includes("레쿠쟈"));
 };
 
 // Z크리스탈로 해당 기술이 Z기술 발동 가능한 공격 기술인지 판정
@@ -207,12 +204,7 @@ export const createZMoveAugments = (renamePokemonSkill) =>
       if (!slot || !pokemon.skill[slot]) return;
 
       const prevSkill = pokemon.skill[slot];
-      const rawPrevName =
-        (targetPrevName && targetPrevName !== config.moveName ? targetPrevName : null) ||
-        prevSkill?.baseSkillSnapshot?.name ||
-        (prevSkill?.originalName && prevSkill.originalName !== config.moveName ? prevSkill.originalName : null) ||
-        (prevSkill?.name && prevSkill.name !== config.moveName ? prevSkill.name : null) ||
-        "기존 기술";
+      const rawPrevName = (targetPrevName && targetPrevName !== config.moveName ? targetPrevName : null) || prevSkill?.baseSkillSnapshot?.name || (prevSkill?.originalName && prevSkill.originalName !== config.moveName ? prevSkill.originalName : null) || (prevSkill?.name && prevSkill.name !== config.moveName ? prevSkill.name : null) || "기존 기술";
 
       const zMoveSkill = buildZMoveFromSkill(prevSkill, config, slot);
       if (prevSkill?.name && prevSkill.name !== config.moveName && typeof renamePokemonSkill === "function") {
@@ -242,7 +234,7 @@ export const createZMoveAugments = (renamePokemonSkill) =>
 // 사용처: ZMove.js (createZMoveAugments)
 const buildZMoveAugmentDesc = (config) => {
   if (!config) return "";
-  return josa(`${config.type} 타입 공격기를 ${config.moveName}#{으로} 변경합니다.\n상대에게 반드시 명중하며 ${config.hitEffectText}\n방어 계열 기술을 관통하며 그 경우 위력이 ¼로 감소합니다.`);
+  return josa(`${config.type} 타입 공격기를 ${config.moveName}#{으로} 변경합니다.\n상대에게 반드시 명중하며 ${config.hitEffectText}\n방어 계열 기술을 깨뜨릴 수 있으며, 그 경우 대미지가 ¼이 된다.`);
 };
 
 // 증강 ID 또는 객체가 Z기술 증강인지 판정
@@ -273,7 +265,7 @@ const Z_MOVE_AUGMENT_CONFIGS = {
     type: "불꽃",
     cost: 5,
     hitEffectText: "강력한 Z파워로 상대를 공격합니다.",
-    effectDesc: "Z파워로 상대를 공격한다.",
+    effectDesc: DEFAULT_Z_EFFECT_DESC,
     skillEffect: null,
   },
 };
