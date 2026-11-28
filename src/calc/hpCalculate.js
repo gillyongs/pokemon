@@ -47,6 +47,12 @@ export const hpCalculate = (pokemon) => {
     logText += ` * 1.5 (태양 만세)`;
   }
 
+  // 다이맥스: 다이맥스 중 최대 HP 2배 증가
+  if (pokemon?.tempStatus?.dynamax > 0) {
+    hp = Math.round(hp * 2.0);
+    logText += ` * 2.0 (다이맥스)`;
+  }
+
   logText += ` = ${hp}`;
   pokemon.log.hpCalculate = logText;
 

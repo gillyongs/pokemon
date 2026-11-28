@@ -1,4 +1,5 @@
 import { checkPassiveEndure } from "../../../service/damage/endure";
+import { restoreDynamax } from "../../Skill/maxMove";
 
 export const PokemonGetDamage = {
   getDamage(battle, enqueue, damageValue, text) {
@@ -59,6 +60,7 @@ export const PokemonGetDamage = {
     this.faint = true;
     // resetTurn은 하지 않는다
     this.resetAilment();
+    restoreDynamax(this);
     this.resetTempStatus();
 
     // 메자이의 영혼약탈자: 기절 시 중첩 1 감소 (스냅샷 반영을 위해 enqueue 직전에 처리)

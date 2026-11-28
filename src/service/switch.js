@@ -2,6 +2,7 @@ import { applyAbilityEffects } from "../entity/Ability";
 import { applyFieldEffects } from "./field";
 import { calculatePokemonSwitchScore } from "../npc/ai/easy";
 import { speedCheck } from "../calc/speedCheck";
+import { restoreDynamax } from "../entity/Skill/maxMove";
 
 const applyAfterYouAugment = (battle, side, leavingPokemon, enqueue) => {
   const incomingPokemon = battle[side];
@@ -229,6 +230,8 @@ export const switchPokemon = (battle, IN, OUT, options = {}, enqueue = null) => 
     // 마그마스톰 등으로 상대를 구속 후 교체하면 구속 효과가 풀린다
     // 물론 상대방은 해당 턴에 교체할 수 없다
   }
+
+  restoreDynamax(pokemonIn);
 
   const ts = pokemonIn.tempStatus;
 

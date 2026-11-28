@@ -136,6 +136,8 @@ class PokemonInstance {
       restAndStrikeReady: null, // [증강 쉬었다 때리기] 다음 턴 공격 데미지 1.5배
       trishulaFrost: 0, // [증강 빙룡창 트리슈라] 서리 중첩
       soak: null, // 물붓기 상태
+      dynamax: null, // 다이맥스 남은 턴
+      dynamaxOriginSkills: null, // 다이맥스 전 원본 기술 백업
     };
     this.img_id = this.o.img_id || null; // 포켓몬 스프라이트만 바꾸고 싶을때 사용 (기기기어르, 1세대 뮤츠)
     this.faint = null; //기절 여부

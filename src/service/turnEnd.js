@@ -2,6 +2,7 @@ import { switchNpcAuto } from "./switch";
 import { speedCheck } from "../calc/speedCheck";
 import { applyAilment } from "./ailment";
 import { isNormalAugment } from "../entity/Augment/AugmentData";
+import { restoreDynamax } from "../entity/Skill/maxMove";
 
 export const turnEnd = (battle, enqueue) => {
   // 턴이 종료될때 실행되는 이벤트 모음
@@ -139,6 +140,20 @@ export const turnEnd = (battle, enqueue) => {
       if (p.tempStatus.rampagingPower === 0 && !p.faint && (p === battle.player || p === battle.npc)) {
         p.tempStatus.rampagingPower = null;
         enqueue(battle, `${p.name}의 폭주가 끝났다!`, "rampaging_power_end");
+      }
+    }
+  });
+
+  // [증강 다이맥스] 턴 종료 시 지속 턴 1 차감 및 종료 시 원래 모습으로 복구
+  [battle[fastUser], battle[slowUser]].forEach((p) => {
+    if (p.tempStatus?.dynamax > 0) {
+      p.tempStatus.dynamax -= 1;
+      if (p.tempStatus.dynamax === 0) {
+        const shouldAnnounce = !p.faint && (p === battle.player || p === battle.npc);
+        restoreDynamax(p);
+        if (shouldAnnounce) {
+          enqueue(battle, `${p.name}의 다이맥스가 풀렸다!`, "dynamax_end");
+        }
       }
     }
   });

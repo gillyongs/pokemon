@@ -6,7 +6,7 @@ import sampleList from "../Pokemon/pokemonSampleList";
 import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
 import { Skill, isAttackSkill } from "../Skill/Skill";
-import { createMaxMoveAugments } from "../Skill/maxMove";
+import { createMaxMoveAugments, applyDynamax } from "../Skill/maxMove";
 import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
 import { getScoutCandidatePool } from "./scoutCandidates";
 
@@ -3234,6 +3234,31 @@ export const AUGMENT_LIST = [
           battle.player.handleFaint?.(battle, options?.enqueue || (() => {}));
         }
       }
+    },
+  },
+  // 다이맥스 (즉발형 증강 - 3턴 동안 체력 2배 및 공격기 다이기술로 변경)
+  {
+    id: "dynamax",
+    name: "다이맥스",
+    desc: "3턴동안 다이맥스하여 체력이 2배가 되고 모든 기술이 강화됩니다.",
+    screenText: function (target) {
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return `[증강] ${names} 다이맥스했다!`;
+    },
+    logModalText: function (target) {
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return `${names} 다이맥스했다!`;
+    },
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon, battle) => {
+      if (!isBattlePlayerActive(pokemon, battle)) return false;
+      if (pokemon?.tempStatus?.dynamax > 0) return false;
+      if (pokemon?.uniqueKey === "0890-m") return false;
+      return true;
+    },
+    onApply: function (pokemon) {
+      applyDynamax(pokemon, 3);
     },
   },
   // 마음의물방울 (라티아스/라티오스 전용 증강)

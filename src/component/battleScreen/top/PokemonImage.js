@@ -15,12 +15,10 @@ const PokemonImage = ({ battle, type }) => {
   const pokemon = type === "npc" ? battle.npc : battle.player;
 
   const isSubstitute = !!pokemon?.tempStatus?.substitute;
-  const isEternamax = !isSubstitute && (pokemon?.uniqueKey === "0890-m");
+  const isEternamax = !isSubstitute && pokemon?.uniqueKey === "0890-m";
+  const isDynamax = !isSubstitute && !isEternamax && pokemon?.tempStatus?.dynamax > 0;
 
-  const activeAilment =
-    !isSubstitute && pokemon?.ailment
-      ? Object.entries(pokemon.ailment).find(([, value]) => value != null)?.[0] || null
-      : null;
+  const activeAilment = !isSubstitute && pokemon?.ailment ? Object.entries(pokemon.ailment).find(([, value]) => value != null)?.[0] || null : null;
 
   const pokeImgId = pokemon.img_id || pokemon.uniqueKey;
   const imageSrc = isSubstitute ? `/pokemon/img/background/substitute_${type === "npc" ? "front" : "back"}.webp` : `/pokemon/img/pokemon/${pokeImgId}.webp`;
@@ -38,15 +36,7 @@ const PokemonImage = ({ battle, type }) => {
           ))}
         </defs>
       </svg>
-      <StyledPokemonImage
-        className={type}
-        src={imageSrc}
-        alt={`${type} Pokemon`}
-        $isSubstitute={isSubstitute}
-        $isEternamax={isEternamax}
-        $ailment={activeAilment}
-        $type={type}
-      />
+      <StyledPokemonImage className={type} src={imageSrc} alt={`${type} Pokemon`} $isSubstitute={isSubstitute} $isEternamax={isEternamax} $isDynamax={isDynamax} $ailment={activeAilment} $type={type} />
     </>
   );
 };
@@ -65,23 +55,41 @@ const breathFlip = keyframes`
   100% { transform: scaleX(-1) translateY(0) scale(1); }
 `;
 
-const StyledPokemonImage = styled.img`
-  width: ${({ $isEternamax }) => ($isEternamax ? "60vw" : "30vw")};
-  height: ${({ $isEternamax }) => ($isEternamax ? "60vw" : "30vw")};
-  max-width: ${({ $isEternamax }) => ($isEternamax ? "240px" : "120px")};
-  max-height: ${({ $isEternamax }) => ($isEternamax ? "240px" : "120px")};
-  position: absolute;
-  filter: ${({ $ailment, $type }) =>
-    $ailment && AILMENT_TINTS[$ailment]
-      ? `url(#ailment-tint-${$type}-${$ailment}) drop-shadow(0 0 5px ${AILMENT_TINTS[$ailment].glow})`
-      : "none"};
-  transition: filter 0.2s ease;
+const getPokemonFilter = ($ailment, $type, $isDynamax) => {
+  const parts = [];
+  if ($ailment && AILMENT_TINTS[$ailment]) {
+    parts.push(`url(#ailment-tint-${$type}-${$ailment})`);
+    if (!$isDynamax) {
+      parts.push(`drop-shadow(0 0 5px ${AILMENT_TINTS[$ailment].glow})`);
+    }
+  }
+  if ($isDynamax) {
+    parts.push("drop-shadow(1.5px 0 0 #ff1e56)", "drop-shadow(-1.5px 0 0 #ff1e56)", "drop-shadow(0 1.5px 0 #ff1e56)", "drop-shadow(0 -1.5px 0 #ff1e56)", "drop-shadow(0 0 8px rgba(255, 20, 80, 0.85))");
+  }
+  return parts.length > 0 ? parts.join(" ") : "none";
+};
 
-  ${({ className, $isSubstitute, $isEternamax }) =>
+const StyledPokemonImage = styled.img`
+  width: ${({ $isEternamax, $isDynamax }) => ($isEternamax ? "60vw" : $isDynamax ? "90vw" : "30vw")};
+  height: ${({ $isEternamax, $isDynamax }) => ($isEternamax ? "60vw" : $isDynamax ? "90vw" : "30vw")};
+  max-width: ${({ $isEternamax, $isDynamax }) => ($isEternamax ? "240px" : $isDynamax ? "360px" : "120px")};
+  max-height: ${({ $isEternamax, $isDynamax }) => ($isEternamax ? "240px" : $isDynamax ? "360px" : "120px")};
+  position: absolute;
+  filter: ${({ $ailment, $type, $isDynamax }) => getPokemonFilter($ailment, $type, $isDynamax)};
+  transition:
+    filter 0.2s ease,
+    width 0.25s ease,
+    height 0.25s ease,
+    right 0.25s ease,
+    top 0.25s ease,
+    left 0.25s ease,
+    bottom 0.25s ease;
+
+  ${({ className, $isSubstitute, $isEternamax, $isDynamax }) =>
     className === "plr"
       ? css`
-          right: ${$isEternamax ? "1vw" : "8.5vw"};
-          top: ${$isEternamax ? "-17vh" : "-3vh"};
+          right: ${$isEternamax ? "1vw" : $isDynamax ? "calc(8.5vw - min(30vw, 120px))" : "8.5vw"};
+          top: ${$isEternamax ? "-17vh" : $isDynamax ? "calc(-3vh - min(60vw, 240px))" : "-3vh"};
           ${!$isSubstitute &&
           css`
             transform: scaleX(-1);
@@ -95,7 +103,7 @@ const StyledPokemonImage = styled.img`
           animation-delay: 0.3s;
         `
       : css`
-          left: ${$isEternamax ? "3vw" : "8.5vw"};
+          left: ${$isEternamax ? "3vw" : $isDynamax ? "calc(8.5vw - min(30vw, 120px))" : "8.5vw"};
           bottom: ${$isEternamax ? "10vh" : "-2vh"};
           animation: ${breath} 3s infinite ease-in-out;
 
