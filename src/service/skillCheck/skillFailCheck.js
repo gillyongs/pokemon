@@ -139,7 +139,7 @@ export const getSkillFailResult = (battle, atk, skill, options = {}) => {
     const isMaxGuard = Boolean(defPokemon.turn?.maxGuard);
     const isUnseenFist = Boolean(atkPokemon.abil?.name === "보이지않는주먹" && skillObj.feature?.touch && atkPokemon.item !== "펀치글러브");
     const isFeint = Boolean(skillObj.feature?.feint);
-    const isMaxMove = Boolean(skillObj.feature?.isMaxMove); // 다이맥스
+    const isMaxMove = Boolean(skillObj.feature?.isMaxMove || skillObj.feature?.isZMove); // 다이맥스 / Z기술
     const isNoProtectSkill = NO_PROTECT_SKILLS.includes(skillObj.name);
 
     if (isMaxGuard || (!isUnseenFist && !isFeint && !isMaxMove && !isNoProtectSkill)) {
