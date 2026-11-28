@@ -863,10 +863,16 @@ export const damageCalculate = (battle, num, ai) => {
     attackPokemon.log.damage2 += " * 1.3 (생구)";
   }
 
-  // 다이기술 방어 관통 (방어/니들가드 중인 대상에게 1/4 위력)
-  if (defensePokemon.turn?.protect === true && skill?.feature?.isMaxMove) {
+  // 다이맥스포: 상대가 다이맥스 중이면 데미지 2배
+  if (skill.name === "다이맥스포" && defensePokemon.tempStatus?.dynamax > 0) {
+    damage *= 2;
+    attackPokemon.log.damage2 += " * 2 (다이맥스포)";
+  }
+
+  // 다이기술 / Z기술 방어 관통 (방어/니들가드 중인 대상에게 1/4 위력)
+  if (defensePokemon.turn?.protect === true && (skill?.feature?.isMaxMove || skill?.feature?.isZMove)) {
     damage *= 0.25;
-    attackPokemon.log.damage2 += " * 0.25 (다이기술 방어 관통)";
+    attackPokemon.log.damage2 += " * 0.25 (방어 관통)";
   }
 
   // [증강] 아케인셰이드 투핸드소드 큐브 잠재능력: 데미지 증가
