@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { abilObject } from "../../../../entity/Ability";
 import { drawScoutCandidates } from "../../../../entity/Augment/scoutCandidates";
-import { getItemDesc } from "../../../../entity/Item";
+import { getItemDesc, getItemImageSrc } from "../../../../entity/Item";
 import TradeInfoModal from "../../TradeInfoModal";
 
 const AugmentScoutView = ({ scoutAug, team, battle, onSelect, onCancel }) => {
@@ -95,7 +95,7 @@ const AugmentScoutView = ({ scoutAug, team, battle, onSelect, onCancel }) => {
         <ItemLabel>지닌물건</ItemLabel>
         <ItemValueRow>
           <ItemIcon
-            src={selectedPokemon.item ? `/pokemon/img/item/${selectedPokemon.item}.webp` : "/pokemon/img/item/null.webp"}
+            src={getItemImageSrc(selectedPokemon.item)}
             alt=""
             onError={(event) => {
               if (!event.currentTarget.src.endsWith("/null.webp")) event.currentTarget.src = "/pokemon/img/item/null.webp";

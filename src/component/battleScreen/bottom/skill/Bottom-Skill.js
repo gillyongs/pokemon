@@ -12,6 +12,7 @@ import FieldStatusModal, { hasAnyFieldOrStatusActive } from "../../FieldStatusMo
 import styled from "styled-components";
 import { isSkillUsable } from "../../../../service/skillCheck/skillDisableCheck";
 import { getZCrystalByItem, isZMoveAble } from "../../../../entity/Skill/ZMove";
+import { getItemImageSrc } from "../../../../entity/Item";
 import { TYPE_COLORS } from "../../../../entity/TypeData";
 
 const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, battleStartBySkillButton, textSkip, btObj }) => {
@@ -140,7 +141,7 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
             setUseZMove(nextVal);
             setTriggerFlag("zTrigger", nextVal);
           }}>
-          <MegaIcon src={`/pokemon/img/item/${zCrystal.itemName}.webp`} alt={zCrystal.itemName} />
+          <MegaIcon src={getItemImageSrc(zCrystal.itemName)} alt={zCrystal.itemName} />
           <span>Z기술</span>
         </ZMoveButton>
       )}

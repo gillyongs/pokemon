@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import sampleList from "../entity/Pokemon/pokemonSampleList";
+import { getItemImageSrc } from "../entity/Item";
 import { defaultOption } from "../config/defaultOption";
 import { gameOptionState } from "../store/recoilState";
 import SampleInfoModal from "../component/customScreen/sampleInfo/SampleInfoModal";
@@ -426,7 +427,7 @@ const CustomScreen = () => {
                       />
                       {pokemonData.item && (
                         <SmallItemImage
-                          src={`/pokemon/img/item/${pokemonData.item}.webp`}
+                          src={getItemImageSrc(pokemonData.item)}
                           alt={pokemonData.item}
                           onError={(e) => {
                             e.target.style.display = "none";
@@ -525,7 +526,7 @@ const CustomScreen = () => {
                   />
                   {pokemon.item && (
                     <SmallItemImage
-                      src={`/pokemon/img/item/${pokemon.item}.webp`}
+                      src={getItemImageSrc(pokemon.item)}
                       alt={pokemon.item}
                       onError={(e) => {
                         e.target.style.display = "none";

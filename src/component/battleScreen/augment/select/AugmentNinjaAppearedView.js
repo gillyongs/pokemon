@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import sampleList from "../../../../entity/Pokemon/pokemonSampleList";
+import { getItemImageSrc } from "../../../../entity/Item";
 import AugmentPokemonPreviewModal from "../AugmentPokemonPreviewModal";
 import { HeaderArea, HeaderTopRow, Title, SubTitleText, CloseButton, ActionButton } from "./selectStyles";
 
@@ -85,7 +86,7 @@ const AugmentNinjaAppearedView = ({ ninjaAppearedAug, activePokemon, onSelect, o
                   }}
                 />
                 <ItemCornerImg
-                  src={`/pokemon/img/item/${opt.item}.webp`}
+                  src={getItemImageSrc(opt.item)}
                   alt={opt.item}
                   title={opt.item}
                   onError={(e) => {

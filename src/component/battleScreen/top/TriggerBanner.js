@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { keyframes, css } from "styled-components";
 import { AugmentIcon } from "../augment/AugmentIcon";
+import { getItemImageSrc } from "../../../entity/Item";
 
 const TriggerBanner = ({ banner }) => {
   if (!banner) return null;
@@ -10,7 +11,7 @@ const TriggerBanner = ({ banner }) => {
   return (
     <BannerWrapper key={`${side}-${category}-${pokemonName}-${name}`} $side={side}>
       <IconBox>
-        {category === "item" && <ItemImg src={`/pokemon/img/item/${itemName}.webp`} alt={name} />}
+        {category === "item" && <ItemImg src={getItemImageSrc(itemName)} alt={name} />}
         {category === "ability" && <PokeImg src={`/pokemon/img/pokemon/${pokeImgId}.webp`} alt={pokemonName} />}
         {category === "augment" && <AugmentIcon id={augmentId} size={36} shiftUp={shiftUp} imageOptions={imageOptions} />}
       </IconBox>

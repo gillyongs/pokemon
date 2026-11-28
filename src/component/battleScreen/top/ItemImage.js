@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { getItemImageSrc } from "../../../entity/Item";
 
 const ItemImage = ({ battle, type }) => {
   // npc는 표시하지 않음
@@ -8,7 +9,7 @@ const ItemImage = ({ battle, type }) => {
   const pokemon = battle.player;
   if (!pokemon?.item) return null;
 
-  const imageSrc = `/pokemon/img/item/${pokemon.item}.webp`;
+  const imageSrc = getItemImageSrc(pokemon.item);
 
   return <StyledItemImage src={imageSrc} alt={`${pokemon.item}`} />;
 };

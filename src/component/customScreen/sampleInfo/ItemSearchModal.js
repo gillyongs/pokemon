@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
-import { itemText } from "../../../entity/Item";
+import { itemText, getItemImageSrc } from "../../../entity/Item";
 import { typeCheck } from "../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
 import { Z_CRYSTAL_CONFIGS } from "../../../entity/Skill/ZMove";
@@ -326,7 +326,7 @@ const ItemSearchModal = ({ pokemon, currentItem, onSelect, onClose }) => {
                 >
                   <ItemImageWrapper>
                     <ItemImage
-                      src={item.name === "없음" ? "/pokemon/img/item/null.webp" : `/pokemon/img/item/${item.name}.webp`}
+                      src={getItemImageSrc(item.name)}
                       alt={item.name}
                       onError={(e) => {
                         e.target.src = "/pokemon/img/item/null.webp";
