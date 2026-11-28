@@ -2,6 +2,8 @@ import { speedCheck, skillSpeedCheck } from "../calc/speedCheck";
 import { turnEnd } from "./turnEnd";
 import { switchNpc, switchPlayer } from "./switch";
 import { skillUse } from "./skillUse";
+import { getZCrystalByItem, isEligibleSkillForZCrystal, isRayquaza, buildZMoveFromSkill } from "../entity/Skill/ZMove";
+import { cloneWithMethods } from "../util/cloneWithMethods";
 
 export const battleStart = (battle, actNumber, npcActNumber, queueObject, options = {}) => {
   // 턴을 시작하는 함수
@@ -27,7 +29,7 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
   if (isAttack(npcActNumber)) battle.npc.turn.useSkill = battle.npc.skill[npcActNumber];
 
   // 메가진화 판정 (기술 사용 시 스피드 판정 전 발동)
-  const playerMegaTrigger = battle.megaTrigger?.player || options.useMega;
+  const playerMegaTrigger = battle.system?.megaTrigger?.player || options.useMega;
   const playerCanMega = Boolean(playerMegaTrigger && isAttack(actNumber) && battle.player.isMegaEvolveAble?.(battle));
   const npcCanMega = Boolean(isAttack(npcActNumber) && battle.npc.isMegaEvolveAble?.(battle));
 
@@ -40,17 +42,39 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
       battle.npc.megaEvolve(battle, enqueue);
       battle.player.megaEvolve(battle, enqueue);
     }
-    if (battle.megaTrigger) {
-      battle.megaTrigger.player = false;
-      battle.megaTrigger.npc = false;
+    if (battle.system?.megaTrigger) {
+      battle.system.megaTrigger.player = false;
+      battle.system.megaTrigger.npc = false;
     }
   } else if (playerCanMega) {
     battle.player.megaEvolve(battle, enqueue);
-    if (battle.megaTrigger) battle.megaTrigger.player = false;
+    if (battle.system?.megaTrigger) battle.system.megaTrigger.player = false;
   } else if (npcCanMega) {
     battle.npc.megaEvolve(battle, enqueue);
-    if (battle.megaTrigger) battle.megaTrigger.npc = false;
+    if (battle.system?.megaTrigger) battle.system.megaTrigger.npc = false;
   }
+
+  // Z기술 판정 (배틀 중 1회 한정, 해당 턴 useSkill을 1회용 Z기술로 교체)
+  const playerZTrigger = battle.system?.zTrigger?.player || options.useZMove;
+  const playerZCrystal = getZCrystalByItem(battle.player?.item);
+  if (
+    playerZTrigger &&
+    isAttack(actNumber) &&
+    !battle.system?.zUsed?.player &&
+    !(battle.player?.tempStatus?.dynamax > 0) &&
+    !isRayquaza(battle.player) &&
+    playerZCrystal
+  ) {
+    const baseSkill = battle.player.skill?.[actNumber];
+    if (isEligibleSkillForZCrystal(baseSkill, playerZCrystal, battle, battle.player)) {
+      if (!battle.system) battle.system = {};
+      if (!battle.system.zUsed) battle.system.zUsed = { player: false, npc: false };
+      battle.system.zUsed.player = true;
+      battle.player.turn.useSkill = buildZMoveFromSkill(baseSkill, playerZCrystal, actNumber);
+      enqueue(cloneWithMethods(battle), `${battle.player.names("는")} Z파워를 해방했다!`, "z_power_activate");
+    }
+  }
+  if (battle.system?.zTrigger) battle.system.zTrigger.player = false;
 
   if (isSwitch(actNumber) && isSwitch(npcActNumber)) {
     //맞교체

@@ -5,16 +5,21 @@ import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { getTypeEffectText } from "../../../../calc/typeEffectCalculate";
 import { isAttackSkill } from "../../../../entity/Skill/Skill";
 import { getMaxMoveConfig, isEligibleBaseSkillForMaxMove, buildMaxMoveFromSkill } from "../../../../entity/Skill/DymaxMove";
+import { getZMoveConfig, isEligibleBaseSkillForZMove, buildZMoveFromSkill } from "../../../../entity/Skill/ZMove";
 import skillList from "../../../../entity/Skill/skillList";
 import { HeaderArea, HeaderTopRow, Title, SubTitleText, CloseButton, ButtonGroup, ActionButton } from "./selectStyles";
 
 const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selectedType, isPeekMode, setIsPeekMode, onSelect, onBack }) => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const maxMoveConfig = getMaxMoveConfig(skillSelectAug);
+  const zMoveConfig = getZMoveConfig(skillSelectAug);
+  const specialMoveConfig = maxMoveConfig || zMoveConfig;
+  const isEligibleSpecialBase = (sk) =>
+    maxMoveConfig ? isEligibleBaseSkillForMaxMove(sk, maxMoveConfig) : zMoveConfig ? isEligibleBaseSkillForZMove(sk, zMoveConfig) : false;
 
   const getSubTitle = () => {
-    if (maxMoveConfig) {
-      return josa(`${maxMoveConfig.moveName}#{으로} 변경할 ${maxMoveConfig.type} 타입 기술을 선택해주세요.`);
+    if (specialMoveConfig) {
+      return josa(`${specialMoveConfig.moveName}#{으로} 변경할 ${specialMoveConfig.type} 타입 기술을 선택해주세요.`);
     }
     if (skillSelectAug?.id === "choiceAndFocus") {
       return "위력을 1.5배로 강화할 공격 기술을 선택해주세요.";
@@ -35,19 +40,21 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
   };
 
   const getIncomingSkill = () => {
-    if (maxMoveConfig) {
+    if (specialMoveConfig) {
       const selectedBase = selectedSlot ? activePokemon?.skill?.[selectedSlot] : null;
-      if (selectedBase && isEligibleBaseSkillForMaxMove(selectedBase, maxMoveConfig)) {
-        return buildMaxMoveFromSkill(selectedBase, maxMoveConfig, selectedSlot);
+      if (selectedBase && isEligibleSpecialBase(selectedBase)) {
+        return maxMoveConfig
+          ? buildMaxMoveFromSkill(selectedBase, maxMoveConfig, selectedSlot)
+          : buildZMoveFromSkill(selectedBase, zMoveConfig, selectedSlot);
       }
       return {
-        name: maxMoveConfig.moveName,
-        type: maxMoveConfig.type,
+        name: specialMoveConfig.moveName,
+        type: specialMoveConfig.type,
         power: "?",
         stype: null,
         pp: "-",
         isPendingMaxMove: true,
-        originText: maxMoveConfig.effectDesc,
+        originText: specialMoveConfig.effectDesc,
       };
     }
     if (skillSelectAug?.id === "teraBlast") {
@@ -116,9 +123,9 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
           const isSelected = selectedSlot === slot;
           const isChoiceAndFocus = skillSelectAug?.id === "choiceAndFocus";
           const isAttack = isAttackSkill(sk);
-          const isDisabled = maxMoveConfig ? !isEligibleBaseSkillForMaxMove(sk, maxMoveConfig) : isChoiceAndFocus && !isAttack;
-          const disabledReason = maxMoveConfig ? "선택불가" : "선택 불가 (변화기)";
-          const skillSubText = maxMoveConfig ? (
+          const isDisabled = specialMoveConfig ? !isEligibleSpecialBase(sk) : isChoiceAndFocus && !isAttack;
+          const disabledReason = specialMoveConfig ? "선택불가" : "선택 불가 (변화기)";
+          const skillSubText = specialMoveConfig ? (
             <>
               위력 {sk.power} <StatDivider>•</StatDivider> {sk.stype === "atk" ? "물리" : "특수"}
             </>
@@ -186,7 +193,7 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
                 </SkillName>
               </SkillTopRow>
               <SkillEffectText>
-                {maxMoveConfig ? (
+                {specialMoveConfig ? (
                   incomingSkill.isPendingMaxMove ? (
                     <></>
                   ) : (

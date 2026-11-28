@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { itemText } from "../../../entity/Item";
 import { typeCheck } from "../../../calc/typeEffectCalculate";
 import { skillTypeCalculate } from "../../../calc/skillTypeCalculate";
+import { Z_CRYSTAL_CONFIGS } from "../../../entity/Skill/ZMove";
 
 const isPokemon = (pokemon, target) => {
   if (!pokemon || !target) return false;
@@ -142,16 +143,11 @@ const getFavoriteItemsForPokemon = (pokemon) => {
     add("통굽부츠");
   }
 
-  // 땅 4배 약점 -> 풍선 (단, 특성이 부유인 경우 제외)
+  // 땅 4배 약점 -> 풍선, 슈케열매 (단, 특성이 부유인 경우 제외)
   const abilities = [pokemon.abil, pokemon.megaData?.abil].filter(Boolean);
   const isGround4x = typeCheck("땅", pokemon.type1, pokemon.type2) === 4 || (pokemon.megaData && typeCheck("땅", pokemon.megaData.type1, pokemon.megaData.type2) === 4);
   if (isGround4x && !abilities.includes("부유")) {
     add("풍선");
-  }
-
-  // 땅 약점(2배 이상) -> 슈케열매 (단, 특성이 부유인 경우 제외)
-  const isGroundWeak = typeCheck("땅", pokemon.type1, pokemon.type2) > 1 || (pokemon.megaData && typeCheck("땅", pokemon.megaData.type1, pokemon.megaData.type2) > 1);
-  if (isGroundWeak && !abilities.includes("부유")) {
     add("슈케열매");
   }
 
@@ -202,6 +198,16 @@ const getFavoriteItemsForPokemon = (pokemon) => {
     add("마음의물방울");
   }
 
+  // Z크리스탈 추천 (포켓몬 타입과 일치하는 타입의 공격기를 보유한 경우, 레쿠쟈는 제외)
+  if (!isPokemon(pokemon, "레쿠쟈")) {
+    Object.entries(Z_CRYSTAL_CONFIGS).forEach(([crystalName, cfg]) => {
+      const hasMatchingAttack = skills.some((sk) => (sk.stype === "atk" || sk.stype === "catk") && skillTypeCalculate(null, sk, pokemon) === cfg.type);
+      if (types.includes(cfg.type) && hasMatchingAttack) {
+        add(crystalName);
+      }
+    });
+  }
+
   return favorites;
 };
 
@@ -219,6 +225,12 @@ export const getItemListForPokemon = (pokemon) => {
     }
   }
 
+  // 레쿠쟈는 모든 Z크리스탈 제외
+  const zCrystalNames = new Set(Object.keys(Z_CRYSTAL_CONFIGS));
+  if (isPokemon(pokemon, "레쿠쟈")) {
+    zCrystalNames.forEach((name) => excludedFromAll.add(name));
+  }
+
   const abilities = [pokemon?.abil, pokemon?.megaData?.abil].filter(Boolean);
   if (abilities.includes("부유")) {
     excludedFromAll.add("풍선");
@@ -231,17 +243,26 @@ export const getItemListForPokemon = (pokemon) => {
   const rawFavorites = getFavoriteItemsForPokemon(pokemon);
   const favoriteItems = rawFavorites.filter((f) => !exclusiveForThis.includes(f) && !excludedFromAll.has(f) && f !== "없음");
 
-  // 3. 일반 아이템 (전용 아이템, 추천 아이템, "없음" 제외)
+  // 3. 일반 아이템 (전용 아이템, 추천 아이템, Z크리스탈, "없음" 제외)
   const allItemNames = Object.keys(itemText);
-  const normalItems = allItemNames.filter((name) => !excludedFromAll.has(name) && !exclusiveForThis.includes(name) && !favoriteItems.includes(name) && name !== "없음");
+  const normalItems = allItemNames.filter((name) => !excludedFromAll.has(name) && !exclusiveForThis.includes(name) && !favoriteItems.includes(name) && !zCrystalNames.has(name) && name !== "없음");
 
-  // 각 그룹 내에서 글자순(가나다순) 정렬
+  // 4. 그 외 Z크리스탈 ("없음" 바로 위에 배치)
+  const zCrystalItems = allItemNames.filter((name) => zCrystalNames.has(name) && !excludedFromAll.has(name) && !exclusiveForThis.includes(name) && !favoriteItems.includes(name));
+
+  // 각 그룹 내에서 글자순(가나다순) 정렬 (추천 그룹 내 Z크리스탈은 가장 마지막에 배치)
   exclusiveForThis.sort((a, b) => a.localeCompare(b, "ko"));
-  favoriteItems.sort((a, b) => a.localeCompare(b, "ko"));
+  favoriteItems.sort((a, b) => {
+    const aIsZ = zCrystalNames.has(a);
+    const bIsZ = zCrystalNames.has(b);
+    if (aIsZ !== bIsZ) return aIsZ ? 1 : -1;
+    return a.localeCompare(b, "ko");
+  });
   normalItems.sort((a, b) => a.localeCompare(b, "ko"));
+  zCrystalItems.sort((a, b) => a.localeCompare(b, "ko"));
 
-  // 조합: 전용 -> 추천 -> 그 외 -> "없음" (무조건 맨 마지막)
-  const orderedNames = [...exclusiveForThis, ...favoriteItems, ...normalItems, "없음"];
+  // 조합: 전용 -> 추천 -> 그 외 -> 비추천 Z크리스탈 -> "없음" (무조건 맨 마지막)
+  const orderedNames = [...exclusiveForThis, ...favoriteItems, ...normalItems, ...zCrystalItems, "없음"];
 
   return orderedNames.map((name) => ({
     name,

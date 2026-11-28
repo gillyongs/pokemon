@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { getMaxMoveConfig } from "../../../entity/Skill/DymaxMove";
+import { getZMoveConfig } from "../../../entity/Skill/ZMove";
 
 // 포켓몬 배틀 UI 스타일에 맞춘 룬 & 심볼 SVG 아이콘 세트 (틸/청록 & 골드 & 슬레이트 네이비 테마)
 // 전용 증강별 포켓몬 도감번호 매핑
@@ -128,6 +129,35 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           />
           <DedicatedRing />
         </DedicatedFrame>
+      </IconFrame>
+    );
+  }
+
+  const zMoveConfig = getZMoveConfig(id);
+  if (zMoveConfig) {
+    return (
+      <IconFrame $size={size}>
+        <svg viewBox="0 0 64 64" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id={`zTypeClip-${id}`}>
+              <circle cx="32" cy="32" r="29" />
+            </clipPath>
+            <linearGradient id={`zRing-${id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#f59e0b" />
+              <stop offset="50%" stopColor="#ef4444" />
+              <stop offset="100%" stopColor="#fde047" />
+            </linearGradient>
+          </defs>
+          <g clipPath={`url(#zTypeClip-${id})`}>
+            <circle cx="32" cy="32" r="29" fill={MAX_MOVE_TYPE_BACKGROUND[zMoveConfig.type] || "#0f172a"} />
+            {/* 업로드된 Z기술 심볼 실루엣 */}
+            <polygon points="32,12 50,24 32,20 14,24" fill="#fde047" opacity="0.95" />
+            <polygon points="18,26 46,26 32,37" fill="#ffffff" opacity="0.95" />
+            <polygon points="18,50 46,50 32,39" fill="#ffffff" opacity="0.95" />
+            <polygon points="18,38 32,28 46,38 32,48" fill="#fb923c" opacity="0.6" />
+          </g>
+          <circle cx="32" cy="32" r="29.5" fill="none" stroke={`url(#zRing-${id})`} strokeWidth="2.2" />
+        </svg>
       </IconFrame>
     );
   }

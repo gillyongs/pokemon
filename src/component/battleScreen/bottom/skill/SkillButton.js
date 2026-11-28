@@ -5,13 +5,19 @@ import { skillTypeCalculate } from "../../../../calc/skillTypeCalculate";
 import { isNimbleSkill, isChoiceAndFocusSkill, isZeroSumBuffSkill, isZeroSumNerfSkill } from "../../../../entity/Augment/AugmentData";
 import { getSkillUnusableReason } from "../../../../service/skillCheck/skillDisableCheck";
 import { AugmentIcon } from "../../augment/AugmentIcon";
+import { isEligibleSkillForZCrystal, buildZMoveFromSkill } from "../../../../entity/Skill/ZMove";
+import { TYPE_COLORS } from "../../../../entity/TypeData";
 
-const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton }) => {
+const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton, zMoveActive = false, zCrystal = null }) => {
   let pp = battle.player.pp[skillNumber];
   let skill = battle.player.skill[skillNumber];
   const displayType = skillTypeCalculate(battle, skill, battle.player);
   const enhanceBadges = getSkillEnhanceBadges(battle.player, skill);
   const isUnusable = Boolean(getSkillUnusableReason(battle.player, skillNumber));
+  const isZTarget = Boolean(zMoveActive && zCrystal && !isUnusable && isEligibleSkillForZCrystal(skill, zCrystal, battle, battle.player));
+  const zMoveSkill = isZTarget ? buildZMoveFromSkill(skill, zCrystal, skillNumber) : null;
+  const shownSkill = zMoveSkill || skill;
+  const zTypeColor = isZTarget ? TYPE_COLORS[zCrystal.type] || "#64ffda" : null;
 
   const sn = getNumberText(skillNumber);
 
@@ -68,7 +74,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
     pressTimer.current = setTimeout(() => {
       if (queueObject.queueCheck()) {
         longPressed.current = true;
-        setText?.(skill.text);
+        setText?.(shownSkill.text);
       }
     }, 500);
   };
@@ -78,6 +84,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
       className={sn}
       $disabled={!queueObject.queueCheck()}
       $isUnusable={isUnusable}
+      $zTypeColor={zTypeColor}
       onPointerDown={handlePressStart}
       onPointerUp={clearPress}
       onPointerLeave={clearPress}
@@ -93,8 +100,8 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
         handleSkillClick(skillNumber);
       }}
     >
-      <ICON src={`/pokemon/img/type/${displayType}.svg`} alt={skill.name} />
-      <NAME skname={skill.name}>{skill.name}</NAME>
+      <ICON src={`/pokemon/img/type/${displayType}.svg`} alt={shownSkill.name} />
+      <NAME skname={shownSkill.name}>{shownSkill.name}</NAME>
       {enhanceBadges.length > 0 && (
         <ENHANCE_BADGES_ROW>
           {enhanceBadges.map((badge) => (
@@ -134,7 +141,13 @@ const SKILL = styled.div`
   width: 47vw;
   height: 13vh;
   border-radius: 5px;
-  background-color: ${({ $isUnusable }) => ($isUnusable ? "rgba(127, 29, 29, 0.78)" : "rgba(0, 0, 0, 0.7)")};
+  background-color: ${({ $isUnusable, $zTypeColor }) => ($zTypeColor ? $zTypeColor : $isUnusable ? "rgba(127, 29, 29, 0.78)" : "rgba(0, 0, 0, 0.7)")};
+  box-shadow: ${({ $zTypeColor }) => ($zTypeColor ? `0 0 12px ${$zTypeColor}` : "none")};
+  border: ${({ $zTypeColor }) => ($zTypeColor ? "1px solid rgba(255, 255, 255, 0.65)" : "none")};
+  box-sizing: border-box;
+  transition:
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;

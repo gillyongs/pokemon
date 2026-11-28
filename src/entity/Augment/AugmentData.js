@@ -7,6 +7,7 @@ import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
 import { Skill, isAttackSkill } from "../Skill/Skill";
 import { createMaxMoveAugments, applyDynamax, hasMaxMove } from "../Skill/DymaxMove";
+import { createZMoveAugments } from "../Skill/ZMove";
 import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
 import { getScoutCandidatePool } from "./scoutCandidates";
 
@@ -1781,6 +1782,9 @@ export const AUGMENT_LIST = [
 
   // 다이 시리즈
   ...createMaxMoveAugments(renamePokemonSkill),
+
+  // Z기술 시리즈
+  ...createZMoveAugments(renamePokemonSkill),
 
   // 포켓몬 교체 증강 ==============================================================================
 

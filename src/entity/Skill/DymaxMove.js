@@ -108,7 +108,7 @@ export const applyDynamax = (pokemon, turns = 3) => {
   if (pokemon.skill) {
     [1, 2, 3, 4].forEach((slot) => {
       const sk = pokemon.skill[slot];
-      if (!sk || sk.feature?.isMaxMove) return;
+      if (!sk || sk.feature?.isMaxMove || sk.feature?.isZMove) return;
       if (sk.stype !== "atk" && sk.stype !== "catk") {
         originSkills[slot] = sk;
         pokemon.skill[slot] = buildMaxGuardFromSkill(sk, slot);
