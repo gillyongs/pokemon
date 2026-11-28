@@ -57,20 +57,15 @@ export const battleStart = (battle, actNumber, npcActNumber, queueObject, option
   // Z기술 판정 (배틀 중 1회 한정, 해당 턴 useSkill을 1회용 Z기술로 교체)
   const playerZTrigger = battle.system?.zTrigger?.player || options.useZMove;
   const playerZCrystal = getZCrystalByItem(battle.player?.item);
-  if (
-    playerZTrigger &&
-    isAttack(actNumber) &&
-    !battle.system?.zUsed?.player &&
-    !(battle.player?.tempStatus?.dynamax > 0) &&
-    !isRayquaza(battle.player) &&
-    playerZCrystal
-  ) {
+  if (playerZTrigger && isAttack(actNumber) && !battle.system?.zUsed?.player && !(battle.player?.tempStatus?.dynamax > 0) && !isRayquaza(battle.player) && playerZCrystal) {
     const baseSkill = battle.player.skill?.[actNumber];
     if (isEligibleSkillForZCrystal(baseSkill, playerZCrystal, battle, battle.player)) {
       if (!battle.system) battle.system = {};
       if (!battle.system.zUsed) battle.system.zUsed = { player: false, npc: false };
       battle.system.zUsed.player = true;
-      battle.player.turn.useSkill = buildZMoveFromSkill(baseSkill, playerZCrystal, actNumber);
+      const zMoveSkill = buildZMoveFromSkill(baseSkill, playerZCrystal, actNumber);
+      zMoveSkill.isOneTimeZCrystalMove = true;
+      battle.player.turn.useSkill = zMoveSkill;
       enqueue(cloneWithMethods(battle), `${battle.player.names("는")} Z파워를 해방했다!`, "z_power_activate");
     }
   }
@@ -162,7 +157,6 @@ function isSwitch(act) {
   if (string === "switch") return true;
   return false;
 }
-
 
 const skillUsePlayer = (bt, actNumber, npcActNumber, enqueue) => {
   // skillUse로 들어가기 전에 넣어야 할 변수를 처리한다

@@ -116,7 +116,7 @@ export const applyOnHitEvents = (battle, enqueue, substitute, isDisguiseHit = fa
     }
   }
 
-  if (defPokemon.abil?.name === "저주받은바디" && !atkPokemon.faint && !atkPokemon.tempStatus.disable && !(atkPokemon.tempStatus?.dynamax > 0) && !useSkill.feature?.isMaxMove && useSkill.name && useSkill.name !== "발버둥") {
+  if (defPokemon.abil?.name === "저주받은바디" && !atkPokemon.faint && !atkPokemon.tempStatus.disable && !(atkPokemon.tempStatus?.dynamax > 0) && useSkill.name && useSkill.name !== "발버둥") {
     if (random(30)) {
       atkPokemon.tempStatus.disable = useSkill.name;
       atkPokemon.tempStatus.disableTurnRemain = 4;

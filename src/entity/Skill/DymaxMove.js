@@ -72,7 +72,7 @@ export const createMaxMoveAugments = (renamePokemonSkill) =>
 // 다이기술 증강 설명 텍스트 생성
 const buildMaxMoveAugmentDesc = (config) => {
   if (!config) return "";
-  return josa(`${config.type} 타입 공격기를 ${config.moveName}#{으로} 변경합니다.\n상대에게 반드시 명중하며 ${config.hitEffectText}\n방어 계열 기술을 관통하며 그 경우 위력이 ¼로 감소합니다.`);
+  return josa(`${config.type} 타입 공격기를 ${config.moveName}#{으로} 강화합니다. 상대에게 반드시 명중하며 ${config.hitEffectText} 방어 계열 기술을 관통하며 그 경우 위력이 ¼로 감소합니다.`);
 };
 
 // 증강 ID 또는 객체가 다이기술 증강인지 판정

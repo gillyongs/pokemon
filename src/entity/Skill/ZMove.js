@@ -236,7 +236,7 @@ export const createZMoveAugments = (renamePokemonSkill) =>
 // 사용처: ZMove.js (createZMoveAugments)
 const buildZMoveAugmentDesc = (config) => {
   if (!config) return "";
-  return josa(`${config.type} 타입 공격기를 ${config.moveName}#{으로} 변경합니다.\n상대에게 반드시 명중하며 ${config.hitEffectText}\n방어 계열 기술을 깨뜨릴 수 있으며, 그 경우 대미지가 ¼이 된다.`);
+  return josa(`${config.type} 타입 공격기를 강력한 Z기술로 강화합니다. 방어 계열 기술을 관통하며 그 경우 위력이 ¼로 감소합니다.`);
 };
 
 // 증강 ID 또는 객체가 Z기술 증강인지 판정
@@ -260,14 +260,15 @@ const hasZMove = (pokemon) => {
   return [1, 2, 3, 4].some((slot) => Boolean(pokemon.skill[slot]?.feature?.isZMove));
 };
 
-const Z_MOVE_AUGMENT_CONFIGS = {
-  infernoOverdrive: {
-    augmentId: "infernoOverdrive",
-    moveName: "다이내믹풀플레임",
-    type: "불꽃",
+const Z_MOVE_AUGMENT_CONFIGS = Object.values(Z_CRYSTAL_CONFIGS).reduce((acc, cfg) => {
+  acc[cfg.zMoveId] = {
+    augmentId: cfg.zMoveId,
+    moveName: cfg.moveName,
+    type: cfg.type,
     cost: 5,
     hitEffectText: "강력한 Z파워로 상대를 공격합니다.",
-    effectDesc: DEFAULT_Z_EFFECT_DESC,
-    skillEffect: null,
-  },
-};
+    effectDesc: cfg.effectDesc,
+    skillEffect: cfg.skillEffect,
+  };
+  return acc;
+}, {});
