@@ -10,6 +10,7 @@ const PokemonInfo = ({ battle, type }) => {
       <NAME>
         <span>{pokemon.baseName}</span>
         {pokemon.isMega && <MegaIcon src="/pokemon/img/background/mega.webp" alt="mega" />}
+        {pokemon.isTera && pokemon.teraType && <TeraIcon src={`/pokemon/img/type/${pokemon.teraType}.svg`} alt={pokemon.teraType} />}
       </NAME>
       {Object.entries(pokemon.ailment).map(([key, value]) =>
         value != null ? (
@@ -45,6 +46,12 @@ const NAME = styled.div`
 `;
 
 const MegaIcon = styled.img`
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
+`;
+
+const TeraIcon = styled.img`
   width: 17px;
   height: 17px;
   object-fit: contain;

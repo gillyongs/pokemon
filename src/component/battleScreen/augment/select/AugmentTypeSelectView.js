@@ -14,8 +14,13 @@ const AugmentTypeSelectView = ({
   onCancel,
 }) => {
   const isTeraBlast = typeSelectAug?.id === "teraBlast";
+  const isTerastal = typeSelectAug?.id === "terastal";
+  const isAllTypeSelect = isTeraBlast || isTerastal;
 
   const getSubTitle = () => {
+    if (isTerastal) {
+      return activePokemon?.name ? `${activePokemon.name}의 테라스탈 타입을 선택해주세요.` : "테라스탈 타입을 선택해주세요.";
+    }
     if (isTeraBlast) {
       return activePokemon?.name ? `${activePokemon.name}의 테라버스트에 부여할 타입을 선택해주세요.` : "테라버스트의 타입을 선택해주세요.";
     }
@@ -43,7 +48,7 @@ const AugmentTypeSelectView = ({
     <>
       <HeaderArea>
         <HeaderTopRow>
-          <Title>{isTeraBlast ? "테라버스트 타입 선택" : "무효 타입 선택"}</Title>
+          <Title>{isTerastal ? "테라스탈 타입 선택" : isTeraBlast ? "테라버스트 타입 선택" : "무효 타입 선택"}</Title>
           <CloseButton onClick={handleCancel} title="취소">
             ✕
           </CloseButton>
@@ -56,7 +61,7 @@ const AugmentTypeSelectView = ({
           {ALL_POKEMON_TYPES.map((tName) => {
             const t1 = activePokemon?.type1;
             const t2 = activePokemon?.type2;
-            const isDisabled = isTeraBlast ? false : Boolean(t1 && isNoEffect(tName, t1, t2));
+            const isDisabled = isAllTypeSelect ? false : Boolean(t1 && isNoEffect(tName, t1, t2));
             const isSelected = selectedType === tName;
             const typeCol = TYPE_COLORS[tName] || "#64ffda";
             return (
@@ -70,7 +75,15 @@ const AugmentTypeSelectView = ({
                   if (isDisabled) return;
                   setSelectedType((prev) => (prev === tName ? null : tName));
                 }}
-                title={isTeraBlast ? `${tName} 타입 테라버스트 선택` : isDisabled ? `${tName} 타입은 이미 무효화되어 있습니다` : `${tName} 타입 무효화 선택`}
+                title={
+                  isTerastal
+                    ? `${tName} 타입 테라스탈 선택`
+                    : isTeraBlast
+                      ? `${tName} 타입 테라버스트 선택`
+                      : isDisabled
+                        ? `${tName} 타입은 이미 무효화되어 있습니다`
+                        : `${tName} 타입 무효화 선택`
+                }
               >
                 <TypeIconImg
                   src={`/pokemon/img/type/${tName}.svg`}
@@ -92,7 +105,7 @@ const AugmentTypeSelectView = ({
           취소
         </ActionButton>
         <ActionButton type="button" $variant="confirm" disabled={!selectedType} onClick={handleConfirm}>
-          {isTeraBlast ? "다음" : "선택"}
+          {isTeraBlast ? "다음" : isTerastal ? "테라스탈" : "선택"}
         </ActionButton>
       </ButtonGroup>
     </>

@@ -149,6 +149,8 @@ class PokemonInstance {
     this.faint = null; //기절 여부
     this.isFirst = false; // 라운드 시작 시 선봉(맨 처음 나오는) 포켓몬 여부
     this.isMega = false; //메가진화 여부
+    this.isTera = false; // 테라스탈 활성화 여부
+    this.teraType = this.o.teraType || this.o.type1 || "노말"; // 테라타입
     this.auto = null; //자동 행동 여부 (역린)
     this.autoSN = null;
     this.charge = null; //충전중 여부 (파워풀허브 없이 충전 기술을 썼을때)
@@ -260,6 +262,11 @@ class PokemonInstance {
   // --- 원본 복원 전용 메서드 ---
   // 메가진화할떄 o.abil이랑 o.type까지 덮어씌우므로 신경 안 써도 됨
   resetType() {
+    if (this.isTera && this.teraType) {
+      this.type1 = this.teraType;
+      this.type2 = null;
+      return;
+    }
     this.type1 = this.o.type1;
     this.type2 = this.o.type2;
   }

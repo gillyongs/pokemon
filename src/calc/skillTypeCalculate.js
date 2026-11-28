@@ -5,6 +5,11 @@ export const skillTypeCalculate = (battle, skill, pokemon = null) => {
 
   let type = skill.originType || skill.type;
 
+  // 테라스탈 상태에서 테라버스트 사용 시 테라타입으로 변환
+  if (pokeObj?.isTera && skill.name === "테라버스트") {
+    return pokeObj.teraType || pokeObj.type1 || type;
+  }
+
   // 웨더볼: 날씨가 있는 경우 날씨에 따라 타입 결정
   if (skill.name === "웨더볼") {
     if (battle?.isSunny) return "불꽃";

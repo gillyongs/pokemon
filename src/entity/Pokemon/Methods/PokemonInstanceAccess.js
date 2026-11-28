@@ -439,7 +439,7 @@ export const PokemonInstanceAccess = {
   // 배틀 기믹(메가진화 / Z기술 / 다이맥스 / 테라스탈 등) 보유·사용 여부
   get isGimmik() {
     if (this._isGimmik) return true;
-    if (this.isMega) return true;
+    if (this.isMega || this.isTera) return true;
     if (isMegaStoneItem(this.item) || isZCrystalItem(this.item)) return true;
     const isRayquaza = Boolean(this.dexNo === "0384");
     if (isRayquaza && [1, 2, 3, 4].some((n) => this.skill?.[n]?.name === "화룡점정")) {

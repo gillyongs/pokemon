@@ -6,6 +6,7 @@ import { speedCheck, speedCalculate } from "./speedCheck";
 import { skillTypeCalculate } from "./skillTypeCalculate";
 import { consoleLog } from "../util/consoleLog";
 import { getAugmentedStat } from "./getStat";
+import { getStabMultiplier } from "../entity/Skill/Terastal";
 
 // 3. atk랑 catk중 더 높은 값 구하는 공통함수 (테라버스트, 파괴광선 등)
 export const getHigherAtkStat = (atkVal, catkVal) => {
@@ -822,14 +823,10 @@ export const damageCalculate = (battle, num, ai) => {
   attackPokemon.log.damage2 = damage;
 
   // 자속보정 ===============================================================
-  if (skill.name !== "발버둥" && (skill.type === attackPokemon.type1 || skill.type === attackPokemon.type2)) {
-    if (atkAbil === "적응력") {
-      damage *= 2;
-      attackPokemon.log.damage2 += " * 2 (자속보정+적응력)";
-    } else {
-      damage *= 1.5;
-      attackPokemon.log.damage2 += " * 1.5 (자속보정)";
-    }
+  const stab = getStabMultiplier(skill, attackPokemon, atkAbil);
+  if (stab.multiplier > 1) {
+    damage *= stab.multiplier;
+    attackPokemon.log.damage2 += ` * ${stab.multiplier} (${stab.label})`;
   }
 
   // 상성보정 ================================================================

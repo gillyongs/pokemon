@@ -8,6 +8,7 @@ import skillList from "../Skill/skillList";
 import { Skill, isAttackSkill } from "../Skill/Skill";
 import { createMaxMoveAugments, applyDynamax, hasMaxMove } from "../Skill/DymaxMove";
 import { createZMoveAugments } from "../Skill/ZMove";
+import { isTeraAble, applyTerastal } from "../Skill/Terastal";
 import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
 import { getScoutCandidatePool } from "./scoutCandidates";
 
@@ -3267,6 +3268,36 @@ export const AUGMENT_LIST = [
     onApply: function (pokemon) {
       pokemon.isGimmik = true;
       applyDynamax(pokemon, 3);
+    },
+  },
+  // 테라스탈 (즉발형 증강 - 선택한 타입으로 즉시 테라스탈)
+  {
+    id: "terastal",
+    name: "테라스탈",
+    desc: "원하는 타입을 선택해 즉시 테라스탈합니다.\n방어 상성이 선택한 타입으로 바뀌며, 원래 타입과 테라타입 모두 자속 보정을 받습니다.",
+    screenText: function (target, prevPokeName, options) {
+      const chosenType = options?.selectedType || this?.selectedType || target?.teraType || "노말";
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return josa(`[증강] ${names} ${chosenType} 타입으로 테라스탈했다!`);
+    },
+    logModalText: function (target, prevPokeName, options) {
+      const chosenType = options?.selectedType || this?.selectedType || target?.teraType || "노말";
+      const names = target?.names ? target.names("는") : "포켓몬은";
+      return josa(`${names} ${chosenType} 타입으로 테라스탈했다!`);
+    },
+    cost: "-",
+    weight: 100,
+    isEligible: (pokemon, battle) => {
+      if (!isBattlePlayerActive(pokemon, battle)) return false;
+      return isTeraAble(pokemon, battle);
+    },
+    onApply: function (pokemon, battle, options) {
+      const chosenType = options?.selectedType || pokemon?.teraType || pokemon?.type1 || "노말";
+      this.selectedType = chosenType;
+      if (options && typeof options === "object") {
+        options.selectedType = chosenType;
+      }
+      applyTerastal(pokemon, chosenType, battle);
     },
   },
   // 마음의물방울 (라티아스/라티오스 전용 증강)

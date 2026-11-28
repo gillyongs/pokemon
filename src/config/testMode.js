@@ -2,7 +2,7 @@
 export let testmode = true;
 export let selectedNpcAct = null;
 export const testValue = {
-  searchAugmentWord: "다이맥스",
+  searchAugmentWord: "테라",
 };
 
 const listeners = new Set();

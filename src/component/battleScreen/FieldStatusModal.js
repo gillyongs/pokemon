@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { TYPE_COLORS } from "../../entity/TypeData";
 
 const STAT_LABEL_MAP = {
   atk: "공격",
@@ -160,6 +161,15 @@ const extractPokemonStatuses = (pokemon, isNpc = false) => {
   const ts = pokemon.tempStatus || {};
   const hasAugment = (augId) => Boolean(pokemon.hasAugment?.(augId) || pokemon.augments?.some((a) => (typeof a === "string" ? a : a?.id) === augId));
 
+  if (pokemon.isTera) {
+    effects.push({
+      name: "테라스탈",
+      badge: pokemon.teraType,
+      desc: `방어 상성이 ${pokemon.teraType} 단일 타입으로 변경되었습니다. (원래 타입과 테라타입 모두 자속 보정 적용)`,
+      tone: "positive",
+      customColor: TYPE_COLORS[pokemon.teraType] || null,
+    });
+  }
   if (ts.dynamax > 0) {
     effects.push({
       name: "다이맥스",
@@ -498,7 +508,7 @@ const FieldStatusModal = ({ battle, onClose }) => {
                 const isSelected = selectedInfo?.id === efId;
                 const titleText = `${pokemon.baseName} · ${ef.name}`;
                 return (
-                  <EffectItem key={efId} $tone={ef.tone} $selected={isSelected} onClick={() => handleSelect(efId, titleText, ef.desc)}>
+                  <EffectItem key={efId} $tone={ef.tone} $customColor={ef.customColor} $selected={isSelected} onClick={() => handleSelect(efId, titleText, ef.desc)}>
                     <EffectName>{ef.name}</EffectName>
                     {ef.badge && <EffectDetail $tone={ef.tone}>{ef.badge}</EffectDetail>}
                   </EffectItem>
@@ -922,8 +932,8 @@ const EffectItem = styled.div`
   border-radius: 6px;
   cursor: pointer;
   user-select: none;
-  background: ${({ $tone }) => getToneColors($tone).bg};
-  border: 1px solid ${({ $tone, $selected }) => ($selected ? "#64ffda" : getToneColors($tone).border)};
+  background: ${({ $tone, $customColor }) => ($customColor ? $customColor : getToneColors($tone).bg)};
+  border: 1px solid ${({ $tone, $selected, $customColor }) => ($selected ? "#64ffda" : $customColor ? "rgba(255, 255, 255, 0.45)" : getToneColors($tone).border)};
   box-shadow: ${({ $selected }) => ($selected ? "0 0 8px rgba(100, 255, 218, 0.4)" : "none")};
   transition: all 0.15s ease;
 `;

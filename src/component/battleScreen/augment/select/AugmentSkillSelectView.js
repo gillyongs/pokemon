@@ -179,13 +179,10 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
               <SkillEffectText>
                 {specialMoveConfig ? (
                   incomingSkill.isPendingMaxMove ? (
-                    incomingEffectText || <></>
+                    <></>
                   ) : (
                     <>
-                      <div>
-                        위력 {incomingSkill.power} <StatDivider>•</StatDivider> {incomingSkill.stype === "atk" ? "물리" : "특수"}
-                      </div>
-                      {incomingEffectText && <div>{incomingEffectText}</div>}
+                      위력 {incomingSkill.power} <StatDivider>•</StatDivider> {incomingSkill.stype === "atk" ? "물리" : "특수"}
                     </>
                   )
                 ) : (
@@ -360,7 +357,7 @@ const SkillTypeIcon = styled.img`
 const SkillName = styled.span`
   flex: 1;
   min-width: 0;
-  font-size: ${({ $len }) => ($len >= 7 ? "0.78rem" : $len >= 6 ? "0.84rem" : "0.95rem")};
+  font-size: ${({ $len }) => ($len >= 9 ? "0.68rem" : $len >= 7 ? "0.78rem" : $len >= 6 ? "0.84rem" : "0.95rem")};
   font-weight: 700;
   color: #ffffff;
   white-space: nowrap;

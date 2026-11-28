@@ -292,7 +292,7 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
       return;
     }
 
-    if (targetAug.id === "teraBlast") {
+    if (targetAug.id === "teraBlast" || targetAug.id === "terastal") {
       setTypeSelectAug(targetAug);
       setSelectedType(null);
       return;

@@ -3058,8 +3058,8 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </g>
         )}
 
-        {/* 14. 테라버스트 (업로드 원본 이미지와 100% 동일 형태 + 원본 민트/에메랄드 단색) */}
-        {id === "teraBlast" && (
+        {/* 14. 테라버스트 / 테라스탈 (동일 테라스탈 6각성 결정 아이콘) */}
+        {(id === "teraBlast" || id === "terastal") && (
           <g>
             {/* 1. 테라스탈 6각성 메인 바디 (외곽 18포인트 6각 숄더 + 6각 스파이크 - 내부 세로 6각 홀) */}
             <path
