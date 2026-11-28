@@ -135,7 +135,8 @@ export const applyDynamax = (pokemon, turns = 3) => {
 // 포켓몬의 다이맥스 상태를 해제하고 원본 기술 및 체력 비율을 복구합니다.
 // 사용처: PokemonGetDamage.js, switch.js, turnEnd.js
 export const restoreDynamax = (pokemon) => {
-  const wasDynamax = pokemon.tempStatus.dynamax > 0;
+  if (!pokemon?.tempStatus) return false;
+  const wasDynamax = pokemon.tempStatus.dynamax != null || Boolean(pokemon.tempStatus.dynamaxOriginSkills);
   if (!wasDynamax) return false;
 
   const originSkills = pokemon.tempStatus.dynamaxOriginSkills;

@@ -195,7 +195,21 @@ export const getSkillFailResult = (battle, atk, skill, options = {}) => {
     };
   }
 
-  // 7. 특성 옹골참에 일격기가 막힌 경우
+  // 7. 다이맥스 대상 일격기 / 무게 비례 기술 면역
+  if (defPokemon.tempStatus?.dynamax > 0 && skillObj.feature?.oneShot) {
+    return {
+      text: `${defPokemon.name}에겐 효과가 없는 것 같다...`,
+      code: "chk_dynamax_oneshot_immune",
+    };
+  }
+  if (defPokemon.tempStatus?.dynamax > 0 && skillObj.feature?.weight) {
+    return {
+      text: "하지만 실패했다!",
+      code: "chk_dynamax_weight_fail",
+    };
+  }
+
+  // 7-1. 특성 옹골참에 일격기가 막힌 경우
   if (skillObj.feature?.oneShot && defPokemon.abil?.name === "옹골참" && !moldBreaker) {
     return {
       text: `[특성 옹골참] ${defPokemon.name}에겐 효과가 없는 것 같다...`,
@@ -262,7 +276,7 @@ export const getSkillFailResult = (battle, atk, skill, options = {}) => {
   if (skillObj.name === "초승달춤" && !hasAliveBench(battle, atkSide)) {
     return { text: "하지만 실패했다!", code: "field_lunar_dance_fail" };
   }
-  if (["날려버리기", "울부짖기"].includes(skillObj.name) && !hasAliveBench(battle, defSide)) {
+  if (["날려버리기", "울부짖기"].includes(skillObj.name) && (!hasAliveBench(battle, defSide) || defPokemon.tempStatus?.dynamax > 0)) {
     return { text: "하지만 실패했다!", code: "eff_force_switch_fail" };
   }
 

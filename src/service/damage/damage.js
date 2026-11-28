@@ -210,9 +210,9 @@ export function attackDamage(battle, enqueue, num) {
         enqueue(battle, (commonText || "") + defPokemon.name + "에게 데미지를 주었다!", "dmg_serial_ko_default");
       }
     }
-    // 길동무
+    // 길동무 (다이맥스 포켓몬 또는 다이기술에 의한 기절에는 발동하지 않음)
     // handleFaint에서 tempStatus가 초기화되므로 faint 처리 전에 battle.turn에 기록 (발동은 SkillEffect 공통에서 처리)
-    if (defPokemon.tempStatus?.destinyBond && !atkPokemon.faint && battle?.turn) {
+    if (defPokemon.tempStatus?.destinyBond && !atkPokemon.faint && !(atkPokemon.tempStatus?.dynamax > 0) && !useSkill?.feature?.isMaxMove && battle?.turn) {
       battle.turn.destinyBondUser = defPokemon.names("는");
     }
 

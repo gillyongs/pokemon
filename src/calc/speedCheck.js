@@ -38,7 +38,7 @@ export const speedCalculate = (pokemon, baseSpeed = null, battle = null, abil = 
     speed *= 0.5;
     pokemon.log.speedCalc += " * 0.5 (마비)";
   }
-  if (pokemon.item === "구애스카프") {
+  if (pokemon.item === "구애스카프" && !(pokemon.tempStatus?.dynamax > 0)) {
     speed *= 1.5;
     pokemon.log.speedCalc += " * 1.5 (구애스카프)";
   }

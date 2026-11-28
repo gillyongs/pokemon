@@ -9,11 +9,13 @@ export const getSkillUnusableReason = (pokemon, skillIndex) => {
     return "해당 기술은 더 이상 사용할 수 없다!";
   }
 
-  // 구애 시리즈 또는 무아지경으로 인해 사용 가능한 스킬이 고정된 경우
+  const isDynamax = pokemon.tempStatus?.dynamax > 0;
+
+  // 구애 시리즈 또는 무아지경으로 인해 사용 가능한 스킬이 고정된 경우 (다이맥스 중에는 무효)
   const { onlySkill } = pokemon.tempStatus || {};
   const hasUnbound = pokemon.hasAugment?.("unboundChoice");
-  const isChoiceLocked = Boolean(pokemon.item?.startsWith("구애") && !hasUnbound);
-  const isGorillaLocked = Boolean(pokemon.abil?.name === "무아지경" && !hasUnbound);
+  const isChoiceLocked = Boolean(pokemon.item?.startsWith("구애") && !hasUnbound && !isDynamax);
+  const isGorillaLocked = Boolean(pokemon.abil?.name === "무아지경" && !hasUnbound && !isDynamax);
   if (onlySkill && (isChoiceLocked || isGorillaLocked) && onlySkill !== skill.name) {
     const lockSource = isGorillaLocked ? "특성 무아지경" : pokemon.item;
     return `${lockSource} 효과로 인해 해당 기술은 사용할 수 없다!`;
@@ -25,13 +27,13 @@ export const getSkillUnusableReason = (pokemon, skillIndex) => {
     return "해당 기술은 연속으로 사용할 수 없다!";
   }
 
-  // 돌격조끼 입고 변화기 사용
-  if (pokemon.item === "돌격조끼" && (skill.stype === "natk" || skill.stype === "buf")) {
+  // 돌격조끼 입고 변화기 사용 (다이맥스 중 다이윌은 사용 가능)
+  if (pokemon.item === "돌격조끼" && (skill.stype === "natk" || skill.stype === "buf") && !skill.feature?.maxGuard) {
     return `${pokemon.names("는")} 돌격조끼 때문에 변화기를 사용할 수 없다!`;
   }
 
-  // 도발 상태에서 변화기 사용
-  if (pokemon.tempStatus?.taunt !== null && (skill.stype === "natk" || skill.stype === "buf")) {
+  // 도발 상태에서 변화기 사용 (다이맥스 중 다이윌은 사용 가능)
+  if (pokemon.tempStatus?.taunt !== null && (skill.stype === "natk" || skill.stype === "buf") && !skill.feature?.maxGuard) {
     return `${pokemon.names("는")} 도발 때문에 변화기를 사용할 수 없다!`;
   }
 
@@ -45,8 +47,8 @@ export const getSkillUnusableReason = (pokemon, skillIndex) => {
     return `${pokemon.names("는")} 회복 봉인 효과로 회복 기술을 사용할 수 없다!`;
   }
 
-  // 사슬묶기/저주받은바디로 봉인된 기술 사용
-  if (pokemon.tempStatus?.disable && pokemon.tempStatus.disable === skill.name) {
+  // 사슬묶기/저주받은바디로 봉인된 기술 사용 (다이맥스 중에는 무시)
+  if (!isDynamax && pokemon.tempStatus?.disable && pokemon.tempStatus.disable === skill.name) {
     return "해당 기술은 봉인되어 사용할 수 없다!";
   }
 
@@ -64,9 +66,11 @@ export const checkSkillDisabled = (bt, enqueue, atkPokemon = null, skillObj = nu
   const skill = skillObj || atk?.turn?.useSkill;
   if (!atk || !skill) return true;
 
-  // 상대 선도발을 맞고 변화기를 쓴 경우
+  const isDynamax = atk.tempStatus?.dynamax > 0;
+
+  // 상대 선도발을 맞고 변화기를 쓴 경우 (다이윌 제외)
   if (atk.tempStatus?.taunt !== null) {
-    if (skill.stype === "buf" || skill.stype === "natk") {
+    if ((skill.stype === "buf" || skill.stype === "natk") && !skill.feature?.maxGuard) {
       enqueue(bt, atk.names("는") + " 도발당한 상태라서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!", "chk_taunt_block");
       return false;
     }
@@ -84,8 +88,8 @@ export const checkSkillDisabled = (bt, enqueue, atkPokemon = null, skillObj = nu
     return false;
   }
 
-  // 사슬묶기로 봉인된 기술을 쓴 경우
-  if (atk.tempStatus?.disable && atk.tempStatus.disable === skill.name) {
+  // 사슬묶기로 봉인된 기술을 쓴 경우 (다이맥스 중에는 무시)
+  if (!isDynamax && atk.tempStatus?.disable && atk.tempStatus.disable === skill.name) {
     enqueue(bt, atk.names("는") + " 기술이 봉인되어 있어서 " + josa(`${skill.name}#{를} `) + "쓸 수 없다!", "chk_disable_block");
     return false;
   }

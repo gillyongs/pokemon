@@ -52,10 +52,11 @@ export const skillUse = (bt, enqueue) => {
       }
     }
 
-    // 구애 스킬 고정 처리 (구애 시리즈 또는 무아지경)
+    // 구애 스킬 고정 처리 (구애 시리즈 또는 무아지경, 다이맥스 중에는 무효)
     const hasUnbound = atk.hasAugment?.("unboundChoice");
-    const isChoiceItem = (atk.item === "구애스카프" || atk.item === "구애머리띠" || atk.item === "구애안경") && !hasUnbound;
-    const isGorillaTactics = atk.abil?.name === "무아지경" && !hasUnbound;
+    const isDynamax = atk.tempStatus?.dynamax > 0;
+    const isChoiceItem = (atk.item === "구애스카프" || atk.item === "구애머리띠" || atk.item === "구애안경") && !hasUnbound && !isDynamax;
+    const isGorillaTactics = atk.abil?.name === "무아지경" && !hasUnbound && !isDynamax;
 
     if (!atk.charge && (isChoiceItem || isGorillaTactics) && skill.name !== "발버둥") {
       atk.tempStatus.onlySkill = skill.name;

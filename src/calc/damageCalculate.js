@@ -174,8 +174,9 @@ export const damageCalculate = (battle, num, ai) => {
 
   // 공격 (atk) ===================================
   if (skill.stype === "atk") {
-    // 바디프레스나 속임수는 '물리기'면 구애머리띠나 화상이 적용된다.
-    if (attackPokemon.item === "구애머리띠") {
+    const isDynamax = attackPokemon.tempStatus?.dynamax > 0;
+    // 바디프레스나 속임수는 '물리기'면 구애머리띠나 화상이 적용된다. (다이맥스 중에는 구애 효과 무효)
+    if (attackPokemon.item === "구애머리띠" && !isDynamax) {
       atkStat *= 1.5;
       atkStr += " * 1.5 (구애머리띠)";
     }
@@ -197,7 +198,7 @@ export const damageCalculate = (battle, num, ai) => {
       atkStat *= 0.5;
       atkStr += " * 0.5 (슬로스타트)";
     }
-    if (atkAbil === "무아지경") {
+    if (atkAbil === "무아지경" && !isDynamax) {
       atkStat *= 1.5;
       atkStr += " * 1.5 (무아지경)";
     }
@@ -250,7 +251,7 @@ export const damageCalculate = (battle, num, ai) => {
       atkStat *= 1.5;
       atkStr += " * 1.5 (선파워)";
     }
-    if (attackPokemon.item === "구애안경") {
+    if (attackPokemon.item === "구애안경" && !(attackPokemon.tempStatus?.dynamax > 0)) {
       atkStat *= 1.5;
       atkStr += " * 1.5 (구애안경)";
     }
@@ -1146,6 +1147,9 @@ const powerCalculate = (battle, skill, num, ai) => {
     if (battle?.hasWeather) {
       power = 100;
     }
+  }
+  if (skill.feature?.weight) {
+    power = 110;
   }
 
   return Math.floor(power);
