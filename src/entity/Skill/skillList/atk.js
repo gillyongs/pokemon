@@ -202,6 +202,7 @@ export const atkSkills = [
   new Skill("10만마력", "땅", 95, 95, 10, 0, "atk", null, "온몸을 써서 상대를 맹렬히 공격한다.", [], { touch: true }),
   new Skill("헤비봄버", "강철", "*", 100, 10, 0, "atk", null, "상대보다 무거울수록 위력이 올라간다.", [], { touch: true, weight: true }),
   new Skill("히트스탬프", "불꽃", "*", 100, 10, 0, "atk", null, "상대보다 무거울수록 위력이 올라간다.", [], { touch: true, weight: true }),
+  new Skill("안다리걸기", "격투", "*", 100, 20, 0, "atk", null, "상대가 무거울수록 위력이 올라간다.", [], { touch: true, weight: true }),
   new Skill("단애의칼", "땅", 120, 85, 10, 0, "atk", null, "대지의 힘을 칼날로 바꾸어 상대를 공격한다.", [], {}),
   new Skill("드래곤클로", "드래곤", 80, 100, 15, 0, "atk", null, "날카로운 발톱으로 상대를 베어가른다.", [], { touch: true, slice: true }),
   new Skill("시저크로스", "벌레", 80, 100, 15, 0, "atk", null, "날카로운 낫이나 발톱으로 상대를 베어가른다.", [], { touch: true, slice: true }),
