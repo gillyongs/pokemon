@@ -1,4 +1,5 @@
 import { hpCalculate } from "../../../calc/hpCalculate";
+import { isMegaStoneItem, isZCrystalItem } from "../../Item";
 
 export const PokemonInstanceAccess = {
   // --- 불변 식별자 및 스펙 Getter (외부 직접 o 접근 방지 및 캡슐화) ---
@@ -433,6 +434,25 @@ export const PokemonInstanceAccess = {
 
   get maxHp() {
     return hpCalculate(this);
+  },
+
+  // 배틀 기믹(메가진화 / Z기술 / 다이맥스 / 테라스탈 등) 보유·사용 여부
+  get isGimmik() {
+    if (this._isGimmik) return true;
+    if (this.isMega) return true;
+    if (isMegaStoneItem(this.item) || isZCrystalItem(this.item)) return true;
+    const isRayquaza = Boolean(this.dexNo === "0384");
+    if (isRayquaza && [1, 2, 3, 4].some((n) => this.skill?.[n]?.name === "화룡점정")) {
+      return true;
+    }
+    if (this.tempStatus?.dynamax > 0) return true;
+    if ([1, 2, 3, 4].some((n) => this.skill?.[n]?.feature?.isMaxMove || this.skill?.[n]?.feature?.isZMove)) {
+      return true;
+    }
+    return false;
+  },
+  set isGimmik(v) {
+    this._isGimmik = Boolean(v);
   },
 
   // 곡예 등 원래 아이템이 있었으나 현재 소모되었는지 여부

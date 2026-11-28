@@ -3257,6 +3257,7 @@ export const AUGMENT_LIST = [
     weight: 100,
     isEligible: (pokemon, battle) => {
       if (!isBattlePlayerActive(pokemon, battle)) return false;
+      if (pokemon?.isGimmik) return false;
       if (pokemon?.tempStatus?.dynamax > 0) return false;
       if (hasMaxMove(pokemon)) return false;
       if (pokemon?.uniqueKey === "0890-m") return false;
@@ -3264,6 +3265,7 @@ export const AUGMENT_LIST = [
       return true;
     },
     onApply: function (pokemon) {
+      pokemon.isGimmik = true;
       applyDynamax(pokemon, 3);
     },
   },

@@ -78,6 +78,7 @@ export const isEligibleBaseSkillForZMove = (skill, configOrAugId) => {
 // 사용처: ZMove.js (createZMoveAugments)
 const hasEligibleSkillForZMove = (pokemon, configOrAugId) => {
   if (!pokemon?.skill) return false;
+  if (pokemon.isGimmik) return false;
   if (hasZMove(pokemon) || hasMaxMove(pokemon)) return false;
   return [1, 2, 3, 4].some((slot) => isEligibleBaseSkillForZMove(pokemon.skill[slot], configOrAugId));
 };
@@ -223,6 +224,7 @@ export const createZMoveAugments = (renamePokemonSkill) =>
         options.replacedSkillName = rawPrevName;
       }
 
+      pokemon.isGimmik = true;
       pokemon.skill[slot] = zMoveSkill;
       if (pokemon.pp) {
         pokemon.pp[slot] = zMoveSkill.pp;

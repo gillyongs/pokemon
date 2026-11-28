@@ -61,6 +61,7 @@ export const createMaxMoveAugments = (renamePokemonSkill) =>
         options.replacedSkillName = rawPrevName;
       }
 
+      pokemon.isGimmik = true;
       pokemon.skill[slot] = maxMoveSkill;
       if (pokemon.pp) {
         pokemon.pp[slot] = maxMoveSkill.pp;
@@ -83,6 +84,7 @@ export const isMaxMoveAugment = (augOrId) => {
 
 // 다이맥스 기술로 변하게 할 해당 타입의 기술이 있는지 확인
 const hasEligibleSkillForMaxMove = (pokemon, configOrAugId) => {
+  if (pokemon.isGimmik) return false;
   if (hasMaxMove(pokemon)) return false;
   return [1, 2, 3, 4].some((slot) => isEligibleBaseSkillForMaxMove(pokemon.skill[slot], configOrAugId));
 };
@@ -121,6 +123,7 @@ export const applyDynamax = (pokemon, turns = 3) => {
     });
   }
 
+  pokemon.isGimmik = true;
   pokemon.tempStatus.dynamaxOriginSkills = originSkills;
   pokemon.tempStatus.dynamax = turns;
 
