@@ -9,7 +9,7 @@ import { isEligibleSkillForZCrystal, buildZMoveFromSkill } from "../../../../ent
 import { buildMaxMoveFromSkill, buildMaxGuardFromSkill, getMaxMoveConfigByType } from "../../../../entity/Skill/DymaxMove";
 import { TYPE_COLORS } from "../../../../entity/TypeData";
 
-const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton, zMoveActive = false, zCrystal = null, teraActive = false, teraType = null, dynamaxActive = false }) => {
+const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartBySkillButton, zMoveActive = false, zCrystal = null, teraActive = false, teraType = null, dynamaxActive = false, megaSkinType = null }) => {
   let pp = battle.player.pp[skillNumber];
   let skill = battle.player.skill[skillNumber];
   const displayType = skillTypeCalculate(battle, skill, battle.player);
@@ -33,15 +33,11 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
   }
 
   const isTeraBurstPreview = Boolean(teraActive && !isUnusable && skill?.name === "테라버스트" && teraType);
+  const isMegaSkinPreview = Boolean(megaSkinType && !isUnusable && displayType === "노말" && skill?.name !== "발버둥");
   const shownSkill = zMoveSkill || dynamaxMoveSkill || skill;
-  const shownDisplayType = dynamaxMoveSkill ? shownSkill.type : isTeraBurstPreview ? teraType : displayType;
-  const zTypeColor = isZTarget
-    ? TYPE_COLORS[zCrystal.type] || "#64ffda"
-    : dynamaxMoveSkill
-      ? "rgba(225, 29, 72, 0.85)"
-      : isTeraBurstPreview
-        ? TYPE_COLORS[teraType] || null
-        : null;
+  const shownDisplayType = dynamaxMoveSkill ? shownSkill.type : isTeraBurstPreview ? teraType : isMegaSkinPreview ? megaSkinType : displayType;
+  const isDynamaxTarget = Boolean(dynamaxMoveSkill);
+  const zTypeColor = isZTarget ? TYPE_COLORS[zCrystal.type] || "#64ffda" : isTeraBurstPreview ? TYPE_COLORS[teraType] || null : null;
 
   const sn = getNumberText(skillNumber);
 
@@ -108,6 +104,7 @@ const SkillButton = ({ battle, skillNumber, queueObject, setText, battleStartByS
       $disabled={!queueObject.queueCheck()}
       $isUnusable={isUnusable}
       $zTypeColor={zTypeColor}
+      $isDynamaxTarget={isDynamaxTarget}
       onPointerDown={handlePressStart}
       onPointerUp={clearPress}
       onPointerLeave={clearPress}
@@ -165,8 +162,8 @@ const SKILL = styled.div`
   height: 13vh;
   border-radius: 5px;
   background-color: ${({ $isUnusable, $zTypeColor }) => ($zTypeColor ? $zTypeColor : $isUnusable ? "rgba(127, 29, 29, 0.78)" : "rgba(0, 0, 0, 0.7)")};
-  box-shadow: ${({ $zTypeColor }) => ($zTypeColor ? `0 0 12px ${$zTypeColor}` : "none")};
-  border: ${({ $zTypeColor }) => ($zTypeColor ? "1px solid rgba(255, 255, 255, 0.65)" : "none")};
+  box-shadow: ${({ $zTypeColor, $isDynamaxTarget }) => ($isDynamaxTarget ? "0 0 10px rgba(244, 63, 94, 0.55)" : $zTypeColor ? `0 0 12px ${$zTypeColor}` : "none")};
+  border: ${({ $zTypeColor, $isDynamaxTarget }) => ($isDynamaxTarget ? "2px solid #f43f5e" : $zTypeColor ? "1px solid rgba(255, 255, 255, 0.65)" : "none")};
   box-sizing: border-box;
   transition:
     background-color 0.18s ease,

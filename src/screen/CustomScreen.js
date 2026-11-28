@@ -10,13 +10,7 @@ import SampleInfoModal from "../component/customScreen/sampleInfo/SampleInfoModa
 import FilterModal from "../component/customScreen/FilterModal";
 import GameOptionModal from "../component/customScreen/GameOptionModal";
 import { EntrySaveModal, EntryLoadModal, CustomAlertModal } from "../component/customScreen/EntryFileModal";
-import {
-  filterSamplePokemons,
-  buildCustomSlotEntry,
-  resolveSlotPokemonData,
-  isValidTeamArray,
-  exportTeamToFile,
-} from "../calc/customEntryUtil";
+import { filterSamplePokemons, buildCustomSlotEntry, resolveSlotPokemonData, isValidTeamArray, exportTeamToFile } from "../calc/customEntryUtil";
 import { fillRandomTeam, getRandomPokemonForSlot } from "../calc/randomTeam";
 import { testmode } from "../config/testMode";
 
@@ -132,6 +126,7 @@ const CustomScreen = () => {
 
     const emptyIndex = currentTeam.indexOf(null);
     if (emptyIndex === -1) {
+      setAlertMessage("팀이 이미 가득 찼습니다.");
       return;
     }
     const newTeam = [...currentTeam];
@@ -160,7 +155,10 @@ const CustomScreen = () => {
     }
 
     const emptyIndex = currentTeam.indexOf(null);
-    if (emptyIndex === -1) return;
+    if (emptyIndex === -1) {
+      setAlertMessage("팀이 이미 가득 찼습니다. (최대 3마리)");
+      return;
+    }
     const newTeam = [...currentTeam];
     newTeam[emptyIndex] = buildCustomSlotEntry(pokemon, customItem, customAbil, customSkills, customStats);
     setActiveTeam(newTeam);
@@ -387,19 +385,7 @@ const CustomScreen = () => {
             const pokemonId = typeof pokemonEntry === "object" && pokemonEntry ? pokemonEntry.sampleName || pokemonEntry.id : pokemonEntry;
             const pokemonData = resolveSlotPokemonData(pokemonEntry);
             return (
-              <Slot
-                key={index}
-                className="team-slot"
-                data-index={index}
-                draggable={!!pokemonId}
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDrop={(e) => handleDrop(e, index)}
-                onDragOver={handleDragOver}
-                onTouchStart={(e) => handleTouchStart(e, index)}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-                $hasData={!!pokemonId}
-              >
+              <Slot key={index} className="team-slot" data-index={index} draggable={!!pokemonId} onDragStart={(e) => handleDragStart(e, index)} onDrop={(e) => handleDrop(e, index)} onDragOver={handleDragOver} onTouchStart={(e) => handleTouchStart(e, index)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} $hasData={!!pokemonId}>
                 {pokemonData ? (
                   <PokemonCard
                     onClick={() => {
@@ -628,17 +614,7 @@ const CustomScreen = () => {
         />
       )}
 
-      {isOptionModalOpen && (
-        <GameOptionModal
-          difficulty={difficulty}
-          setDifficulty={setDifficulty}
-          teamOption={teamOption}
-          setTeamOption={setTeamOption}
-          mayhemMode={mayhemMode}
-          setMayhemMode={setMayhemMode}
-          onClose={() => setIsOptionModalOpen(false)}
-        />
-      )}
+      {isOptionModalOpen && <GameOptionModal difficulty={difficulty} setDifficulty={setDifficulty} teamOption={teamOption} setTeamOption={setTeamOption} mayhemMode={mayhemMode} setMayhemMode={setMayhemMode} onClose={() => setIsOptionModalOpen(false)} />}
 
       {isSaveModalOpen && <EntrySaveModal onExport={handleExportTeam} onClose={() => setIsSaveModalOpen(false)} />}
 
@@ -653,11 +629,7 @@ const CustomScreen = () => {
             setInfoModalPokemon(null);
             setEditingSlotIndex(null);
           }}
-          onAdd={
-            editingSlotIndex !== null
-              ? (pokemon, customItem, customAbil, customSkills, customStats) => handleUpdateTeamSlot(editingSlotIndex, pokemon, customItem, customAbil, customSkills, customStats)
-              : handleAddToActiveTeam
-          }
+          onAdd={editingSlotIndex !== null ? (pokemon, customItem, customAbil, customSkills, customStats) => handleUpdateTeamSlot(editingSlotIndex, pokemon, customItem, customAbil, customSkills, customStats) : handleAddToActiveTeam}
           isFull={
             editingSlotIndex !== null
               ? false
@@ -1277,7 +1249,6 @@ const SkillNameText = styled.span`
     font-size: 0.51rem;
   }
 `;
-
 
 const MayhemDivider = styled.div`
   display: flex;

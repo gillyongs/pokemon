@@ -15,6 +15,7 @@ import { getZCrystalByItem, isZMoveAble } from "../../../../entity/Skill/ZMove";
 import { isTeraAble } from "../../../../entity/Skill/Terastal";
 import { isDynamaxAble } from "../../../../entity/Skill/DymaxMove";
 import { getItemImageSrc, isTeraOrbItem, isDynamaxBandItem } from "../../../../entity/Item";
+import { abilObject } from "../../../../entity/Ability";
 import { TYPE_COLORS } from "../../../../entity/TypeData";
 
 const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, battleStartBySkillButton, textSkip, btObj }) => {
@@ -88,6 +89,10 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
   };
 
   const isMegaEvolveAble = battle.player.isMegaEvolveAble?.(battle);
+  const megaActive = Boolean(isMegaEvolveAble && useMega && curBattle?.system?.megaTrigger?.player);
+  const megaAbilName = battle.player?.megaData?.abil || battle.player?.o?.megaData?.abil;
+  const megaAbilObj = megaAbilName ? abilObject[megaAbilName] : null;
+  const megaSkinType = megaActive && megaAbilObj?.feature?.skin ? megaAbilObj.feature.type : null;
   const zCrystal = getZCrystalByItem(battle.player?.item);
   const isZMoveAvailable = !isMegaEvolveAble && isZMoveAble(battle.player, battle);
   const zMoveActive = Boolean(isZMoveAvailable && useZMove && curBattle?.system?.zTrigger?.player);
@@ -124,13 +129,13 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         }}
       />
 
-      <SkillButton battle={battle} skillNumber={1} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} />
+      <SkillButton battle={battle} skillNumber={1} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} megaSkinType={megaSkinType} />
       
-      <SkillButton battle={battle} skillNumber={2} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} />
+      <SkillButton battle={battle} skillNumber={2} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} megaSkinType={megaSkinType} />
 
-      <SkillButton battle={battle} skillNumber={3} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} />
+      <SkillButton battle={battle} skillNumber={3} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} megaSkinType={megaSkinType} />
 
-      <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} />
+      <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} teraActive={teraActive} teraType={teraType} dynamaxActive={dynamaxActive} megaSkinType={megaSkinType} />
 
       {isAllSkillsDisabled && (
         <StruggleButton

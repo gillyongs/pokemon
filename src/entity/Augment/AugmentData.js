@@ -3406,7 +3406,7 @@ export const AUGMENT_LIST = [
       const names = target?.names ? target.names("는") : "포켓몬은";
       return josa(`${names} 지닌 물건을 다이버섯#{으로} 교체했다!`);
     },
-    cost: 3,
+    cost: 5,
     weight: 100,
     isEligible: (pokemon, battle, team) => {
       if (!isDynamaxAble(pokemon, battle)) return false;
