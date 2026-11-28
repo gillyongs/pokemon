@@ -78,6 +78,7 @@ export const turnEnd = (battle, enqueue) => {
   applyStatusDamage(battle, enqueue, slowUser);
 
   // 화염구슬로 화상을 입은 턴엔 화상 데미지가 들어가지 않음
+  // 유턴/교체 상관없이 무조건 발동
   flameOrb(battle, enqueue, fastUser);
   flameOrb(battle, enqueue, slowUser);
 
@@ -179,7 +180,7 @@ export const turnEnd = (battle, enqueue) => {
   if (!playerSwitched) battle.player.tempStatus.firstTurn = false;
   if (!npcSwitched) battle.npc.tempStatus.firstTurn = false;
 
-  // 특성 가속: 매 턴 종료 시 스피드 1랭크 상승 (해당 턴 교체 등장 제외)
+  // 특성 가속: 매 턴 종료 시 스피드 1랭크 상승 (유턴 및 교체로 나온 턴은 제외)
   [fastUser, slowUser].forEach((side) => {
     const p = battle[side];
     const switchedIn = side === "player" ? playerSwitched : npcSwitched;

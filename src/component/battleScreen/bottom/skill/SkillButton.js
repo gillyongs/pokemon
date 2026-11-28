@@ -190,12 +190,13 @@ const ICON = styled.img`
 
 const NAME = styled.div`
   position: absolute;
-  top: 10px;
+  top: ${({ skname }) => (skname?.length >= 9 ? "13px" : "10px")};
   left: 42px;
-  font-size: "20px";
+  font-size: ${({ skname }) => (skname?.length >= 9 ? "15px" : "20px")};
+  white-space: nowrap;
   @media (max-width: 400px) {
-    font-size: ${({ skname }) => (skname.length > 5 ? "4.3vw" : "20px")};
-    top: ${({ skname }) => (skname.length > 5 ? "12px" : "10px")};
+    font-size: ${({ skname }) => (skname?.length >= 9 ? "3.7vw" : skname?.length > 5 ? "4.3vw" : "20px")};
+    top: ${({ skname }) => (skname?.length >= 9 ? "14px" : skname?.length > 5 ? "12px" : "10px")};
   }
 `;
 
