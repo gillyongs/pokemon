@@ -6,7 +6,7 @@ export const PokemonMega = {
   isMegaEvolveAble(battle) {
     if (this.faint) return false;
     if (this.isMega) return false;
-    if (battle.megaUsed?.[this.team]) return false;
+    if (battle.system?.megaUsed?.[this.team]) return false;
     if (!this.o.megaData) return false;
     if (this.o.megaData.isPrimal) return false; // 원시회귀는 등장 시 자동 발동
     if (this.o.megaData.requiredSkill) {
@@ -71,7 +71,7 @@ export const PokemonMega = {
 
   megaEvolve(battle, enqueue) {
     if (!this.isMegaEvolveAble(battle)) return;
-    battle.megaUsed[this.team] = true;
+    battle.system.megaUsed[this.team] = true;
 
     const mega = this.o.megaData;
 

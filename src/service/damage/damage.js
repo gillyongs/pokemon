@@ -34,7 +34,7 @@ export function attackDamage(battle, enqueue, num) {
     if (!isAttackSkill(useSkill)) return false;
 
     let hasOutput = false;
-    if (defPokemon.turn?.protect === true && useSkill?.feature?.isMaxMove) {
+    if (defPokemon.turn?.protect === true && (useSkill?.feature?.isMaxMove || useSkill?.feature?.isZMove)) {
       enqueue(battle, `${defPokemon.names("는")} 공격을 완전히 막아내지 못하고 데미지를 입었다!`, "dmg_maxmove_pierce_protect");
       hasOutput = true;
     }

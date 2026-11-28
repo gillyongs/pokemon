@@ -49,8 +49,12 @@ class Battle {
     };
 
     this.turnCount = 1; // "N번째 턴" 로그용
-    this.megaUsed = { player: false, npc: false }; // 해당 배틀 메가진화 사용 여부
-    this.megaTrigger = { player: false, npc: false }; // 해당 턴 메가진화 선택 여부
+    this.system = {
+      megaUsed: { player: false, npc: false }, // 해당 배틀 메가진화 사용 여부
+      megaTrigger: { player: false, npc: false }, // 해당 턴 메가진화 선택 여부
+      zUsed: { player: false, npc: false }, // 해당 배틀 Z기술 사용 여부
+      zTrigger: { player: false, npc: false }, // 해당 턴 Z기술 선택 여부
+    };
     this.hasKnockoutAugmentThisRound = false; // 해당 라운드 적 처치 증강 획득 여부 (최대 1회)
 
     this._events = {};

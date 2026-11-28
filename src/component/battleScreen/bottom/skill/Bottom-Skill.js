@@ -11,36 +11,62 @@ import FieldStatusModal, { hasAnyFieldOrStatusActive } from "../../FieldStatusMo
 
 import styled from "styled-components";
 import { isSkillUsable } from "../../../../service/skillCheck/skillDisableCheck";
+import { getZCrystalByItem, isZMoveAble } from "../../../../entity/Skill/ZMove";
+import { TYPE_COLORS } from "../../../../entity/TypeData";
 
 const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, battleStartBySkillButton, textSkip, btObj }) => {
   const [logOpen, setLogOpen] = useState(false);
   const [fieldOpen, setFieldOpen] = useState(false);
   const [useMega, setUseMega] = useState(false);
+  const [useZMove, setUseZMove] = useState(false);
 
   const curBattle = btObj || battle;
 
-  // 1. 다음 라운드 진입, 배틀 변경, 출전 포켓몬 변경 시 메가진화 선택 상태 강제 초기화
+  const setTriggerFlag = (key, value) => {
+    if (btObj) {
+      if (!btObj.system) btObj.system = {};
+      if (!btObj.system[key]) btObj.system[key] = { player: false, npc: false };
+      btObj.system[key].player = value;
+    }
+    if (battle?.system?.[key] && !Object.isFrozen(battle.system[key])) {
+      battle.system[key].player = value;
+    }
+  };
+
+  // 1. 다음 라운드 진입, 배틀 변경, 출전 포켓몬 변경 시 메가진화/Z기술 선택 상태 강제 초기화
   useEffect(() => {
     setUseMega(false);
-    if (btObj?.megaTrigger) btObj.megaTrigger.player = false;
-    if (battle?.megaTrigger && !Object.isFrozen(battle.megaTrigger)) battle.megaTrigger.player = false;
+    setUseZMove(false);
+    setTriggerFlag("megaTrigger", false);
+    setTriggerFlag("zTrigger", false);
   }, [curBattle?.round, curBattle?.player?.uniqueKey, curBattle?.player?.name]);
 
-  // 2. 메가진화가 완료되었거나 이미 메가진화를 사용한 경우 선택 해제
+  // 2. 메가진화 또는 Z기술이 이미 사용된 경우 선택 해제
   useEffect(() => {
-    if (curBattle?.player?.isMega || curBattle?.megaUsed?.player) {
+    if (curBattle?.player?.isMega || curBattle?.system?.megaUsed?.player) {
       setUseMega(false);
-      if (btObj?.megaTrigger) btObj.megaTrigger.player = false;
-      if (battle?.megaTrigger && !Object.isFrozen(battle.megaTrigger)) battle.megaTrigger.player = false;
+      setTriggerFlag("megaTrigger", false);
     }
-  }, [curBattle?.player?.isMega, curBattle?.megaUsed?.player]);
+  }, [curBattle?.player?.isMega, curBattle?.system?.megaUsed?.player]);
+
+  useEffect(() => {
+    if (curBattle?.system?.zUsed?.player) {
+      setUseZMove(false);
+      setTriggerFlag("zTrigger", false);
+    }
+  }, [curBattle?.system?.zUsed?.player]);
 
   const handleBattleStartBySkillButton = (skillIndex) => {
     setUseMega(false);
+    setUseZMove(false);
     battleStartBySkillButton(skillIndex);
   };
 
   const isMegaEvolveAble = battle.player.isMegaEvolveAble?.(battle);
+  const zCrystal = getZCrystalByItem(battle.player?.item);
+  const isZMoveAvailable = !isMegaEvolveAble && isZMoveAble(battle.player, battle);
+  const zMoveActive = Boolean(isZMoveAvailable && useZMove && curBattle?.system?.zTrigger?.player);
+  const zTypeColor = TYPE_COLORS[zCrystal?.type] || "#64ffda";
   const isAllSkillsDisabled = ![1, 2, 3, 4].some((num) => isSkillUsable(battle.player, num));
 
   return (
@@ -62,13 +88,13 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         }}
       />
 
-      <SkillButton battle={battle} skillNumber={1} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} />
+      <SkillButton battle={battle} skillNumber={1} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} />
       
-      <SkillButton battle={battle} skillNumber={2} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} />
+      <SkillButton battle={battle} skillNumber={2} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} />
 
-      <SkillButton battle={battle} skillNumber={3} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} />
+      <SkillButton battle={battle} skillNumber={3} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} />
 
-      <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} />
+      <SkillButton battle={battle} skillNumber={4} queueObject={queueObject} setText={setText} battleStartBySkillButton={handleBattleStartBySkillButton} zMoveActive={zMoveActive} zCrystal={zCrystal} />
 
       {isAllSkillsDisabled && (
         <StruggleButton
@@ -88,22 +114,35 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
 
       {isMegaEvolveAble && (
         <MegaButton
-          $active={Boolean(useMega && curBattle?.megaTrigger?.player)}
+          $active={Boolean(useMega && curBattle?.system?.megaTrigger?.player)}
           $disabled={!queueObject.queueCheck()}
           onClick={(e) => {
             if (!queueObject.queueCheck()) return;
             e.stopPropagation();
             const nextVal = !useMega;
             setUseMega(nextVal);
-            if (btObj?.megaTrigger) {
-              btObj.megaTrigger.player = nextVal;
-            } else if (battle?.megaTrigger && !Object.isFrozen(battle.megaTrigger)) {
-              battle.megaTrigger.player = nextVal;
-            }
+            setTriggerFlag("megaTrigger", nextVal);
           }}>
           <MegaIcon src="/pokemon/img/background/mega.webp" alt="mega" />
           <span>메가진화</span>
         </MegaButton>
+      )}
+
+      {isZMoveAvailable && zCrystal && (
+        <ZMoveButton
+          $active={zMoveActive}
+          $typeColor={zTypeColor}
+          $disabled={!queueObject.queueCheck()}
+          onClick={(e) => {
+            if (!queueObject.queueCheck()) return;
+            e.stopPropagation();
+            const nextVal = !useZMove;
+            setUseZMove(nextVal);
+            setTriggerFlag("zTrigger", nextVal);
+          }}>
+          <MegaIcon src={`/pokemon/img/item/${zCrystal.itemName}.webp`} alt={zCrystal.itemName} />
+          <span>Z기술</span>
+        </ZMoveButton>
       )}
 
       <SwitchButton
@@ -111,8 +150,9 @@ const BottomSectionSkill = ({ battle, text, setText, setBottom, queueObject, bat
         onClick={() => {
           if (queueObject.queueCheck()) {
             setUseMega(false);
-            if (btObj?.megaTrigger) btObj.megaTrigger.player = false;
-            if (battle?.megaTrigger && !Object.isFrozen(battle.megaTrigger)) battle.megaTrigger.player = false;
+            setUseZMove(false);
+            setTriggerFlag("megaTrigger", false);
+            setTriggerFlag("zTrigger", false);
             setText(" 누구로 교체할까?");
             setBottom("switch");
           }
@@ -250,6 +290,12 @@ const MegaIcon = styled.img`
     width: 17px;
     height: 17px;
     margin-left: -10px;
-    margin-right: 8 10px;
+    margin-right: 8px;
   }
+`;
+
+const ZMoveButton = styled(MegaButton)`
+  background: ${({ $active, $typeColor }) => ($active ? $typeColor : "linear-gradient(135deg, rgba(20, 30, 40, 0.85), rgba(0, 0, 0, 0.7))")};
+  border: ${({ $active }) => ($active ? "2px solid #ffffff" : "1px solid rgba(255, 255, 255, 0.1)")};
+  box-shadow: ${({ $active, $typeColor }) => ($active ? `0 0 14px ${$typeColor}, 0 0 22px rgba(255, 255, 255, 0.35)` : "0 3px 8px rgba(0, 0, 0, 0.35)")};
 `;
