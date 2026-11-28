@@ -6,7 +6,7 @@ import sampleList from "../Pokemon/pokemonSampleList";
 import { generatePokemonInstance } from "../Pokemon/PokemonInstance";
 import skillList from "../Skill/skillList";
 import { Skill, isAttackSkill } from "../Skill/Skill";
-import { createMaxMoveAugments, applyDynamax } from "../Skill/DymaxMove";
+import { createMaxMoveAugments, applyDynamax, hasMaxMove } from "../Skill/DymaxMove";
 import { rollSoulDiceStats } from "../../component/battleScreen/augment/select/AugmentSoulDiceView";
 import { getScoutCandidatePool } from "./scoutCandidates";
 
@@ -3254,6 +3254,7 @@ export const AUGMENT_LIST = [
     isEligible: (pokemon, battle) => {
       if (!isBattlePlayerActive(pokemon, battle)) return false;
       if (pokemon?.tempStatus?.dynamax > 0) return false;
+      if (hasMaxMove(pokemon)) return false;
       if (pokemon?.uniqueKey === "0890-m") return false;
       if (pokemon?.isMega || (pokemon?.megaData && !pokemon.megaData.isPrimal)) return false;
       return true;

@@ -1,177 +1,7 @@
 import { josa } from "josa";
 
-/**
- * 해당 기술이 특정 다이기술 증강으로 변환 가능한 공격 기술인지 판정
- */
-export const isEligibleBaseSkillForMaxMove = (skill, configOrAugId) => {
-  const config = typeof configOrAugId === "object" ? configOrAugId : getMaxMoveConfig(configOrAugId);
-  if (!skill || !config) return false;
-  if (skill.stype !== "atk" && skill.stype !== "catk") return false;
-  if (skill.feature?.isMaxMove) return false;
-  return skill.type === config.type;
-};
-
-/**
- * 포켓몬이 해당 다이기술 증강의 대상이 되는 타입의 공격 기술을 1개 이상 보유했는지 판정
- */
-export const hasEligibleSkillForMaxMove = (pokemon, configOrAugId) => {
-  if (!pokemon?.skill) return false;
-  return [1, 2, 3, 4].some((slot) => isEligibleBaseSkillForMaxMove(pokemon.skill[slot], configOrAugId));
-};
-
-/**
- * 원본 공격 기술의 위력/특성에 따른 다이기술 위력 산출 (8세대 원작 기준)
- */
-export const calculateMaxMovePower = (baseSkill, isLowPowerTable = false) => {
-  if (!baseSkill) return isLowPowerTable ? 100 : 130;
-  const src = baseSkill.baseSkillSnapshot || baseSkill;
-
-  // 위력 비고정("*", "-"), 일격기, 또는 2~5타/3타 연속기는 원작 기준 130 (격투/독은 100)
-  if (src.power === "*" || src.power === "-" || src.feature?.oneShot || src.feature?.serial === "twoFive" || src.feature?.serial === "triple" || src.feature?.serial === "suru") {
-    return isLowPowerTable ? 100 : 130;
-  }
-
-  let rawPower = Number(src.power);
-  if (isNaN(rawPower) || rawPower <= 0) {
-    return isLowPowerTable ? 100 : 130;
-  }
-
-  // 2회 타격 연속기(더블윙, 기어소서, 드래곤애로, 더블펀처 등)는 합산 위력 기준
-  if (src.feature?.serial === "double") {
-    rawPower *= 2;
-  }
-
-  if (isLowPowerTable) {
-    if (rawPower <= 40) return 70;
-    if (rawPower <= 50) return 75;
-    if (rawPower <= 60) return 80;
-    if (rawPower <= 70) return 85;
-    if (rawPower <= 100) return 90;
-    if (rawPower <= 140) return 95;
-    return 100;
-  }
-
-  if (rawPower <= 40) return 90;
-  if (rawPower <= 50) return 100;
-  if (rawPower <= 60) return 110;
-  if (rawPower <= 70) return 120;
-  if (rawPower <= 100) return 130;
-  if (rawPower <= 140) return 140;
-  return 150;
-};
-
-/**
- * 선택한 원본 기술을 기반으로 실시간 위력 및 물리/특수가 반영된 다이기술 객체를 생성
- */
-export const buildMaxMoveFromSkill = (baseSkill, configOrAugId, slot = null) => {
-  const config = typeof configOrAugId === "object" ? configOrAugId : getMaxMoveConfig(configOrAugId);
-  if (!config) return baseSkill;
-
-  const src = baseSkill?.baseSkillSnapshot || baseSkill || {};
-  const power = calculateMaxMovePower(src, config.isLowPowerTable);
-  const stype = src.stype === "atk" ? "atk" : "catk";
-  const stypeKor = stype === "atk" ? "물리" : "특수";
-  const pp = typeof src.pp === "number" ? src.pp : 8;
-  const accur = "-";
-  const effectDesc = config.effectDesc || "";
-  const fullText = `위력 ${power} / 명중 ${accur} / ${stypeKor}${effectDesc ? ` / ${effectDesc}` : ""}`;
-
-  return {
-    name: config.moveName,
-    originalName: src.originalName || src.name || config.moveName,
-    type: config.type,
-    power,
-    accur,
-    pp,
-    prior: 0,
-    stype,
-    useCount: 0,
-    fatalStrike: Boolean(baseSkill?.fatalStrike),
-    skillNumber: slot ?? baseSkill?.skillNumber,
-    requirement: null,
-    feature: {
-      isMaxMove: true,
-      maxMoveId: config.augmentId,
-    },
-    skillEffectList: [config.skillEffect, { name: "공통" }].filter(Boolean),
-    originText: effectDesc,
-    text: fullText,
-    baseSkillSnapshot: {
-      name: src.name,
-      originalName: src.originalName || src.name,
-      type: src.type,
-      power: src.power,
-      stype: src.stype,
-      pp,
-      feature: src.feature ? { ...src.feature } : {},
-    },
-  };
-};
-
-/**
- * 포켓몬을 다이맥스 상태로 전환합니다. (체력 2배, 공격기는 타입별 다이기술로, 변화기는 다이윌로 일시 변환, 3턴 지속)
- */
-export const applyDynamax = (pokemon, turns = 3) => {
-  if (!pokemon || pokemon.faint) return false;
-  if (!pokemon.tempStatus) pokemon.tempStatus = {};
-  if (pokemon.tempStatus.dynamax > 0) return false;
-
-  const originSkills = {};
-  if (pokemon.skill) {
-    [1, 2, 3, 4].forEach((slot) => {
-      const sk = pokemon.skill[slot];
-      if (!sk || sk.feature?.isMaxMove) return;
-      if (sk.stype !== "atk" && sk.stype !== "catk") {
-        originSkills[slot] = sk;
-        pokemon.skill[slot] = buildMaxGuardFromSkill(sk, slot);
-        return;
-      }
-      const config = getMaxMoveConfigByType(sk.type);
-      if (!config) return;
-      originSkills[slot] = sk;
-      pokemon.skill[slot] = buildMaxMoveFromSkill(sk, config, slot);
-    });
-  }
-
-  pokemon.tempStatus.dynamaxOriginSkills = originSkills;
-  pokemon.tempStatus.dynamax = turns;
-
-  if (typeof pokemon.hp === "number" && pokemon.hp > 0) {
-    const newMaxHp = pokemon.maxHp;
-    pokemon.hp = Math.min(newMaxHp, Math.max(1, Math.round(pokemon.hp * 2)));
-  }
-
-  return true;
-};
-
-/**
- * 포켓몬의 다이맥스 상태를 해제하고 원본 기술 및 체력 비율을 복구합니다.
- */
-export const restoreDynamax = (pokemon) => {
-  const wasDynamax = pokemon.tempStatus.dynamax > 0;
-  if (!wasDynamax) return false;
-
-  const originSkills = pokemon.tempStatus.dynamaxOriginSkills;
-  if (originSkills && pokemon.skill) {
-    [1, 2, 3, 4].forEach((slot) => {
-      if (originSkills[slot]) {
-        pokemon.skill[slot] = originSkills[slot];
-      }
-    });
-  }
-
-  pokemon.tempStatus.dynamax = null;
-  pokemon.tempStatus.dynamaxOriginSkills = null;
-
-  if (!pokemon.faint && typeof pokemon.hp === "number" && pokemon.hp > 0) {
-    const restoredMaxHp = pokemon.maxHp;
-    pokemon.hp = Math.min(restoredMaxHp, Math.max(1, Math.round(pokemon.hp / 2)));
-  }
-
-  return true;
-};
-
-// 다이맥스 증강 생성
+// 다이맥스 기술 (EX: 다이번) 증강 관련 ==============================================================
+// 다이맥스 기술 증강 목록 생성
 export const createMaxMoveAugments = (renamePokemonSkill) =>
   Object.values(MAX_MOVE_AUGMENT_CONFIGS).map((config) => ({
     id: config.augmentId,
@@ -238,17 +68,97 @@ export const createMaxMoveAugments = (renamePokemonSkill) =>
     },
   }));
 
+// 다이기술 증강 설명 텍스트 생성
 const buildMaxMoveAugmentDesc = (config) => {
   if (!config) return "";
   return josa(`${config.type} 타입 공격기를 ${config.moveName}#{으로} 변경합니다.\n상대에게 반드시 명중하며 ${config.hitEffectText}\n방어 계열 기술을 관통하며 그 경우 위력이 ¼로 감소합니다.`);
 };
 
+// 증강 ID 또는 객체가 다이기술 증강인지 판정
+// 기술 교체 모달 호출할때 사용
 export const isMaxMoveAugment = (augOrId) => {
   const id = typeof augOrId === "string" ? augOrId : augOrId?.id;
   return Boolean(id && MAX_MOVE_AUGMENT_CONFIGS[id]);
 };
 
-// 다이윌
+// 다이맥스 기술로 변하게 할 해당 타입의 기술이 있는지 확인
+const hasEligibleSkillForMaxMove = (pokemon, configOrAugId) => {
+  if (hasMaxMove(pokemon)) return false;
+  return [1, 2, 3, 4].some((slot) => isEligibleBaseSkillForMaxMove(pokemon.skill[slot], configOrAugId));
+};
+
+// 해당 기술이 특정 다이기술 증강으로 변환 가능한 공격 기술인지 판정
+export const isEligibleBaseSkillForMaxMove = (skill, configOrAugId) => {
+  const config = typeof configOrAugId === "object" ? configOrAugId : getMaxMoveConfig(configOrAugId);
+  if (!skill || !config) return false;
+  if (skill.stype !== "atk" && skill.stype !== "catk") return false;
+  if (skill.feature?.isMaxMove) return false;
+  return skill.type === config.type;
+};
+
+// 다이맥스 증강 관련 ======================================================================================================
+
+// 포켓몬을 다이맥스 상태로 전환합니다. (체력 2배, 공격기는 타입별 다이기술로, 변화기는 다이윌로 일시 변환, 3턴 지속)
+export const applyDynamax = (pokemon, turns = 3) => {
+  if (!pokemon || pokemon.faint) return false;
+  if (!pokemon.tempStatus) pokemon.tempStatus = {};
+  if (pokemon.tempStatus.dynamax > 0) return false;
+
+  const originSkills = {};
+  if (pokemon.skill) {
+    [1, 2, 3, 4].forEach((slot) => {
+      const sk = pokemon.skill[slot];
+      if (!sk || sk.feature?.isMaxMove) return;
+      if (sk.stype !== "atk" && sk.stype !== "catk") {
+        originSkills[slot] = sk;
+        pokemon.skill[slot] = buildMaxGuardFromSkill(sk, slot);
+        return;
+      }
+      const config = getMaxMoveConfigByType(sk.type);
+      if (!config) return;
+      originSkills[slot] = sk;
+      pokemon.skill[slot] = buildMaxMoveFromSkill(sk, config, slot);
+    });
+  }
+
+  pokemon.tempStatus.dynamaxOriginSkills = originSkills;
+  pokemon.tempStatus.dynamax = turns;
+
+  if (typeof pokemon.hp === "number" && pokemon.hp > 0) {
+    const newMaxHp = pokemon.maxHp;
+    pokemon.hp = Math.min(newMaxHp, Math.max(1, Math.round(pokemon.hp * 2)));
+  }
+
+  return true;
+};
+
+// 포켓몬의 다이맥스 상태를 해제하고 원본 기술 및 체력 비율을 복구합니다.
+// 사용처: PokemonGetDamage.js, switch.js, turnEnd.js
+export const restoreDynamax = (pokemon) => {
+  const wasDynamax = pokemon.tempStatus.dynamax > 0;
+  if (!wasDynamax) return false;
+
+  const originSkills = pokemon.tempStatus.dynamaxOriginSkills;
+  if (originSkills && pokemon.skill) {
+    [1, 2, 3, 4].forEach((slot) => {
+      if (originSkills[slot]) {
+        pokemon.skill[slot] = originSkills[slot];
+      }
+    });
+  }
+
+  pokemon.tempStatus.dynamax = null;
+  pokemon.tempStatus.dynamaxOriginSkills = null;
+
+  if (!pokemon.faint && typeof pokemon.hp === "number" && pokemon.hp > 0) {
+    const restoredMaxHp = pokemon.maxHp;
+    pokemon.hp = Math.min(restoredMaxHp, Math.max(1, Math.round(pokemon.hp / 2)));
+  }
+
+  return true;
+};
+
+// 선택한 변화기 원본 기술을 기반으로 다이윌(방어) 객체를 생성
 const buildMaxGuardFromSkill = (baseSkill, slot = null) => {
   const src = baseSkill?.baseSkillSnapshot || baseSkill || {};
   const pp = typeof src.pp === "number" ? src.pp : 10;
@@ -288,12 +198,111 @@ const buildMaxGuardFromSkill = (baseSkill, slot = null) => {
   };
 };
 
+// =========================================================================================================
+
+// 포켓몬이 이미 다이맥스 기술(isMaxMove)을 보유하고 있는지 판정
+// 다이맥스 기술이 존재하면 다이맥스와 다이번 ... 다이어택 등 증강이 나오지 않는다
+export const hasMaxMove = (pokemon) => {
+  if (!pokemon?.skill) return false;
+  return [1, 2, 3, 4].some((slot) => Boolean(pokemon.skill[slot]?.feature?.isMaxMove));
+};
+
+// 선택한 원본 기술을 기반으로 실시간 위력 및 물리/특수가 반영된 다이기술 객체를 생성
+// 사용처: AugmentSkillSelectView.js, maxMove.test.js, DymaxMove.js (applyDynamax, createMaxMoveAugments)
+export const buildMaxMoveFromSkill = (baseSkill, configOrAugId, slot = null) => {
+  const config = typeof configOrAugId === "object" ? configOrAugId : getMaxMoveConfig(configOrAugId);
+  if (!config) return baseSkill;
+
+  const src = baseSkill?.baseSkillSnapshot || baseSkill || {};
+  const power = calculateMaxMovePower(src, config.isLowPowerTable);
+  const stype = src.stype === "atk" ? "atk" : "catk";
+  const stypeKor = stype === "atk" ? "물리" : "특수";
+  const pp = typeof src.pp === "number" ? src.pp : 8;
+  const accur = "-";
+  const effectDesc = config.effectDesc || "";
+  const fullText = `위력 ${power} / 명중 ${accur} / ${stypeKor}${effectDesc ? ` / ${effectDesc}` : ""}`;
+
+  return {
+    name: config.moveName,
+    originalName: src.originalName || src.name || config.moveName,
+    type: config.type,
+    power,
+    accur,
+    pp,
+    prior: 0,
+    stype,
+    useCount: 0,
+    fatalStrike: Boolean(baseSkill?.fatalStrike),
+    skillNumber: slot ?? baseSkill?.skillNumber,
+    requirement: null,
+    feature: {
+      isMaxMove: true,
+      maxMoveId: config.augmentId,
+    },
+    skillEffectList: [config.skillEffect, { name: "공통" }].filter(Boolean),
+    originText: effectDesc,
+    text: fullText,
+    baseSkillSnapshot: {
+      name: src.name,
+      originalName: src.originalName || src.name,
+      type: src.type,
+      power: src.power,
+      stype: src.stype,
+      pp,
+      feature: src.feature ? { ...src.feature } : {},
+    },
+  };
+};
+
+// 원본 공격 기술의 위력/특징에 따른 다이기술 위력 산출
+const calculateMaxMovePower = (baseSkill, isLowPowerTable = false) => {
+  if (!baseSkill) return isLowPowerTable ? 100 : 130;
+  const src = baseSkill.baseSkillSnapshot || baseSkill;
+
+  // 위력 비고정("*", "-"), 일격기, 또는 2~5타/3타 연속기는 원작 기준 130 (격투/독은 100)
+  if (src.power === "*" || src.power === "-" || src.feature?.oneShot || src.feature?.serial === "twoFive" || src.feature?.serial === "triple" || src.feature?.serial === "suru") {
+    return isLowPowerTable ? 100 : 130;
+  }
+
+  let rawPower = Number(src.power);
+  if (isNaN(rawPower) || rawPower <= 0) {
+    return isLowPowerTable ? 100 : 130;
+  }
+
+  // 2회 타격 연속기(더블윙, 기어소서, 드래곤애로, 더블펀처 등)는 합산 위력 기준
+  if (src.feature?.serial === "double") {
+    rawPower *= 2;
+  }
+
+  if (isLowPowerTable) {
+    if (rawPower <= 40) return 70;
+    if (rawPower <= 50) return 75;
+    if (rawPower <= 60) return 80;
+    if (rawPower <= 70) return 85;
+    if (rawPower <= 100) return 90;
+    if (rawPower <= 140) return 95;
+    return 100;
+  }
+
+  if (rawPower <= 40) return 90;
+  if (rawPower <= 50) return 100;
+  if (rawPower <= 60) return 110;
+  if (rawPower <= 70) return 120;
+  if (rawPower <= 100) return 130;
+  if (rawPower <= 140) return 140;
+  return 150;
+};
+
+// Config ==================================================================================================
+
+// 증강 ID 또는 객체로 다이기술 설정 조회
 export const getMaxMoveConfig = (augOrId) => {
   const id = typeof augOrId === "string" ? augOrId : augOrId?.id;
   return (id && MAX_MOVE_AUGMENT_CONFIGS[id]) || null;
 };
 
-//타입명으로 다이기술 설정을 조회합니다.
+// 타입명으로 다이기술 설정을 조회합니다.
+// 사용처: DymaxMove.js (applyDynamax)
 const getMaxMoveConfigByType = (type) => {
   if (!type) return null;
   return Object.values(MAX_MOVE_AUGMENT_CONFIGS).find((cfg) => cfg.type === type) || null;
