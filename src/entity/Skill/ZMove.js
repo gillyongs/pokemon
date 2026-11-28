@@ -265,7 +265,7 @@ const Z_MOVE_AUGMENT_CONFIGS = Object.values(Z_CRYSTAL_CONFIGS).reduce((acc, cfg
     augmentId: cfg.zMoveId,
     moveName: cfg.moveName,
     type: cfg.type,
-    cost: 5,
+    cost: 3,
     hitEffectText: "강력한 Z파워로 상대를 공격합니다.",
     effectDesc: cfg.effectDesc,
     skillEffect: cfg.skillEffect,

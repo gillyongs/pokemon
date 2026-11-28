@@ -161,8 +161,12 @@ const AugmentSelectModal = ({ team = [], augments = [], targetPokemon = null, in
     const eligible = [];
     const ineligible = [];
     const cleanSearch = searchTerm.replace(/\s+/g, "").toLowerCase();
+    if (!cleanSearch) {
+      return { allEligible: eligible, allIneligible: ineligible };
+    }
+    const showAll = cleanSearch === "ㅇ";
     AUGMENT_LIST.forEach((aug) => {
-      if (cleanSearch) {
+      if (!showAll) {
         const cleanName = (aug.name || "").replace(/\s+/g, "").toLowerCase();
         if (!cleanName.includes(cleanSearch)) {
           return;

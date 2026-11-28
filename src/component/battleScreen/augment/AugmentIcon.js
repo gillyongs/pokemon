@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { getMaxMoveConfig } from "../../../entity/Skill/DymaxMove";
 import { getZMoveConfig } from "../../../entity/Skill/ZMove";
+import { getItemImageSrc } from "../../../entity/Item";
 
 // 포켓몬 배틀 UI 스타일에 맞춘 룬 & 심볼 SVG 아이콘 세트 (틸/청록 & 골드 & 슬레이트 네이비 테마)
 // 전용 증강별 포켓몬 도감번호 매핑
@@ -150,11 +151,14 @@ export const AugmentIcon = ({ id, size = 42, pokemon = null, pokemonId = null, s
           </defs>
           <g clipPath={`url(#zTypeClip-${id})`}>
             <circle cx="32" cy="32" r="29" fill={MAX_MOVE_TYPE_BACKGROUND[zMoveConfig.type] || "#0f172a"} />
-            {/* 업로드된 Z기술 심볼 실루엣 */}
-            <polygon points="32,12 50,24 32,20 14,24" fill="#fde047" opacity="0.95" />
-            <polygon points="18,26 46,26 32,37" fill="#ffffff" opacity="0.95" />
-            <polygon points="18,50 46,50 32,39" fill="#ffffff" opacity="0.95" />
-            <polygon points="18,38 32,28 46,38 32,48" fill="#fb923c" opacity="0.6" />
+            <image
+              href={getItemImageSrc(`${zMoveConfig.type}Z`)}
+              x="9"
+              y="9"
+              width="46"
+              height="46"
+              preserveAspectRatio="xMidYMid meet"
+            />
           </g>
           <circle cx="32" cy="32" r="29.5" fill="none" stroke={`url(#zRing-${id})`} strokeWidth="2.2" />
         </svg>

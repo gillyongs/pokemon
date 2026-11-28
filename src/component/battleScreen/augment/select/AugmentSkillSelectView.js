@@ -11,41 +11,27 @@ import { HeaderArea, HeaderTopRow, Title, SubTitleText, CloseButton, ButtonGroup
 
 const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selectedType, isPeekMode, setIsPeekMode, onSelect, onBack }) => {
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [previewSkill, setPreviewSkill] = useState(null);
   const maxMoveConfig = getMaxMoveConfig(skillSelectAug);
   const zMoveConfig = getZMoveConfig(skillSelectAug);
   const specialMoveConfig = maxMoveConfig || zMoveConfig;
-  const isEligibleSpecialBase = (sk) =>
-    maxMoveConfig ? isEligibleBaseSkillForMaxMove(sk, maxMoveConfig) : zMoveConfig ? isEligibleBaseSkillForZMove(sk, zMoveConfig) : false;
+  const isEligibleSpecialBase = (sk) => (maxMoveConfig ? isEligibleBaseSkillForMaxMove(sk, maxMoveConfig) : zMoveConfig ? isEligibleBaseSkillForZMove(sk, zMoveConfig) : false);
 
   const getSubTitle = () => {
-    if (specialMoveConfig) {
-      return josa(`${specialMoveConfig.moveName}#{으로} 변경할 ${specialMoveConfig.type} 타입 기술을 선택해주세요.`);
-    }
     if (skillSelectAug?.id === "choiceAndFocus") {
-      return "위력을 1.5배로 강화할 공격 기술을 선택해주세요.";
+      return "위력을 1.5배로 강화할 기술을 선택해주세요.";
     }
     if (skillSelectAug?.id === "teraBlast") {
       return `${selectedType || "노말"} 테라버스트와 교체할 기술을 선택해주세요.`;
     }
-    if (skillSelectAug?.id === "nameIsSalamence") {
-      return "지진과 교체할 기술을 선택해주세요.";
-    }
-    if (skillSelectAug?.id === "sanctuary") {
-      return "생츄어리와 교체할 기술을 선택해주세요.";
-    }
-    if (skillSelectAug?.id === "giveMeKnockOff") {
-      return "탁쳐서떨구기와 교체할 기술을 선택해주세요.";
-    }
-    return "용의춤과 교체할 기술을 선택해주세요.";
+    return "";
   };
 
   const getIncomingSkill = () => {
     if (specialMoveConfig) {
       const selectedBase = selectedSlot ? activePokemon?.skill?.[selectedSlot] : null;
       if (selectedBase && isEligibleSpecialBase(selectedBase)) {
-        return maxMoveConfig
-          ? buildMaxMoveFromSkill(selectedBase, maxMoveConfig, selectedSlot)
-          : buildZMoveFromSkill(selectedBase, zMoveConfig, selectedSlot);
+        return maxMoveConfig ? buildMaxMoveFromSkill(selectedBase, maxMoveConfig, selectedSlot) : buildZMoveFromSkill(selectedBase, zMoveConfig, selectedSlot);
       }
       return {
         name: specialMoveConfig.moveName,
@@ -105,7 +91,7 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
     <>
       <HeaderArea>
         <HeaderTopRow>
-          <Title>{skillSelectAug?.id === "choiceAndFocus" ? "강화할 공격 기술 선택" : "교체할 기술 선택"}</Title>
+          <Title>{skillSelectAug?.id === "choiceAndFocus" ? "선택과 집중" : "교체할 기술 선택"}</Title>
           <CloseButton onClick={handleBack} title="되돌아가기">
             ✕
           </CloseButton>
@@ -117,21 +103,11 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
         {[1, 2, 3, 4].map((slot) => {
           const sk = activePokemon?.skill?.[slot];
           if (!sk) return null;
-          const currentPp = activePokemon?.pp?.[slot] ?? sk.pp;
           const displayType = skillTypeCalculate(battle, sk, activePokemon);
-          const effectText = getTypeEffectText(battle, activePokemon, sk, displayType) || "";
           const isSelected = selectedSlot === slot;
           const isChoiceAndFocus = skillSelectAug?.id === "choiceAndFocus";
           const isAttack = isAttackSkill(sk);
           const isDisabled = specialMoveConfig ? !isEligibleSpecialBase(sk) : isChoiceAndFocus && !isAttack;
-          const disabledReason = specialMoveConfig ? "선택불가" : "선택 불가 (변화기)";
-          const skillSubText = specialMoveConfig ? (
-            <>
-              위력 {sk.power} <StatDivider>•</StatDivider> {sk.stype === "atk" ? "물리" : "특수"}
-            </>
-          ) : (
-            effectText || ""
-          );
 
           return (
             <SkillCard
@@ -141,11 +117,12 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
               $disabled={isDisabled}
               onClick={(e) => {
                 e.stopPropagation();
-                if (isDisabled) return;
                 if (isPeekMode) {
                   if (setIsPeekMode) setIsPeekMode(false);
                   return;
                 }
+                setPreviewSkill({ name: sk.name, text: sk.text || sk.originText || "" });
+                if (isDisabled) return;
                 setSelectedSlot(slot);
               }}
             >
@@ -161,10 +138,6 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
                   {sk.name}
                 </SkillName>
               </SkillTopRow>
-              <SkillEffectText>{isDisabled ? disabledReason : skillSubText}</SkillEffectText>
-              <SkillPP>
-                {currentPp}/{sk.pp}
-              </SkillPP>
             </SkillCard>
           );
         })}
@@ -179,7 +152,18 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
           </IncomingDividerRow>
 
           <IncomingCardWrapper>
-            <IncomingSkillCard $isSelected={Boolean(selectedSlot)} title={incomingSkill.originText || incomingSkill.text || ""}>
+            <IncomingSkillCard
+              $isSelected={Boolean(specialMoveConfig && selectedSlot)}
+              $isDimmed={Boolean(specialMoveConfig && !selectedSlot)}
+              title={incomingSkill.originText || incomingSkill.text || ""}
+              onClick={(e) => {
+                e.stopPropagation();
+                setPreviewSkill({
+                  name: incomingSkill.name,
+                  text: incomingSkill.text || incomingSkill.originText || "",
+                });
+              }}
+            >
               <SkillTopRow>
                 <SkillTypeIcon
                   src={`/pokemon/img/type/${incomingType}.svg`}
@@ -195,32 +179,43 @@ const AugmentSkillSelectView = ({ skillSelectAug, activePokemon, battle, selecte
               <SkillEffectText>
                 {specialMoveConfig ? (
                   incomingSkill.isPendingMaxMove ? (
-                    <></>
+                    incomingEffectText || <></>
                   ) : (
                     <>
-                      위력 {incomingSkill.power} <StatDivider>•</StatDivider> {incomingSkill.stype === "atk" ? "물리" : "특수"}
+                      <div>
+                        위력 {incomingSkill.power} <StatDivider>•</StatDivider> {incomingSkill.stype === "atk" ? "물리" : "특수"}
+                      </div>
+                      {incomingEffectText && <div>{incomingEffectText}</div>}
                     </>
                   )
                 ) : (
                   incomingEffectText || (incomingSkill.stype === "buf" ? "변화기" : incomingSkill.power !== "-" ? `위력 ${incomingSkill.power}` : "")
                 )}
               </SkillEffectText>
-              <SkillPP>
-                {incomingSkill.pp}/{incomingSkill.pp}
-              </SkillPP>
             </IncomingSkillCard>
           </IncomingCardWrapper>
         </IncomingSkillSection>
       )}
 
-      <ButtonGroup>
+      <SkillDescBox>
+        {previewSkill ? (
+          <>
+            <SkillDescName>{previewSkill.name}</SkillDescName>
+            <SkillDescText>{previewSkill.text || "설명이 없습니다."}</SkillDescText>
+          </>
+        ) : (
+          <SkillDescPlaceholder>기술을 누르면 설명이 표시됩니다.</SkillDescPlaceholder>
+        )}
+      </SkillDescBox>
+
+      <FooterButtonGroup>
         <ActionButton type="button" $variant="back" onClick={handleBack}>
           되돌아가기
         </ActionButton>
         <ActionButton type="button" $variant="confirm" disabled={!selectedSlot} onClick={handleConfirm}>
           {skillSelectAug?.id === "choiceAndFocus" ? "선택" : "교체"}
         </ActionButton>
-      </ButtonGroup>
+      </FooterButtonGroup>
     </>
   );
 };
@@ -283,14 +278,15 @@ const IncomingSkillCard = styled.div`
   background: ${(props) => (props.$isSelected ? "rgba(22, 45, 64, 0.95)" : "rgba(18, 24, 35, 0.85)")};
   border: ${(props) => (props.$isSelected ? "2px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.15)")};
   border-radius: 8px;
-  padding: 10px 10px 28px 10px;
-  min-height: 80px;
+  padding: 8px 10px;
+  min-height: 58px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  opacity: ${(props) => (props.$isSelected ? 1 : 0.35)};
-  filter: ${(props) => (props.$isSelected ? "none" : "grayscale(0.85)")};
+  cursor: pointer;
+  opacity: ${(props) => (props.$isDimmed ? 0.35 : 1)};
+  filter: ${(props) => (props.$isDimmed ? "grayscale(0.85)" : "none")};
   box-sizing: border-box;
   user-select: none;
   transition: all 0.2s ease;
@@ -317,12 +313,13 @@ const SkillCard = styled.div`
   background: ${(props) => (props.$isSelected ? "rgba(22, 45, 64, 0.95)" : "rgba(18, 24, 35, 0.85)")};
   border: ${(props) => (props.$isSelected ? "2px solid #64ffda" : "1px solid rgba(255, 255, 255, 0.15)")};
   border-radius: 8px;
-  padding: 10px 10px 28px 10px;
-  min-height: 80px;
+  padding: 8px 10px;
+  min-height: 44px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: flex-start;
+  cursor: pointer;
   cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
   opacity: ${(props) => (props.$disabled ? 0.35 : 1)};
   filter: ${(props) => (props.$disabled ? "grayscale(0.85)" : "none")};
@@ -390,17 +387,43 @@ const StatDivider = styled.span`
   font-size: 0.7rem;
 `;
 
-const SkillPP = styled.div`
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  font-size: 0.85rem;
+const SkillDescBox = styled.div`
+  width: 100%;
+  min-height: 76px;
+  max-height: 115px;
+  overflow-y: auto;
+  margin-top: auto;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: rgba(10, 15, 24, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+`;
+
+const SkillDescName = styled.div`
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #ffffff;
-  background-color: #665f5f;
-  border-radius: 4px;
-  padding: 1px 5px;
-  letter-spacing: 0.5px;
-  line-height: 1.3;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  color: #64ffda;
+`;
+
+const SkillDescText = styled.div`
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: #e2e8f0;
+  word-break: keep-all;
+`;
+
+const SkillDescPlaceholder = styled.div`
+  font-size: 0.76rem;
+  color: #94a3b8;
+  text-align: center;
+`;
+
+const FooterButtonGroup = styled(ButtonGroup)`
+  margin-top: 10px;
+  padding-top: 0;
 `;
